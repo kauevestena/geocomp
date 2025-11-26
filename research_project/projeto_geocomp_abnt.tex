@@ -1,0 +1,296 @@
+% !TeX program = pdflatex
+\documentclass[
+    12pt,
+    oneside,
+    a4paper,
+    english,brazil
+]{abntex2}
+
+% ------------------------------------------------
+% Pacotes básicos
+% ------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{lastpage}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% Citações no padrão ABNT
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf]{abntex2cite}
+
+% Configurações do backref
+\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
+\renewcommand{\backref}{}
+\renewcommand*{\backrefalt}[4]{%
+  \ifcase #1 %
+    Nenhuma citação no texto.%
+  \or
+    Citado na página #2.%
+  \else
+    Citado #1 vezes nas páginas #2.%
+  \fi}
+
+% ------------------------------------------------
+% Configurações gerais do documento
+% ------------------------------------------------
+\setlength{\parindent}{1.25cm}   % Recuo de parágrafo
+\setlength{\parskip}{0.2cm}      % Espaço entre parágrafos
+\frenchspacing                   % Ajuste de espaço após pontuação
+
+\hypersetup{
+    pdftitle={GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS},
+    pdfauthor={Kauê de Moraes Vestena},
+    pdfsubject={Projeto de pesquisa},
+    pdfcreator={LaTeX com abnTeX2},
+    pdfkeywords={geodésia, GNSS, QGIS, DynAdjust, RTKLIB, ajuste de redes},
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+% ------------------------------------------------
+% Dados do trabalho (EDITE AQUI)
+% ------------------------------------------------
+\titulo{GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS}
+\autor{Kauê de Moraes Vestena}
+\local{Curitiba}
+\data{2025}
+\instituicao{%
+ Universidade Federal do Paraná \\
+}
+\tipotrabalho{Projeto de pesquisa}
+\preambulo{Projeto de pesquisa apresentado à banca do concurso para professor Adjunto II na área de Geodésia e Levantamentos do Departamento de Geomática, Setor de Ciências da Terra da Universidade Federal do Paraná.}
+
+\begin{document}
+\selectlanguage{brazil}
+\frenchspacing
+
+% ------------------------------------------------
+% Capa, folha de rosto e elementos pré-textuais
+% ------------------------------------------------
+\imprimircapa
+\imprimirfolhaderosto*
+
+\begin{resumo}
+Este projeto propõe o desenvolvimento do \textbf{GeoComp}, um plugin para o QGIS concebido como um framework modular para pré-análise, processamento GNSS e ajuste de redes geodésicas. O GeoComp deverá integrar, em um único ambiente de Sistemas de Informação Geográfica, diferentes conjuntos de observações geodésicas (ângulos, distâncias, desníveis, gravimetria, GNSS, linhas de base GNSS, entre outros), encapsulando de forma transparente ao usuário motores consolidados de linha de comando, em particular o \textit{DynAdjust} e o aplicativo \textit{rnx2rtkp} da distribuição \textit{RTKLIB-EX}.
+
+O plugin fará uso das capacidades de visualização cartográfica do QGIS, bem como de sua integração com bancos de dados espaciais (como PostGIS), oferecendo tanto modos de uso simplificados, voltados a aplicações comerciais, quanto modos avançados, adequados a pesquisa e ensino em Geodésia. O desenvolvimento contará com intensa participação discente, incluindo a coleta de dados de teste, o uso do plugin em disciplinas e a realização de estudos de caso reais. Adicionalmente também planeja-se a inclusão de . Como resultado, pretende-se obter uma suíte de processamento integrada para redes geodésicas multi-sensor, disponibilizada como software livre e apta a ser utilizada em ambientes acadêmicos e profissionais.
+\end{resumo}
+
+\tableofcontents
+
+% ------------------------------------------------
+% Elementos textuais
+% ------------------------------------------------
+\textual
+
+\chapter{Introdução e contextualização}
+
+As redes geodésicas modernas constituem a infraestrutura fundamental para uma ampla gama de aplicações em Ciências Geodésicas e para projetos de Engenharia. Algumas aplicações incluem o georreferenciamento de imóveis rurais e urbanos, o monitoramento de estruturas e deformações, o apoio à cartografia e ao sensoriamento remoto, bem como o suporte a estabelecimento de redes fundamentais para sistemas de referência geodésicos nacionais e internacionais.
+
+Em tais redes, é cada vez mais comum a integração de diferentes tipos de observações: ângulos e distâncias medidos por estações totais, desníveis obtidos por nivelamento geométrico, linhas de base GNSS e demais observações possíveis. O processamento rigoroso e o possível ajuste conjunto desses diversos conjuntos observacionais exigem ferramentas robustas de ajustamento e preprocessamento de observações, capazes de lidar com grandes volumes de dados, diferentes modelos estocásticos e estratégias variadas de vinculação a sistemas de referência.
+
+Do ponto de vista computacional, existem motores de ajuste e processamento consolidados no meio técnico e científico, como o \textit{DynAdjust}, voltado ao ajuste de redes geodésicas com diferentes tipos de observações \cite{dynadjust_github,dynadjust_users_guide}, e o pacote \textit{RTKLIB}, por meio do utilitário de linha de comando \texttt{rnx2rtkp}, amplamente utilizado para pós-processamento GNSS a partir de dados RINEX \cite{rtklib_manual,rtklib_explorer}. No entanto, tais ferramentas são predominantemente acessadas por meio de interfaces de linha de comando (CLI) e arquivos de configuração, o que impõe uma curva de aprendizado considerável para estudantes e profissionais que não têm familiaridade com esse tipo de ambiente.
+
+Por outro lado, o QGIS consolidou-se como um dos principais Sistemas de Informação Geográfica de código aberto, contando com um ambiente extensível de plugins em Python e um \textit{framework} de processamento que integra algoritmos nativos e de terceiros em uma interface unificada \cite{qgis_processing_manual}. Esse ambiente oferece facilidades de visualização cartográfica, integração com dados raster e vetoriais, uso de serviços de mapa na web e conexão com bancos de dados espaciais como o PostGIS.
+
+Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: integrar, em um único plugin para QGIS, o processamento prévio, o ajuste de redes geodésicas e a visualização dos resultados, encapsulando internamente motores de linha de comando já consolidados. Ao mesmo tempo, pretende-se que o GeoComp seja uma ferramenta útil tanto em pesquisa quanto em ensino e em aplicações profissionais, oferecendo perfis de uso diferenciados e permitindo o envolvimento ativo dos estudantes em todas as etapas de desenvolvimento e validação.
+
+\chapter{Justificativa}
+
+A justificativa para o desenvolvimento do GeoComp pode ser analisada sob diferentes perspectivas: técnica, pedagógica e aplicada/comercial.
+
+\section{Justificativa técnica}
+
+Do ponto de vista técnico, há um descompasso entre a sofisticação dos motores de processamento e ajuste de redes geodésicas disponíveis e a interface pela qual esses motores são acessados. Ferramentas como o \textit{DynAdjust} e o \textit{rnx2rtkp} são altamente capazes e flexíveis, mas seu uso exige preparação manual de arquivos de configuração, familiaridade com sintaxe de linha de comando e etapas adicionais para exportar, converter e visualizar resultados em sistemas de informação geográfica \cite{dynadjust_github,rtklib_manual}.
+
+Ao encapsular esses motores em um plugin para QGIS, o GeoComp contribui para reduzir erros operacionais decorrentes de manipulação manual de arquivos, padronizar fluxos de processamento e ajuste, e permitir que os resultados sejam imediatamente visualizados em mapas, sobrepostos a ortoimagens e outras camadas de contexto.
+
+\section{Justificativa pedagógica}
+
+No ensino de Geodésia, Ajustamento de Observações e GNSS, é frequente a utilização de exemplos simplificados e de softwares que não refletem a complexidade dos fluxos profissionais contemporâneos. Por outro lado, o uso direto de motores CLI avançados pode ser intimidante para estudantes em fases iniciais.
+
+O GeoComp propõe-se a atuar como uma ponte entre esses dois extremos: ao mesmo tempo em que expõe os estudantes a motores de processamento e ajuste utilizados em aplicações reais, fornece uma interface gráfica amigável, onde conceitos como redes livres e amarradas, resíduos, elipses de erro, confiabilidade interna e externa podem ser explorados visualmente, em ambiente SIG.
+
+\section{Justificativa aplicada e comercial}
+
+No contexto profissional, empresas que prestam serviços e consultoria na área de engenharia cartografica e de agrimensura, frequentemente dependem de múltiplos softwares para obter um fluxo completo de processamento: ferramentas específicas para GNSS, outros programas para ajuste de redes, planilhas auxiliares e, por fim, sistemas de informação geográfica para visualização dos resultados.
+
+Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção.
+
+\chapter{Objetivos}
+
+\section{Objetivo geral}
+
+Desenvolver o \textbf{GeoComp}, um plugin para QGIS que funcione como framework modular para pré-análise, processamento GNSS e ajuste de redes geodésicas, integrando observações GNSS e convencionais, encapsulando os motores \textit{DynAdjust} e \textit{rnx2rtkp} (RTKLIB), com suporte a visualização cartográfica e armazenamento em banco de dados espacial.
+
+\section{Objetivos específicos}
+
+Os objetivos específicos incluem, mas não se limitam a:
+
+\begin{enumerate}[label=O\arabic*.]
+    \item Projetar a arquitetura do GeoComp como um \textit{Processing Provider} do QGIS, contemplando algoritmos de pré-análise de redes, preparação de dados e execução de ajustes;
+    \item Implementar a integração com o \textit{DynAdjust} via linha de comando, incluindo geração automática de arquivos de entrada, execução do ajuste e importação dos resultados em formato compatível com o QGIS;
+    \item Implementar a integração com o \textit{rnx2rtkp} (RTKLIB) para processamento GNSS, incluindo suporte a processamento em lote e \textbf{download automático de arquivos de efemérides e relógios} necessários;
+    \item Desenvolver o suporte a múltiplos tipos de observações geodésicas, incluindo ângulos, distâncias, desníveis, gravimetria, pontos/linhas de base GNSS, entre outros;
+    \item Integrar o plugin ao PostGIS e a outros bancos de dados espaciais compatíveis, de forma a permitir o armazenamento persistente de redes, observações e resultados de processamento;
+    \item Tornar o plugin trilíngue (completamente disponível em português, inglês e espanhol), utilizando a infraestrutura de internacionalização do QGIS;
+    \item Envolver estudantes de graduação e pós-graduação no desenvolvimento do plugin, na coleta de dados de teste e no uso em estudos de caso reais;
+    \item Avaliar o desempenho, a usabilidade e o potencial de aplicação do GeoComp em cenários de ensino, pesquisa e prática profissional, por meio de estudos de caso e comparações com fluxos de trabalho tradicionais, se possível envolver profissionais do mercado;
+    \item Produzir material didático (tutoriais, exemplos de projeto, conjuntos de dados) e publicações científicas decorrentes do desenvolvimento e aplicação do GeoComp.
+\end{enumerate}
+
+\chapter{Referencial teórico e estado da arte}
+
+O referencial teórico deste projeto abrange três eixos principais: (i) teoria de ajustamento de observações e redes geodésicas; (ii) processamento GNSS em pós-processamento; e (iii) desenvolvimento de plugins e frameworks de processamento no QGIS integrados a bancos de dados espaciais.
+
+Na teoria de ajustamento de observações, serão revisitados conceitos como o método dos mínimos quadrados, redes livres e amarradas, análise de resíduos, detecção de erros grosseiros, matriz de variância-covariância, elipses de erro e medidas de confiabilidade interna e externa. Será enfatizada a modelagem de redes combinadas, nas quais diferentes tipos de observações (ângulos, distâncias, desníveis, GNSS, gravimetria, etc.) são integrados em um único ajuste.
+
+No contexto do processamento GNSS, será dada atenção especial a estratégias de pós-processamento estático e cinemático, incluindo o uso de efemérides e produtos precisos, modelos de correção atmosférica e parâmetros de qualidade da solução. O utilitário \textit{rnx2rtkp} será tomado como motor de referência para o tratamento de arquivos RINEX e geração de posições e linhas de base \cite{rtklib_manual,rtklib_explorer}.
+
+Por fim, na dimensão de desenvolvimento de software, serão consideradas as boas práticas para criação de plugins QGIS, particularmente no uso do framework de processamento para exposição de algoritmos de forma modular e reutilizável, bem como a integração com bancos de dados espaciais (PostGIS) para armazenamento e gestão de grandes volumes de dados geoespaciais \cite{qgis_processing_manual}.
+
+\chapter{Metodologia}
+
+A metodologia será organizada em pacotes de trabalho (\textit{work packages}), correspondendo a etapas sucessivas e parcialmente sobrepostas do projeto.
+
+\section{Levantamento de requisitos e modelagem conceitual}
+
+Nesta etapa serão identificados os principais casos de uso do GeoComp, tanto em contextos de ensino quanto de pesquisa e de aplicação profissional. Serão definidos:
+
+\begin{itemize}
+    \item os tipos de redes geodésicas a serem suportados;
+    \item os tipos de observações (ângulos, distâncias, desníveis, GNSS, gravimetria, etc.);
+    \item os formatos de entrada e saída mais adequados (arquivos, camadas QGIS, tabelas em banco de dados).
+\end{itemize}
+
+Com base nesse levantamento, será proposto um modelo conceitual para representação de redes, estações, observações e resultados de ajuste, contemplando tanto o armazenamento em arquivos (por exemplo, GeoPackage) quanto em bancos de dados espaciais (como PostGIS).
+
+\section{Arquitetura do plugin e integração com o QGIS}
+
+Será projetada a arquitetura interna do plugin, com a definição de módulos responsáveis por:
+
+\begin{itemize}
+    \item comunicação com os motores de linha de comando (adaptadores para \textit{DynAdjust} e \textit{rnx2rtkp});
+    \item gerenciamento de projetos de rede, incluindo leitura, validação e pré-análise de observações;
+    \item exportação e importação de dados para o QGIS (camadas vetoriais, tabelas de atributos, estilos de visualização);
+    \item integração com PostGIS e outros bancos de dados espaciais;
+    \item internacionalização e gestão de diferentes perfis de uso (básico e avançado).
+\end{itemize}
+
+O plugin será implementado como um \textit{Processing Provider}, expondo uma série de algoritmos que poderão ser utilizados individualmente ou encadeados em modelos de processamento mais complexos. Para além dos algoritmos de ajuste e processamento, serão desenvolvidas ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos. O plugin também deverá contar com menus para armazenamento de constantes e configurações globais pertinentes às modalidades de ajuste e processamento suportadas.
+
+\section{Integração com o DynAdjust}
+
+Nesta etapa será desenvolvida a camada de integração com o \textit{DynAdjust}. As principais atividades incluem:
+
+\begin{itemize}
+    \item implementação de rotinas para geração automática dos arquivos de entrada requeridos pelo DynAdjust, a partir de dados armazenados em camadas QGIS, em banco de dados, arquivos CSV e planilhas;
+    \item execução do DynAdjust via linha de comando, com captura de logs e códigos de retorno;
+    \item análise dos arquivos de saída gerados (coordenadas ajustadas, estatísticas de ajuste, resíduos, matrizes de variância-covariância);
+    \item conversão desses resultados em objetos geográficos utilizáveis no QGIS, com visualização de elipses de erro, vetores de deslocamento, mapas temáticos de qualidade, entre outros.
+\end{itemize}
+
+\section{Integração com o rnx2rtkp (RTKLIB)}
+
+De forma análoga, será implementada a interface com o \textit{rnx2rtkp} para processamento GNSS. As atividades previstas incluem:
+
+\begin{itemize}
+    \item modelagem de projetos GNSS (sessões, estações, arquivos RINEX de observação e de navegação);
+    \item desenvolvimento de rotinas para download automático de efemérides precisas, arquivos de relógio e demais produtos necessários, a partir de serviços configuráveis;
+    \item geração de arquivos de configuração do rnx2rtkp, com parâmetros ajustáveis pelo usuário ou baseados em perfis predefinidos;
+    \item execução de processamentos pontuais e em lote, com monitoramento de progresso;
+    \item importação dos resultados (posições, linhas de base, indicadores de qualidade) como camadas QGIS para posterior análise e ajuste em conjunto com outras observações.
+\end{itemize}
+
+\section{Integração com PostGIS e bancos de dados espaciais}
+
+Será projetado e implementado um esquema de banco de dados espacial para armazenamento de redes, observações e resultados de processamento, com foco inicial no PostGIS. Serão definidas:
+
+\begin{itemize}
+    \item tabelas para estações geodésicas, observações (por tipo), campanhas e projetos;
+    \item tabelas para armazenar resultados de ajustes, estatísticas e logs de processamento;
+    \item chaves e relacionamentos necessários para rastreabilidade e reprocessamento.
+\end{itemize}
+
+O GeoComp deverá permitir ao usuário alternar entre um modo baseado em arquivos e um modo baseado em banco de dados, de forma transparente e configurável.
+
+\section{Internacionalização e interface trilíngue}
+
+Ao longo do desenvolvimento, todo o texto de interface (menus, mensagens, rótulos) será organizado de forma compatível com a infraestrutura de internacionalização do QGIS, permitindo a criação de arquivos de tradução. Estão previstos, três idiomas: português, inglês e espanhol.
+
+Serão também definidos perfis de interface:
+
+\begin{itemize}
+    \item \textbf{Modo padrão/comercial}: opções reduzidas e voltadas a fluxos de processamento mais comuns, com parâmetros padrão pré-configurados;
+    \item \textbf{Modo avançado/pesquisa}: exposição de parâmetros adicionais e opções de configuração refinadas, permitindo experimentação com diferentes estratégias de processamento e ajuste.
+\end{itemize}
+
+\section{Participação dos alunos e coleta de dados de teste}
+
+A participação discente será estruturada por meio de:
+
+\begin{itemize}
+    \item envolvimento em disciplinas de graduação e pós-graduação relacionadas à Geodésia, Ajustamento de Observações, GNSS e Geoinformação;
+    \item estágios e projetos de iniciação científica diretamente associados ao desenvolvimento de módulos do GeoComp;
+    \item campanhas de campo para coleta de dados de teste (GNSS, observações clássicas, nivelamento, etc.), que serão posteriormente processados com o plugin.
+    \item campanhas de campo para coleta de dados de teste (GNSS, observações clássicas, nivelamento, etc.), que serão posteriormente processados com o plugin.
+\end{itemize}
+
+Esses dados reais servirão tanto para validar funcionalmente o plugin quanto para produzir estudos de caso a serem utilizados em ensino e pesquisa.
+
+\section{Estudos de caso e avaliação}
+
+Serão conduzidos estudos de caso com redes de diferentes escalas e complexidades, comparando fluxos de trabalho tradicionais (uso direto de ferramentas CLI, scripts e softwares independentes) com o fluxo integrado fornecido pelo GeoComp. Serão avaliados aspectos como qualidade dos resultados, tempo de configuração e processamento, usabilidade percebida e facilidade de integração com outros dados geoespaciais.
+
+\chapter{Cronograma de atividades}
+
+O cronograma sugerido para um projeto de 24 meses é o seguinte (ajuste conforme necessário):
+
+\begin{itemize}
+    \item Meses 1--3: levantamento de requisitos, revisão bibliográfica detalhada, modelagem conceitual;
+    \item Meses 4--8: implementação do núcleo do plugin como \textit{Processing Provider} e primeira versão da integração com o DynAdjust;
+    \item Meses 9--12: implementação da integração com rnx2rtkp e automatização de downloads de efemérides e relógios;
+    \item Meses 13--16: integração com PostGIS, implementação da interface trilíngue e refino da interface de usuário;
+    \item Meses 17--20: campanhas de campo, coleta de dados de teste, realização de estudos de caso com participação discente;
+    \item Meses 21--24: consolidação do plugin, ajustes finais, elaboração de documentação, tutoriais e publicações científicas.
+\end{itemize}
+
+\chapter{Resultados esperados e impactos}
+
+Entre os principais resultados esperados, destacam-se:
+
+\begin{itemize}
+    \item o plugin GeoComp para QGIS, disponibilizado como software de código aberto, com interface trilíngue e suporte a diferentes tipos de observações geodésicas;
+    \item uma suíte integrada de processamento geodésico, englobando pré-análise de redes, processamento GNSS e ajuste final de redes, com visualização cartográfica e integração com bancos de dados espaciais;
+    \item conjuntos de dados de teste e estudos de caso documentados, aptos a serem utilizados em disciplinas de graduação e pós-graduação;
+    \item publicações científicas em eventos e periódicos da área de Geodésia e Geoinformação, apresentando o GeoComp, sua arquitetura e resultados de aplicações práticas;
+    \item formação de recursos humanos com experiência em desenvolvimento de software geoespacial, integração de motores CLI, bancos de dados espaciais e processamento de redes geodésicas.
+\end{itemize}
+
+\chapter{Equipe, infraestrutura e parcerias}
+
+Os principais recursos humanos e materiais disponíveis para a execução deste projeto incluem:
+
+\begin{itemize}
+    \item Pessoais: Kauê de Moraes Vestena, doutor em Ciências Geodésicas pela UFPR,Engenheiro Cartógrafo e Agrimensor: coordenador do projeto, responsável pelo desenvolvimento do plugin, levantamento de requisitos, modelagem conceitual e condução dos estudos de caso. Todos os professores interessados na área de Geodésia e Geomática do Departamento de Geomática da UFPR poderão contribuir como colaboradores ou consultores, especialmente no que tange à validação dos resultados e aplicação em disciplinas. Todos os alunos de graduação e pós-graduação interessados poderão participar como bolsistas ou voluntários, contribuindo para o desenvolvimento, coleta de dados e validação do plugin.
+    \item Infraestrutura: Infraestrutura computacional da UFPR, na forma dos laboratórios disponíveis para o departamento de Geomática. Equipamentos Topográficos e Geodésicos disponíveis no LABTOPO, LAGEH e GEENG.
+    \item Adicionais: eventuais parcerias com outras instituições, órgãos públicos ou empresas, que possam contribuir com dados, casos de uso ou apoio na validação do plugin.
+\end{itemize}
+
+% ------------------------------------------------
+% Referências bibliográficas
+% ------------------------------------------------
+\postextual{}
+
+\bibliography{referencias}
+
+\end{document}
