@@ -197,9 +197,52 @@ Os objetivos específicos incluem, mas não se limitam a:
 
 \chapter{Referencial teórico e estado da arte}
 
-O referencial teórico deste projeto abrange três eixos principais: (i) teoria de ajustamento de observações e redes geodésicas; (ii) processamento GNSS em pós-processamento; e (iii) desenvolvimento de plugins e frameworks de processamento no QGIS integrados a bancos de dados espaciais.
+O referencial teórico deste projeto fundamenta-se em conceitos clássicos e contemporâneos da Geodésia, essenciais para o desenvolvimento de uma ferramenta robusta de processamento e análise. A seguir, são detalhados os fundamentos do ajustamento de observações, a análise de qualidade de redes e o posicionamento pelo GNSS.
 
-Na teoria de ajustamento de observações, serão revisitados conceitos como o método dos mínimos quadrados, redes livres e amarradas, análise de resíduos, detecção de erros grosseiros, matriz de variância-covariância, elipses de erro e medidas de confiabilidade interna e externa. Será enfatizada a modelagem de redes combinadas, nas quais diferentes tipos de observações (ângulos, distâncias, desníveis, GNSS, gravimetria, etc.) são integrados em um único ajuste.
+\section{Fundamentos do Ajustamento de Observações}
+
+O ajustamento de observações geodésicas tem por finalidade estimar valores únicos para parâmetros desconhecidos (como coordenadas de estações) a partir de um conjunto de medidas redundantes, minimizando as inconsistências inerentes aos erros de observação. O Método dos Mínimos Quadrados (MMQ) é a técnica de estimação padrão na Geodésia, fundamentada na minimização da soma ponderada dos quadrados dos resíduos \cite{gemael_ajustamento, ghilani_adjustment}.
+
+No modelo paramétrico (ou método das equações de observação), cada observação $L_b$ é expressa como uma função dos parâmetros desconhecidos $X$. O modelo matemático linearizado é dado por:
+
+\begin{equation}
+\mathbf{L}_b + \mathbf{v} = \mathbf{A}\mathbf{x} + \mathbf{L}_0
+\end{equation}
+
+\noindent onde $\mathbf{v}$ é o vetor dos resíduos, $\mathbf{A}$ é a matriz design (Jacobiana), $\mathbf{x}$ é o vetor de correções aos parâmetros aproximados e $\mathbf{L}_0$ é o vetor de observações calculadas. A solução que minimiza a forma quadrática $\mathbf{v}^T \mathbf{P} \mathbf{v}$ é dada por:
+
+\begin{equation}
+\mathbf{x} = (\mathbf{A}^T \mathbf{P} \mathbf{A})^{-1} \mathbf{A}^T \mathbf{P} (\mathbf{L}_b - \mathbf{L}_0)
+\end{equation}
+
+\noindent sendo $\mathbf{P}$ a matriz peso das observações, inversamente proporcional à matriz de variância-covariância das observações ($\boldsymbol{\Sigma}_{L_b}$). A correta definição de $\mathbf{P}$ é crucial para que o ajuste reflita a realidade física do levantamento e para que as estimativas de precisão resultantes sejam confiáveis \cite{gemael_ajustamento}.
+
+\section{Análise de Qualidade de Redes Geodésicas}
+
+A qualidade de uma rede geodésica não se resume apenas à precisão (expressa pela matriz de variância-covariância dos parâmetros ajustados, $\boldsymbol{\Sigma}_{\mathbf{x}}$), mas também à sua confiabilidade. A teoria de confiabilidade, desenvolvida pioneiramente por Baarda \cite{baarda_reliability} e expandida por Teunissen \cite{teunissen_testing}, permite avaliar a capacidade da rede em detectar erros grosseiros (confiabilidade interna) e o impacto de erros não detectados sobre as coordenadas finais (confiabilidade externa).
+
+O GeoComp incorporará testes estatísticos rigorosos para validação do ajustamento, incluindo:
+
+\begin{itemize}
+    \item \textbf{Teste Global ($\chi^2$)}: verifica se a variância a posteriori do fator de variância de referência é compatível com a variância a priori;
+    \item \textbf{Teste de Data Snooping (Teste $\tau$)}: analisa individualmente os resíduos padronizados para identificar observações rejeitáveis (outliers).
+\end{itemize}
+
+Essas análises são fundamentais para garantir que os resultados entregues pelo software tenham integridade e possam ser utilizados com segurança em obras de engenharia e cadastro \cite{torge_geodesy}.
+
+\section{Posicionamento pelo GNSS}
+
+O Global Navigation Satellite System (GNSS) revolucionou a Geodésia ao permitir a determinação de coordenadas globais com alta precisão. O posicionamento pode ser realizado de forma absoluta (PPP - Posicionamento por Ponto Preciso) ou relativa.
+
+No posicionamento relativo, determinam-se as componentes do vetor linha de base entre um receptor base (de coordenadas conhecidas) e um receptor *rover*. Esta técnica minimiza ou elimina erros comuns aos dois receptores, como erros de órbita e de relógio dos satélites e atrasos atmosféricos, permitindo alcançar precisões milimétricas \cite{leick_gps, hofmann_gnss}.
+
+O processamento de dados GNSS envolve o tratamento de observáveis de código (pseudodistância) e de fase da onda portadora. A solução da ambiguidade da fase é o desafio central para o posicionamento de alta precisão. Softwares como o RTKLIB, que será integrado ao GeoComp, implementam algoritmos avançados como o LAMBDA (\textit{Least-squares Ambiguity Decorrelation Adjustment}) para a fixação eficiente de ambiguidades \cite{rtklib_manual}.
+
+Além disso, a integração de múltiplas constelações (GPS, GLONASS, Galileo, BeiDou) aumenta a disponibilidade e a robustez da solução, especialmente em ambientes obstruídos como áreas urbanas ou vales profundos \cite{seeber_satellite, monico_gnss}.
+
+\section{Integração Geodésia e SIG}
+
+A integração entre a Geodésia rigorosa e os Sistemas de Informação Geográfica (SIG) é uma tendência necessária para a gestão eficiente de dados espaciais. Enquanto os SIGs tradicionalmente focam na análise espacial e visualização, muitas vezes simplificando questões de referência e precisão, a Geodésia fornece o arcabouço matemático para garantir a qualidade posicional. Ferramentas que unem esses domínios permitem que o ciclo completo — da observação de campo ao mapa final — seja tratado em um ambiente único, preservando metadados de qualidade e facilitando a tomada de decisão baseada em dados confiáveis.
 
 \section{Propagação de covariâncias e estimativa de incertezas}
 
