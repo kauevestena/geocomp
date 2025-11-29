@@ -30,14 +30,26 @@
 \usepackage{graphicx}
 \usepackage{color}
 
+% Reduzir espaço APÓS o título do capítulo para um tamanho personalizado
+\setlength{\afterchapskip}{1\baselineskip}
+
 % Salvar comandos originais para quebra de página
 \let\originalcleardoublepage\cleardoublepage
 \let\originalclearpage\clearpage
 
 % Comando para remover quebra de página entre capítulos (será ativado após o capítulo 1)
+% e adicionar espaço duplo antes dos capítulos (exceto no topo da página)
 \newcommand{\removechapterpagebreak}{%
   \renewcommand{\cleardoublepage}{}%
   \renewcommand{\clearpage}{}%
+  % Redefinir \chapter para adicionar espaço duplo, mas não no topo da página
+  \let\oldchapter\chapter%
+  \renewcommand{\chapter}{%
+    \ifdim\pagetotal>0pt%
+      \vspace{2\baselineskip}%
+    \fi%
+    \oldchapter%
+  }%
 }
 
 % compila o indice
@@ -94,8 +106,6 @@ Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: 
 % Remover quebra de página entre capítulos a partir daqui
 \removechapterpagebreak
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Justificativa}
 
 A justificativa para o desenvolvimento do GeoComp pode ser analisada sob diferentes perspectivas: técnica, pedagógica e aplicada/comercial.
@@ -159,8 +169,6 @@ As formas de participação incluem:
 
 Essa abertura à participação do setor produtivo visa criar uma ponte efetiva entre academia e mercado, garantindo que o GeoComp seja uma ferramenta relevante tanto para a pesquisa científica quanto para a prática profissional cotidiana. Acredita-se que essa sinergia resultará em um software mais robusto, mais bem testado e mais alinhado com as demandas reais dos usuários finais.
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Objetivos}
 
 \section{Objetivo geral}
@@ -187,8 +195,6 @@ Os objetivos específicos incluem, mas não se limitam a:
     \item Promover a participação de profissionais do mercado em todas as fases do projeto, desde a definição de requisitos até a validação final, criando canais de comunicação e colaboração via plataformas abertas.
 \end{enumerate}
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Referencial teórico e estado da arte}
 
 O referencial teórico deste projeto abrange três eixos principais: (i) teoria de ajustamento de observações e redes geodésicas; (ii) processamento GNSS em pós-processamento; e (iii) desenvolvimento de plugins e frameworks de processamento no QGIS integrados a bancos de dados espaciais.
@@ -229,8 +235,6 @@ Por fim, na dimensão de desenvolvimento de software, serão consideradas as boa
 
 Além desses eixos, é fundamental considerar o corpo de conhecimento relacionado à análise de deformação e ao monitoramento de estruturas, que envolve a comparação de levantamentos realizados em diferentes épocas. A literatura distingue entre ajuste de redes (focado em um único conjunto de observações) e análise de deformações, que visa detectar alterações significativas ao longo do tempo. Estudos enfatizam a importância de estabelecer uma época de referência, de utilizar horários consistentes nos levantamentos para minimizar efeitos térmicos e atmosféricos e de assegurar que todas as observações estejam referenciadas ao mesmo datum. Esses aspectos serão incorporados no GeoComp por meio de módulos de comparação multiépoca, que verificarão a compatibilidade de metadados e auxiliarão na detecção de deslocamentos e deformações em séries temporais.
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Metodologia}
 
 A metodologia será organizada em pacotes de trabalho (\textit{work packages}), correspondendo a etapas sucessivas e parcialmente sobrepostas do projeto.
@@ -422,8 +426,6 @@ Os resultados dessas comparações serão documentados e, quando apropriado, pub
 
 Serão conduzidos estudos de caso com redes de diferentes escalas e complexidades, comparando fluxos de trabalho tradicionais (uso direto de ferramentas CLI, scripts e softwares independentes) com o fluxo integrado fornecido pelo GeoComp. Esses estudos contemplarão tanto redes estáticas quanto redes observadas em diferentes épocas para monitoramento de estruturas, permitindo avaliar a acurácia na detecção de deslocamentos e a adequação dos métodos estatísticos implementados. Serão avaliados aspectos como qualidade dos resultados, tempo de configuração e processamento, usabilidade percebida, facilidade de integração com outros dados geoespaciais e a eficiência das rotinas de comparação multiépoca.
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Cronograma de atividades}
 
 O cronograma sugerido para um projeto de 24 meses é o seguinte (ajuste conforme necessário):
@@ -437,8 +439,6 @@ O cronograma sugerido para um projeto de 24 meses é o seguinte (ajuste conforme
     \item Meses 21--24: consolidação do plugin, ajustes finais, implementação do módulo de comparação multiépoca e monitoramento de estruturas, elaboração de documentação, tutoriais e publicações científicas.
 \end{itemize}
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Resultados esperados e impactos}
 
 Entre os principais resultados esperados, destacam-se:
@@ -452,8 +452,6 @@ Entre os principais resultados esperados, destacam-se:
     \item formação de recursos humanos com experiência em desenvolvimento de software geoespacial, integração de motores CLI, bancos de dados espaciais e processamento de redes geodésicas.
 \end{itemize}
 
-\vspace{\baselineskip}
-\vspace{\baselineskip}
 \chapter{Equipe, infraestrutura e parcerias}
 
 

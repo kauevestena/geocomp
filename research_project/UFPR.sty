@@ -240,7 +240,7 @@
          \abntex@ifnotempty{\imprimirorientador}
             {\imprimirorientadorRotulo~\imprimirorientador}
          \ifthenelse{\equal{\imprimirorientador}{}}
-			{\imprimirorientadoraRotulo~\imprimirorientadora}
+			{\abntex@ifnotempty{\imprimirorientadora}{\imprimirorientadoraRotulo~\imprimirorientadora}}
 			{}
 		 \abntex@ifnotempty{\imprimircoorientador}
 		    {\par\imprimircoorientadorRotulo~\imprimircoorientador}%
