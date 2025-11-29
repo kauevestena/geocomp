@@ -216,6 +216,32 @@ O referencial teórico deste projeto abrange três eixos principais: (i) teoria 
 
 Na teoria de ajustamento de observações, serão revisitados conceitos como o método dos mínimos quadrados, redes livres e amarradas, análise de resíduos, detecção de erros grosseiros, matriz de variância-covariância, elipses de erro e medidas de confiabilidade interna e externa. Será enfatizada a modelagem de redes combinadas, nas quais diferentes tipos de observações (ângulos, distâncias, desníveis, GNSS, gravimetria, etc.) são integrados em um único ajuste.
 
+\section{Propagação de covariâncias e estimativa de incertezas}
+
+Um conceito central para o GeoComp é a \textbf{propagação de covariâncias}, que constitui a base teórica para a estimativa rigorosa de incertezas em todas as etapas do processamento geodésico. A ideia fundamental é que para todas as medidas e variáveis envolvidas seja possível realizar uma estimativa consistente de seus níveis de incerteza.
+
+A propagação de covariâncias parte do princípio de que, dada uma função $\mathbf{y} = f(\mathbf{x})$ que relaciona um vetor de variáveis de entrada $\mathbf{x}$ a um vetor de variáveis de saída $\mathbf{y}$, a matriz de variância-covariância das saídas pode ser obtida a partir da matriz de variância-covariância das entradas por meio da conhecida lei de propagação:
+
+\begin{equation}
+\boldsymbol{\Sigma}_{\mathbf{y}} = \mathbf{J} \, \boldsymbol{\Sigma}_{\mathbf{x}} \, \mathbf{J}^T
+\end{equation}
+
+\noindent onde $\mathbf{J}$ é a matriz Jacobiana das derivadas parciais de $f$ em relação às variáveis de entrada, $\boldsymbol{\Sigma}_{\mathbf{x}}$ é a matriz de variância-covariância das entradas e $\boldsymbol{\Sigma}_{\mathbf{y}}$ é a matriz de variância-covariância das saídas.
+
+No contexto do GeoComp, a propagação de covariâncias será aplicada sistematicamente em diversas etapas:
+
+\begin{itemize}
+    \item \textbf{Pré-processamento de observações}: ao aplicar correções atmosféricas, do equipamento ou do EDM, as incertezas dos parâmetros de correção serão propagadas para as observações corrigidas;
+    \item \textbf{Reduções geométricas}: nas reduções de distâncias ao elipsoide, ao plano de projeção ou entre diferentes alturas, as incertezas das altitudes e coordenadas serão consideradas;
+    \item \textbf{Processamento GNSS}: as matrizes de covariância das soluções GNSS serão preservadas e utilizadas no ajuste combinado com outras observações;
+    \item \textbf{Ajuste de redes}: o ajuste pelo método dos mínimos quadrados fornecerá naturalmente a matriz de variância-covariância dos parâmetros estimados, permitindo o cálculo de elipses de erro e indicadores de precisão;
+    \item \textbf{Análise de deformações}: na comparação entre épocas, a propagação das incertezas das coordenadas ajustadas permitirá calcular a significância estatística dos deslocamentos detectados.
+\end{itemize}
+
+O GeoComp implementará tanto \textbf{abordagens rigorosas} de propagação de covariâncias, baseadas na formulação matemática completa e nas matrizes de variância-covariância, quanto \textbf{abordagens aproximadas ou heurísticas}, úteis em situações onde não se dispõe de informação completa sobre as incertezas das variáveis de entrada ou onde a simplificação é aceitável para fins práticos. Essa flexibilidade permitirá que o plugin seja utilizado tanto em aplicações de alta precisão (pesquisa, redes geodésicas de referência, monitoramento de estruturas) quanto em aplicações comerciais mais simples, onde estimativas conservadoras de incerteza são suficientes.
+
+A disponibilização sistemática de informações de incerteza para todos os produtos do GeoComp — desde as observações brutas até as coordenadas finais ajustadas — contribuirá para uma cultura de transparência e rastreabilidade metrológica, fundamental para a credibilidade dos resultados geodésicos.
+
 No contexto do processamento GNSS, será dada atenção especial a estratégias de pós-processamento estático e cinemático, incluindo o uso de efemérides e produtos precisos, modelos de correção atmosférica e parâmetros de qualidade da solução. O utilitário \textit{rnx2rtkp} será tomado como motor de referência para o tratamento de arquivos RINEX e geração de posições e linhas de base \cite{rtklib_manual,rtklib_explorer}.
 
 Um referencial importante para este projeto é a experiência do DynAdjust no ajustamento de redes geodésicas de grande escala. O software foi desenvolvido pela Geoscience Australia e utilizado como motor principal para o ajustamento do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum geocêntrico oficial da Austrália. Esse projeto envolveu o processamento de uma rede com milhares de estações e milhões de observações, incluindo dados GNSS, observações clássicas (ângulos e distâncias) e nivelamento. A capacidade do DynAdjust de processar redes dessa magnitude com eficiência e precisão, utilizando técnicas de ajustamento em bloco e segmentação inteligente da rede, demonstra sua adequação para aplicações tanto em escala local quanto nacional. A documentação técnica e os artigos científicos publicados pela equipe australiana constituirão referência fundamental para a implementação e validação do GeoComp.
@@ -252,7 +278,58 @@ Será projetada a arquitetura interna do plugin, com a definição de módulos r
     \item internacionalização e gestão de diferentes perfis de uso (básico e avançado).
 \end{itemize}
 
-O plugin será implementado como um \textit{Processing Provider}, expondo uma série de algoritmos que poderão ser utilizados individualmente ou encadeados em modelos de processamento mais complexos. Para além dos algoritmos de ajuste e processamento, serão desenvolvidas ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos. O plugin também deverá contar com menus para armazenamento de constantes e configurações globais pertinentes às modalidades de ajuste e processamento suportadas.
+O plugin será implementado como um \textit{Processing Provider}, expondo uma série de algoritmos que poderão ser utilizados individualmente ou encadeados em modelos de processamento mais complexos. Para além dos algoritmos de ajuste e processamento, serão desenvolvidas ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos.
+
+\subsection{Painel de Configuração Global e Menu Principal}
+
+O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicionado junto aos demais menus da aplicação (``Projeto'', ``Editar'', ``Visualizar'', etc.). Este menu organizará as funcionalidades do plugin por \textbf{agrupamentos de técnicas de levantamento}, oferecendo acesso direto aos diferentes tipos de processamento suportados. A estrutura inicial do menu contemplará cinco opções principais:
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Estação Total}: agrupará os diversos problemas relacionados a levantamentos com estação total, incluindo:
+    \begin{itemize}
+        \item \textit{Pré-processamento generalizado}: combinação de pontaria direta (PD) e pontaria inversa (PI), correções atmosféricas, correções do equipamento e correções do EDM, enttre outros;
+        \item \textit{Poligonação}: cálculo e ajuste de poligonais abertas, fechadas e enquadradas;
+        \item \textit{Interseção à ré}: determinação de coordenadas de estação ocupada a partir de visadas a pontos conhecidos;
+        \item \textit{Interseção à vante}: determinação de coordenadas de pontos visados a partir de estações conhecidas;
+        \item \textit{Triangulação}: ajuste de redes triangulares baseadas em observações angulares;
+        \item \textit{Trilateração}: ajuste de redes de triângulos baseadas em observações de distâncias;
+        \item \textit{Triangulateração}: ajuste combinado de observações angulares e de distâncias em redes triangulares.
+    \end{itemize}
+    
+    \item \textbf{Nível}: agrupará os métodos de nivelamento geométrico, incluindo:
+    \begin{itemize}
+        \item \textit{Visadas iguais}: método clássico com igualdade de distâncias entre ré e vante;
+        \item \textit{Visadas equidistantes}: método muito utilizado para travessia de obstáculos como rios;
+        \item \textit{Visadas extremas}: método com múltiplas visadas de vante.
+    \end{itemize}
+    
+    \item \textbf{GNSS}: contemplará dois submenus principais:
+    \begin{itemize}
+        \item \textit{Absoluto}: com opções para processamento \textbf{Estático} (PPP estático) e \textbf{Cinemático} (PPP cinemático);
+        \item \textit{Relativo}: com opções para processamento \textbf{Estático} (linhas de base estáticas) e \textbf{Cinemático} (RTK pós-processado e trajetórias cinemáticas).
+    \end{itemize}
+    
+    \item \textbf{Integração}: permitirá o ajuste combinado de diferentes técnicas de levantamento:
+    \begin{itemize}
+        \item \textit{GNSS e Estação Total}: integração de linhas de base GNSS com observações terrestres;
+        \item \textit{Estação Total e Nível}: combinação de poligonais com nivelamento;
+        \item \textit{GNSS e Nível}: vinculação de altitudes geométricas e ortométricas;
+        \item \textit{Múltiplo}: ajuste integrado envolvendo três ou mais técnicas simultaneamente.
+    \end{itemize}
+    
+    \item \textbf{Configurações Globais}: abrirá uma janela de configuração com menus laterais organizados por tipo de equipamento. Nesta janela serão armazenadas e configuradas:
+    \begin{itemize}
+        \item \textit{Constantes instrumentais}: constantes de prisma, correções de índice vertical, parâmetros de calibração de EDM, alturas de instrumentos e alvos padrão;
+        \item \textit{Parâmetros atmosféricos}: modelos de correção atmosférica padrão, valores típicos de temperatura, pressão e umidade relativa;
+        \item \textit{Configurações GNSS}: caminhos para diretórios de efemérides e produtos, servidores de download preferidos, opções de processamento padrão;
+        \item \textit{Modelos estocásticos}: pesos padrão para cada tipo de observação, modelos de variância, parâmetros para detecção de \textit{outliers};
+        \item \textit{Sistemas de referência}: sistemas de coordenadas preferidos, épocas de referência padrão, parâmetros de transformação;
+        \item \textit{Caminhos e diretórios}: localização dos executáveis do DynAdjust e RTKLIB, diretórios de trabalho, templates de relatórios;
+        \item \textit{Preferências de interface}: idioma preferido, modo de uso (básico/avançado), unidades de medida.
+    \end{itemize}
+\end{enumerate}
+
+Essa estrutura de menu permitirá que o usuário acesse rapidamente a funcionalidade desejada de acordo com a técnica de levantamento empregada, mantendo a organização lógica das ferramentas e facilitando o aprendizado progressivo das capacidades do plugin.
 
 \section{Integração com o DynAdjust}
 
@@ -275,7 +352,10 @@ De forma análoga, será implementada a interface com o \textit{rnx2rtkp} para p
     \item geração de arquivos de configuração do rnx2rtkp, com parâmetros ajustáveis pelo usuário ou baseados em perfis predefinidos;
     \item execução de processamentos pontuais e em lote, com monitoramento de progresso;
     \item importação dos resultados (posições, linhas de base, indicadores de qualidade) como camadas QGIS para posterior análise e ajuste em conjunto com outras observações.
+    \item opção por testes comparativos de diferentes configurações de processamento GNSS, permitindo ao usuário avaliar o impacto de parâmetros como modelos atmosféricos, tipos de solução (fixo, flutuante, etc.) e estratégias de filtragem.
 \end{itemize}
+
+É importante destacar que a escolha do RTKLIB como motor de processamento GNSS inicial foi baseada na literatura consultada e em sua reportada adoção. Contudo, a arquitetura modular do GeoComp permitirá a incorporação futura de outros motores de processamento GNSS, conforme a demanda dos usuários e a evolução do projeto.
 
 \section{Integração com PostGIS e bancos de dados espaciais}
 
@@ -325,6 +405,28 @@ A participação discente será estruturada por meio de:
 \end{itemize}
 
 Esses dados reais servirão tanto para validar funcionalmente o plugin quanto para produzir estudos de caso a serem utilizados em ensino e pesquisa.
+
+\subsection{Comparação com softwares comerciais}
+
+Uma atividade de especial relevância a ser desenvolvida pelos estudantes será a \textbf{comparação sistemática dos resultados gerados pelo GeoComp} (e suas ferramentas de backend, como DynAdjust e RTKLIB) \textbf{com softwares comerciais} amplamente utilizados no mercado. Essa tarefa tem múltiplos objetivos:
+
+\begin{itemize}
+    \item \textbf{Validação dos resultados}: verificar se as coordenadas, estatísticas de ajuste, resíduos e indicadores de qualidade produzidos pelo GeoComp são compatíveis com os obtidos por softwares comerciais reconhecidos;
+    \item \textbf{Identificação de discrepâncias}: quando houver diferenças significativas, investigar suas causas (diferenças em modelos matemáticos, parâmetros atmosféricos, tratamento de erros, etc.);
+    \item \textbf{Documentação de equivalência}: produzir relatórios técnicos que demonstrem a equivalência funcional do GeoComp em relação às soluções comerciais, fortalecendo a confiança dos usuários profissionais;
+    \item \textbf{Aprendizado comparativo}: permitir que os estudantes compreendam as diferentes abordagens adotadas por diferentes softwares e desenvolvam senso crítico sobre os resultados obtidos.
+\end{itemize}
+
+Essa tarefa poderá ser desenvolvida em \textbf{colaboração com profissionais, empresas ou outras instituições de ensino} que disponham de licenças de softwares comerciais e estejam dispostas a participar de estudos comparativos. Algumas formas de colaboração incluem:
+
+\begin{itemize}
+    \item \textbf{Parcerias com empresas}: empresas de topografia, geodésia e geotecnologia poderão fornecer resultados de processamento de conjuntos de dados de referência, permitindo a comparação direta com os resultados do GeoComp;
+    \item \textbf{Colaboração interinstitucional}: outras universidades e institutos de pesquisa que utilizem softwares comerciais em suas atividades de ensino e pesquisa poderão participar de estudos comparativos multicêntricos;
+    \item \textbf{Programas de avaliação}: alguns fabricantes de software oferecem licenças acadêmicas ou períodos de avaliação que poderão ser utilizados para os testes comparativos;
+    \item \textbf{Dados públicos de referência}: serão utilizados conjuntos de dados de referência publicados por organizações geodésicas (como o IBGE, NGS/NOAA, Geoscience Australia) que incluam resultados oficiais para comparação.
+\end{itemize}
+
+Os resultados dessas comparações serão documentados e, quando apropriado, publicados em forma de artigos científicos ou relatórios técnicos, contribuindo para a transparência e credibilidade do projeto GeoComp perante a comunidade técnica e científica.
 
 \section{Estudos de caso e avaliação}
 
