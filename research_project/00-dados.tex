@@ -1,0 +1,122 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Arquivo para entrada de dados para a parte pré textual
+% Customizado para o projeto GeoComp
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Informações de dados para CAPA e FOLHA DE ROSTO
+%----------------------------------------------------------------------------- 
+\tipotrabalho{Projeto de Pesquisa}
+
+% Marcar Sim para as partes que irão compor o documento pdf
+%----------------------------------------------------------------------------- 
+ \providecommand{\terCapa}{Sim}
+ \providecommand{\terFolhaRosto}{Sim}
+ \providecommand{\terTermoAprovacao}{Nao}
+ \providecommand{\terDedicatoria}{Nao}
+ \providecommand{\terFichaCatalografica}{Nao}
+ \providecommand{\terEpigrafe}{Nao}
+ \providecommand{\terAgradecimentos}{Nao}
+ \providecommand{\terErrata}{Nao}
+ \providecommand{\terListaFiguras}{Nao}
+ \providecommand{\terListaQuadros}{Nao}
+ \providecommand{\terListaTabelas}{Nao}
+ \providecommand{\terSiglasAbrev}{Nao} 
+ \providecommand{\terSimbolos}{Nao}
+ \providecommand{\terResumos}{Sim}
+ \providecommand{\terSumario}{Sim}
+ \providecommand{\terAnexo}{Nao}
+ \providecommand{\terApendice}{Nao}
+ \providecommand{\terIndiceR}{Nao}
+%----------------------------------------------------------------------------- 
+
+\titulo{GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS}
+\autor{Kauê de Moraes Vestena}
+\local{Curitiba}
+\data{2025}
+
+% Orientador ou Orientadora (deixar vazio para projeto de pesquisa)
+\orientador{}
+\orientadora{}
+\coorientador{}
+\coorientadora{}
+\scoorientador{}
+\scoorientadora{}
+
+% ----------------------------------------------------------
+% Arquivo de referências (usado com abntex2cite)
+% A bibliografia é carregada via \bibliography{referencias} no documento principal
+
+% ----------------------------------------------------------
+\instituicao{%
+Universidade Federal do Paraná}
+
+\def \ImprimirSetor{Setor de Ciências da Terra}
+
+\def \ImprimirProgramaPos{}
+
+\def \ImprimirCurso{Departamento de Geomática}
+
+\preambulo{Projeto de pesquisa apresentado à banca do concurso para professor Adjunto II na área de Geodésia e Levantamentos do Departamento de Geomática, Setor de Ciências da Terra da Universidade Federal do Paraná}
+
+%----------------------------------------------------------------------------- 
+
+\newcommand{\imprimirCurso}{Departamento de Geomática}
+
+\newcommand{\imprimirDataDefesa}{}
+
+\newcommand{\imprimircdu}{}
+
+% ----------------------------------------------------------
+\newcommand{\imprimirerrata}{}
+
+% Comandos de dados - Data da apresentação
+\providecommand{\imprimirdataapresentacaoRotulo}{}
+\providecommand{\imprimirdataapresentacao}{}
+\newcommand{\dataapresentacao}[2][\dataapresentacaoname]{\renewcommand{\dataapresentacao}{#2}}
+
+% Comandos de dados - Nome do Curso
+\providecommand{\imprimirnomedocursoRotulo}{}
+\providecommand{\imprimirnomedocurso}{}
+\newcommand{\nomedocurso}[2][\nomedocursoname]
+  {\renewcommand{\imprimirnomedocursoRotulo}{#1}
+\renewcommand{\imprimirnomedocurso}{#2}}
+
+% ----------------------------------------------------------
+\newcommand{\AssinaAprovacao}{}
+
+% ----------------------------------------------------------
+\newcommand{\EpigrafeTexto}{}
+
+% ----------------------------------------------------------
+\newcommand{\ResumoTexto}{%
+Este projeto propõe o desenvolvimento do \textbf{GeoComp}, um plugin para o QGIS concebido como um framework modular para pré-análise, processamento GNSS e ajuste de redes geodésicas. O GeoComp deverá integrar, em um único ambiente de Sistemas de Informação Geográfica, diferentes conjuntos de observações geodésicas (ângulos, distâncias, desníveis, gravimetria, GNSS, linhas de base GNSS, entre outros), encapsulando de forma transparente ao usuário motores consolidados de linha de comando, em particular o \textit{DynAdjust} e o aplicativo \textit{rnx2rtkp} da distribuição \textit{RTKLIB-EX}.
+
+O plugin fará uso das capacidades de visualização cartográfica do QGIS, bem como de sua integração com bancos de dados espaciais (como PostGIS), oferecendo tanto modos de uso simplificados, voltados a aplicações comerciais, quanto modos avançados, adequados a pesquisa e ensino em Geodésia. O desenvolvimento contará com intensa participação discente, incluindo a coleta de dados de teste, o uso do plugin em disciplinas e a realização de estudos de caso reais. Adicionalmente, serão desenvolvidas rotinas específicas para \textbf{comparação de levantamentos em diferentes épocas} e \textbf{monitoramento de estruturas}, utilizando metadados temporais (datas, horários e epoch de referência) e de sistemas de referência para verificar a compatibilidade entre conjuntos de dados, permitir a transformação automática de coordenadas quando necessário e possibilitar o cálculo de deslocamentos e deformações. Como resultado, pretende-se obter uma suíte de processamento integrada para redes geodésicas multi-sensor e \textbf{multiépoca}, disponibilizada como software livre e apta a ser utilizada em ambientes acadêmicos e profissionais.
+} 
+
+\newcommand{\PalavraschaveTexto}{%
+geodésia; GNSS; QGIS; DynAdjust; RTKLIB; ajuste de redes; monitoramento de estruturas.}
+
+% ----------------------------------------------------------
+\newcommand{\AbstractTexto}{%
+This project proposes the development of \textbf{GeoComp}, a QGIS plugin designed as a modular framework for pre-analysis, GNSS processing and geodetic network adjustment. GeoComp will integrate, within a single Geographic Information System environment, different sets of geodetic observations (angles, distances, level differences, gravimetry, GNSS, GNSS baselines, among others), transparently encapsulating established command-line engines, particularly \textit{DynAdjust} and the \textit{rnx2rtkp} utility from the \textit{RTKLIB-EX} distribution.
+
+The plugin will leverage QGIS cartographic visualization capabilities, as well as its integration with spatial databases (such as PostGIS), offering both simplified usage modes aimed at commercial applications and advanced modes suitable for research and teaching in Geodesy. Development will include intensive student participation, including test data collection, plugin use in courses, and real case studies. Additionally, specific routines will be developed for \textbf{comparing surveys from different epochs} and \textbf{structural monitoring}, using temporal metadata (dates, times, and reference epochs) and reference system information to verify compatibility between datasets, allow automatic coordinate transformation when necessary, and enable the calculation of displacements and deformations. As a result, the goal is to obtain an integrated processing suite for multi-sensor and \textbf{multi-epoch} geodetic networks, released as free software and suitable for use in academic and professional environments.
+}
+
+\newcommand{\KeywordsTexto}{%
+geodesy; GNSS; QGIS; DynAdjust; RTKLIB; network adjustment; structural monitoring.}
+
+% ----------------------------------------------------------
+\newcommand{\Resume}{}
+\newcommand{\Motscles}{}
+
+% ----------------------------------------------------------
+\newcommand{\Resumen}{}
+\newcommand{\Palabrasclave}{}
+
+% ----------------------------------------------------------
+\newcommand{\AgradecimentosTexto}{}
+
+% ----------------------------------------------------------
+\newcommand{\DedicatoriaTexto}{}

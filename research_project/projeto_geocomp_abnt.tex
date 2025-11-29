@@ -1,48 +1,34 @@
 % !TeX program = pdflatex
+%%
+%% Modelo baseado em ufpr-abntex2
+%% https://github.com/eekBR/ufpr-abntex2/
+%%
+%% DATA DE ATUALIZAÇÃO: 2025-11-29
+
 \documentclass[
-    12pt,
-    oneside,
-    a4paper,
-    english,brazil
-]{abntex2}
+        % -- opções da classe memoir --
+        12pt,                           % tamanho da fonte
+        openright,                      % capítulos começam em pág ímpar (insere página vazia caso preciso)
+        oneside,
+        a4paper,                        % tamanho do papel. 
+        % -- opções da classe abntex2 --
+        chapter=TITLE,         % títulos de capítulos convertidos em letras maiúsculas
+        section=TITLE,         % títulos de seções convertidos em letras maiúsculas
+        subsection=Title,      % títulos de subseções convertidos em letras maiúsculas
+        % -- opções do pacote babel --
+        english,                        % idioma adicional para hifenização
+        portugues,                      % o último idioma é o principal do documento
+        ]{abntex2}
 
-% ------------------------------------------------
-% Pacotes básicos
-% ------------------------------------------------
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{lastpage}
-\usepackage{indentfirst}
-\usepackage{color}
-\usepackage{graphicx}
-\usepackage{microtype}
-\usepackage{amsmath,amssymb}
+\usepackage{UFPR}
+\input{00-pacotes}
+%\input{00-pacotesOpcionais}
+\input{00-dados}
+
+% Pacotes adicionais para o projeto
 \usepackage{enumitem}
-\usepackage{hyperref}
-
-% Citações no padrão ABNT
-\usepackage[brazilian,hyperpageref]{backref}
-\usepackage[alf]{abntex2cite}
-
-% Configurações do backref
-\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
-\renewcommand{\backref}{}
-\renewcommand*{\backrefalt}[4]{%
-  \ifcase #1 %
-    Nenhuma citação no texto.%
-  \or
-    Citado na página #2.%
-  \else
-    Citado #1 vezes nas páginas #2.%
-  \fi}
-
-% ------------------------------------------------
-% Configurações gerais do documento
-% ------------------------------------------------
-\setlength{\parindent}{1.25cm}   % Recuo de parágrafo
-\setlength{\parskip}{0.2cm}      % Espaço entre parágrafos
-\frenchspacing                   % Ajuste de espaço após pontuação
+\usepackage{graphicx}
+\usepackage{color}
 
 % Salvar comandos originais para quebra de página
 \let\originalcleardoublepage\cleardoublepage
@@ -54,53 +40,35 @@
   \renewcommand{\clearpage}{}%
 }
 
-\hypersetup{
-    pdftitle={GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS},
-    pdfauthor={Kauê de Moraes Vestena},
-    pdfsubject={Projeto de pesquisa},
-    pdfcreator={LaTeX com abnTeX2},
-    pdfkeywords={geodésia, GNSS, QGIS, DynAdjust, RTKLIB, ajuste de redes},
-    colorlinks=true,
-    linkcolor=black,
-    citecolor=black,
-    urlcolor=blue
-}
+% compila o indice
+\makeindex
 
-% ------------------------------------------------
-% Dados do trabalho (EDITE AQUI)
-% ------------------------------------------------
-\titulo{GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS}
-\autor{Kauê de Moraes Vestena}
-\local{Curitiba}
-\data{2025}
-\instituicao{%
- Universidade Federal do Paraná \\
-}
-\tipotrabalho{Projeto de pesquisa}
-\preambulo{Projeto de pesquisa apresentado à banca do concurso para professor Adjunto II na área de Geodésia e Levantamentos do Departamento de Geomática, Setor de Ciências da Terra da Universidade Federal do Paraná.}
-
+% ----------------------------------------------------------
+% Início do documento
+% ----------------------------------------------------------
 \begin{document}
-\selectlanguage{brazil}
-\frenchspacing
 
-% ------------------------------------------------
-% Capa, folha de rosto e elementos pré-textuais
-% ------------------------------------------------
-\imprimircapa
-\imprimirfolhaderosto*
+% Adequando o uppercase titulo dos elementos nas suas respectivas legendas
+\renewcommand{\bibname}{{REFER\^ENCIAS}}
+\renewcommand{\tablename}{TABELA }
+\renewcommand{\figurename}{FIGURA }
+\renewcommand{\figureautorefname}{FIGURA}
+\renewcommand{\tableautorefname}{TABELA}
+\newcommand{\equationname}{equa\c{c}\~ao~}
+\renewcommand{\equationautorefname}{equa\c{c}\~ao~}
+\newcommand{\quadroautorefname}{QUADRO~}
 
-\begin{resumo}
-Este projeto propõe o desenvolvimento do \textbf{GeoComp}, um plugin para o QGIS concebido como um framework modular para pré-análise, processamento GNSS e ajuste de redes geodésicas. O GeoComp deverá integrar, em um único ambiente de Sistemas de Informação Geográfica, diferentes conjuntos de observações geodésicas (ângulos, distâncias, desníveis, gravimetria, GNSS, linhas de base GNSS, entre outros), encapsulando de forma transparente ao usuário motores consolidados de linha de comando, em particular o \textit{DynAdjust} e o aplicativo \textit{rnx2rtkp} da distribuição \textit{RTKLIB-EX}.
+% Para ajustar o tamanho da fonte do número da primeira página do capítulo
+\aliaspagestyle{chapter}{chapfirst}
 
-O plugin fará uso das capacidades de visualização cartográfica do QGIS, bem como de sua integração com bancos de dados espaciais (como PostGIS), oferecendo tanto modos de uso simplificados, voltados a aplicações comerciais, quanto modos avançados, adequados a pesquisa e ensino em Geodésia. O desenvolvimento contará com intensa participação discente, incluindo a coleta de dados de teste, o uso do plugin em disciplinas e a realização de estudos de caso reais. Adicionalmente, serão desenvolvidas rotinas específicas para \textbf{comparação de levantamentos em diferentes épocas} e \textbf{monitoramento de estruturas}, utilizando metadados temporais (datas, horários e epoch de referência) e de sistemas de referência para verificar a compatibilidade entre conjuntos de dados, permitir a transformação automática de coordenadas quando necessário e possibilitar o cálculo de deslocamentos e deformações. Como resultado, pretende-se obter uma suíte de processamento integrada para redes geodésicas multi-sensor e \textbf{multiépoca}, disponibilizada como software livre e apta a ser utilizada em ambientes acadêmicos e profissionais.
-\end{resumo}
+\input{00-pretextual}
 
-\tableofcontents
-
-% ------------------------------------------------
-% Elementos textuais
-% ------------------------------------------------
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS
+% ----------------------------------------------------------
 \textual
+
+\pagestyle{simplestextual}
 
 \chapter{Introdução e contextualização}
 
@@ -126,6 +94,8 @@ Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: 
 % Remover quebra de página entre capítulos a partir daqui
 \removechapterpagebreak
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Justificativa}
 
 A justificativa para o desenvolvimento do GeoComp pode ser analisada sob diferentes perspectivas: técnica, pedagógica e aplicada/comercial.
@@ -138,6 +108,7 @@ Ao encapsular esses motores em um plugin para QGIS, o GeoComp contribui para red
 
 Outra lacuna técnica diz respeito à capacidade de acompanhar a evolução temporal das coordenadas de uma rede ou de um objeto monitorado. O ajustamento de uma rede geodésica convencional considera apenas um conjunto de observações e não fornece diretamente uma análise de deformação. Para detectar movimentos ou instabilidades, é necessário comparar resultados de levantamentos executados em épocas diferentes, utilizando técnicas de análise multiépoca. Essa comparação requer que as observações e os resultados estejam referenciados ao mesmo datum e à mesma época, bem como cuidados com a hora do dia em que os levantamentos foram realizados, já que temperaturas distintas podem causar expansões ou contrações das estruturas. O GeoComp abordará essas questões ao implementar módulos de monitoramento de estruturas e de redes multiépoca, com checagem automática de metadados e aplicação de transformações quando necessário.
 
+
 \section{Justificativa pedagógica}
 
 No ensino de Geodésia, Ajustamento de Observações e GNSS, é frequente a utilização de exemplos simplificados e de softwares que não refletem a complexidade dos fluxos profissionais contemporâneos. Por outro lado, o uso direto de motores CLI avançados pode ser intimidante para estudantes em fases iniciais.
@@ -146,6 +117,7 @@ O GeoComp propõe-se a atuar como uma ponte entre esses dois extremos: ao mesmo 
 
 Além disso, o ensino de Geodésia e de análise de deformações exige que os alunos compreendam não apenas o ajuste de redes em um único instante, mas também como interpretar séries temporais e deslocamentos ao longo do tempo. A possibilidade de visualizar deslocamentos e deformações em um ambiente SIG, acompanhada de gráficos de evolução temporal, facilitará o entendimento de conceitos como modelos cinemáticos, estabelecimento de épocas de referência e detecção de tendências. A integração destas funcionalidades no GeoComp permitirá que os estudantes explorem redes multiépoca de maneira interativa, aproximando o ensino das práticas de monitoramento utilizadas na indústria e na pesquisa.
 
+
 \section{Justificativa aplicada e comercial}
 
 No contexto profissional, empresas que prestam serviços e consultoria na área de engenharia cartografica e de agrimensura, frequentemente dependem de múltiplos softwares para obter um fluxo completo de processamento: ferramentas específicas para GNSS, outros programas para ajuste de redes, planilhas auxiliares e, por fim, sistemas de informação geográfica para visualização dos resultados.
@@ -153,6 +125,7 @@ No contexto profissional, empresas que prestam serviços e consultoria na área 
 Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção.
 
 Nas aplicações profissionais, o monitoramento contínuo de estruturas – como barragens, pontes, taludes, edificações ou grandes obras de engenharia – é cada vez mais demandado por questões de segurança e regulação. Tais atividades dependem de comparações precisas entre levantamentos de diferentes épocas, para identificar deslocamentos e deformações que possam indicar riscos. Integrando rotinas de análise multiépoca e de verificação de metadados ao fluxo de trabalho do QGIS, o GeoComp pretende atender a esse mercado, oferecendo uma ferramenta única que permita a profissionais analisar séries temporais de coordenadas, detectar movimentações significativas e gerar relatórios gráficos e cartográficos sobre a estabilidade de estruturas monitoradas.
+
 
 \section{Desenvolvimento aberto e colaboração via GitHub}
 
@@ -167,6 +140,7 @@ Um diferencial importante do projeto GeoComp é o compromisso com o desenvolvime
 \end{itemize}
 
 A adoção do modelo de desenvolvimento aberto também favorece a formação de uma comunidade de usuários e desenvolvedores em torno do GeoComp, potencializando sua evolução e longevidade. Profissionais do mercado, empresas de consultoria e órgãos públicos são encorajados a participar ativamente, seja reportando problemas encontrados em suas aplicações práticas, seja contribuindo com código ou financiando desenvolvimentos específicos de seu interesse.
+
 
 \section{Participação de profissionais do mercado}
 
@@ -185,11 +159,14 @@ As formas de participação incluem:
 
 Essa abertura à participação do setor produtivo visa criar uma ponte efetiva entre academia e mercado, garantindo que o GeoComp seja uma ferramenta relevante tanto para a pesquisa científica quanto para a prática profissional cotidiana. Acredita-se que essa sinergia resultará em um software mais robusto, mais bem testado e mais alinhado com as demandas reais dos usuários finais.
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Objetivos}
 
 \section{Objetivo geral}
 
 Desenvolver o \textbf{GeoComp}, um plugin para QGIS que funcione como framework modular para pré-análise, processamento GNSS e ajuste de redes geodésicas, integrando observações GNSS e convencionais, encapsulando os motores \textit{DynAdjust} e \textit{rnx2rtkp} (RTKLIB), com suporte a visualização cartográfica e armazenamento em banco de dados espacial.
+
 
 \section{Objetivos específicos}
 
@@ -210,6 +187,8 @@ Os objetivos específicos incluem, mas não se limitam a:
     \item Promover a participação de profissionais do mercado em todas as fases do projeto, desde a definição de requisitos até a validação final, criando canais de comunicação e colaboração via plataformas abertas.
 \end{enumerate}
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Referencial teórico e estado da arte}
 
 O referencial teórico deste projeto abrange três eixos principais: (i) teoria de ajustamento de observações e redes geodésicas; (ii) processamento GNSS em pós-processamento; e (iii) desenvolvimento de plugins e frameworks de processamento no QGIS integrados a bancos de dados espaciais.
@@ -250,9 +229,12 @@ Por fim, na dimensão de desenvolvimento de software, serão consideradas as boa
 
 Além desses eixos, é fundamental considerar o corpo de conhecimento relacionado à análise de deformação e ao monitoramento de estruturas, que envolve a comparação de levantamentos realizados em diferentes épocas. A literatura distingue entre ajuste de redes (focado em um único conjunto de observações) e análise de deformações, que visa detectar alterações significativas ao longo do tempo. Estudos enfatizam a importância de estabelecer uma época de referência, de utilizar horários consistentes nos levantamentos para minimizar efeitos térmicos e atmosféricos e de assegurar que todas as observações estejam referenciadas ao mesmo datum. Esses aspectos serão incorporados no GeoComp por meio de módulos de comparação multiépoca, que verificarão a compatibilidade de metadados e auxiliarão na detecção de deslocamentos e deformações em séries temporais.
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Metodologia}
 
 A metodologia será organizada em pacotes de trabalho (\textit{work packages}), correspondendo a etapas sucessivas e parcialmente sobrepostas do projeto.
+
 
 \section{Levantamento de requisitos e modelagem conceitual}
 
@@ -265,6 +247,7 @@ Nesta etapa serão identificados os principais casos de uso do GeoComp, tanto em
 \end{itemize}
 
 Com base nesse levantamento, será proposto um modelo conceitual para representação de redes, estações, observações e resultados de ajuste, contemplando tanto o armazenamento em arquivos (por exemplo, GeoPackage) quanto em bancos de dados espaciais (como PostGIS).
+
 
 \section{Arquitetura do plugin e integração com o QGIS}
 
@@ -331,6 +314,7 @@ O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicio
 
 Essa estrutura de menu permitirá que o usuário acesse rapidamente a funcionalidade desejada de acordo com a técnica de levantamento empregada, mantendo a organização lógica das ferramentas e facilitando o aprendizado progressivo das capacidades do plugin.
 
+
 \section{Integração com o DynAdjust}
 
 Nesta etapa será desenvolvida a camada de integração com o \textit{DynAdjust}. As principais atividades incluem:
@@ -341,6 +325,7 @@ Nesta etapa será desenvolvida a camada de integração com o \textit{DynAdjust}
     \item análise dos arquivos de saída gerados (coordenadas ajustadas, estatísticas de ajuste, resíduos, matrizes de variância-covariância);
     \item conversão desses resultados em objetos geográficos utilizáveis no QGIS, com visualização de elipses de erro, vetores de deslocamento, mapas temáticos de qualidade, entre outros.
 \end{itemize}
+
 
 \section{Integração com o rnx2rtkp (RTKLIB)}
 
@@ -357,6 +342,7 @@ De forma análoga, será implementada a interface com o \textit{rnx2rtkp} para p
 
 É importante destacar que a escolha do RTKLIB como motor de processamento GNSS inicial foi baseada na literatura consultada e em sua reportada adoção. Contudo, a arquitetura modular do GeoComp permitirá a incorporação futura de outros motores de processamento GNSS, conforme a demanda dos usuários e a evolução do projeto.
 
+
 \section{Integração com PostGIS e bancos de dados espaciais}
 
 Será projetado e implementado um esquema de banco de dados espacial para armazenamento de redes, observações e resultados de processamento, com foco inicial no PostGIS. Serão definidas:
@@ -368,6 +354,7 @@ Será projetado e implementado um esquema de banco de dados espacial para armaze
 \end{itemize}
 
 O GeoComp deverá permitir ao usuário alternar entre um modo baseado em arquivos e um modo baseado em banco de dados, de forma transparente e configurável.
+
 
 \section{Comparação multiépoca e monitoramento de estruturas}
 
@@ -383,6 +370,7 @@ Visando atender às demandas de monitoramento de estruturas e de redes de contro
 
 Essas funcionalidades permitirão que o GeoComp seja utilizado não apenas para ajustar redes em um único instante, mas também como ferramenta de monitoramento contínuo, apoiando estudos de estabilidade e gestão de riscos em projetos de engenharia e geociências.
 
+
 \section{Internacionalização e interface trilíngue}
 
 Ao longo do desenvolvimento, todo o texto de interface (menus, mensagens, rótulos) será organizado de forma compatível com a infraestrutura de internacionalização do QGIS, permitindo a criação de arquivos de tradução. Estão previstos, três idiomas: português, inglês e espanhol.
@@ -393,6 +381,7 @@ Serão também definidos perfis de interface:
     \item \textbf{Modo padrão/comercial}: opções reduzidas e voltadas a fluxos de processamento mais comuns, com parâmetros padrão pré-configurados;
     \item \textbf{Modo avançado/pesquisa}: exposição de parâmetros adicionais e opções de configuração refinadas, permitindo experimentação com diferentes estratégias de processamento e ajuste.
 \end{itemize}
+
 
 \section{Participação dos alunos e coleta de dados de teste}
 
@@ -428,10 +417,13 @@ Essa tarefa poderá ser desenvolvida em \textbf{colaboração com profissionais,
 
 Os resultados dessas comparações serão documentados e, quando apropriado, publicados em forma de artigos científicos ou relatórios técnicos, contribuindo para a transparência e credibilidade do projeto GeoComp perante a comunidade técnica e científica.
 
+
 \section{Estudos de caso e avaliação}
 
 Serão conduzidos estudos de caso com redes de diferentes escalas e complexidades, comparando fluxos de trabalho tradicionais (uso direto de ferramentas CLI, scripts e softwares independentes) com o fluxo integrado fornecido pelo GeoComp. Esses estudos contemplarão tanto redes estáticas quanto redes observadas em diferentes épocas para monitoramento de estruturas, permitindo avaliar a acurácia na detecção de deslocamentos e a adequação dos métodos estatísticos implementados. Serão avaliados aspectos como qualidade dos resultados, tempo de configuração e processamento, usabilidade percebida, facilidade de integração com outros dados geoespaciais e a eficiência das rotinas de comparação multiépoca.
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Cronograma de atividades}
 
 O cronograma sugerido para um projeto de 24 meses é o seguinte (ajuste conforme necessário):
@@ -445,6 +437,8 @@ O cronograma sugerido para um projeto de 24 meses é o seguinte (ajuste conforme
     \item Meses 21--24: consolidação do plugin, ajustes finais, implementação do módulo de comparação multiépoca e monitoramento de estruturas, elaboração de documentação, tutoriais e publicações científicas.
 \end{itemize}
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Resultados esperados e impactos}
 
 Entre os principais resultados esperados, destacam-se:
@@ -458,7 +452,10 @@ Entre os principais resultados esperados, destacam-se:
     \item formação de recursos humanos com experiência em desenvolvimento de software geoespacial, integração de motores CLI, bancos de dados espaciais e processamento de redes geodésicas.
 \end{itemize}
 
+\vspace{\baselineskip}
+\vspace{\baselineskip}
 \chapter{Equipe, infraestrutura e parcerias}
+
 
 Os principais recursos humanos e materiais disponíveis para a execução deste projeto incluem:
 
@@ -481,7 +478,10 @@ Os principais recursos humanos e materiais disponíveis para a execução deste 
 
 \postextual
 
-\bibliographystyle{abntex2-alf}
+% Ajuste vertical do titulo de referencias no sumário
+\addtocontents{toc}{\vspace{-6pt}}
+
+% Referências bibliográficas
 \bibliography{referencias}
 
 \end{document}
