@@ -44,6 +44,16 @@
 \setlength{\parskip}{0.2cm}      % Espaço entre parágrafos
 \frenchspacing                   % Ajuste de espaço após pontuação
 
+% Salvar comandos originais para quebra de página
+\let\originalcleardoublepage\cleardoublepage
+\let\originalclearpage\clearpage
+
+% Comando para remover quebra de página entre capítulos (será ativado após o capítulo 1)
+\newcommand{\removechapterpagebreak}{%
+  \renewcommand{\cleardoublepage}{}%
+  \renewcommand{\clearpage}{}%
+}
+
 \hypersetup{
     pdftitle={GeoComp: desenvolvimento de um framework integrado para pré-análise e ajuste de redes geodésicas como plugin para QGIS},
     pdfauthor={Kauê de Moraes Vestena},
@@ -100,6 +110,8 @@ Em tais redes, é cada vez mais comum a integração de diferentes tipos de obse
 
 Do ponto de vista computacional, existem motores de ajuste e processamento consolidados no meio técnico e científico, como o \textit{DynAdjust}, voltado ao ajuste de redes geodésicas com diferentes tipos de observações \cite{dynadjust_github,dynadjust_users_guide}, e o pacote \textit{RTKLIB}, por meio do utilitário de linha de comando \texttt{rnx2rtkp}, amplamente utilizado para pós-processamento GNSS a partir de dados RINEX \cite{rtklib_manual,rtklib_explorer}. No entanto, tais ferramentas são predominantemente acessadas por meio de interfaces de linha de comando (CLI) e arquivos de configuração, o que impõe uma curva de aprendizado considerável para estudantes e profissionais que não têm familiaridade com esse tipo de ambiente.
 
+É importante destacar que o \textit{DynAdjust} é uma ferramenta comprovada em campo (\textit{field-proven}), tendo sido amplamente utilizada para o ajustamento da rede geodésica australiana no âmbito do projeto GDA2020 (\textit{Geocentric Datum of Australia 2020}). Essa rede compreende milhares de estações e milhões de observações geodésicas, tornando o DynAdjust uma das poucas soluções de código aberto capazes de lidar com redes de grande escala e alta precisão em nível nacional. A adoção do DynAdjust pela Geoscience Australia para a produção do datum oficial australiano atesta não apenas a robustez técnica do software, mas também sua confiabilidade para aplicações críticas em geodésia e cartografia.
+
 Por outro lado, o QGIS consolidou-se como um dos principais Sistemas de Informação Geográfica de código aberto, contando com um ambiente extensível de plugins em Python e um \textit{framework} de processamento que integra algoritmos nativos e de terceiros em uma interface unificada \cite{qgis_processing_manual}. Esse ambiente oferece facilidades de visualização cartográfica, integração com dados raster e vetoriais, uso de serviços de mapa na web e conexão com bancos de dados espaciais como o PostGIS.
 
 % Nova subseção sobre monitoramento e multiépoca
@@ -110,6 +122,9 @@ Na literatura é feita uma distinção entre o ajustamento de uma rede em uma ú
 A verificação de compatibilidade entre os sistemas de referência e as épocas de observação é, portanto, um requisito essencial: dois conjuntos de coordenadas somente podem ser comparados se estiverem referidos ao mesmo datum e à mesma epoch. Em aplicações de monitoramento, diferenças sutis de horários ou de sistemas de referência podem induzir variações aparentes (por exemplo, por efeitos térmicos), de modo que a conversão ou transformação de coordenadas é necessária quando houver discrepâncias entre os sistemas adotados. O registro de metadados completos — incluindo georreferencial, epoch e parâmetros de datum — permitirá que o GeoComp automatize essas verificações e ofereça alertas ou correções apropriadas antes do cálculo dos deslocamentos.
 
 Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: integrar, em um único plugin para QGIS, o processamento prévio, o ajuste de redes geodésicas e a visualização dos resultados, encapsulando internamente motores de linha de comando já consolidados. Ao mesmo tempo, pretende-se que o GeoComp seja uma ferramenta útil tanto em pesquisa quanto em ensino e em aplicações profissionais, oferecendo perfis de uso diferenciados e permitindo o envolvimento ativo dos estudantes em todas as etapas de desenvolvimento e validação.
+
+% Remover quebra de página entre capítulos a partir daqui
+\removechapterpagebreak
 
 \chapter{Justificativa}
 
@@ -139,6 +154,37 @@ Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS),
 
 Nas aplicações profissionais, o monitoramento contínuo de estruturas – como barragens, pontes, taludes, edificações ou grandes obras de engenharia – é cada vez mais demandado por questões de segurança e regulação. Tais atividades dependem de comparações precisas entre levantamentos de diferentes épocas, para identificar deslocamentos e deformações que possam indicar riscos. Integrando rotinas de análise multiépoca e de verificação de metadados ao fluxo de trabalho do QGIS, o GeoComp pretende atender a esse mercado, oferecendo uma ferramenta única que permita a profissionais analisar séries temporais de coordenadas, detectar movimentações significativas e gerar relatórios gráficos e cartográficos sobre a estabilidade de estruturas monitoradas.
 
+\section{Desenvolvimento aberto e colaboração via GitHub}
+
+Um diferencial importante do projeto GeoComp é o compromisso com o desenvolvimento transparente e de código aberto. Todo o código-fonte do plugin será hospedado publicamente no \textbf{GitHub}, plataforma mundialmente reconhecida para colaboração em projetos de software. Essa escolha estratégica traz múltiplos benefícios:
+
+\begin{itemize}
+    \item \textbf{Transparência total}: qualquer pessoa poderá acompanhar o desenvolvimento do projeto, verificar o código implementado, auditar algoritmos e validar os métodos utilizados;
+    \item \textbf{Colaboração aberta}: desenvolvedores, pesquisadores e profissionais de qualquer parte do mundo poderão contribuir com melhorias, correções de bugs, novas funcionalidades ou traduções, por meio de \textit{pull requests} e \textit{issues};
+    \item \textbf{Rastreabilidade}: o histórico completo de alterações ficará registrado, permitindo identificar quando e por que cada modificação foi realizada, facilitando auditorias e garantindo a reprodutibilidade científica;
+    \item \textbf{Integração contínua}: serão implementados fluxos automatizados de testes (\textit{CI/CD}) para garantir que novas contribuições não introduzam regressões e que o software mantenha sua qualidade ao longo do tempo;
+    \item \textbf{Documentação viva}: a documentação do projeto será mantida junto ao código, facilitando sua atualização e garantindo que esteja sempre sincronizada com a versão mais recente do plugin.
+\end{itemize}
+
+A adoção do modelo de desenvolvimento aberto também favorece a formação de uma comunidade de usuários e desenvolvedores em torno do GeoComp, potencializando sua evolução e longevidade. Profissionais do mercado, empresas de consultoria e órgãos públicos são encorajados a participar ativamente, seja reportando problemas encontrados em suas aplicações práticas, seja contribuindo com código ou financiando desenvolvimentos específicos de seu interesse.
+
+\section{Participação de profissionais do mercado}
+
+O projeto GeoComp reconhece que a participação de profissionais atuantes no mercado de geodésia, topografia, agrimensura e engenharia cartográfica é não apenas bem-vinda, mas \textbf{altamente desejável}. A experiência prática desses profissionais é fundamental para garantir que o plugin atenda às necessidades reais do setor produtivo.
+
+As formas de participação incluem:
+
+\begin{itemize}
+    \item \textbf{Validação de casos de uso}: profissionais poderão testar o GeoComp em seus projetos reais, fornecendo feedback valioso sobre usabilidade, desempenho e adequação às demandas do mercado;
+    \item \textbf{Sugestão de funcionalidades}: demandas específicas do mercado poderão ser incorporadas ao roadmap do projeto, garantindo que o plugin evolua de acordo com as necessidades práticas;
+    \item \textbf{Contribuição com dados de teste}: empresas e profissionais poderão contribuir com conjuntos de dados anonimizados para validação e benchmarking do software;
+    \item \textbf{Participação no desenvolvimento}: profissionais com conhecimento em programação poderão contribuir diretamente com código, correções ou novas funcionalidades via GitHub;
+    \item \textbf{Apoio institucional}: empresas interessadas poderão estabelecer parcerias formais com a UFPR, apoiando o projeto por meio de convênios, bolsas ou financiamento de desenvolvimentos específicos;
+    \item \textbf{Disseminação}: profissionais que adotarem o GeoComp em seus fluxos de trabalho contribuirão para sua divulgação e consolidação no mercado brasileiro e internacional.
+\end{itemize}
+
+Essa abertura à participação do setor produtivo visa criar uma ponte efetiva entre academia e mercado, garantindo que o GeoComp seja uma ferramenta relevante tanto para a pesquisa científica quanto para a prática profissional cotidiana. Acredita-se que essa sinergia resultará em um software mais robusto, mais bem testado e mais alinhado com as demandas reais dos usuários finais.
+
 \chapter{Objetivos}
 
 \section{Objetivo geral}
@@ -158,8 +204,10 @@ Os objetivos específicos incluem, mas não se limitam a:
     \item Implementar rotinas de comparação multiépoca e monitoramento de estruturas, incluindo controle de metadados (data, hora, datum e epoch), verificação de compatibilidade entre levantamentos de diferentes épocas, aplicação de transformações de coordenadas quando necessário e cálculo de deslocamentos e deformações entre as soluções ajustadas;
     \item Tornar o plugin trilíngue (completamente disponível em português, inglês e espanhol), utilizando a infraestrutura de internacionalização do QGIS;
     \item Envolver estudantes de graduação e pós-graduação no desenvolvimento do plugin, na coleta de dados de teste e no uso em estudos de caso reais;
-    \item Avaliar o desempenho, a usabilidade e o potencial de aplicação do GeoComp em cenários de ensino, pesquisa e prática profissional, por meio de estudos de caso e comparações com fluxos de trabalho tradicionais, se possível envolver profissionais do mercado;
-    \item Produzir material didático (tutoriais, exemplos de projeto, conjuntos de dados) e publicações científicas decorrentes do desenvolvimento e aplicação do GeoComp.
+    \item Avaliar o desempenho, a usabilidade e o potencial de aplicação do GeoComp em cenários de ensino, pesquisa e prática profissional, por meio de estudos de caso e comparações com fluxos de trabalho tradicionais, com participação ativa de profissionais do mercado;
+    \item Produzir material didático (tutoriais, exemplos de projeto, conjuntos de dados) e publicações científicas decorrentes do desenvolvimento e aplicação do GeoComp;
+    \item Estabelecer e manter o repositório do projeto no GitHub, com documentação completa, testes automatizados e fluxos de integração contínua, fomentando uma comunidade ativa de desenvolvedores e usuários;
+    \item Promover a participação de profissionais do mercado em todas as fases do projeto, desde a definição de requisitos até a validação final, criando canais de comunicação e colaboração via plataformas abertas.
 \end{enumerate}
 
 \chapter{Referencial teórico e estado da arte}
@@ -170,7 +218,9 @@ Na teoria de ajustamento de observações, serão revisitados conceitos como o m
 
 No contexto do processamento GNSS, será dada atenção especial a estratégias de pós-processamento estático e cinemático, incluindo o uso de efemérides e produtos precisos, modelos de correção atmosférica e parâmetros de qualidade da solução. O utilitário \textit{rnx2rtkp} será tomado como motor de referência para o tratamento de arquivos RINEX e geração de posições e linhas de base \cite{rtklib_manual,rtklib_explorer}.
 
-Por fim, na dimensão de desenvolvimento de software, serão consideradas as boas práticas para criação de plugins QGIS, particularmente no uso do framework de processamento para exposição de algoritmos de forma modular e reutilizável, bem como a integração com bancos de dados espaciais (PostGIS) para armazenamento e gestão de grandes volumes de dados geoespaciais \cite{qgis_processing_manual}.
+Um referencial importante para este projeto é a experiência do DynAdjust no ajustamento de redes geodésicas de grande escala. O software foi desenvolvido pela Geoscience Australia e utilizado como motor principal para o ajustamento do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum geocêntrico oficial da Austrália. Esse projeto envolveu o processamento de uma rede com milhares de estações e milhões de observações, incluindo dados GNSS, observações clássicas (ângulos e distâncias) e nivelamento. A capacidade do DynAdjust de processar redes dessa magnitude com eficiência e precisão, utilizando técnicas de ajustamento em bloco e segmentação inteligente da rede, demonstra sua adequação para aplicações tanto em escala local quanto nacional. A documentação técnica e os artigos científicos publicados pela equipe australiana constituirão referência fundamental para a implementação e validação do GeoComp.
+
+Por fim, na dimensão de desenvolvimento de software, serão consideradas as boas práticas para criação de plugins QGIS, particularmente no uso do framework de processamento para exposição de algoritmos de forma modular e reutilizável, bem como a integração com bancos de dados espaciais (PostGIS) para armazenamento e gestão de grandes volumes de dados geoespaciais \cite{qgis_processing_manual}. Adicionalmente, serão estudadas as melhores práticas de desenvolvimento colaborativo em plataformas como o GitHub, incluindo gestão de \textit{issues}, revisão de código via \textit{pull requests}, versionamento semântico e integração contínua, visando garantir a qualidade e a sustentabilidade do projeto a longo prazo.
 
 Além desses eixos, é fundamental considerar o corpo de conhecimento relacionado à análise de deformação e ao monitoramento de estruturas, que envolve a comparação de levantamentos realizados em diferentes épocas. A literatura distingue entre ajuste de redes (focado em um único conjunto de observações) e análise de deformações, que visa detectar alterações significativas ao longo do tempo. Estudos enfatizam a importância de estabelecer uma época de referência, de utilizar horários consistentes nos levantamentos para minimizar efeitos térmicos e atmosféricos e de assegurar que todas as observações estejam referenciadas ao mesmo datum. Esses aspectos serão incorporados no GeoComp por meio de módulos de comparação multiépoca, que verificarão a compatibilidade de metadados e auxiliarão na detecção de deslocamentos e deformações em séries temporais.
 
@@ -311,16 +361,25 @@ Entre os principais resultados esperados, destacam-se:
 Os principais recursos humanos e materiais disponíveis para a execução deste projeto incluem:
 
 \begin{itemize}
-    \item Pessoais: Kauê de Moraes Vestena, doutor em Ciências Geodésicas pela UFPR,Engenheiro Cartógrafo e Agrimensor, como coordenador do projeto, responsável pelo desenvolvimento do plugin, levantamento de requisitos, modelagem conceitual e condução dos estudos de caso. Todos os professores interessados na área de Geodésia e Geomática do Departamento de Geomática da UFPR poderão contribuir como colaboradores ou consultores, especialmente no que tange à validação dos resultados e aplicação em disciplinas. Todos os alunos de graduação e pós-graduação interessados poderão participar como bolsistas ou voluntários, contribuindo para o desenvolvimento, coleta de dados e validação do plugin.
-    \item Infraestrutura: Infraestrutura computacional da UFPR, na forma dos laboratórios disponíveis para o departamento de Geomática. Equipamentos Topográficos e Geodésicos disponíveis no LABTOPO, LAGEH e GEENG.
-    \item Adicionais: eventuais parcerias com outras instituições, órgãos públicos ou empresas, que possam contribuir com dados, casos de uso ou apoio na validação do plugin.
+    \item \textbf{Coordenação}: Kauê de Moraes Vestena, doutor em Ciências Geodésicas pela UFPR, Engenheiro Cartógrafo e Agrimensor, como coordenador do projeto, responsável pelo desenvolvimento do plugin, levantamento de requisitos, modelagem conceitual e condução dos estudos de caso.
+    \item \textbf{Colaboradores acadêmicos}: Todos os professores interessados na área de Geodésia e Geomática do Departamento de Geomática da UFPR poderão contribuir como colaboradores ou consultores, especialmente no que tange à validação dos resultados e aplicação em disciplinas. Professores de outras instituições nacionais e internacionais também serão convidados a colaborar.
+    \item \textbf{Estudantes}: Todos os alunos de graduação e pós-graduação interessados poderão participar como bolsistas ou voluntários, contribuindo para o desenvolvimento, coleta de dados e validação do plugin. O envolvimento discente será incentivado por meio de projetos de iniciação científica, trabalhos de conclusão de curso e dissertações/teses relacionadas ao GeoComp.
+    \item \textbf{Profissionais do mercado}: A participação de profissionais atuantes no mercado de geodésia, topografia, agrimensura e engenharia cartográfica será ativamente incentivada. Esses profissionais poderão contribuir de diversas formas: testando o plugin em cenários reais, sugerindo funcionalidades, reportando bugs, contribuindo com código via GitHub ou estabelecendo parcerias institucionais. Essa colaboração é considerada essencial para garantir que o GeoComp atenda às demandas práticas do setor produtivo.
+    \item \textbf{Comunidade de código aberto}: Por ser desenvolvido como software livre e hospedado no GitHub, o GeoComp poderá receber contribuições de desenvolvedores de qualquer parte do mundo. Será fomentada uma comunidade ativa de usuários e desenvolvedores, com canais de comunicação (fóruns, listas de discussão, grupos em redes sociais) para troca de experiências e suporte mútuo.
+    \item \textbf{Infraestrutura}: Infraestrutura computacional da UFPR, na forma dos laboratórios disponíveis para o departamento de Geomática. Equipamentos Topográficos e Geodésicos disponíveis no LABTOPO, LAGEH e GEENG. Servidores para hospedagem de documentação e eventuais serviços web associados ao projeto.
+    \item \textbf{Parcerias}: Serão buscadas parcerias com outras instituições de ensino e pesquisa, órgãos públicos (como o IBGE e serviços geodésicos estaduais), empresas de geotecnologia e organizações internacionais (como a Geoscience Australia, mantenedora do DynAdjust), que possam contribuir com dados, casos de uso, validação técnica ou apoio ao desenvolvimento. 
 \end{itemize}
 
 % ------------------------------------------------
 % Referências bibliográficas
 % ------------------------------------------------
-\postextual{}
+% Restaurar quebra de página para a bibliografia
+\let\cleardoublepage\originalcleardoublepage
+\let\clearpage\originalclearpage
 
+\postextual
+
+\bibliographystyle{abntex2-alf}
 \bibliography{referencias}
 
 \end{document}
