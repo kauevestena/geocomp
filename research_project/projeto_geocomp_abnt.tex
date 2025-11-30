@@ -136,6 +136,7 @@ Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS),
 
 Nas aplicações profissionais, o monitoramento contínuo de estruturas – como barragens, pontes, taludes, edificações ou grandes obras de engenharia – é cada vez mais demandado por questões de segurança e regulação. Integrando as rotinas de análise multiépoca descritas anteriormente ao fluxo de trabalho do QGIS, o GeoComp pretende atender a esse mercado, oferecendo uma ferramenta única para analisar séries temporais de coordenadas e gerar relatórios gráficos e cartográficos sobre a estabilidade de estruturas monitoradas.
 
+Uma outra problemática tange termos de licenças de uso. Primeiramente existem softwares comerciais com custos frequentemente impeditivos, sobretudo para pequenas empresas e profissionais autônomos. Complementarmente há também softwares gratuitos ou mesmo de código aberto que não permitem o uso comercial, como o Bernese \cite{bernese}, ou que possuem restrições quanto à modificação e redistribuição do código-fonte. O GeoComp, ao ser desenvolvido como software de código aberto e com licença permissiva (MIT), visa eliminar essas barreiras, permitindo que qualquer profissional ou empresa possa utilizar, adaptar e distribuir o plugin conforme suas necessidades, sem custos adicionais ou restrições legais.
 
 \section{Desenvolvimento aberto e colaboração via GitHub}
 
@@ -230,7 +231,14 @@ No modelo paramétrico (ou método das equações de observação), cada observa
 
 \subsection{O Software DynAdjust}
 
-O DynAdjust é um software de código aberto desenvolvido pela Geoscience Australia para o ajustamento de redes geodésicas em grande escala. Trata-se de um software de eficiência comprovada, como demonstrado na experiência do ajustamento completo do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum oficial australiano \cite{harrison_gda2020}. Essa rede compreende mais de 330.000 estações e 2,4 milhões de observações, com incertezas posicionais medianas de 20,2~mm (horizontal) e 100,8~mm (vertical). O uso do DynAdjust pela Geoscience Australia atesta sua robustez e confiabilidade para aplicações críticas, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala em nível nacional. A documentação técnica e os artigos publicados pela equipe australiana constituirão referência fundamental para o GeoComp.
+O DynAdjust é um software de código aberto desenvolvido pela Geoscience Australia para o ajustamento de redes geodésicas em grande escala. Trata-se de um software de eficiência comprovada, como demonstrado na experiência do ajustamento completo do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum oficial australiano \cite{harrison_gda2020}. Essa rede (figura \ref{fig:gda2020_network}) compreende mais de 330 mil estações e 2,4 milhões de observações. A incertezas posicionais resultantes medianas, foram de 20,2~mm (horizontal) e 100,8~mm (vertical). O uso do DynAdjust pela Geoscience Australia atesta sua robustez e confiabilidade para aplicações críticas, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala em nível nacional. A documentação técnica e os artigos publicados pela equipe australiana constituirão referência fundamental para o GeoComp.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.75\textwidth]{fig/gda2020_network.png}
+    \caption{Rede geodésica do GDA2020 ajustada pelo DynAdjust. \linebreak Fonte: \cite{harrison_gda2020}.}
+    \label{fig:gda2020_network}
+\end{figure}
 
 \section{Análise de Qualidade de Redes Geodésicas}
 
@@ -261,7 +269,11 @@ Além disso, a integração de múltiplas constelações (GPS, GLONASS, Galileo,
 
 \section{Integração Entre Levantamentos Geodésicos e SIG}
 
-A integração entre a Geodésia rigorosa e os Sistemas de Informação Geográfica (SIG) é uma tendência aconselhável para a gestão eficiente de dados espaciais \cite{monico_gnss}. Enquanto os SIGs tradicionalmente focam na análise espacial e visualização, muitas vezes simplificando questões de referência e precisão, a Geodésia fornece o arcabouço matemático para garantir a qualidade posicional. Ferramentas que unem esses domínios permitem que o ciclo completo — da observação de campo ao mapa final — seja tratado em um ambiente único, preservando metadados de qualidade e facilitando a tomada de decisão baseada em dados confiáveis.
+A integração entre a Geodésia rigorosa e os Sistemas de Informação Geográfica (SIG) é uma tendência aconselhável para a gestão eficiente de dados espaciais \cite{monico_gnss}. Ferramentas que unem esses domínios permitem que o ciclo completo — da observação de campo ao mapa final — seja tratado em um ambiente único, preservando metadados de qualidade, instrumentação e procedimentos e facilitando a tomada de decisão baseada em dados confiáveis.
+
+Além disso, a utilização de bancos de dados espaciais, como o PostGIS \cite{postgis_manual}, possibilita o armazenamento estruturado e a consulta eficiente de grandes volumes de dados geodésicos, facilitando análises temporais e espaciais avançadas. \citeonline{Granemann2005_SaltoCaxias} aponta o uso de Bancos de dados como uma das etapas possíveis para processamento de dados no contexto do monitoramento de barragens.
+
+
 
 
 
@@ -290,16 +302,18 @@ Será projetada a arquitetura interna do plugin, com a definição de módulos r
 \begin{itemize}
     \item comunicação com os motores de linha de comando (adaptadores para \textit{DynAdjust} e \textit{rnx2rtkp});
     \item gerenciamento de projetos de rede, incluindo leitura, validação e pré-análise de observações;
-    \item exportação e importação de dados para o QGIS (camadas vetoriais, tabelas de atributos, estilos de visualização);
+    \item exportação e importação de dados para o QGIS (camadas vetoriais, tabelas de atributos, estilos de visualização), incluindo interoperabilidade com formatos consagrados, como o do software Adjust~\cite{Ghilani2010};
     \item integração com PostGIS e outros bancos de dados espaciais;
+    \item integração de mapas base e ortofotos para visualização em contexto cartográfico das redes geodésicas processadas e/ou planejadas;
     \item internacionalização e gestão de diferentes perfis de uso (básico e avançado).
+    \item importação de modelos como modelos geoidais e de altitudes, para reduções, correções e estimativas aproximadas de grandezas (por examplo, o desvio da vertical, como demonstrado em \cite{Franca2021_deflection_vertical}).
 \end{itemize}
 
 O plugin será implementado como um \textit{Processing Provider}, expondo uma série de algoritmos que poderão ser utilizados individualmente ou encadeados em modelos de processamento mais complexos. Para além dos algoritmos de ajuste e processamento, serão desenvolvidas ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos.
 
 \subsection{Propagação de covariâncias e estimativa de incertezas}
 
-A propagação de covariâncias será aplicada sistematicamente em diversas etapas do GeoComp:
+eoComp:A propagação de covariâncias será aplicada sistematicamente em diversas etapas do G
 
 \begin{itemize}
     \item \textbf{Pré-processamento de observações}: ao aplicar correções atmosféricas, do equipamento ou do EDM, as incertezas dos parâmetros de correção serão propagadas para as observações corrigidas;
@@ -309,11 +323,11 @@ A propagação de covariâncias será aplicada sistematicamente em diversas etap
     \item \textbf{Análise de deformações}: na comparação entre épocas, a propagação das incertezas das coordenadas ajustadas permitirá calcular a significância estatística dos deslocamentos detectados.
 \end{itemize}
 
-O GeoComp implementará tanto \textbf{abordagens rigorosas} de propagação de covariâncias, baseadas na formulação matemática completa e nas matrizes de variância-covariância, quanto \textbf{abordagens aproximadas ou heurísticas}, úteis em situações onde não se dispõe de informação completa sobre as incertezas das variáveis de entrada ou onde a simplificação é aceitável para fins práticos. Essa flexibilidade permitirá que o plugin seja utilizado tanto em aplicações de alta precisão (pesquisa, redes geodésicas de referência, monitoramento de estruturas) quanto em aplicações comerciais mais simples, onde estimativas conservadoras de incerteza são suficientes.
+O GeoComp implementará tanto \textbf{abordagens rigorosas} de propagação de covariâncias, baseadas na formulação matemática completa e nas matrizes de variância-covariância, quanto \textbf{abordagens aproximadas ou heurísticas}, úteis em situações onde não se dispõe de informação completa sobre as incertezas das variáveis de entrada ou onde a simplificação é aceitável para fins práticos. Essa flexibilidade permitirá que o plugin seja utilizado tanto em aplicações de alta precisão (pesquisa, redes geodésicas de referência, monitoramento de estruturas) quanto em aplicações comerciais mais simples, onde estimativas aproximadas de incerteza são suficientes.
 
 \subsection{Painel de Configuração Global e Menu Principal}
 
-O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicionado junto aos demais menus da aplicação (``Projeto'', ``Editar'', ``Visualizar'', etc.). Este menu organizará as funcionalidades do plugin por \textbf{agrupamentos de técnicas de levantamento}, oferecendo acesso direto aos diferentes tipos de processamento suportados. A estrutura inicial do menu contemplará cinco opções principais:
+O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicionado junto aos demais menus da aplicação (``Projeto'', ``Editar'', ``Visualizar'', etc.). Este menu organizará as funcionalidades do plugin por \textbf{agrupamentos de técnicas de levantamento}, oferecendo acesso direto aos diferentes tipos de processamento suportados. A estrutura inicial do menu contemplará seis opções, a saber:
 
 \begin{enumerate}[label=\arabic*.]
     \item \textbf{Estação Total}: agrupará os diversos problemas relacionados a levantamentos com estação total, incluindo:
@@ -339,6 +353,12 @@ O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicio
         \item \textit{Absoluto}: com opções para processamento \textbf{Estático} (PPP estático) e \textbf{Cinemático} (PPP cinemático);
         \item \textit{Relativo}: com opções para processamento \textbf{Estático} (linhas de base estáticas) e \textbf{Cinemático} (RTK pós-processado e trajetórias cinemáticas).
     \end{itemize}
+
+    \item \textbf{Gravimetria}: incluindo os seguintes sub-items:
+    \begin{itemize}
+        \item \textit{Pré-Processamento}: Correções de escala da unidade instrumental, de maré, deriva dinâmica e estática, entre outras;
+        \item \textit{Ajuste de Redes Gravimétricas}: Ajuste de redes gravimétricas utilizando o método dos mínimos quadrados, com suporte a diferentes tipos de observações (diferenças absolutas, diferenças relativas, etc.);
+    \end{itemize}
     
     \item \textbf{Integração}: permitirá o ajuste combinado de diferentes técnicas de levantamento:
     \begin{itemize}
@@ -350,10 +370,10 @@ O GeoComp deverá contar com um \textbf{menu superior próprio} no QGIS, posicio
     
     \item \textbf{Configurações Globais}: abrirá uma janela de configuração com menus laterais organizados por tipo de equipamento. Nesta janela serão armazenadas e configuradas:
     \begin{itemize}
-        \item \textit{Constantes instrumentais}: constantes de prisma, correções de índice vertical, parâmetros de calibração de EDM, alturas de instrumentos e alvos padrão;
+        \item \textit{Constantes instrumentais}: constantes de prisma, correções de índice vertical, parâmetros de calibração de EDM, precisões nominais a serem empregadas;
         \item \textit{Parâmetros atmosféricos}: modelos de correção atmosférica padrão, valores típicos de temperatura, pressão e umidade relativa;
-        \item \textit{Configurações GNSS}: caminhos para diretórios de efemérides e produtos, servidores de download preferidos, opções de processamento padrão;
-        \item \textit{Modelos estocásticos}: pesos padrão para cada tipo de observação, modelos de variância, parâmetros para detecção de \textit{outliers};
+        \item \textit{Configurações GNSS}: caminhos para diretórios de efemérides e produtos, servidores de download preferidos, opções de processamento padrão, banco de dados de modelos de antena e estações de referência;
+        \item \textit{Modelos estocásticos}: pesos padrão para cada tipo de observação, parâmetros para detecção de \textit{outliers};
         \item \textit{Sistemas de referência}: sistemas de coordenadas preferidos, épocas de referência padrão, parâmetros de transformação;
         \item \textit{Caminhos e diretórios}: localização dos executáveis do DynAdjust e RTKLIB, diretórios de trabalho, templates de relatórios;
         \item \textit{Preferências de interface}: idioma preferido, modo de uso (básico/avançado), unidades de medida.
@@ -394,6 +414,15 @@ Será dada atenção especial a estratégias de pós-processamento estático e c
 
 
 \section{Integração com PostGIS e bancos de dados espaciais}
+
+
+\citeonline{wander_thesis}, ao concluir sua tese sobre o desenvolvimento de um software para processamento de redes geodésicas baseado em arquivos locais, sugere que a adoção de um banco de dados espacial pode trazer diversos benefícios, tais como:
+\begin{itemize}
+    \item armazenamento estruturado e centralizado de grandes volumes de dados geodésicos;
+    \item facilitação do acesso concorrente por múltiplos usuários;
+    \item suporte a consultas espaciais avançadas e análises temporais;
+    \item integração direta com ferramentas SIG para visualização e análise cartográfica.
+\end{itemize}
 
 Será projetado e implementado um esquema de banco de dados espacial para armazenamento de redes, observações e resultados de processamento, com foco inicial no PostGIS. Serão definidas:
 
@@ -496,6 +525,7 @@ Entre os principais resultados esperados, destacam-se:
     \item conjuntos de dados de teste e estudos de caso documentados, aptos a serem utilizados em disciplinas de graduação e pós-graduação;
     \item publicações científicas em eventos e periódicos da área de Geodésia e Geoinformação, apresentando o GeoComp, sua arquitetura e resultados de aplicações práticas;
     \item formação de recursos humanos com experiência em desenvolvimento de software geoespacial, integração de motores CLI, bancos de dados espaciais e processamento de redes geodésicas.
+    \item Retro-alimentação: contribuidores e usuários do GeoComp poderão contribuir para o aprimoramento dos softwares que servem como \textit{back-end} (DynAdjust, RTKLIB), reportando bugs, sugerindo melhorias ou mesmo contribuindo com código via GitHub.
 \end{itemize}
 
 \chapter{Equipe, infraestrutura e parcerias}
