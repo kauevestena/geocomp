@@ -90,7 +90,7 @@ Em tais redes, é cada vez mais comum a integração de diferentes tipos de obse
 
 Do ponto de vista computacional, existem motores de ajuste e processamento consolidados no meio técnico e científico, como o \textit{DynAdjust}, voltado ao ajuste de redes geodésicas com diferentes tipos de observações \cite{dynadjust_github,dynadjust_users_guide}, e o pacote \textit{RTKLIB}, por meio do utilitário de linha de comando \texttt{rnx2rtkp}, amplamente utilizado para pós-processamento GNSS a partir de dados RINEX \cite{rtklib_manual,rtklib_explorer}. No entanto, tais ferramentas são predominantemente acessadas por meio de interfaces de linha de comando (CLI) e arquivos de configuração, o que impõe uma curva de aprendizado considerável para estudantes e profissionais que não têm familiaridade com esse tipo de ambiente.
 
-É importante destacar que o \textit{DynAdjust} é uma ferramenta comprovada em campo (\textit{field-proven}), tendo sido amplamente utilizada para o ajustamento da rede geodésica australiana no âmbito do projeto GDA2020 (\textit{Geocentric Datum of Australia 2020}) \cite{harrison_gda2020}. Essa rede compreende mais de 330.000 estações e aproximadamente 2,4 milhões de observações geodésicas, representando o primeiro datum australiano desenvolvido a partir de um ajustamento rigoroso em escala continental. O ajustamento resultou em incertezas posicionais medianas de 20,2~mm na componente horizontal e 100,8~mm na vertical para toda a rede nacional. A adoção do DynAdjust pela Geoscience Australia para a produção do datum oficial australiano atesta não apenas a robustez técnica do software, mas também sua confiabilidade para aplicações críticas em geodésia e cartografia, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala e alta precisão em nível nacional.
+É importante destacar que o \textit{DynAdjust} é uma ferramenta comprovada em campo (\textit{field-proven}), conforme detalhado na Seção~\ref{sec:referencial}.
 
 Por outro lado, o QGIS consolidou-se como um dos principais Sistemas de Informação Geográfica de código aberto, contando com um ambiente extensível de plugins em Python e um \textit{framework} de processamento que integra algoritmos nativos e de terceiros em uma interface unificada \cite{qgis_processing_manual}. Esse ambiente oferece facilidades de visualização cartográfica, integração com dados raster e vetoriais, uso de serviços de mapa na web e conexão com bancos de dados espaciais como o PostGIS.
 
@@ -116,7 +116,7 @@ Do ponto de vista técnico, há um descompasso entre a sofisticação dos motore
 
 Ao encapsular esses motores em um plugin para QGIS, o GeoComp contribui para reduzir erros operacionais decorrentes de manipulação manual de arquivos, padronizar fluxos de processamento e ajuste, e permitir que os resultados sejam imediatamente visualizados em mapas, sobrepostos a ortoimagens e outras camadas de contexto.
 
-Outra lacuna técnica diz respeito à capacidade de acompanhar a evolução temporal das coordenadas de uma rede ou de um objeto monitorado. O ajustamento de uma rede geodésica convencional considera apenas um conjunto de observações e não fornece diretamente uma análise de deformação. Para detectar movimentos ou instabilidades, é necessário comparar resultados de levantamentos executados em épocas diferentes, utilizando técnicas de análise multiépoca. Essa comparação requer que as observações e os resultados estejam referenciados ao mesmo datum e à mesma época, bem como cuidados com a hora do dia em que os levantamentos foram realizados, já que temperaturas distintas podem causar expansões ou contrações das estruturas. O GeoComp abordará essas questões ao implementar módulos de monitoramento de estruturas e de redes multiépoca, com checagem automática de metadados e aplicação de transformações quando necessário.
+Outra lacuna técnica importante, já introduzida no capítulo anterior, diz respeito à capacidade de acompanhar a evolução temporal das coordenadas de uma rede ou de um objeto monitorado. O GeoComp abordará essa questão ao implementar módulos de monitoramento de estruturas e de redes multiépoca, com checagem automática de metadados e aplicação de transformações quando necessário.
 
 
 \section{Justificativa pedagógica}
@@ -125,7 +125,7 @@ No ensino de Geodésia, Ajustamento de Observações e GNSS, é frequente a util
 
 O GeoComp propõe-se a atuar como uma ponte entre esses dois extremos: ao mesmo tempo em que expõe os estudantes a motores de processamento e ajuste utilizados em aplicações reais, fornece uma interface gráfica amigável, onde conceitos como redes livres e amarradas, resíduos, elipses de erro, confiabilidade interna e externa podem ser explorados visualmente, em ambiente SIG.
 
-Além disso, o ensino de Geodésia e de análise de deformações exige que os alunos compreendam não apenas o ajuste de redes em um único instante, mas também como interpretar séries temporais e deslocamentos ao longo do tempo. A possibilidade de visualizar deslocamentos e deformações em um ambiente SIG, acompanhada de gráficos de evolução temporal, facilitará o entendimento de conceitos como modelos cinemáticos, estabelecimento de épocas de referência e detecção de tendências. A integração destas funcionalidades no GeoComp permitirá que os estudantes explorem redes multiépoca de maneira interativa, aproximando o ensino das práticas de monitoramento utilizadas na indústria e na pesquisa.
+Além disso, a possibilidade de visualizar deslocamentos e deformações em um ambiente SIG, acompanhada de gráficos de evolução temporal, facilitará o entendimento de conceitos como modelos cinemáticos e detecção de tendências, aproximando o ensino das práticas de monitoramento utilizadas na indústria e na pesquisa.
 
 
 \section{Justificativa aplicada e comercial}
@@ -134,7 +134,7 @@ No contexto profissional, empresas que prestam serviços e consultoria na área 
 
 Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção.
 
-Nas aplicações profissionais, o monitoramento contínuo de estruturas – como barragens, pontes, taludes, edificações ou grandes obras de engenharia – é cada vez mais demandado por questões de segurança e regulação. Tais atividades dependem de comparações precisas entre levantamentos de diferentes épocas, para identificar deslocamentos e deformações que possam indicar riscos. Integrando rotinas de análise multiépoca e de verificação de metadados ao fluxo de trabalho do QGIS, o GeoComp pretende atender a esse mercado, oferecendo uma ferramenta única que permita a profissionais analisar séries temporais de coordenadas, detectar movimentações significativas e gerar relatórios gráficos e cartográficos sobre a estabilidade de estruturas monitoradas.
+Nas aplicações profissionais, o monitoramento contínuo de estruturas – como barragens, pontes, taludes, edificações ou grandes obras de engenharia – é cada vez mais demandado por questões de segurança e regulação. Integrando as rotinas de análise multiépoca descritas anteriormente ao fluxo de trabalho do QGIS, o GeoComp pretende atender a esse mercado, oferecendo uma ferramenta única para analisar séries temporais de coordenadas e gerar relatórios gráficos e cartográficos sobre a estabilidade de estruturas monitoradas.
 
 
 \section{Desenvolvimento aberto e colaboração via GitHub}
@@ -195,9 +195,20 @@ Os objetivos específicos incluem, mas não se limitam a:
     \item Promover a participação de profissionais do mercado em todas as fases do projeto, desde a definição de requisitos até a validação final, criando canais de comunicação e colaboração via plataformas abertas.
 \end{enumerate}
 
-\chapter{Referencial teórico e estado da arte}
+\chapter{Referencial teórico}
+\label{sec:referencial}
 
-O referencial teórico deste projeto fundamenta-se em conceitos clássicos e contemporâneos da Geodésia, essenciais para o desenvolvimento de uma ferramenta robusta de processamento e análise. A seguir, são detalhados os fundamentos do ajustamento de observações, a análise de qualidade de redes e o posicionamento pelo GNSS.
+O referencial teórico deste projeto fundamenta-se em conceitos clássicos e contemporâneos da Geodésia, essenciais para o desenvolvimento de uma ferramenta robusta de processamento e análise.
+
+\section{Propagação de covariâncias e estimativa de incertezas}
+
+A propagação de covariâncias parte do princípio de que, dada uma função $\mathbf{y} = f(\mathbf{x})$ que relaciona um vetor de variáveis de entrada $\mathbf{x}$ a um vetor de variáveis de saída $\mathbf{y}$, a matriz de variância-covariância das saídas pode ser obtida a partir da matriz de variância-covariância das entradas por meio da conhecida lei de propagação de covariâncias \cite{gemael_ajustamento}:
+
+\begin{equation}
+\boldsymbol{\Sigma}_{\mathbf{y}} = \mathbf{J} \, \boldsymbol{\Sigma}_{\mathbf{x}} \, \mathbf{J}^T
+\end{equation}
+
+\noindent onde $\mathbf{J}$ é a matriz Jacobiana das derivadas parciais de $f$ em relação às variáveis de entrada, $\boldsymbol{\Sigma}_{\mathbf{x}}$ é a matriz de variância-covariância das entradas e $\boldsymbol{\Sigma}_{\mathbf{y}}$ é a matriz de variância-covariância das saídas.
 
 \section{Fundamentos do Ajustamento de Observações}
 
@@ -217,9 +228,13 @@ No modelo paramétrico (ou método das equações de observação), cada observa
 
 \noindent sendo $\mathbf{P}$ a matriz peso das observações, inversamente proporcional à matriz de variância-covariância das observações ($\boldsymbol{\Sigma}_{L_b}$). A correta definição de $\mathbf{P}$ é crucial para que o ajuste reflita a realidade física do levantamento e para que as estimativas de precisão resultantes sejam confiáveis \cite{gemael_ajustamento}.
 
+\subsection{O Software DynAdjust}
+
+O DynAdjust é um software de código aberto desenvolvido pela Geoscience Australia para o ajustamento de redes geodésicas em grande escala. Trata-se de um software de eficiência comprovada, como demonstrado na experiência do ajustamento completo do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum oficial australiano \cite{harrison_gda2020}. Essa rede compreende mais de 330.000 estações e 2,4 milhões de observações, com incertezas posicionais medianas de 20,2~mm (horizontal) e 100,8~mm (vertical). O uso do DynAdjust pela Geoscience Australia atesta sua robustez e confiabilidade para aplicações críticas, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala em nível nacional. A documentação técnica e os artigos publicados pela equipe australiana constituirão referência fundamental para o GeoComp.
+
 \section{Análise de Qualidade de Redes Geodésicas}
 
-A qualidade de uma rede geodésica não se resume apenas à precisão (expressa pela matriz de variância-covariância dos parâmetros ajustados, $\boldsymbol{\Sigma}_{\mathbf{x}}$), mas também à sua confiabilidade. A teoria de confiabilidade, desenvolvida pioneiramente por Baarda \cite{baarda_reliability} e expandida por Teunissen \cite{teunissen_testing}, permite avaliar a capacidade da rede em detectar erros grosseiros (confiabilidade interna) e o impacto de erros não detectados sobre as coordenadas finais (confiabilidade externa).
+A qualidade de uma rede geodésica não se resume apenas à precisão (expressa pela matriz de variância-covariância dos parâmetros ajustados, $\boldsymbol{\Sigma}_{\mathbf{x}}$), mas também à sua confiabilidade. A teoria de confiabilidade, desenvolvida pioneiramente por Baarda \cite{baarda_reliability} e expandida por autores como Teunissen \cite{teunissen_testing}, permite avaliar a capacidade da rede em detectar erros grosseiros (confiabilidade interna) e o impacto de erros não detectados sobre as coordenadas finais (confiabilidade externa).
 
 O GeoComp incorporará testes estatísticos rigorosos para validação do ajustamento, incluindo:
 
@@ -228,7 +243,7 @@ O GeoComp incorporará testes estatísticos rigorosos para validação do ajusta
     \item \textbf{Teste de Data Snooping (Teste $\tau$)}: analisa individualmente os resíduos padronizados para identificar observações rejeitáveis (outliers).
 \end{itemize}
 
-Essas análises são fundamentais para garantir que os resultados entregues pelo software tenham integridade e possam ser utilizados com segurança em obras de engenharia e cadastro \cite{torge_geodesy}.
+Essas análises são fundamentais para estatisticamente apontar que os resultados entregues pelo software, de acordo com a metodologia  integridade e possam ser utilizados com segurança em obras de engenharia e cadastro \cite{torge_geodesy}.
 
 \section{Posicionamento pelo GNSS}
 
@@ -240,43 +255,15 @@ O processamento de dados GNSS envolve o tratamento de observáveis de código (p
 
 Além disso, a integração de múltiplas constelações (GPS, GLONASS, Galileo, BeiDou) aumenta a disponibilidade e a robustez da solução, especialmente em ambientes obstruídos como áreas urbanas ou vales profundos \cite{seeber_satellite, monico_gnss}.
 
-\section{Integração Geodésia e SIG}
 
-A integração entre a Geodésia rigorosa e os Sistemas de Informação Geográfica (SIG) é uma tendência necessária para a gestão eficiente de dados espaciais. Enquanto os SIGs tradicionalmente focam na análise espacial e visualização, muitas vezes simplificando questões de referência e precisão, a Geodésia fornece o arcabouço matemático para garantir a qualidade posicional. Ferramentas que unem esses domínios permitem que o ciclo completo — da observação de campo ao mapa final — seja tratado em um ambiente único, preservando metadados de qualidade e facilitando a tomada de decisão baseada em dados confiáveis.
 
-\section{Propagação de covariâncias e estimativa de incertezas}
 
-Um conceito central para o GeoComp é a \textbf{propagação de covariâncias}, que constitui a base teórica para a estimativa rigorosa de incertezas em todas as etapas do processamento geodésico. A ideia fundamental é que para todas as medidas e variáveis envolvidas seja possível realizar uma estimativa consistente de seus níveis de incerteza.
 
-A propagação de covariâncias parte do princípio de que, dada uma função $\mathbf{y} = f(\mathbf{x})$ que relaciona um vetor de variáveis de entrada $\mathbf{x}$ a um vetor de variáveis de saída $\mathbf{y}$, a matriz de variância-covariância das saídas pode ser obtida a partir da matriz de variância-covariância das entradas por meio da conhecida lei de propagação:
+\section{Integração Entre Levantamentos Geodésicos e SIG}
 
-\begin{equation}
-\boldsymbol{\Sigma}_{\mathbf{y}} = \mathbf{J} \, \boldsymbol{\Sigma}_{\mathbf{x}} \, \mathbf{J}^T
-\end{equation}
+A integração entre a Geodésia rigorosa e os Sistemas de Informação Geográfica (SIG) é uma tendência aconselhável para a gestão eficiente de dados espaciais \cite{monico_gnss}. Enquanto os SIGs tradicionalmente focam na análise espacial e visualização, muitas vezes simplificando questões de referência e precisão, a Geodésia fornece o arcabouço matemático para garantir a qualidade posicional. Ferramentas que unem esses domínios permitem que o ciclo completo — da observação de campo ao mapa final — seja tratado em um ambiente único, preservando metadados de qualidade e facilitando a tomada de decisão baseada em dados confiáveis.
 
-\noindent onde $\mathbf{J}$ é a matriz Jacobiana das derivadas parciais de $f$ em relação às variáveis de entrada, $\boldsymbol{\Sigma}_{\mathbf{x}}$ é a matriz de variância-covariância das entradas e $\boldsymbol{\Sigma}_{\mathbf{y}}$ é a matriz de variância-covariância das saídas.
 
-No contexto do GeoComp, a propagação de covariâncias será aplicada sistematicamente em diversas etapas:
-
-\begin{itemize}
-    \item \textbf{Pré-processamento de observações}: ao aplicar correções atmosféricas, do equipamento ou do EDM, as incertezas dos parâmetros de correção serão propagadas para as observações corrigidas;
-    \item \textbf{Reduções geométricas}: nas reduções de distâncias ao elipsoide, ao plano de projeção ou entre diferentes alturas, as incertezas das altitudes e coordenadas serão consideradas;
-    \item \textbf{Processamento GNSS}: as matrizes de covariância das soluções GNSS serão preservadas e utilizadas no ajuste combinado com outras observações;
-    \item \textbf{Ajuste de redes}: o ajuste pelo método dos mínimos quadrados fornecerá naturalmente a matriz de variância-covariância dos parâmetros estimados, permitindo o cálculo de elipses de erro e indicadores de precisão;
-    \item \textbf{Análise de deformações}: na comparação entre épocas, a propagação das incertezas das coordenadas ajustadas permitirá calcular a significância estatística dos deslocamentos detectados.
-\end{itemize}
-
-O GeoComp implementará tanto \textbf{abordagens rigorosas} de propagação de covariâncias, baseadas na formulação matemática completa e nas matrizes de variância-covariância, quanto \textbf{abordagens aproximadas ou heurísticas}, úteis em situações onde não se dispõe de informação completa sobre as incertezas das variáveis de entrada ou onde a simplificação é aceitável para fins práticos. Essa flexibilidade permitirá que o plugin seja utilizado tanto em aplicações de alta precisão (pesquisa, redes geodésicas de referência, monitoramento de estruturas) quanto em aplicações comerciais mais simples, onde estimativas conservadoras de incerteza são suficientes.
-
-A disponibilização sistemática de informações de incerteza para todos os produtos do GeoComp — desde as observações brutas até as coordenadas finais ajustadas — contribuirá para uma cultura de transparência e rastreabilidade metrológica, fundamental para a credibilidade dos resultados geodésicos.
-
-No contexto do processamento GNSS, será dada atenção especial a estratégias de pós-processamento estático e cinemático, incluindo o uso de efemérides e produtos precisos, modelos de correção atmosférica e parâmetros de qualidade da solução. O utilitário \textit{rnx2rtkp} será tomado como motor de referência para o tratamento de arquivos RINEX e geração de posições e linhas de base \cite{rtklib_manual,rtklib_explorer}.
-
-Um referencial importante para este projeto é a experiência do DynAdjust no ajustamento de redes geodésicas de grande escala. O software foi desenvolvido pela Geoscience Australia e utilizado como motor principal para o ajustamento do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum geocêntrico oficial da Austrália. Esse projeto envolveu o processamento de uma rede com milhares de estações e milhões de observações, incluindo dados GNSS, observações clássicas (ângulos e distâncias) e nivelamento. A capacidade do DynAdjust de processar redes dessa magnitude com eficiência e precisão, utilizando técnicas de ajustamento em bloco e segmentação inteligente da rede, demonstra sua adequação para aplicações tanto em escala local quanto nacional. A documentação técnica e os artigos científicos publicados pela equipe australiana constituirão referência fundamental para a implementação e validação do GeoComp.
-
-Por fim, na dimensão de desenvolvimento de software, serão consideradas as boas práticas para criação de plugins QGIS, particularmente no uso do framework de processamento para exposição de algoritmos de forma modular e reutilizável, bem como a integração com bancos de dados espaciais (PostGIS) para armazenamento e gestão de grandes volumes de dados geoespaciais \cite{qgis_processing_manual}. Adicionalmente, serão estudadas as melhores práticas de desenvolvimento colaborativo em plataformas como o GitHub, incluindo gestão de \textit{issues}, revisão de código via \textit{pull requests}, versionamento semântico e integração contínua, visando garantir a qualidade e a sustentabilidade do projeto a longo prazo.
-
-Além desses eixos, é fundamental considerar o corpo de conhecimento relacionado à análise de deformação e ao monitoramento de estruturas, que envolve a comparação de levantamentos realizados em diferentes épocas. A literatura distingue entre ajuste de redes (focado em um único conjunto de observações) e análise de deformações, que visa detectar alterações significativas ao longo do tempo. Estudos enfatizam a importância de estabelecer uma época de referência, de utilizar horários consistentes nos levantamentos para minimizar efeitos térmicos e atmosféricos e de assegurar que todas as observações estejam referenciadas ao mesmo datum. Esses aspectos serão incorporados no GeoComp por meio de módulos de comparação multiépoca, que verificarão a compatibilidade de metadados e auxiliarão na detecção de deslocamentos e deformações em séries temporais.
 
 \chapter{Metodologia}
 
@@ -309,6 +296,20 @@ Será projetada a arquitetura interna do plugin, com a definição de módulos r
 \end{itemize}
 
 O plugin será implementado como um \textit{Processing Provider}, expondo uma série de algoritmos que poderão ser utilizados individualmente ou encadeados em modelos de processamento mais complexos. Para além dos algoritmos de ajuste e processamento, serão desenvolvidas ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos.
+
+\subsection{Propagação de covariâncias e estimativa de incertezas}
+
+A propagação de covariâncias será aplicada sistematicamente em diversas etapas do GeoComp:
+
+\begin{itemize}
+    \item \textbf{Pré-processamento de observações}: ao aplicar correções atmosféricas, do equipamento ou do EDM, as incertezas dos parâmetros de correção serão propagadas para as observações corrigidas;
+    \item \textbf{Reduções geométricas}: nas reduções de distâncias ao elipsoide, ao plano de projeção ou entre diferentes alturas, as incertezas das altitudes e coordenadas serão consideradas;
+    \item \textbf{Processamento GNSS}: as matrizes de covariância das soluções GNSS serão preservadas e utilizadas no ajuste combinado com outras observações;
+    \item \textbf{Ajuste de redes}: o ajuste pelo método dos mínimos quadrados fornecerá naturalmente a matriz de variância-covariância dos parâmetros estimados, permitindo o cálculo de elipses de erro e indicadores de precisão;
+    \item \textbf{Análise de deformações}: na comparação entre épocas, a propagação das incertezas das coordenadas ajustadas permitirá calcular a significância estatística dos deslocamentos detectados.
+\end{itemize}
+
+O GeoComp implementará tanto \textbf{abordagens rigorosas} de propagação de covariâncias, baseadas na formulação matemática completa e nas matrizes de variância-covariância, quanto \textbf{abordagens aproximadas ou heurísticas}, úteis em situações onde não se dispõe de informação completa sobre as incertezas das variáveis de entrada ou onde a simplificação é aceitável para fins práticos. Essa flexibilidade permitirá que o plugin seja utilizado tanto em aplicações de alta precisão (pesquisa, redes geodésicas de referência, monitoramento de estruturas) quanto em aplicações comerciais mais simples, onde estimativas conservadoras de incerteza são suficientes.
 
 \subsection{Painel de Configuração Global e Menu Principal}
 
@@ -386,6 +387,8 @@ De forma análoga, será implementada a interface com o \textit{rnx2rtkp} para p
     \item importação dos resultados (posições, linhas de base, indicadores de qualidade) como camadas QGIS para posterior análise e ajuste em conjunto com outras observações.
     \item opção por testes comparativos de diferentes configurações de processamento GNSS, permitindo ao usuário avaliar o impacto de parâmetros como modelos atmosféricos, tipos de solução (fixo, flutuante, etc.) e estratégias de filtragem.
 \end{itemize}
+
+Será dada atenção especial a estratégias de pós-processamento estático e cinemático, incluindo o uso de efemérides precisas, modelos de correção atmosférica e parâmetros de qualidade da solução.
 
 É importante destacar que a escolha do RTKLIB como motor de processamento GNSS inicial foi baseada na literatura consultada e em sua reportada adoção. Contudo, a arquitetura modular do GeoComp permitirá a incorporação futura de outros motores de processamento GNSS, conforme a demanda dos usuários e a evolução do projeto.
 
