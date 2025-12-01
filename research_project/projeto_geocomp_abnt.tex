@@ -93,7 +93,7 @@ Do ponto de vista computacional, existem motores de ajuste e processamento conso
 Por outro lado, o QGIS consolidou-se como um dos principais Sistemas de Informação Geográfica de código aberto, contando com um ambiente extensível de plugins em Python e um \textit{framework} de processamento que integra algoritmos nativos e de terceiros em uma interface unificada \cite{qgis_processing_manual}. Esse ambiente oferece facilidades de visualização cartográfica, integração com dados raster e vetoriais, uso de serviços de mapa na web e conexão com bancos de dados espaciais como o PostGIS.
 
 % Nova subseção sobre monitoramento e multiépoca
-Para além do ajustamento estático de redes, uma aplicação de grande relevância para a sociedade, é o monitoramento de estruturas, no qual a posição de pontos de controle é observada em diferentes \emph{épocas} para detectar deslocamentos ou deformações \cite{Granemann2005_SaltoCaxias,wander_thesis,Kuang1996}. A comparação entre levantamentos de distintas épocas requer que os resultados estejam devidamente temporalmente referenciados e acompanhados de metadados coerentes (como sistema de referência de coordenadas), a fim de assegurar a compatibilidade entre as soluções \cite{Kuang1996}.
+Para além do ajustamento estático de redes, uma aplicação de grande relevância para a sociedade é o monitoramento de estruturas, no qual a posição de pontos de controle é observada em diferentes \emph{épocas} para detectar deslocamentos ou deformações \cite{Granemann2005_SaltoCaxias,wander_thesis,Kuang1996}. A comparação entre levantamentos de distintas épocas requer que os resultados estejam devidamente temporalmente referenciados e acompanhados de metadados coerentes (como sistema de referência de coordenadas), a fim de assegurar a compatibilidade entre as soluções \cite{Kuang1996}.
 
 Na literatura é feita uma distinção entre o ajustamento de uma rede em uma única época e a análise de deformações, que envolve a comparação de coordenadas obtidas em épocas subsequentes \cite{Kuang1996}. O ajustamento tradicional procura determinar as melhores coordenadas em um instante específico, ao passo que a análise de deformações mede a diferença entre soluções e quantifica deslocamentos \cite{Kuang1996}.
 
@@ -106,11 +106,11 @@ Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: 
 
 \chapter{Justificativa}
 
-A justificativa para o desenvolvimento do GeoComp pode ser analisada sob diferentes perspectivas: técnica, pedagógica, aplicada/comercial e nao contexto de desenvolvimento de código aberto.
+A justificativa para o desenvolvimento do GeoComp pode ser analisada sob diferentes perspectivas: técnica, pedagógica, aplicada/comercial e no contexto de desenvolvimento de código aberto.
 
 \section{Justificativa técnica}
 
-Conforme mencionado previamente, ferramentas consolidadas como o \textit{DynAdjust} e o \textit{rnx2rtkp} são predominantemente acessadas via linha de comando, impondo barreiras ao uso mais amplo. A integração proposta pelo GeoComp visa suprir três lacunas técnicas principais, afim de proporcionar uma experiência mais fluida e acessível:
+Conforme mencionado previamente, ferramentas consolidadas como o \textit{DynAdjust} e o \textit{rnx2rtkp} são predominantemente acessadas via linha de comando, impondo barreiras ao uso mais amplo. A integração proposta pelo GeoComp visa suprir três lacunas técnicas principais, a fim de proporcionar uma experiência mais fluida e acessível:
 
 \begin{itemize}
     \item \textbf{Redução de erros operacionais}: ao automatizar a geração de arquivos de entrada e a interpretação de resultados, minimizam-se inconsistências decorrentes da manipulação manual;
@@ -132,13 +132,13 @@ Além disso, as funcionalidades de análise multiépoca previstas no GeoComp (ve
 
 \section{Justificativa aplicada e comercial}
 
-No contexto profissional, empresas que prestam serviços e consultoria na área de engenharia cartografica e de agrimensura, frequentemente dependem de múltiplos softwares para obter um fluxo completo de processamento: ferramentas específicas para GNSS, outros programas para ajuste de redes, planilhas auxiliares e, por fim, sistemas de informação geográfica para visualização dos resultados.
+No contexto profissional, empresas que prestam serviços e consultoria na área de engenharia cartográfica e de agrimensura, frequentemente dependem de múltiplos softwares para obter um fluxo completo de processamento: ferramentas específicas para GNSS, outros programas para ajuste de redes, planilhas auxiliares e, por fim, sistemas de informação geográfica para visualização dos resultados.
 
-Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção.
+Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção, incluso devido à sua fácil instalação, bastando instalar o QGIS e o plugin, com poucos cliques.
 
 Nas aplicações profissionais, o monitoramento contínuo de estruturas (barragens, pontes, taludes, grandes obras) é cada vez mais demandado por questões de segurança e regulação. As funcionalidades de análise multiépoca do GeoComp\@, descritas na Introdução, permitirão atender a esse mercado com geração de relatórios gráficos e cartográficos integrados ao QGIS.
 
-Uma outra problemática frequente tange termos de licenças de uso. Primeiramente existem softwares comerciais, com custos frequentemente impeditivos, sobretudo para pequenas empresas e profissionais autônomos. Complementarmente há também softwares gratuitos ou mesmo de código aberto que não permitem o uso comercial, como o Bernese~\cite{bernese}, ou que possuem restrições quanto à modificação e redistribuição do código-fonte. O GeoComp, ao ser desenvolvido como software de código aberto e com licença permissiva, visa eliminar essas barreiras, permitindo que qualquer profissional ou empresa possa utilizar, adaptar e distribuir o plugin conforme suas necessidades, sem custos adicionais ou restrições legais.
+Uma outra problemática frequente diz respeito a termos de licenças de uso. Primeiramente existem softwares comerciais, com custos frequentemente impeditivos, sobretudo para pequenas empresas e profissionais autônomos. Complementarmente há também softwares gratuitos ou mesmo de código aberto que não permitem o uso comercial, como o Bernese~\cite{bernese}, ou que possuem restrições quanto à modificação e redistribuição do código-fonte. O GeoComp, ao ser desenvolvido como software de código aberto e com licença permissiva, visa eliminar essas barreiras, permitindo que qualquer profissional ou empresa possa utilizar, adaptar e distribuir o plugin conforme suas necessidades, sem custos adicionais ou restrições legais.
 
 \section{Desenvolvimento aberto e colaboração}
 
@@ -205,7 +205,7 @@ No modelo paramétrico (ou método das equações de observação), cada observa
 
 \subsection{O Software DynAdjust}
 
-O DynAdjust é um software de código aberto desenvolvido pela Geoscience Australia para o ajustamento de redes geodésicas em grande escala. Trata-se de um software de eficiência comprovada, como demonstrado na realização do ajustamento completo do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum oficial australiano \cite{harrison_gda2020}. Essa rede (figura \ref{fig:gda2020_network}) contém mais de 330 mil estações e 2,4 milhões de observações. A incertezas posicionais resultantes medianas, foram de 20,2~mm (horizontal) e 100,8~mm (vertical). O software é atualmente utilizado como motor em softwares comerciais \cite{dynadjust_github}. O uso do DynAdjust pela Geoscience Australia atesta sua robustez e confiabilidade para aplicações críticas, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala em nível nacional. A documentação técnica e os artigos publicados pela equipe australiana constituirão referência fundamental para o GeoComp \cite{dynadjust_users_guide}.
+O DynAdjust é um software de código aberto desenvolvido pela Geoscience Australia para o ajustamento de redes geodésicas em grande escala. Trata-se de um software de eficiência comprovada, como demonstrado na realização do ajustamento completo do GDA2020 (\textit{Geocentric Datum of Australia 2020}), o datum oficial australiano \cite{harrison_gda2020}. Essa rede (figura \ref{fig:gda2020_network}) contém mais de 330 mil estações e 2,4 milhões de observações. As incertezas posicionais resultantes medianas foram de 20,2~mm (horizontal) e 100,8~mm (vertical). O software é atualmente utilizado como motor em softwares comerciais \cite{dynadjust_github}. O uso do DynAdjust pela Geoscience Australia atesta sua robustez e confiabilidade para aplicações críticas, tornando-o uma das poucas soluções de código aberto capazes de lidar com redes de grande escala em nível nacional. A documentação técnica e os artigos publicados pela equipe australiana constituirão referência fundamental para o GeoComp \cite{dynadjust_users_guide}.
 
 \begin{figure}[htbp]
     \centering
@@ -288,7 +288,7 @@ Será projetada a arquitetura interna do plugin, com a definição de módulos r
     \item integração com PostGIS e outros bancos de dados espaciais;
     \item integração de mapas base e ortofotos para visualização em contexto cartográfico das redes geodésicas processadas e/ou planejadas;
     \item internacionalização e gestão de diferentes perfis de uso (básico e avançado).
-    \item importação de modelos como modelos geoidais e de altitudes, para reduções, correções e estimativas aproximadas de grandezas (por examplo, o desvio da vertical, como demonstrado em \cite{Franca2021_deflection_vertical}).
+    \item importação de modelos como modelos geoidais e de altitudes, para reduções, correções e estimativas aproximadas de grandezas (por exemplo, o desvio da vertical, como demonstrado em \cite{Franca2021_deflection_vertical}).
     \item desenvolvimento de ferramentas auxiliares para visualização de resíduos, elipses de erro, vetores de deslocamento e mapas representativos.
 \end{itemize}
 
@@ -363,7 +363,7 @@ O GeoComp deverá contar com um menu superior próprio no QGIS, posicionado junt
     \end{itemize}
 \end{enumerate}
 
-Essa estrutura de menu, ilustrada na Figura~\ref{fig:menu_estrutura}, permitirá que o usuário acesse rapidamente a funcionalidade desejada de acordo com a técnica de levantamento empregada, mantendo a organização lógica das ferramentas e facilitando o aprendizado progressivo das capacidades do plugin. O encadeamento de operações deverá estará disponível por padrão.
+Essa estrutura de menu, ilustrada na Figura~\ref{fig:menu_estrutura}, permitirá que o usuário acesse rapidamente a funcionalidade desejada de acordo com a técnica de levantamento empregada, mantendo a organização lógica das ferramentas e facilitando o aprendizado progressivo das capacidades do plugin. O encadeamento de operações estará disponível por padrão.
 
 \begin{figure}[htbp]
     \centering
@@ -464,7 +464,7 @@ Esses dados reais servirão tanto para validar funcionalmente o plugin quanto pa
 
 \subsection{Comparação com softwares comerciais}
 
-Uma atividade de especial relevância a ser desenvolvida pelos estudantes será a comparação sistemática dos resultados gerados pelo GeoComp (e suas ferramentas de backend, como DynAdjust e RTKLIB) com softwares comerciais amplamente utilizados no mercado. Essa tarefa tem múltiplos objetivos:
+Uma atividade de especial relevância a ser desenvolvida pelos estudantes será a comparação sistemática dos resultados gerados pelo GeoComp (e suas ferramentas de \textit{back-end}, como DynAdjust e RTKLIB) com softwares comerciais amplamente utilizados no mercado. Essa tarefa tem múltiplos objetivos:
 
 \begin{itemize}
     \item \textbf{Validação dos resultados}: verificar se as coordenadas, estatísticas de ajuste, resíduos e indicadores de qualidade produzidos pelo GeoComp são compatíveis com os obtidos por softwares comerciais reconhecidos;
@@ -513,7 +513,7 @@ Entre os principais resultados esperados, destacam-se:
     \item conjuntos de dados de teste e estudos de caso documentados, aptos a serem utilizados em disciplinas de graduação e pós-graduação;
     \item publicações científicas em eventos e periódicos da área de Geodésia e Geoinformação, apresentando o GeoComp, sua arquitetura e resultados de aplicações práticas;
     \item formação de recursos humanos com experiência em desenvolvimento de software geoespacial, integração de motores CLI, bancos de dados espaciais e processamento de redes geodésicas.
-    \item Retro-alimentação: contribuidores e usuários do GeoComp poderão contribuir para o aprimoramento dos softwares que servem como \textit{back-end} (DynAdjust, RTKLIB), reportando bugs, sugerindo melhorias ou mesmo contribuindo com código via GitHub.
+    \item Retroalimentação: contribuidores e usuários do GeoComp poderão contribuir para o aprimoramento dos softwares que servem como \textit{back-end} (DynAdjust, RTKLIB), reportando bugs, sugerindo melhorias ou mesmo contribuindo com código via GitHub.
 \end{itemize}
 
 \chapter{Equipe, infraestrutura e parcerias}
