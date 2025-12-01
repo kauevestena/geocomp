@@ -61,7 +61,7 @@
 \begin{document}
 
 % Adequando o uppercase titulo dos elementos nas suas respectivas legendas
-\renewcommand{\bibname}{{REFER\^ENCIAS}}
+\renewcommand{\bibname}{REFER\^ENCIAS}
 \renewcommand{\tablename}{TABELA }
 \renewcommand{\figurename}{FIGURA }
 \renewcommand{\figureautorefname}{FIGURA}
@@ -86,7 +86,7 @@
 
 As redes geodésicas modernas constituem a infraestrutura fundamental para uma ampla gama de aplicações em Ciências Geodésicas e para projetos de Engenharia \cite{Granemann2005_SaltoCaxias,wander_thesis,monico_gnss}. Algumas aplicações incluem o georreferenciamento de imóveis rurais e urbanos, o monitoramento de estruturas e deformações, o apoio à cartografia e ao sensoriamento remoto, bem como o suporte a estabelecimento de redes fundamentais para sistemas de referência geodésicos nacionais e internacionais.
 
-Em tais redes, é cada vez mais comum a integração de diferentes tipos de observações: ângulos e distâncias medidos por estações totais, desníveis obtidos por nivelamento geométrico, linhas de base GNSS e demais observações possíveis \cite{Ghilani2010}. O processamento rigoroso e o possível ajuste conjunto desses diversos conjuntos observacionais exigem ferramentas robustas de ajustamento e preprocessamento de observações, capazes de lidar com grandes volumes de dados, diferentes modelos estocásticos e estratégias variadas de vinculação a sistemas de referência \cite{harrison_gda2020}.
+Em tais redes, é cada vez mais comum a integração de diferentes tipos de observações: ângulos e distâncias medidos por estações totais, desníveis obtidos por nivelamento geométrico, linhas de base GNSS e demais observações possíveis \cite{Ghilani2010}. O processamento rigoroso e o possível ajuste conjunto desses diversos conjuntos observacionais exigem ferramentas robustas de ajustamento e pré-processamento de observações, capazes de lidar com grandes volumes de dados, diferentes modelos estocásticos e estratégias variadas de vinculação a sistemas de referência \cite{harrison_gda2020}.
 
 Do ponto de vista computacional, existem motores de ajuste e processamento consolidados no meio técnico e científico, como o \textit{DynAdjust}, voltado ao ajuste de redes geodésicas com diferentes tipos de observações \cite{dynadjust_github,dynadjust_users_guide}, e o pacote \textit{RTKLIB}, por meio do utilitário de linha de comando \texttt{rnx2rtkp}, amplamente utilizado para pós-processamento GNSS a partir de dados RINEX \cite{rtklib_manual,rtklib_explorer}. No entanto, tais ferramentas são predominantemente acessadas por meio de interfaces de linha de comando (CLI) e arquivos de configuração, o que impõe uma curva de aprendizado considerável para estudantes e profissionais que não têm familiaridade com esse tipo de ambiente.
 
@@ -96,8 +96,6 @@ Por outro lado, o QGIS consolidou-se como um dos principais Sistemas de Informa�
 Para além do ajustamento estático de redes, uma aplicação de grande relevância para a sociedade é o monitoramento de estruturas, no qual a posição de pontos de controle é observada em diferentes \emph{épocas} para detectar deslocamentos ou deformações \cite{Granemann2005_SaltoCaxias,wander_thesis,Kuang1996}. A comparação entre levantamentos de distintas épocas requer que os resultados estejam devidamente temporalmente referenciados e acompanhados de metadados coerentes (como sistema de referência de coordenadas), a fim de assegurar a compatibilidade entre as soluções \cite{Kuang1996}.
 
 Na literatura é feita uma distinção entre o ajustamento de uma rede em uma única época e a análise de deformações, que envolve a comparação de coordenadas obtidas em épocas subsequentes \cite{Kuang1996}. O ajustamento tradicional procura determinar as melhores coordenadas em um instante específico, ao passo que a análise de deformações mede a diferença entre soluções e quantifica deslocamentos \cite{Kuang1996}.
-
-%A verificação de compatibilidade entre os sistemas de referência e as épocas de observação é, portanto, um requisito essencial: dois conjuntos de coordenadas somente podem ser comparados se estiverem referidos ao mesmo datum e à mesma época. Em aplicações de monitoramento, diferenças sutis de horários ou de sistemas de referência podem induzir variações aparentes (por exemplo, por efeitos térmicos), de modo que a conversão ou transformação de coordenadas é necessária quando houver discrepâncias entre os sistemas adotados. O registro de metadados completos — incluindo georreferencial, época e parâmetros de datum — permitirá que o GeoComp automatize essas verificações e ofereça alertas ou correções apropriadas antes do cálculo dos deslocamentos.
 
 Neste contexto, o projeto GeoComp tem por objetivo aproximar esses dois mundos: integrar, em um único plugin para QGIS, o processamento prévio, o ajuste de redes geodésicas e a visualização dos resultados, encapsulando internamente motores de linha de comando já consolidados. Ao mesmo tempo, pretende-se que o GeoComp seja uma ferramenta útil tanto em pesquisa quanto em ensino e em aplicações profissionais, oferecendo perfis de uso diferenciados e permitindo o envolvimento ativo dos estudantes em todas as etapas de desenvolvimento e validação.
 
@@ -125,7 +123,7 @@ Além disso, o GeoComp abordará a lacuna relativa ao monitoramento multiépoca,
 
 No ensino de Geodésia, Ajustamento de Observações e GNSS, é frequente a utilização de exemplos simplificados e de softwares que não refletem a complexidade dos fluxos profissionais contemporâneos. Por outro lado, o uso direto de motores CLI avançados pode ser intimidante para estudantes, mesmo após suas fases iniciais de aprendizagem.
 
-O GeoComp propõe-se a atuar como uma ponte entre esses dois extremos: ao mesmo tempo em que expõe os estudantes a motores de processamento e ajuste utilizados em aplicações reais, fornece uma interface gráfica amigável, onde conceitos como redes livres e amarradas, resíduos, elipses de erro, confiabilidade interna e externa podem ser explorados e experimentados visualmente, em ambiente SIG.
+O GeoComp propõe-se a atuar como uma ponte entre esses dois extremos: ao mesmo tempo em que expõe os estudantes a motores de processamento e ajuste utilizados em aplicações reais, fornece uma interface gráfica amigável onde conceitos como redes livres e amarradas, resíduos, elipses de erro, confiabilidade interna e externa podem ser explorados e experimentados visualmente, em ambiente SIG.
 
 Além disso, as funcionalidades de análise multiépoca previstas no GeoComp (ver Introdução) oferecerão oportunidades pedagógicas para exploração visual de conceitos como modelos cinemáticos, detecção de tendências e análise de deformações.
 
@@ -134,7 +132,7 @@ Além disso, as funcionalidades de análise multiépoca previstas no GeoComp (ve
 
 No contexto profissional, empresas que prestam serviços e consultoria na área de engenharia cartográfica e de agrimensura, frequentemente dependem de múltiplos softwares para obter um fluxo completo de processamento: ferramentas específicas para GNSS, outros programas para ajuste de redes, planilhas auxiliares e, por fim, sistemas de informação geográfica para visualização dos resultados.
 
-Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção, incluso devido à sua fácil instalação, bastando instalar o QGIS e o plugin, com poucos cliques.
+Um plugin como o GeoComp, ao integrar essas etapas em um único ambiente (QGIS), pode reduzir custos com licenças de software proprietário, simplificar fluxos de trabalho e aumentar a transparência dos processos de processamento geodésico. Ao prever modos de uso com configurações padrão (voltados ao uso comercial direto) e modos avançados (atendendo a necessidades de pesquisa e experimentação), o projeto almeja produzir uma suíte de processamento com amplo potencial de adoção, inclusive devido à sua fácil instalação, bastando instalar o QGIS e o plugin, com poucos cliques.
 
 Nas aplicações profissionais, o monitoramento contínuo de estruturas (barragens, pontes, taludes, grandes obras) é cada vez mais demandado por questões de segurança e regulação. As funcionalidades de análise multiépoca do GeoComp\@, descritas na Introdução, permitirão atender a esse mercado com geração de relatórios gráficos e cartográficos integrados ao QGIS.
 
@@ -222,7 +220,7 @@ O GeoComp incorporará testes estatísticos rigorosos para validação do ajusta
 
 \begin{itemize}
     \item \textbf{Teste Global ($\chi^2$)}: verifica se a variância a posteriori do fator de variância de referência é compatível com a variância a priori;
-    \item \textbf{Teste de Data Snooping (Teste $\tau$)}: analisa individualmente os resíduos padronizados para identificar observações rejeitáveis (outliers).
+    \item \textbf{Teste de Data Snooping (Teste $w$)}: analisa individualmente os resíduos padronizados para identificar observações rejeitáveis (outliers).
 \end{itemize}
 
 Essas análises são fundamentais para estatisticamente apontar que os resultados entregues pelo software, de acordo com a metodologia utilizada, possuam integridade e possam ser utilizados com segurança em aplicações como obras de engenharia e cadastro \cite{torge_geodesy}.
@@ -337,7 +335,7 @@ O GeoComp deverá contar com um menu superior próprio no QGIS, posicionado junt
         \item \textit{Relativo}: com opções para processamento \textbf{Estático} (linhas de base estáticas) e \textbf{Cinemático} (RTK pós-processado e trajetórias cinemáticas).
     \end{itemize}
 
-    \item \textbf{Gravímetro}: incluindo os seguintes sub-items:
+    \item \textbf{Gravímetro}: incluindo os seguintes subitens:
     \begin{itemize}
         \item \textit{Pré-Processamento}: Correções de escala da unidade instrumental, de maré, deriva dinâmica e estática, entre outras;
         \item \textit{Ajuste de Redes Gravimétricas}: Ajuste de redes gravimétricas utilizando o método dos mínimos quadrados, com suporte a diferentes tipos de observações (diferenças absolutas, diferenças relativas, etc.);
