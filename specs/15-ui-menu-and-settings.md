@@ -1,0 +1,224 @@
+# 15 — UI: the GeoComp menu and Global Settings
+
+**Status:** Draft
+**Requirements covered:** FR-002…FR-007, FR-060…FR-071, FR-272.
+**Source:** tex §Painel de Configuração Global e Menu Principal; `fig/menu_estrutura.png`; modificações.md.
+
+The proposal devotes a full subsection and a figure to this. The archived roadmap omits it entirely
+([`archive/README.md`](./archive/README.md), item 2), which is why it is specified here in full.
+
+---
+
+## 1. The GeoComp menu (FR-002, FR-003)
+
+A **top-level menu on the QGIS menu bar**, alongside Project, Edit, View and the rest — not a submenu under
+Plugins. `fig/menu_estrutura.png` shows it rendered exactly there.
+
+```text
+GeoComp
+ ├── Total Station        ▸
+ ├── Level                ▸
+ ├── GNSS                 ▸
+ ├── Gravimetry           ▸
+ ├── Integration          ▸
+ ├──────────────────────────   (separator)
+ └── Global Settings…
+```
+
+The separator before Global Settings, and the ellipsis on it, follow the figure and standard menu convention
+(the item opens a dialog rather than performing an action).
+
+> **Naming note.** The proposal's text calls the fourth group *Gravímetro* (the instrument) while
+> `fig/menu_estrutura.png` shows *Gravimetria* (the technique). GeoComp uses **Gravimetry / Gravimetria /
+> Gravimetría**, matching the figure and matching the technique-based naming of every other group. Recorded
+> in [`00-glossary.md`](./00-glossary.md) §Ambiguities resolved.
+
+### 1.1 Submenu contents (FR-004)
+
+Directly from `tex §Painel de Configuração Global`:
+
+**Total Station** → Generalised pre-processing · Traverse · Resection · Forward intersection · Classical
+networks · Trigonometric levelling · 3D radiation.
+See [`09-module-total-station.md`](./09-module-total-station.md).
+
+**Level** → Equal sights · Equidistant sights · Extreme sights · Levelling network adjustment.
+See [`10-module-levelling.md`](./10-module-levelling.md).
+
+**GNSS** → Absolute (Static · Kinematic) · Relative (Static · Kinematic) · Scan sessions · Download products ·
+Batch processing · Build baselines · Compare configurations.
+See [`11-module-gnss.md`](./11-module-gnss.md).
+
+**Gravimetry** → Pre-processing · Gravimetric network adjustment.
+See [`12-module-gravimetry.md`](./12-module-gravimetry.md).
+
+**Integration** → GNSS and Total Station · Total Station and Level · GNSS and Level · Multiple.
+See [`13-module-integration.md`](./13-module-integration.md).
+
+Two groups of items appear across submenus because they belong to no single technique, and are placed where
+the user needs them: **Network pre-analysis** and **Network inspection**
+([`06-adjustment-core.md`](./06-adjustment-core.md) §5), and **Multi-epoch comparison** and **Monitoring
+report** ([`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md)). Their menu placement is settled
+during P3 with the coordinator; a top-level **Analysis** group is the likely answer, and adding one is a
+menu change, not an architectural one.
+
+### 1.2 The menu is a launcher (FR-005)
+
+Every menu item runs a Processing algorithm. The menu holds no second implementation. Consequences:
+
+- The menu is **generated from the algorithm registry**, so an algorithm cannot exist without a menu route
+  and a menu item cannot point at nothing.
+- Menu item names, groups and ordering come from algorithm metadata, and are translated once (FR-090).
+- Most items open the standard Processing dialog. A small, enumerated set opens a custom dialog that
+  collects parameters and then runs the same algorithm:
+
+| Custom dialog | Why the standard dialog is insufficient |
+|---|---|
+| Global Settings | Not an algorithm at all — it configures the others |
+| Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop |
+| Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
+| Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison |
+| Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
+| Monitoring time series (FR-838) | An interactive panel, not a one-shot run |
+
+Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md).
+
+### 1.3 Toolbar (FR-007)
+
+A GeoComp toolbar with a small set of frequent actions — open/create project, run last algorithm, network
+inspection, adjust, and the results panel — hideable through the standard QGIS toolbar controls.
+
+### 1.4 Unload (FR-006)
+
+`unload()` removes the menu, the toolbar, the provider, every action, every dock panel and every signal
+connection. Reload during development must leave no duplicate menu behind — a specific, tested condition.
+
+---
+
+## 2. Global Settings (FR-060)
+
+> *"'Configurações Globais' que deverá abrir uma janela onde com menus laterais para cada tipo de
+> equipamento, onde deverão estar armazenadas constantes e valores configuráveis para os possíveis fluxos de
+> trabalho do plugin."* — `research_project/modificações.md`
+
+A dialog with a **side menu**, the sections organised primarily by equipment type as specified.
+
+```text
+┌──────────────────┬──────────────────────────────────────────────┐
+│ Total Station    │                                              │
+│ Level            │   (settings for the selected section)        │
+│ GNSS             │                                              │
+│ Gravimeter       │                                              │
+│ ───────────────  │                                              │
+│ Stochastic model │                                              │
+│ Reference systems│                                              │
+│ Paths & engines  │                                              │
+│ Interface        │                                              │
+├──────────────────┴──────────────────────────────────────────────┤
+│                      [Restore defaults]  [Cancel]  [OK]         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Equipment sections first, then the cross-cutting ones, separated.
+
+### 2.1 Section contents
+
+Each row below is a requirement, taken from `tex §Painel de Configuração Global`, item 6.
+
+| Section | Contents | Req |
+|---|---|---|
+| **Total Station** | Instrument profiles (§2.2): vertical index correction, collimation, EDM additive constant and scale, cyclic error, nominal precisions for direction / zenith angle / distance. Reflector profiles with prism constants. Atmospheric model and default temperature, pressure, humidity. Refraction coefficient. Closure tolerances by traverse class | FR-061, FR-062 |
+| **Level** | Level instrument profiles: nominal precision per km and per setup, collimation from the two-peg test. Sight-length balance tolerance. Loop closure tolerance model by levelling class. Default weighting (length or setups) | FR-061 |
+| **GNSS** | Product and ephemeris directories; preferred download servers and their priority; default processing options per mode; antenna model database (ANTEX); reference station database; credential references (never the credentials) | FR-063, NFR-010 |
+| **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
+| **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
+| **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
+| **Paths & engines** | DynAdjust and RTKLIB executable locations, engine installation and update, working directories, report templates | FR-066, FR-300 |
+| **Interface** | Language; usage mode (Basic / Advanced); units of measure; angle display format; decimal places; log verbosity | FR-067, FR-092 |
+
+### 2.2 Instrument profiles (FR-069)
+
+Instrument settings are **named profiles**, not a single set of values: add, edit, duplicate, delete, import,
+export. A department owns several total stations; a value that is "the" instrument constant is wrong for all
+but one of them.
+
+Each profile records make, model, serial number, calibration date, calibration certificate reference, and its
+constants with their uncertainties. Observations reference an instrument by id
+([`04-data-model.md`](./04-data-model.md) §2.5), so a later calibration correction can be traced to exactly
+the observations it affects.
+
+Profiles export and import as files, so an organisation can distribute a calibrated instrument definition to
+its staff.
+
+### 2.3 Layered settings (FR-068)
+
+Three scopes, resolving **run parameter → project → global → built-in default**.
+
+- Global settings live in `QgsSettings` under a `GeoComp/` prefix.
+- Project settings live in the project store (GeoPackage or PostGIS) so they travel with the data — a project
+  handed to a colleague carries the instrument constants it was computed with.
+- Every settings widget shows which scope the effective value came from, and offers "override for this
+  project".
+- The effective value and its origin are recorded in provenance (FR-134), which is what makes a result
+  explicable months later.
+
+---
+
+## 3. Basic and Advanced modes (FR-070, FR-071)
+
+Set in Interface, switchable without restart.
+
+| | Basic | Advanced |
+|---|---|---|
+| Parameters shown | The reduced set, with defaults | Everything |
+| Engine configuration | Generated | Generated, inspectable, editable; or user-supplied (FR-325) |
+| Pipeline stages | Chosen automatically | Individually controllable |
+| Approximate uncertainty paths | Applied where needed, labelled | Selectable per operation |
+| Automatic outlier rejection | Not offered | Offered, with an explicit warning ([`06-adjustment-core.md`](./06-adjustment-core.md) §4.2) |
+
+**FR-071 is the rule that makes this safe:** a parameter hidden in Basic mode uses exactly the value it would
+have had as the Advanced default. Switching modes without changing anything must not change results — a
+Basic-mode result must be defensible, not a cheaper approximation.
+
+See [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §4 for the parameter-gating mechanism.
+
+---
+
+## 4. Results panel
+
+A dockable panel showing the current project's solutions: run history with status, statistics summaries,
+per-observation results with sorting and filtering, and links from a table row to the corresponding map
+feature. Selecting a station shows its time series when the project has multiple epochs (FR-838).
+
+This is where the teaching value concentrates: the statistics are *visible*, next to the map, rather than
+buried in an output file.
+
+---
+
+## 5. UI conventions
+
+- **Nothing is silently defaulted where it matters.** Where GeoComp picks a value the user did not supply,
+  the choice is shown, not hidden — particularly for uncertainties, frames and epochs.
+- **Every statistic is shown with its critical value, confidence level and decision**
+  ([`06-adjustment-core.md`](./06-adjustment-core.md) §7).
+- **Approximate results are visibly marked** wherever displayed (FR-203).
+- **Angles display in the configured format** (DMS or decimal degrees) and are stored in radians.
+- **Errors follow NFR-006:** what failed, why, what to do.
+- **Long operations show determinate progress and can be cancelled** (FR-008).
+
+---
+
+## 6. Acceptance criteria
+
+1. The GeoComp menu appears on the QGIS menu bar with the six entries in the specified order and the
+   separator before Global Settings.
+2. Every submenu item launches an algorithm; a test asserts that the set of menu items and the set of
+   registered algorithms correspond, with no orphan on either side (FR-005).
+3. Unloading the plugin removes the menu, toolbar, provider and panels; reloading produces no duplicates.
+4. Global Settings shows the specified sections with the specified contents.
+5. An instrument profile can be created, used in a computation, exported, imported into a fresh profile, and
+   produces identical results.
+6. A setting overridden at project scope takes effect, and the UI shows the override and its origin.
+7. Running an algorithm in Basic mode and in Advanced mode with defaults produces identical numeric results
+   (FR-071), asserted by a test over every algorithm.
+8. No user-facing string in this module bypasses the translation layer (FR-091), asserted by the i18n check
+   in [`20-testing-and-validation.md`](./20-testing-and-validation.md).
