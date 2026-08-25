@@ -1,3 +1,14 @@
+> **SUPERSEDED — ARCHIVED FOR REFERENCE ONLY. DO NOT IMPLEMENT FROM THIS FILE.**
+>
+> This document (originally `plugin_roadmap.md` at the repository root) was written by an earlier agent
+> before the specification set existed. It is retained because parts of it were carried forward, but its
+> central premise is incorrect and several major project requirements are missing from it.
+>
+> See [`README.md`](./README.md) in this folder for the full assessment, and use
+> [`../ROADMAP.md`](../ROADMAP.md) as the authoritative plan.
+
+---
+
 # GeoComp QGIS Plugin – Implementation Roadmap (v2)
 
 **Audience:** developers and code agents implementing the GeoComp plugin for QGIS.  
