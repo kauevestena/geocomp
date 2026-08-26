@@ -78,6 +78,13 @@ SciPy is available and falling back to dense NumPy otherwise
 ([`03-architecture.md`](./03-architecture.md) §3.7). For ill-conditioned systems, QR on the weighted design
 matrix is available as an alternative with better numerical behaviour.
 
+> **State, as of P2.** The dense NumPy path is implemented — Cholesky, falling back to QR when Cholesky
+> fails numerically — and is correct for every network. The **sparse path is not yet implemented**; it
+> belongs to P12 with the rest of the work against NFR-008, because it needs a network large enough to show
+> that it helps. [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md) records the
+> decision and what it means for NFR-008. SciPy is used today only for the statistical distributions, and
+> there too the NumPy path is the reference implementation.
+
 The condition number is computed and reported. A system that is rank-deficient or numerically singular
 produces a **diagnosis**, not a crash and not a meaningless answer (FR-226): the null-space vectors are
 examined and mapped back to the stations and components that are undetermined, and the message names them —
@@ -207,6 +214,12 @@ specification.
 This runs on the QGIS canvas (FR-272): draw planned stations, draw intended observations, evaluate, see the
 expected ellipses, move a station, re-evaluate. This interactive loop is the reason pre-analysis belongs in a
 GIS at all, and it is a direct answer to the proposal's pedagogical justification.
+
+> **Phasing.** The mathematics above and the Processing algorithm that exposes it
+> (`geocomp:analysis_network_preanalysis`) ship in **P2**; the canvas dialog (FR-272) ships in **P3**, where
+> a running QGIS can verify it. [`ROADMAP.md`](./ROADMAP.md) records the re-planning. The split is along a
+> real seam: the algorithm is the whole computation, and the dialog is a way to drive it, so a model or a
+> script needs nothing from P3.
 
 Supported design questions: *is this network strong enough?* · *where should I add an observation to improve
 it most?* · *what happens if I lose station X?* · *can I detect a 5 mm blunder anywhere in this network?*

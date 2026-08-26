@@ -208,7 +208,7 @@ justification, because a QGIS plugin cannot assume the user can run `pip`.
 | Dependency | Status | Note |
 |---|---|---|
 | NumPy | Assumed present | Ships with QGIS |
-| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path |
+| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path, which is the reference implementation. See [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md); as of P2 the distributions use it and the sparse factorisation is not yet written |
 | GDAL/OGR, `qgis.core` | Assumed present | Ships with QGIS; used only in `io/` and above |
 | `openpyxl` | Optional | Required only for `.xlsx` (FR-160); the feature degrades to CSV with a clear message when absent |
 | `requests` | Avoided | Use Python's standard library plus the QGIS network stack, so proxy and authentication settings are honoured |

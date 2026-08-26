@@ -85,18 +85,29 @@ PROCESSING_GROUPS: tuple[ProcessingGroup, ...] = (
     ProcessingGroup("visualization", 90),
 )
 
-#: The six GeoComp menu entries, in the order FR-003 specifies. The technique
+#: The GeoComp menu entries, in the order FR-003 specifies. The technique
 #: submenus are populated by the phase that implements each module; they are
 #: present but empty until then, which is why ``menu.py`` disables an empty one
 #: rather than hiding it -- a user should be able to see that Gravimetry is
 #: coming, not wonder whether it exists.
+#:
+#: **Analysis is the seventh entry, added in phase P2.** ``specs/15`` section 1.1
+#: left its placement open: network pre-analysis, inspection and the statistical
+#: operations belong to no single survey technique, so filing them under one of
+#: the five technique submenus would say something false about them. Placing
+#: them under any *one* technique would also hide them from users of the other
+#: four, and duplicating them across all five would break the one-item-per-
+#: algorithm correspondence ADR-0005 rests on. A seventh entry is the only
+#: option that leaves both intact, and FR-003 is amended to say seven rather
+#: than being quietly contradicted by the code.
 MENU_GROUPS: tuple[MenuGroup, ...] = (
     MenuGroup("total_station", 10),
     MenuGroup("level", 20),
     MenuGroup("gnss", 30),
     MenuGroup("gravimetry", 40),
     MenuGroup("integration", 50),
-    MenuGroup("global_settings", 60, separator_before=True, is_action=True),
+    MenuGroup("analysis", 60),
+    MenuGroup("global_settings", 70, separator_before=True, is_action=True),
 )
 
 
@@ -154,9 +165,9 @@ TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
     ),
 }
 
-#: Every algorithm GeoComp registers. Phase P0 has one: enough to prove the
-#: registry -> provider -> menu path end to end without pretending to
-#: capability that does not exist yet.
+#: Every algorithm GeoComp registers. Phase P0 contributed one, enough to prove
+#: the registry -> provider -> menu path end to end; phase P2 adds the three
+#: that expose the adjustment core.
 ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     AlgorithmSpec(
         operation="system_report",
@@ -165,6 +176,33 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         class_name="SystemReportAlgorithm",
         requirement="FR-030",
         menu=None,
+    ),
+    AlgorithmSpec(
+        operation="network_inspect",
+        group="analysis",
+        module="geocomp.algorithms.analysis.network_inspect",
+        class_name="NetworkInspectAlgorithm",
+        requirement="FR-273",
+        menu="analysis",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="network_preanalysis",
+        group="analysis",
+        module="geocomp.algorithms.analysis.network_preanalysis",
+        class_name="NetworkPreAnalysisAlgorithm",
+        requirement="FR-270",
+        menu="analysis",
+        menu_order=20,
+    ),
+    AlgorithmSpec(
+        operation="network_adjust",
+        group="analysis",
+        module="geocomp.algorithms.analysis.network_adjust",
+        class_name="NetworkAdjustAlgorithm",
+        requirement="FR-220",
+        menu="analysis",
+        menu_order=30,
     ),
 )
 

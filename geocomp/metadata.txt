@@ -19,6 +19,12 @@ deprecated=False
 hasProcessingProvider=yes
 server=False
 
+# Python dependencies, for the record: NumPy ships with QGIS and is required. SciPy
+# is optional -- every computation has a NumPy-only path that is always correct, and
+# SciPy is used where present as an accelerator (see
+# specs/adr/0008-scipy-and-network-scale.md). Neither is declared in
+# plugin_dependencies, which names other QGIS *plugins* rather than Python packages.
+
 tags=geodesy,gnss,adjustment,least squares,network,survey,dynadjust,rtklib,monitoring,deformation,levelling,total station,gravimetry
 
 changelog=0.1.0 - Phase P0 (foundations)

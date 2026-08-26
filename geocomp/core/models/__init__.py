@@ -18,7 +18,13 @@ a plausible-looking wrong answer rather than an error:
 from __future__ import annotations
 
 from geocomp.core.models.epoch import Epoch, require_epoch
-from geocomp.core.models.network import Campaign, GnssSession, Network, Project
+from geocomp.core.models.network import (
+    Campaign,
+    GnssSession,
+    Network,
+    Project,
+    network_from_document,
+)
 from geocomp.core.models.observation import (
     OBSERVATION_TYPES,
     Cluster,
@@ -81,6 +87,7 @@ __all__ = [
     "Station",
     "StationType",
     "TestResult",
+    "network_from_document",
     "observation_type_spec",
     "require_epoch",
 ]

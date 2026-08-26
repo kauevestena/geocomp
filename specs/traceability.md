@@ -39,13 +39,19 @@ From `tex §Painel de Configuração Global e Menu Principal` and `fig/menu_estr
 | Menu group | Requirements | Phase |
 |---|---|---|
 | GeoComp top-level menu on the QGIS menu bar | FR-002 | P0 |
-| Six entries in order, separator before Global Settings | FR-003, FR-004 | P0 |
+| Seven entries in order, separator before Global Settings | FR-003, FR-004 | P0 (amended in P2) |
 | 1. Total Station | FR-400…FR-412 | P3 |
 | 2. Level | FR-500…FR-505 | P4 |
 | 3. GNSS | FR-600…FR-604 | P7 |
 | 4. Gravimetry | FR-700…FR-703 | P8 |
 | 5. Integration | FR-800…FR-805 | P9 |
-| 6. Global Settings | FR-060…FR-069 | P0, P3, P6, P7 |
+| 6. Analysis | FR-220…FR-227, FR-250…FR-255, FR-270…FR-273, FR-830…FR-838 | P2, P3, P10 |
+| 7. Global Settings | FR-060…FR-069 | P0, P3, P6, P7 |
+
+The Analysis group is not in `fig/menu_estrutura.png`: the figure shows the five technique submenus and
+Global Settings. It was added in phase P2 for the operations belonging to no single technique, settling what
+[`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.1 left open, and FR-003 and FR-004 were
+amended to match rather than being contradicted by the code.
 
 ### 2.2 Total Station submenu
 

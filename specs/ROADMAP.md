@@ -95,10 +95,24 @@ later modules.
 **Delivers.** `core/adjustment/`, `core/statistics/`, `core/preanalysis/`. Parametric LSQ with a full weight
 matrix; iteration to convergence; free (minimum- and inner-constraint) and constrained datum handling; rank
 diagnosis; 1D/2D/3D; global χ² test; data snooping; internal and external reliability; absolute and relative
-error ellipses; design simulation with its interactive canvas dialog; network inspection.
+error ellipses; design simulation; network inspection. Three Processing algorithms exposing them —
+`geocomp:analysis_network_inspect`, `geocomp:analysis_network_preanalysis`,
+`geocomp:analysis_network_adjust` — and with them the **Analysis** menu group, which settles what
+[`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.1 left open and amends FR-003 and FR-004 to
+seven entries.
 
 **Closes.** FR-220, FR-221, FR-222, FR-223, FR-224, FR-225, FR-226, FR-227, FR-250, FR-251, FR-252, FR-253,
-FR-254, FR-255, FR-270, FR-271, FR-272, FR-273, NFR-008
+FR-254, FR-255, FR-270, FR-271, FR-273, NFR-008
+
+**Amends.** FR-003 and FR-004 (a seventh menu entry) and NFR-008 (SciPy for scale — ADR-0008). Both stay
+owned by the phase that closed them; an amendment is not a transfer of ownership.
+
+**Re-planned out of this phase.** **FR-272** — editing a design on the QGIS canvas and re-evaluating it in a
+loop — moves to **P3**. P2 delivers the pre-analysis mathematics and the non-interactive route, both fully
+testable without QGIS; the canvas dialog needs a running QGIS to verify, and shipping interaction code
+nobody has run is how a phase reports done while leaving a defect. P3 is where the first custom dialog
+(field mapping, FR-160) and the first QGIS-job exit criteria arrive, so it is where FR-272 can be proved
+rather than asserted.
 
 **Exit.** Reproduces RD-03 — coordinates, residuals, σ̂₀², ellipses — to published precision. A 2 × MDB blunder
 injected into RD-09 is located on the first pass. A rank-deficient network produces a diagnosis naming the
@@ -119,16 +133,19 @@ adjusted, statistically validated, styled network on the map — **with no exter
 atmospheric and EDM corrections, basic and geometric reductions, traverse (classical and least-squares),
 resection, forward intersection, classical networks, trigonometric levelling with leap-frog, 3D radiation.
 The CSV/XLSX importer with saved field mappings. Instrument and reflector profiles. Basic/Advanced gating.
-Result layers with QML styles and error ellipses. RD-01 shipped as a tutorial dataset.
+Result layers with QML styles and error ellipses. RD-01 shipped as a tutorial dataset. **The interactive
+pre-analysis dialog (FR-272)**, re-planned out of P2: it belongs with the phase's other canvas and dialog
+work, and with its QGIS job, which is what lets it be verified rather than asserted.
 
-**Closes.** FR-033, FR-034, FR-035, FR-061, FR-062, FR-064, FR-069, FR-070, FR-071, FR-160, FR-166, FR-400,
-FR-401, FR-402, FR-403, FR-404, FR-405, FR-406, FR-407, FR-408, FR-409, FR-410, FR-411, FR-412, FR-900,
-FR-901, FR-904, FR-905, FR-950
+**Closes.** FR-033, FR-034, FR-035, FR-061, FR-062, FR-064, FR-069, FR-070, FR-071, FR-160, FR-166, FR-272,
+FR-400, FR-401, FR-402, FR-403, FR-404, FR-405, FR-406, FR-407, FR-408, FR-409, FR-410, FR-411, FR-412,
+FR-900, FR-901, FR-904, FR-905, FR-950
 
 **Exit.** RD-01 reproduces `topo_test/processed_data.csv` to 1e-9 **and attaches an uncertainty to every
 value**. RD-01's 1.000 m face-pair distance discrepancy is flagged as a blunder candidate, not averaged. The
 PD = 181° / PI = 1° wrap case returns 181°. The whole chain runs from the menu and from a model-builder model.
-Basic and Advanced modes give identical numbers with defaults.
+Basic and Advanced modes give identical numbers with defaults. A planned station added on the canvas
+re-evaluates the design without leaving the map.
 
 *This is the milestone worth demonstrating.* It is a complete, useful, teachable product.
 

@@ -22,7 +22,7 @@ from geocomp.core.models.station import Station
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 
-__all__ = ["Campaign", "GnssSession", "Network", "Project"]
+__all__ = ["Campaign", "GnssSession", "Network", "Project", "network_from_document"]
 
 
 @dataclass(frozen=True)
@@ -377,3 +377,54 @@ class Project:
             },
             settings=dict(payload.get("settings", {})),
         )
+
+
+def network_from_document(payload: Any) -> Network:
+    """Read a network from a parsed JSON document, whichever kind it is.
+
+    A user reaches for the file they have. Sometimes that is a network document
+    (:meth:`Network.to_dict`) and sometimes a whole project
+    (:meth:`Project.to_dict`), and refusing the second when it holds exactly one
+    network would be pedantry rather than safety.
+
+    A project holding several networks *is* refused: taking the first would be a
+    silent choice about which network the user meant, and a wrong answer that
+    looks right is the worst outcome available here.
+
+    Raises:
+        DataError: With ``document_not_an_object``, ``document_not_a_network`` or
+            ``document_holds_several_networks``. Coded rather than phrased: the
+            core has no translation layer (NFR-002), and
+            :mod:`geocomp.services.messages` owns the wording.
+    """
+    if not isinstance(payload, dict):
+        raise DataError(
+            "document_not_an_object",
+            received=type(payload).__name__,
+            expected="a JSON object holding a GeoComp network or project",
+        )
+
+    if "stations" not in payload and "networks" in payload:
+        networks = payload.get("networks") or []
+        if len(networks) != 1:
+            raise DataError(
+                "document_holds_several_networks",
+                received=len(networks),
+                expected="a project holding exactly one network, or a network document",
+            )
+        payload = networks[0]
+
+    if "id" not in payload:
+        raise DataError(
+            "document_not_a_network",
+            expected="a network document with an 'id' and a 'stations' list",
+        )
+
+    try:
+        return Network.from_dict(payload)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise DataError(
+            "document_malformed_network",
+            received=str(exc),
+            expected="a document written by Network.to_dict",
+        ) from exc

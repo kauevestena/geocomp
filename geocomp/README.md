@@ -6,8 +6,10 @@ is zipped and shipped to users and to [plugins.qgis.org](https://plugins.qgis.or
 Implementation is specification-driven: code lands here phase by phase per
 [`../specs/ROADMAP.md`](../specs/ROADMAP.md), against accepted specifications in [`../specs/`](../specs/).
 
-**Current state: phase P0 (Foundations) — the plugin loads, but nothing computes yet.** Geodetic computation
-begins in P1 (uncertainty), P2 (adjustment) and P3 (total station, the first end-to-end workflow).
+**Current state: phase P2 (Adjustment core).** The plugin loads, and it adjusts: least squares in 1D, 2D and
+3D, free or constrained, with the global test, data snooping, reliability and error ellipses, plus network
+design simulation and inspection. Reachable from the **Analysis** menu and the toolbox. The technique
+modules that feed it — total station, levelling, GNSS, gravimetry — arrive from P3 onwards.
 
 ## Ground rules
 
@@ -35,9 +37,9 @@ geocomp/
   provider.py           GeoCompProvider (QgsProcessingProvider)
   registry.py           the algorithm registry — pure data, no QGIS imports
 
-  core/                 pure Python: version, errors, cancellation, settings,
-                        settings resolution. Later: units, uncertainty, models,
-                        adjustment, techniques, monitoring
+  core/                 pure Python, no QGIS: version, errors, cancellation, settings,
+                        units, uncertainty, differentiation, models, adjustment,
+                        statistics, preanalysis. Later: techniques, monitoring
   services/             logging, layered settings, QgsTask wrapping, message rendering
   gui/                  menu, Global Settings window, About dialog
   algorithms/           QgsProcessingAlgorithm subclasses, grouped as in the menu

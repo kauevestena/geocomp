@@ -33,8 +33,14 @@ class TestIdentity:
 
 
 class TestMenuStructure:
-    def test_the_menu_presents_exactly_the_six_specified_entries(self):
-        """FR-003, matching research_project/fig/menu_estrutura.png."""
+    def test_the_menu_presents_exactly_the_specified_entries(self):
+        """FR-003, matching research_project/fig/menu_estrutura.png plus the
+        Analysis entry the requirement was amended to include in phase P2.
+
+        The figure shows five technique submenus and Global Settings. Analysis
+        holds the operations belonging to no single technique -- inspection,
+        pre-analysis, adjustment -- which specs/15 section 1.1 left unplaced.
+        """
         ordered = [group.id for group in sorted(MENU_GROUPS, key=lambda g: g.order)]
         assert ordered == [
             "total_station",
@@ -42,8 +48,14 @@ class TestMenuStructure:
             "gnss",
             "gravimetry",
             "integration",
+            "analysis",
             "global_settings",
         ]
+
+    def test_the_five_technique_submenus_come_first_and_in_the_figure_order(self):
+        """Analysis was appended, not inserted: the figure's order is intact."""
+        ordered = [group.id for group in sorted(MENU_GROUPS, key=lambda g: g.order)]
+        assert ordered[:5] == ["total_station", "level", "gnss", "gravimetry", "integration"]
 
     def test_global_settings_is_last_and_separated(self):
         last = sorted(MENU_GROUPS, key=lambda group: group.order)[-1]

@@ -2,9 +2,14 @@
 """The GeoComp menu, generated from the algorithm registry.
 
 FR-002 and FR-003: a dedicated top-level menu on the QGIS menu bar -- alongside
-Project, Edit and View, not buried under Plugins -- presenting six entries in
+Project, Edit and View, not buried under Plugins -- presenting seven entries in
 order, with a separator before Global Settings, matching
 ``research_project/fig/menu_estrutura.png``.
+
+The figure shows five technique submenus; **Analysis** is the sixth, added in
+phase P2 for the operations that belong to no single technique (network
+pre-analysis, inspection, adjustment and its statistics). ``specs/15`` section
+1.1 left that placement open and FR-003 is amended rather than contradicted.
 
 ADR-0005: the menu is a *launcher*. Every item runs a Processing algorithm; the
 menu holds no second implementation, and it is built from
@@ -55,6 +60,7 @@ def menu_label(menu_id: str) -> str:
         "gnss": _tr("GNSS"),
         "gravimetry": _tr("Gravimetry"),
         "integration": _tr("Integration"),
+        "analysis": _tr("Analysis"),
         "global_settings": _tr("Global Settings…"),
     }.get(menu_id, menu_id)
 

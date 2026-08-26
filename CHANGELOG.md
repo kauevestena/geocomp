@@ -5,6 +5,77 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Phase P2 - Adjustment core
+
+The phase the project turns on. Least squares with its full statistical treatment, plus network design -
+the engine behind four later modules, and what makes ADR-0002 real: gravimetric adjustment and pre-analysis
+have no external engine at all. Still runs with no QGIS and no SciPy.
+
+#### Added
+
+- **`core/adjustment/`** - the parametric model `Lb + v = Ax + L0` end to end. Observation equations with
+  analytic Jacobians for twelve types (1D height and gravity, 2D distance, angle, direction with its
+  orientation unknown, azimuth, 3D slope distance, zenith angle, GNSS baseline and point), dispatched
+  through the observation type registry so a new type stays a registry entry. Normal equations from the
+  full weight matrix including correlated clusters; Cholesky with a QR fallback; iteration to convergence
+  with **non-convergence reported as a failure, never a silently returned last iterate** (FR-220 to
+  FR-227).
+- **Datum handling** - `FIXED`, `WEIGHTED`, `MINIMUM_CONSTRAINT` and `INNER_CONSTRAINT`, the last two via
+  the trace-minimum **G** matrix over a chosen station set, which is what deformation analysis needs:
+  holding a station that has itself moved spreads its motion across the network. The defect is detected
+  from the observation content and recorded on the solution rather than assumed (FR-222).
+- **Rank diagnosis (FR-226)** - a singular system produces a sentence naming the stations and components
+  in each undetermined direction, not a number and not a crash.
+- **`core/statistics/`** - the two-sided global chi-square test (an unexpectedly *small* variance factor is
+  information, not a pass); Baarda's w-test with the tau variant when sigma-nought is estimated, reporting
+  which was used; redundancy numbers, minimal detectable bias and external reliability, with uncheckable
+  observations flagged; absolute and relative error ellipses and 3D ellipsoids, chi-square or F scaled
+  (FR-250 to FR-254).
+- **Nothing is rejected automatically** (FR-255). Data snooping returns candidates; the decision is the
+  user's, and re-adjustment after a rejection is a second explicit run.
+- **`core/statistics/distributions.py`** - normal, chi-square, F and t with a SciPy fast path and a
+  complete NumPy-only fallback (Acklam plus Newton; the regularised incomplete gamma; Lentz's continued
+  fraction for the incomplete beta). Both paths tested against published tables and against each other.
+- **`core/preanalysis/`** - design simulation, `Sigma_x = sigma_0^2 (A^T P A)^-1` from geometry and assumed
+  precisions with no observations at all, reporting expected ellipses *and* expected reliability (FR-270,
+  FR-271); and network inspection on real data - connectivity, isolated stations, insufficient
+  observations, duplicates, missing approximate coordinates - returning every finding in one pass rather
+  than stopping at the first (FR-273).
+- **Three Processing algorithms** - `geocomp:analysis_network_inspect`,
+  `geocomp:analysis_network_preanalysis` and `geocomp:analysis_network_adjust`, each with HTML and CSV
+  outputs and scalar outputs so they chain in the graphical modeller.
+- **The Analysis menu group**, the seventh top-level entry. `specs/15` §1.1 left its placement open; P2
+  needed it and settled it, and FR-003 and FR-004 were amended to say seven rather than being contradicted
+  by the code.
+- **RD-03 and RD-09 reference networks** - 1D levelling, 2D trilateration, 2D triangulateration, free and
+  constrained, with a known truth; and the same with a blunder of known size at a known place, which is
+  the only way to test detection against ground truth rather than against another computation.
+- **Structural check for message templates** - a template that interpolates a context key its raising site
+  never supplies renders "(not set)" to the user and raises nothing. Both sides are now read as source and
+  cross-checked.
+
+#### Notes
+
+- The tests that carry the weight are the *identities*, because they hold for every network rather than
+  one: redundancy numbers sum to the degrees of freedom; a free and a constrained solution agree on
+  residuals and on the variance factor; design simulation reproduces the adjustment's covariance to
+  machine precision at the adjusted coordinates; every analytic Jacobian matches complex-step
+  differentiation.
+- **RD-03 and RD-09 are not transcriptions from Ghilani or Gemael.** Those books are unavailable here and
+  inventing a citation would be worse than having none. They are validated against closed forms where one
+  exists and against the identities above everywhere else; transcribing the published worked examples
+  remains outstanding and is recorded in `specs/20`.
+- **The sparse solver is not implemented.** The dense NumPy path is correct at every size and comfortable
+  to roughly 2,000-3,000 stations. NFR-008 was reworded and the sparse path assigned to P12, where a
+  network large enough to measure it will exist
+  ([`specs/adr/0008-scipy-and-network-scale.md`](specs/adr/0008-scipy-and-network-scale.md)).
+- **FR-272 moved to P3.** P2 ships the pre-analysis mathematics and the Processing algorithm; the
+  interactive canvas dialog needs a running QGIS to verify, and shipping interaction code nobody has run
+  is how a phase reports done while leaving a defect.
+- Ellipses and the a priori variance factor now reach the `Solution` itself, so a DynAdjust result in P6
+  fills the same structure on the same terms.
+
+
 ### Phase P1 - Core domain and uncertainty
 
 The types everything else is built from, and the property that defines this project: no geodetic value

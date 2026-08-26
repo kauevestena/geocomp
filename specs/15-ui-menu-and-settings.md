@@ -21,6 +21,7 @@ GeoComp
  ├── GNSS                 ▸
  ├── Gravimetry           ▸
  ├── Integration          ▸
+ ├── Analysis             ▸     (added in phase P2 — see §1.1)
  ├──────────────────────────   (separator)
  └── Global Settings…
 ```
@@ -54,12 +55,29 @@ See [`12-module-gravimetry.md`](./12-module-gravimetry.md).
 **Integration** → GNSS and Total Station · Total Station and Level · GNSS and Level · Multiple.
 See [`13-module-integration.md`](./13-module-integration.md).
 
-Two groups of items appear across submenus because they belong to no single technique, and are placed where
-the user needs them: **Network pre-analysis** and **Network inspection**
-([`06-adjustment-core.md`](./06-adjustment-core.md) §5), and **Multi-epoch comparison** and **Monitoring
-report** ([`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md)). Their menu placement is settled
-during P3 with the coordinator; a top-level **Analysis** group is the likely answer, and adding one is a
-menu change, not an architectural one.
+**Analysis** → Inspect network · Pre-analyse network design · Adjust network · *(multi-epoch comparison and
+the monitoring report join it in P10).*
+See [`06-adjustment-core.md`](./06-adjustment-core.md) §5 and
+[`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md).
+
+#### Why Analysis is a seventh entry (settled in P2)
+
+This document previously left the placement open, noting that a top-level Analysis group was the likely
+answer. Phase P2 needed it, and it was settled then rather than in P3, because the alternatives are worse in
+ways that are easy to state:
+
+- **Filing them under one technique** — say Total Station — would say something false about them. Network
+  adjustment, inspection and pre-analysis are what the technique modules *feed*; a levelling user needs them
+  as much as a total-station user, and would not look under Total Station to find them.
+- **Duplicating them across all five** would break the one-item-per-algorithm correspondence ADR-0005 rests
+  on: the menu is generated from the algorithm registry, and an algorithm appearing five times has no single
+  menu route.
+- **Leaving them toolbox-only** would put the plugin's central capability outside the menu the proposal
+  devotes a figure to.
+
+A seventh entry leaves both the figure's five technique submenus and the algorithm correspondence intact.
+FR-003 and FR-004 are amended to say seven rather than being quietly contradicted by the code, and
+`tests/test_registry.py` asserts both the new list and that the figure's five come first, in its order.
 
 ### 1.2 The menu is a launcher (FR-005)
 
@@ -74,7 +92,7 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 | Custom dialog | Why the standard dialog is insufficient |
 |---|---|
 | Global Settings | Not an algorithm at all — it configures the others |
-| Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop |
+| Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop. Arrives in P3, re-planned out of P2 — see [`ROADMAP.md`](./ROADMAP.md). The non-interactive route, `geocomp:analysis_network_preanalysis`, ships in P2 |
 | Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
 | Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison |
 | Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
@@ -82,9 +100,10 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 
 #### Toolbox-only algorithms
 
-A small, enumerated set of algorithms has **no menu entry at all**. The GeoComp menu presents six
-technique-oriented entries (FR-003); an operation belonging to no survey technique would have to be filed
-under one of them, which would misrepresent that structure.
+A small, enumerated set of algorithms has **no menu entry at all**. The GeoComp menu presents five
+technique-oriented entries plus Analysis (FR-003); an operation belonging to no survey technique and to no
+analysis of one — environment diagnostics, maintenance — would have to be filed under one of them, which
+would misrepresent that structure.
 
 Permitted only for maintenance and diagnostic operations, and only with the reason recorded in code, in
 `geocomp/registry.py`'s `TOOLBOX_ONLY_JUSTIFICATIONS`. The parity test holds the exception list to exactly
@@ -229,8 +248,8 @@ buried in an output file.
 
 ## 6. Acceptance criteria
 
-1. The GeoComp menu appears on the QGIS menu bar with the six entries in the specified order and the
-   separator before Global Settings.
+1. The GeoComp menu appears on the QGIS menu bar with the seven entries in the specified order — the
+   figure's five technique submenus, then Analysis — and the separator before Global Settings.
 2. Every submenu item launches an algorithm; a test asserts that the set of menu items and the set of
    registered algorithms correspond, with no orphan on either side (FR-005).
 3. Unloading the plugin removes the menu, toolbar, provider and panels; reloading produces no duplicates.

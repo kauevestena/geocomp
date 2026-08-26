@@ -47,6 +47,7 @@ from geocomp.core.models import (
     SolutionKind,
     Station,
     StationType,
+    network_from_document,
     require_epoch,
 )
 from geocomp.core.uncertainty import Covariance, Quantity, UncertaintyMode
@@ -504,6 +505,75 @@ class TestNetwork:
 
     def test_observations_at_a_station(self, network):
         assert {o.id for o in network.observations_at("2")} == {"d12"}
+
+
+class TestNetworkDocument:
+    """``network_from_document``: what an algorithm gets handed by a user.
+
+    The file a user reaches for is whichever one they have, so the reader takes
+    a network document or a single-network project. What it must never do is
+    guess, which is what the several-networks case is here to pin down.
+    """
+
+    @pytest.fixture
+    def document(self):
+        net = Network(id="tri", crs="EPSG:31982", epoch=EPOCH)
+        net.add_station(Station(id="1", approx_position=projected(0.0, 0.0)))
+        net.add_station(Station(id="2", approx_position=projected(11.5, 0.0)))
+        net.add_observation(
+            Observation(
+                id="d12",
+                type=ObservationType.HORIZONTAL_DISTANCE,
+                stations=("1", "2"),
+                values=(metres(11.508, 0.003),),
+            )
+        )
+        return net.to_dict()
+
+    def test_a_network_document_reads_back_identically(self, document):
+        assert network_from_document(document).to_dict() == document
+
+    def test_a_project_holding_one_network_is_accepted(self, document):
+        project = {"schema_version": 1, "networks": [document]}
+        assert network_from_document(project).to_dict() == document
+
+    def test_a_project_holding_several_networks_is_refused_rather_than_guessed(self, document):
+        """Taking the first would be a silent choice about which network the
+        user meant -- a wrong answer that looks right."""
+        second = dict(document, id="other")
+        with pytest.raises(DataError) as caught:
+            network_from_document({"networks": [document, second]})
+        assert caught.value.code == "data.document_holds_several_networks"
+        assert caught.value.context["received"] == 2
+
+    def test_a_project_holding_no_networks_is_refused(self):
+        with pytest.raises(DataError) as caught:
+            network_from_document({"networks": []})
+        assert caught.value.code == "data.document_holds_several_networks"
+
+    @pytest.mark.parametrize("payload", [[], "text", 3, None])
+    def test_a_document_that_is_not_an_object_names_what_it_got(self, payload):
+        with pytest.raises(DataError) as caught:
+            network_from_document(payload)
+        assert caught.value.code == "data.document_not_an_object"
+        assert caught.value.context["received"] == type(payload).__name__
+
+    def test_some_other_json_object_is_not_mistaken_for_a_network(self):
+        with pytest.raises(DataError) as caught:
+            network_from_document({"type": "FeatureCollection", "features": []})
+        assert caught.value.code == "data.document_not_a_network"
+
+    def test_a_malformed_network_reports_the_underlying_problem(self):
+        with pytest.raises(DataError) as caught:
+            network_from_document({"id": "n", "stations": [{"no_id_here": True}]})
+        assert caught.value.code == "data.document_malformed_network"
+        assert caught.value.context["received"]
+
+    def test_a_network_whose_key_collides_with_a_project_is_read_as_a_network(self, document):
+        """``stations`` present wins: a network that happens to carry a
+        ``networks`` entry in its metadata is still a network."""
+        document = dict(document, networks=["not a network"])
+        assert network_from_document(document).id == "tri"
 
 
 class TestGnssSession:

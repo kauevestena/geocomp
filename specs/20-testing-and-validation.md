@@ -33,6 +33,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Every menu item maps to a registered algorithm and vice versa | FR-005 |
 | Every algorithm has a translated `shortHelpString()` documenting every parameter with units | FR-090, [`16-processing-provider.md`](./16-processing-provider.md) §8 |
 | Every public core function returning a geodetic value returns a `Quantity`-bearing type | FR-200 |
+| Every message template interpolates only context keys its raising site supplies, has one `%n` per key, and names a code something raises | NFR-006, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §2 |
 | Every requirement ID in `02-requirements.md` appears in exactly one `ROADMAP.md` phase | [`README.md`](./README.md) |
 | Relative links between spec documents resolve | — |
 | Locale round trip: every output format written under a comma-decimal locale reads back under a period-decimal one | FR-095 |
@@ -48,13 +49,13 @@ permitting redistribution, and an expected-results file.
 |---|---|---|---|
 | **RD-01** | `topo_test/` — the project author's total-station triangle (3 stations, PD/PI, distances, zenith angles) | Face reduction, corrections, basic reductions, small-network adjustment, the field-mapping importer | **In repository** |
 | **RD-02** | Covariance-propagation reference cases, each validated three ways: a hand-derived closed form, the module's first-order propagation, and a derivative-free Monte Carlo simulation | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | **Implemented** (P1). See the note below |
-| **RD-03** | Worked network adjustments from the same sources — free and constrained, 2D and 3D | [`06-adjustment-core.md`](./06-adjustment-core.md) | To assemble |
+| **RD-03** | Network adjustments with a known truth — 1D levelling, 2D trilateration, 2D triangulateration, free and constrained | [`06-adjustment-core.md`](./06-adjustment-core.md) | **Implemented** (P2), in `tests/networks.py`. Same citation note as RD-02 |
 | **RD-04** | Levelling networks with published solutions, all three schemes | [`10-module-levelling.md`](./10-module-levelling.md) | To assemble |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
 | **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble |
 | **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble |
 | **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble |
-| **RD-09** | Synthetic networks with injected blunders of known size and location | Data snooping, reliability | Generated |
+| **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
 
 **RD-01 is special.** It is the author's own prototype data, it exercises the whole first vertical slice, and
@@ -62,16 +63,25 @@ it contains a real transcription blunder (a 1.000 m face-pair distance discrepan
 [`09-module-total-station.md`](./09-module-total-station.md) §2.1) which becomes a detection test. It ships
 with the plugin as a tutorial dataset (FR-952).
 
-**RD-02 note — validation complete, citation outstanding.** The cases implemented in
-`tests/test_reference_propagation.py` are *not* transcriptions from Ghilani or Gemael; they are reference
-cases built from the geodetic operations GeoComp performs, each agreeing with a hand-derived closed form and
-with a Monte Carlo simulation that uses no derivative at all. That triangle is stronger evidence than
-matching a printed answer — a transcription error in a book's input value would be invisible, whereas the
-Monte Carlo check catches a sign error the closed form and the implementation could share.
+**RD-02 and RD-03 note — validation complete, citation outstanding.** The cases implemented in
+`tests/test_reference_propagation.py` and `tests/networks.py` are *not* transcriptions from Ghilani or
+Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
 
-What remains is *citation*: transcribing the published worked examples so the project can state agreement
-with the standard references by name, which matters for the commercial-comparison protocol (§5) and for the
-teaching material (FR-952). This needs the books, and is a task for a contributor who has them.
+RD-02 agrees with a hand-derived closed form *and* with a Monte Carlo simulation that uses no derivative at
+all. That triangle is stronger evidence than matching a printed answer — a transcription error in a book's
+input value would be invisible, whereas the Monte Carlo check catches a sign error the closed form and the
+implementation could share.
+
+RD-03 has no closed form for most of its quantities, so it is validated against the **identities of least
+squares**, which hold for every network rather than for one: redundancy numbers sum to the degrees of
+freedom; a free and a constrained solution of the same data agree on residuals and on σ̂₀²; design simulation
+reproduces the adjustment's covariance to machine precision when both are evaluated at the same coordinates;
+every analytic Jacobian matches complex-step differentiation. Several of these would catch errors that
+matching a printed answer would not.
+
+What remains for both is *citation*: transcribing the published worked examples so the project can state
+agreement with the standard references by name, which matters for the commercial-comparison protocol (§5)
+and for the teaching material (FR-952). This needs the books, and is a task for a contributor who has them.
 
 Synthetic datasets (RD-09) matter as much as published ones: only with synthetic data is the true answer
 known *exactly*, so blunder detection, reliability and deformation analysis can be tested against ground
