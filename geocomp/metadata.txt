@@ -1,0 +1,29 @@
+[general]
+name=GeoComp
+qgisMinimumVersion=4.0.0
+description=Pre-analysis, GNSS processing and adjustment of geodetic networks, integrating DynAdjust and RTKLIB.
+about=GeoComp is a modular framework for geodetic network processing inside QGIS. It integrates conventional and GNSS observations in a single environment, encapsulating the DynAdjust and RTKLIB command-line engines, and adds the instrument-level pre-processing, covariance propagation, statistical validation and multi-epoch monitoring that those engines do not provide. Developed at the Departamento de Geomática, Universidade Federal do Paraná. The external engines are separate programs under their own licences and are not bundled with the plugin.
+version=0.1.0
+author=Kauê de Moraes Vestena and the GeoComp contributors
+email=kauemv2@gmail.com
+
+tracker=https://github.com/kauevestena/geocomp/issues
+repository=https://github.com/kauevestena/geocomp
+homepage=https://github.com/kauevestena/geocomp
+
+license=GPL-2.0-or-later
+category=Plugins
+icon=resources/icons/geocomp.svg
+experimental=True
+deprecated=False
+hasProcessingProvider=yes
+server=False
+
+tags=geodesy,gnss,adjustment,least squares,network,survey,dynadjust,rtklib,monitoring,deformation,levelling,total station,gravimetry
+
+changelog=0.1.0 - Phase P0 (foundations)
+    Plugin skeleton: GeoComp menu, Processing provider, Global Settings window.
+    Layered settings resolution (run, project, global, default) with origin tracking.
+    Trilingual infrastructure (en, pt-BR, es) wired from the first release.
+    System report algorithm, structural CI checks, reproducible packaging.
+    No geodetic computation yet: it arrives in phases P1 to P3.

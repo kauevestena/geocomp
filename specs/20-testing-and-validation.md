@@ -133,7 +133,7 @@ recorded in provenance.
 | Axis | Values |
 |---|---|
 | OS | Linux (primary), Windows, macOS (NFR-003) |
-| QGIS | Current LTR (primary) and current stable (NFR-001) |
+| QGIS | The 4.x series: current 4.x LTR once one exists, current stable until then (NFR-001, [`adr/0007-qgis-4-minimum.md`](./adr/0007-qgis-4-minimum.md)) |
 | Python | As shipped by the targeted QGIS versions |
 | Engines | Present (T4, T5) and absent (asserting graceful degradation, FR-306) |
 | SciPy | Present and absent (asserting the NumPy-only fallback, [`03-architecture.md`](./03-architecture.md) §3.7) |

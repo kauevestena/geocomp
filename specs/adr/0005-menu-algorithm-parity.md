@@ -43,9 +43,12 @@ adding to it is a deliberate decision, not a default.
 - Every capability is scriptable from PyQGIS, chainable in the graphical modeller, and available in batch
   mode — which is exactly what the proposal asks of the Processing Provider.
 - There is one place where a computation can be wrong, and one place to test it.
-- The menu cannot contain an item with no algorithm, and an algorithm cannot exist with no menu route: a CI
-  check asserts the correspondence in both directions
-  ([`../20-testing-and-validation.md`](../20-testing-and-validation.md) §2).
+- The menu cannot contain an item with no algorithm: that direction is absolute, since a menu item pointing
+  at nothing is a broken UI. The reverse direction admits one narrow exception — a **toolbox-only**
+  algorithm, for maintenance and diagnostic operations that belong to no survey technique and would distort
+  the six-entry menu structure FR-003 specifies. Each carries a recorded justification in code, and a CI
+  check holds the list to exactly those ([`../15-ui-menu-and-settings.md`](../15-ui-menu-and-settings.md)
+  §1.2, [`../20-testing-and-validation.md`](../20-testing-and-validation.md) §2).
 - Custom dialogs are constrained to parameter collection and result presentation. Where a custom dialog seems
   to need computation of its own, that computation belongs in `core/` and should be exposed as an algorithm.
 - Menu labels, groups and ordering come from algorithm metadata, so they are translated once (FR-090).

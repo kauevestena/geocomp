@@ -342,7 +342,7 @@ Seed implementation reference: `topo_test/processing_prototype.ipynb`.
 
 | ID | Requirement | Source |
 |---|---|---|
-| NFR-001 | The plugin MUST support the QGIS Long Term Release current at the time of each GeoComp release, and MUST state its minimum QGIS version in `metadata.txt`. | derived (plugin repository requirement) |
+| NFR-001 | The plugin MUST target the QGIS **4.x** series: the current 4.x Long Term Release once one exists, and the current stable release until then. It MUST state its minimum QGIS version in `metadata.txt`. The 3.x series is deliberately not supported. | derived (plugin repository requirement); [`adr/0007-qgis-4-minimum.md`](./adr/0007-qgis-4-minimum.md) |
 | NFR-002 | The geodetic computation layer MUST NOT import `qgis` or `PyQt`. This is enforced in CI. | derived from FR-107 — testability without a QGIS runtime, and reusability of the core; see [`03-architecture.md`](./03-architecture.md) |
 | NFR-003 | The plugin MUST work on Windows, macOS and Linux. | derived from FR-301 (engines are distributed for all three) |
 | NFR-004 | The UI MUST remain responsive during processing; no operation may block the GUI thread for more than 200 ms. | derived from FR-008 |

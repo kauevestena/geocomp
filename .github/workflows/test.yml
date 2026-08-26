@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: test
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Tier 1 and the structural checks: no QGIS, no engines, seconds to run.
+  # This is the gate that proves the QGIS-free core boundary is real rather
+  # than aspirational (NFR-002), so it runs on every OS.
+  core:
+    name: core (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install tooling
+        run: python -m pip install --upgrade pip pytest ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tier 1 and structural checks
+        run: pytest -q
+
+      - name: The plugin package must import without QGIS
+        run: python -c "import geocomp; print(geocomp.__version__)"
+
+  # FR-090 / FR-091: an untranslated string fails the build at the commit that
+  # introduces it, not at release.
+  translations:
+    name: translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check catalogue completeness
+        run: python scripts/update_translations.py --check
+
+      - name: Catalogues must be up to date with the sources
+        run: |
+          python scripts/update_translations.py
+          if ! git diff --quiet -- geocomp/i18n; then
+            echo "::error::Translation catalogues are stale. Run: python3 scripts/update_translations.py"
+            git diff --stat -- geocomp/i18n
+            exit 1
+          fi
+
+  # Tier 3: the parts that need a real QGIS. Runs in the official container so
+  # the QGIS version is explicit rather than whatever the runner happens to have.
+  qgis:
+    name: qgis integration
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install test tooling
+        run: pip3 install --break-system-packages pytest
+
+      - name: Report the QGIS version under test
+        run: python3 -c "from qgis.core import Qgis; print(Qgis.QGIS_VERSION)"
+
+      - name: Full suite with QGIS available
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: xvfb-run -a python3 -m pytest -q
+
+  # NFR-005 and FR-306: the fallback paths are requirements, and an untested
+  # fallback is a fallback that does not work.
+  degraded:
+    name: degraded environments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pytest
+
+      - name: No SciPy, no NumPy, no QGIS, no engines
+        run: pytest -q
+
+      - name: No Qt linguist tools (the AST extractor must still work)
+        run: python scripts/update_translations.py --check

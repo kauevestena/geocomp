@@ -80,6 +80,26 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 | Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
 | Monitoring time series (FR-838) | An interactive panel, not a one-shot run |
 
+#### Toolbox-only algorithms
+
+A small, enumerated set of algorithms has **no menu entry at all**. The GeoComp menu presents six
+technique-oriented entries (FR-003); an operation belonging to no survey technique would have to be filed
+under one of them, which would misrepresent that structure.
+
+Permitted only for maintenance and diagnostic operations, and only with the reason recorded in code, in
+`geocomp/registry.py`'s `TOOLBOX_ONLY_JUSTIFICATIONS`. The parity test holds the exception list to exactly
+the algorithms that declare a justification, fails on a justification left behind by a deleted algorithm, and
+fails if the list grows beyond a handful — a growing list means the menu is drifting away from the
+algorithms, which is the drift ADR-0005 exists to prevent.
+
+| Toolbox-only algorithm | Why it has no menu entry |
+|---|---|
+| `geocomp:project_system_report` | Environment diagnostics belong to no survey technique. Reachable from the toolbox and from the About dialog under Plugins ▸ GeoComp |
+
+Note the asymmetry, which is deliberate: **every menu item must resolve to a registered algorithm** with no
+exceptions, because a menu item pointing at nothing is a broken UI. The reverse direction admits this narrow,
+recorded exception.
+
 Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md).
 
 ### 1.3 Toolbar (FR-007)

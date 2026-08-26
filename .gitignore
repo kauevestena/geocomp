@@ -243,3 +243,9 @@ __marimo__/
 *.loa
 *.xdv
 *.brf
+
+# Build output
+dist/
+
+# Compiled Qt translations (build artefacts; see specs/18 section 4)
+*.qm
