@@ -5,6 +5,44 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Phase P1 - Core domain and uncertainty
+
+The types everything else is built from, and the property that defines this project: no geodetic value
+without an uncertainty. Still no QGIS dependency anywhere in this layer, and still no external engine.
+
+#### Added
+
+- **`core/units.py`** - SI and radians internally; DMS, gon, feet and mGal converted at the boundary and
+  never stored. Sexagesimal parsing for field-book layouts, and a circular mean, which is what makes a
+  face-left/face-right reduction correct across the zero of the horizontal circle.
+- **`core/uncertainty.py`** - `Quantity` (value, variance, unit, rigorous-or-approximate mode) with
+  propagating arithmetic and unit checking, and `Covariance` (labelled, symmetry- and PSD-validated) with
+  rigorous propagation `Sigma_out = A Sigma A^T` (FR-200 to FR-208).
+- **The correlation guard.** A quantity drawn from a covariance is tagged with it, and combining two
+  quantities carrying the same tag through scalar arithmetic raises. This turns the most dangerous silent
+  error in the system - treating correlated inputs as independent - into a loud one. `.detached()` is the
+  explicit, documented escape hatch.
+- **`core/differentiation.py`** - complex-step and central-difference Jacobians. The complex step is exact
+  to machine precision and is what every analytic Jacobian is verified against, because a sign error there
+  produces a plausible-looking wrong uncertainty rather than an error.
+- **`core/models/`** - Epoch, Position, Station, ConstraintSpec, Observation, Cluster, GnssSession, Network,
+  Campaign, Project, Solution and Provenance, with the observation type registry and lossless JSON
+  round-tripping (FR-100 to FR-107).
+- **RD-02 reference cases**, each validated three ways: a hand-derived closed form, the module's first-order
+  propagation, and a derivative-free Monte Carlo simulation.
+- **Structural check for FR-200**: a new plain-float field on a model class fails the build until someone
+  decides whether it is a measurement or a diagnostic.
+
+#### Notes
+
+- Constraints are per component, not per station, so the routine case of a benchmark fixed in height and
+  free in plan is expressible.
+- Gravity carries no DynAdjust measurement type in the registry, which is the concrete form of ADR-0002:
+  a required menu group with no engine behind it.
+- NumPy is a hard dependency from this phase (it ships with QGIS); SciPy remains optional, and CI tests the
+  SciPy-absent path.
+
+
 ## [0.1.0] — Phase P0, Foundations
 
 The first phase of [`specs/ROADMAP.md`](specs/ROADMAP.md). The plugin installs, loads, shows its menu and

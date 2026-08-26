@@ -47,7 +47,7 @@ permitting redistribution, and an expected-results file.
 | Id | Dataset | Validates | Status |
 |---|---|---|---|
 | **RD-01** | `topo_test/` — the project author's total-station triangle (3 stations, PD/PI, distances, zenith angles) | Face reduction, corrections, basic reductions, small-network adjustment, the field-mapping importer | **In repository** |
-| **RD-02** | Worked variance-propagation examples from Ghilani (2010) and Gemael | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | To assemble |
+| **RD-02** | Covariance-propagation reference cases, each validated three ways: a hand-derived closed form, the module's first-order propagation, and a derivative-free Monte Carlo simulation | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | **Implemented** (P1). See the note below |
 | **RD-03** | Worked network adjustments from the same sources — free and constrained, 2D and 3D | [`06-adjustment-core.md`](./06-adjustment-core.md) | To assemble |
 | **RD-04** | Levelling networks with published solutions, all three schemes | [`10-module-levelling.md`](./10-module-levelling.md) | To assemble |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
@@ -61,6 +61,17 @@ permitting redistribution, and an expected-results file.
 it contains a real transcription blunder (a 1.000 m face-pair distance discrepancy —
 [`09-module-total-station.md`](./09-module-total-station.md) §2.1) which becomes a detection test. It ships
 with the plugin as a tutorial dataset (FR-952).
+
+**RD-02 note — validation complete, citation outstanding.** The cases implemented in
+`tests/test_reference_propagation.py` are *not* transcriptions from Ghilani or Gemael; they are reference
+cases built from the geodetic operations GeoComp performs, each agreeing with a hand-derived closed form and
+with a Monte Carlo simulation that uses no derivative at all. That triangle is stronger evidence than
+matching a printed answer — a transcription error in a book's input value would be invisible, whereas the
+Monte Carlo check catches a sign error the closed form and the implementation could share.
+
+What remains is *citation*: transcribing the published worked examples so the project can state agreement
+with the standard references by name, which matters for the commercial-comparison protocol (§5) and for the
+teaching material (FR-952). This needs the books, and is a task for a contributor who has them.
 
 Synthetic datasets (RD-09) matter as much as published ones: only with synthetic data is the true answer
 known *exactly*, so blunder detection, reliability and deformation analysis can be tested against ground

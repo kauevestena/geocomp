@@ -30,7 +30,9 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Install tooling
-        run: python -m pip install --upgrade pip pytest ruff
+        # NumPy is a hard dependency: it ships with QGIS and the geodetic core
+        # uses it from phase P1 onward (specs/03-architecture.md section 3.7).
+        run: python -m pip install --upgrade pip pytest ruff numpy
 
       - name: Lint
         run: ruff check .
@@ -94,10 +96,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install --upgrade pip pytest
+      - run: python -m pip install --upgrade pip pytest numpy
 
-      - name: No SciPy, no NumPy, no QGIS, no engines
-        run: pytest -q
+      - name: No SciPy, no QGIS, no engines
+        # SciPy is optional: the core must provide a NumPy-only fallback for
+        # sparse factorisation and distribution quantiles. An untested fallback
+        # is a fallback that does not work.
+        run: |
+          python -c "import numpy; print('numpy', numpy.__version__)"
+          python -c "
+          import importlib.util, sys
+          if importlib.util.find_spec('scipy'): sys.exit('scipy must be absent in this job')
+          print('scipy absent, as intended')
+          "
+          pytest -q
 
       - name: No Qt linguist tools (the AST extractor must still work)
         run: python scripts/update_translations.py --check
