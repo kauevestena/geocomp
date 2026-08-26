@@ -34,6 +34,8 @@ from geocomp.core.adjustment.least_squares import (
 from geocomp.core.adjustment.normal_equations import assemble, diagnose_rank, solve
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import (
+    Cluster,
+    ClusterKind,
     ConstraintMode,
     ConstraintSpec,
     CoordinateSystem,
@@ -46,7 +48,7 @@ from geocomp.core.models import (
     Position,
     Station,
 )
-from geocomp.core.uncertainty import Quantity
+from geocomp.core.uncertainty import Covariance, Quantity
 from geocomp.core.units import Unit
 from tests.networks import free_trilateration, levelling_loop, triangulateration, trilateration
 
@@ -737,3 +739,185 @@ class TestSolutionAssembly:
         )
         payload = solution.to_dict()
         assert Solution.from_dict(json.loads(json.dumps(payload))).to_dict() == payload
+
+
+class TestOrientationUnknowns:
+    """Direction sets, found under-tested when phase P3 first used them.
+
+    P2 implemented the direction observation equation with an orientation
+    unknown, and P2's own tests exercised it only with the unknown declared by
+    hand and starting from a value near the truth. Real total-station data does
+    neither: the setup id comes from the field book, and the circle's zero is
+    wherever the instrument happened to be pointing. Both gaps produced a
+    diverging adjustment with a message about convergence that said nothing
+    about the cause.
+    """
+
+    @staticmethod
+    def _network(orientations: dict[str, float]) -> Network:
+        """Three stations, two direction sets with the given true orientations.
+
+        Distances fix the shape; the directions are then *readings*, offset from
+        the true azimuths by each setup's orientation.
+        """
+        truth = {"A": (0.0, 0.0), "B": (300.0, 0.0), "C": (150.0, 260.0)}
+        network = Network(id="orientation", crs="EPSG:31982")
+        for station_id, (easting, northing) in truth.items():
+            network.add_station(
+                Station(
+                    id=station_id,
+                    approx_position=Position(
+                        values=(
+                            Quantity.from_std_dev(easting, 0.5, METRE),
+                            Quantity.from_std_dev(northing, 0.5, METRE),
+                            Quantity.exact(0.0, METRE),
+                        ),
+                        system=CoordinateSystem.PROJECTED,
+                        crs="EPSG:31982",
+                        height_type=HeightType.ORTHOMETRIC,
+                    ),
+                )
+            )
+
+        for origin, targets in (("A", ("B", "C")), ("B", ("A", "C"))):
+            ids = []
+            for target in targets:
+                azimuth = math.atan2(
+                    truth[target][0] - truth[origin][0], truth[target][1] - truth[origin][1]
+                )
+                reading = (azimuth - orientations[origin]) % (2 * math.pi)
+                observation_id = f"{origin}-dir-{target}"
+                network.add_observation(
+                    Observation(
+                        id=observation_id,
+                        type=ObservationType.DIRECTION,
+                        stations=(origin, target),
+                        values=(Quantity.from_std_dev(reading, 5e-6, RADIAN),),
+                        cluster_id=f"{origin}-set",
+                        setup_id=origin,
+                    )
+                )
+                ids.append(observation_id)
+            network.add_cluster(
+                Cluster(
+                    id=f"{origin}-set",
+                    kind=ClusterKind.DIRECTION_SET,
+                    observation_ids=tuple(ids),
+                    covariance=Covariance(
+                        matrix=np.diag([5e-6**2, 5e-6**2]),
+                        labels=tuple(ids),
+                        units=(RADIAN, RADIAN),
+                    ),
+                )
+            )
+
+        for origin, target in (("A", "B"), ("A", "C"), ("B", "C")):
+            distance = math.dist(truth[origin], truth[target])
+            network.add_observation(
+                Observation(
+                    id=f"d-{origin}{target}",
+                    type=ObservationType.HORIZONTAL_DISTANCE,
+                    stations=(origin, target),
+                    values=(Quantity.from_std_dev(distance, 0.003, METRE),),
+                )
+            )
+        return network
+
+    @pytest.mark.parametrize("orientation_degrees", [0.0, 37.0, 175.0, 250.0, 359.5])
+    def test_a_direction_set_converges_whatever_its_orientation(self, orientation_degrees):
+        """The circle's zero is arbitrary. An adjustment that only worked when
+        it happened to be near north would be useless on real data."""
+        orientation = math.radians(orientation_degrees)
+        network = self._network({"A": orientation, "B": orientation / 2.0})
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT),
+        )
+        assert run.converged
+        assert run.variance_factor_aposteriori < 5.0
+
+    def test_the_orientation_unknown_is_derived_rather_than_declared(self):
+        """A direction without one is always wrong, so requiring the caller to
+        declare it is a footgun rather than a choice. Nothing is passed in
+        ``auxiliary`` here."""
+        network = self._network({"A": math.radians(37.0), "B": math.radians(112.0)})
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT),
+        )
+        assert run.layout.column("A", "orientation") is not None
+        assert run.layout.column("B", "orientation") is not None
+
+    def test_the_estimated_orientations_recover_the_ones_that_were_planted(self):
+        planted = {"A": math.radians(37.0), "B": math.radians(112.0)}
+        network = self._network(planted)
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT),
+        )
+        for station, expected in planted.items():
+            column = run.layout.column(station, "orientation")
+            estimated = float(run.parameters[column]) % (2 * math.pi)
+            assert estimated == pytest.approx(expected, abs=1e-4)
+
+    def test_an_explicitly_declared_orientation_is_not_overridden(self):
+        """Two setups sharing one orientation -- both on a pillar, say -- is a
+        legitimate model the caller may impose."""
+        network = self._network({"A": math.radians(37.0), "B": math.radians(37.0)})
+        run = adjust(
+            network,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D,
+                datum=DatumDefinition.INNER_CONSTRAINT,
+                auxiliary={"A": ("orientation",)},
+            ),
+        )
+        assert run.layout.column("A", "orientation") is not None
+
+
+class TestAngularMisclosureWrapping:
+    """An angular misclosure is taken the short way round the circle.
+
+    The defect this guards against is silent and severe: a direction read as
+    353 degrees against a computed -7 differs by nothing, but the plain
+    subtraction says 360, which enters the normal equations as an enormous
+    residual. The adjustment then diverges and reports a convergence failure
+    that says nothing about the cause.
+    """
+
+    @staticmethod
+    def _misclosure(observed_degrees: float, computed_degrees: float, unit) -> float:
+        from geocomp.core.adjustment.normal_equations import _misclosure
+
+        return _misclosure(
+            math.radians(observed_degrees), math.radians(computed_degrees), unit
+        )
+
+    @pytest.mark.parametrize(
+        ("observed", "computed", "expected"),
+        [
+            (353.0, -7.0, 0.0),
+            (-7.0, 353.0, 0.0),
+            (1.0, 359.0, 2.0),
+            (359.0, 1.0, -2.0),
+            (90.0, 60.0, 30.0),
+            (180.0, 0.0, 180.0),
+        ],
+    )
+    def test_an_angular_misclosure_takes_the_short_way(self, observed, computed, expected):
+        result = self._misclosure(observed, computed, RADIAN)
+        assert math.degrees(result) == pytest.approx(expected, abs=1e-12)
+
+    def test_a_linear_misclosure_is_left_alone(self):
+        """Wrapping a distance would be nonsense, and a 6.28 m difference is a
+        perfectly ordinary blunder that must survive to the residual."""
+        from geocomp.core.adjustment.normal_equations import _misclosure
+
+        assert _misclosure(10.0, 3.0, METRE) == pytest.approx(7.0)
+        assert _misclosure(2.0 * math.pi, 0.0, METRE) == pytest.approx(2.0 * math.pi)
+
+    def test_the_wrap_never_exceeds_half_a_turn(self):
+        for observed in range(0, 360, 7):
+            for computed in range(0, 360, 11):
+                result = self._misclosure(float(observed), float(computed), RADIAN)
+                assert -math.pi < result <= math.pi + 1e-12

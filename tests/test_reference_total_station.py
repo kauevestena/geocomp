@@ -16,7 +16,10 @@ import math
 
 import pytest
 
+from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
+from geocomp.core.adjustment.parameters import Frame
 from geocomp.core.findings import Severity
+from geocomp.core.models import DatumDefinition
 from geocomp.core.techniques.total_station import (
     Face,
     FacePair,
@@ -386,3 +389,128 @@ class TestPipelineOverRd01:
         assert len(clusters) == 1
         assert clusters[0].kind is ClusterKind.DIRECTION_SET
         assert len(clusters[0].observation_ids) == 2
+
+
+class TestTheWholeSliceOverRd01:
+    """Import to adjustment, on real data, with no external engine.
+
+    Phase P3's stated goal in ``specs/ROADMAP.md``. Everything from the raw
+    field book to an adjusted network with statistics runs here, in a test with
+    no QGIS and no DynAdjust -- which is the claim the phase makes.
+    """
+
+    @staticmethod
+    def _network(dimension: int = 2, fixed=None):
+        from geocomp.core.techniques.total_station import build_network
+
+        profiles = rd01.library()
+        results = [
+            preprocess_setup(setup, profiles)
+            for _station, setup in sorted(rd01.setups().items())
+        ]
+        return build_network(
+            results,
+            rd01.approximate_coordinates(),
+            crs="EPSG:31982",
+            dimension=dimension,
+            fixed=fixed,
+        )
+
+    def test_the_network_assembles_and_passes_inspection(self):
+        from geocomp.core.preanalysis import inspect
+
+        network = self._network()
+        report = inspect(network, frame=Frame.PLANE_2D)
+        assert report.can_adjust
+        assert not report.blocking
+
+    def test_the_blundered_pointing_is_absent_from_the_network(self):
+        """It was reported at reduction and never became an observation."""
+        network = self._network()
+        assert not any("3-hd-2" == o for o in network.observations)
+
+    def test_rd01_is_a_free_network_and_the_datum_defect_says_so(self):
+        """Distances give shape and scale; directions give the angles within
+        each setup. Nothing in RD-01 gives orientation or position, so the
+        defect is two translations and a rotation -- and a constrained solution
+        is impossible without an external azimuth. Worth pinning down, because
+        it is a property of the dataset rather than of the software."""
+        from geocomp.core.adjustment.datum import detect_defect
+
+        network = self._network()
+        defect = detect_defect(list(network.observations.values()), Frame.PLANE_2D)
+        assert defect.size == 3
+        assert "rotation" in defect.describe()
+
+    def test_it_adjusts_with_inner_constraints(self):
+        network = self._network()
+        run = adjust(
+            network,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT
+            ),
+        )
+        assert run.converged
+        assert run.degrees_of_freedom == 4
+        assert run.method == "bordered"
+
+    def test_the_adjusted_shape_matches_the_measured_one(self):
+        """The check that the adjustment did something meaningful: the sides it
+        produces must agree with the distances that went in, to the few
+        millimetres RD-01's own consistency allows."""
+        network = self._network()
+        run = adjust(
+            network,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT
+            ),
+        )
+        coordinates = {
+            station: (
+                float(run.parameters[run.layout.station_columns(station)["e"]]),
+                float(run.parameters[run.layout.station_columns(station)["n"]]),
+            )
+            for station in run.layout.station_ids()
+            if run.layout.station_columns(station)
+        }
+        for pair, measured in rd01.triangle_sides().items():
+            first, second = sorted(pair)
+            adjusted = math.dist(coordinates[first], coordinates[second])
+            assert adjusted == pytest.approx(measured, abs=0.02)
+
+    def test_the_global_test_fails_and_that_is_the_right_answer(self):
+        """RD-01's distances disagree between stations by about 15 mm, and the
+        nominal precisions assumed here are 2 mm. A global test that passed
+        would mean it was not testing anything."""
+        from geocomp.core.statistics.tests import global_test
+
+        network = self._network()
+        run = adjust(
+            network,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT
+            ),
+        )
+        result = global_test(run.variance_factor_aposteriori, run.degrees_of_freedom)
+        assert not result.passed
+        assert result.statistic > result.critical_high
+        assert "too large" in result.note
+
+    def test_the_residuals_are_the_size_the_data_justifies(self):
+        """Distance residuals of a centimetre or so, direction residuals of a
+        few arcseconds. Anything much larger would mean the reduction or the
+        network assembly had gone wrong rather than the data being ordinary."""
+        network = self._network()
+        run = adjust(
+            network,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT
+            ),
+        )
+        for (observation_id, _component), residual in zip(
+            run.system.row_labels, run.residuals, strict=True
+        ):
+            if "-hd-" in observation_id:
+                assert abs(residual) < 0.05, f"{observation_id}: {residual:.4f} m"
+            else:
+                assert abs(math.degrees(residual) * 3600.0) < 60.0

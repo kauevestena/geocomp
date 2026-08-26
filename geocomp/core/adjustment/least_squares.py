@@ -12,6 +12,7 @@ a diverging sequence is worse than no result, because nothing about it says so.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -30,6 +31,7 @@ from geocomp.core.models import (
     Network,
     Observation,
     ObservationResult,
+    ObservationType,
     Position,
     Provenance,
     Solution,
@@ -37,7 +39,7 @@ from geocomp.core.models import (
 )
 from geocomp.core.statistics.ellipses import error_ellipse
 from geocomp.core.uncertainty import Covariance, Quantity
-from geocomp.core.units import Unit
+from geocomp.core.units import Unit, circular_mean
 
 __all__ = [
     "AdjustmentOptions",
@@ -141,8 +143,15 @@ def adjust(
             expected="at least one active observation",
         )
 
-    layout = ParameterLayout.build(network, options.frame, auxiliary=options.auxiliary)
-    values = starting_values(network, layout, options, approximate)
+    # A direction is meaningless without the orientation unknown of its setup:
+    # the circle's zero is arbitrary, so a direction treated as an absolute
+    # azimuth is not merely imprecise, it is unrelated to the geometry. Deriving
+    # the unknowns from the observations rather than requiring the caller to
+    # declare them removes a footgun that produces a diverging adjustment and no
+    # explanation -- which is exactly how this was found, in phase P3.
+    auxiliary = _with_orientation_unknowns(observations, options.auxiliary)
+    layout = ParameterLayout.build(network, options.frame, auxiliary=auxiliary)
+    values = starting_values(network, layout, options, approximate, auxiliary=auxiliary)
     x = np.array([values[slot.owner][slot.component] for slot in layout.slots])
 
     defect = detect_defect(observations, options.frame)
@@ -234,11 +243,75 @@ def _residual_cofactor(system: LinearisedSystem, cofactor_parameters: np.ndarray
     return q_ll - system.design @ cofactor_parameters @ system.design.T
 
 
+def _with_orientation_unknowns(
+    observations: list[Observation], declared: dict[str, tuple[str, ...]]
+) -> dict[str, tuple[str, ...]]:
+    """Add an orientation unknown for every direction set that lacks one.
+
+    Keyed by the setup id each direction names. A caller that has already
+    declared one keeps theirs, so an explicitly shared orientation -- two setups
+    on one pillar, say -- is not overridden.
+    """
+    auxiliary = {owner: tuple(names) for owner, names in declared.items()}
+    for observation in observations:
+        if observation.type is not ObservationType.DIRECTION:
+            continue
+        owner = observation.setup_id or observation.meta.get("orientation_owner")
+        if owner is None:
+            continue
+        names = auxiliary.get(owner, ())
+        if "orientation" not in names:
+            auxiliary[owner] = (*names, "orientation")
+    return auxiliary
+
+
+def _initial_orientations(
+    observations: list[Observation],
+    auxiliary: dict[str, tuple[str, ...]],
+    coordinates: dict[str, dict[str, float]],
+    frame: Frame,
+) -> dict[str, float]:
+    """Estimate each direction set's orientation from the approximate coordinates.
+
+    The orientation is the difference between the azimuth a target *should* have
+    and the circle reading it *did* have, averaged over the set. Starting it at
+    zero instead -- which is what a plain default does -- linearises the whole
+    set half a turn or more from the solution, and the adjustment diverges with
+    a message about convergence that says nothing about the real cause.
+
+    The average is circular, for the same reason face reduction's is: the
+    differences straddle the zero of the circle as often as not.
+    """
+    if frame.dimension < 2:
+        return {}
+
+    per_owner: dict[str, list[float]] = {}
+    for observation in observations:
+        if observation.type is not ObservationType.DIRECTION:
+            continue
+        owner = observation.setup_id or observation.meta.get("orientation_owner")
+        if owner is None or "orientation" not in auxiliary.get(owner, ()):
+            continue
+        origin_id, target_id = observation.stations
+        origin = coordinates.get(origin_id)
+        target = coordinates.get(target_id)
+        if origin is None or target is None:
+            continue
+        azimuth = math.atan2(target["e"] - origin["e"], target["n"] - origin["n"])
+        per_owner.setdefault(owner, []).append(azimuth - observation.values[0].value)
+
+    return {
+        owner: circular_mean(differences) for owner, differences in per_owner.items()
+    }
+
+
 def starting_values(
     network: Network,
     layout: ParameterLayout,
     options: AdjustmentOptions,
     approximate: dict[str, dict[str, float]] | None,
+    *,
+    auxiliary: dict[str, tuple[str, ...]] | None = None,
 ) -> dict[str, dict[str, float]]:
     """Assemble the starting parameter values, including fixed components."""
     values: dict[str, dict[str, float]] = {}
@@ -266,10 +339,15 @@ def starting_values(
                 )
         values[station_id] = entry
 
-    for owner, names in options.auxiliary.items():
+    auxiliary = auxiliary if auxiliary is not None else options.auxiliary
+    orientations = _initial_orientations(
+        network.active_observations, auxiliary, values, options.frame
+    )
+    for owner, names in auxiliary.items():
         values.setdefault(owner, {})
         for name in names:
-            values[owner].setdefault(name, 0.0)
+            default = orientations.get(owner, 0.0) if name == "orientation" else 0.0
+            values[owner].setdefault(name, default)
 
     return values
 

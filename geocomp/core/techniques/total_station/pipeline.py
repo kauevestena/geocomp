@@ -26,13 +26,21 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity, worst_severity
 from geocomp.core.instruments.profiles import InstrumentProfile, ProfileLibrary
 from geocomp.core.models import (
     Cluster,
     ClusterKind,
+    ConstraintMode,
+    ConstraintSpec,
+    CoordinateSystem,
+    HeightType,
+    Network,
     Observation,
     ObservationType,
+    Position,
+    Station,
 )
 from geocomp.core.techniques.total_station.atmosphere import (
     Atmosphere,
@@ -62,6 +70,7 @@ __all__ = [
     "PreprocessingOptions",
     "ProcessedPointing",
     "SetupResult",
+    "build_network",
     "preprocess_setup",
     "to_observations",
 ]
@@ -276,28 +285,46 @@ def _finish_pointing(
 
 
 def to_observations(
-    result: SetupResult, *, prefix: str = ""
+    result: SetupResult, *, prefix: str = "", dimension: int = 2
 ) -> tuple[list[Observation], list[Cluster]]:
     """Turn a processed setup into observations an adjustment can take.
+
+    Args:
+        dimension: Which adjustment the observations are for. This decides
+            *which* of the reduced quantities are emitted, and getting it wrong
+            is not a style question:
+
+            * **2D** -- directions and horizontal distances. The zenith angles
+              and slope distances cannot contribute to a planimetric adjustment
+              and network inspection would refuse them.
+            * **3D** -- directions, zenith angles and slope distances.
+            * **1D** -- height differences only.
+
+            The horizontal distance is *derived from* the slope distance and the
+            zenith angle, so emitting all three would use the same measurement
+            twice and make the network look more redundant than it is. Only one
+            set is emitted, which is why this is a parameter rather than
+            everything being returned for the caller to filter.
 
     Directions from one setup become a ``DIRECTION_SET`` cluster (FR-104): they
     share the setup's unknown orientation, and splitting them into independent
     scalars would discard that and falsify every statistic downstream.
 
-    Distances and zenith angles are emitted as individual observations. They are
-    correlated with each other through the pointing, and that correlation is
-    carried in :attr:`ProcessedPointing.basic`'s covariance -- wiring it into a
-    cluster as well is phase P9's business, where combined adjustment needs it.
-
     Only usable pointings are converted. A pair with a blocking finding is left
     out, so a known-bad number cannot acquire a residual and a standard
     deviation as though it were real.
     """
+    if dimension not in (1, 2, 3):
+        raise ValidationError(
+            "unsupported_observation_dimension",
+            received=dimension,
+            expected="1, 2 or 3",
+        )
+
     tag = prefix or result.station
     observations: list[Observation] = []
     clusters: list[Cluster] = []
 
-    usable = [p for p in result.usable if p.basic is not None or p.reduction.distance is None]
     direction_ids: list[str] = []
     direction_quantities: list[Quantity] = []
     # Every direction belongs to the setup's cluster, including a lone one: the
@@ -306,46 +333,61 @@ def to_observations(
     # reason (FR-104).
     cluster_id = f"{tag}-directions"
 
-    for pointing in usable:
+    for pointing in result.usable:
         target = pointing.target
-        direction_id = f"{tag}-dir-{target}"
-        observations.append(
-            Observation(
-                id=direction_id,
-                type=ObservationType.DIRECTION,
-                stations=(result.station, target),
-                values=(pointing.reduction.horizontal,),
-                cluster_id=cluster_id,
-            )
-        )
-        direction_ids.append(direction_id)
-        direction_quantities.append(pointing.reduction.horizontal)
 
-        observations.append(
-            Observation(
-                id=f"{tag}-zen-{target}",
-                type=ObservationType.ZENITH_ANGLE,
-                stations=(result.station, target),
-                values=(pointing.reduction.zenith,),
-            )
-        )
-
-        if pointing.reduction.distance is not None:
+        if dimension in (2, 3):
+            direction_id = f"{tag}-dir-{target}"
             observations.append(
                 Observation(
-                    id=f"{tag}-sd-{target}",
-                    type=ObservationType.SLOPE_DISTANCE,
+                    id=direction_id,
+                    type=ObservationType.DIRECTION,
                     stations=(result.station, target),
-                    values=(pointing.reduction.distance,),
+                    values=(pointing.reduction.horizontal,),
+                    cluster_id=cluster_id,
+                    # The setup owns the orientation unknown these directions
+                    # share. Without it they would be read as absolute azimuths
+                    # against an arbitrary circle zero.
+                    setup_id=result.station,
                 )
             )
-        if pointing.basic is not None:
+            direction_ids.append(direction_id)
+            direction_quantities.append(pointing.reduction.horizontal)
+
+        if dimension == 3:
+            observations.append(
+                Observation(
+                    id=f"{tag}-zen-{target}",
+                    type=ObservationType.ZENITH_ANGLE,
+                    stations=(result.station, target),
+                    values=(pointing.reduction.zenith,),
+                )
+            )
+            if pointing.reduction.distance is not None:
+                observations.append(
+                    Observation(
+                        id=f"{tag}-sd-{target}",
+                        type=ObservationType.SLOPE_DISTANCE,
+                        stations=(result.station, target),
+                        values=(pointing.reduction.distance,),
+                    )
+                )
+        elif dimension == 2 and pointing.basic is not None:
             observations.append(
                 Observation(
                     id=f"{tag}-hd-{target}",
                     type=ObservationType.HORIZONTAL_DISTANCE,
                     stations=(result.station, target),
                     values=(pointing.basic.horizontal_distance.detached(),),
+                )
+            )
+        elif dimension == 1 and pointing.basic is not None:
+            observations.append(
+                Observation(
+                    id=f"{tag}-dh-{target}",
+                    type=ObservationType.HEIGHT_DIFFERENCE,
+                    stations=(result.station, target),
+                    values=(pointing.basic.height_difference.detached(),),
                 )
             )
 
@@ -370,8 +412,99 @@ def to_observations(
     return observations, clusters
 
 
+def build_network(
+    results: list[SetupResult],
+    approximate: dict[str, tuple[float, float, float]],
+    *,
+    network_id: str = "total-station",
+    crs: str = "",
+    dimension: int = 2,
+    fixed: dict[str, tuple[float, float, float]] | None = None,
+    coordinate_sigma: float = 1.0,
+) -> Network:
+    """Assemble processed setups into a network the P2 core can adjust (FR-409).
+
+    Triangulation, trilateration and triangulateration are not three algorithms:
+    they are one adjustment over three different observation sets, which is why
+    this builds a :class:`~geocomp.core.models.Network` and hands it to
+    :mod:`geocomp.core.adjustment` rather than implementing anything itself.
+
+    Args:
+        dimension: 1, 2 or 3. Passed through to :func:`to_observations`, which
+            decides which reduced quantities become observations.
+        approximate: Starting coordinates for every station, ``(E, N, U)``.
+            Required rather than derived: the linearised model needs a point to
+            linearise about, and a traverse or a resection is how a surveyor
+            obtains one -- which is the other reason those computations exist.
+        fixed: Stations held in the constrained solution, with their exact
+            coordinates. ``None`` leaves the network free, for an
+            inner-constraint solution.
+        coordinate_sigma: Standard deviation attached to the approximate
+            coordinates. It affects nothing in a fixed-or-free adjustment; it is
+            here so that a weighted-constraint solution has something to weight.
+
+    Returns:
+        The network. **Not adjusted** -- that is
+        :func:`geocomp.core.adjustment.least_squares.adjust`, and keeping the two
+        separate is what lets a user inspect the network first (FR-273).
+    """
+    fixed = fixed or {}
+    network = Network(id=network_id, crs=crs)
+
+    for station_id, values in sorted(approximate.items()):
+        constraint = None
+        if station_id in fixed:
+            constraint = ConstraintSpec(
+                mode=ConstraintMode.FIXED,
+                components=frozenset({"easting", "northing", "up"}),
+                position=_position(fixed[station_id], 0.0, crs),
+            )
+        network.add_station(
+            Station(
+                id=station_id,
+                approx_position=_position(values, coordinate_sigma, crs),
+                constraint=constraint or ConstraintSpec(),
+            )
+        )
+
+    for result in results:
+        observations, clusters = to_observations(result, dimension=dimension)
+        for observation in observations:
+            if all(station in network.stations for station in observation.stations):
+                network.add_observation(observation)
+        for cluster in clusters:
+            members = tuple(
+                member for member in cluster.observation_ids if member in network.observations
+            )
+            if len(members) == len(cluster.observation_ids):
+                network.add_cluster(cluster)
+
+    return network
+
+
+def _position(values: tuple[float, float, float], sigma: float, crs: str) -> Position:
+    quantities = tuple(
+        Quantity.exact(value, Unit.METRE)
+        if sigma == 0.0
+        else Quantity.from_std_dev(value, sigma, Unit.METRE)
+        for value in values
+    )
+    return Position(
+        values=quantities,  # type: ignore[arg-type]
+        system=CoordinateSystem.PROJECTED,
+        crs=crs,
+        height_type=HeightType.ORTHOMETRIC,
+    )
+
+
 def _setup_atmosphere(setup: Setup) -> Atmosphere | None:
-    """The setup's own recorded conditions, if it has a complete set."""
+    """The setup's own recorded conditions, if it has a complete set.
+
+    Temperature and pressure are both required; humidity is not, because its
+    contribution is under one part per million across its whole range and a
+    field book that records the first two and not the third is completely
+    ordinary.
+    """
     if setup.temperature is None or setup.pressure is None:
         return None
     return Atmosphere(

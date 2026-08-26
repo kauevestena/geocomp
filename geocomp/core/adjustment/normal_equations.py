@@ -29,6 +29,7 @@ from geocomp.core.adjustment.equations import evaluate
 from geocomp.core.adjustment.parameters import ParameterLayout
 from geocomp.core.errors import ComputationError, DataError
 from geocomp.core.models import Cluster, Observation
+from geocomp.core.units import Unit, wrap_to_pi
 
 __all__ = [
     "LinearisedSystem",
@@ -150,6 +151,24 @@ def build_weight_matrix(
     return weight
 
 
+def _misclosure(observed: float, computed: float, unit: Unit) -> float:
+    """``l = observed - computed``, taken the short way round for an angle.
+
+    An angular observation and its computed value can straddle the zero of the
+    circle -- a direction read as 353 degrees against a computed -7 -- and the
+    plain difference is then 360 degrees where the true discrepancy is nothing.
+    That enters the normal equations as an enormous residual and the adjustment
+    diverges, reporting a convergence failure that says nothing about the cause.
+
+    Found in phase P3, when total-station direction sets first exercised the
+    direction equation with a real circle orientation. Phase P2's networks
+    happened to have every angular observation near its computed value, so the
+    wrap never arose.
+    """
+    difference = observed - computed
+    return wrap_to_pi(difference) if unit is Unit.RADIAN else difference
+
+
 def assemble(
     observations: list[Observation],
     clusters: dict[str, Cluster],
@@ -164,9 +183,14 @@ def assemble(
     for observation in observations:
         equations = evaluate(observation, layout, x)
         components = observation.spec.components
+        units = observation.spec.units
         for position, equation in enumerate(equations):
             rows.append(equation.to_dense(layout.size))
-            misclosure.append(observation.values[position].value - equation.computed)
+            misclosure.append(
+                _misclosure(
+                    observation.values[position].value, equation.computed, units[position]
+                )
+            )
             labels.append((observation.id, equation.component if len(components) > 1 else ""))
 
     if not rows:

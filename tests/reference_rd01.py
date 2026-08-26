@@ -188,3 +188,24 @@ def triangle_sides() -> dict[frozenset[str], float]:
             continue
         sides.setdefault(frozenset({occupied, other}), []).append(record.horizontal_distance)
     return {pair: sum(values) / len(values) for pair, values in sides.items()}
+
+
+def approximate_coordinates() -> dict[str, tuple[float, float, float]]:
+    """Starting coordinates for the three stations, from the measured sides.
+
+    Station 1 at the origin with station 2 due north, and station 3 placed by
+    the law of cosines. An arbitrary but consistent local frame, which is all a
+    free network needs -- RD-01 contains nothing that orients or positions it
+    (no azimuth, no known point), so any frame is as good as any other and the
+    inner constraints pick the one closest to this.
+    """
+    sides = triangle_sides()
+    d12 = sides[frozenset({"1", "2"})]
+    d13 = sides[frozenset({"1", "3"})]
+    d23 = sides[frozenset({"2", "3"})]
+    angle = math.acos((d12**2 + d13**2 - d23**2) / (2.0 * d12 * d13))
+    return {
+        "1": (0.0, 0.0, 0.0),
+        "2": (0.0, d12, 0.0),
+        "3": (d13 * math.sin(angle), d13 * math.cos(angle), 0.0),
+    }

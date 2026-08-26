@@ -5,6 +5,63 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Phase P3 - Total station (in progress)
+
+The first end-to-end vertical slice: raw field book to adjusted, statistically
+validated network, with no external engine anywhere in the path.
+
+#### Added
+
+- **`core/techniques/total_station/`** - face reduction with its diagnostics,
+  instrument and EDM corrections, the first-velocity atmospheric correction, the
+  basic reductions with the d-z correlation kept, and the geometric reductions
+  (FR-400 to FR-405, FR-412). Every stage separately callable and separately
+  inspectable, which is the teaching requirement; every stage propagating
+  covariance.
+- **Survey computations** - traverse in all three forms with both classical
+  rules and the misclosure checks (FR-406); resection with danger-circle
+  detection (FR-407); forward intersection reporting weak geometry through the
+  error ellipse (FR-408); classical networks assembled for the P2 core (FR-409);
+  trigonometric levelling including leap-frog (FR-410); 3D radiation with its
+  full 3x3 covariance (FR-411).
+- **`core/instruments/`** - named instrument and reflector profiles with a
+  per-constant uncertainty and the applied-once rule, and the stochastic model
+  resolution whose last step refuses rather than inventing a sigma (FR-061,
+  FR-064, FR-069).
+
+#### Fixed in the phase P2 core
+
+Both found by running direction sets end to end for the first time, and both
+producing a diverging adjustment whose only symptom was a convergence failure
+that said nothing about the cause.
+
+- **Angular misclosures are wrapped to the short way round the circle.** A
+  direction read as 353 degrees against a computed -7 differs by nothing; the
+  plain subtraction made it 360, which entered the normal equations as an
+  enormous residual. P2's own networks happened to have every angular
+  observation near its computed value, so the wrap never arose.
+- **A direction set's orientation unknown is derived from the observations and
+  started from the data.** It was previously left to the caller to declare and
+  initialised at zero. A direction without an orientation unknown is always
+  wrong, and zero is essentially never the right starting value, so both are now
+  automatic.
+
+#### Notes
+
+- **RD-01 carries two defects, and both are now tests.** The 1.000 m face-pair
+  distance discrepancy is flagged as blocking and the pointing is kept out of
+  the observations. And the prototype's arithmetic-mean face reduction puts one
+  of its six directions exactly 180 degrees out - which `specs/09` had recorded
+  as "correct for the RD-01 data". Two independent checks settle it, and
+  acceptance criterion 1 is amended, because it could not have been met by a
+  correct implementation.
+- **RD-01 is a free network.** It contains no azimuth and no known point, so its
+  datum defect is two translations and a rotation, and it can only be adjusted
+  with inner or minimum constraints. A property of the dataset, now asserted.
+- The whole slice runs in the test suite with no QGIS and no engines: reduce,
+  assemble, inspect, adjust, test.
+
+
 ### Phase P2 - Adjustment core
 
 The phase the project turns on. Least squares with its full statistical treatment, plus network design -

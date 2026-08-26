@@ -204,6 +204,28 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("PreprocessingOptions", "distance_zenith_correlation"): (
         "a correlation coefficient, dimensionless and bounded"
     ),
+    ("TraverseResult", "angular_misclosure"): (
+        "a misclosure: the difference between a measured closure and the known one, whose "
+        "expected value is zero. A diagnostic, not a measurement"
+    ),
+    ("TraverseResult", "linear_misclosure"): "a misclosure; see angular_misclosure",
+    ("TraverseResult", "relative_precision"): (
+        "the quality ratio surveyors quote as 1:N; dimensionless and derived from the two "
+        "quantities above"
+    ),
+    ("ResectionResult", "residuals"): (
+        "adjustment residuals, whose quality is the solution covariance rather than a "
+        "sigma of their own"
+    ),
+    ("IntersectionResult", "residuals"): "adjustment residuals; see ResectionResult",
+    ("LeapFrogResult", "sight_imbalance"): (
+        "the difference between two sight lengths, a property of how the setup was placed "
+        "rather than a measurement of anything"
+    ),
+    ("LeapFrogResult", "refraction_cancellation"): (
+        "the fraction of the refraction uncertainty that survived the method, a "
+        "dimensionless ratio derived from the geometry"
+    ),
 }
 
 #: Public functions in the technique and instrument modules that return a plain
