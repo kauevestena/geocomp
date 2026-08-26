@@ -18,37 +18,16 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from enum import Enum
 
 from geocomp.core.adjustment.equations import supports
 from geocomp.core.adjustment.parameters import Frame
+from geocomp.core.findings import Finding, Severity
 from geocomp.core.models import Network
 
+#: Re-exported so existing callers keep importing them from here. The types
+#: themselves moved to :mod:`geocomp.core.findings` in phase P3, when
+#: total-station pre-processing needed the same severity scale.
 __all__ = ["Finding", "InspectionReport", "Severity", "inspect"]
-
-
-class Severity(Enum):
-    """How much a finding matters.
-
-    ``BLOCKING`` means the adjustment cannot run; ``WARNING`` means it can but
-    the result may not mean what the user expects. The distinction is what lets
-    a UI offer "adjust anyway" honestly.
-    """
-
-    BLOCKING = "blocking"
-    WARNING = "warning"
-    INFO = "info"
-
-
-@dataclass(frozen=True)
-class Finding:
-    """One thing worth telling the user about a network."""
-
-    code: str
-    severity: Severity
-    message: str
-    stations: tuple[str, ...] = ()
-    observations: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

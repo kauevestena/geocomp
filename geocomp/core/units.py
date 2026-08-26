@@ -22,13 +22,16 @@ from enum import Enum
 __all__ = [
     "DMS",
     "GON_PER_RADIAN",
+    "KELVIN_AT_ZERO_CELSIUS",
     "TWO_PI",
     "Unit",
     "angular_difference",
+    "celsius_to_kelvin",
     "circular_mean",
     "convert",
     "dms_to_radians",
     "format_dms",
+    "kelvin_to_celsius",
     "parse_angle",
     "radians_to_dms",
     "wrap_to_2pi",
@@ -51,6 +54,12 @@ class Unit(Enum):
     #: Gravity and gravity differences. SI: metres per second squared.
     ACCELERATION = "m/s^2"
     SECOND = "s"
+    #: Temperature. Stored in kelvin because that is the SI unit and because the
+    #: Celsius scale is affine rather than multiplicative, which :func:`convert`
+    #: deliberately does not model -- see :func:`celsius_to_kelvin`.
+    KELVIN = "K"
+    #: Pressure -- atmospheric and water-vapour partial pressure alike.
+    PASCAL = "Pa"
 
     @property
     def symbol(self) -> str:
@@ -315,7 +324,41 @@ _TO_SI: dict[str, tuple[Unit, float]] = {
     "ppm": (Unit.DIMENSIONLESS, 1e-6),
     # time
     "s": (Unit.SECOND, 1.0),
+    # temperature. Celsius is deliberately absent: it is an affine scale, and a
+    # multiplicative table cannot express it. celsius_to_kelvin() does that.
+    "k": (Unit.KELVIN, 1.0),
+    "kelvin": (Unit.KELVIN, 1.0),
+    # pressure
+    "pa": (Unit.PASCAL, 1.0),
+    "hpa": (Unit.PASCAL, 100.0),
+    "mbar": (Unit.PASCAL, 100.0),
+    "millibar": (Unit.PASCAL, 100.0),
+    "mmhg": (Unit.PASCAL, 133.322387415),
+    "torr": (Unit.PASCAL, 133.322387415),
+    "inhg": (Unit.PASCAL, 3386.389),
 }
+
+#: 0 degrees Celsius in kelvin.
+KELVIN_AT_ZERO_CELSIUS = 273.15
+
+
+def celsius_to_kelvin(value: float) -> float:
+    """Convert a temperature to kelvin.
+
+    Separate from :func:`convert` because the Celsius scale is affine, and a
+    table of multiplicative factors cannot express an offset. Trying to force it
+    through would convert a *difference* of 20 degrees into 293.15 K, which is
+    the kind of silent error the unit machinery exists to prevent.
+
+    The offset does not change a variance, so a :class:`~geocomp.core.uncertainty.Quantity`
+    keeps its uncertainty across this conversion unchanged.
+    """
+    return value + KELVIN_AT_ZERO_CELSIUS
+
+
+def kelvin_to_celsius(value: float) -> float:
+    """Convert a temperature from kelvin. See :func:`celsius_to_kelvin`."""
+    return value - KELVIN_AT_ZERO_CELSIUS
 
 
 def convert(value: float, from_unit: str, to_unit: str) -> float:

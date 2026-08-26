@@ -168,12 +168,147 @@ class TestDeclaredTypes:
             assert len(reason) > 10, f"{key} needs a real reason, not a placeholder"
 
 
-class TestTechniqueModuleReturns:
-    """Activates when the technique modules land in P3.
+#: Plain-float fields on the technique and instrument dataclasses, with the
+#: reason each is not a measurement. Same discipline as DELIBERATE_PLAIN_FLOATS
+#: above and the same force: a new float field fails until someone decides.
+TECHNIQUE_PLAIN_FLOATS = {
+    ("EdmSpecification", "constant"): "the constant term of a precision model, not a measurement",
+    ("EdmSpecification", "proportional"): "the ppm term of a precision model",
+    ("EdmSpecification", "scale"): "a user factor on a precision model",
+    ("InstrumentProfile", "cyclic_error_wavelength"): (
+        "a property of the EDM's modulation, taken from its calibration certificate"
+    ),
+    ("InstrumentProfile", "reference_refractive_index"): (
+        "the index the instrument's zero-ppm setting assumes; a published constant"
+    ),
+    ("InstrumentProfile", "sigma_direction"): "is itself a standard deviation",
+    ("InstrumentProfile", "sigma_zenith"): "is itself a standard deviation",
+    ("InstrumentProfile", "sigma_zenith_refraction"): "a coefficient of a precision model",
+    ("InstrumentProfile", "sigma_instrument_height"): "is itself a standard deviation",
+    ("InstrumentProfile", "sigma_target_height"): "is itself a standard deviation",
+    ("StochasticDefaults", "values"): "a mapping of standard deviations",
+    ("FaceReduction", "distance_difference"): (
+        "the difference of two readings of one distance, whose expected value is zero; "
+        "a diagnostic, not a measurement"
+    ),
+    ("SetupDiagnostics", "collimation_mean"): "a summary of instrumental diagnostics",
+    ("SetupDiagnostics", "collimation_spread"): "a summary of instrumental diagnostics",
+    ("SetupDiagnostics", "vertical_index_mean"): "a summary of instrumental diagnostics",
+    ("SetupDiagnostics", "vertical_index_spread"): "a summary of instrumental diagnostics",
+    ("Atmosphere", "wavelength_um"): "a property of the instrument's carrier, not a measurement",
+    ("AtmosphericCorrection", "reference_index"): (
+        "the index the instrument assumed; a setting, not something measured"
+    ),
+    ("PreprocessingOptions", "collimation_tolerance"): "a configured tolerance",
+    ("PreprocessingOptions", "distance_tolerance"): "a configured tolerance",
+    ("PreprocessingOptions", "distance_zenith_correlation"): (
+        "a correlation coefficient, dimensionless and bounded"
+    ),
+}
 
-    Written now, deliberately: a rule introduced after the code it governs is a
-    rule that gets exceptions carved into it.
+#: Public functions in the technique and instrument modules that return a plain
+#: value, with the reason. Narrow by construction: a geodetic *result* never
+#: belongs here, only a formula constant or a predicate.
+TECHNIQUE_PLAIN_RETURNS = {
+    "atmosphere.group_refractivity": (
+        "(n_g - 1) * 1e6 for standard air by the IUGG 1960 formula: a property of the "
+        "formula and the carrier wavelength, exact for its inputs"
+    ),
+    "stochastic.unit_for": "the dimension of an observation kind, not a value",
+}
+
+
+def _uncertainty_bearing_dataclasses():
+    """Dataclasses in the technique and instrument packages, by name.
+
+    Imported rather than parsed, so the check sees the real annotations and
+    cannot drift from the code.
     """
+    import importlib
+
+    found: dict[str, type] = {}
+    for package in ("core.techniques", "core.instruments"):
+        root = PLUGIN_DIR / package.replace(".", "/")
+        if not root.is_dir():
+            continue
+        for path in python_sources(root):
+            relative = path.relative_to(PLUGIN_DIR).with_suffix("")
+            module = importlib.import_module("geocomp." + ".".join(relative.parts))
+            for name, candidate in vars(module).items():
+                if (
+                    isinstance(candidate, type)
+                    and dataclasses.is_dataclass(candidate)
+                    and candidate.__module__ == module.__name__
+                ):
+                    found[name] = candidate
+    return found
+
+
+class TestTechniqueDeclaredTypes:
+    """The field-level rule, applied to the technique and instrument modules.
+
+    Phase P3 generalised this from the domain model. A result type composed
+    entirely of Quantities satisfies FR-200 as well as a Quantity does; what
+    must not exist is a plain float nobody decided about.
+    """
+
+    def test_there_are_dataclasses_to_check(self):
+        found = _uncertainty_bearing_dataclasses()
+        if not found:
+            pytest.skip("no technique or instrument modules yet")
+        assert len(found) >= 5
+
+    def test_every_plain_float_field_is_justified(self):
+        found = _uncertainty_bearing_dataclasses()
+        if not found:
+            pytest.skip("no technique or instrument modules yet")
+
+        undeclared: list[str] = []
+        for class_name, model_class in sorted(found.items()):
+            hints = typing.get_type_hints(model_class)
+            for field in dataclasses.fields(model_class):
+                annotation = _annotation_text(hints.get(field.name, field.type))
+                if "float" not in annotation:
+                    continue
+                if any(bearer in annotation for bearer in UNCERTAINTY_BEARING):
+                    continue
+                if (class_name, field.name) in TECHNIQUE_PLAIN_FLOATS:
+                    continue
+                undeclared.append(f"{class_name}.{field.name}: {annotation}")
+
+        assert not undeclared, (
+            "These technique fields are plain floats with no recorded decision (FR-200).\n"
+            "Make each one a Quantity, or add it to TECHNIQUE_PLAIN_FLOATS with the reason "
+            "it is not a measurement:\n" + "\n".join(undeclared)
+        )
+
+    def test_the_technique_justification_list_has_no_stale_entries(self):
+        found = _uncertainty_bearing_dataclasses()
+        if not found:
+            pytest.skip("no technique or instrument modules yet")
+        existing = {
+            (class_name, field.name)
+            for class_name, model_class in found.items()
+            for field in dataclasses.fields(model_class)
+        }
+        stale = sorted(key for key in TECHNIQUE_PLAIN_FLOATS if key not in existing)
+        assert not stale, f"justifications for fields that no longer exist: {stale}"
+
+
+class TestTechniqueModuleReturns:
+    """Every public function in a technique module returns something that
+    carries an uncertainty, or something that is not a measurement at all.
+
+    Written in phase P0, before the modules it governs existed, deliberately: a
+    rule introduced after the code it governs is a rule that gets exceptions
+    carved into it. Phase P3 replaced the original name-matching form with this
+    structural one, because a result type composed of Quantities satisfies
+    FR-200 just as a Quantity does, and a check that could not see that would
+    have forced every function to return a bare Quantity or be exempted.
+    """
+
+    #: Return types that are not measurements and need no uncertainty.
+    NON_MEASUREMENT = (type(None), bool, int, str)
 
     @staticmethod
     def _technique_sources():
@@ -182,30 +317,90 @@ class TestTechniqueModuleReturns:
             return []
         return list(python_sources(techniques))
 
+    @classmethod
+    def _is_acceptable(cls, annotation: object, bearing: dict[str, type]) -> bool:
+        """Whether *annotation* is uncertainty-bearing or not a measurement."""
+        import enum
+
+        origin = typing.get_origin(annotation)
+        if origin is not None:
+            arguments = [a for a in typing.get_args(annotation) if a is not type(None)]
+            if not arguments:
+                return True
+            return all(cls._is_acceptable(argument, bearing) for argument in arguments)
+
+        if annotation in (Quantity, Covariance, Position):
+            return True
+        if annotation in cls.NON_MEASUREMENT:
+            return True
+        if isinstance(annotation, type):
+            if issubclass(annotation, enum.Enum):
+                return True
+            if annotation.__name__ in bearing:
+                return True
+            if dataclasses.is_dataclass(annotation):
+                # A dataclass from elsewhere in the core -- the domain model --
+                # is already covered by TestDeclaredTypes above.
+                return True
+        return False
+
     def test_public_functions_return_uncertainty_bearing_types(self):
+        import importlib
+
         sources = self._technique_sources()
         if not sources:
             pytest.skip("no technique modules yet; they arrive in phase P3")
 
+        bearing = _uncertainty_bearing_dataclasses()
         offenders: list[str] = []
+        checked = 0
+
         for path in sources:
+            relative = path.relative_to(PLUGIN_DIR).with_suffix("")
+            module = importlib.import_module("geocomp." + ".".join(relative.parts))
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-            for node in ast.walk(tree):
+
+            for node in tree.body:
                 if not isinstance(node, ast.FunctionDef) or node.name.startswith("_"):
                     continue
+                checked += 1
                 if node.returns is None:
                     offenders.append(f"{path.name}:{node.lineno} {node.name}: no return annotation")
                     continue
-                annotation = ast.unparse(node.returns)
-                if annotation in ("None", "bool", "int", "str"):
+                if f"{path.stem}.{node.name}" in TECHNIQUE_PLAIN_RETURNS:
                     continue
-                if not any(bearer in annotation for bearer in UNCERTAINTY_BEARING):
-                    offenders.append(f"{path.name}:{node.lineno} {node.name} -> {annotation}")
+                hints = typing.get_type_hints(getattr(module, node.name))
+                if not self._is_acceptable(hints.get("return"), bearing):
+                    offenders.append(
+                        f"{path.name}:{node.lineno} {node.name} -> {ast.unparse(node.returns)}"
+                    )
 
+        assert checked > 5, "the scan found almost no public functions; it is probably broken"
         assert not offenders, (
-            "Technique-module functions must return uncertainty-bearing types (FR-200):\n"
-            + "\n".join(offenders)
+            "Technique-module functions must return uncertainty-bearing types (FR-200). "
+            "Return a Quantity, or a dataclass composed of them, or -- if the value is not a "
+            "measurement -- record the reason in TECHNIQUE_PLAIN_RETURNS:\n" + "\n".join(offenders)
         )
+
+    def test_the_plain_return_list_has_no_stale_entries(self):
+        sources = self._technique_sources()
+        if not sources:
+            pytest.skip("no technique modules yet")
+        names = set()
+        for root in ("techniques", "instruments"):
+            directory = PLUGIN_DIR / "core" / root
+            if not directory.is_dir():
+                continue
+            for path in python_sources(directory):
+                tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+                # Top-level functions only, matching what the returns check
+                # actually inspects. Methods are covered by their class's field
+                # check instead.
+                for node in tree.body:
+                    if isinstance(node, ast.FunctionDef):
+                        names.add(f"{path.stem}.{node.name}")
+        stale = sorted(key for key in TECHNIQUE_PLAIN_RETURNS if key not in names)
+        assert not stale, f"justifications for functions that no longer exist: {stale}"
 
 
 def test_quantity_and_covariance_are_the_only_uncertainty_carriers():

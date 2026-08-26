@@ -189,7 +189,214 @@ MODE_ADVANCED = "advanced"
 #: which is the default required by FR-092.
 LANGUAGE_SYSTEM = "system"
 
+#: Values for ``total_station.atmospheric_model``. Mirrors
+#: :class:`~geocomp.core.instruments.profiles.AtmosphericModel`, as lower-case
+#: strings because a setting value is stored text, not a Python enum.
+ATMOSPHERIC_MODELS = ("barrell_sears", "leica", "trimble")
+
+#: Values for ``total_station.traverse_adjustment``. Both are offered and clearly
+#: distinguished: the classical rules are what students are taught and what many
+#: specifications still require, and they are *not* least squares (specs/09 §4.1).
+TRAVERSE_COMPASS = "compass"
+TRAVERSE_TRANSIT = "transit"
+TRAVERSE_LEAST_SQUARES = "least_squares"
+
 SETTINGS: tuple[SettingDef, ...] = (
+    # -- Total Station (FR-061, FR-062). Added in phase P3. -------------------
+    #
+    # Instrument and reflector *profiles* are not settings: they are named,
+    # structured records with their own uncertainties, so they live in
+    # geocomp.core.instruments and are stored as documents (specs/15 §2.2).
+    # What is here is the configuration that is genuinely a single value.
+    SettingDef(
+        key="total_station.atmospheric_model",
+        section="total_station",
+        type=SettingType.CHOICE,
+        default="barrell_sears",
+        choices=ATMOSPHERIC_MODELS,
+        requirement="FR-062",
+    ),
+    SettingDef(
+        key="total_station.default_temperature_celsius",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=20.0,
+        minimum=-90.0,
+        maximum=60.0,
+        requirement="FR-062",
+    ),
+    SettingDef(
+        key="total_station.default_pressure_hpa",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=1013.25,
+        minimum=100.0,
+        maximum=1100.0,
+        requirement="FR-062",
+    ),
+    SettingDef(
+        key="total_station.default_humidity_percent",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=60.0,
+        minimum=0.0,
+        maximum=100.0,
+        requirement="FR-062",
+    ),
+    # The uncertainty of the defaults, not just the defaults. A temperature
+    # nobody measured is not known to the same precision as one somebody read
+    # off a thermometer, and FR-204 requires that difference to propagate.
+    SettingDef(
+        key="total_station.default_temperature_sigma",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=5.0,
+        minimum=0.0,
+        maximum=50.0,
+        requirement="FR-204",
+    ),
+    SettingDef(
+        key="total_station.default_pressure_sigma_hpa",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=10.0,
+        minimum=0.0,
+        maximum=200.0,
+        requirement="FR-204",
+    ),
+    SettingDef(
+        key="total_station.refraction_coefficient",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=0.13,
+        minimum=-1.0,
+        maximum=1.0,
+        requirement="FR-405",
+    ),
+    # k is poorly known and varies through the day; its uncertainty is the
+    # dominant error source on long trigonometric heights (specs/09 §2.6), so
+    # it is configurable rather than assumed exact.
+    SettingDef(
+        key="total_station.refraction_coefficient_sigma",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=0.05,
+        minimum=0.0,
+        maximum=1.0,
+        requirement="FR-405",
+    ),
+    SettingDef(
+        key="total_station.face_distance_tolerance",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=0.005,
+        minimum=0.0,
+        maximum=10.0,
+        requirement="FR-400",
+    ),
+    SettingDef(
+        key="total_station.collimation_tolerance",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=1.0e-4,
+        minimum=0.0,
+        maximum=0.1,
+        requirement="FR-400",
+    ),
+    SettingDef(
+        key="total_station.traverse_adjustment",
+        section="total_station",
+        type=SettingType.CHOICE,
+        default=TRAVERSE_LEAST_SQUARES,
+        choices=(TRAVERSE_LEAST_SQUARES, TRAVERSE_COMPASS, TRAVERSE_TRANSIT),
+        requirement="FR-406",
+    ),
+    SettingDef(
+        key="total_station.traverse_relative_precision",
+        section="total_station",
+        type=SettingType.INT,
+        default=5000,
+        minimum=100,
+        maximum=1000000,
+        requirement="FR-406",
+    ),
+    SettingDef(
+        key="total_station.traverse_angular_tolerance_per_station",
+        section="total_station",
+        type=SettingType.FLOAT,
+        default=1.45e-4,
+        minimum=0.0,
+        maximum=0.1,
+        requirement="FR-406",
+    ),
+    # -- Stochastic model (FR-064). Added in phase P3. ------------------------
+    #
+    # Deliberately zero by default, meaning "no type default configured": step 3
+    # of the specs/05 §5 precedence then supplies nothing and the resolution
+    # refuses rather than inventing a weight. A fresh installation should refuse.
+    SettingDef(
+        key="stochastic.default_sigma_direction",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=0.1,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.default_sigma_zenith_angle",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=0.1,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.default_sigma_slope_distance",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=100.0,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.default_sigma_height_difference",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=100.0,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.outlier_alpha",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.001,
+        minimum=1e-6,
+        maximum=0.5,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.outlier_beta",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.20,
+        minimum=1e-6,
+        maximum=0.9,
+        requirement="FR-064",
+    ),
+    SettingDef(
+        key="stochastic.confidence_level",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.95,
+        minimum=0.5,
+        maximum=0.9999,
+        requirement="FR-064",
+    ),
     # -- Interface (FR-067). The only section populated in phase P0. ----------
     SettingDef(
         key="interface.language",

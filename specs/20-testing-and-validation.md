@@ -58,10 +58,20 @@ permitting redistribution, and an expected-results file.
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
 
-**RD-01 is special.** It is the author's own prototype data, it exercises the whole first vertical slice, and
-it contains a real transcription blunder (a 1.000 m face-pair distance discrepancy —
-[`09-module-total-station.md`](./09-module-total-station.md) §2.1) which becomes a detection test. It ships
-with the plugin as a tutorial dataset (FR-952).
+**RD-01 is special, and carries two known defects.** It is the author's own prototype data and it exercises
+the whole first vertical slice. It contains a real transcription blunder — a 1.000 m face-pair distance
+discrepancy ([`09-module-total-station.md`](./09-module-total-station.md) §2.1) — which becomes a detection
+test. And its `processed_data.csv`, produced by the prototype notebook, carries a **180° error** in one
+reduced direction, caused by the arithmetic-mean face reduction the same section documents. Both are
+assets rather than problems: a reference dataset whose expected output is known to be wrong in two specific,
+independently verifiable places tests more than a clean one would.
+
+The 180° error is established two ways, not asserted: the published value gives a triangle whose interior
+angles sum to 38.24°, and implies a 2–3 distance of 4.43 m against 24.35 m measured. Both checks are in
+`tests/test_reference_total_station.py`.
+
+RD-01 ships with the plugin as a tutorial dataset (FR-952), with both defects documented — a tutorial in
+which the software catches two real errors in real data teaches more than one in which nothing is wrong.
 
 **RD-02 and RD-03 note — validation complete, citation outstanding.** The cases implemented in
 `tests/test_reference_propagation.py` and `tests/networks.py` are *not* transcriptions from Ghilani or

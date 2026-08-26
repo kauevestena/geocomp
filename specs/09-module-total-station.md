@@ -53,9 +53,22 @@ the naive arithmetic mean is wrong whenever the pair straddles the 0°/360° dis
 PD = 181° and PI = 1°, an arithmetic mean gives 91°, which after the conventional ±90° adjustment yields 1°
 instead of 181°.
 
-> **Prototype note.** `pd_pi_H()` in `processing_prototype.ipynb` uses the arithmetic mean with a
-> `mean > 180` branch. It is correct for the RD-01 data, and wrong for pairs that straddle the wrap. The
-> production implementation MUST use the circular form, and the wrap case MUST be a test case.
+> **Prototype note — corrected in phase P3.** `pd_pi_H()` in `processing_prototype.ipynb` uses the
+> arithmetic mean with a `mean > 180` branch. This document previously said it was "correct for the RD-01
+> data, and wrong for pairs that straddle the wrap". **The first half of that is false**, and it was found
+> by implementing the circular form and comparing: the prototype puts the `3,1,2` foresight direction at
+> **19.110139°** where the correct reduction gives **199.110139°**, exactly 180° away. Every other value in
+> `processed_data.csv` agrees to 1e-12.
+>
+> Two independent checks settle which is right, and both are tests:
+>
+> | Check | With the published 19.110139° | With the correct 199.110139° |
+> |---|---|---|
+> | Sum of the triangle's interior angles | 38.240556° | 180.019167° |
+> | 2–3 distance implied by the law of cosines, against 24.349 m measured | 4.427 m | 24.362 m |
+>
+> The production implementation MUST use the circular form. Both the wrap case and this row MUST be test
+> cases.
 
 **Vertical.** V = (V_PD − V_PI + 360°)/2, equivalent to the prototype's `((PD - PI)/2) + 180`, which is
 correct.
@@ -252,11 +265,15 @@ closure tolerances by traverse class; and default weights per observation type (
 
 ## 7. Acceptance criteria
 
-1. **RD-01 reproduces.** The full pipeline over `topo_test/raw_data.csv` reproduces
-   `topo_test/processed_data.csv` — `H_corr`, `V_corr`, `DH`, `DV`, `dH` — to within 1e-9, **and**
-   additionally attaches an uncertainty to every value.
-2. **RD-01's blunder is caught.** The `2,3,1` face-pair distance discrepancy of 1.000 m (§2.1) is flagged as a
-   blunder candidate, not averaged.
+1. **RD-01 reproduces, except where the prototype is wrong.** The full pipeline over
+   `topo_test/raw_data.csv` reproduces `topo_test/processed_data.csv` — `H_corr`, `V_corr`, `DH`, `DV`,
+   `dH` — to within 1e-9 **at every value except the `3,1,2` foresight `H_corr`**, where the correct
+   reduction gives 199.110139° against the prototype's 19.110139° (§2.1). A test asserts the agreement
+   everywhere else *and* the disagreement there, with the triangle-closure and law-of-cosines checks that
+   establish which is right. Every value additionally carries an uncertainty.
+2. **Both of RD-01's defects are caught.** The `2,3,1` face-pair distance discrepancy of 1.000 m (§2.1) is
+   flagged as a blunder candidate, not averaged; and the `3,1,2` direction is reduced correctly rather than
+   reproduced.
 3. **The wrap case is correct.** Face reduction with PD = 181°, PI = 1° returns 181°, and a test asserts it.
 4. Face reduction against a synthetic dataset with known injected collimation and index error recovers both
    to the injected values.
