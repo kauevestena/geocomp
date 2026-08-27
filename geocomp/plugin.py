@@ -126,7 +126,9 @@ class GeoCompPlugin:
         self._toolbar.setObjectName("geocompToolbar")
 
         settings_action = QAction(
-            QIcon(icon_path("geocomp.svg")), _tr("GeoComp Global Settings"), self.iface.mainWindow()
+            QIcon(icon_path("geocomp.svg")),
+            _tr("GeoComp Global Settings"),
+            self.iface.mainWindow(),
         )
         settings_action.setObjectName("geocompToolbarSettings")
         settings_action.triggered.connect(self.open_settings)
@@ -169,7 +171,9 @@ class GeoCompPlugin:
 
         from geocomp.gui.prompts import collect_parameters
 
-        prefilled = collect_parameters(algorithm_id, self.iface.mainWindow())
+        prefilled = collect_parameters(
+            algorithm_id, self.iface.mainWindow(), self.iface.mapCanvas()
+        )
         if prefilled is None:
             return
         execAlgorithmDialog(algorithm_id, prefilled)

@@ -812,6 +812,117 @@
         </message>
     </context>
     <context>
+        <name>GeoCompPreAnalysis</name>
+        <message>
+            <source> mm</source>
+            <translation> mm</translation>
+        </message>
+        <message>
+            <source>%1 station(s), %2 observation(s), %3 degree(s) of freedom. Worst: %4 mm at %5.</source>
+            <translation>%1 estação(ões), %2 observação(ões), %3 grau(s) de liberdade. Pior: %4 mm em %5.</translation>
+        </message>
+        <message>
+            <source>(none)</source>
+            <translation>(nenhuma)</translation>
+        </message>
+        <message>
+            <source>Add station</source>
+            <translation>Adicionar estação</translation>
+        </message>
+        <message>
+            <source>Azimuth</source>
+            <translation>Azimute</translation>
+        </message>
+        <message>
+            <source>Click on the map to…</source>
+            <translation>Clique no mapa para…</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Conectar</translation>
+        </message>
+        <message>
+            <source>Connect draws</source>
+            <translation>Conectar desenha</translation>
+        </message>
+        <message>
+            <source>Design</source>
+            <translation>Projeto</translation>
+        </message>
+        <message>
+            <source>Direction</source>
+            <translation>Direção</translation>
+        </message>
+        <message>
+            <source>Expected precision</source>
+            <translation>Precisão esperada</translation>
+        </message>
+        <message>
+            <source>Expected precision (ellipses exaggerated %1x)</source>
+            <translation>Precisão esperada (elipses com exagero de %1x)</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Constatações</translation>
+        </message>
+        <message>
+            <source>GeoComp — Interactive pre-analysis</source>
+            <translation>GeoComp — Pré-análise interativa</translation>
+        </message>
+        <message>
+            <source>Height difference</source>
+            <translation>Desnível</translation>
+        </message>
+        <message>
+            <source>Horizontal distance</source>
+            <translation>Distância horizontal</translation>
+        </message>
+        <message>
+            <source>Move</source>
+            <translation>Mover</translation>
+        </message>
+        <message>
+            <source>Nothing to evaluate yet.</source>
+            <translation>Ainda não há nada a avaliar.</translation>
+        </message>
+        <message>
+            <source>Nothing to report.</source>
+            <translation>Nada a relatar.</translation>
+        </message>
+        <message>
+            <source>Positional uncertainty (mm)</source>
+            <translation>Incerteza posicional (mm)</translation>
+        </message>
+        <message>
+            <source>Redo</source>
+            <translation>Refazer</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Remover</translation>
+        </message>
+        <message>
+            <source>Required precision</source>
+            <translation>Precisão requerida</translation>
+        </message>
+        <message>
+            <source>Semi-major (mm)</source>
+            <translation>Semieixo maior (mm)</translation>
+        </message>
+        <message>
+            <source>Semi-minor (mm)</source>
+            <translation>Semieixo menor (mm)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Undo</source>
+            <translation>Desfazer</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompPrompts</name>
         <message>
             <source>Choose a field book</source>

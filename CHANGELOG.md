@@ -105,6 +105,36 @@ validated network, with no external engine anywhere in the path.
   organisation defines its instrument's export layout once and distributes the
   file. Saving is allowed while the mapping is still incomplete, because half a
   mapping of a forty-column export is worth keeping.
+- **The interactive pre-analysis dialog** (FR-272), re-planned out of P2 into
+  the phase with a QGIS job that can verify it. A design is placed on the canvas
+  -- stations clicked in, observations drawn between them, dragged, removed --
+  and re-evaluated after every change, with the expected ellipses drawn over
+  whatever basemap is loaded. That loop is the reason pre-analysis belongs in a
+  GIS: a spreadsheet can compute Σx, but it cannot let a surveyor watch the
+  ellipses shrink as they drag a station onto ground the orthophoto tells them
+  is accessible.
+
+  **Evaluation never raises.** A design under construction spends most of its
+  life un-evaluable -- one station, no observations, three stations and a rank
+  defect -- and a loop that threw on each of those would be unusable. A design
+  that cannot be evaluated reports why, as findings, in the same shape as one
+  that can be evaluated but is poor, so the panel renders one thing rather than
+  branching on which kind of answer arrived. The messages are actionable:
+  "connect two stations to begin", not "singular normal matrix".
+
+  Removing a station takes its observations with it, because leaving them gives
+  a network referring to a station that does not exist, which fails deep in the
+  adjustment with a message about a missing parameter rather than about the
+  click that caused it. Planned directions from one setup form one cluster, as
+  the model requires -- splitting them would drop the orientation unknown and
+  evaluate a network nobody could observe. Every edit is undoable: editing on a
+  canvas without undo is punishing, and a design network is small enough that
+  snapshotting it costs nothing.
+
+  As with field mapping, the dialog is a view: `core/preanalysis/session.py`
+  holds every rule and is tested without QGIS, and the dialog hands its design
+  to `geocomp:analysis_network_preanalysis` for the report, so an interactive
+  design and a loaded one are evaluated by identical code.
 - **`registry.CUSTOM_DIALOGS`** enumerates which algorithms open a custom dialog
   before the standard Processing one, and why. The custom dialog never replaces
   the algorithm (ADR-0005): it fills in parameters and hands them to the same

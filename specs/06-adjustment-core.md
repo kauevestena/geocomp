@@ -216,10 +216,22 @@ expected ellipses, move a station, re-evaluate. This interactive loop is the rea
 GIS at all, and it is a direct answer to the proposal's pedagogical justification.
 
 > **Phasing.** The mathematics above and the Processing algorithm that exposes it
-> (`geocomp:analysis_network_preanalysis`) ship in **P2**; the canvas dialog (FR-272) ships in **P3**, where
-> a running QGIS can verify it. [`ROADMAP.md`](./ROADMAP.md) records the re-planning. The split is along a
-> real seam: the algorithm is the whole computation, and the dialog is a way to drive it, so a model or a
-> script needs nothing from P3.
+> (`geocomp:analysis_network_preanalysis`) shipped in **P2**; the canvas dialog (FR-272) shipped in **P3**,
+> where a running QGIS can verify it. [`ROADMAP.md`](./ROADMAP.md) records the re-planning. The split is
+> along a real seam: the algorithm is the whole computation, and the dialog is a way to drive it, so a model
+> or a script needs nothing from P3.
+>
+> The seam held in the implementation. The dialog builds the design and then hands it to the same algorithm
+> for the report, so an interactive design and one loaded from a file are evaluated by identical code
+> (ADR-0005). What an edit *means* — a removed station taking its observations with it, planned directions
+> from one setup forming one set — lives in `core/preanalysis/session.py`, which imports no Qt and is tested
+> without QGIS; the dialog contributes the map tool, the rubber bands and the panel.
+>
+> **Evaluation there never raises.** A design under construction spends most of its life un-evaluable — one
+> station, no observations, three stations and a rank defect — and an interactive loop that threw on each of
+> those would be unusable. A design that cannot be evaluated reports *why*, as findings, in the same shape as
+> one that can be evaluated but is poor, so the panel renders one thing rather than branching on which kind
+> of answer arrived.
 
 Supported design questions: *is this network strong enough?* · *where should I add an observation to improve
 it most?* · *what happens if I lose station X?* · *can I detect a 5 mm blunder anywhere in this network?*

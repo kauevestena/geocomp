@@ -185,6 +185,13 @@ TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
 #: dialog every other menu item opens, so the algorithm stays the one thing
 #: that runs, whether reached from the menu, the toolbox or the modeller.
 CUSTOM_DIALOGS: dict[str, str] = {
+    "analysis_network_preanalysis": (
+        "A design is edited on the canvas and re-evaluated in a loop, which is "
+        "the whole reason pre-analysis belongs in a GIS: a surveyor watches the "
+        "ellipses shrink as they drag a station onto ground the orthophoto "
+        "tells them is accessible. The dialog builds the design and hands it to "
+        "this same algorithm for the full report (FR-272)."
+    ),
     "totalstation_import_fieldbook": (
         "Mapping columns onto fields is impossible without seeing the data in "
         "them. A combo box offering 'HS' and 'hs' tells a user nothing; a "

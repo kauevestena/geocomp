@@ -812,6 +812,117 @@
         </message>
     </context>
     <context>
+        <name>GeoCompPreAnalysis</name>
+        <message>
+            <source> mm</source>
+            <translation> mm</translation>
+        </message>
+        <message>
+            <source>%1 station(s), %2 observation(s), %3 degree(s) of freedom. Worst: %4 mm at %5.</source>
+            <translation>%1 estación(es), %2 observación(es), %3 grado(s) de libertad. Peor: %4 mm en %5.</translation>
+        </message>
+        <message>
+            <source>(none)</source>
+            <translation>(ninguna)</translation>
+        </message>
+        <message>
+            <source>Add station</source>
+            <translation>Añadir estación</translation>
+        </message>
+        <message>
+            <source>Azimuth</source>
+            <translation>Acimut</translation>
+        </message>
+        <message>
+            <source>Click on the map to…</source>
+            <translation>Haga clic en el mapa para…</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Conectar</translation>
+        </message>
+        <message>
+            <source>Connect draws</source>
+            <translation>Conectar dibuja</translation>
+        </message>
+        <message>
+            <source>Design</source>
+            <translation>Diseño</translation>
+        </message>
+        <message>
+            <source>Direction</source>
+            <translation>Dirección</translation>
+        </message>
+        <message>
+            <source>Expected precision</source>
+            <translation>Precisión esperada</translation>
+        </message>
+        <message>
+            <source>Expected precision (ellipses exaggerated %1x)</source>
+            <translation>Precisión esperada (elipses con exageración de %1x)</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>GeoComp — Interactive pre-analysis</source>
+            <translation>GeoComp — Preanálisis interactivo</translation>
+        </message>
+        <message>
+            <source>Height difference</source>
+            <translation>Desnivel</translation>
+        </message>
+        <message>
+            <source>Horizontal distance</source>
+            <translation>Distancia horizontal</translation>
+        </message>
+        <message>
+            <source>Move</source>
+            <translation>Mover</translation>
+        </message>
+        <message>
+            <source>Nothing to evaluate yet.</source>
+            <translation>Todavía no hay nada que evaluar.</translation>
+        </message>
+        <message>
+            <source>Nothing to report.</source>
+            <translation>Nada que informar.</translation>
+        </message>
+        <message>
+            <source>Positional uncertainty (mm)</source>
+            <translation>Incertidumbre posicional (mm)</translation>
+        </message>
+        <message>
+            <source>Redo</source>
+            <translation>Rehacer</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Eliminar</translation>
+        </message>
+        <message>
+            <source>Required precision</source>
+            <translation>Precisión requerida</translation>
+        </message>
+        <message>
+            <source>Semi-major (mm)</source>
+            <translation>Semieje mayor (mm)</translation>
+        </message>
+        <message>
+            <source>Semi-minor (mm)</source>
+            <translation>Semieje menor (mm)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Undo</source>
+            <translation>Deshacer</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompPrompts</name>
         <message>
             <source>Choose a field book</source>

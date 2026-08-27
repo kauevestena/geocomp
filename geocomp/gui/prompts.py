@@ -45,7 +45,7 @@ def has_custom_dialog(algorithm_id: str) -> bool:
 
 
 def collect_parameters(
-    algorithm_id: str, parent: QWidget | None = None
+    algorithm_id: str, parent: QWidget | None = None, canvas: Any = None
 ) -> dict[str, Any] | None:
     """Run the custom dialog and return the parameters it collected.
 
@@ -56,11 +56,16 @@ def collect_parameters(
 
     An algorithm with no custom dialog returns an empty mapping, so the caller
     can pass the result straight through without branching.
+
+    Args:
+        canvas: The map canvas, for the dialogs that edit on it. ``None`` where
+            there is none, and a dialog that needs one then declines to open
+            rather than presenting a design tool with no map under it.
     """
     handler = _HANDLERS.get(_operation(algorithm_id))
     if handler is None:
         return {}
-    return handler(parent)
+    return handler(parent, canvas)
 
 
 def _operation(algorithm_id: str) -> str:
@@ -68,7 +73,7 @@ def _operation(algorithm_id: str) -> str:
     return algorithm_id[len(prefix) :] if algorithm_id.startswith(prefix) else algorithm_id
 
 
-def _field_mapping(parent: QWidget | None) -> dict[str, Any] | None:
+def _field_mapping(parent: QWidget | None, _canvas: Any = None) -> dict[str, Any] | None:
     """Choose a field book, map its columns, and hand both to the algorithm.
 
     The mapping is written to a temporary file because the algorithm takes a
@@ -102,7 +107,42 @@ def _field_mapping(parent: QWidget | None) -> dict[str, Any] | None:
     return {"SOURCE": source, "MAPPING": str(Path(handle.name))}
 
 
+def _interactive_preanalysis(
+    parent: QWidget | None, canvas: Any = None
+) -> dict[str, Any] | None:
+    """Place a design on the canvas, then evaluate it with the algorithm.
+
+    The dialog is where the design is *built*; the numbers a user acts on still
+    come from ``geocomp:analysis_network_preanalysis``, so an interactive design
+    and one loaded from a file are evaluated by the same code (ADR-0005).
+
+    Without a canvas there is nothing to place a design on, so the item falls
+    back to the plain Processing dialog rather than opening a design tool with
+    no map under it.
+    """
+    if canvas is None:
+        return {}
+
+    from geocomp.gui.preanalysis_dialog import PreAnalysisDialog
+
+    dialog = PreAnalysisDialog(canvas, parent=parent)
+    if dialog.exec() != QDialog.DialogCode.Accepted:
+        return None
+
+    handle = tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", prefix="geocomp-design-", delete=False, encoding="utf-8"
+    )
+    with handle:
+        json.dump(dialog.network().to_dict(), handle, indent=2, sort_keys=True)
+        handle.write("\n")
+
+    return {"NETWORK": str(Path(handle.name))}
+
+
 #: One handler per entry in :data:`geocomp.registry.CUSTOM_DIALOGS`. The two are
 #: held equal by a structural test: a declared dialog with no handler would
 #: leave a menu item promising something that never appears.
-_HANDLERS = {"totalstation_import_fieldbook": _field_mapping}
+_HANDLERS = {
+    "analysis_network_preanalysis": _interactive_preanalysis,
+    "totalstation_import_fieldbook": _field_mapping,
+}
