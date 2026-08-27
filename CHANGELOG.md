@@ -47,6 +47,46 @@ validated network, with no external engine anywhere in the path.
   rejecting it, so a mistyped parameter silently becomes a default and fails
   somewhere else. Every key is now checked against the declaring algorithm by
   parsing, which works without QGIS installed.
+- **Styled result layers** (FR-900, FR-904, FR-905). Both adjustments now offer
+  the same five map layers: adjusted stations sized by their positional
+  uncertainty, error ellipses, observations coloured by what the w-test decided
+  about them, the measured network by observation type, and coordinate
+  correction vectors. They arrive styled, which is what "visualização imediata"
+  asked for -- a user who runs an adjustment sees the result rather than styling
+  five layers by hand. None is created unless asked for, so an adjustment run to
+  feed another algorithm writes nothing extra.
+- **Five QML style files** in `geocomp/resources/styles/`, editable in the layer
+  properties dialog and re-saveable over the shipped file. Code applies a style;
+  it does not contain one. Uncertainty maps to size and significance to colour
+  across every layer, so the plugin reads as one system; the palette is
+  Okabe-Ito, which survives every common colour-vision deficiency and greyscale
+  printing, because these layers end up in technical reports. Significance is
+  three symbols rather than a ramp, because the w-test gives three answers --
+  and an observation nothing could be tested about is not a passing one.
+- **`core/visualization/`** - ellipse rings, vector tips and the first
+  exaggeration factor, with no QGIS in them, so the vertices are checked against
+  closed-form values rather than only inside a QGIS runtime.
+
+#### The exaggeration factor, and why it is a required argument
+
+`specs/19` calls an unstated exaggeration the single most important rule in the
+document: a 5 mm semi-axis is a micron at 1:5000, so every drawn ellipse is
+enlarged, and one that does not say by how much is a misrepresentation rather
+than a visualisation.
+
+It is therefore not defaulted anywhere. Every function that produces drawn
+geometry takes `exaggeration` keyword-only and without a default, so a call site
+cannot omit it; the factor travels on the geometry it produced rather than
+beside it; and the layer's name -- which is what reaches the legend -- is
+composed from the same argument the vertices used, so the two cannot disagree. A
+structural check enforces all of that by parsing, and a tier-3 test follows one
+factor from the parameter through the ring to the name and the attribute table.
+
+Where no factor is given, one is fitted to the network's own extent, since an
+algorithm has no map canvas to measure, and rounded down to a 1-2-5 value: a
+legend reading "x500" is read at a glance and "x487.3" is not. It is never below
+1. Shrinking an ellipse understates the uncertainty, which is the failure the
+rule exists to prevent.
 
 #### Fixed in the phase P2 core
 
@@ -76,6 +116,10 @@ that said nothing about the cause.
 - **An exactly closing traverse no longer reports the worst possible relative
   precision.** The ratio is absent for two opposite reasons - a zero misclosure
   and an open traverse - and one sentinel of `0.0` for both read as 1:0.
+- **`ErrorEllipse` no longer documents a `scale_factor` it never had.** The
+  exaggeration belongs to a drawing, not to a confidence region: the same
+  ellipse on two maps at two scales is one ellipse. It lives on `DrawnEllipse`
+  instead, where it is required.
 - **The spread of the orientations implied by several known points was
   identically zero for two of them**, which is the commonest case in a detail
   survey. It was the range of the *absolute* deviations, and two estimates

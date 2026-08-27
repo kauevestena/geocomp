@@ -43,6 +43,10 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.layer_outputs import (
+    add_result_layer_parameters,
+    write_result_layers,
+)
 from geocomp.algorithms.reporting import (
     escape,
     format_number,
@@ -148,6 +152,17 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             "stations</b> &mdash; CSV. Scalars: <code>DEGREES_OF_FREEDOM</code>, "
             "<code>VARIANCE_FACTOR</code>, <code>GLOBAL_TEST_PASSED</code> and "
             "<code>OUTLIER_COUNT</code>.</p>"
+            "<p><b>Result layers</b> &mdash; five optional map layers, arriving styled "
+            "and ready to read (FR-905): adjusted stations sized by their positional "
+            "uncertainty, error ellipses, observations coloured by what the w-test "
+            "decided about them, the measured network by observation type, and the "
+            "coordinate correction vectors. None is created unless asked for, so an "
+            "adjustment run to feed another algorithm writes nothing extra.</p>"
+            "<p><b>Ellipse exaggeration</b> &mdash; real ellipses are invisible at map "
+            "scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to "
+            "the network's own extent. Whatever factor is used is stated in the layer's "
+            "name, which is what reaches the legend: an unstated exaggeration turns a "
+            "quality visualisation into a misrepresentation.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -212,13 +227,20 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             (OUTPUT_NETWORK, self.tr("Network"), self.tr("GeoComp network (*.json)"), True),
             (OUTPUT_SOLUTION, self.tr("Solution"), self.tr("GeoComp solution (*.json)"), True),
             (OUTPUT_HTML, self.tr("Report"), self.tr("HTML files (*.html)"), True),
-            (OUTPUT_STATIONS, self.tr("Adjusted stations"), self.tr("CSV files (*.csv)"), False),
+            (
+                OUTPUT_STATIONS,
+                self.tr("Adjusted stations"),
+                self.tr("CSV files (*.csv)"),
+                False,
+            ),
         ):
             self.addParameter(
                 QgsProcessingParameterFileDestination(
                     name, label, filter_text, optional=True, createByDefault=by_default
                 )
             )
+
+        add_result_layer_parameters(self)
 
     def processAlgorithm(
         self,
@@ -227,9 +249,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
         results = read_reductions(self.parameterAsFile(parameters, REDUCTIONS, context))
-        approximate = self._approximate(
-            self.parameterAsFile(parameters, APPROXIMATE, context)
-        )
+        approximate = self._approximate(self.parameterAsFile(parameters, APPROXIMATE, context))
 
         dimension = _DIMENSIONS[self.parameterAsEnum(parameters, DIMENSION, context)]
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context))
@@ -332,7 +352,12 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         )
 
         feedback.setProgress(90)
-        outputs = self._write(parameters, context, network, solution, run, test, snooping, report)
+        outputs = self._write(
+            parameters, context, network, solution, run, test, snooping, report
+        )
+        layers = write_result_layers(
+            self, parameters, context, solution, network, feedback=feedback
+        )
         feedback.setProgress(100)
 
         return {
@@ -341,6 +366,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             GLOBAL_TEST_PASSED: test.passed,
             OUTLIER_COUNT: len(snooping.candidates),
             **outputs,
+            **layers,
         }
 
     # -- inputs ----------------------------------------------------------
@@ -383,8 +409,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             feedback.pushWarning(self.tr("The global test fails: %1").replace("%1", test.note))
         if snooping.candidates:
             feedback.pushWarning(
-                self.tr("%1 observation(s) exceed the w-test critical value; none was "
-                        "rejected.").replace("%1", str(len(snooping.candidates)))
+                self.tr(
+                    "%1 observation(s) exceed the w-test critical value; none was rejected."
+                ).replace("%1", str(len(snooping.candidates)))
             )
 
     # -- outputs ---------------------------------------------------------
@@ -414,8 +441,18 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             with open(stations_path, "w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle)
                 writer.writerow(
-                    ["station", "x", "y", "z", "sigma_x", "sigma_y", "sigma_z", "semi_major",
-                     "semi_minor", "azimuth_rad"]
+                    [
+                        "station",
+                        "x",
+                        "y",
+                        "z",
+                        "sigma_x",
+                        "sigma_y",
+                        "sigma_z",
+                        "semi_major",
+                        "semi_minor",
+                        "azimuth_rad",
+                    ]
                 )
                 for station in solution.adjusted_stations:
                     values = station.position.values
@@ -425,8 +462,11 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                         + [repr(q.value) for q in values]
                         + [repr(q.std_dev) for q in values]
                         + (
-                            [repr(ellipse.semi_major), repr(ellipse.semi_minor),
-                             repr(ellipse.azimuth)]
+                            [
+                                repr(ellipse.semi_major),
+                                repr(ellipse.semi_minor),
+                                repr(ellipse.azimuth),
+                            ]
                             if ellipse
                             else ["", "", ""]
                         )
@@ -470,8 +510,10 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             )
 
         verdict_class = "pass" if test.passed else "fail"
-        verdict = self.tr("The global test passes.") if test.passed else self.tr(
-            "The global test fails."
+        verdict = (
+            self.tr("The global test passes.")
+            if test.passed
+            else self.tr("The global test fails.")
         )
 
         body = [
@@ -497,7 +539,10 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 [
                     [escape(self.tr("Statistic")), format_number(test.statistic)],
                     [escape(self.tr("Lower critical value")), format_number(test.critical_low)],
-                    [escape(self.tr("Upper critical value")), format_number(test.critical_high)],
+                    [
+                        escape(self.tr("Upper critical value")),
+                        format_number(test.critical_high),
+                    ],
                 ],
             ),
         ]

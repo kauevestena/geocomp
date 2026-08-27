@@ -134,6 +134,26 @@ def _parameter_dictionaries(path: Path) -> list[tuple[str, str, int]]:
     return found
 
 
+def _geocomp_imports(path: Path) -> set[Path]:
+    """The GeoComp modules *path* imports names from.
+
+    A shared parameter helper declares real parameters of every algorithm that
+    calls it -- the five result-layer sinks live in ``layer_outputs.py``
+    precisely so both adjustments offer the same ones -- so the constants an
+    algorithm module imports count as its own.
+    """
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    imported: set[Path] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+            if not node.module.startswith("geocomp."):
+                continue
+            candidate = REPO_ROOT / Path(*node.module.split(".")).with_suffix(".py")
+            if candidate.is_file():
+                imported.add(candidate)
+    return imported
+
+
 @pytest.fixture(scope="module")
 def declared_by_algorithm() -> dict[str, set[str]]:
     from geocomp.registry import ALGORITHMS
@@ -141,7 +161,10 @@ def declared_by_algorithm() -> dict[str, set[str]]:
     by_id: dict[str, set[str]] = {}
     for spec in ALGORITHMS:
         path = REPO_ROOT / Path(*spec.module.split(".")).with_suffix(".py")
-        by_id[spec.id] = _declared_constants(path) | set(FOREIGN_KEYS)
+        names = set(FOREIGN_KEYS) | _declared_constants(path)
+        for helper in _geocomp_imports(path):
+            names |= _declared_constants(helper)
+        by_id[spec.id] = names
     return by_id
 
 

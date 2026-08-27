@@ -65,10 +65,14 @@ class ErrorEllipse:
     """A confidence region for an adjusted position (FR-254).
 
     ``confidence`` is stored because an ellipse without its confidence level is
-    uninterpretable, and ``scale_factor`` because a drawn ellipse is always
-    exaggerated -- a 5 mm semi-axis is a micron at 1:5000 -- and an unstated
-    exaggeration turns a quality visualisation into a misrepresentation
-    (FR-901).
+    uninterpretable.
+
+    The **exaggeration** an ellipse is drawn at is deliberately *not* here. It
+    belongs to a drawing, not to a confidence region: the same ellipse shown on
+    two maps at two scales is one ellipse. It lives instead on
+    :class:`~geocomp.core.visualization.DrawnEllipse`, where it is a required
+    argument, so that a drawn ellipse cannot exist without stating the factor
+    it was drawn at (FR-901) while the region itself stays scale-free.
     """
 
     semi_major: float

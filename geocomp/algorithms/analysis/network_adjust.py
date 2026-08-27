@@ -52,6 +52,10 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.layer_outputs import (
+    add_result_layer_parameters,
+    write_result_layers,
+)
 from geocomp.core.adjustment.least_squares import (
     AdjustmentOptions,
     adjust,
@@ -152,6 +156,17 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             "<code>DEGREES_OF_FREEDOM</code>, <code>ITERATIONS</code>, "
             "<code>GLOBAL_TEST_PASSED</code>, <code>OUTLIER_COUNT</code>, "
             "<code>WORST_OUTLIER</code> and <code>UNCHECKABLE_COUNT</code>.</p>"
+            "<p><b>Result layers</b> &mdash; five optional map layers, arriving styled "
+            "and ready to read (FR-905): adjusted stations sized by their positional "
+            "uncertainty, error ellipses, observations coloured by what the w-test "
+            "decided about them, the measured network by observation type, and the "
+            "coordinate correction vectors. None is created unless asked for, so an "
+            "adjustment run to feed another algorithm writes nothing extra.</p>"
+            "<p><b>Ellipse exaggeration</b> &mdash; real ellipses are invisible at map "
+            "scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to "
+            "the network's own extent. Whatever factor is used is stated in the layer's "
+            "name, which is what reaches the legend: an unstated exaggeration turns a "
+            "quality visualisation into a misrepresentation.</p>"
         )
 
     # -- parameters ------------------------------------------------------
@@ -280,6 +295,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 createByDefault=False,
             )
         )
+        add_result_layer_parameters(self)
 
     # -- execution -------------------------------------------------------
 
@@ -301,7 +317,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             datum_stations=station_list(
                 self.parameterAsString(parameters, DATUM_STATIONS, context)
             ),
-            variance_factor_apriori=self.parameterAsDouble(parameters, VARIANCE_FACTOR, context),
+            variance_factor_apriori=self.parameterAsDouble(
+                parameters, VARIANCE_FACTOR, context
+            ),
             convergence=self.parameterAsDouble(parameters, CONVERGENCE, context),
             max_iterations=self.parameterAsInt(parameters, MAX_ITERATIONS, context),
             confidence=confidence,
@@ -369,8 +387,20 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(90)
         outputs = self._write_outputs(
-            parameters, context, network, options, run, solution, test, snooping,
-            reliability_report, confidence,
+            parameters,
+            context,
+            network,
+            options,
+            run,
+            solution,
+            test,
+            snooping,
+            reliability_report,
+            confidence,
+        )
+
+        layers = write_result_layers(
+            self, parameters, context, solution, network, feedback=feedback
         )
 
         feedback.setProgress(100)
@@ -384,6 +414,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             WORST_OUTLIER: worst.observation_id if worst else "",
             UNCHECKABLE_COUNT: len(reliability_report.uncheckable),
             **outputs,
+            **layers,
         }
 
     def _adjust(self, network, options):
@@ -466,8 +497,17 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
     # -- outputs ---------------------------------------------------------
 
     def _write_outputs(
-        self, parameters, context, network, options, run, solution, test, snooping,
-        reliability_report, confidence,
+        self,
+        parameters,
+        context,
+        network,
+        options,
+        run,
+        solution,
+        test,
+        snooping,
+        reliability_report,
+        confidence,
     ) -> dict[str, Any]:
         solution_target = self.parameterAsFileOutput(parameters, OUTPUT_SOLUTION, context)
         if solution_target:
@@ -480,8 +520,14 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             with open(html_target, "w", encoding="utf-8") as handle:
                 handle.write(
                     self._render(
-                        network, options, run, solution, test, snooping,
-                        reliability_report, confidence,
+                        network,
+                        options,
+                        run,
+                        solution,
+                        test,
+                        snooping,
+                        reliability_report,
+                        confidence,
                     )
                 )
 
@@ -510,8 +556,16 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             writer = csv.writer(handle)
             writer.writerow(
                 [
-                    "station", "x", "y", "z", "sigma_x", "sigma_y", "sigma_z",
-                    "semi_major", "semi_minor", "azimuth_rad",
+                    "station",
+                    "x",
+                    "y",
+                    "z",
+                    "sigma_x",
+                    "sigma_y",
+                    "sigma_z",
+                    "semi_major",
+                    "semi_minor",
+                    "azimuth_rad",
                 ]
             )
             for station in solution.adjusted_stations:
@@ -522,7 +576,11 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                     + [repr(quantity.value) for quantity in values]
                     + [repr(quantity.std_dev) for quantity in values]
                     + (
-                        [repr(ellipse.semi_major), repr(ellipse.semi_minor), repr(ellipse.azimuth)]
+                        [
+                            repr(ellipse.semi_major),
+                            repr(ellipse.semi_minor),
+                            repr(ellipse.azimuth),
+                        ]
                         if ellipse
                         else ["", "", ""]
                     )
@@ -534,8 +592,14 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             writer = csv.writer(handle)
             writer.writerow(
                 [
-                    "observation", "component", "residual", "standardised_residual",
-                    "redundancy", "minimal_detectable_bias", "external_effect", "flagged",
+                    "observation",
+                    "component",
+                    "residual",
+                    "standardised_residual",
+                    "redundancy",
+                    "minimal_detectable_bias",
+                    "external_effect",
+                    "flagged",
                 ]
             )
             flagged = {candidate.row for candidate in snooping.candidates}
@@ -605,7 +669,10 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             [escape(self.tr("Parameters")), escape(run.layout.size)],
             [escape(self.tr("Degrees of freedom")), escape(run.degrees_of_freedom)],
             [escape(self.tr("Iterations")), escape(run.iterations)],
-            [escape(self.tr("Largest final correction (m)")), format_number(run.max_correction, 6)],
+            [
+                escape(self.tr("Largest final correction (m)")),
+                format_number(run.max_correction, 6),
+            ],
             [
                 escape(self.tr("A posteriori variance factor")),
                 format_number(run.variance_factor_aposteriori),
