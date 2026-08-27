@@ -136,38 +136,35 @@ class Atmosphere:
     @classmethod
     def from_field_units(
         cls,
-        temperature_celsius: Quantity,
-        pressure_hpa: Quantity,
-        humidity_percent: Quantity,
+        temperature_celsius: float,
+        pressure_hpa: float,
+        humidity_percent: float,
         *,
+        temperature_sigma: float = 0.0,
+        pressure_sigma_hpa: float = 0.0,
+        humidity_sigma_percent: float = 0.0,
         wavelength_um: float = DEFAULT_WAVELENGTH_UM,
     ) -> Atmosphere:
         """Build from the units a field book actually records.
+
+        Plain floats in, quantities out. That is not a lapse from FR-200: this
+        *is* the boundary where the uncertainty gets attached, and a Celsius
+        reading has no Unit to be tagged with -- the scale is affine, and
+        labelling one ``KELVIN`` because it will become kelvin is exactly the
+        kind of quiet mislabelling the unit machinery exists to prevent.
 
         The variances carry across the temperature conversion unchanged: adding
         273.15 shifts a value and leaves its spread alone.
         """
         return cls(
-            temperature=Quantity(
-                value=celsius_to_kelvin(temperature_celsius.value),
-                variance=temperature_celsius.variance,
-                unit=Unit.KELVIN,
-                mode=temperature_celsius.mode,
-                strategies=temperature_celsius.strategies,
+            temperature=Quantity.from_std_dev(
+                celsius_to_kelvin(temperature_celsius), temperature_sigma, Unit.KELVIN
             ),
-            pressure=Quantity(
-                value=pressure_hpa.value * 100.0,
-                variance=pressure_hpa.variance * 100.0**2,
-                unit=Unit.PASCAL,
-                mode=pressure_hpa.mode,
-                strategies=pressure_hpa.strategies,
+            pressure=Quantity.from_std_dev(
+                pressure_hpa * 100.0, pressure_sigma_hpa * 100.0, Unit.PASCAL
             ),
-            humidity=Quantity(
-                value=humidity_percent.value / 100.0,
-                variance=humidity_percent.variance / 100.0**2,
-                unit=Unit.DIMENSIONLESS,
-                mode=humidity_percent.mode,
-                strategies=humidity_percent.strategies,
+            humidity=Quantity.from_std_dev(
+                humidity_percent / 100.0, humidity_sigma_percent / 100.0, Unit.DIMENSIONLESS
             ),
             wavelength_um=wavelength_um,
         )

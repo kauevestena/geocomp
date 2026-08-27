@@ -73,9 +73,7 @@ def radians(degrees: float, sigma: float = 5e-6) -> Quantity:
 
 def atmosphere(t=20.0, p=1013.25, rh=60.0, st=0.0, sp=0.0, sh=0.0) -> Atmosphere:
     return Atmosphere.from_field_units(
-        Quantity.from_std_dev(t, st, KELVIN),
-        Quantity.from_std_dev(p, sp, PASCAL),
-        Quantity.from_std_dev(rh, sh, NONE),
+        t, p, rh, temperature_sigma=st, pressure_sigma_hpa=sp, humidity_sigma_percent=sh
     )
 
 

@@ -29,6 +29,7 @@ __all__ = [
     "celsius_to_kelvin",
     "circular_mean",
     "convert",
+    "dimension_of",
     "dms_to_radians",
     "format_dms",
     "kelvin_to_celsius",
@@ -359,6 +360,24 @@ def celsius_to_kelvin(value: float) -> float:
 def kelvin_to_celsius(value: float) -> float:
     """Convert a temperature from kelvin. See :func:`celsius_to_kelvin`."""
     return value - KELVIN_AT_ZERO_CELSIUS
+
+
+def dimension_of(unit: str) -> Unit:
+    """The dimension a named unit belongs to.
+
+    ``dimension_of("hPa")`` is :attr:`Unit.PASCAL`. Useful at an import
+    boundary, where a column's unit is a string the user chose and the value has
+    to be converted once into the SI unit of whatever dimension that is.
+
+    Raises:
+        ValueError: for an unknown unit name -- deliberately not a
+            ``GeoCompError``, matching :func:`convert`: an unknown unit is a
+            programming or configuration mistake, not a datum to report.
+    """
+    entry = _TO_SI.get(unit.lower())
+    if entry is None:
+        raise ValueError(f"unknown unit {unit!r}")
+    return entry[0]
 
 
 def convert(value: float, from_unit: str, to_unit: str) -> float:

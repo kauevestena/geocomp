@@ -2,6 +2,261 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es">
     <context>
+        <name>ClassicalNetworkAlgorithm</name>
+        <message>
+            <source>%1 observation(s) exceed the w-test critical value; none was rejected.</source>
+            <translation>%1 observación(es) supera(n) el valor crítico de la prueba w; ninguna fue rechazada.</translation>
+        </message>
+        <message>
+            <source>1D — heights</source>
+            <translation>1D — altitudes</translation>
+        </message>
+        <message>
+            <source>2D — planimetric</source>
+            <translation>2D — planimétrico</translation>
+        </message>
+        <message>
+            <source>3D</source>
+            <translation>3D</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Assembles the reduced pointings into a geodetic network and adjusts it by least squares, with the global test, data snooping and reliability analysis.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulation, trilateration and triangulateration are not three different computations.&lt;/b&gt; They are one adjustment over three different observation sets, and which one a survey is depends on what was measured. This algorithm adjusts whatever the pointings contain.&lt;/p&gt;&lt;p&gt;Free and constrained solutions are both available, which is the comparison between &lt;i&gt;redes livres&lt;/i&gt; and &lt;i&gt;redes amarradas&lt;/i&gt; the research project names as a teaching goal. A free network is adjusted with inner constraints and is the honest choice when nothing external orients or positions the survey.&lt;/p&gt;&lt;p&gt;The network document is written out as well as the solution, so the chain &lt;i&gt;pre-process &amp;rarr; build &amp;rarr; inspect &amp;rarr; adjust&lt;/i&gt; can be assembled in the graphical modeller using the Analysis algorithms.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No observation is rejected automatically.&lt;/b&gt; Data snooping reports candidates and the decision is yours.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Approximate coordinates&lt;/b&gt; &amp;mdash; a JSON object mapping each station to &lt;code&gt;[easting, northing, up]&lt;/code&gt;. Required, not derived: the linearised model needs a point to linearise about, and a traverse or a resection is how a surveyor obtains one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimension&lt;/b&gt; &amp;mdash; which of 2D, 3D and 1D to adjust in. It decides which reduced quantities become observations: a 2D adjustment takes directions and horizontal distances, a 3D one takes directions, zenith angles and slope distances. Emitting all of them would use the same measurement twice.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum definition&lt;/b&gt; &amp;mdash; how the datum defect is removed. &lt;b&gt;Fixed stations&lt;/b&gt; &amp;mdash; comma-separated; their approximate coordinates are held exactly.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt;, &lt;b&gt;reference epoch&lt;/b&gt; and &lt;b&gt;CRS&lt;/b&gt; &amp;mdash; recorded on the solution.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; and &lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON documents; the first feeds the Analysis algorithms, the second holds the adjusted coordinates with their full covariance and provenance. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Adjusted stations&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Reúne las visuales reducidas en una red geodésica y la ajusta por mínimos cuadrados, con la prueba global, el data snooping y el análisis de fiabilidad.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulación, trilateración y triangulateración no son tres cálculos distintos.&lt;/b&gt; Son un único ajuste sobre tres conjuntos de observaciones distintos, y cuál de ellos es un levantamiento depende de lo que se midió. Este algoritmo ajusta lo que contengan las visuales.&lt;/p&gt;&lt;p&gt;Las soluciones libres y ligadas están ambas disponibles, que es la comparación entre &lt;i&gt;redes libres&lt;/i&gt; y &lt;i&gt;redes ligadas&lt;/i&gt; que el proyecto de investigación nombra como objetivo pedagógico. Una red libre se ajusta con constricciones internas y es la elección honesta cuando nada externo orienta o posiciona el levantamiento.&lt;/p&gt;&lt;p&gt;El documento de la red se escribe además de la solución, de modo que la cadena &lt;i&gt;preprocesar &amp;rarr; construir &amp;rarr; inspeccionar &amp;rarr; ajustar&lt;/i&gt; pueda montarse en el modelador gráfico usando los algoritmos de Análisis.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ninguna observación se rechaza automáticamente.&lt;/b&gt; El data snooping informa de candidatas y la decisión es suya.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; el documento producido por el Preprocesamiento generalizado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordenadas aproximadas&lt;/b&gt; &amp;mdash; un objeto JSON que asocia cada estación a &lt;code&gt;[E, N, altitud]&lt;/code&gt;. Exigidas, no derivadas: el modelo linealizado necesita un punto en torno al cual linealizar, y una poligonal o una intersección inversa es como un topógrafo lo obtiene.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimensión&lt;/b&gt; &amp;mdash; en cuál de 2D, 3D y 1D ajustar. Ello decide qué magnitudes reducidas se convierten en observaciones: un ajuste 2D toma direcciones y distancias horizontales, uno 3D toma direcciones, ángulos cenitales y distancias inclinadas. Emitirlas todas usaría la misma medida dos veces.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definición del datum&lt;/b&gt; &amp;mdash; cómo se elimina el defecto de datum. &lt;b&gt;Estaciones fijas&lt;/b&gt; &amp;mdash; separadas por comas; sus coordenadas aproximadas se mantienen exactamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt;, &lt;b&gt;época de referencia&lt;/b&gt; y &lt;b&gt;SRC&lt;/b&gt; &amp;mdash; registrados en la solución.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Red&lt;/b&gt; y &lt;b&gt;Solución&lt;/b&gt; &amp;mdash; documentos JSON; el primero alimenta los algoritmos de Análisis, el segundo contiene las coordenadas ajustadas con su matriz de covarianzas completa y la procedencia. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estaciones ajustadas&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; y &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Adjusted stations</source>
+            <translation>Estaciones ajustadas</translation>
+        </message>
+        <message>
+            <source>Adjusting…</source>
+            <translation>Ajustando…</translation>
+        </message>
+        <message>
+            <source>Approximate coordinates</source>
+            <translation>Coordenadas aproximadas</translation>
+        </message>
+        <message>
+            <source>Approximate coordinates for station '%1' are not three numbers.</source>
+            <translation>Las coordenadas aproximadas de la estación '%1' no son tres números.</translation>
+        </message>
+        <message>
+            <source>Build a triangulation, trilateration or triangulateration network from reduced pointings and adjust it.</source>
+            <translation>Construye una red de triangulación, trilateración o triangulateración a partir de las visuales reducidas y la ajusta.</translation>
+        </message>
+        <message>
+            <source>CRS authority code</source>
+            <translation>Código del SRC</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Classical network</source>
+            <translation>Red clásica</translation>
+        </message>
+        <message>
+            <source>Classical network report</source>
+            <translation>Informe de la red clásica</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nivel de confianza</translation>
+        </message>
+        <message>
+            <source>Converged in %1 iteration(s); %2 degree(s) of freedom.</source>
+            <translation>Convergió en %1 iteración(es); %2 grado(s) de libertad.</translation>
+        </message>
+        <message>
+            <source>Critical value</source>
+            <translation>Valor crítico</translation>
+        </message>
+        <message>
+            <source>Data snooping</source>
+            <translation>Data snooping</translation>
+        </message>
+        <message>
+            <source>Datum defect</source>
+            <translation>Defecto de datum</translation>
+        </message>
+        <message>
+            <source>Datum definition</source>
+            <translation>Definición del datum</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Grados de libertad</translation>
+        </message>
+        <message>
+            <source>Dimension</source>
+            <translation>Dimensión</translation>
+        </message>
+        <message>
+            <source>Fixed stations (comma-separated)</source>
+            <translation>Estaciones fijas (separadas por comas)</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_network</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_network</translation>
+        </message>
+        <message>
+            <source>GeoComp network (*.json)</source>
+            <translation>Red GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solución GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Prueba global</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Inspection</source>
+            <translation>Inspección</translation>
+        </message>
+        <message>
+            <source>Iterations</source>
+            <translation>Iteraciones</translation>
+        </message>
+        <message>
+            <source>Lower critical value</source>
+            <translation>Valor crítico inferior</translation>
+        </message>
+        <message>
+            <source>Network</source>
+            <translation>Red</translation>
+        </message>
+        <message>
+            <source>Observation</source>
+            <translation>Observación</translation>
+        </message>
+        <message>
+            <source>Observations</source>
+            <translation>Observaciones</translation>
+        </message>
+        <message>
+            <source>Observations exceeding the critical value are candidates, not rejections. Nothing has been removed.</source>
+            <translation>Las observaciones que superan el valor crítico son candidatas, no rechazos. No se ha eliminado nada.</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Propriedad</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Magnitud</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Redundancy</source>
+            <translation>Redundancia</translation>
+        </message>
+        <message>
+            <source>Reference epoch (decimal year)</source>
+            <translation>Época de referencia (año decimal)</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Semi-major (mm)</source>
+            <translation>Semieje mayor (mm)</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solución</translation>
+        </message>
+        <message>
+            <source>Standardised residual</source>
+            <translation>Residuo estandarizado</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estaciones</translation>
+        </message>
+        <message>
+            <source>Statistic</source>
+            <translation>Estadístico</translation>
+        </message>
+        <message>
+            <source>Std dev X (mm)</source>
+            <translation>Desviación típica X (mm)</translation>
+        </message>
+        <message>
+            <source>Std dev Y (mm)</source>
+            <translation>Desviación típica Y (mm)</translation>
+        </message>
+        <message>
+            <source>That file is not a GeoComp reductions document. Run Generalised pre-processing first, or choose the file it produced.</source>
+            <translation>Ese archivo no es un documento de reducciones de GeoComp. Ejecute primero el Preprocesamiento generalizado, o elija el archivo que produjo.</translation>
+        </message>
+        <message>
+            <source>The approximate coordinates document is empty.</source>
+            <translation>El documento de coordenadas aproximadas está vacío.</translation>
+        </message>
+        <message>
+            <source>The global test fails.</source>
+            <translation>La prueba global falla.</translation>
+        </message>
+        <message>
+            <source>The global test fails: %1</source>
+            <translation>La prueba global falla: %1</translation>
+        </message>
+        <message>
+            <source>The global test passes.</source>
+            <translation>La prueba global pasa.</translation>
+        </message>
+        <message>
+            <source>The network cannot be adjusted: %1</source>
+            <translation>La red no puede ajustarse: %1</translation>
+        </message>
+        <message>
+            <source>These fixed stations have no approximate coordinates: %1</source>
+            <translation>Estas estaciones fijas no tienen coordenadas aproximadas: %1</translation>
+        </message>
+        <message>
+            <source>Upper critical value</source>
+            <translation>Valor crítico superior</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Factor de varianza</translation>
+        </message>
+        <message>
+            <source>Variance factor %1.</source>
+            <translation>Factor de varianza %1.</translation>
+        </message>
+        <message>
+            <source>X (m)</source>
+            <translation>X (m)</translation>
+        </message>
+        <message>
+            <source>Y (m)</source>
+            <translation>Y (m)</translation>
+        </message>
+        <message>
+            <source>Z (m)</source>
+            <translation>Z (m)</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoComp</name>
         <message>
             <source>GeoComp</source>
@@ -107,10 +362,6 @@
         <message>
             <source>The network document '%1' does not exist.</source>
             <translation>El documento de red '%1' no existe.</translation>
-        </message>
-        <message>
-            <source>not defined</source>
-            <translation>no definido</translation>
         </message>
     </context>
     <context>
@@ -291,6 +542,13 @@
         </message>
     </context>
     <context>
+        <name>GeoCompReport</name>
+        <message>
+            <source>not defined</source>
+            <translation>no definido</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompSettings</name>
         <message>
             <source>(not editable in this version)</source>
@@ -459,6 +717,232 @@
         <message>
             <source>this run</source>
             <translation>esta ejecución</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompTotalStation</name>
+        <message>
+            <source>'%1' contains no setups, so there is nothing to process.</source>
+            <translation>'%1' no contiene estacionamientos, por lo que no hay nada que procesar.</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as a field mapping: %2</source>
+            <translation>No se pudo leer '%1' como una asignación de campos: %2</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as an instrument profile library. %2</source>
+            <translation>No se pudo leer '%1' como una biblioteca de perfiles de instrumento. %2</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as readings: %2</source>
+            <translation>No se pudo leer '%1' como lecturas: %2</translation>
+        </message>
+        <message>
+            <source>'%1' does not contain a GeoComp document: its top level is not an object.</source>
+            <translation>'%1' no contiene un documento de GeoComp: su nivel superior no es un objeto.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a GeoComp readings document. Run Import field book first, or choose the file it produced.</source>
+            <translation>'%1' no es un documento de lecturas de GeoComp. Ejecute primero Importar libreta de campo, o elija el archivo que produjo.</translation>
+        </message>
+        <message>
+            <source>'%1' is not valid JSON: %2</source>
+            <translation>'%1' no es un JSON válido: %2</translation>
+        </message>
+        <message>
+            <source>Blocking</source>
+            <translation>Bloqueante</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>Código</translation>
+        </message>
+        <message>
+            <source>Finding</source>
+            <translation>Hallazgo</translation>
+        </message>
+        <message>
+            <source>Information</source>
+            <translation>Información</translation>
+        </message>
+        <message>
+            <source>Involves</source>
+            <translation>Implica</translation>
+        </message>
+        <message>
+            <source>No file was given for parameter '%1'.</source>
+            <translation>No se indicó ningún archivo para el parámetro '%1'.</translation>
+        </message>
+        <message>
+            <source>Nothing to report.</source>
+            <translation>Nada que informar.</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>Severidad</translation>
+        </message>
+        <message>
+            <source>The file '%1' does not exist.</source>
+            <translation>El archivo '%1' no existe.</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>Advertencia</translation>
+        </message>
+    </context>
+    <context>
+        <name>ImportFieldBookAlgorithm</name>
+        <message>
+            <source>%1 record(s) read into %2 setup(s); %3 rejected.</source>
+            <translation>%1 registro(s) leído(s) en %2 estacionamiento(s); %3 rechazado(s).</translation>
+        </message>
+        <message>
+            <source>%1 record(s) were rejected; see the findings.</source>
+            <translation>%1 registro(s) fueron rechazados; consulte los hallazgos.</translation>
+        </message>
+        <message>
+            <source>(constant %1)</source>
+            <translation>(constante %1)</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Reads a total-station field book from a CSV file and writes a GeoComp readings document the other Total Station algorithms take as input.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The field mapping is a saved, reusable object.&lt;/b&gt; The same organisation imports the same instrument export layout every week, and re-mapping columns by hand each time is exactly the manual handling this plugin exists to remove. Leave the mapping empty and GeoComp infers one from the header, which is right for the layouts it recognises; the report then states every column it mapped, so an inferred mapping is never silently trusted.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Every bad record is reported and none stops the import.&lt;/b&gt; A field book with six problems needs one run and produces six findings, each naming its source row.&lt;/p&gt;&lt;p&gt;An uncertainty is attached to every reading here, at the boundary, from the instrument profile or from the per-type defaults below. Where neither supplies one the import refuses: GeoComp does not invent a standard deviation, because a fabricated weight silently corrupts every statistic computed from it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Field book&lt;/b&gt; &amp;mdash; the CSV file. &lt;b&gt;Field mapping&lt;/b&gt; &amp;mdash; a saved mapping document (JSON); empty infers one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt; &amp;mdash; a profile library (JSON). Empty uses a generic total station of 2 mm + 2 ppm and 5 arcseconds, and everything computed from it is marked approximate.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Default direction, zenith and distance precision&lt;/b&gt; &amp;mdash; used where the instrument profile supplies none. In radians and metres; 0 means not configured.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Fail if any record was rejected&lt;/b&gt; &amp;mdash; when set, a rejected record stops the algorithm, so a model does not carry on with a partial import.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Readings&lt;/b&gt; &amp;mdash; the JSON document. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Findings&lt;/b&gt; &amp;mdash; CSV, one row per problem. Scalars: &lt;code&gt;RECORD_COUNT&lt;/code&gt;, &lt;code&gt;SETUP_COUNT&lt;/code&gt; and &lt;code&gt;REJECTED_COUNT&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lee una libreta de campo de estación total desde un archivo CSV y escribe un documento de lecturas de GeoComp que los demás algoritmos de Estación Total toman como entrada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La asignación de campos es un objeto guardado y reutilizable.&lt;/b&gt; La misma organización importa el mismo formato de exportación del instrumento cada semana, y reasignar columnas a mano cada vez es exactamente la manipulación manual que este complemento existe para eliminar. Deje la asignación vacía y GeoComp infiere una a partir del encabezado, lo cual es correcto para los formatos que reconoce; el informe declara entonces cada columna que asignó, de modo que una asignación inferida nunca se confía en silencio.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Todo registro defectuoso se comunica y ninguno detiene la importación.&lt;/b&gt; Una libreta con seis problemas requiere una ejecución y produce seis hallazgos, cada uno nombrando su fila de origen.&lt;/p&gt;&lt;p&gt;Se adjunta una incertidumbre a cada lectura aquí, en la frontera, a partir del perfil del instrumento o de los valores por omisión por tipo de abajo. Donde ninguno de los dos la aporta, la importación se niega: GeoComp no inventa una desviación típica, porque un peso fabricado corrompe en silencio toda estadística calculada a partir de él.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Libreta de campo&lt;/b&gt; &amp;mdash; el archivo CSV. &lt;b&gt;Asignación de campos&lt;/b&gt; &amp;mdash; un documento de asignación guardado (JSON); vacío infiere uno.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Perfiles de instrumento&lt;/b&gt; &amp;mdash; una biblioteca de perfiles (JSON). Vacío utiliza una estación total genérica de 2 mm + 2 ppm y 5 segundos de arco, y todo lo calculado a partir de ella se marca como aproximado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Precisión por omisión de dirección, cenital y de distancia&lt;/b&gt; &amp;mdash; se usan donde el perfil del instrumento no aporta ninguna. En radianes y metros; 0 significa no configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Fallar si se rechaza algún registro&lt;/b&gt; &amp;mdash; cuando se marca, un registro rechazado detiene el algoritmo, de modo que un modelo no prosiga con una importación parcial.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Lecturas&lt;/b&gt; &amp;mdash; el documento JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Hallazgos&lt;/b&gt; &amp;mdash; CSV, una fila por problema. Escalares: &lt;code&gt;RECORD_COUNT&lt;/code&gt;, &lt;code&gt;SETUP_COUNT&lt;/code&gt; y &lt;code&gt;REJECTED_COUNT&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Angle format</source>
+            <translation>Formato del ángulo</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Column not mapped</source>
+            <translation>Columna no asignada</translation>
+        </message>
+        <message>
+            <source>Columns not mapped, and therefore not imported: %1</source>
+            <translation>Columnas no asignadas, y por tanto no importadas: %1</translation>
+        </message>
+        <message>
+            <source>Default direction precision (rad)</source>
+            <translation>Precisión por omisión de las direcciones (rad)</translation>
+        </message>
+        <message>
+            <source>Default distance precision (m)</source>
+            <translation>Precisión por omisión de las distancias (m)</translation>
+        </message>
+        <message>
+            <source>Default zenith angle precision (rad)</source>
+            <translation>Precisión por omisión de los ángulos cenitales (rad)</translation>
+        </message>
+        <message>
+            <source>Fail if any record was rejected</source>
+            <translation>Fallar si se rechaza algún registro</translation>
+        </message>
+        <message>
+            <source>Field book</source>
+            <translation>Libreta de campo</translation>
+        </message>
+        <message>
+            <source>Field book import report</source>
+            <translation>Informe de importación de la libreta de campo</translation>
+        </message>
+        <message>
+            <source>Field mapping</source>
+            <translation>Asignación de campos</translation>
+        </message>
+        <message>
+            <source>Field mapping used</source>
+            <translation>Asignación de campos utilizada</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_import_fieldbook</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_import_fieldbook</translation>
+        </message>
+        <message>
+            <source>GeoComp field</source>
+            <translation>Campo de GeoComp</translation>
+        </message>
+        <message>
+            <source>GeoComp readings (*.json)</source>
+            <translation>Lecturas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Import</source>
+            <translation>Importación</translation>
+        </message>
+        <message>
+            <source>Import field book</source>
+            <translation>Importar libreta de campo</translation>
+        </message>
+        <message>
+            <source>Instrument profiles</source>
+            <translation>Perfiles de instrumento</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Propriedad</translation>
+        </message>
+        <message>
+            <source>Read a CSV field book through a saved, reusable field mapping.</source>
+            <translation>Lee una libreta de campo en CSV mediante una asignación de campos guardada y reutilizable.</translation>
+        </message>
+        <message>
+            <source>Reading '%1' with mapping '%2'…</source>
+            <translation>Leyendo '%1' con la asignación '%2'…</translation>
+        </message>
+        <message>
+            <source>Readings</source>
+            <translation>Lecturas</translation>
+        </message>
+        <message>
+            <source>Records</source>
+            <translation>Registros</translation>
+        </message>
+        <message>
+            <source>Rejected records</source>
+            <translation>Registros rechazados</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Rows read</source>
+            <translation>Filas leídas</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Source column</source>
+            <translation>Columna de origen</translation>
+        </message>
+        <message>
+            <source>The field book '%1' does not exist.</source>
+            <translation>La libreta de campo '%1' no existe.</translation>
+        </message>
+        <message>
+            <source>The field book '%1' is empty.</source>
+            <translation>La libreta de campo '%1' está vacía.</translation>
+        </message>
+        <message>
+            <source>Unit</source>
+            <translation>Unidad</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
         </message>
     </context>
     <context>
@@ -1116,6 +1600,177 @@
         <message>
             <source>Worst station: %1 at %2 m.</source>
             <translation>Peor estación: %1, con %2 m.</translation>
+        </message>
+    </context>
+    <context>
+        <name>PreprocessAlgorithm</name>
+        <message>
+            <source>%1 pointing(s) reduced, %2 usable.</source>
+            <translation>%1 visual(es) reducida(s), %2 utilizable(s).</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Takes the readings produced by Import field book and runs the whole pre-processing chain: face reduction, instrument corrections, the first-velocity atmospheric correction, the EDM corrections, and the basic reductions to a horizontal distance and a height difference.&lt;/p&gt;&lt;p&gt;Every stage propagates covariance, so each result carries an uncertainty rather than a bare number. The distance and the zenith angle of one pointing are correlated through the common sighting, and that correlation is kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The diagnostics are the reason to run this rather than just averaging the two faces.&lt;/b&gt; A face pair reveals the horizontal collimation, the vertical index error and whether the two faces agreed on the distance. A pair whose distances disagree beyond the instrument's own precision is flagged as blocking and left out of the observations: the mean of two distances a metre apart is not a measurement of anything, and passing it on would let a known-bad number acquire a residual as though it were real.&lt;/p&gt;&lt;p&gt;Corrections the instrument already applied are not applied again. Applying a prism constant twice is a silent error of twice the constant, and nothing downstream can detect it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Readings&lt;/b&gt; &amp;mdash; the document Import field book produced. &lt;b&gt;Instrument profiles&lt;/b&gt; &amp;mdash; a profile library (JSON); empty uses a generic total station.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Temperature&lt;/b&gt; (&amp;deg;C), &lt;b&gt;pressure&lt;/b&gt; (hPa) and &lt;b&gt;relative humidity&lt;/b&gt; (%) &amp;mdash; the conditions the distances were measured in. Their uncertainties propagate: a &amp;plusmn; 2 &amp;deg;C error is about &amp;plusmn; 2 ppm, which is 2 mm over a kilometre and nothing at all over twenty metres. The propagation makes that visible instead of assumed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Apply the atmospheric correction&lt;/b&gt; &amp;mdash; unset it to skip the stage entirely, which is a legitimate choice on short sights and one worth making explicitly.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Collimation tolerance&lt;/b&gt; (rad) and &lt;b&gt;face distance tolerance&lt;/b&gt; (m) &amp;mdash; beyond these a pair is reported. A distance tolerance of 0 derives it from the instrument's own EDM specification, which is the right threshold.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Distance/zenith correlation&lt;/b&gt; &amp;mdash; between -1 and 1, or -2 for unknown. Unknown is recorded as an assumption rather than silently treated as zero, and the result is marked approximate.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; a JSON document. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML, with the per-pair diagnostics. &lt;b&gt;Reductions&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;POINTING_COUNT&lt;/code&gt;, &lt;code&gt;USABLE_COUNT&lt;/code&gt; and &lt;code&gt;BLOCKING_COUNT&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Toma las lecturas producidas por Importar libreta de campo y ejecuta toda la cadena de preprocesamiento: reducción de los pares de posiciones, correcciones instrumentales, corrección atmosférica de primera velocidad, correcciones del MED y las reducciones básicas a una distancia horizontal y un desnivel.&lt;/p&gt;&lt;p&gt;Cada etapa propaga covarianza, de modo que cada resultado lleva una incertidumbre en lugar de un número desnudo. La distancia y el ángulo cenital de una misma visual están correlacionados por la puntería común, y esa correlación se conserva.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Los diagnósticos son la razón para ejecutar esto en lugar de limitarse a promediar las dos posiciones.&lt;/b&gt; Un par de posiciones revela la colimación horizontal, el error de índice vertical y si las dos posiciones coincidieron en la distancia. Un par cuyas distancias discrepan más allá de la precisión del propio instrumento se marca como bloqueante y se deja fuera de las observaciones: la media de dos distancias separadas por un metro no es la medida de nada, y transmitirla permitiría que un número que se sabe defectuoso adquiriera un residuo como si fuera real.&lt;/p&gt;&lt;p&gt;Las correcciones que el instrumento ya aplicó no se aplican de nuevo. Aplicar una constante de prisma dos veces es un error silencioso del doble de la constante, y nada aguas abajo puede detectarlo.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Lecturas&lt;/b&gt; &amp;mdash; el documento producido por Importar libreta de campo. &lt;b&gt;Perfiles de instrumento&lt;/b&gt; &amp;mdash; una biblioteca de perfiles (JSON); vacío utiliza una estación total genérica.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Temperatura&lt;/b&gt; (&amp;deg;C), &lt;b&gt;presión&lt;/b&gt; (hPa) y &lt;b&gt;humedad relativa&lt;/b&gt; (%) &amp;mdash; las condiciones en que se midieron las distancias. Sus incertidumbres se propagan: un error de &amp;plusmn; 2 &amp;deg;C es alrededor de &amp;plusmn; 2 ppm, que son 2 mm en un kilómetro y absolutamente nada en veinte metros. La propagación lo hace visible en lugar de supuesto.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Aplicar la corrección atmosférica&lt;/b&gt; &amp;mdash; desmárquela para omitir la etapa por completo, lo cual es una elección legítima en visuales cortas y que conviene hacer explícitamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tolerancia de la colimación&lt;/b&gt; (rad) y &lt;b&gt;tolerancia de la distancia entre posiciones&lt;/b&gt; (m) &amp;mdash; más allá de ellas se informa de un par. Una tolerancia de distancia de 0 la deriva de la propia especificación del MED del instrumento, que es el umbral correcto.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Correlación distancia/cenital&lt;/b&gt; &amp;mdash; entre -1 y 1, o -2 para desconocida. Desconocida se registra como una suposición en lugar de tratarse en silencio como cero, y el resultado se marca como aproximado.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; un documento JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML, con los diagnósticos por par. &lt;b&gt;Reducciones&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;POINTING_COUNT&lt;/code&gt;, &lt;code&gt;USABLE_COUNT&lt;/code&gt; y &lt;code&gt;BLOCKING_COUNT&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Apply the atmospheric correction</source>
+            <translation>Aplicar la corrección atmosférica</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Collimation spread (")</source>
+            <translation>Dispersión de la colimación (")</translation>
+        </message>
+        <message>
+            <source>Collimation tolerance (rad)</source>
+            <translation>Tolerancia de la colimación (rad)</translation>
+        </message>
+        <message>
+            <source>Direction (°)</source>
+            <translation>Dirección (°)</translation>
+        </message>
+        <message>
+            <source>Distance/zenith correlation (-2 = unknown)</source>
+            <translation>Correlación distancia/cenital (-2 = desconocida)</translation>
+        </message>
+        <message>
+            <source>Face distance tolerance (m, 0 = from the instrument)</source>
+            <translation>Tolerancia de la distancia entre posiciones (m; 0 = la del instrumento)</translation>
+        </message>
+        <message>
+            <source>Face pairs</source>
+            <translation>Pares de posiciones</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>Generalised pre-processing</source>
+            <translation>Preprocesamiento generalizado</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_preprocess</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_preprocess</translation>
+        </message>
+        <message>
+            <source>GeoComp reductions (*.json)</source>
+            <translation>Reducciones GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Height difference (m)</source>
+            <translation>Desnivel (m)</translation>
+        </message>
+        <message>
+            <source>Horizontal distance (m)</source>
+            <translation>Distancia horizontal (m)</translation>
+        </message>
+        <message>
+            <source>Instrument profiles</source>
+            <translation>Perfiles de instrumento</translation>
+        </message>
+        <message>
+            <source>Instrumental diagnostics</source>
+            <translation>Diagnósticos instrumentales</translation>
+        </message>
+        <message>
+            <source>Mean collimation (")</source>
+            <translation>Colimación media (")</translation>
+        </message>
+        <message>
+            <source>Mean index error (")</source>
+            <translation>Error de índice medio (")</translation>
+        </message>
+        <message>
+            <source>Pre-processing report</source>
+            <translation>Informe de preprocesamiento</translation>
+        </message>
+        <message>
+            <source>Pressure (hPa)</source>
+            <translation>Presión (hPa)</translation>
+        </message>
+        <message>
+            <source>Pressure uncertainty (hPa)</source>
+            <translation>Incertidumbre de la presión (hPa)</translation>
+        </message>
+        <message>
+            <source>Readings</source>
+            <translation>Lecturas</translation>
+        </message>
+        <message>
+            <source>Reduce face pairs, apply the instrument, atmospheric and EDM corrections, and report what the pairs revealed.</source>
+            <translation>Reduce los pares de posiciones, aplica las correcciones instrumentales, atmosféricas y del MED, e informa de lo que revelaron los pares.</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Reduced pointings</source>
+            <translation>Visuales reducidas</translation>
+        </message>
+        <message>
+            <source>Reducing station %1…</source>
+            <translation>Reduciendo la estación %1…</translation>
+        </message>
+        <message>
+            <source>Reductions</source>
+            <translation>Reducciones</translation>
+        </message>
+        <message>
+            <source>Relative humidity (%)</source>
+            <translation>Humedad relativa (%)</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Std dev (mm)</source>
+            <translation>Desviación típica (mm)</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>Objetivo</translation>
+        </message>
+        <message>
+            <source>Temperature (°C)</source>
+            <translation>Temperatura (°C)</translation>
+        </message>
+        <message>
+            <source>Temperature uncertainty (°C)</source>
+            <translation>Incertidumbre de la temperatura (°C)</translation>
+        </message>
+        <message>
+            <source>The correlation between each distance and its zenith angle was not supplied, so they were treated as independent and the results are marked approximate.</source>
+            <translation>No se proporcionó la correlación entre cada distancia y su ángulo cenital, por lo que se trataron como independientes y los resultados están marcados como aproximados.</translation>
+        </message>
+        <message>
+            <source>Usable</source>
+            <translation>Utilizable</translation>
+        </message>
+        <message>
+            <source>Zenith (°)</source>
+            <translation>Cenital (°)</translation>
+        </message>
+        <message>
+            <source>no</source>
+            <translation>no</translation>
+        </message>
+        <message>
+            <source>yes</source>
+            <translation>sí</translation>
         </message>
     </context>
     <context>

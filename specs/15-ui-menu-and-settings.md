@@ -38,9 +38,15 @@ The separator before Global Settings, and the ellipsis on it, follow the figure 
 
 Directly from `tex §Painel de Configuração Global`:
 
-**Total Station** → Generalised pre-processing · Traverse · Resection · Forward intersection · Classical
-networks · Trigonometric levelling · 3D radiation.
+**Total Station** → Import field book · Generalised pre-processing · Traverse · Resection · Forward
+intersection · Classical networks · Trigonometric levelling · 3D radiation.
 See [`09-module-total-station.md`](./09-module-total-station.md).
+
+> **Import field book** is not in the proposal's list, which starts at pre-processing. It is added because
+> the list assumes the data is already in GeoComp and nothing else puts it there: FR-160's saved field
+> mapping is a total-station capability (`specs/09` §5 specifies it against RD-01's layout), and a user who
+> has to hunt for it in another submenu before they can use any of the seven has been given a worse menu,
+> not a purer one.
 
 **Level** → Equal sights · Equidistant sights · Extreme sights · Levelling network adjustment.
 See [`10-module-levelling.md`](./10-module-levelling.md).

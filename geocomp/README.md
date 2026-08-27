@@ -46,8 +46,10 @@ geocomp/
   resources/            icons; later QML styles and report templates
   i18n/                 geocomp_pt_BR.ts, geocomp_es.ts (.qm built at packaging)
 
+  io/                   field-book import with saved mappings (P3).
+                        GeoPackage, PostGIS, RINEX             — arrive in P5, P7
+
   engines/              DynAdjust and RTKLIB adapters          — arrives in P6, P7
-  io/                   GeoPackage, PostGIS, CSV/XLSX, RINEX   — arrives in P5
 ```
 
 ## Building and testing

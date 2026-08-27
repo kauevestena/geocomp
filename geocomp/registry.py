@@ -204,6 +204,36 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="analysis",
         menu_order=30,
     ),
+    # -- Total Station (phase P3). The order mirrors the workflow, which is the
+    # order specs/09 section 1 lists them in: get the data in, reduce it, then
+    # compute with it.
+    AlgorithmSpec(
+        operation="import_fieldbook",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.import_fieldbook",
+        class_name="ImportFieldBookAlgorithm",
+        requirement="FR-160",
+        menu="total_station",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="preprocess",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.preprocess",
+        class_name="PreprocessAlgorithm",
+        requirement="FR-400",
+        menu="total_station",
+        menu_order=20,
+    ),
+    AlgorithmSpec(
+        operation="network",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.network",
+        class_name="ClassicalNetworkAlgorithm",
+        requirement="FR-409",
+        menu="total_station",
+        menu_order=60,
+    ),
 )
 
 
