@@ -138,10 +138,10 @@ class GeoCompPlugin:
     def _build_plugin_menu_entries(self) -> None:
         """Add the conventional Plugins ▸ GeoComp entries.
 
-        The GeoComp menu itself presents exactly the six technique-oriented
-        entries FR-003 specifies, so About lives here instead -- where QGIS
-        users already look for it -- rather than becoming a seventh entry that
-        would distort the specified structure.
+        The GeoComp menu itself presents exactly the entries FR-003
+        specifies -- six survey techniques, Analysis, and Global settings -- so
+        About lives here instead, where QGIS users already look for it, rather
+        than becoming one more entry that would distort that structure.
         """
         about = QAction(_tr("About GeoComp…"), self.iface.mainWindow())
         about.setObjectName("geocompPluginMenuAbout")

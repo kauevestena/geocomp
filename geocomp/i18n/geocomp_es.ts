@@ -200,10 +200,6 @@
             <translation>Desviación típica Y (mm)</translation>
         </message>
         <message>
-            <source>That file is not a GeoComp reductions document. Run Generalised pre-processing first, or choose the file it produced.</source>
-            <translation>Ese archivo no es un documento de reducciones de GeoComp. Ejecute primero el Preprocesamiento generalizado, o elija el archivo que produjo.</translation>
-        </message>
-        <message>
             <source>The approximate coordinates document is empty.</source>
             <translation>El documento de coordenadas aproximadas está vacío.</translation>
         </message>
@@ -746,6 +742,10 @@
             <translation>'%1' no es un documento de lecturas de GeoComp. Ejecute primero Importar libreta de campo, o elija el archivo que produjo.</translation>
         </message>
         <message>
+            <source>'%1' is not a GeoComp reductions document. Run Generalised pre-processing first, or choose the file it produced.</source>
+            <translation>'%1' no es un documento de reducciones de GeoComp. Ejecute primero el Preprocesamiento generalizado, o elija el archivo que produjo.</translation>
+        </message>
+        <message>
             <source>'%1' is not valid JSON: %2</source>
             <translation>'%1' no es un JSON válido: %2</translation>
         </message>
@@ -939,6 +939,131 @@
         <message>
             <source>Unit</source>
             <translation>Unidad</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+    </context>
+    <context>
+        <name>IntersectionAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Computes the coordinates of a point sighted from two or more known stations whose orientation is known, by least squares. Two stations give a unique solution; more give residuals and a covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Weak geometry is reported rather than left to be discovered.&lt;/b&gt; Near-parallel rays do not determine a point however precise each sighting is, and the error ellipse is where that shows: when it comes out more than ten times longer than it is wide, the run says so. Rays that are exactly parallel are refused, because there is no intersection to return.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Sightings&lt;/b&gt; &amp;mdash; a JSON object mapping each observing station to its position and the azimuth it observed:&lt;/p&gt;&lt;pre&gt;{"A": {"position": [0, 0], "azimuth": 57.99},
+ "B": {"position": [1000, 0], "azimuth": 300.02}}&lt;/pre&gt;&lt;p&gt;Positions in metres, azimuths in degrees from north, clockwise. Azimuths rather than circle readings: an intersection is computed from &lt;i&gt;oriented&lt;/i&gt; stations, and where the orientation is unknown the station has to be resected first.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Target&lt;/b&gt; &amp;mdash; the name to give the computed point. &lt;b&gt;Azimuth precision&lt;/b&gt; (degrees) &amp;mdash; applied to every sighting that does not state its own, and what the resulting ellipse is scaled by.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the reported ellipse.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Position&lt;/b&gt; &amp;mdash; a JSON document in the shape Classical network takes as approximate coordinates. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. Scalars: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SEMI_MAJOR&lt;/code&gt;, &lt;code&gt;SEMI_MINOR&lt;/code&gt; in metres and &lt;code&gt;WEAK_GEOMETRY&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Calcula las coordenadas de un punto visado desde dos o más estaciones conocidas cuya orientación se conoce, por mínimos cuadrados. Dos estaciones dan una solución única; más dan residuos y una covarianza.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La geometría débil se comunica en lugar de dejarse para ser descubierta.&lt;/b&gt; Los rayos casi paralelos no determinan un punto por precisa que sea cada visual, y la elipse de errores es donde eso aparece: cuando sale más de diez veces más larga que ancha, la ejecución lo advierte. Los rayos exactamente paralelos se rechazan, porque no hay intersección que devolver.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Visuales&lt;/b&gt; &amp;mdash; un objeto JSON que asocia cada estación observadora a su posición y al acimut que observó:&lt;/p&gt;&lt;pre&gt;{"A": {"position": [0, 0], "azimuth": 57.99},
+ "B": {"position": [1000, 0], "azimuth": 300.02}}&lt;/pre&gt;&lt;p&gt;Posiciones en metros, acimutes en grados desde el norte, en sentido horario. Acimutes y no lecturas de círculo: una intersección directa se calcula a partir de estaciones &lt;i&gt;orientadas&lt;/i&gt;, y donde la orientación se desconoce la estación debe determinarse antes por intersección inversa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Objetivo&lt;/b&gt; &amp;mdash; el nombre que dar al punto calculado. &lt;b&gt;Precisión del acimut&lt;/b&gt; (grados) &amp;mdash; aplicada a toda visual que no declare la suya, y es por ella por la que se escala la elipse resultante.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt; &amp;mdash; para la elipse comunicada.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Posición&lt;/b&gt; &amp;mdash; un documento JSON con el formato que la Red clásica toma como coordenadas aproximadas. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. Escalares: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SEMI_MAJOR&lt;/code&gt;, &lt;code&gt;SEMI_MINOR&lt;/code&gt; en metros y &lt;code&gt;WEAK_GEOMETRY&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>At least two sightings are needed; the document holds %1.</source>
+            <translation>Se necesitan al menos dos visuales; el documento contiene %1.</translation>
+        </message>
+        <message>
+            <source>Azimuth precision (°)</source>
+            <translation>Precisión del acimut (°)</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nivel de confianza</translation>
+        </message>
+        <message>
+            <source>E %1, N %2; ellipse %3 by %4 mm.</source>
+            <translation>E %1, N %2; elipse %3 por %4 mm.</translation>
+        </message>
+        <message>
+            <source>Easting (m)</source>
+            <translation>E (m)</translation>
+        </message>
+        <message>
+            <source>Ellipse azimuth (°)</source>
+            <translation>Acimut de la elipse (°)</translation>
+        </message>
+        <message>
+            <source>Fix a sighted point from two or more oriented known stations.</source>
+            <translation>Determina un punto visado desde dos o más estaciones conocidas y orientadas.</translation>
+        </message>
+        <message>
+            <source>Forward intersection</source>
+            <translation>Intersección directa</translation>
+        </message>
+        <message>
+            <source>Forward intersection report</source>
+            <translation>Informe de la intersección directa</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_intersection</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_intersection</translation>
+        </message>
+        <message>
+            <source>GeoComp coordinates (*.json)</source>
+            <translation>Coordenadas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Geometry</source>
+            <translation>Geometría</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Intersecting '%1' from %2 station(s).</source>
+            <translation>Intersecando '%1' desde %2 estación(es).</translation>
+        </message>
+        <message>
+            <source>Northing (m)</source>
+            <translation>N (m)</translation>
+        </message>
+        <message>
+            <source>Point</source>
+            <translation>Punto</translation>
+        </message>
+        <message>
+            <source>Position</source>
+            <translation>Posición</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Propiedad</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Residual (")</source>
+            <translation>Residuo (")</translation>
+        </message>
+        <message>
+            <source>Residuals</source>
+            <translation>Residuos</translation>
+        </message>
+        <message>
+            <source>Semi-major (mm)</source>
+            <translation>Semieje mayor (mm)</translation>
+        </message>
+        <message>
+            <source>Semi-minor (mm)</source>
+            <translation>Semieje menor (mm)</translation>
+        </message>
+        <message>
+            <source>Sighting '%1' does not hold numbers.</source>
+            <translation>La visual '%1' no contiene números.</translation>
+        </message>
+        <message>
+            <source>Sighting '%1' must be an object with a 'position' pair and an 'azimuth'.</source>
+            <translation>La visual '%1' debe ser un objeto con un par 'position' y un 'azimuth'.</translation>
+        </message>
+        <message>
+            <source>Sightings</source>
+            <translation>Visuales</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Target name</source>
+            <translation>Nombre del objetivo</translation>
         </message>
         <message>
             <source>Value</source>
@@ -1774,6 +1899,320 @@
         </message>
     </context>
     <context>
+        <name>RadiationAlgorithm</name>
+        <message>
+            <source>%1 point(s) radiated from %2 setup(s).</source>
+            <translation>%1 punto(s) radiado(s) desde %2 estacionamiento(s).</translation>
+        </message>
+        <message>
+            <source>3D radiation</source>
+            <translation>Radiación 3D</translation>
+        </message>
+        <message>
+            <source>3D radiation report</source>
+            <translation>Informe de la radiación 3D</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Computes three-dimensional coordinates for every point a setup sighted, from the reduced direction, the zenith angle, the slope distance, the two heights and the setup's orientation. Batch radiation of many detail points from one setup is the routine production case and is what this is built for.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The full 3&amp;times;3 covariance is the result, not an extra.&lt;/b&gt; The three coordinates come from one pointing and are strongly correlated through it, and treating them as independent is wrong. The CSV carries the covariance so nothing downstream has to assume otherwise.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The orientation is derived from the pointings wherever it can be.&lt;/b&gt; Any target whose coordinates are known gives the setup's orientation directly, which is how a surveyor orients one: sight a known point and everything else follows. Where several are known the orientations they imply are averaged circularly and their spread is reported &amp;mdash; a large spread means one of the known points is not where it is supposed to be. Where none is known the orientation must be given explicitly.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced. &lt;b&gt;Known stations&lt;/b&gt; &amp;mdash; a JSON object mapping station names to &lt;code&gt;[easting, northing, up]&lt;/code&gt; in metres. A setup must appear here for its points to be radiated.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Orientations&lt;/b&gt; &amp;mdash; an optional JSON object mapping a setup to its orientation in degrees, for setups that sighted no known point.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument height&lt;/b&gt; and &lt;b&gt;target height&lt;/b&gt; (m) &amp;mdash; used where the readings carry none of their own.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Distance/zenith correlation&lt;/b&gt; &amp;mdash; between -1 and 1, or -2 for unknown, which is recorded as an assumption rather than silently treated as zero.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Points&lt;/b&gt; &amp;mdash; JSON, in the shape Classical network takes as approximate coordinates. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Points table&lt;/b&gt; &amp;mdash; CSV with the full covariance. Scalars: &lt;code&gt;POINT_COUNT&lt;/code&gt; and &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Calcula coordenadas tridimensionales para cada punto que un estacionamiento visó, a partir de la dirección reducida, el ángulo cenital, la distancia inclinada, las dos alturas y la orientación del estacionamiento. La radiación por lotes de muchos puntos de detalle desde un estacionamiento es el caso rutinario de producción y es para lo que esto está construido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La matriz de covarianzas 3&amp;times;3 completa es el resultado, no un extra.&lt;/b&gt; Las tres coordenadas provienen de una sola visual y están fuertemente correlacionadas por ella, y tratarlas como independientes es incorrecto. El CSV lleva la covarianza, de modo que nada aguas abajo tenga que suponer lo contrario.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La orientación se deriva de las propias visuales siempre que es posible.&lt;/b&gt; Cualquier objetivo cuyas coordenadas se conozcan da directamente la orientación del estacionamiento, que es como un topógrafo orienta uno: visa un punto conocido y todo lo demás se sigue. Donde se conocen varios, las orientaciones que implican se promedian circularmente y se comunica su dispersión &amp;mdash; una dispersión grande significa que uno de los puntos conocidos no está donde debería. Donde no se conoce ninguno, la orientación debe indicarse explícitamente.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; el documento producido por el Preprocesamiento generalizado. &lt;b&gt;Estaciones conocidas&lt;/b&gt; &amp;mdash; un objeto JSON que asocia nombres de estaciones a &lt;code&gt;[E, N, altitud]&lt;/code&gt; en metros. Un estacionamiento debe aparecer aquí para que sus puntos se radien.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Orientaciones&lt;/b&gt; &amp;mdash; un objeto JSON opcional que asocia un estacionamiento a su orientación en grados, para estacionamientos que no visaron ningún punto conocido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Altura del instrumento&lt;/b&gt; y &lt;b&gt;altura del objetivo&lt;/b&gt; (m) &amp;mdash; usadas donde las lecturas no llevan las suyas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Correlación distancia/cenital&lt;/b&gt; &amp;mdash; entre -1 y 1, o -2 para desconocida, que se registra como una suposición en lugar de tratarse en silencio como cero.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Puntos&lt;/b&gt; &amp;mdash; JSON, con el formato que la Red clásica toma como coordenadas aproximadas. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Tabla de puntos&lt;/b&gt; &amp;mdash; CSV con la covarianza completa. Escalares: &lt;code&gt;POINT_COUNT&lt;/code&gt; y &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Compute 3D coordinates of every point radiated from a known, oriented setup.</source>
+            <translation>Calcula las coordenadas 3D de cada punto radiado desde un estacionamiento conocido y orientado.</translation>
+        </message>
+        <message>
+            <source>Correlation E,N</source>
+            <translation>Correlación E,N</translation>
+        </message>
+        <message>
+            <source>Distance/zenith correlation (-2 = unknown)</source>
+            <translation>Correlación distancia/cenital (-2 = desconocida)</translation>
+        </message>
+        <message>
+            <source>Easting (m)</source>
+            <translation>E (m)</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_radiation</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_radiation</translation>
+        </message>
+        <message>
+            <source>GeoComp coordinates (*.json)</source>
+            <translation>Coordenadas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Instrument height (m)</source>
+            <translation>Altura del instrumento (m)</translation>
+        </message>
+        <message>
+            <source>Known stations</source>
+            <translation>Estaciones conocidas</translation>
+        </message>
+        <message>
+            <source>No point could be radiated. A setup needs known coordinates, an orientation, and at least one pointing with a distance to a station that is not itself known.</source>
+            <translation>No se pudo radiar ningún punto. Un estacionamiento necesita coordenadas conocidas, una orientación y al menos una visual con distancia a una estación que no sea ella misma conocida.</translation>
+        </message>
+        <message>
+            <source>Northing (m)</source>
+            <translation>N (m)</translation>
+        </message>
+        <message>
+            <source>Orientation (°)</source>
+            <translation>Orientación (°)</translation>
+        </message>
+        <message>
+            <source>Orientations</source>
+            <translation>Orientaciones</translation>
+        </message>
+        <message>
+            <source>Point</source>
+            <translation>Punto</translation>
+        </message>
+        <message>
+            <source>Points</source>
+            <translation>Puntos</translation>
+        </message>
+        <message>
+            <source>Points table</source>
+            <translation>Tabla de puntos</translation>
+        </message>
+        <message>
+            <source>Radiated points</source>
+            <translation>Puntos radiados</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Setup orientations</source>
+            <translation>Orientaciones de los estacionamientos</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>Origen</translation>
+        </message>
+        <message>
+            <source>Spread (")</source>
+            <translation>Dispersión (")</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Station '%1' has no known coordinates; its points were skipped.</source>
+            <translation>La estación '%1' no tiene coordenadas conocidas; sus puntos se omitieron.</translation>
+        </message>
+        <message>
+            <source>Station '%1' is not three numbers.</source>
+            <translation>La estación '%1' no está compuesta por tres números.</translation>
+        </message>
+        <message>
+            <source>Station '%1' sighted no known point and has no orientation given; its points were skipped.</source>
+            <translation>La estación '%1' no visó ningún punto conocido y no tiene orientación indicada; sus puntos se omitieron.</translation>
+        </message>
+        <message>
+            <source>Std dev E (mm)</source>
+            <translation>Desviación típica E (mm)</translation>
+        </message>
+        <message>
+            <source>Std dev N (mm)</source>
+            <translation>Desviación típica N (mm)</translation>
+        </message>
+        <message>
+            <source>Std dev U (mm)</source>
+            <translation>Desviación típica Alt (mm)</translation>
+        </message>
+        <message>
+            <source>Target height (m)</source>
+            <translation>Altura del objetivo (m)</translation>
+        </message>
+        <message>
+            <source>The known points sighted from '%1' imply orientations spread over %2 arcsec, against %3 expected from the pointing precision. One of them is probably not where it is recorded, and every point radiated from this setup carries that error.</source>
+            <translation>Los puntos conocidos visados desde '%1' implican orientaciones con una dispersión de %2 segundos de arco, frente a %3 esperados por la precisión de la puntería. Probablemente uno de ellos no está donde figura, y todo punto radiado desde esta estación arrastra ese error.</translation>
+        </message>
+        <message>
+            <source>The known stations document is empty.</source>
+            <translation>El documento de estaciones conocidas está vacío.</translation>
+        </message>
+        <message>
+            <source>The orientations document must map each station to a number of degrees.</source>
+            <translation>El documento de orientaciones debe asociar cada estación a un número de grados.</translation>
+        </message>
+        <message>
+            <source>The three coordinates of a radiated point come from one pointing and are correlated through it. The CSV carries the full covariance so nothing downstream has to assume they are independent.</source>
+            <translation>Las tres coordenadas de un punto radiado provienen de una sola visual y están correlacionadas por ella. El CSV lleva la matriz de covarianzas completa, de modo que nada aguas abajo tenga que suponerlas independientes.</translation>
+        </message>
+        <message>
+            <source>Up (m)</source>
+            <translation>Altitud (m)</translation>
+        </message>
+        <message>
+            <source>Where a setup sighted several known points they should all imply the same orientation. A large spread means one of them is not where it is supposed to be.</source>
+            <translation>Cuando un estacionamiento visó varios puntos conocidos, todos deben implicar la misma orientación. Una dispersión grande significa que uno de ellos no está donde debería.</translation>
+        </message>
+        <message>
+            <source>from known points</source>
+            <translation>de puntos conocidos</translation>
+        </message>
+        <message>
+            <source>given</source>
+            <translation>indicada</translation>
+        </message>
+    </context>
+    <context>
+        <name>ResectionAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Computes the coordinates of the occupied station from the directions it observed to known points, by least squares over any number of them with the setup's orientation estimated as a third unknown. Three points give a unique solution; more give residuals and a covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The danger circle is detected and refused, not solved.&lt;/b&gt; When the occupied station lies on the circle through three known points, every point on that circle sees the three in the same directions, so they do not determine a position there. A number returned from that configuration looks exactly like a coordinate and is not one, so GeoComp refuses and names the three points involved. Add a fourth point off the circle, or a distance.&lt;/p&gt;&lt;p&gt;Three known points in a straight line define no circle at all, which is a different impossibility and gets its own message.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced. &lt;b&gt;Occupied station&lt;/b&gt; &amp;mdash; which setup in it to resect.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Known points&lt;/b&gt; &amp;mdash; a JSON object mapping each known station to &lt;code&gt;[easting, northing]&lt;/code&gt; in metres. Only the points the setup actually sighted are used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Approximate easting&lt;/b&gt; and &lt;b&gt;northing&lt;/b&gt; (m) &amp;mdash; a starting point for the iteration, and what the danger-circle check is evaluated at before any computation begins. Leave both at 0 to start from the centroid of the known points, which converges from anywhere inside the figure.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Position&lt;/b&gt; &amp;mdash; a JSON document in the same shape Classical network takes as approximate coordinates. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. Scalars: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SIGMA_EASTING&lt;/code&gt;, &lt;code&gt;SIGMA_NORTHING&lt;/code&gt; in metres and &lt;code&gt;ORIENTATION&lt;/code&gt; in degrees.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Calcula las coordenadas de la estación ocupada a partir de las direcciones que observó a puntos conocidos, por mínimos cuadrados sobre cualquier número de ellos, con la orientación del estacionamiento estimada como una tercera incógnita. Tres puntos dan una solución única; más dan residuos y una covarianza.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El círculo peligroso se detecta y se rechaza, no se resuelve.&lt;/b&gt; Cuando la estación ocupada se halla sobre el círculo que pasa por tres puntos conocidos, todo punto de ese círculo ve los tres en las mismas direcciones, de modo que no determinan allí una posición. Un número devuelto desde esa configuración parece exactamente una coordenada y no lo es, de modo que GeoComp lo rechaza y nombra los tres puntos implicados. Añada un cuarto punto fuera del círculo, o una distancia.&lt;/p&gt;&lt;p&gt;Tres puntos conocidos en línea recta no definen círculo alguno, lo cual es una imposibilidad distinta y recibe su propio mensaje.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; el documento producido por el Preprocesamiento generalizado. &lt;b&gt;Estación ocupada&lt;/b&gt; &amp;mdash; qué estacionamiento de él determinar.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Puntos conocidos&lt;/b&gt; &amp;mdash; un objeto JSON que asocia cada estación conocida a &lt;code&gt;[E, N]&lt;/code&gt; en metros. Solo se utilizan los puntos que el estacionamiento visó efectivamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;E aproximado&lt;/b&gt; y &lt;b&gt;N aproximado&lt;/b&gt; (m) &amp;mdash; un punto de partida para la iteración, y donde se evalúa la comprobación del círculo peligroso antes de que comience cálculo alguno. Deje ambos en 0 para partir del centroide de los puntos conocidos, que converge desde cualquier lugar dentro de la figura.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Posición&lt;/b&gt; &amp;mdash; un documento JSON con el mismo formato que la Red clásica toma como coordenadas aproximadas. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. Escalares: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SIGMA_EASTING&lt;/code&gt;, &lt;code&gt;SIGMA_NORTHING&lt;/code&gt; en metros y &lt;code&gt;ORIENTATION&lt;/code&gt; en grados.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Approximate easting (m)</source>
+            <translation>E aproximado (m)</translation>
+        </message>
+        <message>
+            <source>Approximate northing (m)</source>
+            <translation>N aproximado (m)</translation>
+        </message>
+        <message>
+            <source>Correlation</source>
+            <translation>Correlación</translation>
+        </message>
+        <message>
+            <source>E %1 ± %2 mm, N %3 ± %4 mm.</source>
+            <translation>E %1 ± %2 mm, N %3 ± %4 mm.</translation>
+        </message>
+        <message>
+            <source>Easting (m)</source>
+            <translation>E (m)</translation>
+        </message>
+        <message>
+            <source>Fix the occupied station from directions to three or more known points.</source>
+            <translation>Determina la estación ocupada a partir de direcciones a tres o más puntos conocidos.</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_resection</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_resection</translation>
+        </message>
+        <message>
+            <source>GeoComp coordinates (*.json)</source>
+            <translation>Coordenadas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Known point</source>
+            <translation>Punto conocido</translation>
+        </message>
+        <message>
+            <source>Known point '%1' is not a pair of numbers.</source>
+            <translation>El punto conocido '%1' no es un par de números.</translation>
+        </message>
+        <message>
+            <source>Known points</source>
+            <translation>Puntos conocidos</translation>
+        </message>
+        <message>
+            <source>Northing (m)</source>
+            <translation>N (m)</translation>
+        </message>
+        <message>
+            <source>Occupied station</source>
+            <translation>Estación ocupada</translation>
+        </message>
+        <message>
+            <source>Position</source>
+            <translation>Posición</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Propiedad</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Resecting station '%1' from %2 known point(s).</source>
+            <translation>Determinando la estación '%1' a partir de %2 punto(s) conocido(s).</translation>
+        </message>
+        <message>
+            <source>Resection</source>
+            <translation>Intersección inversa</translation>
+        </message>
+        <message>
+            <source>Resection report</source>
+            <translation>Informe de la intersección inversa</translation>
+        </message>
+        <message>
+            <source>Residual (")</source>
+            <translation>Residuo (")</translation>
+        </message>
+        <message>
+            <source>Residuals</source>
+            <translation>Residuos</translation>
+        </message>
+        <message>
+            <source>Setup orientation (°)</source>
+            <translation>Orientación del estacionamiento (°)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Station '%1' sighted only %2 of the known points. A resection needs at least three: two directions cannot fix a position and an orientation.</source>
+            <translation>La estación '%1' visó solo %2 de los puntos conocidos. Una intersección inversa necesita al menos tres: dos direcciones no determinan una posición y una orientación.</translation>
+        </message>
+        <message>
+            <source>Std dev E (mm)</source>
+            <translation>Desviación típica E (mm)</translation>
+        </message>
+        <message>
+            <source>Std dev N (mm)</source>
+            <translation>Desviación típica N (mm)</translation>
+        </message>
+        <message>
+            <source>The known points document is empty.</source>
+            <translation>El documento de puntos conocidos está vacío.</translation>
+        </message>
+        <message>
+            <source>The reduced observations contain no setup at station '%1'.</source>
+            <translation>Las observaciones reducidas no contienen estacionamiento en la estación '%1'.</translation>
+        </message>
+        <message>
+            <source>Three known points give a unique solution, so the residuals are zero by construction and say nothing about the quality of the observations. A fourth point is what makes them informative.</source>
+            <translation>Tres puntos conocidos dan una solución única, de modo que los residuos son nulos por construcción y no dicen nada sobre la calidad de las observaciones. Un cuarto punto es lo que los hace informativos.</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+    </context>
+    <context>
         <name>SystemReportAlgorithm</name>
         <message>
             <source>&lt;p&gt;Produces a report describing the GeoComp installation: plugin and QGIS versions, the Python runtime, availability and versions of the external processing engines, and every GeoComp setting with its effective value and the scope that value came from.&lt;/p&gt;&lt;p&gt;Attach this report to a bug report or a support request. Because settings resolve through run, project and global scopes in that order, the origin column is usually what explains a result that differs between two machines.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Report&lt;/b&gt; &amp;mdash; destination HTML file. Leave empty to write to a temporary file.&lt;/p&gt;</source>
@@ -1882,6 +2321,344 @@
         <message>
             <source>Status</source>
             <translation>Estado</translation>
+        </message>
+    </context>
+    <context>
+        <name>TraverseAlgorithm</name>
+        <message>
+            <source>%1 leg(s) over %2 station(s).</source>
+            <translation>%1 lado(s) sobre %2 estación(es).</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Walks a traverse through the reduced pointings, computes its angular and linear misclosure, compares them against the configured tolerances, and distributes the misclosure by the compass (Bowditch) or transit rule.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The classical rules are not least squares.&lt;/b&gt; They produce no residuals, no redundancy numbers and no rigorous covariance, so their coordinates are labelled approximate and the uncertainties reported are the misclosure spread over the traverse rather than a propagated variance. For the rigorous path use Classical network. Running the same data both ways is the point: the student sees what the classical rule approximates.&lt;/p&gt;&lt;p&gt;&lt;b&gt;An open traverse has no misclosure at all&lt;/b&gt;, which is different from a misclosure of zero. Nothing about it can be checked and a blunder anywhere in it is invisible, so GeoComp reports that rather than a perfect closure.&lt;/p&gt;&lt;p&gt;Whichever rule is used, the result is also a good set of approximate coordinates for a rigorous network adjustment, which is the other reason to run it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced. &lt;b&gt;Route&lt;/b&gt; &amp;mdash; the stations in order, comma-separated, for example &lt;code&gt;1,2,3,4,1&lt;/code&gt;. &lt;b&gt;Initial backsight&lt;/b&gt; &amp;mdash; the station the first setup sighted before turning the angle.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Start easting&lt;/b&gt;, &lt;b&gt;start northing&lt;/b&gt; (m) and &lt;b&gt;start azimuth&lt;/b&gt; (degrees) &amp;mdash; the known point and the orientation of the initial backsight.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Kind&lt;/b&gt; &amp;mdash; closed (returns to its start), connected (arrives at another known point) or open. &lt;b&gt;Closing easting&lt;/b&gt;, &lt;b&gt;closing northing&lt;/b&gt; and &lt;b&gt;closing azimuth&lt;/b&gt; &amp;mdash; for a connected traverse.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Distribution&lt;/b&gt; &amp;mdash; compass, transit, or none to report the misclosure without absorbing it, which is what a check measurement is for.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Angular tolerance per station&lt;/b&gt; (degrees) and &lt;b&gt;required relative precision&lt;/b&gt; (the N in 1:N).&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Coordinates&lt;/b&gt; &amp;mdash; a JSON document ready to use as the approximate coordinates for Classical network. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Stations&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;ANGULAR_MISCLOSURE&lt;/code&gt; in degrees, &lt;code&gt;LINEAR_MISCLOSURE&lt;/code&gt; in metres, &lt;code&gt;RELATIVE_PRECISION&lt;/code&gt; and &lt;code&gt;WITHIN_TOLERANCE&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Recorre una poligonal a través de las visuales reducidas, calcula sus errores angular y lineal de cierre, los compara con las tolerancias configuradas y distribuye el error mediante la regla del compás (Bowditch) o del tránsito.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las reglas clásicas no son mínimos cuadrados.&lt;/b&gt; No producen residuos, ni números de redundancia, ni covarianza rigurosa, de modo que sus coordenadas se etiquetan como aproximadas y las incertidumbres comunicadas son el error de cierre repartido por la poligonal, y no una varianza propagada. Para la vía rigurosa use Red clásica. Ejecutar los mismos datos de ambos modos es el objetivo: el estudiante ve qué aproxima la regla clásica.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Una poligonal abierta no tiene error de cierre alguno&lt;/b&gt;, lo cual es distinto de un error de cierre nulo. Nada en ella puede comprobarse y un error grosero en cualquier punto es invisible, de modo que GeoComp lo comunica en lugar de un cierre perfecto.&lt;/p&gt;&lt;p&gt;Sea cual sea la regla utilizada, el resultado es también un buen conjunto de coordenadas aproximadas para un ajuste riguroso de red, que es la otra razón para ejecutarla.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; el documento producido por el Preprocesamiento generalizado. &lt;b&gt;Recorrido&lt;/b&gt; &amp;mdash; las estaciones en orden, separadas por comas, por ejemplo &lt;code&gt;1,2,3,4,1&lt;/code&gt;. &lt;b&gt;Espalda inicial&lt;/b&gt; &amp;mdash; la estación que el primer estacionamiento visó antes de girar el ángulo.&lt;/p&gt;&lt;p&gt;&lt;b&gt;E inicial&lt;/b&gt;, &lt;b&gt;N inicial&lt;/b&gt; (m) y &lt;b&gt;acimut inicial&lt;/b&gt; (grados) &amp;mdash; el punto conocido y la orientación de la espalda inicial.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tipo&lt;/b&gt; &amp;mdash; cerrada (vuelve a su inicio), encuadrada (llega a otro punto conocido) o abierta. &lt;b&gt;E de llegada&lt;/b&gt;, &lt;b&gt;N de llegada&lt;/b&gt; y &lt;b&gt;acimut de llegada&lt;/b&gt; &amp;mdash; para una poligonal encuadrada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Distribución&lt;/b&gt; &amp;mdash; compás, tránsito, o ninguna para informar del error sin absorberlo, que es para lo que sirve una medida de comprobación.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tolerancia angular por estación&lt;/b&gt; (grados) y &lt;b&gt;precisión relativa exigida&lt;/b&gt; (la N en 1:N).&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Coordenadas&lt;/b&gt; &amp;mdash; un documento JSON listo para usarse como coordenadas aproximadas de la Red clásica. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estaciones&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;ANGULAR_MISCLOSURE&lt;/code&gt; en grados, &lt;code&gt;LINEAR_MISCLOSURE&lt;/code&gt; en metros, &lt;code&gt;RELATIVE_PRECISION&lt;/code&gt; y &lt;code&gt;WITHIN_TOLERANCE&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A classical distribution is not least squares: it produces no residuals and no rigorous covariance, so these coordinates are approximate. For the rigorous path, use Classical network on the same data.</source>
+            <translation>Una distribución clásica no es mínimos cuadrados: no produce residuos ni covarianza rigurosa, por lo que estas coordenadas son aproximadas. Para la vía rigurosa, use Red clásica sobre los mismos datos.</translation>
+        </message>
+        <message>
+            <source>A traverse needs at least two stations in its route.</source>
+            <translation>Una poligonal necesita al menos dos estaciones en su recorrido.</translation>
+        </message>
+        <message>
+            <source>Angular misclosure %1 arcsec.</source>
+            <translation>Error angular de cierre %1 segundos de arco.</translation>
+        </message>
+        <message>
+            <source>Angular misclosure (")</source>
+            <translation>Error angular de cierre (")</translation>
+        </message>
+        <message>
+            <source>Angular tolerance per station (°)</source>
+            <translation>Tolerancia angular por estación (°)</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Cerrada</translation>
+        </message>
+        <message>
+            <source>Closes to 1:%1.</source>
+            <translation>Cierra en 1:%1.</translation>
+        </message>
+        <message>
+            <source>Closing azimuth (°)</source>
+            <translation>Acimut de llegada (°)</translation>
+        </message>
+        <message>
+            <source>Closing easting (m)</source>
+            <translation>E de llegada (m)</translation>
+        </message>
+        <message>
+            <source>Closing northing (m)</source>
+            <translation>N de llegada (m)</translation>
+        </message>
+        <message>
+            <source>Compass (Bowditch)</source>
+            <translation>Compás (Bowditch)</translation>
+        </message>
+        <message>
+            <source>Compute a traverse's misclosures and distribute them by a classical rule.</source>
+            <translation>Calcula los errores de cierre de una poligonal y los distribuye mediante una regla clásica.</translation>
+        </message>
+        <message>
+            <source>Connected</source>
+            <translation>Encuadrada</translation>
+        </message>
+        <message>
+            <source>Coordinates</source>
+            <translation>Coordenadas</translation>
+        </message>
+        <message>
+            <source>Distribution</source>
+            <translation>Distribución</translation>
+        </message>
+        <message>
+            <source>Easting (m)</source>
+            <translation>E (m)</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_traverse</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_traverse</translation>
+        </message>
+        <message>
+            <source>GeoComp coordinates (*.json)</source>
+            <translation>Coordenadas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Initial backsight station</source>
+            <translation>Estación de espalda inicial</translation>
+        </message>
+        <message>
+            <source>Kind</source>
+            <translation>Tipo</translation>
+        </message>
+        <message>
+            <source>Linear misclosure (m)</source>
+            <translation>Error lineal de cierre (m)</translation>
+        </message>
+        <message>
+            <source>No closing azimuth was given and none can be inferred, so the angular misclosure is not computed and the angles are not checked. Give the closing azimuth to check them.</source>
+            <translation>No se indicó ningún acimut de cierre ni puede inferirse, por lo que el error de cierre angular no se calcula y los ángulos no se comprueban. Indique el acimut de cierre para comprobarlos.</translation>
+        </message>
+        <message>
+            <source>No closing azimuth was given. This loop backsights '%1' and returns from it, so it closes on the line the start azimuth refers to, and that is what the angular misclosure is measured against.</source>
+            <translation>No se indicó ningún acimut de cierre. Esta poligonal cerrada visa la espalda '%1' y regresa de ella, por lo que cierra sobre la misma línea a la que se refiere el acimut inicial, y es contra ella que se mide el error de cierre angular.</translation>
+        </message>
+        <message>
+            <source>None — report the misclosure only</source>
+            <translation>Ninguna — solo informar del error de cierre</translation>
+        </message>
+        <message>
+            <source>Northing (m)</source>
+            <translation>N (m)</translation>
+        </message>
+        <message>
+            <source>Open</source>
+            <translation>Abierta</translation>
+        </message>
+        <message>
+            <source>Perimeter %1 m.</source>
+            <translation>Perímetro %1 m.</translation>
+        </message>
+        <message>
+            <source>Perimeter (m)</source>
+            <translation>Perímetro (m)</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Propiedad</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Relative precision</source>
+            <translation>Precisión relativa</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Required relative precision (1:N)</source>
+            <translation>Precisión relativa exigida (1:N)</translation>
+        </message>
+        <message>
+            <source>Route (comma-separated stations)</source>
+            <translation>Recorrido (estaciones separadas por comas)</translation>
+        </message>
+        <message>
+            <source>Start azimuth (°)</source>
+            <translation>Acimut inicial (°)</translation>
+        </message>
+        <message>
+            <source>Start easting (m)</source>
+            <translation>E inicial (m)</translation>
+        </message>
+        <message>
+            <source>Start northing (m)</source>
+            <translation>N inicial (m)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Station '%1' has no usable pointing to '%2'.</source>
+            <translation>La estación '%1' no tiene visual utilizable a '%2'.</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estaciones</translation>
+        </message>
+        <message>
+            <source>The initial backsight station is required: it is what the start azimuth refers to.</source>
+            <translation>La estación de espalda inicial es obligatoria: es a ella a la que se refiere el acimut inicial.</translation>
+        </message>
+        <message>
+            <source>The pointing from '%1' to '%2' carries no distance.</source>
+            <translation>La visual de '%1' a '%2' no lleva distancia.</translation>
+        </message>
+        <message>
+            <source>The reduced observations contain no setup at station '%1'.</source>
+            <translation>Las observaciones reducidas no contienen estacionamiento en la estación '%1'.</translation>
+        </message>
+        <message>
+            <source>Transit</source>
+            <translation>Tránsito</translation>
+        </message>
+        <message>
+            <source>Traverse</source>
+            <translation>Poligonal</translation>
+        </message>
+        <message>
+            <source>Traverse report</source>
+            <translation>Informe de la poligonal</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+    </context>
+    <context>
+        <name>TrigonometricLevellingAlgorithm</name>
+        <message>
+            <source>%1 height difference(s) computed.</source>
+            <translation>%1 desnivel(es) calculado(s).</translation>
+        </message>
+        <message>
+            <source>'Refraction surviving' is the fraction of the refraction uncertainty the method did not remove: 0 means the two sights were equal and it cancelled entirely, 1 means it did not cancel at all. It depends only on the two sight lengths, which is what makes it something the surveyor controls.</source>
+            <translation>'Refracción remanente' es la fracción de la incertidumbre de la refracción que el método no eliminó: 0 significa que las dos visuales eran iguales y se canceló por completo, 1 significa que no se canceló en absoluto. Depende únicamente de las dos longitudes de visual, que es lo que la hace algo que el topógrafo controla.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Computes height differences from the reduced zenith angles and slope distances, with the curvature-and-refraction correction applied and its uncertainty propagated. On a 100 m sight the correction is 0.7 mm; at 1 km it is 68 mm; at 5 km it is 1.7 m.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Radial&lt;/b&gt; computes a height difference from the occupied station to each target it sighted. The instrument height, the target height and the refraction all contribute in full.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Leap-frog&lt;/b&gt; takes each setup that sighted exactly two targets as a free station between them, and produces one height difference from the first to the second. Two things then cancel. The &lt;b&gt;instrument height cancels exactly&lt;/b&gt; and never has to be measured, which removes what is routinely the dominant error in a short trigonometric height. And the &lt;b&gt;refraction largely cancels&lt;/b&gt;, because both sights pass through the same air at the same moment and share one coefficient &amp;mdash; a shared dependence carried through a single Jacobian, so the cancellation shows in the uncertainty and not only in the value. With balanced sights the refraction uncertainty leaves the result entirely.&lt;/p&gt;&lt;p&gt;How much cancels depends on how equal the two sights are, which the surveyor controls by where they stand, so an imbalanced pair is reported along with the fraction of the refraction uncertainty that survived.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced. &lt;b&gt;Mode&lt;/b&gt; &amp;mdash; radial or leap-frog.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument height&lt;/b&gt; and &lt;b&gt;target height&lt;/b&gt; (m) &amp;mdash; used in radial mode where the readings do not carry their own. Ignored in leap-frog mode, where the instrument height cancels.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Refraction coefficient&lt;/b&gt; and its &lt;b&gt;uncertainty&lt;/b&gt; &amp;mdash; dimensionless. The coefficient is poorly known and varies through the day, and it is the dominant error source on long sights, which is why its uncertainty is an input rather than an assumption.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Earth radius&lt;/b&gt; (m) and &lt;b&gt;sight imbalance tolerance&lt;/b&gt; (as a fraction of the longer sight).&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Height differences&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Differences&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;RESULT_COUNT&lt;/code&gt; and &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Calcula desniveles a partir de los ángulos cenitales y las distancias inclinadas reducidos, con la corrección de curvatura y refracción aplicada y su incertidumbre propagada. En una visual de 100 m la corrección es de 0,7 mm; en 1 km es de 68 mm; en 5 km es de 1,7 m.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Radial&lt;/b&gt; calcula un desnivel de la estación ocupada a cada objetivo que visó. La altura del instrumento, la altura del objetivo y la refracción contribuyen todas íntegramente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Leap-frog&lt;/b&gt; toma cada estacionamiento que visó exactamente dos objetivos como una estación libre entre ellos, y produce un desnivel del primero al segundo. Dos cosas se cancelan entonces. La &lt;b&gt;altura del instrumento se cancela exactamente&lt;/b&gt; y nunca hay que medirla, lo cual elimina lo que es habitualmente el error dominante en un desnivel trigonométrico corto. Y la &lt;b&gt;refracción se cancela en gran parte&lt;/b&gt;, porque ambas visuales atraviesan el mismo aire en el mismo instante y comparten un coeficiente &amp;mdash; una dependencia compartida conducida por un único jacobiano, de modo que la cancelación aparece en la incertidumbre y no solo en el valor. Con visuales equilibradas la incertidumbre de la refracción abandona el resultado por completo.&lt;/p&gt;&lt;p&gt;Cuánto se cancela depende de lo iguales que sean las dos visuales, lo cual el topógrafo controla por dónde se sitúa, de modo que un par desequilibrado se comunica junto con la fracción de la incertidumbre de la refracción que sobrevivió.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observaciones reducidas&lt;/b&gt; &amp;mdash; el documento producido por el Preprocesamiento generalizado. &lt;b&gt;Modo&lt;/b&gt; &amp;mdash; radial o leap-frog.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Altura del instrumento&lt;/b&gt; y &lt;b&gt;altura del objetivo&lt;/b&gt; (m) &amp;mdash; usadas en modo radial donde las lecturas no llevan las suyas. Ignoradas en modo leap-frog, donde la altura del instrumento se cancela.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coeficiente de refracción&lt;/b&gt; y su &lt;b&gt;incertidumbre&lt;/b&gt; &amp;mdash; adimensionales. El coeficiente es mal conocido y varía a lo largo del día, y es la fuente de error dominante en visuales largas, razón por la cual su incertidumbre es una entrada y no una suposición.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Radio de la Tierra&lt;/b&gt; (m) y &lt;b&gt;tolerancia de desequilibrio de las visuales&lt;/b&gt; (como fracción de la visual más larga).&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Desniveles&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Desniveles&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;RESULT_COUNT&lt;/code&gt; y &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Earth radius (m)</source>
+            <translation>Radio de la Tierra (m)</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>Generated by GeoComp — geocomp:totalstation_trig_levelling</source>
+            <translation>Generado por GeoComp — geocomp:totalstation_trig_levelling</translation>
+        </message>
+        <message>
+            <source>GeoComp height differences (*.json)</source>
+            <translation>Desniveles GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Height difference (m)</source>
+            <translation>Desnivel (m)</translation>
+        </message>
+        <message>
+            <source>Height differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Height differences from zenith angles and distances, radial or leap-frog.</source>
+            <translation>Desniveles a partir de ángulos cenitales y distancias, radial o leap-frog.</translation>
+        </message>
+        <message>
+            <source>Instrument height (m)</source>
+            <translation>Altura del instrumento (m)</translation>
+        </message>
+        <message>
+            <source>Leap-frog</source>
+            <translation>Leap-frog</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>Modo</translation>
+        </message>
+        <message>
+            <source>No height difference could be computed. Radial mode needs pointings with a distance; leap-frog mode needs setups that sighted exactly two targets.</source>
+            <translation>No se pudo calcular ningún desnivel. El modo radial necesita visuales con distancia; el modo leap-frog necesita estacionamientos que visaron exactamente dos objetivos.</translation>
+        </message>
+        <message>
+            <source>Radial</source>
+            <translation>Radial</translation>
+        </message>
+        <message>
+            <source>Reduced observations</source>
+            <translation>Observaciones reducidas</translation>
+        </message>
+        <message>
+            <source>Refraction coefficient</source>
+            <translation>Coeficiente de refracción</translation>
+        </message>
+        <message>
+            <source>Refraction coefficient uncertainty</source>
+            <translation>Incertidumbre del coeficiente de refracción</translation>
+        </message>
+        <message>
+            <source>Refraction surviving</source>
+            <translation>Refracción remanente</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Sight imbalance (m)</source>
+            <translation>Desequilibrio de las visuales (m)</translation>
+        </message>
+        <message>
+            <source>Sight imbalance tolerance</source>
+            <translation>Tolerancia de desequilibrio de las visuales</translation>
+        </message>
+        <message>
+            <source>Std dev (mm)</source>
+            <translation>Desviación típica (mm)</translation>
+        </message>
+        <message>
+            <source>Target height (m)</source>
+            <translation>Altura del objetivo (m)</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Trigonometric levelling</source>
+            <translation>Nivelación trigonométrica</translation>
+        </message>
+        <message>
+            <source>Trigonometric levelling report</source>
+            <translation>Informe de la nivelación trigonométrica</translation>
         </message>
     </context>
 </TS>

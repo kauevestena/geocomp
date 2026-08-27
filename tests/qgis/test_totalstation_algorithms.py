@@ -16,18 +16,25 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from pathlib import Path
 
 import pytest
 
 from tests import reference_rd01 as rd01
+from tests import synthetic as syn
 
 pytestmark = pytest.mark.qgis
 
 TOTAL_STATION_IDS = (
     "geocomp:totalstation_import_fieldbook",
     "geocomp:totalstation_preprocess",
+    "geocomp:totalstation_traverse",
+    "geocomp:totalstation_resection",
+    "geocomp:totalstation_intersection",
     "geocomp:totalstation_network",
+    "geocomp:totalstation_trig_levelling",
+    "geocomp:totalstation_radiation",
 )
 
 
@@ -68,12 +75,15 @@ class TestRegistration:
             assert parameter.description(), f"{algorithm_id}: {parameter.name()}"
             assert parameter.description() != parameter.name()
 
-    def test_the_total_station_submenu_is_no_longer_empty(self, geocomp_provider):
+    def test_the_total_station_submenu_holds_every_algorithm(self, geocomp_provider):
         """P0 left the technique submenus present but disabled. This is the
-        phase that fills the first one."""
+        phase that fills the first one, and the menu is the only place the
+        count can drift from the registry unnoticed."""
         from geocomp.registry import algorithms_in_menu
 
-        assert len(algorithms_in_menu("total_station")) == 3
+        entries = algorithms_in_menu("total_station")
+        assert len(entries) == len(TOTAL_STATION_IDS)
+        assert {entry.id for entry in entries} == set(TOTAL_STATION_IDS)
 
 
 class TestTheWholeChain:
@@ -144,9 +154,7 @@ class TestTheWholeChain:
     def adjusted(self, reduced):
         directory, results = reduced
         approximate = directory / "approximate.json"
-        approximate.write_text(
-            json.dumps(rd01.approximate_coordinates()), encoding="utf-8"
-        )
+        approximate.write_text(json.dumps(rd01.approximate_coordinates()), encoding="utf-8")
         return directory, _run(
             "geocomp:totalstation_network",
             {
@@ -225,7 +233,9 @@ class TestFailuresAreActionable:
         )
 
         wrong = tmp_path / "readings.json"
-        wrong.write_text(json.dumps({"kind": "geocomp.readings", "setups": []}), encoding="utf-8")
+        wrong.write_text(
+            json.dumps({"kind": "geocomp.readings", "setups": []}), encoding="utf-8"
+        )
         approximate = tmp_path / "approx.json"
         approximate.write_text(json.dumps(rd01.approximate_coordinates()), encoding="utf-8")
 
@@ -261,3 +271,365 @@ class TestFailuresAreActionable:
                 QgsProcessingFeedback(),
                 catchExceptions=False,
             )
+
+
+class TestTheSyntheticSurvey:
+    """Traverse, resection, intersection, radiation and trigonometric levelling.
+
+    RD-01 cannot check any of these: it has no known point, so there is nothing
+    to traverse between, resect from or radiate off. ``tests/synthetic.py``
+    generates the readings a total station would have recorded standing at
+    coordinates chosen in advance, and ``tests/test_synthetic_survey.py``
+    verifies that fixture against the core routines without QGIS. What is left
+    for these tests is the Processing boundary: parameters in, documents out,
+    and the geometry surviving the round trip through JSON.
+    """
+
+    @pytest.fixture(scope="class")
+    def workspace(self, geocomp_provider, tmp_path_factory):
+        directory = tmp_path_factory.mktemp("synthetic")
+        reductions = directory / "reductions.json"
+        reductions.write_text(json.dumps(syn.reductions_document()), encoding="utf-8")
+        known = directory / "known.json"
+        known.write_text(json.dumps(syn.known_points()), encoding="utf-8")
+        return directory, reductions, known
+
+    # -- traverse --------------------------------------------------------
+
+    @pytest.fixture(scope="class")
+    def traverse(self, workspace):
+        directory, reductions, _known = workspace
+        return _run(
+            "geocomp:totalstation_traverse",
+            {
+                "REDUCTIONS": str(reductions),
+                "ROUTE": ",".join(syn.ROUTE),
+                "BACKSIGHT": syn.BACKSIGHT,
+                "START_EASTING": syn.COORDINATES["A"][0],
+                "START_NORTHING": syn.COORDINATES["A"][1],
+                "START_AZIMUTH": math.degrees(syn.start_azimuth()),
+                "CLOSE_AZIMUTH": math.degrees(syn.azimuth("D", "A")),
+                "KIND": 0,
+                "METHOD": 0,
+                "OUTPUT_COORDINATES": str(directory / "traverse.json"),
+                "OUTPUT_HTML": str(directory / "traverse.html"),
+                "OUTPUT_CSV": str(directory / "traverse.csv"),
+            },
+        )
+
+    def test_the_loop_closes_on_itself(self, traverse):
+        assert abs(traverse["ANGULAR_MISCLOSURE"]) < 1.0e-9
+        assert traverse["LINEAR_MISCLOSURE"] < 1.0e-6
+        assert traverse["WITHIN_TOLERANCE"] is True
+
+    def test_an_exact_closure_is_not_reported_as_the_worst_possible_one(self, traverse):
+        """The relative precision is a ratio the misclosure divides into, so an
+        exact closure has none. Reporting zero there would read as 1:0."""
+        assert traverse["RELATIVE_PRECISION"] > 1.0e6
+
+    def test_every_station_comes_back_where_it_was_generated(self, traverse):
+        coordinates = json.loads(
+            Path(traverse["OUTPUT_COORDINATES"]).read_text(encoding="utf-8")
+        )
+        for name in ("B", "C", "D"):
+            easting, northing, _up = coordinates[name]
+            assert easting == pytest.approx(syn.COORDINATES[name][0], abs=1e-5)
+            assert northing == pytest.approx(syn.COORDINATES[name][1], abs=1e-5)
+
+    def test_the_stations_table_carries_a_row_per_station(self, traverse):
+        with open(traverse["OUTPUT_CSV"], encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        assert {row["station"] for row in rows} >= {"B", "C", "D"}
+
+    def test_a_loop_left_without_a_closing_azimuth_infers_it(self, workspace):
+        """A blank closing azimuth used to fall through to zero, which turned an
+        untouched field into a misclosure of several hundred degrees. A loop
+        that backsights the station it returns from closes on the line its start
+        azimuth refers to, and that is what gets used."""
+        directory, reductions, _known = workspace
+        results = _run(
+            "geocomp:totalstation_traverse",
+            {
+                "REDUCTIONS": str(reductions),
+                "ROUTE": ",".join(syn.ROUTE),
+                "BACKSIGHT": syn.BACKSIGHT,
+                "START_EASTING": syn.COORDINATES["A"][0],
+                "START_NORTHING": syn.COORDINATES["A"][1],
+                "START_AZIMUTH": math.degrees(syn.start_azimuth()),
+                "KIND": 0,
+                "METHOD": 0,
+                "OUTPUT_COORDINATES": str(directory / "inferred.json"),
+            },
+        )
+        assert abs(results["ANGULAR_MISCLOSURE"]) < 1.0e-9
+        assert results["WITHIN_TOLERANCE"] is True
+
+    def test_a_route_through_a_station_that_was_not_occupied_is_refused_by_name(
+        self, workspace
+    ):
+        from qgis.core import (
+            QgsProcessingContext,
+            QgsProcessingException,
+            QgsProcessingFeedback,
+        )
+
+        _directory, reductions, _known = workspace
+        algorithm = _algorithm("geocomp:totalstation_traverse").create({})
+        with pytest.raises(QgsProcessingException) as caught:
+            algorithm.run(
+                {
+                    "REDUCTIONS": str(reductions),
+                    "ROUTE": "A,B,Z,A",
+                    "BACKSIGHT": "D",
+                },
+                QgsProcessingContext(),
+                QgsProcessingFeedback(),
+                catchExceptions=False,
+            )
+        assert "Z" in str(caught.value)
+
+    # -- resection -------------------------------------------------------
+
+    def test_the_resection_recovers_the_occupied_station(self, workspace):
+        directory, reductions, known = workspace
+        results = _run(
+            "geocomp:totalstation_resection",
+            {
+                "REDUCTIONS": str(reductions),
+                "STATION": "R",
+                "KNOWN": str(known),
+                "OUTPUT_POSITION": str(directory / "resection.json"),
+                "OUTPUT_HTML": str(directory / "resection.html"),
+            },
+        )
+        assert results["EASTING"] == pytest.approx(syn.COORDINATES["R"][0], abs=1e-5)
+        assert results["NORTHING"] == pytest.approx(syn.COORDINATES["R"][1], abs=1e-5)
+        assert results["ORIENTATION"] % 360.0 == pytest.approx(
+            math.degrees(syn.ORIENTATIONS["R"]) % 360.0, abs=1e-6
+        )
+
+    def test_the_resected_position_is_written_as_approximate_coordinates(self, workspace):
+        """The document has to be the shape Classical network takes as its
+        starting values, or the chain stops here (FR-033)."""
+        directory, reductions, known = workspace
+        results = _run(
+            "geocomp:totalstation_resection",
+            {
+                "REDUCTIONS": str(reductions),
+                "STATION": "R",
+                "KNOWN": str(known),
+                "OUTPUT_POSITION": str(directory / "resection-chain.json"),
+            },
+        )
+        payload = json.loads(Path(results["OUTPUT_POSITION"]).read_text(encoding="utf-8"))
+        assert list(payload) == ["R"]
+        assert len(payload["R"]) == 3
+
+    def test_a_station_sighting_too_few_known_points_is_refused(self, workspace):
+        """Two directions cannot fix a position and an orientation. Station L
+        sighted exactly two."""
+        from qgis.core import (
+            QgsProcessingContext,
+            QgsProcessingException,
+            QgsProcessingFeedback,
+        )
+
+        _directory, reductions, known = workspace
+        algorithm = _algorithm("geocomp:totalstation_resection").create({})
+        with pytest.raises(QgsProcessingException) as caught:
+            algorithm.run(
+                {"REDUCTIONS": str(reductions), "STATION": "L", "KNOWN": str(known)},
+                QgsProcessingContext(),
+                QgsProcessingFeedback(),
+                catchExceptions=False,
+            )
+        assert "three" in str(caught.value).lower()
+
+    # -- intersection ----------------------------------------------------
+
+    def test_the_intersection_recovers_a_point_nobody_occupied(self, workspace):
+        directory, _reductions, _known = workspace
+        sightings = directory / "sightings.json"
+        sightings.write_text(
+            json.dumps(syn.sightings_document("P1", ("A", "C"))), encoding="utf-8"
+        )
+        results = _run(
+            "geocomp:totalstation_intersection",
+            {
+                "SIGHTINGS": str(sightings),
+                "TARGET": "P1",
+                "OUTPUT_POSITION": str(directory / "intersection.json"),
+                "OUTPUT_HTML": str(directory / "intersection.html"),
+            },
+        )
+        assert results["EASTING"] == pytest.approx(syn.COORDINATES["P1"][0], abs=1e-4)
+        assert results["NORTHING"] == pytest.approx(syn.COORDINATES["P1"][1], abs=1e-4)
+        assert results["SEMI_MAJOR"] >= results["SEMI_MINOR"]
+        assert results["WEAK_GEOMETRY"] is False
+
+    def test_one_sighting_is_refused_rather_than_extrapolated(self, workspace):
+        from qgis.core import (
+            QgsProcessingContext,
+            QgsProcessingException,
+            QgsProcessingFeedback,
+        )
+
+        directory, _reductions, _known = workspace
+        lonely = directory / "one-sighting.json"
+        lonely.write_text(json.dumps(syn.sightings_document("P1", ("A",))), encoding="utf-8")
+        algorithm = _algorithm("geocomp:totalstation_intersection").create({})
+        with pytest.raises(QgsProcessingException):
+            algorithm.run(
+                {"SIGHTINGS": str(lonely), "TARGET": "P1"},
+                QgsProcessingContext(),
+                QgsProcessingFeedback(),
+                catchExceptions=False,
+            )
+
+    # -- radiation -------------------------------------------------------
+
+    @pytest.fixture(scope="class")
+    def radiated(self, workspace):
+        directory, reductions, known = workspace
+        return directory, _run(
+            "geocomp:totalstation_radiation",
+            {
+                "REDUCTIONS": str(reductions),
+                "STATIONS": str(known),
+                "INSTRUMENT_HEIGHT": syn.INSTRUMENT_HEIGHT,
+                "TARGET_HEIGHT": syn.TARGET_HEIGHT,
+                "CORRELATION": 0.0,
+                "OUTPUT_POINTS": str(directory / "points.json"),
+                "OUTPUT_HTML": str(directory / "radiation.html"),
+                "OUTPUT_CSV": str(directory / "points.csv"),
+            },
+        )
+
+    def test_only_the_points_that_are_not_already_known_are_radiated(self, radiated):
+        """Setup A sighted two control stations and two detail points. Radiating
+        the control stations back would be busywork that also looks like new
+        information."""
+        _directory, results = radiated
+        assert results["POINT_COUNT"] == 2
+
+    def test_each_detail_point_lands_where_it_was_generated(self, radiated):
+        _directory, results = radiated
+        points = json.loads(Path(results["OUTPUT_POINTS"]).read_text(encoding="utf-8"))
+        assert set(points) == {"P1", "P2"}
+        for name, values in points.items():
+            for value, expected in zip(values, syn.COORDINATES[name], strict=True):
+                assert value == pytest.approx(expected, abs=1e-5)
+
+    def test_the_orientation_is_derived_from_the_known_points(self, radiated):
+        """No orientations document was given. The setup sighted two stations
+        whose coordinates are known, and that is enough to orient it -- which is
+        what a detail survey actually does. The proof is that the radiated
+        points land correctly, so what is checked here is that the report says
+        where the orientation came from and how well its sources agreed."""
+        _directory, results = radiated
+        report = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert "from known points" in report
+        assert "0.0" in report
+
+    def test_control_that_disagrees_with_itself_is_reported(self, workspace):
+        """Two known points that imply different orientations disagree about
+        where they are, and every point radiated from the setup carries that.
+        With only two sources the spread is the whole disagreement -- computed
+        as a range of signed deviations, because a range of absolute ones is
+        identically zero for a pair and would report perfect agreement exactly
+        when there is none."""
+        from qgis.core import QgsProcessingContext, QgsProcessingFeedback
+
+        directory, reductions, _known = workspace
+        moved = dict(syn.known_points())
+        moved["B"] = [moved["B"][0] + 0.500, moved["B"][1], moved["B"][2]]
+        displaced = directory / "displaced.json"
+        displaced.write_text(json.dumps(moved), encoding="utf-8")
+
+        warnings: list[str] = []
+
+        class Listening(QgsProcessingFeedback):
+            def pushWarning(self, message):  # noqa: N802 - Qt naming
+                warnings.append(message)
+
+        algorithm = _algorithm("geocomp:totalstation_radiation").create({})
+        results, ok = algorithm.run(
+            {
+                "REDUCTIONS": str(reductions),
+                "STATIONS": str(displaced),
+                "OUTPUT_POINTS": str(directory / "displaced-points.json"),
+                "OUTPUT_HTML": str(directory / "displaced.html"),
+            },
+            QgsProcessingContext(),
+            Listening(),
+            catchExceptions=False,
+        )
+        assert ok
+        assert results["POINT_COUNT"] == 2
+        assert any("not where it is recorded" in message for message in warnings)
+
+    def test_the_points_table_carries_the_full_covariance(self, radiated):
+        """Three coordinates from one pointing are strongly correlated, and
+        ``specs/09`` section 4.6 refuses to let the export imply otherwise."""
+        _directory, results = radiated
+        with open(results["OUTPUT_CSV"], encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        assert len(rows) == 2
+        for row in rows:
+            assert float(row["cov_en"]) != 0.0
+
+    # -- trigonometric levelling -----------------------------------------
+
+    def test_a_balanced_leap_frog_pair_recovers_the_height_difference(self, workspace):
+        """Station L stands exactly midway between A and D, so the curvature and
+        refraction corrections on its two sights are equal and subtract away.
+        What comes back is the height difference and nothing added to it."""
+        directory, _reductions, _known = workspace
+        only_l = directory / "leapfrog.json"
+        only_l.write_text(
+            json.dumps(syn.reductions_document({"L": syn.SETUPS["L"]})), encoding="utf-8"
+        )
+        results = _run(
+            "geocomp:totalstation_trig_levelling",
+            {
+                "REDUCTIONS": str(only_l),
+                "MODE": 1,
+                "OUTPUT_HEIGHTS": str(directory / "leapfrog-heights.json"),
+                "OUTPUT_HTML": str(directory / "leapfrog.html"),
+                "OUTPUT_CSV": str(directory / "leapfrog.csv"),
+            },
+        )
+        assert results["RESULT_COUNT"] == 1
+        payload = json.loads(Path(results["OUTPUT_HEIGHTS"]).read_text(encoding="utf-8"))
+        difference = payload["differences"][0]
+        assert (difference["from"], difference["to"]) == ("A", "D")
+        assert difference["value"]["value"] == pytest.approx(
+            syn.height_difference("A", "D"), abs=1e-6
+        )
+
+    def test_a_radial_height_difference_carries_the_curvature_correction(self, workspace):
+        """The synthetic sight is a straight line between marks and so contains
+        no curvature or refraction. What the algorithm adds is ``(1 - k) d^2 /
+        2R``, stated here in closed form rather than hidden in a tolerance."""
+        directory, _reductions, _known = workspace
+        one_sight = directory / "radial.json"
+        one_sight.write_text(
+            json.dumps(syn.reductions_document({"A": ("B",)})), encoding="utf-8"
+        )
+        results = _run(
+            "geocomp:totalstation_trig_levelling",
+            {
+                "REDUCTIONS": str(one_sight),
+                "MODE": 0,
+                "INSTRUMENT_HEIGHT": syn.INSTRUMENT_HEIGHT,
+                "TARGET_HEIGHT": syn.TARGET_HEIGHT,
+                "REFRACTION": 0.13,
+                "OUTPUT_HEIGHTS": str(directory / "radial-heights.json"),
+            },
+        )
+        assert results["RESULT_COUNT"] == 1
+        payload = json.loads(Path(results["OUTPUT_HEIGHTS"]).read_text(encoding="utf-8"))
+        expected = syn.height_difference("A", "B") + syn.curvature_and_refraction(
+            syn.horizontal_distance("A", "B")
+        )
+        assert payload["differences"][0]["value"]["value"] == pytest.approx(expected, abs=1e-6)

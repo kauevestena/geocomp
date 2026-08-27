@@ -154,20 +154,20 @@ class AlgorithmSpec:
 
 #: Why each toolbox-only algorithm has no menu entry. An entry here is a
 #: deliberate, reviewed exception to ADR-0005's menu generation, not a default:
-#: the GeoComp menu presents six technique-oriented entries (FR-003), and an
-#: operation that belongs to no survey technique would distort that structure.
+#: the GeoComp menu presents six technique submenus plus Analysis (FR-003), and
+#: an operation belonging to no survey technique would distort that structure.
 TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
     "project_system_report": (
         "Environment diagnostics belong to no survey technique, so placing it in "
-        "one of the six technique submenus would misrepresent the menu structure "
+        "one of the technique submenus would misrepresent the menu structure "
         "FR-003 specifies. It is reachable from the toolbox and from the About "
         "dialog, which the Plugins menu provides."
     ),
 }
 
 #: Every algorithm GeoComp registers. Phase P0 contributed one, enough to prove
-#: the registry -> provider -> menu path end to end; phase P2 adds the three
-#: that expose the adjustment core.
+#: the registry -> provider -> menu path end to end; P2 added the three that
+#: expose the adjustment core, and P3 the eight of the total-station chain.
 ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     AlgorithmSpec(
         operation="system_report",
@@ -226,6 +226,33 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu_order=20,
     ),
     AlgorithmSpec(
+        operation="traverse",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.traverse",
+        class_name="TraverseAlgorithm",
+        requirement="FR-406",
+        menu="total_station",
+        menu_order=30,
+    ),
+    AlgorithmSpec(
+        operation="resection",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.resection",
+        class_name="ResectionAlgorithm",
+        requirement="FR-407",
+        menu="total_station",
+        menu_order=40,
+    ),
+    AlgorithmSpec(
+        operation="intersection",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.intersection",
+        class_name="IntersectionAlgorithm",
+        requirement="FR-408",
+        menu="total_station",
+        menu_order=50,
+    ),
+    AlgorithmSpec(
         operation="network",
         group="totalstation",
         module="geocomp.algorithms.totalstation.network",
@@ -233,6 +260,24 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         requirement="FR-409",
         menu="total_station",
         menu_order=60,
+    ),
+    AlgorithmSpec(
+        operation="trig_levelling",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.trig_levelling",
+        class_name="TrigonometricLevellingAlgorithm",
+        requirement="FR-410",
+        menu="total_station",
+        menu_order=70,
+    ),
+    AlgorithmSpec(
+        operation="radiation",
+        group="totalstation",
+        module="geocomp.algorithms.totalstation.radiation",
+        class_name="RadiationAlgorithm",
+        requirement="FR-411",
+        menu="total_station",
+        menu_order=80,
     ),
 )
 

@@ -37,6 +37,7 @@ __all__ = [
     "load_mapping",
     "load_profiles",
     "read_readings",
+    "read_reductions",
     "severity_label",
     "stochastic_defaults",
     "summarise_findings",
@@ -282,4 +283,118 @@ def _reading(payload: dict) -> FaceReading:
         ),
         set_number=int(payload.get("set_number", 1)),
         extra=dict(payload.get("extra", {})),
+    )
+
+
+def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
+    """Read the document the pre-processing algorithm writes.
+
+    Rebuilds the minimal setup results the rest of the group needs.
+
+    Only the fields the later algorithms read are reconstructed. A full
+    round-trip of the pre-processing result would carry the diagnostics through
+    as well, and nothing downstream uses them -- the pre-processing report is
+    where they belong.
+    """
+    document = load_json(path, parameter=parameter)
+    if document.get("kind") != "geocomp.reductions":
+        raise QgsProcessingException(
+            _tr(
+                "'%1' is not a GeoComp reductions document. Run Generalised pre-processing "
+                "first, or choose the file it produced."
+            ).replace("%1", path)
+        )
+
+    from geocomp.core.techniques.total_station.face import FaceReduction
+    from geocomp.core.techniques.total_station.pipeline import (
+        ProcessedPointing,
+        SetupResult,
+    )
+    from geocomp.core.techniques.total_station.reductions import BasicReduction
+    from geocomp.core.uncertainty import Covariance, Quantity
+    from geocomp.core.units import Unit
+
+    results = []
+    for entry in document.get("setups", ()):
+        station = entry["station"]
+        pointings = []
+        for item in entry.get("pointings", ()):
+            horizontal = Quantity.from_dict(item["horizontal"])
+            zenith = Quantity.from_dict(item["zenith"])
+            distance = (
+                Quantity.from_dict(item["distance"]) if item.get("distance") else None
+            )
+            basic = None
+            if item.get("horizontal_distance") and item.get("height_difference"):
+                horizontal_distance = Quantity.from_dict(item["horizontal_distance"])
+                height_difference = Quantity.from_dict(item["height_difference"])
+                basic = BasicReduction(
+                    horizontal_distance=horizontal_distance,
+                    vertical_component=height_difference,
+                    height_difference=height_difference,
+                    covariance=Covariance.diagonal(
+                        {
+                            "horizontal_distance": horizontal_distance.variance,
+                            "vertical_component": height_difference.variance,
+                            "height_difference": height_difference.variance,
+                        },
+                        {
+                            "horizontal_distance": Unit.METRE,
+                            "vertical_component": Unit.METRE,
+                            "height_difference": Unit.METRE,
+                        },
+                        mode=horizontal_distance.mode,
+                        strategies=horizontal_distance.strategies,
+                    ),
+                )
+            pointings.append(
+                ProcessedPointing(
+                    station=station,
+                    target=item["target"],
+                    reduction=FaceReduction(
+                        target=item["target"],
+                        horizontal=horizontal,
+                        zenith=zenith,
+                        distance=distance,
+                        collimation=Quantity.exact(0.0, Unit.RADIAN),
+                        vertical_index=Quantity.exact(0.0, Unit.RADIAN),
+                    ),
+                    basic=basic,
+                    findings=() if item.get("usable", True) else (_unusable(item["target"]),),
+                )
+            )
+        results.append(
+            SetupResult(
+                station=station,
+                pointings=tuple(pointings),
+                diagnostics=_empty_diagnostics(station),
+            )
+        )
+    return results
+
+
+def _unusable(target: str):
+    from geocomp.core.findings import Finding, Severity
+
+    return Finding(
+        code="rejected_in_preprocessing",
+        severity=Severity.BLOCKING,
+        message=(
+            f"the pointing to {target} was rejected during pre-processing and is not "
+            "used here"
+        ),
+        observations=(target,),
+    )
+
+
+def _empty_diagnostics(station: str):
+    from geocomp.core.techniques.total_station.face import SetupDiagnostics
+
+    return SetupDiagnostics(
+        station=station,
+        collimation_mean=0.0,
+        collimation_spread=0.0,
+        vertical_index_mean=0.0,
+        vertical_index_spread=0.0,
+        pair_count=0,
     )

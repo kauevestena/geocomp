@@ -28,6 +28,25 @@ validated network, with no external engine anywhere in the path.
   per-constant uncertainty and the applied-once rule, and the stochastic model
   resolution whose last step refuses rather than inventing a sigma (FR-061,
   FR-064, FR-069).
+- **Eight Processing algorithms and the Total Station menu** - import field
+  book (FR-160), generalised pre-processing (FR-400), traverse (FR-406),
+  resection (FR-407), forward intersection (FR-408), classical network
+  (FR-409), trigonometric levelling (FR-410) and 3D radiation (FR-411). Each
+  writes an HTML report, a machine-readable document and scalar outputs, and
+  each one's document is the next one's input so the chain assembles in the
+  graphical modeller (FR-033).
+- **A synthetic survey fixture with known coordinates** (`tests/synthetic.py`).
+  RD-01 stays the reference for face reduction and free-network adjustment, but
+  it has no known point, so it cannot check a traverse, a resection or a
+  radiation at all. The fixture generates the readings a total station would
+  have recorded standing at coordinates chosen in advance, and every routine is
+  asked to recover the geometry it was generated from - so the expected values
+  are the survey itself rather than a previous output.
+- **A structural check on the tier-3 tests' parameter names.** Those tests only
+  run where QGIS does, and Processing *ignores* an unrecognised key rather than
+  rejecting it, so a mistyped parameter silently becomes a default and fails
+  somewhere else. Every key is now checked against the declaring algorithm by
+  parsing, which works without QGIS installed.
 
 #### Fixed in the phase P2 core
 
@@ -45,6 +64,25 @@ that said nothing about the cause.
   initialised at zero. A direction without an orientation unknown is always
   wrong, and zero is essentially never the right starting value, so both are now
   automatic.
+
+#### Fixed while testing the algorithms
+
+- **A closed traverse left without a closing azimuth no longer checks itself
+  against north.** The parameter fell through to zero, so an untouched field
+  produced an angular misclosure of several hundred degrees that read as a
+  catastrophic survey. A loop that backsights the station it returns from
+  arrives on the very line its start azimuth refers to, so that case is now
+  inferred; anything else says plainly that the angles cannot be checked.
+- **An exactly closing traverse no longer reports the worst possible relative
+  precision.** The ratio is absent for two opposite reasons - a zero misclosure
+  and an open traverse - and one sentinel of `0.0` for both read as 1:0.
+- **The spread of the orientations implied by several known points was
+  identically zero for two of them**, which is the commonest case in a detail
+  survey. It was the range of the *absolute* deviations, and two estimates
+  always sit symmetrically about their own mean. It is now the range of the
+  signed deviations, and a spread beyond three times the pointing precision is
+  warned about by name: one of the control points is not where it is recorded,
+  and every point radiated from that setup carries the error.
 
 #### Notes
 
