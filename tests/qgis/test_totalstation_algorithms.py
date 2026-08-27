@@ -633,3 +633,100 @@ class TestTheSyntheticSurvey:
             syn.horizontal_distance("A", "B")
         )
         assert payload["differences"][0]["value"]["value"] == pytest.approx(expected, abs=1e-6)
+
+
+class TestBasicAndAdvancedAgree:
+    """FR-070 and FR-071, across the whole Total Station group.
+
+    Advanced parameters are collapsed in Basic mode, not removed, so the value
+    used is the parameter's own default in both modes. Gating must change what
+    is *shown*, never what is *computed* -- otherwise two users of the same
+    version get different answers from the same data and neither can tell why.
+
+    P3's exit criteria name this for the phase; the Analysis group has its own
+    copy, and the two together cover every algorithm that declares an advanced
+    parameter.
+    """
+
+    @pytest.fixture(scope="class")
+    def workspace(self, geocomp_provider, tmp_path_factory):
+        directory = tmp_path_factory.mktemp("gating")
+        reductions = directory / "reductions.json"
+        reductions.write_text(json.dumps(syn.reductions_document()), encoding="utf-8")
+        known = directory / "known.json"
+        known.write_text(json.dumps(syn.known_points()), encoding="utf-8")
+        return directory, reductions, known
+
+    def _advanced_defaults(self, algorithm_id: str) -> dict:
+        from qgis.core import QgsProcessingParameterDefinition
+
+        flag = QgsProcessingParameterDefinition.Flag.FlagAdvanced
+        return {
+            parameter.name(): parameter.defaultValue()
+            for parameter in _algorithm(algorithm_id).parameterDefinitions()
+            if parameter.flags() & flag
+        }
+
+    @pytest.mark.parametrize("algorithm_id", TOTAL_STATION_IDS)
+    def test_every_algorithm_declares_the_gating(self, geocomp_provider, algorithm_id):
+        """An algorithm with no advanced parameters would make its own parity
+        test vacuous, so the declaration is checked before the behaviour."""
+        assert self._advanced_defaults(algorithm_id), algorithm_id
+
+    def test_the_traverse_computes_the_same_either_way(self, workspace):
+        directory, reductions, _known = workspace
+        common = {
+            "REDUCTIONS": str(reductions),
+            "ROUTE": ",".join(syn.ROUTE),
+            "BACKSIGHT": syn.BACKSIGHT,
+            "START_EASTING": syn.COORDINATES["A"][0],
+            "START_NORTHING": syn.COORDINATES["A"][1],
+            "START_AZIMUTH": math.degrees(syn.start_azimuth()),
+            "KIND": 0,
+            "METHOD": 0,
+        }
+        advanced = self._advanced_defaults("geocomp:totalstation_traverse")
+        basic_run = _run(
+            "geocomp:totalstation_traverse",
+            {**common, "OUTPUT_COORDINATES": str(directory / "gating-basic.json")},
+        )
+        advanced_run = _run(
+            "geocomp:totalstation_traverse",
+            {
+                **common,
+                **advanced,
+                "OUTPUT_COORDINATES": str(directory / "gating-advanced.json"),
+            },
+        )
+        for key in ("ANGULAR_MISCLOSURE", "LINEAR_MISCLOSURE", "WITHIN_TOLERANCE"):
+            assert basic_run[key] == advanced_run[key], key
+        assert Path(basic_run["OUTPUT_COORDINATES"]).read_text(encoding="utf-8") == Path(
+            advanced_run["OUTPUT_COORDINATES"]
+        ).read_text(encoding="utf-8")
+
+    def test_pre_processing_computes_the_same_either_way(self, geocomp_provider, tmp_path):
+        imported = _run(
+            "geocomp:totalstation_import_fieldbook",
+            {
+                "SOURCE": str(rd01.RAW),
+                "SIGMA_DIRECTION": rd01.SIGMA_ANGLE,
+                "SIGMA_ZENITH": rd01.SIGMA_ANGLE,
+                "SIGMA_DISTANCE": 0.002,
+                "OUTPUT_READINGS": str(tmp_path / "readings.json"),
+            },
+        )
+        advanced = self._advanced_defaults("geocomp:totalstation_preprocess")
+        common = {"READINGS": imported["OUTPUT_READINGS"], "APPLY_ATMOSPHERIC": False}
+        basic_run = _run(
+            "geocomp:totalstation_preprocess",
+            {**common, "OUTPUT_REDUCED": str(tmp_path / "basic.json")},
+        )
+        advanced_run = _run(
+            "geocomp:totalstation_preprocess",
+            {**common, **advanced, "OUTPUT_REDUCED": str(tmp_path / "advanced.json")},
+        )
+        for key in ("POINTING_COUNT", "BLOCKING_COUNT", "USABLE_COUNT"):
+            assert basic_run[key] == advanced_run[key], key
+        assert Path(basic_run["OUTPUT_REDUCED"]).read_text(encoding="utf-8") == Path(
+            advanced_run["OUTPUT_REDUCED"]
+        ).read_text(encoding="utf-8")

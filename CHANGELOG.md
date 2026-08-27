@@ -206,6 +206,29 @@ that said nothing about the cause.
   warned about by name: one of the control points is not where it is recorded,
   and every point radiated from that setup carries the error.
 
+#### Where phase P3 stands
+
+Against the exit criteria in [`specs/ROADMAP.md`](specs/ROADMAP.md), verified in
+this environment with **no QGIS, no SciPy and no external engine** — 865 tests:
+
+- RD-01's 1.000 m face-pair discrepancy is flagged as a blunder candidate and
+  the pointing is kept out of the observations, never averaged. ✔
+- The PD = 181° / PI = 1° wrap case returns 181°, and the arithmetic mean it is
+  contrasted with is asserted alongside it so the test says what it is for. ✔
+- RD-01 reproduces `topo_test/processed_data.csv` **except for the one direction
+  the published file has 180° wrong**, established two independent ways. Every
+  value carries an uncertainty. ✔ with the documented exception.
+- A planned station added on the canvas re-evaluates the design without leaving
+  the map — the loop itself is tested here; the canvas is CI's. ✔
+- Basic and Advanced defaults give identical numbers, for the Analysis group and
+  the Total Station group. ✔ *(runs in CI)*
+
+**148 tier-3 tests cannot run here and are the CI QGIS job's to prove**, and are
+reported as pending rather than passing: that the eleven algorithms register and
+run in the toolbox, that the seventh menu entry renders, that QGIS accepts the
+five QML styles, that the two custom dialogs build and their widgets are wired,
+and that the whole chain assembles in the graphical modeller.
+
 #### Notes
 
 - **RD-01 carries two defects, and both are now tests.** The 1.000 m face-pair
