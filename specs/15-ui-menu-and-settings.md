@@ -120,6 +120,7 @@ algorithms, which is the drift ADR-0005 exists to prevent.
 | Toolbox-only algorithm | Why it has no menu entry |
 |---|---|
 | `geocomp:project_system_report` | Environment diagnostics belong to no survey technique. Reachable from the toolbox and from the About dialog under Plugins ▸ GeoComp |
+| `geocomp:project_tutorial_dataset` | Installing a reference dataset belongs to no survey technique. RD-01 is a total-station survey, but the operation is *copy files somewhere writable*, and the levelling and GNSS datasets to come would use the same algorithm — filing it under Total Station would misplace it the moment the second one ships |
 
 Note the asymmetry, which is deliberate: **every menu item must resolve to a registered algorithm** with no
 exceptions, because a menu item pointing at nothing is a broken UI. The reverse direction admits this narrow,

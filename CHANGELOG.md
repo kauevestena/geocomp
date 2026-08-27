@@ -85,6 +85,35 @@ validated network, with no external engine anywhere in the path.
   tests use, and the whole chain is run on the shipped files -- with the shipped
   mapping and profiles, as a reader would -- so the tutorial cannot drift from
   the software it describes.
+- **The field-mapping dialog** (FR-160), the second of the enumerated custom
+  dialogs in `specs/15` §3. Mapping columns onto fields is impossible without
+  seeing the data in them: a combo box offering `HS` and `hs` tells a user
+  nothing, and a preview showing `48` under one and `1.500` under the other
+  tells them everything -- and in RD-01 those two columns are the seconds of a
+  horizontal angle and a target height.
+
+  The dialog is a **view**. Every decision it makes -- which fields are still
+  unmapped, which column got assigned twice, whether the result can be used --
+  is made by `io/mapping_editor.py`, which has no Qt in it and is tested without
+  QGIS. It reports every problem at once rather than one at a time, blocks on a
+  missing required field or a column assigned twice, and mentions an unmapped
+  column without blocking. Assigning a column already in use does not silently
+  steal it from the other field: which one the user meant is not something the
+  editor can know, so it says so.
+
+  A saved mapping is the feature rather than a convenience on it: an
+  organisation defines its instrument's export layout once and distributes the
+  file. Saving is allowed while the mapping is still incomplete, because half a
+  mapping of a forty-column export is worth keeping.
+- **`registry.CUSTOM_DIALOGS`** enumerates which algorithms open a custom dialog
+  before the standard Processing one, and why. The custom dialog never replaces
+  the algorithm (ADR-0005): it fills in parameters and hands them to the same
+  dialog every other menu item opens, so one implementation is reachable
+  identically from the menu, the toolbox and the modeller. A structural check
+  holds the declarations and the handlers equal, requires each reason to cite a
+  requirement, and fails if the set grows past the six the specification
+  enumerates -- a growing list means the generated UI is being abandoned one
+  dialog at a time.
 
 #### The exaggeration factor, and why it is a required argument
 

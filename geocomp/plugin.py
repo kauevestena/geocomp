@@ -139,7 +139,7 @@ class GeoCompPlugin:
         """Add the conventional Plugins ▸ GeoComp entries.
 
         The GeoComp menu itself presents exactly the entries FR-003
-        specifies -- six survey techniques, Analysis, and Global settings -- so
+        specifies -- five survey techniques, Analysis, and Global settings -- so
         About lives here instead, where QGIS users already look for it, rather
         than becoming one more entry that would distort that structure.
         """
@@ -155,10 +155,24 @@ class GeoCompPlugin:
         """Open the Processing dialog for *algorithm_id*.
 
         ADR-0005: menu items launch algorithms; they do not reimplement them.
+
+        A few algorithms open a custom dialog first, because choosing their
+        parameters needs something the generated dialog cannot show -- see
+        ``geocomp.registry.CUSTOM_DIALOGS``. What that dialog produces is
+        pre-filled into the same Processing dialog every other item opens, so
+        there is still one implementation and one set of defaults.
+
+        A cancelled custom dialog stops here. Falling through to the Processing
+        dialog would re-prompt for something the user has just declined.
         """
         from processing import execAlgorithmDialog
 
-        execAlgorithmDialog(algorithm_id, {})
+        from geocomp.gui.prompts import collect_parameters
+
+        prefilled = collect_parameters(algorithm_id, self.iface.mainWindow())
+        if prefilled is None:
+            return
+        execAlgorithmDialog(algorithm_id, prefilled)
 
     def open_settings(self) -> None:
         from geocomp.gui.settings_dialog import GlobalSettingsDialog

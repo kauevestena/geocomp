@@ -183,11 +183,16 @@ def test_every_parameter_goes_to_the_algorithm_that_declares_it(path, declared_b
     )
 
 
-def test_at_least_one_parameter_dictionary_was_found_in_each_module():
+def test_parameter_dictionaries_are_still_being_found():
     """Guards the parsing: a call shape this stopped recognising would make the
-    check above pass by finding nothing."""
-    for path in TIER_THREE:
-        assert _parameter_dictionaries(path), path.name
+    check above pass by finding nothing.
+
+    Across the tier-3 modules rather than in each one -- a dialog test drives
+    widgets and never runs an algorithm, and requiring every module to carry a
+    parameter dictionary would make writing one a lint failure."""
+    found = {path.name: len(_parameter_dictionaries(path)) for path in TIER_THREE}
+    assert sum(found.values()) > 40, found
+    assert sum(1 for count in found.values() if count) >= 3, found
 
 
 @pytest.mark.parametrize("path", TIER_THREE, ids=lambda p: p.name)

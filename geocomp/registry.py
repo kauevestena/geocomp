@@ -25,6 +25,7 @@ from dataclasses import dataclass
 
 __all__ = [
     "ALGORITHMS",
+    "CUSTOM_DIALOGS",
     "MENU_GROUPS",
     "PROCESSING_GROUPS",
     "PROVIDER_ID",
@@ -154,8 +155,9 @@ class AlgorithmSpec:
 
 #: Why each toolbox-only algorithm has no menu entry. An entry here is a
 #: deliberate, reviewed exception to ADR-0005's menu generation, not a default:
-#: the GeoComp menu presents six technique submenus plus Analysis (FR-003), and
-#: an operation belonging to no survey technique would distort that structure.
+#: the GeoComp menu presents five technique submenus plus Analysis (FR-003), and
+#: an operation belonging to no survey technique or analysis of one would distort
+#: that structure.
 TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
     "project_system_report": (
         "Environment diagnostics belong to no survey technique, so placing it in "
@@ -169,6 +171,26 @@ TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
         "and a future levelling or GNSS dataset would be installed by the same "
         "algorithm. Putting it under Total Station would misfile it the moment the "
         "second dataset ships."
+    ),
+}
+
+#: Algorithms whose menu item opens a custom dialog *before* the standard
+#: Processing one, to collect parameters the standard dialog cannot. Each entry
+#: records why, mirroring the enumerated table in ``specs/15`` section 3 -- the
+#: set is deliberately small, because every custom dialog is a place the
+#: generated UI stops being generated and starts having to be maintained.
+#:
+#: The custom dialog does not replace the algorithm or reimplement it
+#: (ADR-0005). It fills in parameters and hands them to the same Processing
+#: dialog every other menu item opens, so the algorithm stays the one thing
+#: that runs, whether reached from the menu, the toolbox or the modeller.
+CUSTOM_DIALOGS: dict[str, str] = {
+    "totalstation_import_fieldbook": (
+        "Mapping columns onto fields is impossible without seeing the data in "
+        "them. A combo box offering 'HS' and 'hs' tells a user nothing; a "
+        "preview showing 48 under one and 1.500 under the other tells them "
+        "everything, and those two columns of RD-01 mean entirely different "
+        "things (FR-160)."
     ),
 }
 

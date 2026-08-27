@@ -428,6 +428,213 @@
         </message>
     </context>
     <context>
+        <name>GeoCompMapping</name>
+        <message>
+            <source>%1 (required)</source>
+            <translation>%1 (obligatorio)</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as a field mapping: %2</source>
+            <translation>'%1' no pudo leerse como una asignación de campos: %2</translation>
+        </message>
+        <message>
+            <source>'%1' could not be written: %2</source>
+            <translation>'%1' no pudo escribirse: %2</translation>
+        </message>
+        <message>
+            <source>(none)</source>
+            <translation>(ninguno)</translation>
+        </message>
+        <message>
+            <source>Angle format</source>
+            <translation>Formato de los ángulos</translation>
+        </message>
+        <message>
+            <source>Backsight station</source>
+            <translation>Estación de espalda</translation>
+        </message>
+        <message>
+            <source>Comma</source>
+            <translation>Coma</translation>
+        </message>
+        <message>
+            <source>Decimal degrees</source>
+            <translation>Grados decimales</translation>
+        </message>
+        <message>
+            <source>Decimal separator</source>
+            <translation>Separador decimal</translation>
+        </message>
+        <message>
+            <source>Degrees, minutes and seconds in one column</source>
+            <translation>Grados, minutos y segundos en una columna</translation>
+        </message>
+        <message>
+            <source>Degrees, minutes and seconds in three columns</source>
+            <translation>Grados, minutos y segundos en tres columnas</translation>
+        </message>
+        <message>
+            <source>Detect automatically</source>
+            <translation>Detectar automáticamente</translation>
+        </message>
+        <message>
+            <source>Face</source>
+            <translation>Posición del anteojo</translation>
+        </message>
+        <message>
+            <source>Fields</source>
+            <translation>Campos</translation>
+        </message>
+        <message>
+            <source>Foresight station</source>
+            <translation>Estación de frente</translation>
+        </message>
+        <message>
+            <source>Format</source>
+            <translation>Formato</translation>
+        </message>
+        <message>
+            <source>GeoComp field mapping (*.json)</source>
+            <translation>Asignación de campos de GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>GeoComp — Field mapping</source>
+            <translation>GeoComp — Asignación de campos</translation>
+        </message>
+        <message>
+            <source>Gon</source>
+            <translation>Gon</translation>
+        </message>
+        <message>
+            <source>Horizontal degrees</source>
+            <translation>Grados del ángulo horizontal</translation>
+        </message>
+        <message>
+            <source>Horizontal direction</source>
+            <translation>Dirección horizontal</translation>
+        </message>
+        <message>
+            <source>Horizontal minutes</source>
+            <translation>Minutos del ángulo horizontal</translation>
+        </message>
+        <message>
+            <source>Horizontal seconds</source>
+            <translation>Segundos del ángulo horizontal</translation>
+        </message>
+        <message>
+            <source>Instrument</source>
+            <translation>Instrumento</translation>
+        </message>
+        <message>
+            <source>Instrument height</source>
+            <translation>Altura del instrumento</translation>
+        </message>
+        <message>
+            <source>Load mapping</source>
+            <translation>Cargar asignación</translation>
+        </message>
+        <message>
+            <source>Load mapping…</source>
+            <translation>Cargar asignación…</translation>
+        </message>
+        <message>
+            <source>Mapping not loaded</source>
+            <translation>Asignación no cargada</translation>
+        </message>
+        <message>
+            <source>Mapping not saved</source>
+            <translation>Asignación no guardada</translation>
+        </message>
+        <message>
+            <source>Nothing to fix.</source>
+            <translation>Nada que corregir.</translation>
+        </message>
+        <message>
+            <source>Occupied station</source>
+            <translation>Estación ocupada</translation>
+        </message>
+        <message>
+            <source>One value for every row, for a quantity that was recorded once.</source>
+            <translation>Un solo valor para todas las filas, para una magnitud registrada una sola vez.</translation>
+        </message>
+        <message>
+            <source>Point</source>
+            <translation>Punto</translation>
+        </message>
+        <message>
+            <source>Pressure</source>
+            <translation>Presión</translation>
+        </message>
+        <message>
+            <source>Problems</source>
+            <translation>Problemas</translation>
+        </message>
+        <message>
+            <source>Radians</source>
+            <translation>Radianes</translation>
+        </message>
+        <message>
+            <source>Reflector</source>
+            <translation>Reflector</translation>
+        </message>
+        <message>
+            <source>Relative humidity</source>
+            <translation>Humedad relativa</translation>
+        </message>
+        <message>
+            <source>Save mapping</source>
+            <translation>Guardar asignación</translation>
+        </message>
+        <message>
+            <source>Save mapping…</source>
+            <translation>Guardar asignación…</translation>
+        </message>
+        <message>
+            <source>Set number</source>
+            <translation>Número de serie</translation>
+        </message>
+        <message>
+            <source>Sighted (backsight or foresight)</source>
+            <translation>Visual (espalda o frente)</translation>
+        </message>
+        <message>
+            <source>Slope distance</source>
+            <translation>Distancia inclinada</translation>
+        </message>
+        <message>
+            <source>Source: %1</source>
+            <translation>Origen: %1</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>Objetivo</translation>
+        </message>
+        <message>
+            <source>Target height</source>
+            <translation>Altura del prisma</translation>
+        </message>
+        <message>
+            <source>Temperature</source>
+            <translation>Temperatura</translation>
+        </message>
+        <message>
+            <source>Zenith angle</source>
+            <translation>Ángulo cenital</translation>
+        </message>
+        <message>
+            <source>Zenith degrees</source>
+            <translation>Grados del ángulo cenital</translation>
+        </message>
+        <message>
+            <source>Zenith minutes</source>
+            <translation>Minutos del ángulo cenital</translation>
+        </message>
+        <message>
+            <source>Zenith seconds</source>
+            <translation>Segundos del ángulo cenital</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompMenu</name>
         <message>
             <source>&amp;GeoComp</source>
@@ -602,6 +809,17 @@
         <message>
             <source>GeoComp Global Settings</source>
             <translation>Configuraciones Globales de GeoComp</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompPrompts</name>
+        <message>
+            <source>Choose a field book</source>
+            <translation>Elija una libreta de campo</translation>
+        </message>
+        <message>
+            <source>Field books (*.csv *.txt);;All files (*)</source>
+            <translation>Libretas de campo (*.csv *.txt);;Todos los archivos (*)</translation>
         </message>
     </context>
     <context>
