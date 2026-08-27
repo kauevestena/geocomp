@@ -1,0 +1,71 @@
+{
+  "angle_format": "SEXAGESIMAL_TRIPLE",
+  "columns": [
+    {
+      "column": "E",
+      "field": "station"
+    },
+    {
+      "column": "R",
+      "field": "backsight"
+    },
+    {
+      "column": "V",
+      "field": "foresight"
+    },
+    {
+      "column": "pos",
+      "field": "face"
+    },
+    {
+      "column": "vis",
+      "field": "sighted"
+    },
+    {
+      "column": "HG",
+      "field": "horizontal_degrees"
+    },
+    {
+      "column": "HM",
+      "field": "horizontal_minutes"
+    },
+    {
+      "column": "HS",
+      "field": "horizontal_seconds"
+    },
+    {
+      "column": "VG",
+      "field": "zenith_degrees"
+    },
+    {
+      "column": "VM",
+      "field": "zenith_minutes"
+    },
+    {
+      "column": "VS",
+      "field": "zenith_seconds"
+    },
+    {
+      "column": "D",
+      "field": "distance"
+    },
+    {
+      "column": "hi",
+      "field": "instrument_height"
+    },
+    {
+      "column": "hs",
+      "field": "target_height"
+    }
+  ],
+  "decimal_separator": "auto",
+  "face_values": {
+    "PD": "direct",
+    "PI": "reverse"
+  },
+  "name": "rd01",
+  "sighted_values": {
+    "R": "backsight",
+    "V": "foresight"
+  }
+}

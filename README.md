@@ -12,15 +12,32 @@ Federal do Paraná. Licence: **GPL-2.0-or-later** (see
 
 ## Status
 
-**Specification stage.** No plugin code yet. The specification set is written and under review; implementation
-proceeds phase by phase from [`specs/ROADMAP.md`](specs/ROADMAP.md).
+**Phase P3 — the first vertical slice.** The specification set is written, and implementation proceeds phase
+by phase from [`specs/ROADMAP.md`](specs/ROADMAP.md). Built so far:
+
+- **P0** — plugin skeleton, Processing provider, layered settings, logging, i18n in three languages, packaging
+  and CI.
+- **P1** — units, `Quantity` and `Covariance` with rigorous propagation, complex-step differentiation, and the
+  domain model.
+- **P2** — the least-squares core: observation equations with analytic Jacobians, normal equations, datum
+  handling, the global test, data snooping, reliability and error ellipses, plus network design and
+  inspection. No external engine, and no SciPy required for correctness.
+- **P3** — the total-station chain: field-book import with saved mappings, face reduction and the instrument,
+  atmospheric and EDM corrections, traverse, resection, intersection, trigonometric levelling, radiation, and
+  classical network adjustment — eleven Processing algorithms, with styled result layers.
+
+**Run it on real data in five minutes:** the toolbox algorithm *Install tutorial dataset* copies
+[RD-01](geocomp/resources/datasets/rd01/README.md) — the author's own total-station triangle — somewhere
+writable, with a tutorial that walks the whole chain. It contains two real errors, and that is the point: the
+software catches both.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
 | [`specs/`](specs/) | **Start here.** The authoritative specification set, the roadmap, and the architecture decision records |
-| [`geocomp/`](geocomp/) | The installable QGIS plugin package (currently a placeholder — see its README) |
+| [`geocomp/`](geocomp/) | The installable QGIS plugin package |
+| [`tests/`](tests/) | Three test tiers: pure Python, engine-dependent, and QGIS-dependent |
 | [`research_project/`](research_project/) | The research proposal (LaTeX) — the **primary source** for every requirement |
 | [`topo_test/`](topo_test/) | Total-station prototype and field data; adopted as reference dataset RD-01 |
 
@@ -33,6 +50,7 @@ proceeds phase by phase from [`specs/ROADMAP.md`](specs/ROADMAP.md).
 | Understand the design | [`specs/03-architecture.md`](specs/03-architecture.md) |
 | Know what gets built when | [`specs/ROADMAP.md`](specs/ROADMAP.md) |
 | Implement something | [`specs/README.md`](specs/README.md) — it explains the spec-driven process |
+| Try it on real data | [`geocomp/resources/datasets/rd01/README.md`](geocomp/resources/datasets/rd01/README.md) |
 | Know why a decision was made | [`specs/adr/`](specs/adr/) |
 
 ## What GeoComp does that the engines do not

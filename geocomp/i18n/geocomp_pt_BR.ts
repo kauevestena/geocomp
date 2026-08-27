@@ -2728,4 +2728,55 @@
             <translation>Relatório do nivelamento trigonométrico</translation>
         </message>
     </context>
+    <context>
+        <name>TutorialDatasetAlgorithm</name>
+        <message>
+            <source>%1 file(s) copied to %2.</source>
+            <translation>%1 arquivo(s) copiado(s) para %2.</translation>
+        </message>
+        <message>
+            <source>%1 file(s) were already there and were left alone: %2. Turn on Overwrite to replace them.</source>
+            <translation>%1 arquivo(s) já estavam lá e foram mantidos: %2. Ative Sobrescrever para substituí-los.</translation>
+        </message>
+        <message>
+            <source>(none shipped)</source>
+            <translation>(nenhum incluído)</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Copies a reference dataset that ships with GeoComp into a directory of your choosing, with its tutorial. The plugin's own directory is usually not writable, and outputs have to go somewhere.&lt;/p&gt;&lt;p&gt;&lt;b&gt;RD-01&lt;/b&gt; is the author's own total-station triangle: three stations, six pointings, each observed on both faces. It is the smallest complete survey there is and it exercises the entire total-station chain, from field book to adjusted network.&lt;/p&gt;&lt;p&gt;&lt;b&gt;It contains two real errors, and that is the point.&lt;/b&gt; One face pair disagrees by exactly 1.000 m in distance &amp;mdash; a transcription blunder, which pre-processing blocks rather than averages away. And the network's global test fails, correctly: the distances disagree between the two ends by far more than the instrument's stated precision allows. A tutorial in which nothing is wrong teaches you which buttons to press; this one teaches you what the software is for.&lt;/p&gt;&lt;p&gt;The copied &lt;code&gt;README.md&lt;/code&gt; walks through the whole chain and explains both, along with why a network with no known point and no azimuth can only be adjusted with inner constraints.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Dataset&lt;/b&gt; &amp;mdash; which shipped dataset to install. &lt;b&gt;Destination folder&lt;/b&gt; &amp;mdash; where to put it; a subfolder named after the dataset is created inside. &lt;b&gt;Overwrite&lt;/b&gt; &amp;mdash; replace files already there, which is off by default so an edited tutorial file is not lost.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;code&gt;OUTPUT_DIRECTORY&lt;/code&gt; &amp;mdash; where the files landed. &lt;code&gt;FILE_COUNT&lt;/code&gt; &amp;mdash; how many were copied.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Copia um conjunto de dados de referência que acompanha o GeoComp para um diretório à sua escolha, junto com o tutorial. O próprio diretório do plugin normalmente não é gravável, e as saídas precisam ir para algum lugar.&lt;/p&gt;&lt;p&gt;&lt;b&gt;RD-01&lt;/b&gt; é o triângulo de estação total do próprio autor: três estações, seis visadas, cada uma observada nas duas posições da luneta. É o levantamento completo mais simples que existe e exercita toda a cadeia de estação total, da caderneta de campo à rede ajustada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ele contém dois erros reais, e é justamente esse o ponto.&lt;/b&gt; Um par de posições diverge em exatamente 1,000 m na distância &amp;mdash; um erro de transcrição, que o pré-processamento bloqueia em vez de dissolver na média. E o teste global da rede falha, corretamente: as distâncias divergem entre as duas extremidades muito mais do que a precisão declarada do instrumento permite. Um tutorial em que nada está errado ensina quais botões apertar; este ensina para que serve o programa.&lt;/p&gt;&lt;p&gt;O &lt;code&gt;README.md&lt;/code&gt; copiado percorre toda a cadeia e explica os dois casos, além de por que uma rede sem ponto conhecido e sem azimute só pode ser ajustada com injunções internas.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Conjunto de dados&lt;/b&gt; &amp;mdash; qual conjunto instalar. &lt;b&gt;Pasta de destino&lt;/b&gt; &amp;mdash; onde colocá-lo; uma subpasta com o nome do conjunto é criada dentro dela. &lt;b&gt;Sobrescrever&lt;/b&gt; &amp;mdash; substituir arquivos já existentes, desativado por padrão para que um arquivo de tutorial editado não se perca.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;code&gt;OUTPUT_DIRECTORY&lt;/code&gt; &amp;mdash; onde os arquivos foram parar. &lt;code&gt;FILE_COUNT&lt;/code&gt; &amp;mdash; quantos foram copiados.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Copy a shipped reference dataset and its tutorial to a folder you choose.</source>
+            <translation>Copia um conjunto de dados de referência e seu tutorial para uma pasta à sua escolha.</translation>
+        </message>
+        <message>
+            <source>Dataset</source>
+            <translation>Conjunto de dados</translation>
+        </message>
+        <message>
+            <source>Destination folder</source>
+            <translation>Pasta de destino</translation>
+        </message>
+        <message>
+            <source>Install tutorial dataset</source>
+            <translation>Instalar conjunto de dados do tutorial</translation>
+        </message>
+        <message>
+            <source>No datasets ship with this build. That means the package was built without its resources, which is a packaging fault rather than something you can correct here.</source>
+            <translation>Nenhum conjunto de dados acompanha esta compilação. Isso significa que o pacote foi construído sem seus recursos, o que é uma falha de empacotamento e não algo que você possa corrigir aqui.</translation>
+        </message>
+        <message>
+            <source>Overwrite existing files</source>
+            <translation>Sobrescrever arquivos existentes</translation>
+        </message>
+        <message>
+            <source>Start with README.md there: it walks through the whole chain.</source>
+            <translation>Comece pelo README.md que está lá: ele percorre toda a cadeia.</translation>
+        </message>
+        <message>
+            <source>The destination folder '%1' does not exist.</source>
+            <translation>A pasta de destino '%1' não existe.</translation>
+        </message>
+    </context>
 </TS>

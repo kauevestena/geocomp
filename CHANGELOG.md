@@ -66,6 +66,25 @@ validated network, with no external engine anywhere in the path.
 - **`core/visualization/`** - ellipse rings, vector tips and the first
   exaggeration factor, with no QGIS in them, so the vertices are checked against
   closed-form values rather than only inside a QGIS runtime.
+- **RD-01 ships as a tutorial dataset** (FR-950, FR-952), with
+  `geocomp:project_tutorial_dataset` to copy it somewhere writable -- a plugin
+  directory usually is not, and a tutorial that starts "first find your own
+  data" is not a tutorial. The dataset carries its field book, a saved field
+  mapping, an instrument profile library, approximate coordinates, and a
+  tutorial that walks the whole chain.
+
+  **Both of its defects are the lesson rather than a caveat.** The 1.000 m
+  face-pair discrepancy is a transcription blunder that pre-processing blocks
+  instead of averaging away, and the global test fails correctly because the
+  distances disagree between the two ends by far more than the instrument's
+  stated precision. Software catching two genuine errors in genuine data teaches
+  more than a clean run. The tutorial also explains why a network with no known
+  point and no azimuth can only be adjusted with inner constraints.
+
+  Every number the prose states is checked against the constants the reference
+  tests use, and the whole chain is run on the shipped files -- with the shipped
+  mapping and profiles, as a reader would -- so the tutorial cannot drift from
+  the software it describes.
 
 #### The exaggeration factor, and why it is a required argument
 

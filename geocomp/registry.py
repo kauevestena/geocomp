@@ -163,6 +163,13 @@ TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
         "FR-003 specifies. It is reachable from the toolbox and from the About "
         "dialog, which the Plugins menu provides."
     ),
+    "project_tutorial_dataset": (
+        "Installing a reference dataset belongs to no survey technique -- RD-01 is a "
+        "total-station survey, but the operation is 'copy files somewhere writable', "
+        "and a future levelling or GNSS dataset would be installed by the same "
+        "algorithm. Putting it under Total Station would misfile it the moment the "
+        "second dataset ships."
+    ),
 }
 
 #: Every algorithm GeoComp registers. Phase P0 contributed one, enough to prove
@@ -175,6 +182,14 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.project.system_report",
         class_name="SystemReportAlgorithm",
         requirement="FR-030",
+        menu=None,
+    ),
+    AlgorithmSpec(
+        operation="tutorial_dataset",
+        group="project",
+        module="geocomp.algorithms.project.tutorial_dataset",
+        class_name="TutorialDatasetAlgorithm",
+        requirement="FR-952",
         menu=None,
     ),
     AlgorithmSpec(
@@ -304,7 +319,9 @@ def _validate_module() -> None:
     seen: set[str] = set()
     for spec in ALGORITHMS:
         if spec.group not in group_ids:
-            raise ValueError(f"algorithm {spec.name!r} names unknown processing group {spec.group!r}")
+            raise ValueError(
+                f"algorithm {spec.name!r} names unknown processing group {spec.group!r}"
+            )
         if spec.menu is not None and spec.menu not in menu_ids:
             raise ValueError(f"algorithm {spec.name!r} names unknown menu group {spec.menu!r}")
         if spec.menu is None and spec.name not in TOOLBOX_ONLY_JUSTIFICATIONS:
@@ -317,7 +334,9 @@ def _validate_module() -> None:
         seen.add(spec.name)
     for action_menu in (group for group in MENU_GROUPS if group.is_action):
         if algorithms_in_menu(action_menu.id):
-            raise ValueError(f"menu entry {action_menu.id!r} is a leaf action and cannot hold algorithms")
+            raise ValueError(
+                f"menu entry {action_menu.id!r} is a leaf action and cannot hold algorithms"
+            )
 
 
 _validate_module()

@@ -6,10 +6,19 @@ is zipped and shipped to users and to [plugins.qgis.org](https://plugins.qgis.or
 Implementation is specification-driven: code lands here phase by phase per
 [`../specs/ROADMAP.md`](../specs/ROADMAP.md), against accepted specifications in [`../specs/`](../specs/).
 
-**Current state: phase P2 (Adjustment core).** The plugin loads, and it adjusts: least squares in 1D, 2D and
-3D, free or constrained, with the global test, data snooping, reliability and error ellipses, plus network
-design simulation and inspection. Reachable from the **Analysis** menu and the toolbox. The technique
-modules that feed it — total station, levelling, GNSS, gravimetry — arrive from P3 onwards.
+**Current state: phase P3 (Total station — the first vertical slice).** The plugin loads, and the whole
+chain runs with no external engine anywhere in it: import a field book, reduce the faces, apply the
+instrument, atmospheric and EDM corrections, compute a traverse, a resection, an intersection, a
+trigonometric height or a radiation, assemble the network, inspect it, and adjust it by least squares in 1D,
+2D or 3D — free or constrained — with the global test, data snooping, reliability and error ellipses.
+Results arrive as styled map layers. Reachable from the **Total Station** and **Analysis** menus and from the
+toolbox, and assemblable end to end in the graphical modeller.
+
+Try it on RD-01, which ships in [`resources/datasets/rd01/`](resources/datasets/rd01/README.md): the toolbox
+algorithm *Install tutorial dataset* copies it somewhere writable, and its tutorial walks the whole chain.
+
+The remaining technique modules — levelling, GNSS, gravimetry, photogrammetric support — arrive from P4
+onwards.
 
 ## Ground rules
 

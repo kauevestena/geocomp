@@ -17,11 +17,13 @@ from pathlib import Path
 
 from qgis.PyQt.QtCore import QCoreApplication
 
+from geocomp.resources import STYLES_DIR
 from geocomp.services.logging import log
 
 __all__ = ["STYLE_DIR", "apply_style", "style_path"]
 
-STYLE_DIR = Path(__file__).resolve().parent.parent / "resources" / "styles"
+#: Re-exported so callers that only want a style path need one import.
+STYLE_DIR = STYLES_DIR
 
 _CONTEXT = "GeoCompLayers"
 

@@ -1,0 +1,61 @@
+{
+  "default_instrument": "rd01",
+  "instruments": [
+    {
+      "applies_atmospheric": false,
+      "applies_edm_constant": false,
+      "atmospheric_model": "BARRELL_SEARS",
+      "collimation": {
+        "mode": "RIGOROUS",
+        "unit": "RADIAN",
+        "value": 0.0,
+        "variance": 0.0
+      },
+      "cyclic_error_amplitude": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 0.0,
+        "variance": 0.0
+      },
+      "cyclic_error_wavelength": 0.0,
+      "edm": {
+        "constant": 0.002,
+        "proportional": 2e-06,
+        "scale": 1.0
+      },
+      "edm_additive": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 0.0,
+        "variance": 0.0
+      },
+      "edm_scale": {
+        "mode": "RIGOROUS",
+        "unit": "DIMENSIONLESS",
+        "value": 1.0,
+        "variance": 0.0
+      },
+      "id": "rd01",
+      "name": "RD-01 tutorial total station (nominal precisions)",
+      "reference_refractive_index": 1.000283,
+      "sigma_direction": 5e-06,
+      "sigma_instrument_height": 0.001,
+      "sigma_target_height": 0.001,
+      "sigma_zenith": 5e-06,
+      "sigma_zenith_refraction": 0.0,
+      "trunnion_tilt": {
+        "mode": "RIGOROUS",
+        "unit": "RADIAN",
+        "value": 0.0,
+        "variance": 0.0
+      },
+      "vertical_index": {
+        "mode": "RIGOROUS",
+        "unit": "RADIAN",
+        "value": 0.0,
+        "variance": 0.0
+      }
+    }
+  ],
+  "reflectors": []
+}
