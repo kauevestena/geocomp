@@ -25,6 +25,8 @@ from __future__ import annotations
 from typing import Any, ClassVar
 
 from qgis.core import (
+    Qgis,
+    QgsProcessing,
     QgsProcessingContext,
     QgsProcessingLayerPostProcessorInterface,
     QgsProcessingParameterFeatureSink,
@@ -69,14 +71,45 @@ OUTPUT_OBSERVATION_LAYER = "OUTPUT_OBSERVATION_LAYER"
 OUTPUT_CORRECTION_LAYER = "OUTPUT_CORRECTION_LAYER"
 EXAGGERATION = "EXAGGERATION"
 
-#: Parameter name, style name and geometry of each result layer, in the order
-#: they should appear in the dialog: what the adjustment produced first.
-LAYER_OUTPUTS: tuple[tuple[str, str, Any], ...] = (
-    (OUTPUT_STATION_LAYER, "stations", QgsWkbTypes.Type.Point),
-    (OUTPUT_ELLIPSE_LAYER, "ellipses", QgsWkbTypes.Type.Polygon),
-    (OUTPUT_RESIDUAL_LAYER, "residuals", QgsWkbTypes.Type.LineString),
-    (OUTPUT_OBSERVATION_LAYER, "observations", QgsWkbTypes.Type.LineString),
-    (OUTPUT_CORRECTION_LAYER, "corrections", QgsWkbTypes.Type.LineString),
+
+def _source_types() -> tuple[Any, Any, Any]:
+    """Point, line and polygon, as ``QgsProcessingParameterFeatureSink`` wants.
+
+    **Not the same enum as the sink's geometry.** The parameter declares what
+    *kind of layer* it produces (a ``ProcessingSourceType``); ``parameterAsSink``
+    separately takes the WKB geometry type. Passing the WKB type to the
+    parameter is accepted by nothing -- under PyQt6 it raises inside a C++
+    virtual, which is fatal, so the whole provider aborts and every tier-3 test
+    dies at once without naming the algorithm. That is what
+    ``scripts/diagnose_provider.py`` exists to identify.
+
+    QGIS 4 spells these ``Qgis.ProcessingSourceType.Vector*`` and QGIS 3 spells
+    them ``QgsProcessing.TypeVector*``. The plugin targets QGIS 4; the older
+    spelling is kept only so the test suite runs against a distribution's QGIS 3,
+    which is how most contributors will have one, and can be deleted when 4.0 is
+    everywhere.
+    """
+    if hasattr(Qgis, "ProcessingSourceType"):
+        source = Qgis.ProcessingSourceType
+        return source.VectorPoint, source.VectorLine, source.VectorPolygon
+    return (
+        QgsProcessing.TypeVectorPoint,
+        QgsProcessing.TypeVectorLine,
+        QgsProcessing.TypeVectorPolygon,
+    )
+
+
+_POINT, _LINE, _POLYGON = _source_types()
+
+#: Parameter name, style name, sink source type and sink geometry of each result
+#: layer, in the order they should appear in the dialog: what the adjustment
+#: produced first.
+LAYER_OUTPUTS: tuple[tuple[str, str, Any, Any], ...] = (
+    (OUTPUT_STATION_LAYER, "stations", _POINT, QgsWkbTypes.Type.Point),
+    (OUTPUT_ELLIPSE_LAYER, "ellipses", _POLYGON, QgsWkbTypes.Type.Polygon),
+    (OUTPUT_RESIDUAL_LAYER, "residuals", _LINE, QgsWkbTypes.Type.LineString),
+    (OUTPUT_OBSERVATION_LAYER, "observations", _LINE, QgsWkbTypes.Type.LineString),
+    (OUTPUT_CORRECTION_LAYER, "corrections", _LINE, QgsWkbTypes.Type.LineString),
 )
 
 #: The largest ellipse spans this fraction of the network's shorter side in the
@@ -128,10 +161,10 @@ def add_result_layer_parameters(algorithm) -> None:
         OUTPUT_OBSERVATION_LAYER: algorithm.tr("Observations (layer)"),
         OUTPUT_CORRECTION_LAYER: algorithm.tr("Coordinate corrections (layer)"),
     }
-    for name, _style, geometry in LAYER_OUTPUTS:
+    for name, _style, source_type, _geometry in LAYER_OUTPUTS:
         algorithm.addParameter(
             QgsProcessingParameterFeatureSink(
-                name, labels[name], type=geometry, optional=True, createByDefault=False
+                name, labels[name], type=source_type, optional=True, createByDefault=False
             )
         )
     algorithm.addAdvancedParameter(
@@ -219,7 +252,7 @@ def write_result_layers(
     }
 
     outputs: dict[str, Any] = {}
-    for name, style, geometry in LAYER_OUTPUTS:
+    for name, style, _source_type, geometry in LAYER_OUTPUTS:
         # Nothing is built for a sink nobody asked for -- not even its field
         # list. All five are optional, so the common case is that most are
         # absent, and an adjustment that requested no layers must not be able
@@ -242,7 +275,7 @@ def write_result_layers(
 
 
 def _any_requested(parameters: dict[str, Any]) -> bool:
-    return any(parameters.get(name) for name, _style, _geometry in LAYER_OUTPUTS)
+    return any(parameters.get(name) for name, *_rest in LAYER_OUTPUTS)
 
 
 def _register_style(
