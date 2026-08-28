@@ -31,6 +31,7 @@ from geocomp.core.adjustment.least_squares import (
     to_solution,
 )
 from geocomp.core.errors import ValidationError
+from geocomp.core.geoid import Coverage, GeoidModel
 from geocomp.core.instruments import LevellingClass, LevelProfile, ProfileLibrary
 from geocomp.core.instruments.stochastic import (
     SIGHT_DISTANCE,
@@ -796,6 +797,27 @@ class TestTheNetwork:
 # -- FR-802, FR-804: height systems --------------------------------------
 
 
+def _flat_geoid(undulation: float) -> GeoidModel:
+    """A constant-undulation grid over southern Brazil.
+
+    Constant on purpose: the point of these tests is the conversion and its
+    bookkeeping, and a constant makes the expected height exact, so a failure
+    means the conversion is wrong rather than that the interpolation moved.
+    :mod:`tests.test_geoid` is where the interpolation itself is tested.
+    """
+    return GeoidModel(
+        id="TEST-GEOID",
+        values=np.full((3, 3), undulation),
+        coverage=Coverage(
+            south=math.radians(-27.0),
+            north=math.radians(-23.0),
+            west=math.radians(-52.0),
+            east=math.radians(-48.0),
+        ),
+        sigma=0.03,
+    )
+
+
 class TestHeightSystems:
     def _reductions(self):
         books, _truth = rd.loop(noise=0.0003)
@@ -822,10 +844,13 @@ class TestHeightSystems:
             )
         assert caught.value.code == "validation.mixed_height_types"
 
-    def test_naming_a_geoid_model_does_not_make_it_available(self):
-        """A different refusal, and an honest one: the model's grid arrives with
-        the GNSS module, and returning one of the two types meanwhile would be
-        a silent choice."""
+    def test_naming_a_geoid_model_without_its_grid_is_still_refused(self):
+        """A name records which model was used; it cannot compute an undulation.
+
+        Accepting the name as permission to mix would record a conversion that
+        never happened -- the worst of both, since the heights would be wrong
+        *and* the record would say they had been corrected.
+        """
         with pytest.raises(ValidationError) as caught:
             build_network(
                 self._reductions(),
@@ -839,7 +864,90 @@ class TestHeightSystems:
                 ],
                 geoid_model="MAPGEO2015",
             )
-        assert caught.value.code == "validation.geoid_conversion_not_available"
+        assert caught.value.code == "validation.geoid_model_named_without_grid"
+
+    def test_a_geoid_model_resolves_the_mixture(self):
+        """FR-804: with the grid, the mixture is converted rather than refused.
+
+        The ellipsoidal benchmark is brought onto the orthometric system the
+        levelled differences already measure, and the network is built.
+        """
+        result = build_network(
+            self._reductions(),
+            [
+                Benchmark("BM1", Quantity.exact(100.0, METRE)),
+                Benchmark(
+                    "BM2",
+                    _metres(103.75 + 12.0, 0.02),
+                    height_type=HeightType.ELLIPSOIDAL,
+                    latitude=math.radians(-25.0),
+                    longitude=math.radians(-50.0),
+                ),
+            ],
+            geoid=_flat_geoid(12.0),
+        )
+        assert result.height_type is HeightType.ORTHOMETRIC
+        assert result.meta["geoid_model"] == "TEST-GEOID"
+        height = result.network.stations["BM2"].constraint.position.height
+        assert height.value == pytest.approx(103.75)
+        # The geoid's own uncertainty is in the converted height (FR-204): the
+        # benchmark's 20 mm and the model's 30 mm, in quadrature.
+        assert height.std_dev == pytest.approx(math.hypot(0.02, 0.03))
+
+    def test_the_conversion_is_reported_not_silent(self):
+        """A height that changed by twelve metres is not a detail to swallow."""
+        result = build_network(
+            self._reductions(),
+            [
+                Benchmark("BM1", Quantity.exact(100.0, METRE)),
+                Benchmark(
+                    "BM2",
+                    _metres(115.75, 0.02),
+                    height_type=HeightType.ELLIPSOIDAL,
+                    latitude=math.radians(-25.0),
+                    longitude=math.radians(-50.0),
+                ),
+            ],
+            geoid=_flat_geoid(12.0),
+        )
+        converted = [f for f in result.findings if f.code == "height_converted_through_geoid"]
+        assert len(converted) == 1
+        assert converted[0].stations == ("BM2",)
+        assert converted[0].value == pytest.approx(12.0)
+        # The message carries the size of the change, because "converted" without
+        # the twelve metres is a line a reader skims past.
+        assert "12.0000" in converted[0].message
+
+    def test_a_benchmark_needing_conversion_without_a_position_is_refused(self):
+        """An undulation is a function of position; there is no default point."""
+        with pytest.raises(ValidationError) as caught:
+            build_network(
+                self._reductions(),
+                [
+                    Benchmark("BM1", Quantity.exact(100.0, METRE)),
+                    Benchmark(
+                        "BM2",
+                        _metres(115.75, 0.02),
+                        height_type=HeightType.ELLIPSOIDAL,
+                    ),
+                ],
+                geoid=_flat_geoid(12.0),
+            )
+        assert caught.value.code == "validation.benchmark_without_position"
+
+    def test_a_geoid_model_is_not_applied_when_nothing_needs_it(self):
+        """One height type throughout: no conversion, and no finding claiming one."""
+        result = build_network(
+            self._reductions(),
+            [
+                Benchmark("BM1", Quantity.exact(100.0, METRE)),
+                Benchmark("BM2", Quantity.exact(103.75, METRE)),
+            ],
+            geoid=_flat_geoid(12.0),
+        )
+        assert result.height_type is HeightType.ORTHOMETRIC
+        assert not [f for f in result.findings if f.code == "height_converted_through_geoid"]
+        assert result.network.stations["BM2"].constraint.position.height.value == pytest.approx(103.75)
 
     def test_one_height_type_throughout_is_fine(self):
         result = build_network(

@@ -197,6 +197,12 @@ TECHNIQUE_PLAIN_FLOATS = {
         "the stadia multiplication constant engraved on the instrument's reticle; a "
         "property of the optics, not something measured in the field"
     ),
+    ("Benchmark", "latitude"): (
+        "the approximate position at which to interpolate a geoid undulation. A metre "
+        "of error here moves the undulation by well under a millimetre, so its own "
+        "uncertainty does not propagate anywhere; it is a lookup key, not an observation"
+    ),
+    ("Benchmark", "longitude"): "the same, in longitude",
     ("LevellingClass", "tolerance_coefficient"): (
         "k in the permissible misclosure k*sqrt(L); a limit from a specification, not a "
         "measurement of anything"

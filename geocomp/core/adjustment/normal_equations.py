@@ -26,12 +26,13 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from geocomp.core.adjustment.equations import evaluate
-from geocomp.core.adjustment.parameters import ParameterLayout
+from geocomp.core.adjustment.parameters import ParameterLayout, WeightedConstraint
 from geocomp.core.errors import ComputationError, DataError
 from geocomp.core.models import Cluster, Observation
 from geocomp.core.units import Unit, wrap_to_pi
 
 __all__ = [
+    "CONSTRAINT_ROW_PREFIX",
     "LinearisedSystem",
     "NullSpaceFinding",
     "SolveResult",
@@ -169,13 +170,34 @@ def _misclosure(observed: float, computed: float, unit: Unit) -> float:
     return wrap_to_pi(difference) if unit is Unit.RADIAN else difference
 
 
+#: Prefix marking a design-matrix row that came from a weighted constraint
+#: rather than from an observation. A prefix rather than a separate list so the
+#: rows stay in one system -- residuals, redundancy numbers and the w-test then
+#: apply to a constrained benchmark on exactly the terms they apply to an
+#: observation, which is the point of holding it weighted -- while a report can
+#: still tell the two apart.
+CONSTRAINT_ROW_PREFIX = "constraint:"
+
+
 def assemble(
     observations: list[Observation],
     clusters: dict[str, Cluster],
     layout: ParameterLayout,
     x: np.ndarray,
+    *,
+    weighted: list[WeightedConstraint] | None = None,
 ) -> LinearisedSystem:
-    """Linearise every observation at the current parameters *x*."""
+    """Linearise every observation at the current parameters *x*.
+
+    Args:
+        weighted: Weighted constraints (FR-222), each contributing one row per
+            constrained component. They are **observations of the station's
+            coordinates** and enter the system as such: a published height held
+            weighted moves under the adjustment, gets a residual saying by how
+            much, and adds to the redundancy. Omitting them -- which is what
+            GeoComp did before phase P5 -- estimates the station as though it
+            were free and discards the published value entirely.
+    """
     rows: list[np.ndarray] = []
     misclosure: list[float] = []
     labels: list[tuple[str, str]] = []
@@ -199,10 +221,34 @@ def assemble(
             expected="at least one active observation to adjust",
         )
 
+    weight = build_weight_matrix(observations, clusters, labels)
+
+    constraint_rows = list(weighted or [])
+    if constraint_rows:
+        extra = sum(constraint.size for constraint in constraint_rows)
+        weight = np.pad(weight, ((0, extra), (0, extra)))
+        for constraint in constraint_rows:
+            start = len(rows)
+            for position, column in enumerate(constraint.columns):
+                row = np.zeros(layout.size)
+                # The observation equation of a constraint is the identity: the
+                # "computed" value of a coordinate is the parameter itself.
+                row[column] = 1.0
+                rows.append(row)
+                misclosure.append(constraint.values[position] - float(x[column]))
+                labels.append(
+                    (
+                        f"{CONSTRAINT_ROW_PREFIX}{constraint.station_id}",
+                        constraint.components[position],
+                    )
+                )
+            index = np.arange(start, start + constraint.size)
+            weight[np.ix_(index, index)] = np.linalg.inv(constraint.covariance)
+
     return LinearisedSystem(
         design=np.vstack(rows),
         misclosure=np.array(misclosure),
-        weight=build_weight_matrix(observations, clusters, labels),
+        weight=weight,
         row_labels=labels,
     )
 

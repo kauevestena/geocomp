@@ -113,6 +113,26 @@ Inner constraints matter specifically for monitoring (FR-835): if the datum is d
 that has in fact moved, its motion is redistributed across the whole network and appears as everyone else
 moving.
 
+**How `WEIGHTED` is implemented, and a defect it hid until P5.** A weighted constraint is an *observation of
+the station's own coordinates*, and enters the system as one: a row per constrained component, weight
+**Σ⁻¹** over the constraint's covariance block, so the station moves under the adjustment, carries a
+residual saying how far, and adds to the redundancy. Taken as a block rather than a diagonal, because a
+constraint from a GNSS solution has correlated components and reducing it to variances would discard the
+correlation that makes it what it is (FR-104). The rows are labelled `constraint:<station>` so a report can
+tell them from observations while the statistics treat them identically — which is the point of holding a
+benchmark weighted rather than fixed.
+
+Until phase P5 none of that happened. `WEIGHTED` was declared here, implemented in the model layer
+(`ConstraintSpec` refuses one without a covariance), and then **silently dropped by the adjustment**, which
+read only `FIXED`. A network held solely by weighted constraints was rank-deficient rather than constrained
+and refused to adjust; a network with one fixed and several weighted benchmarks used the first and discarded
+the rest, so the disagreement between benchmarks — the reason a user holds several — could never appear in
+the residuals. It was found while checking that a geoid-derived height's uncertainty reached the adjusted
+heights ([`13-module-integration.md`](./13-module-integration.md) §3.1): it could not, because the
+constraint carrying it was not in the system. The lesson is recorded rather than quietly fixed, because the
+shape of it — a mode that validates, stores and displays correctly while doing nothing — is one that a test
+of the model layer alone will never catch.
+
 ### 3.1 Dimensionality (FR-227)
 
 1D (heights only), 2D (planimetric) and 3D adjustment are each supported, in geodetic, cartesian or

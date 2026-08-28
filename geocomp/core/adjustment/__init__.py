@@ -18,7 +18,13 @@ from geocomp.core.adjustment.difference_network import (
     connected_components,
 )
 from geocomp.core.adjustment.equations import SUPPORTED_TYPES, EquationRow, evaluate, supports
-from geocomp.core.adjustment.parameters import Frame, ParameterLayout, ParameterSlot
+from geocomp.core.adjustment.parameters import (
+    Frame,
+    ParameterLayout,
+    ParameterSlot,
+    WeightedConstraint,
+    weighted_constraints,
+)
 from geocomp.core.adjustment.weighting import DifferenceWeighting, ExtentKind
 
 __all__ = [
@@ -30,8 +36,10 @@ __all__ = [
     "Frame",
     "ParameterLayout",
     "ParameterSlot",
+    "WeightedConstraint",
     "approximate_values",
     "connected_components",
     "evaluate",
     "supports",
+    "weighted_constraints",
 ]

@@ -157,6 +157,21 @@ records the height system of the benchmarks used (`height_type` in
 [`04-data-model.md`](./04-data-model.md) §3) and refuses to mix orthometric and ellipsoidal heights without
 a geoid model (FR-804, FR-802).
 
+**With a model, the mixture is resolved rather than tolerated (P5).** `harmonise_benchmarks` converts every
+benchmark to orthometric — the system the levelled differences already measure — propagates the model's
+uncertainty into the converted height (FR-204), records the model on the station and on the solution
+(FR-804), and reports each conversion as a finding carrying the undulation and the size of the change. P4
+had to refuse this case for want of a grid; the refusal is now narrower and sharper: naming a model without
+supplying its grid is still refused (`geoid_model_named_without_grid`), because a name records *which* model
+was used and cannot compute an undulation, and a benchmark needing conversion without a latitude and
+longitude is refused too (`benchmark_without_position`), because an undulation is a function of position.
+See [`13-module-integration.md`](./13-module-integration.md) §3.1.
+
+A benchmark converted through a geoid model should ordinarily be held **weighted**, not fixed: its height
+now carries the model's uncertainty, and holding it exactly throws that away and forces the disagreement
+into the observations. That works as of P5 — see [`06-adjustment-core.md`](./06-adjustment-core.md) §3 for
+why it did not before.
+
 Orthometric corrections (the non-parallelism of level surfaces) are applied for precise levelling over
 significant height ranges, as an option with its magnitude reported so the user can see when it matters.
 
@@ -209,5 +224,7 @@ of order 10⁻⁴. **A staff reading, whose σ becomes an adjustment weight, sti
    each other and with the published example for each.
 5. Combining geometric and trigonometric height differences in one network produces a solution whose
    variance components reflect the different techniques.
-6. Mixing orthometric and ellipsoidal heights without a geoid model raises `ValidationError`.
+6. Mixing orthometric and ellipsoidal heights without a geoid model raises `ValidationError`; **with** one,
+   the benchmarks are converted, the model's uncertainty reaches the adjusted heights, and the solution
+   names the model.
 7. Every output carries an uncertainty and an `uncertainty_mode` (FR-505).

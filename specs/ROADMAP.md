@@ -208,6 +208,20 @@ one migrates after a backup. Deleting observations a solution depends on is refu
 reads, adjusts and writes back equivalently. A geoid model imports, applies, records its identity and
 contributes its uncertainty. Reports render in all three languages, byte-identical across runs.
 
+**In progress.** The store, export, the report and the geoid are in; the *Adjust* format, reference-system
+settings (FR-065) and base maps (FR-167) remain, with the Processing algorithms and the tier-3 tests.
+
+**Two defects, both of the same shape: a feature that was declared, validated, displayed — and inert.**
+`ConstraintMode.WEIGHTED` reached the model layer and stopped there; the adjustment read only `FIXED`, so a
+weighted station was estimated as free and its published height thrown away. Every test of the model layer
+passed, because the model layer was right. It surfaced only when something downstream *depended* on the
+constraint doing work — checking that a geoid-derived height's uncertainty reached the adjusted heights, which
+it could not. And `geocomp.reports` re-exported its Qt-dependent renderer eagerly, so importing the pure-Python
+template engine pulled in `qgis` and its tier-1 tests could not even collect in the seven CI jobs without
+QGIS; CI run 26 was red on that commit and had not been checked before the phase moved on. Both are recorded
+in the CHANGELOG under Fixed, and the second is the reason the phase's own exit now says *confirm CI green*
+rather than *push*.
+
 ---
 
 ## P6 — DynAdjust

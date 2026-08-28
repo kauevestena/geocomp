@@ -19,7 +19,11 @@ import numpy as np
 
 from geocomp.core.adjustment.datum import DatumDefect, constraint_matrix, detect_defect
 from geocomp.core.adjustment.normal_equations import LinearisedSystem, assemble, solve
-from geocomp.core.adjustment.parameters import Frame, ParameterLayout
+from geocomp.core.adjustment.parameters import (
+    Frame,
+    ParameterLayout,
+    weighted_constraints,
+)
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import (
     AdjustedStation,
@@ -156,6 +160,11 @@ def adjust(
 
     defect = detect_defect(observations, options.frame)
     constraints = _constraints_for(options, layout, values, defect)
+    # FR-222. A weighted benchmark is an observation of its own coordinates, so
+    # it belongs in the system beside the levelled differences rather than in a
+    # datum-removal step -- see WeightedConstraint for what happened while these
+    # rows were missing.
+    weighted = weighted_constraints(network, layout, options.frame)
 
     converged = False
     correction = float("inf")
@@ -166,7 +175,7 @@ def adjust(
     # `iteration` is read after the loop -- in the non-convergence message and
     # in the result -- so the usual rename to `_iteration` would break both.
     for iteration in range(1, options.max_iterations + 1):  # noqa: B007
-        system = assemble(observations, network.clusters, layout, x)
+        system = assemble(observations, network.clusters, layout, x, weighted=weighted)
         result = solve(system, layout, constraints=constraints)
         x = x + result.x
         correction = float(np.max(np.abs(result.x))) if result.x.size else 0.0
@@ -196,7 +205,7 @@ def adjust(
     # solution rather than the last step towards it. The final correction is
     # below the convergence threshold by construction; taking it makes the
     # residuals exact rather than exact-to-within-the-threshold.
-    system = assemble(observations, network.clusters, layout, x)
+    system = assemble(observations, network.clusters, layout, x, weighted=weighted)
     result = solve(system, layout, constraints=constraints)
     x = x + result.x
     residuals = system.design @ result.x - system.misclosure
@@ -452,6 +461,7 @@ def to_solution(
     epoch: Epoch,
     datum: DatumDefinition,
     height_type: HeightType = HeightType.NONE,
+    geoid_model: str | None = None,
     provenance: Provenance | None = None,
     observation_results: list[ObservationResult] | None = None,
     global_test=None,
@@ -462,6 +472,11 @@ def to_solution(
     This is the boundary that makes phase P6 a cross-validation: DynAdjust's
     parser fills the same structure, so visualisation, reporting and multi-epoch
     analysis never learn which engine produced a result.
+
+    Args:
+        geoid_model: The model that related the height systems, when one did
+            (FR-804). Recorded on every adjusted position, so a report and a
+            multi-epoch comparison can both see it.
     """
     covariance = run.parameter_covariance
     units = run.layout.component_units()
@@ -521,6 +536,11 @@ def to_solution(
                     crs=crs,
                     epoch=epoch,
                     height_type=height_type,
+                    # FR-804. Which model related the height systems is part of
+                    # the answer, not a note beside it: two solutions computed
+                    # with different geoid models are not comparable, and this
+                    # is what makes the difference visible instead of silent.
+                    geoid_model=geoid_model,
                 ),
                 covariance=block,
                 ellipse=ellipse,

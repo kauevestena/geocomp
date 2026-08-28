@@ -189,6 +189,38 @@ silently compared ([`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.
 Interpolation is bilinear by default, with the interpolation's own uncertainty contributing to the
 propagated result (FR-204).
 
+#### As implemented (P5)
+
+**Two formats, read without GDAL.** **GTX** — the vertical-shift grid PROJ uses, so the format a model
+QGIS already handles arrives in — and **ESRI ASCII grid**, the text form nearly every GIS exports and the
+one the national agencies' models are most often redistributed as. Both are read in pure Python, the same
+choice §3 made for the store and for the same reason: GDAL is present in a QGIS install and absent from
+seven of the nine environments the suite runs in, so a reader that needs it is exercised once and assumed
+eight times. Anything else is refused with a message naming both formats and how to convert.
+
+**The caller states the model's accuracy.** No grid format carries it, and `GeoidModel` will not be built
+without one (FR-204). So `sigma` is a required argument to the reader rather than a default: the geoid's
+uncertainty is very often what limits a combined height solution, and this is not the layer to invent it.
+
+**The interpolation's uncertainty comes from the grid.** Estimated from the local curvature by central
+second differences, taking the largest over the cell, and shaped per axis by `t(1−t)`:
+
+> σ_interp = ½ · ( h_lat² · |N_φφ| · t_φ(1−t_φ) + h_lon² · |N_λλ| · t_λ(1−t_λ) )
+
+There is no cross-derivative term because a bilinear interpolant reproduces the `xy` term of a surface
+exactly. For a separable quadratic this is not a bound but the error itself; for a general surface it is an
+estimate that can fall a few tenths of a percent short where the curvature varies within a cell, and it
+converges as the grid refines. It is a standard deviation and is combined in quadrature with the model's
+stated accuracy. It goes to **zero at a node**, which a flat "assume a centimetre" figure would not.
+
+**Extrapolation is refused, not clamped.** A geoid model quoted beyond its stated coverage is the most
+confident wrong number in geodesy. Coverage is stored rather than derived from the grid, so a padded grid
+still refuses outside the area the publisher vouched for.
+
+**Deflection of the vertical is not implemented.** The proposal cites it as an application of an imported
+model; it needs the horizontal gradient of the undulation and its own validation, and no reference case for
+it exists yet. It stays open under FR-165.
+
 ### 5.6 Base maps and orthophotos (FR-167)
 
 Cartographic context for processed and planned networks: the plugin offers to add configured base map

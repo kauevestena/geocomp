@@ -20,11 +20,20 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from geocomp.core.errors import ValidationError
+import numpy as np
+
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models import ConstraintMode, Network, Station
+from geocomp.core.uncertainty import Covariance
 from geocomp.core.units import Unit
 
-__all__ = ["Frame", "ParameterLayout", "ParameterSlot"]
+__all__ = [
+    "Frame",
+    "ParameterLayout",
+    "ParameterSlot",
+    "WeightedConstraint",
+    "weighted_constraints",
+]
 
 
 class Frame(Enum):
@@ -258,3 +267,128 @@ def _constraint_name(component: str, frame: Frame) -> str:
     if frame is Frame.GRAVITY_1D:
         return "up"
     return {"e": "easting", "n": "northing", "u": "up", "h": "up"}[component]
+
+
+@dataclass(frozen=True)
+class WeightedConstraint:
+    """A station held with an uncertainty rather than exactly (FR-222).
+
+    Attributes:
+        station_id: Whose height or coordinates are constrained.
+        components: The frame components constrained, in the order the
+            covariance block below is written.
+        columns: The parameter columns those components occupy.
+        values: The constraining values, in the same order.
+        covariance: The constraint's covariance over exactly those components.
+
+    A weighted constraint is an **observation of the station's coordinates**,
+    and is treated as one: it contributes a row per component, with weight
+    ``Sigma^-1``, so it moves under the adjustment, carries a residual, and
+    counts towards the redundancy. That is the whole point of choosing weighted
+    over fixed -- a published benchmark height is data, not truth, and holding
+    it exactly forces every disagreement into the observations.
+
+    Before this existed, ``ConstraintMode.WEIGHTED`` was declared, validated
+    (:class:`~geocomp.core.models.station.ConstraintSpec` refuses one without a
+    covariance) and then **silently ignored** by the adjustment: the station was
+    estimated as though free, its published height discarded. A network held
+    only by weighted constraints was rank-deficient rather than constrained, and
+    one held by a fixed benchmark and several weighted ones quietly threw away
+    all but the first. It was found in phase P5, checking that a geoid-derived
+    height's uncertainty reached the adjusted heights -- it could not, because
+    the constraint carrying it was not there.
+    """
+
+    station_id: str
+    components: tuple[str, ...]
+    columns: tuple[int, ...]
+    values: tuple[float, ...]
+    covariance: np.ndarray
+
+    @property
+    def size(self) -> int:
+        return len(self.columns)
+
+
+def weighted_constraints(
+    network: Network, layout: ParameterLayout, frame: Frame
+) -> list[WeightedConstraint]:
+    """Every weighted constraint in *network*, as rows the adjustment can use.
+
+    Components that are not estimated -- fixed, or outside the frame -- are
+    skipped, and a constraint left with nothing to say is dropped rather than
+    contributing an empty row.
+
+    Raises:
+        DataError: ``weighted_constraint_singular``, when the covariance over
+            the constrained components cannot be inverted. Refusing beats
+            substituting a pseudo-inverse, which would apply a weight the user
+            never specified to a constraint they thought they had given.
+    """
+    found: list[WeightedConstraint] = []
+    for station in network.stations.values():
+        constraint = station.constraint
+        if constraint.mode is not ConstraintMode.WEIGHTED:
+            continue
+        if constraint.position is None or constraint.covariance is None:
+            continue  # pragma: no cover - ConstraintSpec guarantees both
+
+        columns = layout.station_columns(station.id)
+        components: list[str] = []
+        indices: list[int] = []
+        values: list[float] = []
+        for component in frame.components:
+            name = _constraint_name(component, frame)
+            if name not in constraint.components or component not in columns:
+                continue
+            components.append(name)
+            indices.append(columns[component])
+            values.append(constraint.position.component(name).value)
+
+        if not components:
+            continue
+
+        block = _covariance_block(constraint.covariance, components, station.id)
+        found.append(
+            WeightedConstraint(
+                station_id=station.id,
+                components=tuple(components),
+                columns=tuple(indices),
+                values=tuple(values),
+                covariance=block,
+            )
+        )
+    return found
+
+
+def _covariance_block(covariance: Covariance, components: list[str], station: str) -> np.ndarray:
+    """The constraint's covariance over exactly the constrained components.
+
+    Taken as a **block**, not as a set of variances: a weighted constraint from
+    a GNSS solution has correlated components, and reducing it to its diagonal
+    would discard the correlation that makes the constraint what it is (FR-104).
+    """
+    try:
+        indices = [covariance.labels.index(name) for name in components]
+    except ValueError as error:
+        raise DataError(
+            "weighted_constraint_components_missing",
+            station=station,
+            received=list(covariance.labels),
+            expected=components,
+        ) from error
+
+    block = np.asarray(covariance.matrix, dtype=float)[np.ix_(indices, indices)]
+    if not np.all(np.isfinite(block)) or np.linalg.matrix_rank(block) < len(indices):
+        raise DataError(
+            "weighted_constraint_singular",
+            station=station,
+            components=components,
+            expected=(
+                "an invertible covariance over the constrained components. A "
+                "singular one is a constraint with an infinitely precise "
+                "direction in it, which is a fixed constraint written as a "
+                "weighted one"
+            ),
+        )
+    return block

@@ -5,6 +5,67 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Phase P5 - Persistence, interoperability and reporting
+
+#### Added
+
+- **`io/store/`** - the GeoPackage project store (FR-130, FR-132, FR-134): a
+  nineteen-table schema declared as data, written for SQLite and PostgreSQL from
+  one declaration; write, read, supersede and delete; the referential protection
+  that refuses to delete an observation a stored solution depends on (FR-135);
+  and schema versioning with a backed-up migration path. Built on the standard
+  library's `sqlite3` rather than GDAL, so it is exercised in eight of the nine
+  CI jobs instead of one. Covariance is stored as a big-endian float64 blob and
+  reloads bit-identically (NFR-007).
+- **`io/tabular.py`** - CSV and `.xlsx` export of stations, observations,
+  adjusted values, residuals and statistics (FR-161). The workbook is written
+  directly as its OPC/SpreadsheetML zip, with fixed timestamps so the same
+  solution produces the same bytes (NFR-007), and is verified by reading it back
+  with `openpyxl` - an independent implementation, not this one.
+- **`reports/`** - the adjustment report (FR-930, FR-931), template-driven and
+  translated, built from a `Solution` and nothing else, so P6's DynAdjust
+  solutions render through the same code.
+- **`core/geoid.py` and `io/geoid.py`** - geoid models (FR-165, FR-804, FR-204).
+  A model carries its identity, version, coverage and stated accuracy; grids are
+  read from GTX and ESRI ASCII in pure Python, so a geoid works wherever the
+  plugin does rather than only where GDAL is; and extrapolation beyond the stated
+  coverage is refused rather than clamped.
+- **The bilinear interpolation's own uncertainty is estimated from the grid**,
+  by the local curvature over the cell, shaped per axis. For a separable
+  quadratic it is not a bound but the error exactly; it goes to zero at a node,
+  which a flat "assume a centimetre" figure would not, and it grows where the
+  geoid curves sharply, which is where a bilinear interpolant is worst.
+- **The height-type conversion P4 had to refuse** (FR-802, FR-804).
+  `harmonise_benchmarks` converts a mixed set of benchmarks to orthometric - the
+  system the levelled differences already measure - propagates the model's
+  uncertainty in, records the model on the station and on the solution, and
+  reports each conversion with its undulation and the size of the change.
+
+#### Fixed
+
+- **`ConstraintMode.WEIGHTED` was declared and then ignored.** Only `FIXED` ever
+  reached the adjustment, so a weighted station was estimated as though free and
+  its published coordinates were discarded: a network held only by weighted
+  constraints was rank-deficient rather than constrained, and one held by a fixed
+  benchmark and several weighted ones silently used the first and dropped the
+  rest - so the disagreement between benchmarks, the reason a user holds several,
+  could never appear in the residuals. A weighted constraint is now an
+  observation of the station's own coordinates and enters the system as one, with
+  its covariance as a block rather than a diagonal (FR-104), a residual saying how
+  far the station moved, and a contribution to the redundancy. Found while
+  checking that a geoid-derived height's uncertainty reached the adjusted
+  heights - it could not, because the constraint carrying it was not there.
+- **`geocomp.reports` forced Qt on every importer.** The package re-exported the
+  Qt-dependent report renderer eagerly, so importing the pure-Python template
+  engine pulled in `qgis`, and the template engine's tier-1 tests failed to
+  collect in the seven CI jobs that have no QGIS. The Qt-dependent names are now
+  resolved on first access.
+- **Two refusals where P4 had one.** Naming a geoid model without supplying its
+  grid is refused separately from mixing height types with no model at all: a
+  name records *which* model was used and cannot compute an undulation, so
+  treating it as permission to mix would leave the heights wrong *and* the record
+  asserting they had been corrected.
+
 ### Phase P4 - Level
 
 A second technique, cheaply, by reusing P2 - and one written so that P8 inherits

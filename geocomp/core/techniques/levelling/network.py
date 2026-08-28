@@ -37,15 +37,23 @@ carrying that correlation (FR-104). Splitting them into independent observations
 would discard a correlation that is real and that *helps* -- see
 :mod:`geocomp.core.techniques.levelling.schemes`.
 
-**The height-type refusal.** Levelling determines orthometric heights; GNSS
-determines ellipsoidal ones. Differencing the two is wrong by the geoid
-undulation -- tens of metres across much of Brazil -- and the result looks
-entirely plausible. So mixing them without a geoid model raises, rather than
-warning (FR-802, FR-804).
+**The height-type refusal, and the one way past it.** Levelling determines
+orthometric heights; GNSS determines ellipsoidal ones. Differencing the two is
+wrong by the geoid undulation -- tens of metres across much of Brazil -- and the
+result looks entirely plausible. So mixing them without a geoid model raises,
+rather than warning (FR-802).
+
+With a :class:`~geocomp.core.geoid.GeoidModel` the mixture is not merely
+tolerated but *resolved*: every benchmark is converted to orthometric, which is
+what the levelled differences measure, the geoid's own uncertainty is propagated
+into the converted height (FR-204), and the model that did it is recorded on the
+station and in the network's metadata (FR-804). Naming a model without supplying
+its grid is still refused -- a name is a label, not a conversion.
 """
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -54,6 +62,7 @@ import numpy as np
 from geocomp.core.adjustment.weighting import DifferenceWeighting, ExtentKind
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.geoid import GeoidModel, combine_height
 from geocomp.core.models import (
     Cluster,
     ClusterKind,
@@ -79,6 +88,7 @@ __all__ = [
     "LevellingNetworkResult",
     "build_network",
     "build_setup_network",
+    "harmonise_benchmarks",
     "weighting_for",
 ]
 
@@ -106,6 +116,12 @@ class Benchmark:
             the ordinary constrained levelling network; several are a network
             that will show the disagreement between them in its residuals,
             which is usually what you want to see.
+        latitude: Geodetic latitude in radians, needed only to convert this
+            benchmark's height to another system. A geoid undulation is a
+            function of position, so a benchmark that must be converted and has
+            no position cannot be -- and :func:`harmonise_benchmarks` says so
+            rather than interpolating at an assumed point.
+        longitude: Geodetic longitude in radians. See ``latitude``.
     """
 
     station: str
@@ -113,6 +129,8 @@ class Benchmark:
     height_type: HeightType = HeightType.ORTHOMETRIC
     fixed: bool = True
     geoid_model: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     def __post_init__(self) -> None:
         if self.height.unit is not Unit.METRE:
@@ -188,6 +206,7 @@ def build_network(
     network_id: str = "levelling",
     crs: str = "",
     weighting: DifferenceWeighting | None = None,
+    geoid: GeoidModel | None = None,
     geoid_model: str | None = None,
 ) -> LevellingNetworkResult:
     """Turn reduced lines into a network the adjustment core can solve.
@@ -204,8 +223,14 @@ def build_network(
             consistency without a datum's errors mixed in.
         weighting: The stochastic model. ``None`` keeps each line's propagated
             uncertainty and records that it did.
-        geoid_model: Names the model relating ellipsoidal and orthometric
-            heights, which is what makes mixing them permissible at all.
+        geoid: The geoid model (FR-165). Supplying it makes a mixture of
+            ellipsoidal and orthometric benchmarks *resolvable* rather than
+            merely declared: every benchmark is converted to orthometric, the
+            model's uncertainty is propagated in (FR-204), and the model is
+            recorded (FR-804). See :func:`harmonise_benchmarks`.
+        geoid_model: The model's name, when the grid itself is not to hand.
+            Recorded on a network that needs no conversion; a mixture that does
+            need one is refused, because a name cannot compute an undulation.
     """
     if not reductions:
         raise ValidationError(
@@ -214,8 +239,10 @@ def build_network(
             expected="at least one reduced line",
         )
 
-    height_type = _agreed_height_type(benchmarks, geoid_model)
-    findings: list[Finding] = []
+    benchmarks, height_type, findings = harmonise_benchmarks(
+        benchmarks, geoid=geoid, geoid_model=geoid_model
+    )
+    geoid_model = geoid.id if geoid is not None else geoid_model
     network = Network(id=network_id, crs=crs or NO_CRS)
 
     known = {benchmark.station: benchmark for benchmark in benchmarks}
@@ -311,51 +338,128 @@ def build_network(
     )
 
 
-def _agreed_height_type(
-    benchmarks: list[Benchmark], geoid_model: str | None
-) -> HeightType:
-    """The one height type of the network, or a refusal naming the offenders.
+def harmonise_benchmarks(
+    benchmarks: list[Benchmark],
+    *,
+    geoid: GeoidModel | None = None,
+    geoid_model: str | None = None,
+) -> tuple[list[Benchmark], HeightType, list[Finding]]:
+    """Bring every benchmark onto one height system, or refuse (FR-802, FR-804).
 
-    FR-802 and FR-804. The refusal is hard rather than a warning: differencing
-    an ellipsoidal height against an orthometric one is wrong by the geoid
-    undulation, which is tens of metres across much of Brazil, and the resulting
-    heights look entirely reasonable.
+    Returns the benchmarks (converted where needed), the one height type they
+    are now all on, and a finding per conversion.
+
+    **Orthometric is the target**, and not arbitrarily: the observations are
+    levelled height differences, which are differences of orthometric height.
+    Converting the ellipsoidal outliers into the system the observations are
+    already in leaves the observations untouched; converting the other way would
+    mean applying the geoid to every line as well as to every benchmark, for the
+    same answer with more places to be wrong.
+
+    The refusals, and why each is a refusal rather than a warning:
+
+    ``mixed_height_types``
+        Mixed benchmarks and no model at all. Differencing an ellipsoidal height
+        against an orthometric one is wrong by the geoid undulation -- tens of
+        metres across much of Brazil -- and produces heights that look entirely
+        reasonable.
+    ``geoid_model_named_without_grid``
+        A model was *named* but its grid was not supplied. A name records which
+        model was used; it cannot compute an undulation. Accepting the name as
+        permission to mix would be recording a conversion that never happened.
+    ``benchmark_without_position``
+        A benchmark needing conversion has no latitude and longitude. An
+        undulation is a function of position; there is no defensible point to
+        interpolate at instead.
+
+    Args:
+        benchmarks: The known heights, of whatever types.
+        geoid: The grid that relates the systems (FR-165). Its uncertainty is
+            propagated into every converted height (FR-204).
+        geoid_model: The model's name, when only the name is known. Recorded on
+            benchmarks that need no conversion; refused when one does.
     """
     if not benchmarks:
-        return HeightType.ORTHOMETRIC
+        return list(benchmarks), HeightType.ORTHOMETRIC, []
 
     types = {benchmark.height_type for benchmark in benchmarks}
     if len(types) == 1:
-        return next(iter(types))
+        return list(benchmarks), next(iter(types)), []
 
-    if geoid_model:
-        # A geoid model makes the mixture *expressible*, but converting one type
-        # to the other is FR-804's job and needs the model's grid, which GeoComp
-        # does not carry yet. Refusing with a different message is honest;
-        # returning one of the two types silently would not be.
+    if geoid is None:
+        if geoid_model:
+            raise ValidationError(
+                "geoid_model_named_without_grid",
+                geoid_model=geoid_model,
+                received=sorted(height_type.value for height_type in types),
+                expected=(
+                    "the geoid model itself, not only its name. A name records which "
+                    "model was used and cannot compute an undulation; supply the grid "
+                    "as `geoid=`, or convert the heights before building the network"
+                ),
+            )
         raise ValidationError(
-            "geoid_conversion_not_available",
-            geoid_model=geoid_model,
-            received=sorted(height_type.value for height_type in types),
+            "mixed_height_types",
+            received={
+                benchmark.station: benchmark.height_type.value for benchmark in benchmarks
+            },
             expected=(
-                "benchmarks of one height type. A geoid model was named, but converting "
-                "between height types needs its grid, which arrives with the GNSS "
-                "module; until then, convert the heights before building the network"
+                "benchmarks of one height type, or a geoid model to relate them. "
+                "Differencing an ellipsoidal height against an orthometric one is wrong "
+                "by the geoid undulation and produces a plausible-looking answer"
             ),
         )
 
-    offenders = {
-        benchmark.station: benchmark.height_type.value for benchmark in benchmarks
-    }
-    raise ValidationError(
-        "mixed_height_types",
-        received=offenders,
-        expected=(
-            "benchmarks of one height type, or a geoid model to relate them. "
-            "Differencing an ellipsoidal height against an orthometric one is wrong "
-            "by the geoid undulation and produces a plausible-looking answer"
-        ),
-    )
+    target = HeightType.ORTHOMETRIC
+    converted: list[Benchmark] = []
+    findings: list[Finding] = []
+    for benchmark in benchmarks:
+        if benchmark.height_type is target:
+            converted.append(benchmark)
+            continue
+        if benchmark.latitude is None or benchmark.longitude is None:
+            raise ValidationError(
+                "benchmark_without_position",
+                station=benchmark.station,
+                geoid=geoid.id,
+                received=benchmark.height_type.value,
+                expected=(
+                    "a latitude and longitude in radians. A geoid undulation is a "
+                    "function of position, so a benchmark that must be converted "
+                    "without one cannot be"
+                ),
+            )
+        height, applied = combine_height(
+            benchmark.height,
+            benchmark.height_type.value,
+            target.value,
+            geoid=geoid,
+            latitude=benchmark.latitude,
+            longitude=benchmark.longitude,
+        )
+        converted.append(
+            dataclasses.replace(
+                benchmark, height=height, height_type=target, geoid_model=applied
+            )
+        )
+        undulation = geoid.undulation(benchmark.latitude, benchmark.longitude)
+        findings.append(
+            Finding(
+                code="height_converted_through_geoid",
+                severity=Severity.INFO,
+                message=(
+                    f"{benchmark.station}: {benchmark.height_type.value} height "
+                    f"{benchmark.height.value:.4f} m converted to {target.value} "
+                    f"{height.value:.4f} m through {geoid.label} "
+                    f"(N = {undulation.value:.4f} m); the model's uncertainty is in the "
+                    f"result, which is now +/- {height.std_dev * 1000.0:.1f} mm rather "
+                    f"than {benchmark.height.std_dev * 1000.0:.1f} mm"
+                ),
+                stations=(benchmark.station,),
+                value=undulation.value,
+            )
+        )
+    return converted, target, findings
 
 
 def _line_stations(reductions: list[LineReduction]) -> list[str]:
@@ -495,6 +599,7 @@ def build_setup_network(
     *,
     network_id: str = "levelling_setups",
     crs: str = "",
+    geoid: GeoidModel | None = None,
     geoid_model: str | None = None,
 ) -> LevellingNetworkResult:
     """Turn reduced *setups* into a network, one observation per foresight.
@@ -519,8 +624,10 @@ def build_setup_network(
             expected="at least one reduced setup",
         )
 
-    height_type = _agreed_height_type(benchmarks, geoid_model)
-    findings: list[Finding] = []
+    benchmarks, height_type, findings = harmonise_benchmarks(
+        benchmarks, geoid=geoid, geoid_model=geoid_model
+    )
+    geoid_model = geoid.id if geoid is not None else geoid_model
     network = Network(id=network_id, crs=crs or NO_CRS)
     known = {benchmark.station: benchmark for benchmark in benchmarks}
 
