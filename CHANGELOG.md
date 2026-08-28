@@ -5,7 +5,127 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
-### Phase P3 - Total station (in progress)
+### Phase P4 - Level
+
+A second technique, cheaply, by reusing P2 - and one written so that P8 inherits
+the parts it needs rather than writing them again.
+
+#### Added
+
+- **`core/techniques/levelling/`** - the three sight schemes (FR-500, FR-501,
+  FR-502), line and loop closures against a tolerance (FR-503), network
+  assembly with two weighting models (FR-504), and the normal orthometric
+  correction. Every result carries an uncertainty and an uncertainty mode
+  (FR-505).
+- **A line is reduced as a whole, not as a sum of setups.** One instrument
+  levels the line, so there is one collimation error, carried through a single
+  shared column. Per-setup imbalances of opposite sign then cancel as they
+  physically do, and the uncertainty contribution is
+  `(accumulated imbalance)^2 * var(c)` - *zero* for a balanced line, whatever
+  the collimation is and whatever its own uncertainty. That is the mathematical
+  statement of why equal sights is the preferred method. Summing independently
+  reduced setups would give `sum(imbalance_i^2) * var(c)` instead, never zero
+  unless every setup was individually balanced; the same mistake, in the same
+  shape, as giving the two sights of a leap-frog pair independent refraction
+  coefficients.
+- **Extreme sights keep their correlation, and it helps.** The foresights of one
+  setup share their backsight, so it cancels exactly between any two of them.
+  Treating them as independent adds twice the backsight variance that is not
+  there and reports an uncertainty too *large* - the opposite of the usual
+  failure, and enough to have a network declared inadequate that is fine. The
+  report shows both figures side by side and the percentage an independent
+  treatment would have overstated by.
+- **`core/adjustment/weighting.py` and `core/adjustment/difference_network.py`**,
+  technique-neutral by construction. A gravity difference is the same
+  observation equation as a height difference (ADR-0002, Amendment 1), so the
+  weighting model (`sigma = k * sqrt(extent)`) and the 1D machinery around it -
+  starting values by traversal, connectivity - would otherwise be written twice.
+  `ExtentKind.DURATION` is there now for a gravimeter's drift rather than
+  promised for later, and `tests/test_gravimetry_is_levelling.py` asserts both
+  work unchanged in the gravity frame. An abstraction used once is an assertion;
+  used twice, it is a design.
+- **`io/levelbook.py`** (FR-160) - both common field-book layouts, with which
+  one a file uses worked out from the mapped columns rather than asked for, and
+  three-wire readings that give the sight distance by stadia and a half-sum
+  check that catches a misread wire.
+- **Six Processing algorithms and a populated Level menu** - import (FR-160),
+  equal sights (FR-500), equidistant sights (FR-501), extreme sights (FR-502),
+  closures (FR-503) and network adjustment (FR-504). Equal and extreme sights
+  share an implementation and are still two entries: one reduces a *line* to one
+  height difference between two marks, the other a *setup* to several that are
+  correlated with each other.
+- **The `level` settings section** (FR-061, FR-503, FR-504), and labels for the
+  seventeen settings P3 declared - see Fixed.
+- **RD-04** (`tests/reference_levelling.py`). Its books are generated from known
+  heights by inverting the very equations under test, so a sign error produces a
+  line that fails to recover a height it must recover *exactly*. Not a
+  transcription from Ghilani or Gemael; that remains outstanding and is recorded
+  in `specs/20`.
+- **`Strategy.RECORDED_PRECISION`** - a sigma taken from how many digits were
+  written: `32.4` lies in `[32.35, 32.45)`, so sigma is `0.05/sqrt(3)`.
+  Deliberately narrow, and not a hole in *GeoComp does not invent a sigma*: the
+  digits are real information, present in the file. Permitted only for a sight
+  distance, whose uncertainty reaches the answer multiplied by a collimation of
+  order 1e-4. A staff reading, whose sigma becomes an adjustment weight, still
+  refuses.
+
+#### Decided
+
+- **GeoComp ships no national tolerance table.** The permissible misclosure is
+  `k*sqrt(L)` everywhere, but *k* differs by country, by class within a country
+  and by edition of the standard, and a transcribed value that is wrong does not
+  fail loudly - it silently accepts a line that should have been re-run. A
+  levelling class is a record the user fills in from the specification in front
+  of them, carrying the document it came from. **With no k configured there is no
+  verdict**: `passed` is neither true nor false but absent, because a check that
+  reports success when it could not test anything is worse than one that admits
+  it.
+- **The misclosure distribution says what it cannot do.** Proportional
+  distribution is the classical correction and many specifications require it,
+  so it is computed - but it localises nothing, so a blunder is smeared evenly
+  along the line and made harder to find. The misclosure is therefore also
+  compared with its own propagated standard deviation, and the report says which
+  situation the user is in: consistent with accumulated random error, in which
+  case distribute it, or not, in which case the network adjustment with data
+  snooping is what will find it.
+- **Turning points are not network stations.** A turning point existed for four
+  minutes and has no mark; adding it contributes one parameter and one
+  observation, so no redundancy, no effect, and a solution cluttered with points
+  that cannot be checked.
+- **The levelling network algorithm offers no map layers.** A levelling network
+  has no planimetry, so every station would be drawn at the same point. Saying
+  so beats shipping a layer of coincident markers.
+- **Only the *normal* orthometric correction is implemented.** The rigorous one
+  needs observed gravity along the line and is not approximated here with an
+  assumed field pretending to be a measured one. It arrives with P8, where the
+  gravity observations do.
+
+#### Fixed
+
+- **A 1D solution wrote its heights into the *easting* slot**, so every
+  levelling result would have reported a height of zero. P2's `to_solution`
+  padded the frame's components into the position triple in order, while
+  `starting_values` read them back by name - the two halves of one
+  correspondence, disagreeing. Nothing caught it because no test had read a 1D
+  solution through its `Position`. The correspondence is now stated once, as
+  `Frame.position_components`, and both directions go through it.
+- **The Global Settings dialog rendered its raw dotted key** for all seventeen
+  settings phase P3 declared: a user saw `total_station.atmospheric_model`, in
+  every language. The dialog is generated from the declarations but the labels
+  are not, and nothing checked the correspondence.
+  `tests/structural/test_settings_labels.py` now fails when a setting, a choice
+  or a section has no label.
+- **A three-wire mean was drafted using the sample spread of the three wires as
+  its precision.** The wires read deliberately different heights, so that spread
+  is the stadia interval - the draft reported a reading good to half a
+  millimetre as good to five centimetres. Caught before it was committed, and
+  the test that would have caught it is now in the suite. The empirical figure a
+  three-wire set does carry is the half-sum residual, pooled across a line.
+
+1287 tests pass locally against QGIS 3.34 (16 skipped for needing QGIS >= 3.38),
+1138 without QGIS. Both translation catalogues complete at 1045/1045.
+
+### Phase P3 - Total station
 
 The first end-to-end vertical slice: raw field book to adjusted, statistically
 validated network, with no external engine anywhere in the path.

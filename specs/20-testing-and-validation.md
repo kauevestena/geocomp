@@ -50,7 +50,7 @@ permitting redistribution, and an expected-results file.
 | **RD-01** | `topo_test/` — the project author's total-station triangle (3 stations, PD/PI, distances, zenith angles) | Face reduction, corrections, basic reductions, small-network adjustment, the field-mapping importer | **In repository** |
 | **RD-02** | Covariance-propagation reference cases, each validated three ways: a hand-derived closed form, the module's first-order propagation, and a derivative-free Monte Carlo simulation | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | **Implemented** (P1). See the note below |
 | **RD-03** | Network adjustments with a known truth — 1D levelling, 2D trilateration, 2D triangulateration, free and constrained | [`06-adjustment-core.md`](./06-adjustment-core.md) | **Implemented** (P2), in `tests/networks.py`. Same citation note as RD-02 |
-| **RD-04** | Levelling networks with published solutions, all three schemes | [`10-module-levelling.md`](./10-module-levelling.md) | To assemble |
+| **RD-04** | Levelling field books generated from known heights, all three schemes, plus a loop with an injected blunder | [`10-module-levelling.md`](./10-module-levelling.md) | **Implemented** (P4), in `tests/reference_levelling.py`. Same citation note as RD-02 and RD-03 |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
 | **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble |
 | **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble |
@@ -73,9 +73,9 @@ angles sum to 38.24°, and implies a 2–3 distance of 4.43 m against 24.35 m me
 RD-01 ships with the plugin as a tutorial dataset (FR-952), with both defects documented — a tutorial in
 which the software catches two real errors in real data teaches more than one in which nothing is wrong.
 
-**RD-02 and RD-03 note — validation complete, citation outstanding.** The cases implemented in
-`tests/test_reference_propagation.py` and `tests/networks.py` are *not* transcriptions from Ghilani or
-Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
+**RD-02, RD-03 and RD-04 note — validation complete, citation outstanding.** The cases implemented in
+`tests/test_reference_propagation.py`, `tests/networks.py` and `tests/reference_levelling.py` are *not*
+transcriptions from Ghilani or Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
 
 RD-02 agrees with a hand-derived closed form *and* with a Monte Carlo simulation that uses no derivative at
 all. That triangle is stronger evidence than matching a printed answer — a transcription error in a book's
@@ -92,6 +92,12 @@ matching a printed answer would not.
 What remains for both is *citation*: transcribing the published worked examples so the project can state
 agreement with the standard references by name, which matters for the commercial-comparison protocol (§5)
 and for the teaching material (FR-952). This needs the books, and is a task for a contributor who has them.
+
+RD-04 goes one step further than either. Its field books are **generated from known heights by inverting
+the very equations under test**: a staff reading is `r = Z - H + c·d`, so a line that fails to recover the
+height it was built from has a sign error, exactly locatable, in the noiseless case. That is stronger than
+matching a printed answer, where a transcription error in the book's input is invisible. What it cannot do
+is confirm agreement with the standard references *by name*, which is what the citation is for.
 
 Synthetic datasets (RD-09) matter as much as published ones: only with synthetic data is the true answer
 known *exactly*, so blunder detection, reliability and deformation analysis can be tested against ground

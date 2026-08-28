@@ -48,7 +48,10 @@ See [`09-module-total-station.md`](./09-module-total-station.md).
 > has to hunt for it in another submenu before they can use any of the seven has been given a worse menu,
 > not a purer one.
 
-**Level** → Equal sights · Equidistant sights · Extreme sights · Levelling network adjustment.
+**Level** → Import levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
+tolerances · Levelling network adjustment. *(Six as built in P4, rather than the proposal's four: import and
+closures were implicit in the others and each produces a document the next step reads — see
+[`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
 
 **GNSS** → Absolute (Static · Kinematic) · Relative (Static · Kinematic) · Scan sessions · Download products ·
@@ -173,7 +176,12 @@ Each row below is a requirement, taken from `tex §Painel de Configuração Glob
 | Section | Contents | Req |
 |---|---|---|
 | **Total Station** | Instrument profiles (§2.2): vertical index correction, collimation, EDM additive constant and scale, cyclic error, nominal precisions for direction / zenith angle / distance. Reflector profiles with prism constants. Atmospheric model and default temperature, pressure, humidity. Refraction coefficient. Closure tolerances by traverse class | FR-061, FR-062 |
-| **Level** | Level instrument profiles: nominal precision per km and per setup, collimation from the two-peg test. Sight-length balance tolerance. Loop closure tolerance model by levelling class. Default weighting (length or setups) | FR-061 |
+| **Level** | Default weighting (length or setups). Permissible-misclosure coefficient *k*. Sight-length, per-setup and per-line imbalance limits. Reciprocal-sight variance inflation. Orthometric corrections on or off. Whether a line that failed its tolerance may be adjusted | FR-061, FR-503, FR-504 |
+
+**Level profiles and levelling classes are not settings**, for the same reason instrument profiles are not
+(§2.2): they are named, structured records with their own uncertainties and their own provenance, so they
+live in `geocomp.core.instruments.level` and travel as documents. A department owns several levels and works
+under more than one specification at once; a single "the" tolerance would be wrong for all but one job.
 | **GNSS** | Product and ephemeris directories; preferred download servers and their priority; default processing options per mode; antenna model database (ANTEX); reference station database; credential references (never the credentials) | FR-063, NFR-010 |
 | **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |

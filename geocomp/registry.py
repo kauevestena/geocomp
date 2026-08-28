@@ -203,7 +203,8 @@ CUSTOM_DIALOGS: dict[str, str] = {
 
 #: Every algorithm GeoComp registers. Phase P0 contributed one, enough to prove
 #: the registry -> provider -> menu path end to end; P2 added the three that
-#: expose the adjustment core, and P3 the eight of the total-station chain.
+#: expose the adjustment core, P3 the eight of the total-station chain, and P4
+#: the six of the levelling chain.
 ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     AlgorithmSpec(
         operation="system_report",
@@ -322,6 +323,69 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         requirement="FR-411",
         menu="total_station",
         menu_order=80,
+    ),
+    # -- Level (phase P4). The order of the work: get the book in, reduce it by
+    # the scheme it was observed with, check the closures, adjust the network.
+    #
+    # Equal and extreme sights share an implementation and are still two
+    # entries, because they answer different questions and produce different
+    # things: equal sights reduces a *line* to one height difference between two
+    # marks, extreme sights reduces a *setup* to several that are correlated
+    # with each other -- which is the whole point of that scheme and is
+    # invisible in a line reduction.
+    AlgorithmSpec(
+        operation="import",
+        group="levelling",
+        module="geocomp.algorithms.levelling.import_book",
+        class_name="ImportLevelBookAlgorithm",
+        requirement="FR-160",
+        menu="level",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="equal_sights",
+        group="levelling",
+        module="geocomp.algorithms.levelling.equal_sights",
+        class_name="EqualSightsAlgorithm",
+        requirement="FR-500",
+        menu="level",
+        menu_order=20,
+    ),
+    AlgorithmSpec(
+        operation="equidistant_sights",
+        group="levelling",
+        module="geocomp.algorithms.levelling.equidistant_sights",
+        class_name="EquidistantSightsAlgorithm",
+        requirement="FR-501",
+        menu="level",
+        menu_order=30,
+    ),
+    AlgorithmSpec(
+        operation="extreme_sights",
+        group="levelling",
+        module="geocomp.algorithms.levelling.extreme_sights",
+        class_name="ExtremeSightsAlgorithm",
+        requirement="FR-502",
+        menu="level",
+        menu_order=40,
+    ),
+    AlgorithmSpec(
+        operation="closures",
+        group="levelling",
+        module="geocomp.algorithms.levelling.closures",
+        class_name="LevellingClosureAlgorithm",
+        requirement="FR-503",
+        menu="level",
+        menu_order=50,
+    ),
+    AlgorithmSpec(
+        operation="network",
+        group="levelling",
+        module="geocomp.algorithms.levelling.network_adjust",
+        class_name="LevellingNetworkAlgorithm",
+        requirement="FR-504",
+        menu="level",
+        menu_order=60,
     ),
 )
 

@@ -257,6 +257,379 @@
         </message>
     </context>
     <context>
+        <name>EqualSightsAlgorithm</name>
+        <message>
+            <source>%1 line(s) are exactly balanced. On those the collimation error does not enter the result at all, whatever its value.</source>
+            <translation>%1 línea(s) están exactamente equilibradas. En ellas, el error de colimación no entra en absoluto en el resultado, sea cual sea su valor.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Reduces each levelling line to one height difference between its two end marks, propagating the uncertainty of every staff reading.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Equal sights is the preferred method&lt;/b&gt; because equal backsight and foresight lengths cancel, to first order, the instrument's collimation error and the effects of curvature and refraction. GeoComp checks the balance and reports the &lt;b&gt;accumulated&lt;/b&gt; imbalance, which is the figure that actually matters: imbalances of opposite sign at successive setups cancel each other, and it is their sum that multiplies the collimation.&lt;/p&gt;&lt;p&gt;The line is reduced as a whole, with the collimation carried once rather than per setup. So on a balanced line the collimation contributes neither a correction nor an uncertainty &amp;mdash; whatever its value, and whatever its own uncertainty. On an imbalanced line it contributes both, and the report shows the raw and corrected differences side by side.&lt;/p&gt;&lt;p&gt;A setup carrying more than one foresight has its extra points reported as side shots. They are correlated with each other through the shared backsight; use &lt;b&gt;Extreme sights&lt;/b&gt; when that correlation matters.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; the document the importer produced.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt;, &lt;b&gt;level id&lt;/b&gt;, &lt;b&gt;collimation&lt;/b&gt; (rad) and its &lt;b&gt;uncertainty&lt;/b&gt; &amp;mdash; where the two-peg test result comes from. A collimation given here overrides the profile's, because a test done this morning beats a profile written last year. With no collimation at all, no correction is applied and the imbalance is reported instead.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Longest sight&lt;/b&gt;, &lt;b&gt;largest imbalance per setup&lt;/b&gt; and &lt;b&gt;largest imbalance per line&lt;/b&gt; (m) &amp;mdash; limits from the specification the work is under. Zero disables a check.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; JSON, the input to Closures and to Network adjustment. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Lines&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;LINE_COUNT&lt;/code&gt;, &lt;code&gt;WORST_IMBALANCE&lt;/code&gt; and &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Reduce cada línea de nivelación a un único desnivel entre sus dos referencias extremas, propagando la incertidumbre de cada lectura de mira.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las visuales iguales son el método preferente&lt;/b&gt; porque longitudes iguales de espalda y de frente cancelan, en primer orden, el error de colimación del instrumento y los efectos de la curvatura y la refracción. GeoComp verifica el equilibrio y reporta el desequilibrio &lt;b&gt;acumulado&lt;/b&gt;, que es el valor que realmente importa: desequilibrios de signo contrario en estaciones sucesivas se cancelan, y es su suma la que multiplica la colimación.&lt;/p&gt;&lt;p&gt;La línea se reduce como un todo, con la colimación propagada una sola vez en lugar de por estación. Así, en una línea equilibrada la colimación no aporta ni corrección ni incertidumbre &amp;mdash; sea cual sea su valor y su propia incertidumbre. En una línea desequilibrada aporta ambas, y el informe muestra lado a lado los desniveles bruto y corregido.&lt;/p&gt;&lt;p&gt;Una estación con más de una visual de frente reporta sus puntos adicionales como puntos radiados. Estos están correlacionados entre sí a través de la visual de espalda compartida; use las &lt;b&gt;visuales extremas&lt;/b&gt; cuando esa correlación importe.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Estaciones&lt;/b&gt; &amp;mdash; el documento producido por el importador.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Perfiles de instrumento&lt;/b&gt;, &lt;b&gt;identificador del nivel&lt;/b&gt;, &lt;b&gt;colimación&lt;/b&gt; (rad) y su &lt;b&gt;incertidumbre&lt;/b&gt; &amp;mdash; de dónde procede el resultado del ensayo de las dos estacas. Una colimación indicada aquí prevalece sobre la del perfil, porque un ensayo hecho esta mañana vale más que un perfil escrito el año pasado. Sin colimación alguna, no se aplica corrección y en su lugar se reporta el desequilibrio.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Visual más larga&lt;/b&gt;, &lt;b&gt;mayor desequilibrio por estación&lt;/b&gt; y &lt;b&gt;mayor desequilibrio por línea&lt;/b&gt; (m) &amp;mdash; límites de la especificación bajo la que se trabaja. Cero desactiva la verificación.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; JSON, la entrada de los cierres y del ajuste de la red. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Líneas&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;LINE_COUNT&lt;/code&gt;, &lt;code&gt;WORST_IMBALANCE&lt;/code&gt; y &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Accumulated imbalance (m)</source>
+            <translation>Desequilibrio acumulado (m)</translation>
+        </message>
+        <message>
+            <source>Balance</source>
+            <translation>Equilibrio</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Collimation (mm)</source>
+            <translation>Colimación (mm)</translation>
+        </message>
+        <message>
+            <source>Collimation (rad)</source>
+            <translation>Colimación (rad)</translation>
+        </message>
+        <message>
+            <source>Collimation uncertainty (rad)</source>
+            <translation>Incertidumbre de la colimación (rad)</translation>
+        </message>
+        <message>
+            <source>Equal sights</source>
+            <translation>Visuales iguales</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>GeoComp levelling reductions (*.json)</source>
+            <translation>Reducciones de nivelación de GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Instrument</source>
+            <translation>Instrumento</translation>
+        </message>
+        <message>
+            <source>Instrument profiles</source>
+            <translation>Perfiles de instrumento</translation>
+        </message>
+        <message>
+            <source>Largest imbalance per line (m)</source>
+            <translation>Mayor desequilibrio por línea (m)</translation>
+        </message>
+        <message>
+            <source>Largest imbalance per setup (m)</source>
+            <translation>Mayor desequilibrio por estación (m)</translation>
+        </message>
+        <message>
+            <source>Length (km)</source>
+            <translation>Longitud (km)</translation>
+        </message>
+        <message>
+            <source>Level id</source>
+            <translation>Identificador del nivel</translation>
+        </message>
+        <message>
+            <source>Levelling: equal sights</source>
+            <translation>Nivelación: visuales iguales</translation>
+        </message>
+        <message>
+            <source>Line</source>
+            <translation>Línea</translation>
+        </message>
+        <message>
+            <source>Lines</source>
+            <translation>Líneas</translation>
+        </message>
+        <message>
+            <source>Longest sight (m)</source>
+            <translation>Visual más larga (m)</translation>
+        </message>
+        <message>
+            <source>Raw dH (m)</source>
+            <translation>dH bruto (m)</translation>
+        </message>
+        <message>
+            <source>Reduce levelling lines to height differences, with the balance check.</source>
+            <translation>Reduce líneas de nivelación a desniveles, con la verificación del equilibrio de las visuales.</translation>
+        </message>
+        <message>
+            <source>Reduced lines</source>
+            <translation>Líneas reducidas</translation>
+        </message>
+        <message>
+            <source>Reduced with level profile '%1'. The collimation is carried once over each whole line, so a balanced line takes neither a correction nor an uncertainty from it.</source>
+            <translation>Reducido con el perfil de nivel '%1'. La colimación se propaga una sola vez por línea completa, por lo que una línea equilibrada no recibe de ella ni corrección ni incertidumbre.</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Setup</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Side shots</source>
+            <translation>Puntos radiados</translation>
+        </message>
+        <message>
+            <source>Side shots are levelled from a line's setup without the line passing through them. A point observed once has no redundancy, so it is not adjusted; use Extreme sights when the correlation between several such points matters.</source>
+            <translation>Los puntos radiados se nivelan desde una estación de la línea sin que la línea pase por ellos. Un punto observado una sola vez no tiene redundancia, por lo que no se ajusta; use las visuales extremas cuando importe la correlación entre varios de esos puntos.</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Uncertainty (mm)</source>
+            <translation>Incertidumbre (mm)</translation>
+        </message>
+        <message>
+            <source>dH (m)</source>
+            <translation>dH (m)</translation>
+        </message>
+    </context>
+    <context>
+        <name>EquidistantSightsAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Combines reciprocal observations across an obstacle &amp;mdash; a river is the case the proposal names &amp;mdash; where an equal-sight setup is impossible.&lt;/p&gt;&lt;p&gt;Each bank's instrument reads the staff on its own side over a short sight and the staff across the water over a long one. The long sight carries almost all of the error, and it enters the two determinations with &lt;b&gt;opposite sign&lt;/b&gt;, so it cancels in their mean. That cancellation is the method.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The uncertainty is deliberately more conservative than for equal sights.&lt;/b&gt; Refraction over water varies rapidly and asymmetrically, and the two observations were not simultaneous, so the symmetry the method relies on holds only approximately. The propagated variance is multiplied by the inflation factor and the result is marked as an empirical scaling, which follows it into every report. Setting the factor to one is allowed and is reported as a warning, because it claims the two observations saw identical air.&lt;/p&gt;&lt;p&gt;The two determinations' &lt;b&gt;discrepancy&lt;/b&gt; is reported. Its expected value is zero; a large one says the refraction changed between them, which is precisely the assumption the method makes, so it is shown rather than averaged away.&lt;/p&gt;&lt;h3&gt;Input layout&lt;/h3&gt;&lt;p&gt;Each crossing is &lt;b&gt;two setups&lt;/b&gt; in the imported book, each with one backsight (the near staff) and one foresight (the far staff), and the second setup observes the same two stations the other way round. Setups are paired in the order they appear.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; the document the importer produced. &lt;b&gt;Variance inflation&lt;/b&gt; &amp;mdash; at least one. &lt;b&gt;Discrepancy tolerance&lt;/b&gt; (m) &amp;mdash; above which the two banks' disagreement is reported; zero disables it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Height differences&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Crossings&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;CROSSING_COUNT&lt;/code&gt; and &lt;code&gt;WORST_DISCREPANCY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Combina observaciones recíprocas a través de un obstáculo &amp;mdash; un río es el caso que la propuesta menciona &amp;mdash; donde una estación de visuales iguales es imposible.&lt;/p&gt;&lt;p&gt;El instrumento de cada orilla lee la mira de su propio lado en una visual corta y la mira del otro lado del agua en una visual larga. La visual larga carga casi todo el error, y este entra en las dos determinaciones con &lt;b&gt;signo contrario&lt;/b&gt;, por lo que se cancela en su media. Esa cancelación es el método.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La incertidumbre es deliberadamente más conservadora que la de las visuales iguales.&lt;/b&gt; La refracción sobre el agua varía rápida y asimétricamente, y las dos observaciones no fueron simultáneas, por lo que la simetría en la que se apoya el método solo se cumple aproximadamente. La varianza propagada se multiplica por el factor de inflación y el resultado se marca como escalado empírico, que lo acompaña en todos los informes. Fijar el factor en uno está permitido y se reporta como advertencia, porque afirma que las dos observaciones vieron exactamente el mismo aire.&lt;/p&gt;&lt;p&gt;Se reporta la &lt;b&gt;discrepancia&lt;/b&gt; entre las dos determinaciones. Su valor esperado es cero; una discrepancia grande indica que la refracción cambió entre ellas, que es precisamente el supuesto del método, por lo que se muestra en lugar de diluirse en la media.&lt;/p&gt;&lt;h3&gt;Disposición de los datos&lt;/h3&gt;&lt;p&gt;Cada travesía son &lt;b&gt;dos estaciones&lt;/b&gt; en la libreta importada, cada una con una visual de espalda (la mira cercana) y una de frente (la mira lejana), observando la segunda estación las mismas dos estaciones en sentido inverso. Las estaciones se emparejan en el orden en que aparecen.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Estaciones&lt;/b&gt; &amp;mdash; el documento producido por el importador. &lt;b&gt;Inflación de la varianza&lt;/b&gt; &amp;mdash; al menos uno. &lt;b&gt;Tolerancia de la discrepancia&lt;/b&gt; (m) &amp;mdash; por encima de la cual se reporta la divergencia entre las orillas; cero desactiva la verificación.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Desniveles&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Travesías&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;CROSSING_COUNT&lt;/code&gt; y &lt;code&gt;WORST_DISCREPANCY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A reciprocal crossing is two setups, one from each bank, so the book must hold an even number of at least two. It holds %1.</source>
+            <translation>Una travesía recíproca son dos estaciones, una desde cada orilla, por lo que la libreta debe contener un número par de al menos dos. Contiene %1.</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Crossings</source>
+            <translation>Travesías</translation>
+        </message>
+        <message>
+            <source>Discrepancy</source>
+            <translation>Discrepancia</translation>
+        </message>
+        <message>
+            <source>Discrepancy (mm)</source>
+            <translation>Discrepancia (mm)</translation>
+        </message>
+        <message>
+            <source>Discrepancy tolerance (m)</source>
+            <translation>Tolerancia de la discrepancia (m)</translation>
+        </message>
+        <message>
+            <source>Equidistant sights</source>
+            <translation>Visuales equidistantes</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>From the far bank (m)</source>
+            <translation>Desde la orilla opuesta (m)</translation>
+        </message>
+        <message>
+            <source>From the near bank (m)</source>
+            <translation>Desde la orilla cercana (m)</translation>
+        </message>
+        <message>
+            <source>GeoComp height differences (*.json)</source>
+            <translation>Desniveles GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Height differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Levelling: equidistant sights</source>
+            <translation>Nivelación: visuales equidistantes</translation>
+        </message>
+        <message>
+            <source>Mean dH (m)</source>
+            <translation>dH medio (m)</translation>
+        </message>
+        <message>
+            <source>Reciprocal levelling across an obstacle, from both banks.</source>
+            <translation>Nivelación recíproca a través de un obstáculo, desde ambas orillas.</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Setup '%1' carries several foresights. A reciprocal crossing has one near staff and one far staff per bank.</source>
+            <translation>La estación '%1' tiene varias visuales de frente. Una travesía recíproca tiene una mira cercana y una mira lejana por orilla.</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>The discrepancy is the two banks' disagreement. Its expected value is zero; a large one says the refraction changed between the two observations, which is the assumption the method rests on.</source>
+            <translation>La discrepancia es la divergencia entre las dos orillas. Su valor esperado es cero; una discrepancia grande indica que la refracción cambió entre las dos observaciones, que es justamente el supuesto en el que se apoya el método.</translation>
+        </message>
+        <message>
+            <source>The variance was multiplied by %1 and the result marked as an empirical scaling. Refraction over water varies rapidly and asymmetrically, and the two reciprocal observations were not simultaneous.</source>
+            <translation>La varianza se multiplicó por %1 y el resultado se marcó como escalado empírico. La refracción sobre el agua varía rápida y asimétricamente, y las dos observaciones recíprocas no fueron simultáneas.</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Uncertainty (mm)</source>
+            <translation>Incertidumbre (mm)</translation>
+        </message>
+        <message>
+            <source>Uncertainty model</source>
+            <translation>Modelo de incertidumbre</translation>
+        </message>
+        <message>
+            <source>Variance inflation</source>
+            <translation>Factor de inflación de la varianza</translation>
+        </message>
+    </context>
+    <context>
+        <name>ExtremeSightsAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Reduces each instrument setup to one height difference per foresight, keeping the &lt;b&gt;full covariance&lt;/b&gt; between them.&lt;/p&gt;&lt;p&gt;All the foresights of a setup subtract the same backsight reading, so they share its error. Between two of them the backsight &lt;b&gt;cancels exactly&lt;/b&gt;: their height difference is one foresight minus the other, and the backsight does not appear. Treating the two as independent adds twice the backsight variance that is not there and reports an uncertainty too &lt;b&gt;large&lt;/b&gt; &amp;mdash; which is the opposite of the usual failure, and can have a network declared inadequate that is in fact fine.&lt;/p&gt;&lt;p&gt;The report gives both: the difference from the backsighted station to each foresight, and the difference between each pair of foresights computed through the covariance, next to what treating them independently would have claimed.&lt;/p&gt;&lt;p&gt;The correlation is carried into the output document as a covariance, so a network adjustment built from these setups keeps it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; the document the importer produced. &lt;b&gt;Only setups with several foresights&lt;/b&gt; &amp;mdash; skip the ordinary one-foresight setups, which have no correlation to show.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt; and &lt;b&gt;level id&lt;/b&gt; &amp;mdash; where the reading precision comes from. &lt;b&gt;Longest sight&lt;/b&gt; and &lt;b&gt;largest imbalance per setup&lt;/b&gt; (m) &amp;mdash; limits; zero disables a check.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Height differences&lt;/b&gt; &amp;mdash; JSON with the covariances. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Differences&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;DIFFERENCE_COUNT&lt;/code&gt; and &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Reduce cada estación del instrumento a un desnivel por cada visual de frente, conservando la &lt;b&gt;covarianza completa&lt;/b&gt; entre ellos.&lt;/p&gt;&lt;p&gt;Todas las visuales de frente de una estación restan la misma lectura de espalda, por lo que comparten su error. Entre dos de ellas la visual de espalda &lt;b&gt;se cancela exactamente&lt;/b&gt;: su desnivel es una visual de frente menos la otra, y la de espalda no aparece. Tratarlas como independientes añade dos veces la varianza de la espalda que no está ahí y reporta una incertidumbre demasiado &lt;b&gt;grande&lt;/b&gt; &amp;mdash; lo contrario del fallo habitual, y puede llevar a declarar inadecuada una red que en realidad está bien.&lt;/p&gt;&lt;p&gt;El informe presenta ambos: el desnivel de la estación visada de espalda a cada visual de frente, y el desnivel entre cada par de visuales de frente calculado a través de la covarianza, junto a lo que un tratamiento independiente habría afirmado.&lt;/p&gt;&lt;p&gt;La correlación se lleva al documento de salida como una covarianza, por lo que un ajuste de red construido a partir de estas estaciones la conserva.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Estaciones&lt;/b&gt; &amp;mdash; el documento producido por el importador. &lt;b&gt;Solo estaciones con varias visuales de frente&lt;/b&gt; &amp;mdash; omite las estaciones ordinarias de una sola visual, que no tienen correlación que mostrar.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Perfiles de instrumento&lt;/b&gt; e &lt;b&gt;identificador del nivel&lt;/b&gt; &amp;mdash; de dónde procede la precisión de las lecturas. &lt;b&gt;Visual más larga&lt;/b&gt; y &lt;b&gt;mayor desequilibrio por estación&lt;/b&gt; (m) &amp;mdash; límites; cero desactiva la verificación.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Desniveles&lt;/b&gt; &amp;mdash; JSON con las covarianzas. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Desniveles&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;DIFFERENCE_COUNT&lt;/code&gt; y &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Differences between foresighted points</source>
+            <translation>Desniveles entre los puntos visados</translation>
+        </message>
+        <message>
+            <source>Extreme sights</source>
+            <translation>Visuales extremas</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>GeoComp height differences (*.json)</source>
+            <translation>Desniveles GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Height differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Height differences from each setup</source>
+            <translation>Desniveles desde cada estación</translation>
+        </message>
+        <message>
+            <source>If treated as independent (mm)</source>
+            <translation>Si se tratan como independientes (mm)</translation>
+        </message>
+        <message>
+            <source>Instrument profiles</source>
+            <translation>Perfiles de instrumento</translation>
+        </message>
+        <message>
+            <source>Largest imbalance per setup (m)</source>
+            <translation>Mayor desequilibrio por estación (m)</translation>
+        </message>
+        <message>
+            <source>Level id</source>
+            <translation>Identificador del nivel</translation>
+        </message>
+        <message>
+            <source>Levelling: extreme sights</source>
+            <translation>Nivelación: visuales extremas</translation>
+        </message>
+        <message>
+            <source>Longest sight (m)</source>
+            <translation>Visual más larga (m)</translation>
+        </message>
+        <message>
+            <source>No setup carries several foresights. Extreme sights is for a setup that levelled a group of points at once; clear 'Only setups with several foresights' to reduce the ordinary ones too.</source>
+            <translation>Ninguna estación tiene varias visuales de frente. Las visuales extremas son para una estación que niveló un conjunto de puntos a la vez; desmarque 'Solo estaciones con varias visuales de frente' para reducir también las estaciones ordinarias.</translation>
+        </message>
+        <message>
+            <source>Only setups with several foresights</source>
+            <translation>Solo estaciones con varias visuales de frente</translation>
+        </message>
+        <message>
+            <source>Overstated by (%)</source>
+            <translation>Sobrestimada en (%)</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Setup</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Several foresights from one setup, kept correlated through the backsight.</source>
+            <translation>Varias visuales de frente desde una estación, mantenidas correlacionadas por la visual de espalda.</translation>
+        </message>
+        <message>
+            <source>The backsight cancels between two foresights of one setup, so these differences are better determined than independent treatment would suggest. The last column is how much an independent treatment would have overstated the uncertainty by.</source>
+            <translation>La visual de espalda se cancela entre dos visuales de frente de la misma estación, por lo que estos desniveles quedan mejor determinados de lo que un tratamiento independiente sugeriría. La última columna indica en cuánto un tratamiento independiente habría sobrestimado la incertidumbre.</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Uncertainty (mm)</source>
+            <translation>Incertidumbre (mm)</translation>
+        </message>
+        <message>
+            <source>Why the correlation helps</source>
+            <translation>Por qué la correlación ayuda</translation>
+        </message>
+        <message>
+            <source>dH (m)</source>
+            <translation>dH (m)</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoComp</name>
         <message>
             <source>GeoComp</source>
@@ -429,6 +802,85 @@
         <message>
             <source>exaggerated %1x</source>
             <translation>exageración de %1x</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompLevelling</name>
+        <message>
+            <source>'%1' could not be read as an instrument profile library. %2</source>
+            <translation>No se pudo leer '%1' como una biblioteca de perfiles de instrumento. %2</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as levelling lines: %2</source>
+            <translation>'%1' no pudo leerse como líneas de nivelación: %2</translation>
+        </message>
+        <message>
+            <source>'%1' does not contain a GeoComp document: its top level is not an object.</source>
+            <translation>'%1' no contiene un documento de GeoComp: su nivel superior no es un objeto.</translation>
+        </message>
+        <message>
+            <source>'%1' holds no levelling lines. Run 'Import levelling field book' first.</source>
+            <translation>'%1' no contiene líneas de nivelación. Ejecute primero 'Importar libreta de nivelación'.</translation>
+        </message>
+        <message>
+            <source>'%1' holds no reduced levelling lines. Run 'Equal sights' first.</source>
+            <translation>'%1' no contiene líneas de nivelación reducidas. Ejecute primero 'Visuales iguales'.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a levelling reduction document.</source>
+            <translation>'%1' no es un documento de reducción de nivelación.</translation>
+        </message>
+        <message>
+            <source>'%1' is not valid JSON: %2</source>
+            <translation>'%1' no es un JSON válido: %2</translation>
+        </message>
+        <message>
+            <source>Blocking</source>
+            <translation>Bloqueante</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>Código</translation>
+        </message>
+        <message>
+            <source>Configured for this run</source>
+            <translation>Configurada para esta ejecución</translation>
+        </message>
+        <message>
+            <source>Finding</source>
+            <translation>Hallazgo</translation>
+        </message>
+        <message>
+            <source>Information</source>
+            <translation>Información</translation>
+        </message>
+        <message>
+            <source>Involves</source>
+            <translation>Implica</translation>
+        </message>
+        <message>
+            <source>No file was given for parameter '%1'.</source>
+            <translation>No se indicó ningún archivo para el parámetro '%1'.</translation>
+        </message>
+        <message>
+            <source>Nothing to report.</source>
+            <translation>Nada que informar.</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>Severidad</translation>
+        </message>
+        <message>
+            <source>The file '%1' does not exist.</source>
+            <translation>El archivo '%1' no existe.</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>Advertencia</translation>
+        </message>
+        <message>
+            <source>entered on the algorithm's parameters</source>
+            <translation>introducida en los parámetros del algoritmo</translation>
         </message>
     </context>
     <context>
@@ -951,6 +1403,10 @@
             <translation>(no editable en esta versión)</translation>
         </message>
         <message>
+            <source>Adjust lines that failed their tolerance</source>
+            <translation>Ajustar líneas que no cumplieron la tolerancia</translation>
+        </message>
+        <message>
             <source>Advanced</source>
             <translation>Avanzado</translation>
         </message>
@@ -963,8 +1419,40 @@
             <translation>Formato de los ángulos</translation>
         </message>
         <message>
+            <source>Angular tolerance per station (rad)</source>
+            <translation>Tolerancia angular por estación (rad)</translation>
+        </message>
+        <message>
+            <source>Apply orthometric corrections</source>
+            <translation>Aplicar correcciones ortométricas</translation>
+        </message>
+        <message>
+            <source>Atmospheric model</source>
+            <translation>Modelo atmosférico</translation>
+        </message>
+        <message>
+            <source>Barrell and Sears</source>
+            <translation>Barrell y Sears</translation>
+        </message>
+        <message>
             <source>Basic</source>
             <translation>Básico</translation>
+        </message>
+        <message>
+            <source>Coefficient of refraction (k)</source>
+            <translation>Coeficiente de refracción (k)</translation>
+        </message>
+        <message>
+            <source>Collimation tolerance (rad)</source>
+            <translation>Tolerancia de la colimación (rad)</translation>
+        </message>
+        <message>
+            <source>Compass (Bowditch) rule</source>
+            <translation>Regla de la brújula (Bowditch)</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nivel de confianza</translation>
         </message>
         <message>
             <source>Coordinate decimal places</source>
@@ -983,6 +1471,34 @@
             <translation>Grados decimales</translation>
         </message>
         <message>
+            <source>Default direction standard deviation (rad)</source>
+            <translation>Desviación típica de las direcciones (rad)</translation>
+        </message>
+        <message>
+            <source>Default height-difference standard deviation (m)</source>
+            <translation>Desviación típica de los desniveles (m)</translation>
+        </message>
+        <message>
+            <source>Default pressure (hPa)</source>
+            <translation>Presión por defecto (hPa)</translation>
+        </message>
+        <message>
+            <source>Default relative humidity (%)</source>
+            <translation>Humedad relativa por defecto (%)</translation>
+        </message>
+        <message>
+            <source>Default slope-distance standard deviation (m)</source>
+            <translation>Desviación típica de las distancias inclinadas (m)</translation>
+        </message>
+        <message>
+            <source>Default temperature (degrees Celsius)</source>
+            <translation>Temperatura por defecto (grados Celsius)</translation>
+        </message>
+        <message>
+            <source>Default zenith-angle standard deviation (rad)</source>
+            <translation>Desviación típica de los ángulos cenitales (rad)</translation>
+        </message>
+        <message>
             <source>Degrees, minutes, seconds</source>
             <translation>Grados, minutos, segundos</translation>
         </message>
@@ -997,6 +1513,10 @@
         <message>
             <source>Español</source>
             <translation>Español</translation>
+        </message>
+        <message>
+            <source>Face-pair distance tolerance (m)</source>
+            <translation>Tolerancia de distancia entre las dos posiciones del anteojo (m)</translation>
         </message>
         <message>
             <source>Follow QGIS</source>
@@ -1023,6 +1543,10 @@
             <translation>Gravímetro</translation>
         </message>
         <message>
+            <source>Height-difference weighting</source>
+            <translation>Ponderación de los desniveles</translation>
+        </message>
+        <message>
             <source>Information</source>
             <translation>Información</translation>
         </message>
@@ -1035,12 +1559,32 @@
             <translation>Idioma</translation>
         </message>
         <message>
+            <source>Largest permitted imbalance per line (m)</source>
+            <translation>Mayor desequilibrio permitido por línea (m)</translation>
+        </message>
+        <message>
+            <source>Largest permitted imbalance per setup (m)</source>
+            <translation>Mayor desequilibrio permitido por estación (m)</translation>
+        </message>
+        <message>
+            <source>Least squares</source>
+            <translation>Mínimos cuadrados</translation>
+        </message>
+        <message>
+            <source>Leica</source>
+            <translation>Leica</translation>
+        </message>
+        <message>
             <source>Level</source>
             <translation>Nivel</translation>
         </message>
         <message>
             <source>Log verbosity</source>
             <translation>Detalle del registro</translation>
+        </message>
+        <message>
+            <source>Longest permitted sight (m)</source>
+            <translation>Visual más larga permitida (m)</translation>
         </message>
         <message>
             <source>Metre</source>
@@ -1051,12 +1595,32 @@
             <translation>Todavía no hay configuraciones en esta sección. Se añaden en la fase de desarrollo que implementa este tipo de equipo.</translation>
         </message>
         <message>
+            <source>Outlier test significance level</source>
+            <translation>Nivel de significancia de la prueba de errores groseros</translation>
+        </message>
+        <message>
+            <source>Outlier test type II error rate</source>
+            <translation>Tasa de error tipo II de la prueba de errores groseros</translation>
+        </message>
+        <message>
             <source>Paths and engines</source>
             <translation>Rutas y motores</translation>
         </message>
         <message>
+            <source>Permissible misclosure k, in m per root kilometre</source>
+            <translation>Error de cierre admisible k, en m por raíz de kilómetro</translation>
+        </message>
+        <message>
             <source>Português (Brasil)</source>
             <translation>Portugués (Brasil)</translation>
+        </message>
+        <message>
+            <source>Proportional to line length</source>
+            <translation>Proporcional a la longitud de la línea</translation>
+        </message>
+        <message>
+            <source>Proportional to the number of setups</source>
+            <translation>Proporcional al número de estaciones</translation>
         </message>
         <message>
             <source>Radian</source>
@@ -1065,6 +1629,10 @@
         <message>
             <source>Reference systems</source>
             <translation>Sistemas de referencia</translation>
+        </message>
+        <message>
+            <source>Required relative precision (1:N)</source>
+            <translation>Precisión relativa exigida (1:N)</translation>
         </message>
         <message>
             <source>Settings resolve in the order: this run, this project, global, default.</source>
@@ -1083,12 +1651,40 @@
             <translation>Estación Total</translation>
         </message>
         <message>
+            <source>Transit rule</source>
+            <translation>Regla del tránsito</translation>
+        </message>
+        <message>
+            <source>Traverse adjustment method</source>
+            <translation>Método de ajuste de la poligonal</translation>
+        </message>
+        <message>
+            <source>Trimble</source>
+            <translation>Trimble</translation>
+        </message>
+        <message>
             <source>US survey foot</source>
             <translation>Pie topográfico estadounidense</translation>
         </message>
         <message>
+            <source>Uncertainty of k</source>
+            <translation>Incertidumbre de k</translation>
+        </message>
+        <message>
+            <source>Uncertainty of the default pressure (hPa)</source>
+            <translation>Incertidumbre de la presión por defecto (hPa)</translation>
+        </message>
+        <message>
+            <source>Uncertainty of the default temperature (degrees Celsius)</source>
+            <translation>Incertidumbre de la temperatura por defecto (grados Celsius)</translation>
+        </message>
+        <message>
             <source>Usage mode</source>
             <translation>Modo de uso</translation>
+        </message>
+        <message>
+            <source>Variance inflation for reciprocal sights</source>
+            <translation>Inflación de la varianza para visuales recíprocas</translation>
         </message>
         <message>
             <source>Warning</source>
@@ -1346,6 +1942,153 @@
         </message>
     </context>
     <context>
+        <name>ImportLevelBookAlgorithm</name>
+        <message>
+            <source>%1 setup(s) in %2 line(s).</source>
+            <translation>%1 estación(es) en %2 línea(s).</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as a levelling field mapping: %2</source>
+            <translation>'%1' no pudo leerse como un mapeo de campos de nivelación: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Reads a levelling field book and assembles it into instrument setups and lines, attaching an uncertainty to every reading.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two layouts are recognised&lt;/b&gt;, and which one a file is in is worked out from the columns the mapping names rather than asked for. One row per setup, backsight and foresight side by side, is what a spreadsheet naturally produces. One row per reading, each carrying a setup identifier, is what an instrument exports &amp;mdash; and the only layout that can express a setup with several foresights at all.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Three-wire readings&lt;/b&gt; may replace a single reading in either layout. They buy the sight distance for free by stadia, which is what makes the sight-balance check possible on a book that never recorded a distance, and a half-sum check that catches a misread wire.&lt;/p&gt;&lt;p&gt;Numbers are read locale-independently: a comma decimal separator is handled here, at the boundary, and never again.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Field book&lt;/b&gt; &amp;mdash; the CSV. &lt;b&gt;Field mapping&lt;/b&gt; &amp;mdash; a saved mapping document describing the layout.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt; and &lt;b&gt;level id&lt;/b&gt; &amp;mdash; where the reading precision comes from. With neither, a generic level is assumed and the report says so.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Default staff-reading uncertainty&lt;/b&gt; (m) &amp;mdash; the last resort before refusing. Zero means not configured; GeoComp does not invent a sigma, because a fabricated weight corrupts every statistic computed from it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Stadia factor&lt;/b&gt; &amp;mdash; used only when three wires are read and no level profile is available.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; JSON, the input to the reduction algorithms. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. Scalars: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;LINE_COUNT&lt;/code&gt; and &lt;code&gt;REJECTED_ROWS&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lee una libreta de nivelación y la organiza en estaciones del instrumento y líneas, asignando una incertidumbre a cada lectura.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Se reconocen dos disposiciones&lt;/b&gt;, y cuál usa el fichero se deduce de las columnas que indica el mapeo, en lugar de preguntarse. Una fila por estación, con espalda y frente lado a lado, es lo que una hoja de cálculo produce de forma natural. Una fila por lectura, cada una con el identificador de la estación, es lo que exporta un instrumento &amp;mdash; y la única disposición capaz de expresar una estación con varias visuales de frente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las lecturas de los tres hilos&lt;/b&gt; pueden sustituir a una lectura única en cualquiera de las disposiciones. Dan gratis la distancia de la visual por estadimetría, que es lo que hace posible la verificación del equilibrio en una libreta que nunca registró distancias, y una verificación de la semisuma que detecta un hilo mal leído.&lt;/p&gt;&lt;p&gt;Los números se leen con independencia de la configuración regional: una coma decimal se trata aquí, en la frontera, y nunca más.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Libreta&lt;/b&gt; &amp;mdash; el CSV. &lt;b&gt;Mapeo de campos&lt;/b&gt; &amp;mdash; un documento de mapeo guardado que describe la disposición.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Perfiles de instrumento&lt;/b&gt; e &lt;b&gt;identificador del nivel&lt;/b&gt; &amp;mdash; de dónde procede la precisión de las lecturas. Sin ninguno de ellos se asume un nivel genérico y el informe lo dice.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Incertidumbre por defecto de la lectura de mira&lt;/b&gt; (m) &amp;mdash; el último recurso antes de rechazar. Cero significa no configurado; GeoComp no inventa un sigma, porque un peso fabricado corrompe todas las estadísticas calculadas a partir de él.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Constante estadimétrica&lt;/b&gt; &amp;mdash; se usa solo cuando se leen tres hilos y no hay perfil de nivel disponible.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Estaciones&lt;/b&gt; &amp;mdash; JSON, la entrada de los algoritmos de reducción. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. Escalares: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;LINE_COUNT&lt;/code&gt; y &lt;code&gt;REJECTED_ROWS&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Default staff-reading uncertainty (m)</source>
+            <translation>Incertidumbre por defecto de la lectura de mira (m)</translation>
+        </message>
+        <message>
+            <source>Distances recorded</source>
+            <translation>Distancias registradas</translation>
+        </message>
+        <message>
+            <source>Field book</source>
+            <translation>Libreta de campo</translation>
+        </message>
+        <message>
+            <source>Field mapping</source>
+            <translation>Asignación de campos</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>GeoComp setups (*.json)</source>
+            <translation>Estaciones de GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Import levelling field book</source>
+            <translation>Importar libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Instrument profiles</source>
+            <translation>Perfiles de instrumento</translation>
+        </message>
+        <message>
+            <source>Layout</source>
+            <translation>Disposición</translation>
+        </message>
+        <message>
+            <source>Level id</source>
+            <translation>Identificador del nivel</translation>
+        </message>
+        <message>
+            <source>Level profile</source>
+            <translation>Perfil del nivel</translation>
+        </message>
+        <message>
+            <source>Levelling field book import</source>
+            <translation>Importación de libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Line</source>
+            <translation>Línea</translation>
+        </message>
+        <message>
+            <source>Lines</source>
+            <translation>Líneas</translation>
+        </message>
+        <message>
+            <source>Lines assembled</source>
+            <translation>Líneas montadas</translation>
+        </message>
+        <message>
+            <source>No usable setup was read. Every row was rejected; the report lists why, row by row.</source>
+            <translation>No se leyó ninguna estación utilizable. Todas las filas fueron rechazadas; el informe indica por qué, fila a fila.</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Magnitud</translation>
+        </message>
+        <message>
+            <source>Read a CSV levelling book into setups and lines, with findings.</source>
+            <translation>Lee una libreta de nivelación en CSV, produciendo estaciones, líneas y hallazgos.</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Rows read</source>
+            <translation>Filas leídas</translation>
+        </message>
+        <message>
+            <source>Rows rejected</source>
+            <translation>Filas rechazadas</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Setups assembled</source>
+            <translation>Estaciones montadas</translation>
+        </message>
+        <message>
+            <source>Stadia factor</source>
+            <translation>Constante estadimétrica</translation>
+        </message>
+        <message>
+            <source>Summary</source>
+            <translation>Resumen</translation>
+        </message>
+        <message>
+            <source>These source columns were not mapped and were ignored: %1</source>
+            <translation>Estas columnas del origen no se mapearon y fueron ignoradas: %1</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Unmapped columns</source>
+            <translation>Columnas no mapeadas</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>no</source>
+            <translation>no</translation>
+        </message>
+        <message>
+            <source>yes</source>
+            <translation>sí</translation>
+        </message>
+    </context>
+    <context>
         <name>IntersectionAlgorithm</name>
         <message>
             <source>&lt;p&gt;Computes the coordinates of a point sighted from two or more known stations whose orientation is known, by least squares. Two stations give a unique solution; more give residuals and a covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Weak geometry is reported rather than left to be discovered.&lt;/b&gt; Near-parallel rays do not determine a point however precise each sighting is, and the error ellipse is where that shows: when it comes out more than ten times longer than it is wide, the run says so. Rays that are exactly parallel are refused, because there is no intersection to return.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Sightings&lt;/b&gt; &amp;mdash; a JSON object mapping each observing station to its position and the azimuth it observed:&lt;/p&gt;&lt;pre&gt;{"A": {"position": [0, 0], "azimuth": 57.99},
@@ -1468,6 +2211,424 @@
         <message>
             <source>Value</source>
             <translation>Valor</translation>
+        </message>
+    </context>
+    <context>
+        <name>LevellingClosureAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Computes the misclosure of a levelling loop or line and compares it with the permissible misclosure &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt;, with &lt;i&gt;L&lt;/i&gt; in kilometres.&lt;/p&gt;&lt;p&gt;&lt;b&gt;With no k configured there is no verdict.&lt;/b&gt; The misclosure is still reported &amp;mdash; it is the number that matters &amp;mdash; but whether it is acceptable is not, because inventing a tolerance to have something to compare against would be worse than saying nothing. GeoComp ships no national tolerance table: &lt;i&gt;k&lt;/i&gt; differs by country, by class within a country and by edition of the standard, and a wrong value does not fail loudly, it quietly accepts a line that should have been re-run.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The distribution across setups comes with a caveat that is part of the answer.&lt;/b&gt; Distributing a misclosure proportionally is the classical correction and many specifications require it, so it is computed. But proportional distribution &lt;b&gt;localises nothing&lt;/b&gt;: every setup gets its share whether or not it is where the error entered, so a blunder is smeared evenly along the line and made harder to find.&lt;/p&gt;&lt;p&gt;So the misclosure is also compared with &lt;b&gt;its own propagated standard deviation&lt;/b&gt;. A small ratio means the line closed as well as its own readings say it should, and distributing that misclosure is exactly right. A large one means something happened that the reading precisions do not explain, and spreading it evenly is the one response guaranteed to hide it &amp;mdash; adjust the network and let data snooping find it instead. The report says which case you are in.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; the document a reduction produced. &lt;b&gt;Mode&lt;/b&gt; &amp;mdash; loop (the lines must chain and return to where they began; a line entered in the opposite direction is handled from the station ids) or line (the first line only, against a known height difference).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Known height difference&lt;/b&gt; and its &lt;b&gt;uncertainty&lt;/b&gt; (m) &amp;mdash; from the two benchmarks' published heights. The uncertainty enters the misclosure's: a line closed against two third-order marks has not been tested as sharply as one closed against two first-order marks.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tolerance coefficient k&lt;/b&gt; (m per root kilometre) &amp;mdash; zero for no verdict. &lt;b&gt;Distribute by&lt;/b&gt; &amp;mdash; line length or setup count.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Closure&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Distribution&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;MISCLOSURE&lt;/code&gt; and &lt;code&gt;PERMISSIBLE&lt;/code&gt; in metres, and &lt;code&gt;PASSED&lt;/code&gt; (1, 0, or -1 for not judged).&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Calcula el error de cierre de un circuito o de una línea de nivelación y lo compara con el error admisible &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt;, con &lt;i&gt;L&lt;/i&gt; en kilómetros.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin una k configurada no hay veredicto.&lt;/b&gt; El error de cierre se sigue reportando &amp;mdash; es el número que importa &amp;mdash; pero si es aceptable no, porque inventar una tolerancia solo para tener con qué comparar sería peor que no decir nada. GeoComp no incluye ninguna tabla nacional de tolerancias: &lt;i&gt;k&lt;/i&gt; difiere de país a país, de clase a clase dentro de un país y de edición a edición de la norma, y un valor equivocado no falla de forma ruidosa, acepta silenciosamente una línea que debería haberse repetido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La distribución entre estaciones viene con una salvedad que forma parte de la respuesta.&lt;/b&gt; Distribuir proporcionalmente un error de cierre es la corrección clásica y muchas especificaciones la exigen, por lo que se calcula. Pero la distribución proporcional &lt;b&gt;no localiza nada&lt;/b&gt;: cada estación recibe su parte, esté o no donde entró el error, por lo que un error grosero se reparte uniformemente por la línea y resulta más difícil de encontrar.&lt;/p&gt;&lt;p&gt;Por eso el error de cierre se compara también con &lt;b&gt;su propia desviación típica propagada&lt;/b&gt;. Una razón pequeña significa que la línea cerró tan bien como indican sus propias lecturas, y distribuir ese error es exactamente lo correcto. Una razón grande significa que ocurrió algo que las precisiones de las lecturas no explican, y repartirlo uniformemente es la única respuesta que garantiza ocultarlo &amp;mdash; ajuste la red y deje que el data snooping lo encuentre. El informe indica en qué caso está.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Modo&lt;/b&gt; &amp;mdash; circuito (las líneas deben encadenarse y volver al punto de partida; una línea introducida en sentido inverso se trata a partir de los identificadores de las estaciones) o línea (solo la primera, contra un desnivel conocido).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Desnivel conocido&lt;/b&gt; y su &lt;b&gt;incertidumbre&lt;/b&gt; (m) &amp;mdash; de las altitudes publicadas de las dos referencias. La incertidumbre entra en la del error de cierre: una línea cerrada contra dos referencias de tercer orden no se ha comprobado tan severamente como una cerrada contra dos de primer orden.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coeficiente de tolerancia k&lt;/b&gt; (m por raíz de kilómetro) &amp;mdash; cero para ningún veredicto. &lt;b&gt;Distribuir por&lt;/b&gt; &amp;mdash; longitud de la línea o número de estaciones.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Cierre&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Distribución&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;MISCLOSURE&lt;/code&gt; y &lt;code&gt;PERMISSIBLE&lt;/code&gt; en metros, y &lt;code&gt;PASSED&lt;/code&gt; (1, 0, o -1 para no evaluado).&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Closure</source>
+            <translation>Cierre</translation>
+        </message>
+        <message>
+            <source>Closures and tolerances</source>
+            <translation>Cierres y tolerancias</translation>
+        </message>
+        <message>
+            <source>Correction (mm)</source>
+            <translation>Corrección (mm)</translation>
+        </message>
+        <message>
+            <source>Correction over the setup's own uncertainty</source>
+            <translation>Corrección sobre la incertidumbre de la propia estación</translation>
+        </message>
+        <message>
+            <source>Distribute by</source>
+            <translation>Distribuir por</translation>
+        </message>
+        <message>
+            <source>Distribution</source>
+            <translation>Distribución</translation>
+        </message>
+        <message>
+            <source>Distribution across setups</source>
+            <translation>Distribución entre estaciones</translation>
+        </message>
+        <message>
+            <source>Do not distribute this</source>
+            <translation>No distribuya este error</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>GeoComp closure (*.json)</source>
+            <translation>Cierre de GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Kind</source>
+            <translation>Tipo</translation>
+        </message>
+        <message>
+            <source>Known height difference (m)</source>
+            <translation>Desnivel conocido (m)</translation>
+        </message>
+        <message>
+            <source>Length (km)</source>
+            <translation>Longitud (km)</translation>
+        </message>
+        <message>
+            <source>Levelling: closures</source>
+            <translation>Nivelación: cierres</translation>
+        </message>
+        <message>
+            <source>Line against a known difference</source>
+            <translation>Línea contra un desnivel conocido</translation>
+        </message>
+        <message>
+            <source>Line and loop misclosure, against a configurable tolerance.</source>
+            <translation>Error de cierre de línea y de circuito, frente a una tolerancia configurable.</translation>
+        </message>
+        <message>
+            <source>Line length</source>
+            <translation>Longitud de la línea</translation>
+        </message>
+        <message>
+            <source>Loop</source>
+            <translation>Circuito</translation>
+        </message>
+        <message>
+            <source>Loop name</source>
+            <translation>Nombre del circuito</translation>
+        </message>
+        <message>
+            <source>Misclosure %1 mm over %2 km.</source>
+            <translation>Error de cierre de %1 mm en %2 km.</translation>
+        </message>
+        <message>
+            <source>Misclosure (mm)</source>
+            <translation>Error de cierre (mm)</translation>
+        </message>
+        <message>
+            <source>Misclosure over its own uncertainty</source>
+            <translation>Error de cierre sobre su propia incertidumbre</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>Modo</translation>
+        </message>
+        <message>
+            <source>Number of setups</source>
+            <translation>Número de estaciones</translation>
+        </message>
+        <message>
+            <source>OUT OF TOLERANCE</source>
+            <translation>FUERA DE TOLERANCIA</translation>
+        </message>
+        <message>
+            <source>Permissible (mm)</source>
+            <translation>Tolerancia (mm)</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Magnitud</translation>
+        </message>
+        <message>
+            <source>Reduced lines</source>
+            <translation>Líneas reducidas</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Setup</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Share</source>
+            <translation>Parte</translation>
+        </message>
+        <message>
+            <source>The misclosure is consistent with the readings' own precision, which is the case proportional distribution is correct for.</source>
+            <translation>El error de cierre es compatible con la precisión de las propias lecturas, que es el caso en el que la distribución proporcional es correcta.</translation>
+        </message>
+        <message>
+            <source>The misclosure is far larger than the readings' own precision explains. That is not accumulated random error, so distributing it proportionally would spread one mistake evenly along the line and make it harder to find. Adjust the network and let data snooping locate it.</source>
+            <translation>El error de cierre es mucho mayor de lo que explica la precisión de las propias lecturas. No es error aleatorio acumulado, por lo que distribuirlo proporcionalmente repartiría un único fallo por toda la línea y haría más difícil encontrarlo. Ajuste la red y deje que el data snooping lo localice.</translation>
+        </message>
+        <message>
+            <source>Tolerance coefficient k (m per root km)</source>
+            <translation>Coeficiente de tolerancia k (m por raíz de km)</translation>
+        </message>
+        <message>
+            <source>Uncertainty of the known difference (m)</source>
+            <translation>Incertidumbre del desnivel conocido (m)</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Verdict</source>
+            <translation>Veredicto</translation>
+        </message>
+        <message>
+            <source>not judged — no tolerance was configured</source>
+            <translation>no evaluado — no se configuró ninguna tolerancia</translation>
+        </message>
+        <message>
+            <source>within tolerance</source>
+            <translation>dentro de la tolerancia</translation>
+        </message>
+    </context>
+    <context>
+        <name>LevellingNetworkAlgorithm</name>
+        <message>
+            <source>'%1' does not hold a number.</source>
+            <translation>'%1' no contiene un número.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a benchmark. Write them as id=height, for example BM1=100.000, and add a tolerance as BM2=103.750±0.002 to hold one with a weight rather than exactly.</source>
+            <translation>'%1' no es un punto de referencia. Escríbalos como id=altitud, por ejemplo BM1=100.000, y añada una tolerancia como BM2=103.750±0.002 para fijarlo con peso en lugar de exactamente.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Adjusts reduced levelling lines as a one-dimensional network: the same least squares, the same global test, the same data snooping and reliability as any other GeoComp adjustment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two weighting models, and the choice is yours.&lt;/b&gt; A reduced line arrives carrying an uncertainty propagated from its staff readings. That figure is rigorous and usually optimistic: it knows nothing of refraction, of staff calibration, or of a tripod settling between backsight and foresight. The &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; and &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; models are fitted to lines that suffered all three. Length weighting suits long lines with consistent sight lengths; setup weighting suits short, irregular ones where the per-setup reading error dominates. Leaving both coefficients at zero keeps the propagated uncertainty, and the report says which was used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Benchmarks&lt;/b&gt; are entered as &lt;code&gt;id=height&lt;/code&gt; pairs, separated by commas or semicolons; add &lt;code&gt;±sigma&lt;/code&gt; to hold one with a weight rather than exactly, for example &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. With none, the network is free, which is often the right thing to adjust first: it shows the observations' internal consistency without a datum's errors mixed in.&lt;/p&gt;&lt;p&gt;Mixing orthometric and ellipsoidal heights without a geoid model is refused. The error would be the geoid undulation &amp;mdash; tens of metres across much of Brazil &amp;mdash; and the result would look entirely reasonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The report gives relative height uncertainties between pairs of benchmarks&lt;/b&gt;, which is the 1D analogue of the error ellipse and usually the number a levelling network was built to produce. It is not the difference of the two individual uncertainties, because adjusted heights are correlated.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; the document a reduction produced. &lt;b&gt;Benchmarks&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;Weighting&lt;/b&gt;, and the coefficient for each model (m per root km, m per root setup); zero means that model is not configured.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Free network&lt;/b&gt; &amp;mdash; ignore the benchmarks and remove the datum defect with an inner constraint.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence&lt;/b&gt;, &lt;b&gt;alpha&lt;/b&gt; and &lt;b&gt;beta&lt;/b&gt; &amp;mdash; for the global test, data snooping and the minimal detectable bias.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Heights&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No map layers.&lt;/b&gt; A levelling network has no planimetry: it determines heights and nothing else, so every station would be drawn at the same point. Use the network algorithm in the Analysis menu on a network document that carries coordinates, or wait for the project store that holds both. Scalars: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; and &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta líneas de nivelación reducidas como una red unidimensional: los mismos mínimos cuadrados, la misma prueba global, el mismo data snooping y la misma fiabilidad que cualquier otro ajuste de GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dos modelos de ponderación, y la elección es suya.&lt;/b&gt; Una línea reducida llega con una incertidumbre propagada a partir de sus lecturas de mira. Ese valor es riguroso y habitualmente optimista: no sabe nada de la refracción, de la calibración de la mira, ni del asentamiento del trípode entre la espalda y el frente. Los modelos &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; y &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; se ajustaron a líneas que sufrieron los tres. La ponderación por longitud conviene a líneas largas con visuales de longitud consistente; la ponderación por estaciones conviene a líneas cortas e irregulares, donde domina el error de lectura por estación. Dejar ambos coeficientes en cero mantiene la incertidumbre propagada, y el informe indica cuál se usó.&lt;/p&gt;&lt;p&gt;Los &lt;b&gt;puntos de referencia&lt;/b&gt; se introducen como pares &lt;code&gt;id=altitud&lt;/code&gt;, separados por comas o puntos y comas; añada &lt;code&gt;±sigma&lt;/code&gt; para fijar uno con peso en lugar de exactamente, por ejemplo &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. Sin ninguno, la red es libre, lo que a menudo es el primer ajuste correcto: muestra la consistencia interna de las observaciones sin los errores de un datum de por medio.&lt;/p&gt;&lt;p&gt;Mezclar altitudes ortométricas y elipsoidales sin un modelo geoidal se rechaza. El error sería la ondulación geoidal &amp;mdash; decenas de metros en gran parte de Brasil &amp;mdash; y el resultado parecería perfectamente razonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El informe presenta las incertidumbres relativas de altitud entre pares de referencias&lt;/b&gt;, que son el análogo 1D de la elipse de error y habitualmente el número que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales, porque las altitudes ajustadas están correlacionadas.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Puntos de referencia&lt;/b&gt; &amp;mdash; como arriba. &lt;b&gt;Ponderación&lt;/b&gt;, y el coeficiente de cada modelo (m por raíz de km, m por raíz de estación); cero significa que ese modelo no está configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Red libre&lt;/b&gt; &amp;mdash; ignora los puntos de referencia y elimina el defecto de datum con una constricción interna.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confianza&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; y &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para la prueba global, el data snooping y el mínimo error detectable.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Altitudes&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin capas de mapa.&lt;/b&gt; Una red de nivelación no tiene planimetría: determina altitudes y nada más, por lo que todas las estaciones se dibujarían en el mismo punto. Use el algoritmo de red del menú Análisis sobre un documento de red que contenga coordenadas, o espere al repositorio de proyecto que contenga ambos. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; y &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Adjust levelling lines as a 1D network, by length or setup weighting.</source>
+            <translation>Ajusta líneas de nivelación como una red 1D, ponderando por longitud o por número de estaciones.</translation>
+        </message>
+        <message>
+            <source>Adjusted heights</source>
+            <translation>Altitudes ajustadas</translation>
+        </message>
+        <message>
+            <source>Adjusting…</source>
+            <translation>Ajustando…</translation>
+        </message>
+        <message>
+            <source>Benchmarks</source>
+            <translation>Puntos de referencia</translation>
+        </message>
+        <message>
+            <source>By line length</source>
+            <translation>Por la longitud de la línea</translation>
+        </message>
+        <message>
+            <source>By number of setups</source>
+            <translation>Por el número de estaciones</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the displacement being measured is exactly what an automatic outlier remover would delete.</source>
+            <translation>Candidatos, no rechazos. GeoComp nunca elimina una observación por su cuenta: en una red de monitorización, el desplazamiento que se está midiendo es exactamente lo que un eliminador automático de errores groseros borraría.</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nivel de confianza</translation>
+        </message>
+        <message>
+            <source>Critical value</source>
+            <translation>Valor crítico</translation>
+        </message>
+        <message>
+            <source>Data snooping</source>
+            <translation>Data snooping</translation>
+        </message>
+        <message>
+            <source>Data snooping significance (alpha)</source>
+            <translation>Significancia del data snooping (alfa)</translation>
+        </message>
+        <message>
+            <source>Data snooping type II error rate (beta)</source>
+            <translation>Tasa de error tipo II del data snooping (beta)</translation>
+        </message>
+        <message>
+            <source>Datum</source>
+            <translation>Datum</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Grados de libertad</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom %1; variance factor %2.</source>
+            <translation>Grados de libertad %1; factor de varianza %2.</translation>
+        </message>
+        <message>
+            <source>Epoch (decimal year)</source>
+            <translation>Época (año decimal)</translation>
+        </message>
+        <message>
+            <source>FAILED</source>
+            <translation>FALLÓ</translation>
+        </message>
+        <message>
+            <source>Findings</source>
+            <translation>Hallazgos</translation>
+        </message>
+        <message>
+            <source>Free network</source>
+            <translation>Red libre</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>Desde</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solución GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Prueba global</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Height (m)</source>
+            <translation>Altitud (m)</translation>
+        </message>
+        <message>
+            <source>Height type</source>
+            <translation>Tipo de altitud</translation>
+        </message>
+        <message>
+            <source>Heights</source>
+            <translation>Altitudes</translation>
+        </message>
+        <message>
+            <source>Levelling network adjustment</source>
+            <translation>Ajuste de red de nivelación</translation>
+        </message>
+        <message>
+            <source>Observation</source>
+            <translation>Observación</translation>
+        </message>
+        <message>
+            <source>Observations</source>
+            <translation>Observaciones</translation>
+        </message>
+        <message>
+            <source>Outlier candidate: %1 (w = %2).</source>
+            <translation>Candidato a error grosero: %1 (w = %2).</translation>
+        </message>
+        <message>
+            <source>Outlier candidates</source>
+            <translation>Candidatos a error grosero</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Magnitud</translation>
+        </message>
+        <message>
+            <source>Reduced lines</source>
+            <translation>Líneas reducidas</translation>
+        </message>
+        <message>
+            <source>Relative height uncertainties</source>
+            <translation>Incertidumbres relativas de altitud</translation>
+        </message>
+        <message>
+            <source>Relative uncertainty (mm)</source>
+            <translation>Incertidumbre relativa (mm)</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solución</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estaciones</translation>
+        </message>
+        <message>
+            <source>Summary</source>
+            <translation>Resumen</translation>
+        </message>
+        <message>
+            <source>The global test failed. Either the observations disagree more than their weights allow, or the weights are wrong — the test cannot distinguish the two. A levelling network weighted by propagated staff readings routinely fails it, because that model omits refraction, staff calibration and settlement.</source>
+            <translation>La prueba global falló. O las observaciones difieren más de lo que sus pesos permiten, o los pesos son incorrectos — la prueba no distingue ambos casos. Una red de nivelación ponderada por las lecturas de mira propagadas la falla rutinariamente, porque ese modelo omite la refracción, la calibración de la mira y el asentamiento del trípode.</translation>
+        </message>
+        <message>
+            <source>The global test failed. Either the observations disagree with each other more than their weights allow, or the weights are wrong — the test cannot tell you which.</source>
+            <translation>La prueba global falló. O las observaciones difieren entre sí más de lo que sus pesos permiten, o los pesos son incorrectos — la prueba no distingue ambos casos.</translation>
+        </message>
+        <message>
+            <source>The lines fall into %1 disconnected pieces, so they cannot be adjusted as one network whatever the datum. Level between them, or adjust each piece separately.</source>
+            <translation>Las líneas forman %1 partes desconectadas, por lo que no pueden ajustarse como una sola red, sea cual sea el datum. Nivele entre ellas, o ajuste cada parte por separado.</translation>
+        </message>
+        <message>
+            <source>The relative uncertainty is the 1D analogue of the relative error ellipse, and is usually what a levelling network was built to produce. It is not the difference of the two individual uncertainties: adjusted heights are correlated, and two marks at the ends of one well-observed line know their separation far better than either knows its own height.</source>
+            <translation>La incertidumbre relativa es el análogo 1D de la elipse de error relativa y suele ser lo que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales: las altitudes ajustadas están correlacionadas, y dos referencias en los extremos de una línea bien observada conocen su separación mucho mejor de lo que cualquiera de ellas conoce su propia altitud.</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Hasta</translation>
+        </message>
+        <message>
+            <source>Uncertainty (mm)</source>
+            <translation>Incertidumbre (mm)</translation>
+        </message>
+        <message>
+            <source>Uncertainty per root kilometre (m)</source>
+            <translation>Incertidumbre por raíz de kilómetro (m)</translation>
+        </message>
+        <message>
+            <source>Uncertainty per root setup (m)</source>
+            <translation>Incertidumbre por raíz de estación (m)</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Factor de varianza</translation>
+        </message>
+        <message>
+            <source>Weighting</source>
+            <translation>Ponderación</translation>
+        </message>
+        <message>
+            <source>Why these are not the individual figures</source>
+            <translation>Por qué estos no son los valores individuales</translation>
+        </message>
+        <message>
+            <source>dH (m)</source>
+            <translation>dH (m)</translation>
+        </message>
+        <message>
+            <source>passed</source>
+            <translation>aprobó</translation>
+        </message>
+        <message>
+            <source>propagated from the staff readings</source>
+            <translation>propagada a partir de las lecturas de mira</translation>
+        </message>
+        <message>
+            <source>w</source>
+            <translation>w</translation>
         </message>
     </context>
     <context>

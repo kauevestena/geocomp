@@ -216,7 +216,7 @@ def build_network(
 
     height_type = _agreed_height_type(benchmarks, geoid_model)
     findings: list[Finding] = []
-    network = Network(id=network_id, crs=crs)
+    network = Network(id=network_id, crs=crs or NO_CRS)
 
     known = {benchmark.station: benchmark for benchmark in benchmarks}
     for station_id in _line_stations(reductions):
@@ -521,7 +521,7 @@ def build_setup_network(
 
     height_type = _agreed_height_type(benchmarks, geoid_model)
     findings: list[Finding] = []
-    network = Network(id=network_id, crs=crs)
+    network = Network(id=network_id, crs=crs or NO_CRS)
     known = {benchmark.station: benchmark for benchmark in benchmarks}
 
     ordered: list[str] = []

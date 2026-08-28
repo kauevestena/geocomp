@@ -159,17 +159,34 @@ re-evaluates the design without leaving the map.
 
 **Delivers.** `core/techniques/levelling/`: the three sight schemes, closure computation against tolerances,
 levelling network adjustment with length or setup weighting, three-wire import, orthometric corrections.
+Also `io/levelbook.py` (both common field-book layouts), the `level` settings section, six Processing
+algorithms under a populated Level menu, and `core/adjustment/{weighting,difference_network}.py` — see the
+note below.
 
 **Note for P8.** The height-difference observation equation *is* the gravity-difference equation — one
 function in the P2 core, verified in `tests/test_gravimetry_is_levelling.py` (ADR-0002, Amendment 1). The
 weighting work here, and the datum handling for a difference-only network, are therefore P8's as well; build
 them so that gravimetry inherits them rather than reimplementing them.
 
+**Done, and how.** The shared parts are `core/adjustment/weighting.py` (σ = k·√extent, with
+`ExtentKind.DURATION` present for a gravimeter's drift rather than promised) and
+`core/adjustment/difference_network.py` (starting values by traversal, connectivity — for a network of one
+unknown per station connected by differences, whichever kind). `tests/test_gravimetry_is_levelling.py`
+asserts both work unchanged in the gravity frame, as the second caller arriving early.
+
 **Closes.** FR-500, FR-501, FR-502, FR-503, FR-504, FR-505
 
 **Exit.** All three schemes reproduce RD-04. Loop misclosure and tolerance comparison match, including a
 failing case. Extreme-sight foresights are a correlated cluster, demonstrably reducing the uncertainty of
 derived differences between them. Mixing height types without a geoid model raises.
+
+**Two defects P4 found in earlier work**, both recorded here because they say something about where to look
+next. A 1D solution wrote its heights into the *easting* slot of its `Position` — so every levelling result
+would have reported a height of zero — because P2's `to_solution` padded frame components in order while
+`starting_values` read them by name. The correspondence is now stated once, as `Frame.position_components`.
+And the Global Settings dialog rendered its raw dotted key for all seventeen settings P3 declared, because
+the dialog is generated from the declarations but the *labels* are not; `tests/structural/test_settings_labels.py`
+now fails when a setting has none.
 
 ---
 

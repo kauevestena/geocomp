@@ -36,6 +36,15 @@ KEY = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
 #: algorithm, each with the reason it is not declared in this repository.
 FOREIGN_KEYS: dict[str, str] = {
     "OUTPUT": "Processing's own conventional output name, defined by QGIS.",
+    # RD-04's benchmarks. "BM1" is the conventional name for a benchmark and is
+    # four characters, so it matches the key shape by coincidence. Listed rather
+    # than renamed: bending reference data to satisfy a lint heuristic is
+    # backwards, and listing them keeps the mechanism honest -- a fifth
+    # benchmark fails this check until someone decides it is also a station.
+    "BM1": "RD-04 benchmark, a station name in tests/reference_levelling.py.",
+    "BM2": "RD-04 benchmark; see BM1.",
+    "BM3": "RD-04 benchmark; see BM1.",
+    "BM4": "RD-04 benchmark; see BM1.",
 }
 
 
