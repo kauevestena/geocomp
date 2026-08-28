@@ -52,12 +52,20 @@ class TestInstalling:
 
     def test_it_is_not_filed_under_a_survey_technique(self, geocomp_provider):
         """Installing a dataset belongs to no technique, and a future levelling
-        or GNSS dataset would use the same algorithm."""
-        from geocomp.registry import ALGORITHMS, TOOLBOX_ONLY_JUSTIFICATIONS
+        or GNSS dataset would use the same algorithm.
 
+        It was toolbox-only for that reason from P0 until P5, when the Project
+        menu gave it and five others a home. The claim being made is unchanged --
+        *not under a technique* -- and it is now asserted directly rather than
+        through the absence of a menu placement, which said the same thing only
+        while there was nowhere else for it to go.
+        """
+        from geocomp.registry import ALGORITHMS
+
+        techniques = {"total_station", "level", "gnss", "gravimetry", "integration"}
         spec = next(spec for spec in ALGORITHMS if spec.id == TUTORIAL_ALGORITHM)
-        assert spec.menu is None
-        assert spec.name in TOOLBOX_ONLY_JUSTIFICATIONS
+        assert spec.menu == "project"
+        assert spec.menu not in techniques
 
     @pytest.fixture(scope="class")
     def installed(self, geocomp_provider, tmp_path_factory) -> Path:

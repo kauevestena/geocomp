@@ -209,13 +209,21 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
                 # would train the user to ignore the message that matters.
                 project = None
 
+        first_write = project is None
         if project is None:
             project = Project(id=project_id, name=project_id)
         if network is not None:
             project.networks[network.id] = network
             written.append(f"network {network.id}")
 
-        store.write(project)
+        # Only rewrite the project when there is something new in it. Writing it
+        # unconditionally cost nothing visible but did real damage: `write`
+        # replaces, so adding this epoch's solution to last year's project
+        # deleted last year's -- the store looked healthy and had lost the
+        # answers. `keep_solutions` covers the case where a network *is* being
+        # added to a store that already holds results.
+        if replace or first_write or network is not None:
+            store.write(project, keep_solutions=not replace and not first_write)
         feedback.setProgress(60)
 
         if solution is not None:

@@ -94,6 +94,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   far the station moved, and a contribution to the redundancy. Found while
   checking that a geoid-derived height's uncertainty reached the adjusted
   heights - it could not, because the constraint carrying it was not there.
+- **Saving a network into a project store deleted every solution in it.** The
+  store algorithm's "add" mode called `write`, which replaces — so adding this
+  epoch's network to a monitoring project silently discarded last year's
+  answers, and the GeoPackage on disk still looked healthy. `write` now takes
+  `keep_solutions`, and the algorithm rewrites the project only when there is
+  something new in it. The defect was found by a tier-3 test of the algorithm,
+  which is the wrong place: it is a store defect, and it now has tier-1 tests
+  that fail without the fix.
 - **Every base map layer was invalid.** `QgsRasterLayer` was constructed with
   the service kind as its **provider key**, and QGIS has no provider called
   `xyz` or `wmts`: all three kinds load through the `wms` provider, with the

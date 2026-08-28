@@ -200,12 +200,34 @@ class GeoPackageStore:
 
     # -- writing ---------------------------------------------------------
 
-    def write(self, project: Project) -> None:
+    def write(self, project: Project, *, keep_solutions: bool = False) -> None:
         """Write a whole project, replacing what is there.
 
         One transaction. A partially written project is worse than an unwritten
         one -- it looks like data.
+
+        Args:
+            keep_solutions: Re-write the stored solutions afterwards, so adding
+                a network to a project does not discard its results.
+
+                **Why this is a flag and not the default.** ``write`` means
+                *replace*, and callers rely on that: it is how a project is
+                overwritten wholesale. But a caller that means "add this network
+                to what is already here" wants the results kept, and getting
+                that wrong is the failure FR-135 exists to prevent -- results
+                vanishing without anyone being told. Before this existed, saving
+                a second epoch's network into a monitoring project silently
+                deleted every solution in it, because the algorithm's "add"
+                mode called ``write``. The GeoPackage on disk still looked
+                healthy; it had simply lost a year of answers.
+
+                Re-writing rather than not deleting, because the solutions are
+                read back through the same code that reads them for anything
+                else: a second deletion path would be a second place for the
+                foreign keys between a solution, its provenance and its results
+                to go wrong.
         """
+        preserved = self.read_solutions() if keep_solutions else []
         with self._connection:
             for entry in reversed(SCHEMA):
                 self._connection.execute(f"DELETE FROM {quoted(entry.name)}")
@@ -217,6 +239,8 @@ class GeoPackageStore:
                 self._write_network(network)
             for session in project.gnss_sessions.values():
                 self._write_gnss_session(session)
+            for solution in preserved:
+                self._write_solution(solution)
 
     def write_solution(self, solution: Solution) -> None:
         """Add or replace one solution, with its provenance and results."""

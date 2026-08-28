@@ -14,6 +14,7 @@ invisible -- the numbers still look like covariances.
 
 from __future__ import annotations
 
+import dataclasses
 import sqlite3
 import struct
 
@@ -622,3 +623,77 @@ class TestTheSchemaIsDeclaredOnce:
         column = lookup("gc_observation_result").column("observation_id")
         assert column.references == "gc_observation.id"
         assert column.restrict
+
+
+class TestWritingDoesNotDiscardResults:
+    """FR-135: a stored result is never lost without the user being told.
+
+    ``write`` replaces, which is what it is for. But an algorithm adding a
+    network to an existing project called it, and every solution in that project
+    was silently deleted -- the GeoPackage on disk still looked healthy and had
+    simply lost its answers. In a monitoring project that is a year of work.
+
+    It was found by the tier-3 test of the store *algorithm*, which is the wrong
+    place: the defect is in this layer and belongs here, where it can be caught
+    without a QGIS runtime.
+    """
+
+    def test_write_replaces_by_default(self, stored):
+        """The documented behaviour, kept: `write` means replace."""
+        path, project, _solution, _network = stored
+        with open_store(path) as store:
+            assert store.read_solutions()
+            store.write(project)
+            assert store.read_solutions() == []
+
+    def test_keeping_solutions_preserves_them_across_a_write(self, stored):
+        path, project, solution, _network = stored
+        with open_store(path) as store:
+            store.write(project, keep_solutions=True)
+            kept = store.read_solutions()
+            assert [entry.id for entry in kept] == [solution.id]
+
+    def test_the_preserved_solution_is_intact_not_merely_present(self, stored):
+        """A row that survived with its foreign keys broken is not preservation."""
+        path, project, solution, _network = stored
+        with open_store(path) as store:
+            store.write(project, keep_solutions=True)
+            kept = store.read_solutions()[0]
+
+        assert kept.provenance is not None
+        assert kept.provenance.algorithm_id == solution.provenance.algorithm_id
+        assert len(kept.adjusted_stations) == len(solution.adjusted_stations)
+        assert len(kept.observation_results) == len(solution.observation_results)
+        assert kept.statistics.degrees_of_freedom == solution.statistics.degrees_of_freedom
+        # NFR-007: the covariance still reloads bit-identically.
+        np.testing.assert_array_equal(
+            kept.parameter_covariance.matrix, solution.parameter_covariance.matrix
+        )
+
+    def test_a_network_can_be_added_without_losing_the_results(self, stored, reference):
+        """The case that was broken: this epoch's network, last epoch's answers."""
+        path, project, solution, _network = stored
+        second, _solution, _net = reference
+        added = next(iter(second.networks.values()))
+        added = dataclasses.replace(added, id="epoch-2")
+
+        with open_store(path) as store:
+            project.networks[added.id] = added
+            store.write(project, keep_solutions=True)
+
+            assert set(store.read().networks) == {"rd03-levelling", "epoch-2"}
+            assert [entry.id for entry in store.read_solutions()] == [solution.id]
+
+    def test_superseding_still_works_after_a_preserving_write(self, stored):
+        """Which is what the algorithm does, and what failed in CI."""
+        path, project, solution, _network = stored
+        newer = dataclasses.replace(solution, id="epoch-2-solution")
+
+        with open_store(path) as store:
+            store.write(project, keep_solutions=True)
+            store.write_solution(newer)
+            store.supersede_solution(solution.id, newer.id)
+
+            stored_now = {entry.id: entry for entry in store.read_solutions()}
+            assert stored_now[solution.id].superseded_by == newer.id
+
