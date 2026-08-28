@@ -78,13 +78,29 @@ jobs:
       - name: Install test tooling
         run: pip3 install --break-system-packages pytest
 
-      - name: Report the QGIS version under test
-        run: python3 -c "from qgis.core import Qgis; print(Qgis.QGIS_VERSION)"
+      # Each of these fails on its own line rather than inside the test run, so
+      # a broken environment is distinguishable from a broken plugin. This job
+      # spent ten runs failing in four seconds -- before a single test ran --
+      # and reporting that as though the suite had run and failed.
+      - name: Report the environment under test
+        run: |
+          python3 -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION)"
+          python3 -c "import numpy; print('numpy', numpy.__version__)"
+          python3 -c "import pytest; print('pytest', pytest.__version__)"
+          python3 -c "import geocomp; print('geocomp', geocomp.__version__)"
 
+      - name: Collect the suite
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python3 -m pytest -q --collect-only | tail -3
+
+      # ``QT_QPA_PLATFORM=offscreen`` is what makes Qt headless, and it is
+      # sufficient on its own -- no X server and no ``xvfb-run`` wrapper, which
+      # is one more thing that has to be installed in the image to work.
       - name: Full suite with QGIS available
         env:
           QT_QPA_PLATFORM: offscreen
-        run: xvfb-run -a python3 -m pytest -q
+        run: python3 -m pytest -q
 
   # NFR-005 and FR-306: the fallback paths are requirements, and an untested
   # fallback is a fallback that does not work.

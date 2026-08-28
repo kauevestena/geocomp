@@ -12,9 +12,24 @@ DynAdjust has no gravity measurement type ([`07-engine-dynadjust.md`](./07-engin
 `rnx2rtkp` is unrelated. **Gravimetry runs wholly on the in-house adjustment core**
 ([`06-adjustment-core.md`](./06-adjustment-core.md)).
 
-This is the clearest single refutation of the archived roadmap's premise that "all heavy geodetic math is
-delegated to DynAdjust and RNX2RTKP" — a menu group required by the proposal has no engine behind it at all.
-It is one of the reasons ADR-0002 exists.
+**But not because the mathematics is exotic — the opposite.** A gravity difference and a height difference are
+the *same observation equation*: an observed difference between two station parameters, partials −1 and +1.
+GeoComp implements them as one function, and `tests/test_gravimetry_is_levelling.py` asserts that the two
+design matrices are identical element for element and that the two adjustments agree on estimates, residuals,
+variance factor and redundancy. A drift-corrected gravimetric network is a 1D difference network under a
+relabelling, and DynAdjust adjusts those.
+
+What has no engine behind it is everything *around* the adjustment: the corrections in §4 below, and above all
+**drift estimated jointly with the network** — because drift and gravity differences are not separable by
+pre-correction alone (§4.3), so pre-correcting is an approximation the in-house core does not have to make.
+That is the refutation of the archived roadmap's "all heavy geodetic math is delegated" premise, and one of
+the reasons ADR-0002 exists; see its Amendment 1, which corrects the overstated version of this claim.
+
+Three things follow. This module is **much smaller than planned**, since the adjustment is already written and
+tested. It **can** be cross-validated against DynAdjust by relabelling, which the original plan assumed
+impossible. And it is why a combined gravimetric-and-levelling adjustment
+([`13-module-integration.md`](./13-module-integration.md)) is possible at all: the two are the same kind of
+unknown observed the same way.
 
 ---
 
