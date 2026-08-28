@@ -676,6 +676,453 @@
         </message>
     </context>
     <context>
+        <name>GeoCompAdjustmentReport</name>
+        <message>
+            <source>(not recorded)</source>
+            <translation>(não registado)</translation>
+        </message>
+        <message>
+            <source>Active observations</source>
+            <translation>Observações ativas</translation>
+        </message>
+        <message>
+            <source>Adjusted coordinates</source>
+            <translation>Coordenadas ajustadas</translation>
+        </message>
+        <message>
+            <source>Adjusted stations</source>
+            <translation>Estações ajustadas</translation>
+        </message>
+        <message>
+            <source>Adjustment report</source>
+            <translation>Relatório de ajustamento</translation>
+        </message>
+        <message>
+            <source>Algorithm</source>
+            <translation>Algoritmo</translation>
+        </message>
+        <message>
+            <source>An observation with a redundancy number near zero is uncheckable: no blunder in it is detectable at all. A network full of them can pass every statistical test while being wrong, so they are listed here whether or not anything else in this report looks amiss.</source>
+            <translation>Uma observação com número de redundância próximo de zero é não verificável: nenhum erro grosseiro nela é sequer detetável. Uma rede cheia delas pode passar em todos os testes estatísticos estando errada, pelo que são listadas aqui independentemente de tudo o resto neste relatório parecer bem.</translation>
+        </message>
+        <message>
+            <source>CANDIDATE</source>
+            <translation>CANDIDATA</translation>
+        </message>
+        <message>
+            <source>Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the displacement being measured is exactly what an automatic outlier remover would delete.</source>
+            <translation>Candidatos, não rejeições. O GeoComp nunca remove uma observação por si próprio: numa rede de monitorização, o deslocamento que está a ser medido é exatamente aquilo que um removedor automático de erros grosseiros apagaria.</translation>
+        </message>
+        <message>
+            <source>Command line</source>
+            <translation>Linha de comando</translation>
+        </message>
+        <message>
+            <source>Component</source>
+            <translation>Componente</translation>
+        </message>
+        <message>
+            <source>Components</source>
+            <translation>Componentes</translation>
+        </message>
+        <message>
+            <source>Condition number</source>
+            <translation>Número de condição</translation>
+        </message>
+        <message>
+            <source>Confidence</source>
+            <translation>Confiança</translation>
+        </message>
+        <message>
+            <source>Constrained stations</source>
+            <translation>Estações injuncionadas</translation>
+        </message>
+        <message>
+            <source>Constraint</source>
+            <translation>Injunção</translation>
+        </message>
+        <message>
+            <source>Constraints</source>
+            <translation>Injunções</translation>
+        </message>
+        <message>
+            <source>Converged</source>
+            <translation>Convergiu</translation>
+        </message>
+        <message>
+            <source>Coordinate reference system</source>
+            <translation>Sistema de referência de coordenadas</translation>
+        </message>
+        <message>
+            <source>Correlated clusters</source>
+            <translation>Agrupamentos correlacionados</translation>
+        </message>
+        <message>
+            <source>Count</source>
+            <translation>Quantidade</translation>
+        </message>
+        <message>
+            <source>Created</source>
+            <translation>Criado em</translation>
+        </message>
+        <message>
+            <source>Data snooping</source>
+            <translation>Data snooping</translation>
+        </message>
+        <message>
+            <source>Datum definition</source>
+            <translation>Definição do datum</translation>
+        </message>
+        <message>
+            <source>Decision</source>
+            <translation>Decisão</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Graus de liberdade</translation>
+        </message>
+        <message>
+            <source>Digest</source>
+            <translation>Resumo criptográfico</translation>
+        </message>
+        <message>
+            <source>Effective value</source>
+            <translation>Valor efetivo</translation>
+        </message>
+        <message>
+            <source>Engine</source>
+            <translation>Motor</translation>
+        </message>
+        <message>
+            <source>Engine version</source>
+            <translation>Versão do motor</translation>
+        </message>
+        <message>
+            <source>Epoch</source>
+            <translation>Época</translation>
+        </message>
+        <message>
+            <source>Error ellipses</source>
+            <translation>Elipses de erro</translation>
+        </message>
+        <message>
+            <source>Every observation in this adjustment is checkable.</source>
+            <translation>Todas as observações deste ajustamento são verificáveis.</translation>
+        </message>
+        <message>
+            <source>Every uncertainty in this report was propagated rigorously: no approximate strategy was used at any step.</source>
+            <translation>Todas as incertezas deste relatório foram propagadas rigorosamente: nenhuma estratégia aproximada foi usada em qualquer passo.</translation>
+        </message>
+        <message>
+            <source>Exit code</source>
+            <translation>Código de saída</translation>
+        </message>
+        <message>
+            <source>External effect</source>
+            <translation>Efeito externo</translation>
+        </message>
+        <message>
+            <source>FAILED</source>
+            <translation>REPROVOU</translation>
+        </message>
+        <message>
+            <source>Field</source>
+            <translation>Campo</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>De</translation>
+        </message>
+        <message>
+            <source>GeoComp</source>
+            <translation>GeoComp</translation>
+        </message>
+        <message>
+            <source>GeoComp in-house core</source>
+            <translation>Núcleo próprio do GeoComp</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Teste global</translation>
+        </message>
+        <message>
+            <source>Identification</source>
+            <translation>Identificação</translation>
+        </message>
+        <message>
+            <source>Input</source>
+            <translation>Entrada</translation>
+        </message>
+        <message>
+            <source>Inputs</source>
+            <translation>Entradas</translation>
+        </message>
+        <message>
+            <source>Inputs are recorded by id and by content digest. The digest is what turns &amp;quot;reproduce this&amp;quot; into something checkable: the same id with different content is a different run.</source>
+            <translation>As entradas são registadas por identificador e por resumo criptográfico do conteúdo. O resumo é o que transforma &amp;quot;reproduzir isto&amp;quot; em algo verificável: o mesmo identificador com conteúdo diferente é outra execução.</translation>
+        </message>
+        <message>
+            <source>Iterations</source>
+            <translation>Iterações</translation>
+        </message>
+        <message>
+            <source>Kind</source>
+            <translation>Tipo</translation>
+        </message>
+        <message>
+            <source>Largest correction</source>
+            <translation>Maior correção</translation>
+        </message>
+        <message>
+            <source>Lower critical</source>
+            <translation>Crítico inferior</translation>
+        </message>
+        <message>
+            <source>MDB</source>
+            <translation>MDB</translation>
+        </message>
+        <message>
+            <source>NO</source>
+            <translation>NÃO</translation>
+        </message>
+        <message>
+            <source>Network</source>
+            <translation>Rede</translation>
+        </message>
+        <message>
+            <source>No effective parameters were recorded for this run.</source>
+            <translation>Não foram registados parâmetros efetivos para esta execução.</translation>
+        </message>
+        <message>
+            <source>No error ellipse was computed. A one-dimensional adjustment has none: a height has an uncertainty, not an ellipse.</source>
+            <translation>Nenhuma elipse de erro foi calculada. Um ajustamento unidimensional não tem nenhuma: uma altitude tem uma incerteza, não uma elipse.</translation>
+        </message>
+        <message>
+            <source>No global test was run for this solution.</source>
+            <translation>Nenhum teste global foi executado para esta solução.</translation>
+        </message>
+        <message>
+            <source>Observation</source>
+            <translation>Observação</translation>
+        </message>
+        <message>
+            <source>Observation results</source>
+            <translation>Resultados por observação</translation>
+        </message>
+        <message>
+            <source>Observation type</source>
+            <translation>Tipo de observação</translation>
+        </message>
+        <message>
+            <source>Observations</source>
+            <translation>Observações</translation>
+        </message>
+        <message>
+            <source>Observations by type</source>
+            <translation>Observações por tipo</translation>
+        </message>
+        <message>
+            <source>Orientation (rad)</source>
+            <translation>Orientação (rad)</translation>
+        </message>
+        <message>
+            <source>Outlier candidates</source>
+            <translation>Candidatos a erro grosseiro</translation>
+        </message>
+        <message>
+            <source>Parameter</source>
+            <translation>Parâmetro</translation>
+        </message>
+        <message>
+            <source>Parameters</source>
+            <translation>Parâmetros</translation>
+        </message>
+        <message>
+            <source>Positional uncertainty (mm)</source>
+            <translation>Incerteza posicional (mm)</translation>
+        </message>
+        <message>
+            <source>Provenance</source>
+            <translation>Proveniência</translation>
+        </message>
+        <message>
+            <source>QGIS</source>
+            <translation>QGIS</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Grandeza</translation>
+        </message>
+        <message>
+            <source>Redundancy</source>
+            <translation>Redundância</translation>
+        </message>
+        <message>
+            <source>Reliability</source>
+            <translation>Confiabilidade</translation>
+        </message>
+        <message>
+            <source>Report template</source>
+            <translation>Modelo de relatório</translation>
+        </message>
+        <message>
+            <source>Residual</source>
+            <translation>Resíduo</translation>
+        </message>
+        <message>
+            <source>Results</source>
+            <translation>Resultados</translation>
+        </message>
+        <message>
+            <source>Row</source>
+            <translation>Linha</translation>
+        </message>
+        <message>
+            <source>Semi-major (mm)</source>
+            <translation>Semieixo maior (mm)</translation>
+        </message>
+        <message>
+            <source>Semi-minor (mm)</source>
+            <translation>Semieixo menor (mm)</translation>
+        </message>
+        <message>
+            <source>Setting</source>
+            <translation>Configuração</translation>
+        </message>
+        <message>
+            <source>Software</source>
+            <translation>Software</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Some uncertainties in this report are APPROXIMATE. The strategies used were: %1. An approximate figure presented as a rigorously propagated one misrepresents the quality of the survey, which is why this notice cannot be removed by a template.</source>
+            <translation>Algumas incertezas deste relatório são APROXIMADAS. As estratégias usadas foram: %1. Um valor aproximado apresentado como rigorosamente propagado deturpa a qualidade do levantamento, e é por isso que este aviso não pode ser removido por um modelo.</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>Origem</translation>
+        </message>
+        <message>
+            <source>Standardised</source>
+            <translation>Padronizado</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estações</translation>
+        </message>
+        <message>
+            <source>Statistic</source>
+            <translation>Estatística</translation>
+        </message>
+        <message>
+            <source>Statistics</source>
+            <translation>Estatísticas</translation>
+        </message>
+        <message>
+            <source>Superseded by</source>
+            <translation>Substituída por</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Teste</translation>
+        </message>
+        <message>
+            <source>The global test failed. Either the observations disagree with each other more than their weights allow, or the weights are wrong — the test cannot distinguish the two, and reporting it as &amp;quot;the adjustment failed&amp;quot; would.</source>
+            <translation>O teste global falhou. Ou as observações divergem entre si mais do que os seus pesos permitem, ou os pesos estão errados — o teste não distingue os dois casos, e comunicá-lo como &amp;quot;o ajustamento falhou&amp;quot; distinguiria.</translation>
+        </message>
+        <message>
+            <source>The network was not supplied to the report, so the input summary is limited to what the solution records.</source>
+            <translation>A rede não foi fornecida ao relatório, pelo que o resumo das entradas se limita ao que a solução regista.</translation>
+        </message>
+        <message>
+            <source>The scope column is what makes a run reproducible: the same value reached from a project override and from the built-in default are different statements to somebody repeating the work.</source>
+            <translation>A coluna do âmbito é o que torna uma execução reproduzível: o mesmo valor obtido a partir de uma substituição do projeto e a partir do valor predefinido são afirmações diferentes para quem repete o trabalho.</translation>
+        </message>
+        <message>
+            <source>This solution adjusted no station.</source>
+            <translation>Esta solução não ajustou nenhuma estação.</translation>
+        </message>
+        <message>
+            <source>This solution carries no provenance record, so what produced it cannot be reproduced from this report.</source>
+            <translation>Esta solução não tem registo de proveniência, pelo que aquilo que a produziu não pode ser reproduzido a partir deste relatório.</translation>
+        </message>
+        <message>
+            <source>This solution recorded no per-observation results.</source>
+            <translation>Esta solução não registou resultados por observação.</translation>
+        </message>
+        <message>
+            <source>Uncertainty</source>
+            <translation>Incerteza</translation>
+        </message>
+        <message>
+            <source>Uncertainty mode</source>
+            <translation>Modo de incerteza</translation>
+        </message>
+        <message>
+            <source>Uncheckable observations</source>
+            <translation>Observações não verificáveis</translation>
+        </message>
+        <message>
+            <source>Upper critical</source>
+            <translation>Crítico superior</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Variance factor a posteriori</source>
+            <translation>Fator de variância a posteriori</translation>
+        </message>
+        <message>
+            <source>Variance factor a priori</source>
+            <translation>Fator de variância a priori</translation>
+        </message>
+        <message>
+            <source>Version</source>
+            <translation>Versão</translation>
+        </message>
+        <message>
+            <source>What a failed global test means</source>
+            <translation>O que significa um teste global reprovado</translation>
+        </message>
+        <message>
+            <source>Where each value came from</source>
+            <translation>De onde veio cada valor</translation>
+        </message>
+        <message>
+            <source>accepted</source>
+            <translation>aceite</translation>
+        </message>
+        <message>
+            <source>passed</source>
+            <translation>aprovou</translation>
+        </message>
+        <message>
+            <source>shipped with GeoComp</source>
+            <translation>fornecido com o GeoComp</translation>
+        </message>
+        <message>
+            <source>sigma %1 (mm)</source>
+            <translation>sigma %1 (mm)</translation>
+        </message>
+        <message>
+            <source>w-test</source>
+            <translation>teste w</translation>
+        </message>
+        <message>
+            <source>yes</source>
+            <translation>sim</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompAlgorithm</name>
         <message>
             <source>Requirement</source>

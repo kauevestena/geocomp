@@ -45,6 +45,11 @@ FOREIGN_KEYS: dict[str, str] = {
     "BM2": "RD-04 benchmark; see BM1.",
     "BM3": "RD-04 benchmark; see BM1.",
     "BM4": "RD-04 benchmark; see BM1.",
+    "FAILED": (
+        "A word the adjustment report prints when the global test fails, "
+        "asserted in tests/qgis/test_adjustment_report.py. Upper case because "
+        "it is meant to be noticed, not because it is a parameter."
+    ),
 }
 
 
