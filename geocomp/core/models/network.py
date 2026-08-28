@@ -236,10 +236,27 @@ class Network:
                 )
 
         for cluster in self.clusters.values():
+            resolved = []
             for observation_id in cluster.observation_ids:
                 if observation_id not in self.observations:
                     problems.append(
                         f"cluster {cluster.id} references unknown observation {observation_id}"
+                    )
+                else:
+                    resolved.append(self.observations[observation_id])
+
+            # **The exact covariance size, checked here because only here do the
+            # members resolve.** A Cluster holds observation *ids*, so it can
+            # check divisibility and no more; the adjustment needs one row per
+            # component, and a GNSS baseline contributes three. Getting this
+            # wrong is not a shape error that fails loudly downstream -- it is
+            # FR-104's correlation being silently dropped or misaligned.
+            if len(resolved) == len(cluster.observation_ids):
+                components = sum(len(o.spec.components) for o in resolved)
+                if components != cluster.covariance.size:
+                    problems.append(
+                        f"cluster {cluster.id} carries a {cluster.covariance.size}-component "
+                        f"covariance for members with {components} components in total"
                     )
 
         return problems

@@ -129,28 +129,76 @@ def _spec(
 
 ANGLE, LENGTH, ACCEL = Unit.RADIAN, Unit.METRE, Unit.ACCELERATION
 
-#: The registry. Verified DynAdjust codes are from the upstream README and
-#: documentation; the rest are marked unverified and must be confirmed against
-#: the User's Guide during phase P6 (specs/07 section 4.2).
+#: The registry.
+#:
+#: **Every DynAdjust code is now verified** (phase P6), against upstream at
+#: commit ``5cdb897``: the measurement tally in ``dnameasurement.hpp``, the
+#: import parser's switch in ``dnainterop.cpp``, and Table 3.2 of the User's
+#: Guide, which agree. P1 could confirm eight of them from the README and left
+#: the rest marked unverified precisely so this could not be forgotten.
+#:
+#: Two pairs the spec's table had collapsed into one row each, and both would
+#: have been silent errors: ``AZIMUTH`` is **B** while ``ASTRONOMIC_AZIMUTH`` is
+#: **K** -- a geodetic azimuth written as K is adjusted against a deflection of
+#: the vertical it never had; and ``ZENITH_ANGLE`` is **V** while
+#: ``VERTICAL_ANGLE`` is **Z**, which differ by 90 degrees.
+#:
+#: ``HORIZONTAL_DISTANCE`` keeps no code deliberately. DynAdjust's ``M`` is a
+#: *mean sea level* arc, reduced to a surface GeoComp does not model, and
+#: equating the two is a metre-scale error over a long line
+#: (``specs/07`` section 4.2). Gravity has none because DynAdjust has no
+#: gravimetric measurement type at all, which is what forces ADR-0002.
 OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
     spec.type: spec
     for spec in (
-        _spec(ObservationType.DIRECTION, 2, ("angle",), (ANGLE,), clustered=True, dims={2, 3}),
-        _spec(ObservationType.HORIZONTAL_ANGLE, 3, ("angle",), (ANGLE,), dims={2, 3}),
-        _spec(ObservationType.AZIMUTH, 2, ("angle",), (ANGLE,), dims={2, 3}),
-        _spec(ObservationType.ASTRONOMIC_AZIMUTH, 2, ("angle",), (ANGLE,), dims={2, 3}),
-        _spec(ObservationType.ZENITH_ANGLE, 2, ("angle",), (ANGLE,), dims={3}),
-        _spec(ObservationType.VERTICAL_ANGLE, 2, ("angle",), (ANGLE,), dims={3}),
-        _spec(ObservationType.SLOPE_DISTANCE, 2, ("distance",), (LENGTH,), dims={3}),
-        _spec(ObservationType.HORIZONTAL_DISTANCE, 2, ("distance",), (LENGTH,), dims={2, 3}),
+        _spec(
+            ObservationType.DIRECTION, 2, ("angle",), (ANGLE,),
+            clustered=True, dims={2, 3}, dna="D", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.HORIZONTAL_ANGLE, 3, ("angle",), (ANGLE,),
+            dims={2, 3}, dna="A", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.AZIMUTH, 2, ("angle",), (ANGLE,),
+            dims={2, 3}, dna="B", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.ASTRONOMIC_AZIMUTH, 2, ("angle",), (ANGLE,),
+            dims={2, 3}, dna="K", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.ZENITH_ANGLE, 2, ("angle",), (ANGLE,),
+            dims={3}, dna="V", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.VERTICAL_ANGLE, 2, ("angle",), (ANGLE,),
+            dims={3}, dna="Z", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.SLOPE_DISTANCE, 2, ("distance",), (LENGTH,),
+            dims={3}, dna="S", dna_verified=True,
+        ),
+        # No DynAdjust equivalent, and the absence is verified rather than
+        # unexamined: M is a *mean sea level* arc, not a horizontal distance.
+        _spec(
+            ObservationType.HORIZONTAL_DISTANCE, 2, ("distance",), (LENGTH,),
+            dims={2, 3}, dna_verified=True,
+        ),
         # Ellipsoid chord (C) and arc (E) are both confirmed upstream; GeoComp
         # models one type and selects the code from the reduction applied.
         _spec(
             ObservationType.ELLIPSOID_DISTANCE, 2, ("distance",), (LENGTH,),
             dims={2, 3}, dna="C", dna_verified=True,
         ),
-        _spec(ObservationType.HEIGHT_DIFFERENCE, 2, ("height_difference",), (LENGTH,), dims={1, 3}),
-        _spec(ObservationType.ORTHOMETRIC_HEIGHT, 1, ("height",), (LENGTH,), dims={1, 3}),
+        _spec(
+            ObservationType.HEIGHT_DIFFERENCE, 2, ("height_difference",), (LENGTH,),
+            dims={1, 3}, dna="L", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.ORTHOMETRIC_HEIGHT, 1, ("height",), (LENGTH,),
+            dims={1, 3}, dna="H", dna_verified=True,
+        ),
         _spec(
             ObservationType.ELLIPSOIDAL_HEIGHT, 1, ("height",), (LENGTH,),
             dims={1, 3}, dna="R", dna_verified=True,
@@ -163,8 +211,14 @@ OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
             ObservationType.GEODETIC_LONGITUDE, 1, ("longitude",), (ANGLE,),
             dims={2, 3}, dna="Q", dna_verified=True,
         ),
-        _spec(ObservationType.ASTRONOMIC_LATITUDE, 1, ("latitude",), (ANGLE,), dims={2, 3}),
-        _spec(ObservationType.ASTRONOMIC_LONGITUDE, 1, ("longitude",), (ANGLE,), dims={2, 3}),
+        _spec(
+            ObservationType.ASTRONOMIC_LATITUDE, 1, ("latitude",), (ANGLE,),
+            dims={2, 3}, dna="I", dna_verified=True,
+        ),
+        _spec(
+            ObservationType.ASTRONOMIC_LONGITUDE, 1, ("longitude",), (ANGLE,),
+            dims={2, 3}, dna="J", dna_verified=True,
+        ),
         _spec(
             ObservationType.GNSS_BASELINE, 2, ("dx", "dy", "dz"), (LENGTH,) * 3,
             clustered=True, dims={3}, dna="G", dna_verified=True,
@@ -182,8 +236,14 @@ OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
         # units and cannot carry a jointly estimated drift, so it belongs in the
         # P6 cross-validation path rather than in the routine export. ADR-0002,
         # Amendment 1.
-        _spec(ObservationType.GRAVITY, 1, ("gravity",), (ACCEL,), dims={1}),
-        _spec(ObservationType.GRAVITY_DIFFERENCE, 2, ("gravity_difference",), (ACCEL,), dims={1}),
+        _spec(
+            ObservationType.GRAVITY, 1, ("gravity",), (ACCEL,),
+            dims={1}, dna_verified=True,
+        ),
+        _spec(
+            ObservationType.GRAVITY_DIFFERENCE, 2, ("gravity_difference",), (ACCEL,),
+            dims={1}, dna_verified=True,
+        ),
     )
 }
 
@@ -408,16 +468,42 @@ class Cluster:
     covariance: Covariance
 
     def __post_init__(self) -> None:
-        if len(self.observation_ids) != self.covariance.size:
+        if not self.observation_ids:
             raise DataError(
-                "cluster_size_mismatch",
+                "cluster_without_members",
                 cluster=self.id,
-                observations=len(self.observation_ids),
-                covariance=self.covariance.size,
-                expected="one covariance component per member observation",
+                expected="at least one member observation",
             )
         if len(set(self.observation_ids)) != len(self.observation_ids):
             raise DataError("cluster_duplicate_members", cluster=self.id)
+
+        # **One covariance row per component, not per observation.** A member
+        # with three components -- a GNSS baseline is the case FR-104 exists for
+        # -- contributes three rows, so a cluster of two baselines carries a 6x6.
+        #
+        # This was `size != len(observation_ids)` and made that cluster
+        # impossible to build: the constructor refused the 6x6 the adjustment
+        # requires and accepted the 2x2 the adjustment then rejected, so the
+        # single most important correctness rule of the DynAdjust writer had no
+        # representable input. Scalar members hid it, because for them the two
+        # counts agree.
+        #
+        # The exact count needs the member observations, which a Cluster does
+        # not hold -- it has their ids. So the divisibility is checked here and
+        # the exact check lives in `Network.validate`, where they resolve.
+        members = len(self.observation_ids)
+        if self.covariance.size < members or self.covariance.size % members:
+            raise DataError(
+                "cluster_size_mismatch",
+                cluster=self.id,
+                observations=members,
+                covariance=self.covariance.size,
+                expected=(
+                    f"a covariance over every component of every member: a whole "
+                    f"multiple of {members}, one row per component "
+                    f"(a GNSS baseline contributes three)"
+                ),
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
