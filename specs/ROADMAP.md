@@ -201,15 +201,26 @@ now fails when a setting has none.
 recording; the *Adjust* (Ghilani) reader/writer; CSV and XLSX export; geoid and height model import; base map
 integration; the adjustment report.
 
-**Closes.** FR-065, FR-130, FR-132, FR-133, FR-134, FR-135, FR-161, FR-162, FR-165, FR-167, FR-930
+**Closes.** FR-065, FR-130, FR-132, FR-133, FR-134, FR-135, FR-162, FR-165, FR-167, FR-930
 
 **Exit.** A complete project round-trips through GeoPackage losslessly. A newer schema is refused; an older
 one migrates after a backup. Deleting observations a solution depends on is refused. An *Adjust* example file
 reads, adjusts and writes back equivalently. A geoid model imports, applies, records its identity and
 contributes its uncertainty. Reports render in all three languages, byte-identical across runs.
 
-**In progress.** The store, export, the report and the geoid are in; the *Adjust* format, reference-system
-settings (FR-065) and base maps (FR-167) remain, with the Processing algorithms and the tier-3 tests.
+**In progress.** The store, export, the report and the geoid are in; reference-system settings (FR-065) and
+base maps (FR-167) remain, with the Processing algorithms and the tier-3 tests.
+
+**Re-planned: the *Adjust* format (FR-161).** Blocked, not skipped. No specification of the format and no
+example file could be obtained — the book is not in this repository, the publisher's and Penn State's
+distribution pages are outside this environment's network policy, and no public description of the layout
+exists beyond "similar to a StarNet file". A guessed parser would fail the phase's own exit criterion, which
+requires round-tripping an example file, and would fail it invisibly: a misread worked example produces an
+adjustment of the wrong network, and matching the book's numbers is the entire point of the requirement. One
+example file with its published answer unblocks it. See
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2, which also
+records the trap that NGS ADJUST — open source, well documented, and what a search returns — is a different
+program.
 
 **Two defects, both of the same shape: a feature that was declared, validated, displayed — and inert.**
 `ConstraintMode.WEIGHTED` reached the model layer and stopped there; the adjustment read only `FIXED`, so a
@@ -236,15 +247,26 @@ rather than *push*.
 verification, installation, version detection, graceful absence. `engines/dynadjust/`: the DynaML writer, the
 DNA reader, the pipeline driver, the output parsers, and the mapping into `Solution`.
 
-**Closes.** FR-036, FR-066, FR-163, FR-300, FR-301, FR-302, FR-303, FR-304, FR-305, FR-306, FR-320, FR-321,
-FR-322, FR-323, FR-324, FR-325
+**Closes.** FR-036, FR-066, FR-161, FR-163, FR-300, FR-301, FR-302, FR-303, FR-304, FR-305, FR-306, FR-320,
+FR-321, FR-322, FR-323, FR-324, FR-325
+
+**Re-planned into this phase.** **FR-161** — the *Adjust* (Ghilani) format — moves from **P5**, which could
+obtain neither a specification of it nor an example file. It lands here rather than later because P6 is
+already the interchange-format phase: the DynaML writer, the DNA reader and an *Adjust* reader are the same
+kind of work over the same `Network` and `Solution` types, and one example file with its published answer is
+all that is missing. See
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 for what was
+searched and what would unblock it. If P6 cannot obtain the file either, it moves again and says so — it is
+not to be implemented from a guess.
 
 **Exit.** DynaML written by GeoComp validates against the schema and imports without warnings for every
 mapped observation type. A GNSS baseline cluster round-trips with its covariance intact. **The same network
 adjusted by the in-house core and by DynAdjust agrees within the tolerances of
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §4, on at least three networks.** The engine
 manager installs on all three operating systems. With DynAdjust absent, everything else still works. Every
-**[C]** claim in [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) has been confirmed or corrected.
+**[C]** claim in [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) has been confirmed or corrected. An
+*Adjust*-format example file reads, adjusts and writes back equivalently — or FR-161 moves again with the
+reason recorded, since a parser written from a guess is not an implementation of it.
 
 ---
 

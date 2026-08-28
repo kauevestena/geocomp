@@ -158,6 +158,42 @@ worked examples can be opened in GeoComp and compared.
 Read and write. The format's own conventions (its observation type codes, units and station referencing) are
 documented in the implementation and validated against published example files.
 
+#### Blocked, and on what (P5)
+
+**Not implemented, and deliberately not guessed.** P5 could not obtain a specification of the format or a
+single example file:
+
+- Ghilani (2010) is not available to this repository. `research_project/referencias.bib` cites it
+  (`Ghilani2010`, and the 6th edition as `ghilani_adjustment`), but `research_project/bibliography/` holds
+  only the DynAdjust and RTKLIB material.
+- The software and its documentation are distributed from the publisher's and Penn State's student-resource
+  pages, which this environment's network policy does not reach.
+- No public description of the file layout was found. The one substantive statement located is that ADJUST
+  *"reads a text file similar in format to a StarNet file, though a bit more cumbersome to write"* — which
+  names a resemblance, not a grammar, and is not something a parser can be written against.
+
+Writing a plausible parser anyway would fail this section's own acceptance criterion 7 — *an* Adjust*-format
+example file reads, adjusts, and writes back to the same format equivalently* — since there is no example
+file to round-trip. Worse, it would fail it invisibly: a reader that misinterprets a class's worked example
+produces an adjustment of the wrong network, and the pedagogical value FR-161 exists for depends entirely on
+the numbers matching what the student's book says. Interoperability that is wrong is worse than
+interoperability that is absent, because the second is obvious.
+
+> **A trap for whoever implements this.** There are two unrelated programs called ADJUST. **NGS ADJUST**
+> (NOAA/National Geodetic Survey, `github.com/noaa-ngs/adjust`) is a Blue Book adjustment program reading
+> A-, B- and G-files, is open source, and is what a search for "ADJUST file format" returns. It is **not**
+> the program FR-161 names. FR-161 is Ghilani's teaching software accompanying *Adjustment Computations*.
+> Implementing the Blue Book formats would satisfy a search result and not the requirement.
+
+**What unblocks it**, in order of preference: an example input file with its published answer (enough on its
+own — the format is small and a worked example pins the grammar); the software's help file or manual; or the
+book's software appendix. Any one of these turns this into a day's work, since the reader and writer sit on
+the `Network`/`Solution` types that already exist.
+
+Until then FR-161's *Adjust* half is **re-planned, not dropped**: it is recorded here, in
+[`ROADMAP.md`](./ROADMAP.md) under P5, and in [`traceability.md`](./traceability.md), so that it is visibly
+outstanding rather than quietly missing. FR-162 (CSV and `.xlsx`) is unaffected and is implemented.
+
 ### 5.3 DynAdjust formats (FR-163)
 
 DynaML (write and read) and DNA `.stn`/`.msr` (read, with write as a secondary path). Specified in
@@ -241,5 +277,6 @@ service — a configurable list with sensible defaults.
 5. An import with deliberately corrupt rows reports each one with its row number and imports the rest.
 6. Cancelling an import leaves the target unchanged.
 7. An *Adjust*-format example file reads, adjusts, and writes back to the same format equivalently.
+   **Blocked at P5** for want of a format specification and an example file — see §5.2.
 8. A geoid model imports, is applied, records its identity in the solution, and contributes its uncertainty.
 9. Covariance stored and reloaded is bit-identical (NFR-007).

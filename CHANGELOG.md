@@ -55,6 +55,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   far the station moved, and a contribution to the redundancy. Found while
   checking that a geoid-derived height's uncertainty reached the adjusted
   heights - it could not, because the constraint carrying it was not there.
+- **A tier-3 module errored instead of skipping without QGIS.**
+  `tests/qgis/test_adjustment_report.py` carried `pytestmark = pytest.mark.qgis`,
+  which labels and does not skip. Every other tier-3 module reaches QGIS through
+  a fixture that skips, so the label being inert had never mattered; this one's
+  fixtures did not need the provider, so nothing skipped and their lazy imports
+  raised - twenty-five errors in the seven CI jobs with no QGIS.
+  `tests/structural/test_tier3_skips_cleanly.py` now fails when a tier-3 module
+  has neither `requires_qgis` in its `pytestmark` nor a skipping fixture reaching
+  every test, autouse fixtures included.
 - **`geocomp.reports` forced Qt on every importer.** The package re-exported the
   Qt-dependent report renderer eagerly, so importing the pure-Python template
   engine pulled in `qgis`, and the template engine's tier-1 tests failed to

@@ -120,7 +120,7 @@ amended to match rather than being contradicted by the code.
 | §Aplicação da propagação de covariâncias — rigorous and approximate uncertainty for every quantity | FR-200…FR-208 | P1 |
 | §Análise de Qualidade — global χ² test, data snooping, internal and external reliability | FR-250…FR-253 | P2 |
 | §Justificativa pedagógica — free and constrained networks, residuals, error ellipses explorable visually | FR-222, FR-254, FR-900, FR-901 | P2, P3 |
-| §Arquitetura do plugin — CSV/XLSX and *Adjust* interoperability | FR-160…FR-162 | P3, P4, P5 |
+| §Arquitetura do plugin — CSV/XLSX and *Adjust* interoperability | FR-160…FR-162 | P3, P4, P5, P6 (FR-161 re-planned into P6 — see [`17`](./17-persistence-and-interoperability.md) §5.2) |
 | §Arquitetura do plugin — geoid and height model import, deflection of the vertical | FR-165 | P5 |
 | §Arquitetura do plugin — base maps and orthophotos for context | FR-167 | P5 |
 | §Arquitetura do plugin — residual, ellipse, displacement vector and thematic map visualisation | FR-900…FR-905 | P3, P10, P12 |

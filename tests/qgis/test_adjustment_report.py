@@ -29,8 +29,16 @@ from geocomp.core.models.solution import Provenance
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.uncertainty import Strategy, UncertaintyMode
+from tests.conftest import requires_qgis
 
-pytestmark = pytest.mark.qgis
+# **Both marks, and the skipif is the load-bearing one.** ``pytest.mark.qgis``
+# only labels; it does not skip. Every other file here reaches QGIS through the
+# ``qgis_app`` or ``geocomp_provider`` fixture, which skips when there is no
+# runtime -- but this module's fixtures do not need the provider, so nothing
+# skipped, the lazy ``from geocomp.reports import ...`` inside them raised
+# ``ModuleNotFoundError``, and twenty-five tests **errored** rather than being
+# skipped in the seven CI jobs without QGIS.
+pytestmark = [pytest.mark.qgis, requires_qgis]
 
 
 @pytest.fixture(scope="module")
