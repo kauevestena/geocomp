@@ -32,6 +32,7 @@ from qgis.core import (
     QgsProcessingLayerPostProcessorInterface,
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterNumber,
+    QgsProcessingUtils,
     QgsWkbTypes,
 )
 from qgis.PyQt.QtCore import QCoreApplication
@@ -274,6 +275,12 @@ def write_result_layers(
             continue
         for feature in producers[name]():
             sink.addFeature(feature)
+
+        # Named twice, deliberately. The post-processor is what renames the
+        # layer QGIS loads into the project; it does not run for an algorithm
+        # driven from a model or a script, and FR-901's exaggeration factor has
+        # to reach the reader on every path, not only the toolbox one.
+        _name_layer(context, destination, names.get(name, ""))
         _register_style(context, destination, style, names.get(name, ""))
 
     return outputs
@@ -281,6 +288,22 @@ def write_result_layers(
 
 def _any_requested(parameters: dict[str, Any]) -> bool:
     return any(parameters.get(name) for name, *_rest in LAYER_OUTPUTS)
+
+
+def _name_layer(context: QgsProcessingContext, destination: str, name: str) -> None:
+    """Rename the layer now, while the run still has it.
+
+    A sink's layer exists in the context's temporary store as soon as it is
+    created, so it can carry its name immediately rather than only once
+    Processing loads it. Missing or unresolvable is not an error: the name is
+    an improvement on the parameter's label, not a requirement, and the factor
+    is on every feature regardless.
+    """
+    if not destination or not name:
+        return
+    layer = QgsProcessingUtils.mapLayerFromString(destination, context)
+    if layer is not None:
+        layer.setName(name)
 
 
 def _register_style(

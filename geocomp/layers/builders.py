@@ -290,7 +290,7 @@ def residual_features(solution: Solution, network: Network) -> Iterator[QgsFeatu
     all, and that is categorical (``specs/19`` section 2).
     """
     fields = fields_for("residuals")
-    positions = _positions(solution)
+    positions = _positions(solution, network)
     for result in solution.observation_results:
         observation = network.observations.get(result.observation_id)
         if observation is None:
@@ -343,11 +343,7 @@ def observation_features(
     geometry.
     """
     fields = fields_for("observations")
-    positions = _positions(solution) if solution else {}
-    for station in network.stations.values():
-        if station.id not in positions and station.approx_position is not None:
-            east, north, _up = station.approx_position.values
-            positions[station.id] = (east.value, north.value)
+    positions = _positions(solution, network)
 
     for observation in network.observations.values():
         geometry = _connecting_line(observation.stations, positions)
@@ -459,8 +455,31 @@ def _plan(station) -> tuple[float, float]:
     return east.value, north.value
 
 
-def _positions(solution: Solution) -> dict[str, tuple[float, float]]:
-    return {station.station_id: _plan(station) for station in solution.adjusted_stations}
+def _positions(
+    solution: Solution | None = None, network: Network | None = None
+) -> dict[str, tuple[float, float]]:
+    """Where to draw each station, adjusted position first.
+
+    **A held station is not in ``adjusted_stations``** -- it has no estimated
+    parameters -- so a solution alone locates only the stations that moved. Any
+    observation touching a fixed one would then have no line, and the residual
+    map would silently omit exactly the observations that tie the network to its
+    datum. The network's approximate and constraint positions fill the gap.
+    """
+    positions: dict[str, tuple[float, float]] = {}
+    if solution is not None:
+        positions.update(
+            {station.station_id: _plan(station) for station in solution.adjusted_stations}
+        )
+    if network is not None:
+        for station in network.stations.values():
+            if station.id in positions:
+                continue
+            position = station.approx_position or station.constraint.position
+            if position is not None:
+                east, north, _up = position.values
+                positions[station.id] = (east.value, north.value)
+    return positions
 
 
 def _connecting_line(stations, positions) -> QgsGeometry | None:
