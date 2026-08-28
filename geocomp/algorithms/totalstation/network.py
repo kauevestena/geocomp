@@ -218,9 +218,14 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 defaultValue=2000.0,
             )
         )
-        self.addAdvancedParameter(
+        # Required, and not advanced. It was both, which was incoherent: the
+        # model refuses to build a position without a CRS ("GeoComp does not
+        # infer one"), so declaring the parameter optional promised something
+        # the algorithm could not deliver and failed deep inside instead, with
+        # a message about a position rather than about the empty field.
+        self.addParameter(
             QgsProcessingParameterString(
-                CRS, self.tr("CRS authority code"), defaultValue="", optional=True
+                CRS, self.tr("CRS authority code, e.g. EPSG:31982"), defaultValue=""
             )
         )
         for name, label, filter_text, by_default in (
@@ -254,7 +259,17 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         dimension = _DIMENSIONS[self.parameterAsEnum(parameters, DIMENSION, context)]
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context))
         fixed_names = station_list(self.parameterAsString(parameters, FIXED_STATIONS, context))
-        crs = self.parameterAsString(parameters, CRS, context)
+        crs = self.parameterAsString(parameters, CRS, context).strip()
+        if not crs:
+            raise QgsProcessingException(
+                self.tr(
+                    "A CRS authority code is required, for example 'EPSG:31982'. GeoComp "
+                    "does not infer one: the adjusted coordinates are meaningless without "
+                    "knowing what they are coordinates in, and a guess would be recorded "
+                    "on the solution as though it had been chosen. For a local survey with "
+                    "no datum, use the projected CRS of the area it sits in."
+                )
+            )
         confidence = self.parameterAsDouble(parameters, CONFIDENCE, context)
 
         missing = sorted(set(fixed_names or ()) - set(approximate))
@@ -465,7 +480,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                             [
                                 repr(ellipse.semi_major),
                                 repr(ellipse.semi_minor),
-                                repr(ellipse.azimuth),
+                                repr(ellipse.orientation),
                             ]
                             if ellipse
                             else ["", "", ""]

@@ -220,6 +220,14 @@ def write_result_layers(
 
     outputs: dict[str, Any] = {}
     for name, style, geometry in LAYER_OUTPUTS:
+        # Nothing is built for a sink nobody asked for -- not even its field
+        # list. All five are optional, so the common case is that most are
+        # absent, and an adjustment that requested no layers must not be able
+        # to fail inside the layer code: the layers are a view of the result,
+        # and a view must never take the result down with it.
+        if not parameters.get(name):
+            outputs[name] = None
+            continue
         sink, destination = algorithm.parameterAsSink(
             parameters, name, context, fields_for(style), geometry, solution.crs
         )

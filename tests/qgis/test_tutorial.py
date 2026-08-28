@@ -152,6 +152,9 @@ class TestFollowingIt:
             "geocomp:totalstation_preprocess",
             {
                 "READINGS": imported["OUTPUT_READINGS"],
+                # The same library as step 1: the readings record which
+                # instrument took them, and the reduction needs its constants.
+                "PROFILES": str(workspace / "profiles.json"),
                 "APPLY_ATMOSPHERIC": False,
                 "OUTPUT_REDUCED": str(workspace / "reduced.json"),
             },
@@ -171,6 +174,7 @@ class TestFollowingIt:
                 "APPROXIMATE": str(workspace / "approximate.json"),
                 "DIMENSION": 0,
                 "DATUM": 1,
+                "CRS": "EPSG:31982",
                 "OUTPUT_SOLUTION": str(workspace / "solution.json"),
             },
         )

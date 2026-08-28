@@ -328,7 +328,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                         repr(station.positional_uncertainty),
                         repr(station.ellipse.semi_major),
                         repr(station.ellipse.semi_minor),
-                        repr(station.ellipse.azimuth),
+                        repr(station.ellipse.orientation),
                     ]
                 )
 
@@ -374,7 +374,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                         f'<span class="num">{format_number(station.positional_uncertainty)}</span>',
                         format_number(station.ellipse.semi_major),
                         format_number(station.ellipse.semi_minor),
-                        format_number(station.ellipse.azimuth),
+                        format_number(station.ellipse.orientation),
                     ]
                     for station in design.stations
                 ],

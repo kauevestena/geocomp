@@ -160,6 +160,11 @@ re-evaluates the design without leaving the map.
 **Delivers.** `core/techniques/levelling/`: the three sight schemes, closure computation against tolerances,
 levelling network adjustment with length or setup weighting, three-wire import, orthometric corrections.
 
+**Note for P8.** The height-difference observation equation *is* the gravity-difference equation — one
+function in the P2 core, verified in `tests/test_gravimetry_is_levelling.py` (ADR-0002, Amendment 1). The
+weighting work here, and the datum handling for a difference-only network, are therefore P8's as well; build
+them so that gravimetry inherits them rather than reimplementing them.
+
 **Closes.** FR-500, FR-501, FR-502, FR-503, FR-504, FR-505
 
 **Exit.** All three schemes reproduce RD-04. Loop misclosure and tolerance comparison match, including a
@@ -236,12 +241,20 @@ show the FR-604 notice.
 
 ## P8 — Gravimetry
 
-**Goal.** The menu group with no engine behind it.
+**Goal.** The menu group whose *corrections* have no engine behind them.
 
 **Specs.** [`12-module-gravimetry.md`](./12-module-gravimetry.md)
 
 **Delivers.** `core/techniques/gravimetry/`: scale, tidal and drift corrections; gravimetric network
 adjustment on the in-house core with jointly estimated drift; gravimeter profiles.
+
+**Smaller than it looks.** The network adjustment is already written: a gravity difference and a height
+difference are the same observation equation, so P2's core and P4's 1D weighting and datum work both carry
+over unchanged (ADR-0002, Amendment 1). What is genuinely new here is the corrections, drift as a nuisance
+parameter — which is the one piece no external 1D engine can supply, since drift and gravity differences are
+not separable by pre-correction alone — and the datum of a difference-only network. It also means the P6
+cross-validation *can* cover gravimetry, by relabelling the differences as level differences, which the
+original plan assumed impossible.
 
 **Closes.** FR-700, FR-701, FR-702, FR-703
 

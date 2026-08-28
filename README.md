@@ -53,6 +53,32 @@ software catches both.
 | Try it on real data | [`geocomp/resources/datasets/rd01/README.md`](geocomp/resources/datasets/rd01/README.md) |
 | Know why a decision was made | [`specs/adr/`](specs/adr/) |
 
+## Running the tests
+
+Three tiers ([`specs/20`](specs/20-testing-and-validation.md) §2). The first two need nothing but Python:
+
+```sh
+pip install pytest ruff numpy
+ruff check . && pytest -q
+```
+
+**Tier 3 needs a real QGIS**, and is where every "does it actually register, render and run" question is
+answered. CI runs it in the official `qgis/qgis:latest` container. To run it locally, install QGIS with its
+Python bindings and point pytest at the interpreter those bindings were built for:
+
+```sh
+sudo apt-get install -y qgis python3-qgis xvfb        # Debian/Ubuntu
+QT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/qgis
+```
+
+The bindings are built for the distribution's own Python, which may not be the `python3` on your PATH — if
+the import fails with `No module named 'PyQt5.sip'`, you are running the wrong interpreter.
+
+**Run tier 3 before believing a change works.** The QGIS-free tiers cannot reach the Processing boundary, the
+dialogs, or the QML styles, and a change that passes them can still be broken everywhere a user would touch
+it. Tests needing a QGIS newer than the one installed skip with the reason stated, rather than failing, so a
+red result is a real one.
+
 ## What GeoComp does that the engines do not
 
 DynAdjust adjusts networks; `rnx2rtkp` processes GNSS. Neither performs the instrument-level pre-processing,

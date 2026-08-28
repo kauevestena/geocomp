@@ -657,14 +657,22 @@ class TestBasicAndAdvancedAgree:
         known.write_text(json.dumps(syn.known_points()), encoding="utf-8")
         return directory, reductions, known
 
-    def _advanced_defaults(self, algorithm_id: str) -> dict:
+    def _advanced_defaults(self, algorithm_id: str, *, skip: tuple[str, ...] = ()) -> dict:
+        """Every advanced parameter at its own declared default.
+
+        A parameter whose default is ``None`` is *absent*, not zero, and passing
+        it explicitly is the same as leaving it out -- which is the point being
+        checked. ``skip`` drops the ones the caller set deliberately: passing
+        their defaults back would override the caller's choice and compare two
+        different computations rather than two ways of asking for one.
+        """
         from qgis.core import QgsProcessingParameterDefinition
 
         flag = QgsProcessingParameterDefinition.Flag.FlagAdvanced
         return {
             parameter.name(): parameter.defaultValue()
             for parameter in _algorithm(algorithm_id).parameterDefinitions()
-            if parameter.flags() & flag
+            if parameter.flags() & flag and parameter.name() not in skip
         }
 
     @pytest.mark.parametrize("algorithm_id", TOTAL_STATION_IDS)
@@ -715,8 +723,10 @@ class TestBasicAndAdvancedAgree:
                 "OUTPUT_READINGS": str(tmp_path / "readings.json"),
             },
         )
-        advanced = self._advanced_defaults("geocomp:totalstation_preprocess")
         common = {"READINGS": imported["OUTPUT_READINGS"], "APPLY_ATMOSPHERIC": False}
+        advanced = self._advanced_defaults(
+            "geocomp:totalstation_preprocess", skip=tuple(common)
+        )
         basic_run = _run(
             "geocomp:totalstation_preprocess",
             {**common, "OUTPUT_REDUCED": str(tmp_path / "basic.json")},

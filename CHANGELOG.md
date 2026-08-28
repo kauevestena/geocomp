@@ -206,6 +206,96 @@ that said nothing about the cause.
   warned about by name: one of the control points is not where it is recorded,
   and every point radiated from that setup carries the error.
 
+#### The QGIS job had been red since P2, and nobody looked
+
+Ten consecutive CI runs failed and were reported here as "CI-pending" rather than
+checked. Every other job was green; the `qgis integration` job was not. The tier-3
+suite was being written against an environment nobody had run it in.
+
+Running QGIS locally — `apt-get install qgis python3-qgis`, which takes a
+minute — found **six real defects** that no amount of tier-1 testing could have
+reached. They are listed below because the class of each matters more than the
+instance.
+
+- **`np.bool_` is not a `bool`.** The w-test's `passed` came from comparing two
+  NumPy scalars, and `np.bool_` does not subclass `bool`, so the JSON encoder
+  refused it. *Every adjustment that wrote a solution* failed at the last step
+  with a `TypeError` naming neither the field nor the test. Coerced now in
+  `TestResult` and `ObservationResult`, floats included: `np.float64` *does*
+  subclass `float` and serialises silently, and it was the silent half that let
+  the loud half through unnoticed.
+- **`ErrorEllipse.azimuth` does not exist** — the field is `orientation`. Five
+  call sites, in the report and CSV paths of four algorithms, dating from P2.
+  This is what had been failing CI since P2.
+- **`AngleFormat.SEXAGESIMAL_STRING` does not exist** — it is `SEXAGESIMAL_TEXT`.
+  In the field-mapping dialog's label table, so the dialog raised on
+  construction. Shipped in the commit that introduced it.
+- **The result-layer sinks were built even when nobody asked for one.** All five
+  are optional, so the common case is that most are absent; building their field
+  lists anyway meant a layer concern could take down an adjustment that requested
+  no layers. It did.
+- **The Classical network algorithm declared its CRS optional and then required
+  it**, failing deep in `Position` with "GeoComp does not infer one" rather than
+  at the empty field. Now required, and refused early by name.
+- **The pre-analysis dialog did not give the canvas back** when the canvas had no
+  tool before it: `setMapTool(None)` does not clear the current tool. The user
+  would be left clicking stations into a design no longer on screen.
+
+Two of these were also design faults rather than slips, and are fixed as such:
+the traverse's closing easting, northing and azimuth had a numeric default of
+`0.0`, which is not a closing azimuth but *north*, and which broke FR-071's
+promise that Basic and Advanced compute the same thing — "left blank" was
+inferred while "at its default" was due north. They are optional with no default
+now. And the tutorial's step 2 needed the profile library a second time without
+saying so, which is now both documented and refused by name.
+
+**Guards added, so the classes cannot recur silently:**
+
+- A tier-1 test that a real adjustment's `Solution` serialises, round-trips, and
+  contains no NumPy scalar at all. The bug reached the algorithms only because
+  no tier-1 test had ever asked a solution to serialise — they checked the
+  numbers and stopped.
+- A structural check that every `Enum.MEMBER` written anywhere in the plugin is a
+  member that exists, by parsing rather than importing, so it covers the Qt-only
+  modules that tier 1 cannot import. Verified against the exact typo that shipped.
+- `README.md` now documents how to run tier 3 locally, and says to do it before
+  believing a change works.
+- Tier-3 tests needing a QGIS newer than the one installed now **skip with the
+  reason stated** rather than failing, so a red local run is a real one. Sixteen
+  do: `QgsField(name, QMetaType.Type)` needs QGIS ≥ 3.38, and Ubuntu ships 3.34.
+
+Local result after the fixes: **132 tier-3 tests pass, 16 skip, none fail.**
+
+#### Gravimetric adjustment is levelling adjustment
+
+*Raised in review.* ADR-0002 justified the in-house core partly on "gravimetry
+has no alternative", and the engine table said DynAdjust could not adjust a
+gravimetric network. The observation equation of a gravity difference **is** the
+observation equation of a height difference — GeoComp already implements them as
+one function, `_difference_1d`, called with the component `"g"` or `"h"` — so a
+drift-corrected gravimetric network is a 1D difference network under a
+relabelling, and DynAdjust adjusts those.
+
+What DynAdjust genuinely cannot do is the gravimetric corrections and **drift
+estimated jointly with the network**, which matters because drift and gravity
+differences are not separable by pre-correction alone.
+
+The decision stands on its other three rationales; the reasoning is corrected in
+**ADR-0002, Amendment 1**. `tests/test_gravimetry_is_levelling.py` makes the
+identity executable: the two design matrices are identical element for element,
+and the two adjustments agree on estimates, residuals, variance factor and
+redundancy. Three consequences, all gains: **P8 is much smaller** than planned,
+**P6 gains a gravimetric cross-validation case** it was assumed not to have, and
+it is the reason **P9's combined adjustment** is possible at all. The roadmap's
+P4 and P8 entries now say so.
+
+It also surfaced a smaller thing worth recording rather than fixing now: a
+gravity parameter's *value* is carried in the `up` component of a `Position`,
+which enforces metres, so a milligal arrives through a field that describes it
+wrongly. The arithmetic is unaffected — the frame never mixes the two — and
+giving gravity its own parameter carrier is P8's work. A test asserts the present
+state so that the day it is fixed, it fails and points at itself.
+
 #### Where phase P3 stands
 
 Against the exit criteria in [`specs/ROADMAP.md`](specs/ROADMAP.md), verified in
@@ -223,11 +313,11 @@ this environment with **no QGIS, no SciPy and no external engine** — 865 tests
 - Basic and Advanced defaults give identical numbers, for the Analysis group and
   the Total Station group. ✔ *(runs in CI)*
 
-**148 tier-3 tests cannot run here and are the CI QGIS job's to prove**, and are
-reported as pending rather than passing: that the eleven algorithms register and
-run in the toolbox, that the seventh menu entry renders, that QGIS accepts the
-five QML styles, that the two custom dialogs build and their widgets are wired,
-and that the whole chain assembles in the graphical modeller.
+**Tier 3 now runs here too**, against QGIS 3.34 installed from the distribution:
+132 pass and 16 skip for needing QGIS ≥ 3.38, none fail. Those 16 — the QML
+styles loading, and the result layers — remain CI's to prove, because CI runs
+`qgis/qgis:latest`. The claim that all 148 were "CI-pending" was made while CI
+had been failing for ten runs; see above.
 
 #### Notes
 

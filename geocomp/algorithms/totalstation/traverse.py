@@ -186,6 +186,12 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                 defaultValue=0,
             )
         )
+        # No numeric default, and optional: there is no sensible closing
+        # coordinate or azimuth to fall back on, and zero is not one. A default
+        # of 0.0 also broke FR-071's promise that Basic and Advanced compute the
+        # same thing, because "left blank" and "at its default" then differed --
+        # blank is inferred for a loop, while 0.0 is a closing azimuth due north
+        # and produced a misclosure of some tens of degrees.
         for name, label in (
             (CLOSE_EASTING, self.tr("Closing easting (m)")),
             (CLOSE_NORTHING, self.tr("Closing northing (m)")),
@@ -193,7 +199,11 @@ class TraverseAlgorithm(GeoCompAlgorithm):
         ):
             self.addAdvancedParameter(
                 QgsProcessingParameterNumber(
-                    name, label, type=QgsProcessingParameterNumber.Type.Double, defaultValue=0.0
+                    name,
+                    label,
+                    type=QgsProcessingParameterNumber.Type.Double,
+                    defaultValue=None,
+                    optional=True,
                 )
             )
         self.addAdvancedParameter(
@@ -274,6 +284,14 @@ class TraverseAlgorithm(GeoCompAlgorithm):
         )
         close_to = None
         if kind is TraverseKind.CONNECTED:
+            if parameters.get(CLOSE_EASTING) is None or parameters.get(CLOSE_NORTHING) is None:
+                raise QgsProcessingException(
+                    self.tr(
+                        "A connected traverse arrives at a known point, so the closing "
+                        "easting and northing are required. Without them there is no "
+                        "closure and nothing about the traverse can be checked."
+                    )
+                )
             close_to = (
                 _metres(self.parameterAsDouble(parameters, CLOSE_EASTING, context)),
                 _metres(self.parameterAsDouble(parameters, CLOSE_NORTHING, context)),

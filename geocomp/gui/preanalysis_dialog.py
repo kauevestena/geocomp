@@ -456,7 +456,14 @@ class PreAnalysisDialog(QDialog):
         """
         self._clear_canvas()
         if self.canvas.mapTool() is self.tool:
-            self.canvas.setMapTool(self._previous_tool)
+            if self._previous_tool is None:
+                # ``setMapTool(None)`` does not clear the current tool -- the
+                # canvas keeps it -- so a canvas that had no tool before would
+                # be left holding this one, still turning clicks into stations
+                # for a design no longer on screen.
+                self.canvas.unsetMapTool(self.tool)
+            else:
+                self.canvas.setMapTool(self._previous_tool)
         super().done(result)
 
     def network(self):

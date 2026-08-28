@@ -173,7 +173,9 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         )
         self.addAdvancedParameter(
             QgsProcessingParameterBoolean(
-                APPLY_ATMOSPHERIC, self.tr("Apply the atmospheric correction"), defaultValue=True
+                APPLY_ATMOSPHERIC,
+                self.tr("Apply the atmospheric correction"),
+                defaultValue=True,
             )
         )
         self.addAdvancedParameter(
@@ -241,7 +243,9 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
         setups = read_readings(self.parameterAsFile(parameters, READINGS, context))
-        library = load_profiles(self.parameterAsFile(parameters, PROFILES, context))
+        profiles_path = self.parameterAsFile(parameters, PROFILES, context)
+        library = load_profiles(profiles_path)
+        self._check_instruments(setups, library, profiles_path)
 
         correlation = self.parameterAsDouble(parameters, CORRELATION, context)
         options = PreprocessingOptions(
@@ -254,15 +258,15 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
             distance_zenith_correlation=None if correlation < -1.0 else correlation,
             apply_atmospheric=self.parameterAsBool(parameters, APPLY_ATMOSPHERIC, context),
         )
-        atmosphere = self._atmosphere(parameters, context) if options.apply_atmospheric else None
+        atmosphere = (
+            self._atmosphere(parameters, context) if options.apply_atmospheric else None
+        )
 
         results = []
         for index, setup in enumerate(setups, start=1):
             if feedback.isCanceled():
                 return {}
-            feedback.pushInfo(
-                self.tr("Reducing station %1…").replace("%1", setup.station)
-            )
+            feedback.pushInfo(self.tr("Reducing station %1…").replace("%1", setup.station))
             try:
                 results.append(
                     preprocess_setup(setup, library, atmosphere=atmosphere, options=options)
@@ -294,6 +298,43 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
             BLOCKING_COUNT: blocking,
             **outputs,
         }
+
+    def _check_instruments(self, setups, library, profiles_path: str) -> None:
+        """Refuse before reducing anything if a named instrument is missing.
+
+        The readings document records which instrument each setup used, and the
+        reduction needs that instrument's constants -- so the same profile
+        library has to be supplied here as at import. Left out, the reduction
+        would fail somewhere in the middle with a bare "unknown instrument
+        profile", which says neither which instrument nor what to do about it.
+
+        Substituting the default library instead would be worse than failing:
+        the collimation, the EDM constants and the assumed precisions would all
+        silently become someone else's, and every number downstream would be
+        wrong in a way nothing could detect.
+        """
+        missing = sorted(
+            {
+                setup.instrument_id
+                for setup in setups
+                if setup.instrument_id and setup.instrument_id not in library.instruments
+            }
+        )
+        if not missing:
+            return
+        raise QgsProcessingException(
+            self.tr(
+                "The readings were taken with instrument(s) %1, which the profile "
+                "library %2 does not contain. Supply the same library the field book "
+                "was imported with: the reduction needs that instrument's constants, "
+                "and using another instrument's would corrupt every number after it."
+            )
+            .replace("%1", ", ".join(f"'{name}'" for name in missing))
+            .replace(
+                "%2",
+                f"'{profiles_path}'" if profiles_path else self.tr("(the built-in default)"),
+            )
+        )
 
     def _atmosphere(self, parameters, context) -> Atmosphere:
         return Atmosphere.from_field_units(
@@ -328,9 +369,17 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 writer = csv.writer(handle)
                 writer.writerow(
                     [
-                        "station", "target", "horizontal_rad", "zenith_rad", "slope_distance",
-                        "horizontal_distance", "height_difference", "collimation_rad",
-                        "vertical_index_rad", "face_distance_difference", "usable",
+                        "station",
+                        "target",
+                        "horizontal_rad",
+                        "zenith_rad",
+                        "slope_distance",
+                        "horizontal_distance",
+                        "height_difference",
+                        "collimation_rad",
+                        "vertical_index_rad",
+                        "face_distance_difference",
+                        "usable",
                     ]
                 )
                 for result in results:
@@ -400,9 +449,9 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 [
                     escape(self.tr("Station")),
                     escape(self.tr("Face pairs")),
-                    escape(self.tr("Mean collimation (\")")),
-                    escape(self.tr("Collimation spread (\")")),
-                    escape(self.tr("Mean index error (\")")),
+                    escape(self.tr('Mean collimation (")')),
+                    escape(self.tr('Collimation spread (")')),
+                    escape(self.tr('Mean index error (")')),
                 ],
                 [
                     [

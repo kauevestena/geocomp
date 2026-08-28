@@ -242,7 +242,7 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
             [escape(self.tr("Semi-minor (mm)")), format_number(ellipse.semi_minor * 1000.0, 2)],
             [
                 escape(self.tr("Ellipse azimuth (°)")),
-                format_number(math.degrees(ellipse.azimuth), 2),
+                format_number(math.degrees(ellipse.orientation), 2),
             ],
             [escape(self.tr("Confidence level")), format_number(confidence, 3)],
         ]

@@ -579,7 +579,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                         [
                             repr(ellipse.semi_major),
                             repr(ellipse.semi_minor),
-                            repr(ellipse.azimuth),
+                            repr(ellipse.orientation),
                         ]
                         if ellipse
                         else ["", "", ""]

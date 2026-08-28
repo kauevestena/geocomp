@@ -102,7 +102,7 @@ def angle_format_label(value: AngleFormat) -> str:
     labels = {
         AngleFormat.DECIMAL_DEGREES: _tr("Decimal degrees"),
         AngleFormat.SEXAGESIMAL_TRIPLE: _tr("Degrees, minutes and seconds in three columns"),
-        AngleFormat.SEXAGESIMAL_STRING: _tr("Degrees, minutes and seconds in one column"),
+        AngleFormat.SEXAGESIMAL_TEXT: _tr("Degrees, minutes and seconds in one column"),
         AngleFormat.GON: _tr("Gon"),
         AngleFormat.RADIANS: _tr("Radians"),
     }

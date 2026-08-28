@@ -173,7 +173,15 @@ OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
             ObservationType.GNSS_POINT, 1, ("x", "y", "z"), (LENGTH,) * 3,
             clustered=True, dims={3}, dna="Y", dna_verified=True,
         ),
-        # No DynAdjust equivalent: gravity runs on the in-house core.
+        # No DynAdjust *measurement type*, which is not the same as no
+        # equivalent: a gravity difference is a 1D difference observation, the
+        # same equation as a height difference (see
+        # ``tests/test_gravimetry_is_levelling.py``), so a drift-corrected
+        # gravimetric network can be relabelled as a level network and adjusted
+        # by DynAdjust. Left unmapped deliberately: the relabelling loses the
+        # units and cannot carry a jointly estimated drift, so it belongs in the
+        # P6 cross-validation path rather than in the routine export. ADR-0002,
+        # Amendment 1.
         _spec(ObservationType.GRAVITY, 1, ("gravity",), (ACCEL,), dims={1}),
         _spec(ObservationType.GRAVITY_DIFFERENCE, 2, ("gravity_difference",), (ACCEL,), dims={1}),
     )

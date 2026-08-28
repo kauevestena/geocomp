@@ -50,6 +50,14 @@ through every later number and turns an unknown quality into a stated one.
 ### 2. Generalised pre-processing — `geocomp:totalstation_preprocess`
 
 - **Readings**: the document step 1 wrote
+- **Instrument profiles**: `profiles.json` again
+
+The profiles are needed a second time, and that is not an oversight: the readings
+record *which* instrument took them, and reducing a face pair needs that
+instrument's collimation, vertical index and EDM constants. GeoComp will not
+substitute another instrument's — it refuses and names the one it was looking
+for, because a silent substitution would make every number after it wrong in a
+way nothing could detect.
 
 Six pointings reduced from twelve face readings. **Five are usable and one is
 blocked**, and the blocked one is the first real error:
@@ -74,6 +82,12 @@ instrument needs adjusting.
 - **Approximate coordinates**: `approximate.json`
 - **Dimension**: 2D
 - **Datum definition**: inner constraint
+- **CRS**: `EPSG:31982` (UTM 22S), or the projected CRS of your own area
+
+RD-01's coordinates are local, but a CRS is still required and GeoComp will not
+invent one: adjusted coordinates are meaningless without knowing what they are
+coordinates *in*, and a guess would be recorded on the solution as though someone
+had chosen it.
 
 The adjustment converges and **the global test fails**. That is the correct answer,
 and the second thing this dataset teaches.

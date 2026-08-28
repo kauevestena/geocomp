@@ -120,6 +120,24 @@ class TestResult:
     passed: bool = True
     note: str = ""
 
+    def __post_init__(self) -> None:
+        # Every field here is computed from NumPy scalars, and only one of them
+        # is dangerous: ``np.float64`` subclasses ``float`` and serialises
+        # silently, while ``np.bool_`` does **not** subclass ``bool`` and the
+        # JSON encoder refuses it. The failure then surfaces far from here, when
+        # a solution is written out, as an error naming neither the field nor
+        # the test it came from -- which is exactly what happened.
+        #
+        # So all of them are coerced, not just the bool. Leaving the floats as
+        # NumPy would keep the silent half of the leak alive, and the silent
+        # half is what let the loud one through unnoticed.
+        object.__setattr__(self, "passed", bool(self.passed))
+        object.__setattr__(self, "statistic", float(self.statistic))
+        for name in ("critical_low", "critical_high", "confidence"):
+            value = getattr(self, name)
+            if value is not None:
+                object.__setattr__(self, name, float(value))
+
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
@@ -207,6 +225,22 @@ class ObservationResult:
     minimal_detectable_bias: float | None = None
     external_reliability: float | None = None
     adjusted_value: float | None = None
+
+    def __post_init__(self) -> None:
+        # As on :class:`TestResult`: these arrive from NumPy, and the document
+        # this ends up in must contain built-in types only. See the note there
+        # for why the silently-serialisable ones are coerced too.
+        object.__setattr__(self, "residual", float(self.residual))
+        for name in (
+            "standardised_residual",
+            "redundancy",
+            "minimal_detectable_bias",
+            "external_reliability",
+            "adjusted_value",
+        ):
+            value = getattr(self, name)
+            if value is not None:
+                object.__setattr__(self, name, float(value))
 
     @property
     def is_uncheckable(self, threshold: float = 0.01) -> bool:

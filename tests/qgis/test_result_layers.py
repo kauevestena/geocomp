@@ -23,6 +23,7 @@ from pathlib import Path
 import pytest
 
 from tests.networks import trilateration
+from tests.qgis.conftest import requires_modern_field_api
 
 pytestmark = pytest.mark.qgis
 
@@ -127,6 +128,7 @@ class TestDeclaration:
         assert parameter.flags() & QgsProcessingParameterDefinition.Flag.FlagAdvanced
 
 
+@requires_modern_field_api
 class TestTheLayersArrive:
     def test_every_requested_layer_is_produced_and_valid(self, adjusted):
         _results, layers, _context = adjusted
@@ -185,6 +187,7 @@ class TestTheLayersArrive:
             assert feature.geometry().contains(QgsGeometry.fromPointXY(centre))
 
 
+@requires_modern_field_api
 class TestTheExaggerationReachesTheReader:
     def test_the_layer_name_states_the_factor_and_the_confidence(self, adjusted):
         """The name is what reaches the legend. ``specs/19`` section 3 calls an
@@ -250,6 +253,7 @@ class TestTheExaggerationReachesTheReader:
         assert f"{factor:g}" in layer.name()
 
 
+@requires_modern_field_api
 class TestTheStylesLoad:
     """FR-904 and FR-905: the QML files ship, QGIS accepts them, and the layers
     arrive already styled. A style that fails to load leaves a layer QGIS draws
