@@ -117,3 +117,35 @@ def test_every_adr_is_listed_in_the_adr_index():
         if path.name != "README.md" and path.name not in index
     ]
     assert not missing, "ADRs missing from adr/README.md:\n" + "\n".join(missing)
+
+
+def test_the_storage_schema_matches_the_specification():
+    """``specs/17`` section 2 lists the tables; the code declares them.
+
+    Two lists of table names in two files drift the moment one is edited
+    alone, and the drift is invisible: the code still runs and the spec still
+    reads correctly. Phase P5 added this when the schema arrived.
+
+    ``gc_cluster_member`` is deliberately absent from the code. The spec pairs
+    it with ``gc_cluster``, but a cluster's membership is already carried by
+    ``gc_observation.cluster_id`` and its ordering by ``cluster_index`` -- a
+    separate membership table would be a second place for the same fact, and
+    two places for one fact is how they come to disagree.
+    """
+    from geocomp.io.store import table_names
+
+    spec = (SPECS_DIR / "17-persistence-and-interoperability.md").read_text(encoding="utf-8")
+    documented = set(re.findall(r"`(gc_[a-z_]+)`", spec))
+    declared = set(table_names())
+
+    undocumented = sorted(declared - documented)
+    assert not undocumented, (
+        "these tables exist in the code but are not in specs/17 section 2: "
+        f"{undocumented}"
+    )
+
+    unimplemented = sorted(documented - declared - {"gc_cluster_member"})
+    assert not unimplemented, (
+        "specs/17 section 2 lists these tables and the code does not declare them: "
+        f"{unimplemented}"
+    )

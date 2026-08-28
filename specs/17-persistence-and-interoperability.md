@@ -44,7 +44,7 @@ chaves e relacionamentos necessários para rastreabilidade e reprocessamento"), 
 | `gc_station` | Stations with approximate coordinates and constraint status | Point |
 | `gc_setup` | Instrument occupations | — |
 | `gc_observation` | Observations, common columns; type-specific values in a typed payload | Line, where a station pair makes one meaningful |
-| `gc_cluster` / `gc_cluster_member` | Correlated groups and their covariance (FR-104) | — |
+| `gc_cluster` | Correlated groups and their covariance (FR-104) | — |
 | `gc_gnss_session` | GNSS sessions and their file and product references | Point |
 | `gc_network` / `gc_network_member` | Network definitions | — |
 | `gc_solution` | Solutions with CRS, epoch, datum definition, uncertainty mode | — |
@@ -68,6 +68,23 @@ chaves e relacionamentos necessários para rastreabilidade e reprocessamento"), 
    `superseded_by`, is the mechanism.
 5. **Geometry is a derived convenience**, computed from the authoritative numeric coordinates for map
    display. The numbers are the record; the geometry is a view of them at a moment.
+
+**Implemented in phase P5, with two departures from the list above, both recorded here rather than left to be
+discovered in the code.**
+
+*No `gc_cluster_member` table.* An earlier draft of this section paired one with `gc_cluster`. A cluster's
+membership is already carried by `gc_observation.cluster_id`, and its **ordering** — which is the part that
+matters, because the ordering defines the covariance's ordering — by `gc_observation.cluster_index`. A
+separate membership table would be a second place for the same fact, and two places for one fact is how they
+come to disagree. `tests/structural/test_spec_consistency.py` compares this table list against the code, with
+this one absence declared.
+
+*Not every documented relationship is a foreign key.* `gc_setup.station_id` and `gc_gnss_session.station_id`
+are documented and **not enforced**. Raw field data legitimately precedes the network it will belong to: a
+GNSS session is recorded in the field and which network it feeds is decided in the office, sometimes weeks
+later. A foreign key there would refuse to store the observation until somebody had defined a network, which
+is the storage layer dictating the order of the work. Every reference *from a result to its inputs* is
+enforced and restricting — that is FR-135, and it is the set where enforcement belongs.
 
 ## 3. Versioning and migration (FR-133)
 
@@ -95,6 +112,14 @@ GeoComp inherits the user's existing connections and credentials handling rather
 Concurrency is PostGIS's business, with GeoComp taking the appropriate transaction scope for a write and
 detecting a concurrent modification on save rather than overwriting it.
 
+**Status after phase P5: the PostGIS backend is not built.** There is no PostgreSQL server in this project's
+development or CI environments, so acceptance criterion 1 — the lossless round trip — cannot be demonstrated,
+and shipping an untested storage backend for the one part of the system whose whole job is *not losing data*
+would be worse than shipping none. What P5 does deliver for it is the half that can be verified without a
+server: the schema is declared once, as data, and generates the DDL for **both** dialects, so the two cannot
+drift apart before the backend arrives. `tests/test_project_store.py` asserts the PostgreSQL dialect is
+generated; it does not assert that anything executes it.
+
 ---
 
 ## 5. Interoperability
@@ -102,6 +127,11 @@ detecting a concurrent modification on save rather than overwriting it.
 ### 5.1 CSV and spreadsheets (FR-160, FR-162)
 
 The proposal names `.xlsx` and CSV explicitly.
+
+**Built with the standard library's `sqlite3`, not GDAL** (P5). A GeoPackage *is* a SQLite database with a
+documented set of metadata tables, so nothing in the store needs a spatial library — and the consequence is
+the point: the store is testable in the fast tier, on every platform, with no QGIS and no GDAL. Eight of CI's
+nine jobs have neither. A GDAL-backed store would have been shorter to write and untestable in all eight.
 
 **Field mapping is a first-class, reusable object.** Import shows a preview of the source, the user maps
 columns to GeoComp fields, and the mapping is **saved by name and reused** — because the same organisation

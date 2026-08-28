@@ -32,7 +32,14 @@ jobs:
       - name: Install tooling
         # NumPy is a hard dependency: it ships with QGIS and the geodetic core
         # uses it from phase P1 onward (specs/03-architecture.md section 3.7).
-        run: python -m pip install --upgrade pip pytest ruff numpy
+        #
+        # openpyxl is a *test* dependency and not a runtime one. GeoComp writes
+        # .xlsx with its own writer (specs/17 section 5.1), and openpyxl is here
+        # to read that file back with an independent implementation -- the only
+        # way to know the workbook is valid rather than merely self-consistent.
+        # The "degraded environments" job deliberately omits it, which is what
+        # proves the export does not need it.
+        run: python -m pip install --upgrade pip pytest ruff numpy openpyxl
 
       - name: Lint
         run: ruff check .
