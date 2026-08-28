@@ -266,6 +266,42 @@ saying so, which is now both documented and refused by name.
 
 Local result after the fixes: **132 tier-3 tests pass, 16 skip, none fail.**
 
+**Then CI was still red, and the local pass was not the proof it looked like.**
+This container has QGIS 3.34 with PyQt5 and NumPy 1.26; CI has QGIS 4.3 with
+PyQt6 and NumPy 2.2. Five more defects lived only in that gap, and each needed
+the version CI runs:
+
+- **A feature sink's `type` is a `ProcessingSourceType`, not a WKB geometry.**
+  Passing the wrong enum raises inside a C++ virtual — printed under PyQt5,
+  **fatal under PyQt6** — so the provider aborted with exit 134 in
+  `loadAlgorithms`, all 148 tier-3 tests died at once, and the traceback named
+  the provider rather than the algorithm. That abort, not any test failure, is
+  what the job had been reporting for ten runs. `scripts/diagnose_provider.py`
+  now walks the registry one algorithm at a time so the last line before an
+  abort names the culprit; it found this on its first run.
+- **A sink's CRS is a `QgsCoordinateReferenceSystem` in QGIS 4**, not the string
+  QGIS 3 took.
+- **`repr()` of a NumPy scalar is `"np.float64(1.93e-06)"` under NumPy 2.** The
+  CSV writers used `repr` to get full round-trip precision, so on NumPy 2 every
+  table an adjustment wrote became unparseable — and the same code produced two
+  different files depending on a version nobody had pinned. One helper,
+  `reporting.exact()`, converts to a built-in float first.
+- **A held station is not in `adjusted_stations`**, so locating stations from the
+  solution alone left every observation touching one without a line: five of
+  eleven on the trilateration network, and precisely the ones tying it to its
+  datum. Positions now fall back to the network's approximate and constraint
+  coordinates.
+- **The exaggeration factor reached the layer name only via the post-processor**,
+  which Processing runs when loading a layer into the project and not for a
+  model or script run. FR-901 requires the factor to reach the reader; on one of
+  three paths is not that. Layers are named during the run as well.
+
+Two more were mine in the tests rather than the product: `QMouseEvent` from a
+`QPoint`, an overload Qt6 dropped; and a residual-count assertion that was right
+about the number and wrong about which number.
+
+**CI is green** — all nine jobs, for the first time since P1.
+
 #### Gravimetric adjustment is levelling adjustment
 
 *Raised in review.* ADR-0002 justified the in-house core partly on "gravimetry
@@ -313,11 +349,12 @@ this environment with **no QGIS, no SciPy and no external engine** — 865 tests
 - Basic and Advanced defaults give identical numbers, for the Analysis group and
   the Total Station group. ✔ *(runs in CI)*
 
-**Tier 3 now runs here too**, against QGIS 3.34 installed from the distribution:
-132 pass and 16 skip for needing QGIS ≥ 3.38, none fail. Those 16 — the QML
-styles loading, and the result layers — remain CI's to prove, because CI runs
-`qgis/qgis:latest`. The claim that all 148 were "CI-pending" was made while CI
-had been failing for ten runs; see above.
+**Tier 3 runs in both places now.** Locally, against QGIS 3.34 from the
+distribution: 1114 pass and 16 skip for needing QGIS ≥ 3.38. In CI, against QGIS
+4.3: **1130 pass, none fail.** The claim that all 148 were "CI-pending" was made
+while CI had been failing for ten runs; see above. Neither environment alone was
+sufficient — the local one found six defects the QGIS-free tiers could not
+reach, and CI found five more that only QGIS 4, PyQt6 and NumPy 2 expose.
 
 #### Notes
 
