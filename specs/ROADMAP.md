@@ -224,7 +224,13 @@ example file with its published answer unblocks it. See
 records the trap that NGS ADJUST — open source, well documented, and what a search returns — is a different
 program.
 
-**Two defects, both of the same shape: a feature that was declared, validated, displayed — and inert.**
+**Exit met**, with FR-161 re-planned into P6 and CI green on all nine jobs.
+
+**Four defects, and what each one says about where the tests were.** Two were of one shape — a feature
+declared, validated, displayed, and inert. Two were of another — a defect only one of the nine CI
+environments could see.
+
+*Inert features.*
 `ConstraintMode.WEIGHTED` reached the model layer and stopped there; the adjustment read only `FIXED`, so a
 weighted station was estimated as free and its published height thrown away. Every test of the model layer
 passed, because the model layer was right. It surfaced only when something downstream *depended* on the
@@ -234,6 +240,24 @@ template engine pulled in `qgis` and its tier-1 tests could not even collect in 
 QGIS; CI run 26 was red on that commit and had not been checked before the phase moved on. Both are recorded
 in the CHANGELOG under Fixed, and the second is the reason the phase's own exit now says *confirm CI green*
 rather than *push*.
+
+*Environment-specific defects.* Every base map layer was invalid, because `QgsRasterLayer` was given the
+service kind as its provider key and QGIS has no provider called `xyz` — all three kinds load through `wms`,
+with the kind in the URI. And the store algorithm's "add" mode called `write`, which replaces, so saving a
+network into a monitoring project deleted every solution in it while leaving a GeoPackage that looked
+perfectly healthy. Both were caught by the QGIS job, on the commit that introduced them, which is the
+arrangement working.
+
+The second, though, is a **store** defect and the store is tier 1: it was found in the wrong place, and its
+regression tests now live in `tests/test_project_store.py` where eight of the nine jobs run them. The lesson
+generalises — when a tier-3 test fails, ask whether the defect it found is really tier-3's to catch, and if
+it is not, move the test down rather than leaving it where it happened to surface.
+
+A third of the same family: a tier-3 module carried `pytest.mark.qgis`, which labels and does not skip, so
+twenty-five tests *errored* rather than skipping in the seven jobs without QGIS.
+`tests/structural/test_tier3_skips_cleanly.py` now fails when a tier-3 module has neither `requires_qgis` in
+its `pytestmark` nor a skipping fixture reaching every test — a check that is structural precisely because
+neither environment anyone looks at can see the difference.
 
 ---
 
