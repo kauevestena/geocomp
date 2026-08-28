@@ -40,6 +40,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.reporting import (
     escape,
+    exact,
     format_number,
     render_document,
     render_note,
@@ -498,9 +499,9 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                     writer.writerow(
                         [
                             station,
-                            repr(easting.value),
-                            repr(northing.value),
-                            repr(easting.std_dev),
+                            exact(easting.value),
+                            exact(northing.value),
+                            exact(easting.std_dev),
                         ]
                     )
 

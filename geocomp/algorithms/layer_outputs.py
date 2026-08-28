@@ -26,6 +26,7 @@ from typing import Any, ClassVar
 
 from qgis.core import (
     Qgis,
+    QgsCoordinateReferenceSystem,
     QgsProcessing,
     QgsProcessingContext,
     QgsProcessingLayerPostProcessorInterface,
@@ -251,6 +252,10 @@ def write_result_layers(
         OUTPUT_CORRECTION_LAYER: correction_layer_name(exaggeration=exaggeration),
     }
 
+    # A CRS authority code, not a string: QGIS 4 takes a
+    # QgsCoordinateReferenceSystem here and refuses the str that QGIS 3 accepted.
+    crs = QgsCoordinateReferenceSystem(solution.crs)
+
     outputs: dict[str, Any] = {}
     for name, style, _source_type, geometry in LAYER_OUTPUTS:
         # Nothing is built for a sink nobody asked for -- not even its field
@@ -262,7 +267,7 @@ def write_result_layers(
             outputs[name] = None
             continue
         sink, destination = algorithm.parameterAsSink(
-            parameters, name, context, fields_for(style), geometry, solution.crs
+            parameters, name, context, fields_for(style), geometry, crs
         )
         outputs[name] = destination
         if sink is None:

@@ -29,6 +29,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.reporting import (
     escape,
+    exact,
     format_number,
     render_document,
     render_note,
@@ -47,6 +48,7 @@ __all__ = [
     "datum_labels",
     "datum_of",
     "escape",
+    "exact",
     "format_number",
     "frame_labels",
     "frame_of",

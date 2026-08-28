@@ -39,6 +39,26 @@ def escape(value: Any) -> str:
     return html.escape(str(value))
 
 
+def exact(value: Any) -> str:
+    """A number written to full precision, for a machine to read back.
+
+    ``repr`` was used for this and is wrong: under NumPy 2 the repr of a
+    ``np.float64`` is ``"np.float64(1.93e-06)"``, not ``"1.93e-06"``, so every
+    CSV written from an adjustment -- which is NumPy throughout -- became
+    unreadable by anything that parses numbers. NumPy 1 printed the bare value,
+    so the same code produced two different files depending on a version nobody
+    had pinned.
+
+    Converting to a built-in ``float`` first fixes both halves: full round-trip
+    precision, and one output regardless of what the value arrived as. ``None``
+    is the empty cell, which is what a CSV reader expects for "no value" rather
+    than the string "None".
+    """
+    if value is None:
+        return ""
+    return repr(float(value))
+
+
 def format_number(value: Any, decimals: int = 4) -> str:
     """Format a number for a report, without inventing precision.
 
@@ -129,6 +149,7 @@ def render_document(title: str, body: list[str], *, footer: str = "") -> str:
         parts.append(f"<footer>{footer}</footer>")
     parts.append("</body></html>")
     return "\n".join(parts)
+
 
 def render_findings(rows: list[tuple[str, str, str, str]], headers: list[str]) -> str:
     """A findings table, with the severity column already marked up.

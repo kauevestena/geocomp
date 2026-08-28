@@ -33,7 +33,13 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.reporting import escape, format_number, render_document, render_table
+from geocomp.algorithms.reporting import (
+    escape,
+    exact,
+    format_number,
+    render_document,
+    render_table,
+)
 from geocomp.algorithms.totalstation.common import (
     findings_table,
     load_profiles,
@@ -389,16 +395,16 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                             [
                                 result.station,
                                 pointing.target,
-                                repr(pointing.reduction.horizontal.value),
-                                repr(pointing.reduction.zenith.value),
-                                repr(pointing.reduction.distance.value)
+                                exact(pointing.reduction.horizontal.value),
+                                exact(pointing.reduction.zenith.value),
+                                exact(pointing.reduction.distance.value)
                                 if pointing.reduction.distance
                                 else "",
-                                repr(basic.horizontal_distance.value) if basic else "",
-                                repr(basic.height_difference.value) if basic else "",
-                                repr(pointing.reduction.collimation.value),
-                                repr(pointing.reduction.vertical_index.value),
-                                repr(pointing.reduction.distance_difference)
+                                exact(basic.horizontal_distance.value) if basic else "",
+                                exact(basic.height_difference.value) if basic else "",
+                                exact(pointing.reduction.collimation.value),
+                                exact(pointing.reduction.vertical_index.value),
+                                exact(pointing.reduction.distance_difference)
                                 if pointing.reduction.distance_difference is not None
                                 else "",
                                 "yes" if pointing.is_usable else "no",

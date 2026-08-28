@@ -198,7 +198,9 @@ class SystemReportAlgorithm(GeoCompAlgorithm):
             f"<th>{esc(self.tr('Detail'))}</th></tr>"
         )
         for name, status, detail in engines:
-            parts.append(f"<tr><td>{esc(name)}</td><td>{esc(status)}</td><td>{esc(detail)}</td></tr>")
+            parts.append(
+                f"<tr><td>{esc(name)}</td><td>{esc(status)}</td><td>{esc(detail)}</td></tr>"
+            )
         parts.append("</table>")
 
         parts.append(f"<h2>{esc(self.tr('Settings'))}</h2>")

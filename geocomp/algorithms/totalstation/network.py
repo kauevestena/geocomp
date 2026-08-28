@@ -49,6 +49,7 @@ from geocomp.algorithms.layer_outputs import (
 )
 from geocomp.algorithms.reporting import (
     escape,
+    exact,
     format_number,
     render_document,
     render_note,
@@ -474,13 +475,13 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                     ellipse = station.ellipse
                     writer.writerow(
                         [station.station_id]
-                        + [repr(q.value) for q in values]
-                        + [repr(q.std_dev) for q in values]
+                        + [exact(q.value) for q in values]
+                        + [exact(q.std_dev) for q in values]
                         + (
                             [
-                                repr(ellipse.semi_major),
-                                repr(ellipse.semi_minor),
-                                repr(ellipse.orientation),
+                                exact(ellipse.semi_major),
+                                exact(ellipse.semi_minor),
+                                exact(ellipse.orientation),
                             ]
                             if ellipse
                             else ["", "", ""]

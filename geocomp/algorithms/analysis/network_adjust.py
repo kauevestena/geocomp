@@ -42,6 +42,7 @@ from geocomp.algorithms.analysis.common import (
     datum_labels,
     datum_of,
     escape,
+    exact,
     format_number,
     frame_labels,
     frame_of,
@@ -573,13 +574,13 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 ellipse = station.ellipse
                 writer.writerow(
                     [station.station_id]
-                    + [repr(quantity.value) for quantity in values]
-                    + [repr(quantity.std_dev) for quantity in values]
+                    + [exact(quantity.value) for quantity in values]
+                    + [exact(quantity.std_dev) for quantity in values]
                     + (
                         [
-                            repr(ellipse.semi_major),
-                            repr(ellipse.semi_minor),
-                            repr(ellipse.orientation),
+                            exact(ellipse.semi_major),
+                            exact(ellipse.semi_minor),
+                            exact(ellipse.orientation),
                         ]
                         if ellipse
                         else ["", "", ""]
@@ -609,11 +610,11 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                     [
                         observation_id,
                         component,
-                        repr(float(run.residuals[row])),
-                        repr(snooping.statistics.get(row, float("nan"))),
-                        repr(float(run.redundancy[row])),
-                        repr(result.minimal_detectable_bias) if result else "",
-                        repr(result.external_effect) if result else "",
+                        exact(float(run.residuals[row])),
+                        exact(snooping.statistics.get(row, float("nan"))),
+                        exact(float(run.redundancy[row])),
+                        exact(result.minimal_detectable_bias) if result else "",
+                        exact(result.external_effect) if result else "",
                         "yes" if row in flagged else "no",
                     ]
                 )

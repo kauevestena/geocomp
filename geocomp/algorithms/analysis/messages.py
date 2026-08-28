@@ -102,8 +102,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     # -- observations the adjustment cannot use ---------------------------
     "validation.observation_type_not_supported": MessageTemplate(
-        "Observation '%1' is of type %2, which the in-house adjustment does not implement. "
-        "%3",
+        "Observation '%1' is of type %2, which the in-house adjustment does not implement. %3",
         "observation",
         "type",
         "expected",

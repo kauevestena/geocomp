@@ -153,7 +153,9 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(20)
         feedback.pushInfo(
-            self.tr("Inspecting network '%1'…").replace("%1", network.id or self.tr("(unnamed)"))
+            self.tr("Inspecting network '%1'…").replace(
+                "%1", network.id or self.tr("(unnamed)")
+            )
         )
         report = inspect(network, frame=frame)
 
@@ -171,13 +173,15 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(100)
 
-        if not report.can_adjust and self.parameterAsBool(parameters, FAIL_ON_BLOCKING, context):
+        if not report.can_adjust and self.parameterAsBool(
+            parameters, FAIL_ON_BLOCKING, context
+        ):
             from qgis.core import QgsProcessingException
 
             raise QgsProcessingException(
-                self.tr("The network has %1 blocking problem(s) and cannot be adjusted.").replace(
-                    "%1", str(len(report.blocking))
-                )
+                self.tr(
+                    "The network has %1 blocking problem(s) and cannot be adjusted."
+                ).replace("%1", str(len(report.blocking)))
             )
 
         return {
@@ -257,9 +261,7 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
 
         body = [
             f"<h2>{escape(self.tr('Summary'))}</h2>",
-            render_table(
-                [escape(self.tr("Property")), escape(self.tr("Value"))], summary_rows
-            ),
+            render_table([escape(self.tr("Property")), escape(self.tr("Value"))], summary_rows),
             verdict,
             f"<h2>{escape(self.tr('Findings'))}</h2>",
         ]

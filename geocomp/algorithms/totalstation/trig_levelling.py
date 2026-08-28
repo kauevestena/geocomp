@@ -35,6 +35,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.reporting import (
     escape,
+    exact,
     format_number,
     render_document,
     render_note,
@@ -388,10 +389,10 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                         [
                             row["from"],
                             row["to"],
-                            repr(row["difference"].value),
-                            repr(row["difference"].std_dev),
-                            "" if row["imbalance"] is None else repr(row["imbalance"]),
-                            "" if row["cancellation"] is None else repr(row["cancellation"]),
+                            exact(row["difference"].value),
+                            exact(row["difference"].std_dev),
+                            "" if row["imbalance"] is None else exact(row["imbalance"]),
+                            "" if row["cancellation"] is None else exact(row["cancellation"]),
                         ]
                     )
 

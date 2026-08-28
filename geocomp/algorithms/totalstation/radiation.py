@@ -38,6 +38,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.reporting import (
     escape,
+    exact,
     format_number,
     render_document,
     render_note,
@@ -389,9 +390,9 @@ class RadiationAlgorithm(GeoCompAlgorithm):
                     matrix = outcome.covariance.matrix
                     writer.writerow(
                         [outcome.target, row["station"]]
-                        + [repr(q.value) for q in outcome.position]
-                        + [repr(q.std_dev) for q in outcome.position]
-                        + [repr(matrix[0, 1]), repr(matrix[0, 2]), repr(matrix[1, 2])]
+                        + [exact(q.value) for q in outcome.position]
+                        + [exact(q.std_dev) for q in outcome.position]
+                        + [exact(matrix[0, 1]), exact(matrix[0, 2]), exact(matrix[1, 2])]
                     )
 
         return {OUTPUT_POINTS: points, OUTPUT_HTML: html_target, OUTPUT_CSV: csv_target}

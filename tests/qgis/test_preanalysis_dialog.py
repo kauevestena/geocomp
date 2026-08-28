@@ -22,13 +22,15 @@ pytestmark = pytest.mark.qgis
 
 def _click(tool, easting: float, northing: float, button=None):
     """Drive the map tool the way the canvas does, in map coordinates."""
-    from qgis.PyQt.QtCore import QPoint, Qt
+    from qgis.PyQt.QtCore import QPointF, Qt
     from qgis.PyQt.QtGui import QMouseEvent
 
     if button is None:
         button = Qt.MouseButton.LeftButton
     point = tool.canvas.getCoordinateTransform().transform(easting, northing)
-    position = QPoint(int(point.x()), int(point.y()))
+    # QPointF, not QPoint: Qt6 dropped the integer-point overload, and passing
+    # one raises rather than rounding.
+    position = QPointF(float(int(point.x())), float(int(point.y())))
     event = QMouseEvent(
         QMouseEvent.Type.MouseButtonRelease,
         position,

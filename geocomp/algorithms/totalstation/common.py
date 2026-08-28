@@ -72,8 +72,9 @@ def load_json(path: str, *, parameter: str) -> dict:
         ) from exc
     if not isinstance(payload, dict):
         raise QgsProcessingException(
-            _tr("'%1' does not contain a GeoComp document: its top level is not an object.")
-            .replace("%1", str(source))
+            _tr(
+                "'%1' does not contain a GeoComp document: its top level is not an object."
+            ).replace("%1", str(source))
         )
     return payload
 
@@ -273,13 +274,9 @@ def _reading(payload: dict) -> FaceReading:
         face=Face.DIRECT if payload["face"] == "direct" else Face.REVERSE,
         horizontal=Quantity.from_dict(payload["horizontal"]),
         zenith=Quantity.from_dict(payload["zenith"]),
-        distance=(
-            Quantity.from_dict(payload["distance"]) if "distance" in payload else None
-        ),
+        distance=(Quantity.from_dict(payload["distance"]) if "distance" in payload else None),
         target_height=(
-            Quantity.from_dict(payload["target_height"])
-            if "target_height" in payload
-            else None
+            Quantity.from_dict(payload["target_height"]) if "target_height" in payload else None
         ),
         set_number=int(payload.get("set_number", 1)),
         extra=dict(payload.get("extra", {})),
@@ -321,9 +318,7 @@ def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
         for item in entry.get("pointings", ()):
             horizontal = Quantity.from_dict(item["horizontal"])
             zenith = Quantity.from_dict(item["zenith"])
-            distance = (
-                Quantity.from_dict(item["distance"]) if item.get("distance") else None
-            )
+            distance = Quantity.from_dict(item["distance"]) if item.get("distance") else None
             basic = None
             if item.get("horizontal_distance") and item.get("height_difference"):
                 horizontal_distance = Quantity.from_dict(item["horizontal_distance"])
@@ -380,8 +375,7 @@ def _unusable(target: str):
         code="rejected_in_preprocessing",
         severity=Severity.BLOCKING,
         message=(
-            f"the pointing to {target} was rejected during pre-processing and is not "
-            "used here"
+            f"the pointing to {target} was rejected during pre-processing and is not used here"
         ),
         observations=(target,),
     )

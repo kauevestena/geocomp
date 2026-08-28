@@ -246,7 +246,10 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         if readings:
             with open(readings, "w", encoding="utf-8") as handle:
                 json.dump(
-                    _readings_document(source, mapping, result), handle, indent=2, sort_keys=True
+                    _readings_document(source, mapping, result),
+                    handle,
+                    indent=2,
+                    sort_keys=True,
                 )
                 handle.write("\n")
 
@@ -300,9 +303,10 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
                 [
                     [
                         escape(column.field),
-                        escape(column.column or self.tr("(constant %1)").replace(
-                            "%1", str(column.constant)
-                        )),
+                        escape(
+                            column.column
+                            or self.tr("(constant %1)").replace("%1", str(column.constant))
+                        ),
                         escape(column.unit) or "—",
                     ]
                     for column in sorted(mapping.columns, key=lambda c: c.field)
