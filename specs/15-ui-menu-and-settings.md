@@ -22,6 +22,7 @@ GeoComp
  ├── Gravimetry           ▸
  ├── Integration          ▸
  ├── Analysis             ▸     (added in phase P2 — see §1.1)
+ ├── Project              ▸     (added in phase P5 — see §1.1)
  ├──────────────────────────   (separator)
  └── Global Settings…
 ```
@@ -53,6 +54,26 @@ tolerances · Levelling network adjustment. *(Six as built in P4, rather than th
 closures were implicit in the others and each produces a document the next step reads — see
 [`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
+
+**Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Add base
+map · GeoComp system report · Install tutorial dataset.
+
+> **Why an eighth entry.** Six algorithms had accumulated with no menu home: P0's system report and tutorial
+> dataset, and P5's export, report, store and base map. Each was individually defensible as toolbox-only, and
+> `tests/test_registry.py` was right to fail when the sixth arrived — **six exceptions are not exceptions,
+> they are a category**, and the honest answer to a category is an entry rather than a longer list of reasons
+> it does not need one.
+>
+> They share a description that is not a stretch: *operations on a project's results rather than on one
+> technique's observations.* Exporting, reporting and storing a solution are identical whether it came from a
+> total station, a level, or P6's DynAdjust; a base map is context for any of them; the system report and the
+> tutorial dataset are the project's own housekeeping. Filing any under a technique would say something
+> false, and repeating them under all five would break the one-item-per-algorithm correspondence ADR-0005
+> rests on — the same argument that produced Analysis in P2.
+>
+> Discoverability is the other half of it. A user who has just adjusted a network wants the report; leaving
+> it reachable only from the Processing toolbox is a worse menu, not a purer one, in exactly the way this
+> section already says of *Import field book*.
 
 **GNSS** → Absolute (Static · Kinematic) · Relative (Static · Kinematic) · Scan sessions · Download products ·
 Batch processing · Build baselines · Compare configurations.

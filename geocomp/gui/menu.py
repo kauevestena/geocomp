@@ -61,6 +61,7 @@ def menu_label(menu_id: str) -> str:
         "gravimetry": _tr("Gravimetry"),
         "integration": _tr("Integration"),
         "analysis": _tr("Analysis"),
+        "project": _tr("Project"),
         "global_settings": _tr("Global Settings…"),
     }.get(menu_id, menu_id)
 

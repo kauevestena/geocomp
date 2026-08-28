@@ -34,6 +34,11 @@ Mirroring the menu ([`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md)
 
 Group ids are English and stable; displayed names are translated.
 
+**The `project` group is the only one whose menu entry the proposal does not name** — see
+[`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.1, where P5 adds it and gives the reasoning.
+It held two toolbox-only algorithms from P0; P5's four brought it to six, at which point the exception list
+had stopped being a list of exceptions.
+
 ## 3. Algorithm identity (FR-032)
 
 `geocomp:<group>_<operation>` — for example `geocomp:totalstation_preprocess`,
@@ -127,6 +132,17 @@ Import observations → Pre-process → Build network → Inspect
 Each step's outputs must be directly acceptable as the next step's inputs. This constrains output design as
 much as input design, and it is tested: [`20-testing-and-validation.md`](./20-testing-and-validation.md)
 includes a model-builder workflow test that runs the whole chain headlessly.
+
+**The tail of that chain arrived in P5.** `geocomp:project_export`, `project_report` and `project_store` all
+take a *solution document* — the JSON an adjustment algorithm writes — so they chain onto any of them, and
+onto DynAdjust's in P6 without changing. The mismatch this design risks is between what one algorithm writes
+and what the next reads, which no single-algorithm test can see; `tests/qgis/test_project_algorithms.py`
+therefore drives the documents through, rather than constructing each algorithm's input by hand.
+
+Result keys are declared as module-level constants exactly as parameters are (`NAME = "NAME"`), because a
+model reads a result by name just as it sets a parameter by name, and
+`tests/structural/test_tier3_parameter_names.py` checks both sides against those declarations. A key that
+existed only as a string literal in the return statement would be unchecked on both.
 
 ## 10. Acceptance criteria
 

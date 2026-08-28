@@ -92,6 +92,28 @@ PROCESSING_GROUPS: tuple[ProcessingGroup, ...] = (
 #: rather than hiding it -- a user should be able to see that Gravimetry is
 #: coming, not wonder whether it exists.
 #:
+#: **Project is the eighth entry, added in phase P5.** Six algorithms had
+#: accumulated with no menu home: the system report, the tutorial dataset, and
+#: P5's export, report, store and base map. Each was individually justifiable as
+#: toolbox-only, and ``tests/test_registry.py`` was right to fail when the sixth
+#: arrived -- six exceptions are not exceptions, they are a category, and the
+#: honest answer to a category is an entry rather than a longer list of reasons
+#: it does not need one.
+#:
+#: They share a description that is not a stretch: **operations on a project's
+#: results rather than on one technique's observations.** Exporting, reporting
+#: and storing a solution are identical whether it came from a total station, a
+#: level, or P6's DynAdjust; a base map is context for any of them; and the
+#: system report and tutorial dataset are the project's own housekeeping. Filing
+#: any of them under a technique would say something false, and repeating them
+#: under all five would break the one-item-per-algorithm correspondence
+#: ADR-0005 rests on -- the same argument that produced the Analysis entry.
+#:
+#: Discoverability is the other half. A user who has just adjusted a network
+#: wants the report; leaving it reachable only from the Processing toolbox is a
+#: worse menu, not a purer one, in exactly the way ``specs/15`` section 1.1 says
+#: of "Import field book".
+#:
 #: **Analysis is the seventh entry, added in phase P2.** ``specs/15`` section 1.1
 #: left its placement open: network pre-analysis, inspection and the statistical
 #: operations belong to no single survey technique, so filing them under one of
@@ -108,6 +130,7 @@ MENU_GROUPS: tuple[MenuGroup, ...] = (
     MenuGroup("gravimetry", 40),
     MenuGroup("integration", 50),
     MenuGroup("analysis", 60),
+    MenuGroup("project", 65),
     MenuGroup("global_settings", 70, separator_before=True, is_action=True),
 )
 
@@ -154,25 +177,16 @@ class AlgorithmSpec:
 
 
 #: Why each toolbox-only algorithm has no menu entry. An entry here is a
-#: deliberate, reviewed exception to ADR-0005's menu generation, not a default:
-#: the GeoComp menu presents five technique submenus plus Analysis (FR-003), and
-#: an operation belonging to no survey technique or analysis of one would distort
-#: that structure.
-TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {
-    "project_system_report": (
-        "Environment diagnostics belong to no survey technique, so placing it in "
-        "one of the technique submenus would misrepresent the menu structure "
-        "FR-003 specifies. It is reachable from the toolbox and from the About "
-        "dialog, which the Plugins menu provides."
-    ),
-    "project_tutorial_dataset": (
-        "Installing a reference dataset belongs to no survey technique -- RD-01 is a "
-        "total-station survey, but the operation is 'copy files somewhere writable', "
-        "and a future levelling or GNSS dataset would be installed by the same "
-        "algorithm. Putting it under Total Station would misfile it the moment the "
-        "second dataset ships."
-    ),
-}
+#: deliberate, reviewed exception to ADR-0005's menu generation, not a default.
+#:
+#: **Empty since phase P5**, and the way it emptied is the point. It held two
+#: entries after P0, and P5's four project-level algorithms would have taken it
+#: to six -- at which point ``test_the_toolbox_only_list_stays_small`` failed,
+#: exactly as it was written to. Six exceptions are not exceptions; they are a
+#: category with no home. The Project menu entry is that home, and the list went
+#: from five to none rather than from three to six. The guard stays, at the same
+#: threshold, for the next time.
+TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {}
 
 #: Algorithms whose menu item opens a custom dialog *before* the standard
 #: Processing one, to collect parameters the standard dialog cannot. Each entry
@@ -212,7 +226,8 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.project.system_report",
         class_name="SystemReportAlgorithm",
         requirement="FR-030",
-        menu=None,
+        menu="project",
+        menu_order=50,
     ),
     AlgorithmSpec(
         operation="tutorial_dataset",
@@ -220,7 +235,52 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.project.tutorial_dataset",
         class_name="TutorialDatasetAlgorithm",
         requirement="FR-952",
-        menu=None,
+        menu="project",
+        menu_order=60,
+    ),
+    # -- Phase P5: what the persistence work made reachable --------------
+    #
+    # All four are toolbox-only. They belong to no survey technique, which is
+    # the same reason system_report and tutorial_dataset are, and an eighth menu
+    # entry for "things you do with a result" would be a worse answer than the
+    # toolbox: a user reaches them from the Processing panel where they already
+    # have the algorithm that produced the solution, and from the model builder,
+    # which is where exporting and storing every run actually belongs.
+    AlgorithmSpec(
+        operation="export",
+        group="project",
+        module="geocomp.algorithms.project.export_tables",
+        class_name="ProjectExportAlgorithm",
+        requirement="FR-162",
+        menu="project",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="report",
+        group="project",
+        module="geocomp.algorithms.project.adjustment_report",
+        class_name="ProjectReportAlgorithm",
+        requirement="FR-930",
+        menu="project",
+        menu_order=20,
+    ),
+    AlgorithmSpec(
+        operation="store",
+        group="project",
+        module="geocomp.algorithms.project.store",
+        class_name="ProjectStoreAlgorithm",
+        requirement="FR-130",
+        menu="project",
+        menu_order=30,
+    ),
+    AlgorithmSpec(
+        operation="basemap",
+        group="project",
+        module="geocomp.algorithms.project.basemap",
+        class_name="ProjectBaseMapAlgorithm",
+        requirement="FR-167",
+        menu="project",
+        menu_order=40,
     ),
     AlgorithmSpec(
         operation="network_inspect",

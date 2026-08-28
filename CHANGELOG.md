@@ -61,6 +61,20 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   already in the project is reused rather than stacked - matched on its URL,
   since the layer name is the user's to change - and goes to the bottom of the
   tree, because above the results it hides what was just computed.
+- **Four Processing algorithms** making the phase's work reachable:
+  `geocomp:project_export` (FR-162), `project_report` (FR-930),
+  `project_store` (FR-130) and `project_basemap` (FR-167). All three of the
+  first take a solution document, so they chain onto any adjustment algorithm -
+  and onto DynAdjust's in P6 without changing.
+- **An eighth menu entry, Project**, and with it an empty
+  `TOOLBOX_ONLY_JUSTIFICATIONS`. Six algorithms had accumulated with no menu
+  home - P0's system report and tutorial dataset, and P5's four - and
+  `test_the_toolbox_only_list_stays_small` failed when the sixth arrived, which
+  is what it was written to do. Six exceptions are not exceptions; they are a
+  category, and the honest answer to a category is an entry rather than a longer
+  list of reasons it does not need one. They share a real description:
+  operations on a project's *results* rather than on one technique's
+  observations. FR-003 and FR-004 are amended, as they were in P2 for Analysis.
 - **A ninth Global Settings section, Base maps.** An amendment to `specs/15`
   §2.1, which followed the proposal's list of eight; none of them is where a
   user would look for base map configuration, and putting it under Interface
@@ -80,6 +94,12 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   far the station moved, and a contribution to the redundancy. Found while
   checking that a geoid-derived height's uncertainty reached the adjusted
   heights - it could not, because the constraint carrying it was not there.
+- **The enum-member check could not survive a lazy package.** It resolved each
+  imported name with `getattr` on the module, guarding only the import; a
+  package with a lazy `__getattr__` - which `geocomp.reports` became, above -
+  resolves on *access*, so asking for a Qt-dependent name raised where nothing
+  caught it. A name that cannot be resolved is simply not an enum this check can
+  see, and is now skipped.
 - **A tier-3 module errored instead of skipping without QGIS.**
   `tests/qgis/test_adjustment_report.py` carried `pytestmark = pytest.mark.qgis`,
   which labels and does not skip. Every other tier-3 module reaches QGIS through

@@ -208,8 +208,10 @@ one migrates after a backup. Deleting observations a solution depends on is refu
 reads, adjusts and writes back equivalently. A geoid model imports, applies, records its identity and
 contributes its uncertainty. Reports render in all three languages, byte-identical across runs.
 
-**In progress.** The store, export, the report and the geoid are in; reference-system settings (FR-065) and
-base maps (FR-167) remain, with the Processing algorithms and the tier-3 tests.
+**Delivered.** The store with its versioning and referential protections, CSV and `.xlsx` export, the
+adjustment report, geoid and height models, reference-system settings and base maps, and the four Processing
+algorithms that make them reachable — with an eighth menu entry, **Project**, to put them somewhere a user
+will look. FR-161 is the one exception, re-planned into P6 below.
 
 **Re-planned: the *Adjust* format (FR-161).** Blocked, not skipped. No specification of the format and no
 example file could be obtained — the book is not in this repository, the publisher's and Penn State's

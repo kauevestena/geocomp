@@ -34,12 +34,16 @@ class TestIdentity:
 
 class TestMenuStructure:
     def test_the_menu_presents_exactly_the_specified_entries(self):
-        """FR-003, matching research_project/fig/menu_estrutura.png plus the
-        Analysis entry the requirement was amended to include in phase P2.
+        """FR-003, matching research_project/fig/menu_estrutura.png plus the two
+        entries the requirement was amended to include.
 
-        The figure shows five technique submenus and Global Settings. Analysis
-        holds the operations belonging to no single technique -- inspection,
+        The figure shows five technique submenus and Global Settings. **Analysis**
+        (P2) holds the operations belonging to no single technique -- inspection,
         pre-analysis, adjustment -- which specs/15 section 1.1 left unplaced.
+        **Project** (P5) holds operations on a project's *results* rather than on
+        one technique's observations: export, report, store, base map, and the
+        system report and tutorial dataset that had been toolbox-only since P0.
+        Both were appended rather than inserted, so the figure's order is intact.
         """
         ordered = [group.id for group in sorted(MENU_GROUPS, key=lambda g: g.order)]
         assert ordered == [
@@ -49,6 +53,7 @@ class TestMenuStructure:
             "gravimetry",
             "integration",
             "analysis",
+            "project",
             "global_settings",
         ]
 

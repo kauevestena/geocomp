@@ -56,7 +56,17 @@ def _imported_enums(tree: ast.Module) -> dict[str, type[enum.Enum]]:
         except ImportError:
             continue
         for alias in node.names:
-            attribute = getattr(module, alias.name, None)
+            # `getattr` on a module can *raise*, not merely return the default:
+            # a package with a lazy ``__getattr__`` resolves the name on access,
+            # and `geocomp.reports` resolves its Qt-dependent half that way, so
+            # asking for `ReportContext` here raises ModuleNotFoundError with no
+            # QGIS. Guarding only `import_module` was enough until P5 made that
+            # package lazy; a name that cannot be resolved is simply not an enum
+            # this check can see, and skipping it is right.
+            try:
+                attribute = getattr(module, alias.name, None)
+            except Exception:  # noqa: BLE001 - any failure means "cannot inspect"
+                continue
             if isinstance(attribute, type) and issubclass(attribute, enum.Enum):
                 found[alias.asname or alias.name] = attribute
     return found

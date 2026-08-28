@@ -1572,6 +1572,10 @@
             <translation>Nenhuma operação disponível nesta versão ainda.</translation>
         </message>
         <message>
+            <source>Project</source>
+            <translation>Projeto</translation>
+        </message>
+        <message>
             <source>Total Station</source>
             <translation>Estação Total</translation>
         </message>
@@ -3972,6 +3976,194 @@
         <message>
             <source>yes</source>
             <translation>sim</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProjectBaseMapAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Adds one of the configured base map services to the current project, at the bottom of the layer tree so it does not hide the results.&lt;/p&gt;&lt;p&gt;The services come from the catalogue file named in Global Settings, or from GeoComp's two openly licensed defaults when none is configured. Nothing is bundled and nothing is hard-coded: replace the catalogue and the list changes entirely.&lt;/p&gt;&lt;p&gt;A service already present in the project is reused rather than added again &amp;mdash; matched on its URL, since a layer's name is yours to change.&lt;/p&gt;&lt;p&gt;Services requiring authentication reference an entry in the QGIS authentication database. GeoComp never stores a credential itself, and refuses a service URL with one embedded in it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Service&lt;/b&gt; &amp;mdash; the id of a service in the catalogue. Leave empty to use the one configured as the default; if none is configured, nothing is added, rather than a layer you did not ask for.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Adiciona ao projeto atual um dos serviços de mapa de fundo configurados, no fim da árvore de camadas para que não oculte os resultados.&lt;/p&gt;&lt;p&gt;Os serviços vêm do arquivo de catálogo indicado nas Configurações Globais, ou dos dois padrões de licença aberta do GeoComp quando nenhum está configurado. Nada é embutido e nada é fixado no código: troque o catálogo e a lista muda por completo.&lt;/p&gt;&lt;p&gt;Um serviço já presente no projeto é reutilizado em vez de adicionado de novo &amp;mdash; identificado pela URL, já que o nome de uma camada é seu para alterar.&lt;/p&gt;&lt;p&gt;Serviços que exigem autenticação referenciam uma entrada do banco de autenticação do QGIS. O GeoComp nunca armazena credenciais e recusa uma URL de serviço com uma embutida.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Serviço&lt;/b&gt; &amp;mdash; o identificador de um serviço do catálogo. Deixe vazio para usar o configurado como padrão; se nenhum estiver configurado, nada é adicionado, em vez de uma camada que você não pediu.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Add a configured base map service to the project, for context.</source>
+            <translation>Adiciona ao projeto um serviço de mapa de fundo configurado, para contexto.</translation>
+        </message>
+        <message>
+            <source>Add base map</source>
+            <translation>Adicionar mapa de fundo</translation>
+        </message>
+        <message>
+            <source>Attribution: </source>
+            <translation>Atribuição: </translation>
+        </message>
+        <message>
+            <source>No base map is configured as the default, so none was added. Name a service, or set one in Global Settings; the available ids are: </source>
+            <translation>Nenhum mapa de fundo está configurado como padrão, portanto nenhum foi adicionado. Informe um serviço ou defina um nas Configurações Globais; os identificadores disponíveis são: </translation>
+        </message>
+        <message>
+            <source>Reuse a base map already in the project</source>
+            <translation>Reutilizar um mapa de fundo já presente no projeto</translation>
+        </message>
+        <message>
+            <source>Service id (empty for the configured default)</source>
+            <translation>Identificador do serviço (vazio para o padrão configurado)</translation>
+        </message>
+        <message>
+            <source>The base map service could not be loaded: </source>
+            <translation>Não foi possível carregar o serviço de mapa de fundo: </translation>
+        </message>
+    </context>
+    <context>
+        <name>ProjectExportAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Writes the five tables of an adjustment: stations, observations, adjusted values, residuals and statistics. Only tables with content are written &amp;mdash; an empty residuals table beside an unadjusted network would invite the reader to conclude the residuals were zero.&lt;/p&gt;&lt;p&gt;Every uncertainty is exported beside its value, and every value is written to full precision, so a figure read back into another tool is the figure GeoComp computed rather than a rounded version of it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; a solution document written by an adjustment algorithm.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; optional. Supplying it adds the station and observation tables, which describe what was adjusted rather than what came out; without it only the adjusted values, residuals and statistics are written.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Format&lt;/b&gt; &amp;mdash; one CSV per table, or a single spreadsheet holding all of them.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Escreve as cinco tabelas de um ajustamento: estações, observações, valores ajustados, resíduos e estatísticas. Somente as tabelas com conteúdo são escritas &amp;mdash; uma tabela de resíduos vazia ao lado de uma rede não ajustada levaria o leitor a concluir que os resíduos eram nulos.&lt;/p&gt;&lt;p&gt;Cada incerteza é exportada junto de seu valor, e cada valor é escrito com precisão total, de modo que um número lido em outra ferramenta é o número que o GeoComp calculou, e não uma versão arredondada dele.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; um documento de solução escrito por um algoritmo de ajustamento.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; opcional. Fornecê-la acrescenta as tabelas de estações e observações, que descrevem o que foi ajustado e não o que saiu; sem ela apenas os valores ajustados, os resíduos e as estatísticas são escritos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Formato&lt;/b&gt; &amp;mdash; um CSV por tabela, ou uma única planilha com todas.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Choose a destination folder for the CSV files.</source>
+            <translation>Escolha uma pasta de destino para os arquivos CSV.</translation>
+        </message>
+        <message>
+            <source>Choose a destination spreadsheet, or export as CSV instead.</source>
+            <translation>Escolha uma planilha de destino, ou exporte como CSV.</translation>
+        </message>
+        <message>
+            <source>Excel workbooks (*.xlsx)</source>
+            <translation>Planilhas do Excel (*.xlsx)</translation>
+        </message>
+        <message>
+            <source>Export solution tables</source>
+            <translation>Exportar tabelas da solução</translation>
+        </message>
+        <message>
+            <source>Folder for the CSV files</source>
+            <translation>Pasta para os arquivos CSV</translation>
+        </message>
+        <message>
+            <source>Format</source>
+            <translation>Formato</translation>
+        </message>
+        <message>
+            <source>Network document (optional)</source>
+            <translation>Documento de rede (opcional)</translation>
+        </message>
+        <message>
+            <source>Nothing was written: the solution and network carry no rows for any table. An empty file would say the tables were empty, which is a different claim.</source>
+            <translation>Nada foi escrito: a solução e a rede não têm linhas para nenhuma tabela. Um arquivo vazio afirmaria que as tabelas estavam vazias, o que é outra coisa.</translation>
+        </message>
+        <message>
+            <source>One CSV per table</source>
+            <translation>Um CSV por tabela</translation>
+        </message>
+        <message>
+            <source>One spreadsheet (.xlsx)</source>
+            <translation>Uma única planilha (.xlsx)</translation>
+        </message>
+        <message>
+            <source>Solution document</source>
+            <translation>Documento de solução</translation>
+        </message>
+        <message>
+            <source>Spreadsheet</source>
+            <translation>Planilha</translation>
+        </message>
+        <message>
+            <source>Write stations, observations, adjusted values, residuals and statistics.</source>
+            <translation>Escreve estações, observações, valores ajustados, resíduos e estatísticas.</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProjectReportAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Renders the complete adjustment report: identification, inputs, effective parameters and where each came from, adjusted coordinates, statistics, observation results, reliability, error ellipses, provenance and software versions.&lt;/p&gt;&lt;p&gt;Built from the solution alone, so it renders a solution read back out of a project store exactly as it rendered on the day it was computed. Nothing in it reads the clock.&lt;/p&gt;&lt;p&gt;Three things are never omitted whatever a template does with the rest: the uncertainty mode and the strategies behind it, the provenance with its input digests, and the uncheckable observations. Presenting an approximate figure as a rigorously propagated one misrepresents the survey, and monitoring decisions are made on these numbers.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; a solution document written by an adjustment algorithm.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; optional. Adds the observation descriptions the solution does not carry, so the observation results table names stations rather than only observation ids.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Template&lt;/b&gt; &amp;mdash; optional HTML template (FR-931). Sections it does not place are listed in the log, because leaving one out is an editorial choice that should be visible.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Gera o relatório completo de ajustamento: identificação, entradas, parâmetros efetivos e a origem de cada um, coordenadas ajustadas, estatísticas, resultados das observações, confiabilidade, elipses de erro, proveniência e versões dos programas.&lt;/p&gt;&lt;p&gt;Construído apenas a partir da solução, de modo que uma solução lida de volta de um repositório de projeto é apresentada exatamente como no dia em que foi calculada. Nada nele consulta o relógio.&lt;/p&gt;&lt;p&gt;Três coisas nunca são omitidas, faça o modelo o que fizer com o resto: o modo de incerteza e as estratégias por trás dele, a proveniência com os resumos criptográficos das entradas, e as observações não verificáveis. Apresentar um valor aproximado como se fosse rigorosamente propagado deturpa o levantamento, e decisões de monitoramento são tomadas com base nesses números.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; um documento de solução escrito por um algoritmo de ajustamento.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; opcional. Acrescenta as descrições de observação que a solução não carrega, para que a tabela de resultados nomeie estações e não apenas identificadores de observação.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Modelo&lt;/b&gt; &amp;mdash; modelo HTML opcional (FR-931). As seções que ele não posiciona são listadas no registro, porque deixar uma de fora é uma escolha editorial que deve ficar visível.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Adjustment report</source>
+            <translation>Relatório de ajustamento</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Network document (optional)</source>
+            <translation>Documento de rede (opcional)</translation>
+        </message>
+        <message>
+            <source>Render the full adjustment report from a solution document.</source>
+            <translation>Gera o relatório completo de ajustamento a partir de um documento de solução.</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Relatório</translation>
+        </message>
+        <message>
+            <source>Report template (optional)</source>
+            <translation>Modelo de relatório (opcional)</translation>
+        </message>
+        <message>
+            <source>Report written.</source>
+            <translation>Relatório gravado.</translation>
+        </message>
+        <message>
+            <source>Solution document</source>
+            <translation>Documento de solução</translation>
+        </message>
+        <message>
+            <source>The template places no: </source>
+            <translation>O modelo não inclui: </translation>
+        </message>
+    </context>
+    <context>
+        <name>ProjectStoreAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Writes a network, a solution, or both into a GeoComp project store: a GeoPackage holding networks, observations, sessions, settings, solutions and their provenance, with the covariances stored so that they reload bit-identically.&lt;/p&gt;&lt;p&gt;By default the solution is &lt;b&gt;added&lt;/b&gt; to whatever the store already holds, because the opposite mistake cannot be undone: replacing a project that was meant to be added to loses it. Replacing is available and says so.&lt;/p&gt;&lt;p&gt;A store already holding solutions computed from these observations will refuse to have them deleted (FR-135). To record that a new solution replaces an older one, name the older one under &lt;i&gt;Supersedes&lt;/i&gt;: it is kept and marked, because in monitoring the earlier answer still matters after it stops being the current one.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Project store&lt;/b&gt; &amp;mdash; the GeoPackage to write to. It is created if it does not exist; an older schema version is migrated after a backup, and a newer one is refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; and &lt;b&gt;Network&lt;/b&gt; &amp;mdash; documents written by earlier algorithms. At least one is required.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Grava uma rede, uma solução, ou ambas em um repositório de projeto do GeoComp: um GeoPackage com redes, observações, sessões, configurações, soluções e sua proveniência, com as covariâncias armazenadas de modo a serem recarregadas bit a bit idênticas.&lt;/p&gt;&lt;p&gt;Por padrão a solução é &lt;b&gt;acrescentada&lt;/b&gt; ao que o repositório já contém, porque o erro contrário não tem volta: substituir um projeto que se pretendia complementar significa perdê-lo. Substituir está disponível e diz o que faz.&lt;/p&gt;&lt;p&gt;Um repositório que já contenha soluções calculadas a partir dessas observações recusará excluí-las (FR-135). Para registrar que uma nova solução substitui uma anterior, indique a anterior em &lt;i&gt;Substitui&lt;/i&gt;: ela é mantida e marcada, porque em monitoramento a resposta anterior continua importando depois de deixar de ser a atual.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Repositório do projeto&lt;/b&gt; &amp;mdash; o GeoPackage a gravar. É criado se não existir; uma versão de esquema mais antiga é migrada após uma cópia de segurança, e uma mais nova é recusada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; e &lt;b&gt;Rede&lt;/b&gt; &amp;mdash; documentos escritos por algoritmos anteriores. Ao menos um é obrigatório.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>GeoPackage (*.gpkg)</source>
+            <translation>GeoPackage (*.gpkg)</translation>
+        </message>
+        <message>
+            <source>Give a solution document, a network document, or both.</source>
+            <translation>Informe um documento de solução, um documento de rede, ou ambos.</translation>
+        </message>
+        <message>
+            <source>Id of the solution this one replaces (optional)</source>
+            <translation>Identificador da solução que esta substitui (opcional)</translation>
+        </message>
+        <message>
+            <source>Network document (optional)</source>
+            <translation>Documento de rede (opcional)</translation>
+        </message>
+        <message>
+            <source>Project id</source>
+            <translation>Identificador do projeto</translation>
+        </message>
+        <message>
+            <source>Project store</source>
+            <translation>Repositório do projeto</translation>
+        </message>
+        <message>
+            <source>Replace everything in the store rather than adding</source>
+            <translation>Substituir todo o conteúdo do repositório em vez de acrescentar</translation>
+        </message>
+        <message>
+            <source>Save to project store</source>
+            <translation>Salvar no repositório do projeto</translation>
+        </message>
+        <message>
+            <source>Solution document (optional)</source>
+            <translation>Documento de solução (opcional)</translation>
+        </message>
+        <message>
+            <source>The superseded solution is kept, not deleted: what was believed and when is part of a monitoring record.</source>
+            <translation>A solução substituída é mantida, não excluída: o que se acreditava e quando faz parte do registro de monitoramento.</translation>
+        </message>
+        <message>
+            <source>Write a network and its solution into a GeoComp GeoPackage.</source>
+            <translation>Grava uma rede e sua solução em um GeoPackage do GeoComp.</translation>
         </message>
     </context>
     <context>
