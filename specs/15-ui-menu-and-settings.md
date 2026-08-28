@@ -161,6 +161,7 @@ A dialog with a **side menu**, the sections organised primarily by equipment typ
 │ Stochastic model │                                              │
 │ Reference systems│                                              │
 │ Paths & engines  │                                              │
+│ Base maps        │                                              │
 │ Interface        │                                              │
 ├──────────────────┴──────────────────────────────────────────────┤
 │                      [Restore defaults]  [Cancel]  [OK]         │
@@ -187,7 +188,29 @@ under more than one specification at once; a single "the" tolerance would be wro
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
 | **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
 | **Paths & engines** | DynAdjust and RTKLIB executable locations, engine installation and update, working directories, report templates | FR-066, FR-300 |
+| **Base maps** | Whether to offer a base map with result layers; which service to offer; the catalogue file; whether to reuse one already in the project | FR-167 |
 | **Interface** | Language; usage mode (Basic / Advanced); units of measure; angle display format; decimal places; log verbosity | FR-067, FR-092 |
+
+**Amendment (P5): a ninth section, Base maps.** `tex §Painel de Configuração Global` item 6 lists eight, and
+this table followed it. FR-167 asks for base map integration with "a configurable list with sensible
+defaults" ([`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.6), which
+is configuration and belongs in the panel; none of the eight is where a user would look for it — it is not
+equipment, not stochastic, not a reference system, not a path, and burying it under Interface would make
+"Interface" mean "everything left over". It sits after Paths & engines and before Interface, among the
+cross-cutting sections. FR-167 stays owned by P5; this is an amendment to the section list, not a transfer.
+
+**What P5 declared, and why every default is empty.** Reference systems carries preferred CRS, default
+epoch, transformation choice and preferred paths, transformation grid directory, default geoid model and its
+stated accuracy (FR-065). Every one of them defaults to empty or to "ask", and that is the design rather
+than an omission: GeoComp does not assume a CRS and refuses operations needing an epoch it was not given
+(FR-105), so a settings module shipping a plausible default for either would make the plugin assume exactly
+what the rest of it refuses. What the settings do is let a user state theirs once, and record in provenance
+that they did.
+
+The geoid model's **accuracy** is a setting because no grid format carries it and
+`geocomp.core.geoid` will not build a model without one (FR-204) — the figure that most often limits a
+combined height solution is the user's to state, from the model's own documentation, not the reader's to
+invent.
 
 ### 2.2 Instrument profiles (FR-069)
 

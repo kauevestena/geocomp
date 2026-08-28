@@ -65,6 +65,7 @@ def section_label(section_id: str) -> str:
         "stochastic": _tr("Stochastic model"),
         "reference_systems": _tr("Reference systems"),
         "paths": _tr("Paths and engines"),
+        "basemaps": _tr("Base maps"),
         "interface": _tr("Interface"),
     }.get(section_id, section_id)
 
@@ -108,6 +109,25 @@ def setting_label(key: str) -> str:
         ),
         "level.apply_orthometric_correction": _tr("Apply orthometric corrections"),
         "level.adjust_failing_lines": _tr("Adjust lines that failed their tolerance"),
+        # -- Reference systems (P5) --------------------------------------
+        "reference_systems.preferred_crs": _tr("Preferred coordinate reference system"),
+        "reference_systems.default_epoch": _tr("Default reference epoch"),
+        "reference_systems.transformation_choice": _tr(
+            "When several transformations exist between two systems"
+        ),
+        "reference_systems.preferred_transformations": _tr(
+            "Preferred transformations, one per line, as source > target > operation"
+        ),
+        "reference_systems.transformation_grid_directory": _tr(
+            "Directory holding transformation grid files"
+        ),
+        "reference_systems.geoid_model": _tr("Default geoid model file"),
+        "reference_systems.geoid_sigma": _tr("Stated accuracy of the geoid model (m)"),
+        # -- Base maps (P5) ----------------------------------------------
+        "basemaps.offer_on_result_layers": _tr("Offer a base map when adding result layers"),
+        "basemaps.default_service": _tr("Base map to offer"),
+        "basemaps.catalogue": _tr("Base map catalogue file"),
+        "basemaps.reuse_existing_layer": _tr("Use a base map already in the project, if there is one"),
         # -- Stochastic model (P3) ---------------------------------------
         "stochastic.default_sigma_direction": _tr("Default direction standard deviation (rad)"),
         "stochastic.default_sigma_zenith_angle": _tr("Default zenith-angle standard deviation (rad)"),
@@ -148,6 +168,13 @@ def choice_label(key: str, value: str) -> str:
         ("interface.log_level", "info"): _tr("Information"),
         ("interface.log_level", "warning"): _tr("Warning"),
         ("interface.log_level", "critical"): _tr("Critical"),
+        ("reference_systems.transformation_choice", "ask"): _tr("Ask which to use"),
+        ("reference_systems.transformation_choice", "most_accurate"): _tr(
+            "Use the most accurate available"
+        ),
+        ("reference_systems.transformation_choice", "preferred_only"): _tr(
+            "Use only a preferred transformation, and refuse otherwise"
+        ),
         ("total_station.atmospheric_model", "barrell_sears"): _tr("Barrell and Sears"),
         ("total_station.atmospheric_model", "leica"): _tr("Leica"),
         ("total_station.atmospheric_model", "trimble"): _tr("Trimble"),

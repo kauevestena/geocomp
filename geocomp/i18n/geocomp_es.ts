@@ -1874,12 +1874,28 @@
             <translation>Aplicar correcciones ortométricas</translation>
         </message>
         <message>
+            <source>Ask which to use</source>
+            <translation>Preguntar cuál usar</translation>
+        </message>
+        <message>
             <source>Atmospheric model</source>
             <translation>Modelo atmosférico</translation>
         </message>
         <message>
             <source>Barrell and Sears</source>
             <translation>Barrell y Sears</translation>
+        </message>
+        <message>
+            <source>Base map catalogue file</source>
+            <translation>Archivo de catálogo de mapas base</translation>
+        </message>
+        <message>
+            <source>Base map to offer</source>
+            <translation>Mapa base a ofrecer</translation>
+        </message>
+        <message>
+            <source>Base maps</source>
+            <translation>Mapas base</translation>
         </message>
         <message>
             <source>Basic</source>
@@ -1922,12 +1938,20 @@
             <translation>Desviación típica de las direcciones (rad)</translation>
         </message>
         <message>
+            <source>Default geoid model file</source>
+            <translation>Archivo del modelo geoidal predeterminado</translation>
+        </message>
+        <message>
             <source>Default height-difference standard deviation (m)</source>
             <translation>Desviación típica de los desniveles (m)</translation>
         </message>
         <message>
             <source>Default pressure (hPa)</source>
             <translation>Presión por defecto (hPa)</translation>
+        </message>
+        <message>
+            <source>Default reference epoch</source>
+            <translation>Época de referencia predeterminada</translation>
         </message>
         <message>
             <source>Default relative humidity (%)</source>
@@ -1948,6 +1972,10 @@
         <message>
             <source>Degrees, minutes, seconds</source>
             <translation>Grados, minutos, segundos</translation>
+        </message>
+        <message>
+            <source>Directory holding transformation grid files</source>
+            <translation>Directorio con los archivos de rejilla de transformación</translation>
         </message>
         <message>
             <source>Distance unit</source>
@@ -2042,6 +2070,10 @@
             <translation>Todavía no hay configuraciones en esta sección. Se añaden en la fase de desarrollo que implementa este tipo de equipo.</translation>
         </message>
         <message>
+            <source>Offer a base map when adding result layers</source>
+            <translation>Ofrecer un mapa base al añadir capas de resultado</translation>
+        </message>
+        <message>
             <source>Outlier test significance level</source>
             <translation>Nivel de significancia de la prueba de errores groseros</translation>
         </message>
@@ -2060,6 +2092,14 @@
         <message>
             <source>Português (Brasil)</source>
             <translation>Portugués (Brasil)</translation>
+        </message>
+        <message>
+            <source>Preferred coordinate reference system</source>
+            <translation>Sistema de referencia de coordenadas preferido</translation>
+        </message>
+        <message>
+            <source>Preferred transformations, one per line, as source &gt; target &gt; operation</source>
+            <translation>Transformaciones preferidas, una por línea, como origen &gt; destino &gt; operación</translation>
         </message>
         <message>
             <source>Proportional to line length</source>
@@ -2088,6 +2128,10 @@
         <message>
             <source>Show the GeoComp toolbar</source>
             <translation>Mostrar la barra de herramientas de GeoComp</translation>
+        </message>
+        <message>
+            <source>Stated accuracy of the geoid model (m)</source>
+            <translation>Exactitud declarada del modelo geoidal (m)</translation>
         </message>
         <message>
             <source>Stochastic model</source>
@@ -2130,12 +2174,28 @@
             <translation>Modo de uso</translation>
         </message>
         <message>
+            <source>Use a base map already in the project, if there is one</source>
+            <translation>Usar un mapa base ya presente en el proyecto, si lo hay</translation>
+        </message>
+        <message>
+            <source>Use only a preferred transformation, and refuse otherwise</source>
+            <translation>Usar solo una transformación preferida y rechazar en caso contrario</translation>
+        </message>
+        <message>
+            <source>Use the most accurate available</source>
+            <translation>Usar la más exacta disponible</translation>
+        </message>
+        <message>
             <source>Variance inflation for reciprocal sights</source>
             <translation>Inflación de la varianza para visuales recíprocas</translation>
         </message>
         <message>
             <source>Warning</source>
             <translation>Advertencia</translation>
+        </message>
+        <message>
+            <source>When several transformations exist between two systems</source>
+            <translation>Cuando existan varias transformaciones entre dos sistemas</translation>
         </message>
         <message>
             <source>default</source>

@@ -178,6 +178,7 @@ SECTIONS: tuple[SectionDef, ...] = (
     SectionDef("stochastic", 50, False, "FR-064"),
     SectionDef("reference_systems", 60, False, "FR-065"),
     SectionDef("paths", 70, False, "FR-066"),
+    SectionDef("basemaps", 75, False, "FR-167"),
     SectionDef("interface", 80, False, "FR-067"),
 )
 
@@ -207,6 +208,17 @@ TRAVERSE_LEAST_SQUARES = "least_squares"
 #: other, which is why specs/10 section 4 offers both rather than picking one.
 WEIGHTING_LENGTH = "length"
 WEIGHTING_SETUPS = "setups"
+
+#: Values for ``reference_systems.transformation_choice`` (FR-065). How to pick
+#: an operation when PROJ offers several between two CRSs. ``ask`` is the
+#: default deliberately: the operations differ by metres where a grid file is
+#: missing, and picking the most accurate *available* one silently is how a
+#: project acquires a datum shift nobody chose. ``most_accurate`` suits a
+#: batch run where being asked is not possible; ``preferred_only`` refuses
+#: rather than substitute, for an organisation with a mandated path.
+TRANSFORMATION_ASK = "ask"
+TRANSFORMATION_MOST_ACCURATE = "most_accurate"
+TRANSFORMATION_PREFERRED_ONLY = "preferred_only"
 
 SETTINGS: tuple[SettingDef, ...] = (
     # -- Total Station (FR-061, FR-062). Added in phase P3. -------------------
@@ -492,6 +504,110 @@ SETTINGS: tuple[SettingDef, ...] = (
         minimum=0.5,
         maximum=0.9999,
         requirement="FR-064",
+    ),
+    # -- Reference systems (FR-065). Added in phase P5. -----------------------
+    #
+    # Every default here is empty or "ask", and that is the point rather than an
+    # omission. GeoComp does not assume a CRS (specs/04 section 3) and refuses
+    # operations needing an epoch it was not given (FR-105); a settings module
+    # that shipped a plausible default for either would make the plugin assume
+    # exactly what the rest of it is built to refuse. What the settings do is
+    # let a user state theirs once, and record that they did.
+    SettingDef(
+        key="reference_systems.preferred_crs",
+        section="reference_systems",
+        type=SettingType.CRS,
+        default="",
+        requirement="FR-065",
+    ),
+    SettingDef(
+        key="reference_systems.default_epoch",
+        section="reference_systems",
+        type=SettingType.STRING,
+        default="",
+        requirement="FR-065",
+    ),
+    SettingDef(
+        key="reference_systems.transformation_choice",
+        section="reference_systems",
+        type=SettingType.CHOICE,
+        default=TRANSFORMATION_ASK,
+        choices=(
+            TRANSFORMATION_ASK,
+            TRANSFORMATION_MOST_ACCURATE,
+            TRANSFORMATION_PREFERRED_ONLY,
+        ),
+        requirement="FR-065",
+    ),
+    SettingDef(
+        key="reference_systems.preferred_transformations",
+        section="reference_systems",
+        type=SettingType.STRING,
+        default="",
+        requirement="FR-065",
+    ),
+    SettingDef(
+        key="reference_systems.transformation_grid_directory",
+        section="reference_systems",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-065",
+    ),
+    SettingDef(
+        key="reference_systems.geoid_model",
+        section="reference_systems",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-065",
+    ),
+    # No grid format carries the model's accuracy, and geocomp.core.geoid will
+    # not build a model without one (FR-204). So it is a setting rather than a
+    # default in the reader: the number that most often limits a combined height
+    # solution is the user's to state, from the model's own documentation.
+    SettingDef(
+        key="reference_systems.geoid_sigma",
+        section="reference_systems",
+        type=SettingType.FLOAT,
+        default=0.05,
+        minimum=1.0e-4,
+        maximum=10.0,
+        requirement="FR-065",
+    ),
+
+    # -- Base maps (FR-167). Added in phase P5. -------------------------------
+    #
+    # The *services* are not settings: they are named, structured records with
+    # a URL, an attribution and possibly an authentication reference, so they
+    # live in geocomp.core.basemaps and travel as documents, exactly as
+    # instrument profiles do (specs/15 section 2.2). What is here is the
+    # configuration that is genuinely a single value.
+    SettingDef(
+        key="basemaps.offer_on_result_layers",
+        section="basemaps",
+        type=SettingType.BOOL,
+        default=True,
+        requirement="FR-167",
+    ),
+    SettingDef(
+        key="basemaps.default_service",
+        section="basemaps",
+        type=SettingType.STRING,
+        default="",
+        requirement="FR-167",
+    ),
+    SettingDef(
+        key="basemaps.catalogue",
+        section="basemaps",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-167",
+    ),
+    SettingDef(
+        key="basemaps.reuse_existing_layer",
+        section="basemaps",
+        type=SettingType.BOOL,
+        default=True,
+        requirement="FR-167",
     ),
     # -- Interface (FR-067). The only section populated in phase P0. ----------
     SettingDef(

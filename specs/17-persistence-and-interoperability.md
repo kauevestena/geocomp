@@ -263,6 +263,38 @@ Cartographic context for processed and planned networks: the plugin offers to ad
 services, and honours the user's existing QGIS layers and connections. No bundled imagery, no hard-coded
 service — a configurable list with sensible defaults.
 
+#### As implemented (P5)
+
+**A service is a record, not a setting.** `geocomp.core.basemaps` declares `BaseMapService` — id, name, URL,
+attribution, kind (XYZ, WMS, WMTS), zoom range and an optional authentication reference — and a catalogue of
+them, following the precedent instrument profiles set
+([`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §2.2): an organisation owns several, hands
+them to its staff as a file, and a single "the" base map would be wrong for all but one job.
+`basemaps.catalogue` names a JSON file that replaces the defaults **wholesale** — a file that cannot be read
+is an error rather than a silent fall back to the defaults, because the user configured a list and quietly
+using a different one is how a project ends up with the wrong imagery.
+
+**Attribution is required at construction.** Every openly licensed tile service demands it, and a base map
+added without it puts the user in breach of the licence without telling them. A service genuinely needing
+none says so with the string `"none"`, so "no attribution required" stays distinguishable from "nobody
+filled this in". The attribution is written into the layer's metadata rights, so it reaches a print layout
+and a copied project rather than staying in the catalogue file.
+
+**No credential is ever stored here (NFR-010).** A service needing authentication carries `auth_config_id`,
+a key into the QGIS authentication database and meaningless outside it, so the serialisation that feeds
+catalogue files and provenance records *cannot* emit a secret. A URL with an embedded `user:password@` or an
+`apikey=` parameter is **refused at construction**, naming `auth_config_id` as the place it belongs: a key
+in a URL is copied into every export and every log the moment someone shares their configuration.
+
+**The user's project is honoured.** `basemaps.reuse_existing_layer` defaults to true, and a service already
+in the project is matched on its **URL** rather than its layer name — the name is the user's to change and
+often is. A base map is inserted at the bottom of the layer tree; above the results it hides what was just
+computed, which reads as the adjustment having produced nothing. Tile layers are set to EPSG:3857 explicitly
+rather than left to QGIS's guess, which misplaces them against the network.
+
+The defaults are OpenStreetMap and OpenTopoMap, both openly licensed and both carrying the attribution their
+licence requires. They are a starting list, not a dependency.
+
 ---
 
 ## 6. Acceptance criteria

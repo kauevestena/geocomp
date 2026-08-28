@@ -41,6 +41,31 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   uncertainty in, records the model on the station and on the solution, and
   reports each conversion with its undulation and the size of the change.
 
+- **Reference-system settings** (FR-065): preferred CRS, default epoch,
+  transformation choice and preferred paths, transformation grid directory,
+  default geoid model and its stated accuracy. Every default is empty or "ask",
+  which is the design rather than an omission - GeoComp does not assume a CRS
+  and refuses operations needing an epoch it was not given, so shipping a
+  plausible default for either would make the plugin assume what the rest of it
+  refuses. The geoid model's accuracy is a setting because no grid format
+  carries it and the reader will not invent it.
+- **`core/basemaps.py` and `layers/basemaps.py`** - base map integration
+  (FR-167). Services are records with a URL, an attribution and an optional
+  authentication reference, catalogued in a file that replaces the defaults
+  wholesale. Attribution is required at construction, because a base map added
+  without it puts the user in breach of the licence without telling them, and it
+  is written into the layer's metadata so it reaches a print layout. **A URL
+  carrying an embedded credential is refused** (NFR-010), naming the QGIS
+  authentication database as where it belongs: a key in a URL is copied into
+  every export and every log the moment a configuration is shared. A base map
+  already in the project is reused rather than stacked - matched on its URL,
+  since the layer name is the user's to change - and goes to the bottom of the
+  tree, because above the results it hides what was just computed.
+- **A ninth Global Settings section, Base maps.** An amendment to `specs/15`
+  §2.1, which followed the proposal's list of eight; none of them is where a
+  user would look for base map configuration, and putting it under Interface
+  would make "Interface" mean "everything left over".
+
 #### Fixed
 
 - **`ConstraintMode.WEIGHTED` was declared and then ignored.** Only `FIXED` ever
