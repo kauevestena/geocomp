@@ -14,6 +14,14 @@ Fraser, Leahy & Collier, *Automatic segmentation and parallel phased least squar
 > specification. Statements marked **[C]** must be confirmed against the User's Guide when the module is
 > implemented (roadmap P6), and the specification updated if they differ. Implementation MUST NOT assume a
 > **[C]** claim is correct.
+>
+> **Discharged in P6.** Every **[C]** in this document has now been checked against upstream at commit
+> `5cdb897`, and each is marked **[V]** with its source. Three sources were used, in this order of
+> authority: the **source code**, which is what actually runs; the **User's Guide** (`resources/DynAdjust
+> Users Guide.pdf`), which documents the file formats column by column; and the **sample data**
+> (`sampleData/`), which shows real files. Where a claim could be checked in more than one, all agreed.
+> Nothing below is inferred from a sample file alone — a sample shows what one file happens to contain, not
+> what the format permits.
 
 ---
 
@@ -45,8 +53,11 @@ DynAdjust adjusts networks. It does not:
 - **perform instrument-level pre-processing** — no face-left/face-right reduction, no atmospheric or EDM
   correction, no traverse computation, no resection or intersection. All of this is GeoComp's work
   ([`09-module-total-station.md`](./09-module-total-station.md));
-- **adjust gravimetric networks** — there is no gravity measurement type **[C]**, so gravimetry runs entirely
-  on the in-house core ([`12-module-gravimetry.md`](./12-module-gravimetry.md));
+- **adjust gravimetric networks** — there is no gravity measurement type **[V]**, so gravimetry runs entirely
+  on the in-house core ([`12-module-gravimetry.md`](./12-module-gravimetry.md)). Confirmed twice over: the
+  measurement tally in `dnameasurement.hpp` declares exactly twenty types and none is gravimetric, and the
+  strings *gravity*, *gravimetr* and *mGal* do not appear anywhere in the source. ADR-0002's conclusion —
+  that gravimetry is levelling and runs on the in-house core — is therefore forced rather than chosen;
 - **perform network design / pre-analysis** on a network that has no observations
   ([`06-adjustment-core.md`](./06-adjustment-core.md) §5);
 - **process GNSS observations** — it consumes baselines, it does not compute them
@@ -127,14 +138,38 @@ are column-oriented and unforgiving of a one-character misalignment; and XML gen
 
 ### 4.2 Mapping GeoComp observations to DynAdjust measurement types
 
-DynAdjust identifies measurement types by single-letter codes. Confirmed upstream: **G** (GNSS baseline),
-**X** (GNSS baseline cluster), **Y** (GNSS point cluster), **P** (geodetic latitude), **Q** (geodetic
-longitude), **R** (ellipsoid height), **C** (ellipsoid chord distance), **E** (ellipsoid arc distance)
-**[V]**; the suite also supports horizontal angles, geodetic azimuths, direction sets, slope distances,
-zenith distances and levelling height differences **[V]**, whose codes are **[C]**.
+DynAdjust identifies measurement types by single-letter codes. **There are exactly twenty**, and the list is
+now settled from three agreeing sources **[V]**: the tally structure in
+`dynadjust/include/measurement_types/dnameasurement.hpp`, which declares
+`UINT32 A, B, C, D, E, G, H, I, J, K, L, M, P, Q, R, S, V, X, Y, Z`; the parser's own switch in
+`dnaimport/dnainterop.cpp`, which names each; and Table 3.2 of the User's Guide. The letters F, N, O, T, U
+and W are **not** measurement types, which is worth stating because a writer that emitted one would produce
+a file `dnaimport` rejects with a message about an unknown type rather than about the observation.
 
-The mapping table below is the module's contract. **Implementation MUST validate every row against the
-User's Guide before the first release, and the DynaML schema is the authority.**
+| Code | DynAdjust measurement type |
+|---|---|
+| A | Horizontal angle (uncorrelated) |
+| B | Geodetic azimuth (or bearing) |
+| C | Ellipsoid chord distance |
+| D | Direction set |
+| E | Ellipsoid arc distance |
+| G | Single GNSS baseline (Δx Δy Δz) |
+| H | Orthometric height |
+| I | Astronomic latitude |
+| J | Astronomic longitude |
+| K | Astronomic (Laplace) azimuth |
+| L | Orthometric height difference |
+| M | Mean sea level (MSL) arc distance |
+| P | Geodetic latitude |
+| Q | Geodetic longitude |
+| R | Ellipsoid height |
+| S | Slope (direct) distance |
+| V | Zenith distance |
+| X | GNSS baseline cluster (full correlations) |
+| Y | GNSS point cluster (full correlations) |
+| Z | Vertical angle |
+
+The mapping below is the module's contract, and every row is now **[V]**.
 
 | GeoComp observation type ([`04-data-model.md`](./04-data-model.md) §4) | DynAdjust type | Status |
 |---|---|---|
@@ -146,15 +181,30 @@ User's Guide before the first release, and the DynaML schema is the authority.**
 | `ELLIPSOIDAL_HEIGHT` | R | **[V]** |
 | `ELLIPSOID_DISTANCE` (chord) | C | **[V]** |
 | `ELLIPSOID_DISTANCE` (arc) | E | **[V]** |
-| `HORIZONTAL_ANGLE` | angle type | **[C]** |
-| `DIRECTION` (set) | direction-set type | **[C]** |
-| `AZIMUTH` / `ASTRONOMIC_AZIMUTH` | azimuth types | **[C]** |
-| `SLOPE_DISTANCE` | slope distance type | **[C]** |
-| `ZENITH_ANGLE` / `VERTICAL_ANGLE` | zenith / vertical angle types | **[C]** |
-| `HEIGHT_DIFFERENCE` | levelling type | **[C]** |
-| `ORTHOMETRIC_HEIGHT` | orthometric height type | **[C]** |
-| `ASTRONOMIC_LATITUDE` / `ASTRONOMIC_LONGITUDE` | astronomic types | **[C]** |
-| `GRAVITY`, `GRAVITY_DIFFERENCE` | **none** | **[C]** — see §1.1 |
+| `HORIZONTAL_ANGLE` | A | **[V]** |
+| `DIRECTION` (set) | D | **[V]** |
+| `AZIMUTH` | B | **[V]** |
+| `ASTRONOMIC_AZIMUTH` | K | **[V]** |
+| `SLOPE_DISTANCE` | S | **[V]** |
+| `ZENITH_ANGLE` | V | **[V]** |
+| `VERTICAL_ANGLE` | Z | **[V]** |
+| `HEIGHT_DIFFERENCE` | L | **[V]** |
+| `ORTHOMETRIC_HEIGHT` | H | **[V]** |
+| `ASTRONOMIC_LATITUDE` | I | **[V]** |
+| `ASTRONOMIC_LONGITUDE` | J | **[V]** |
+| `GRAVITY`, `GRAVITY_DIFFERENCE` | **none** | **[V]** — see §1.1 |
+
+**Two distinctions the original table blurred**, both of which would have been silent errors. `AZIMUTH` and
+`ASTRONOMIC_AZIMUTH` are separate codes (B and K) — a geodetic azimuth written as K would be adjusted
+against a deflection of the vertical it never had. And `ZENITH_ANGLE` and `VERTICAL_ANGLE` are likewise
+separate (V and Z), differing by 90°: writing one as the other is a 90° error that produces a plausible
+adjustment of the wrong network. GeoComp's own model already distinguishes both pairs, so the mapping is
+one-to-one; the risk was only in this table having collapsed each pair into a single row.
+
+**`M` (MSL arc distance) has no GeoComp counterpart** and none is invented. A distance reduced to mean sea
+level is a distance reduced to a surface GeoComp does not model, and inventing an equivalence to
+`ELLIPSOID_DISTANCE` would be a metre-scale error over a long line. A network read from DNA or DynaML that
+contains one is reported, not silently reinterpreted (§4.4).
 
 ### 4.3 Generation rules
 
@@ -180,8 +230,15 @@ User's Guide before the first release, and the DynaML schema is the authority.**
 ## 5. Output parsing (FR-322, FR-323)
 
 `dnaadjust` writes an adjustment output file, a positional-uncertainty file, coordinate files and correction
-files; the exact extensions in use (`.adj`, `.apu`, `.xyz`, `.cor`, and the phased-adjustment variants) are
-**[C]** and MUST be confirmed against the User's Guide **[C]**. GeoComp parses:
+files. The extensions are **`.adj`, `.xyz`, `.apu` and `.cor`** **[V]**, appended in
+`dnaadjustwrapper.cpp`; `.apu` and `.cor` are written only when the corresponding option is given, so their
+absence is a configuration fact and not a failure. The User's Guide specifies each format **column by
+column** — Appendix C.7 for `.xyz`, C.8 for `.adj`, C.9 for `.cor` and C.10 for `.apu` — and those tables,
+not the sample files, are what the parsers are written against: a sample shows what one file happens to
+contain, and a fixed-width parser written from one sample breaks on the first file with a longer station
+name.
+
+GeoComp parses:
 
 | From | Into `Solution` |
 |---|---|
