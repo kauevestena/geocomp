@@ -644,7 +644,7 @@ def _assemble(
         for record in members:
             if record.three_wire is None:
                 continue
-            wires = _wire_quantities(record, mapping, instrument, defaults)
+            wires = _wire_quantities(record, instrument, defaults)
             problem = wires.check(
                 _half_sum_tolerance(instrument), label=f"{record.station} in setup {setup_id}"
             )
@@ -719,7 +719,6 @@ def _half_sum_tolerance(level: LevelProfile | None) -> float:
 
 def _wire_quantities(
     record: LevelBookRecord,
-    mapping: LevelMapping,
     level: LevelProfile | None,
     defaults: StochasticDefaults | None,
 ) -> ThreeWireReading:
@@ -755,7 +754,7 @@ def _reading(
 ) -> StaffReading:
     """One record as a :class:`StaffReading`, with its uncertainty attached."""
     if record.three_wire is not None:
-        wires = _wire_quantities(record, mapping, level, defaults)
+        wires = _wire_quantities(record, level, defaults)
         factor = level.stadia_factor if level is not None else mapping.stadia_factor
         sigma = level.stadia_sigma if level is not None else None
         return StaffReading(

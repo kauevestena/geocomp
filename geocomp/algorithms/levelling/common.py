@@ -44,6 +44,7 @@ __all__ = [
     "load_level_library",
     "read_lines",
     "read_reductions",
+    "reduction_from_dict",
     "reduction_to_dict",
     "setup_to_dict",
     "severity_label",
@@ -394,3 +395,41 @@ def summarise_findings(findings: tuple[Finding, ...], feedback) -> tuple[int, in
     if not findings:
         feedback.pushInfo(_tr("Nothing to report."))
     return blocking, warnings
+
+
+def reduction_from_dict(payload: dict[str, Any]) -> LineReduction:
+    """Rebuild the parts of a line reduction a closure needs.
+
+    The per-setup covariances are not rebuilt: a closure needs the height
+    difference, the length and the setup count, and the setups only to name the
+    shares. A :class:`SetupReduction` carrying an empty difference list would be
+    a lie, so the shares carry no per-setup sigma when read back from a document
+    -- the report shows a dash rather than a fabricated ratio.
+    """
+    from geocomp.core.techniques.levelling.schemes import SetupReduction
+    from geocomp.core.uncertainty import Covariance
+
+    empty = Covariance(matrix=[[0.0]], labels=("none",), units=(Unit.METRE,))
+    setups = tuple(
+        SetupReduction(
+            setup_id=setup_id,
+            from_station=payload["from_station"],
+            to_stations=(),
+            height_differences=(),
+            covariance=empty,
+        )
+        for setup_id in payload.get("setup_ids", ())
+    )
+    return LineReduction(
+        line_id=payload["line_id"],
+        from_station=payload["from_station"],
+        to_station=payload["to_station"],
+        height_difference=Quantity.from_dict(payload["height_difference"]),
+        raw_height_difference=Quantity.from_dict(
+            payload.get("raw_height_difference", payload["height_difference"])
+        ),
+        setups=setups,
+        length_km=payload.get("length_km"),
+        setup_count=int(payload.get("setup_count", len(setups))),
+        accumulated_imbalance=payload.get("accumulated_imbalance"),
+    )

@@ -31,6 +31,7 @@ from geocomp.algorithms.levelling.common import (
     findings_table,
     levelling_class_from_parameters,
     read_reductions,
+    reduction_from_dict,
     summarise_findings,
     write_document,
 )
@@ -44,7 +45,7 @@ from geocomp.algorithms.reporting import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.settings_def import WEIGHTING_LENGTH, WEIGHTING_SETUPS
-from geocomp.core.techniques.levelling import LineReduction, line_closure, loop_closure
+from geocomp.core.techniques.levelling import line_closure, loop_closure
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 
@@ -194,7 +195,7 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
         payload = read_reductions(self.parameterAsFile(parameters, REDUCTIONS, context))
-        reductions = [_reduction_from_dict(line) for line in payload]
+        reductions = [reduction_from_dict(line) for line in payload]
         mode = self.parameterAsEnum(parameters, MODE, context)
         weighting = (
             WEIGHTING_LENGTH
@@ -387,41 +388,3 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
                         exact(share.standardised),
                     ]
                 )
-
-
-def _reduction_from_dict(payload: dict[str, Any]) -> LineReduction:
-    """Rebuild the parts of a line reduction a closure needs.
-
-    The per-setup covariances are not rebuilt: a closure needs the height
-    difference, the length and the setup count, and the setups only to name the
-    shares. A :class:`SetupReduction` carrying an empty difference list would be
-    a lie, so the shares carry no per-setup sigma when read back from a document
-    -- the report shows a dash rather than a fabricated ratio.
-    """
-    from geocomp.core.techniques.levelling.schemes import SetupReduction
-    from geocomp.core.uncertainty import Covariance
-
-    empty = Covariance(matrix=[[0.0]], labels=("none",), units=(Unit.METRE,))
-    setups = tuple(
-        SetupReduction(
-            setup_id=setup_id,
-            from_station=payload["from_station"],
-            to_stations=(),
-            height_differences=(),
-            covariance=empty,
-        )
-        for setup_id in payload.get("setup_ids", ())
-    )
-    return LineReduction(
-        line_id=payload["line_id"],
-        from_station=payload["from_station"],
-        to_station=payload["to_station"],
-        height_difference=Quantity.from_dict(payload["height_difference"]),
-        raw_height_difference=Quantity.from_dict(
-            payload.get("raw_height_difference", payload["height_difference"])
-        ),
-        setups=setups,
-        length_km=payload.get("length_km"),
-        setup_count=int(payload.get("setup_count", len(setups))),
-        accumulated_imbalance=payload.get("accumulated_imbalance"),
-    )

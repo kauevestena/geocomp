@@ -42,10 +42,10 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.levelling.closures import _reduction_from_dict
 from geocomp.algorithms.levelling.common import (
     findings_table,
     read_reductions,
+    reduction_from_dict,
     summarise_findings,
     write_document,
 )
@@ -240,7 +240,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
         payload = read_reductions(self.parameterAsFile(parameters, REDUCTIONS, context))
-        reductions = [_reduction_from_dict(line) for line in payload]
+        reductions = [reduction_from_dict(line) for line in payload]
         free = self.parameterAsBool(parameters, FREE, context)
         benchmarks = (
             []
