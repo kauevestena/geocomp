@@ -118,16 +118,38 @@ def test_a_different_service_is_not_mistaken_for_the_first(project) -> None:
     assert len(project.mapLayers()) == 2
 
 
-def test_an_unusable_service_is_reported_not_added(project) -> None:
-    """An invalid layer in the legend is a broken entry with no explanation."""
-    from geocomp.layers.basemaps import add_base_map
+def test_an_unusable_service_is_reported_not_added(project, service, monkeypatch) -> None:
+    """An invalid layer in the legend is a broken entry with no explanation.
 
-    broken = BaseMapService(
-        id="broken",
-        name="Broken",
-        url="ftp://not-a-tile-service.invalid/{z}/{x}/{y}.png",
-        attribution="none",
+    The invalid layer is injected rather than provoked with a malformed URL.
+    What is under test is GeoComp's branch -- report it, add nothing -- and
+    which URLs QGIS's WMS provider happens to reject at construction is QGIS's
+    business and liable to change. A test that depended on that would be
+    asserting something we do not control, in place of the thing we do.
+    """
+    from qgis.core import QgsRasterLayer
+
+    from geocomp.layers import basemaps as module
+
+    monkeypatch.setattr(
+        module, "base_map_layer", lambda _service: QgsRasterLayer("", "broken", "wms")
     )
-    layer, outcome = add_base_map(broken, project)
+    layer, outcome = module.add_base_map(service, project)
     assert (layer, outcome) == (None, "invalid")
     assert not project.mapLayers()
+
+
+def test_all_three_kinds_load_through_the_wms_provider(qgis_app) -> None:
+    """There is no provider called xyz or wmts; the kind goes in the URI.
+
+    Passing the kind as the provider key made **every** base map invalid, and
+    only the CI QGIS job could see it: without a runtime the layer is never
+    constructed. Asserting the provider key here is cheap and pins the surprise.
+    """
+    from geocomp.layers.basemaps import PROVIDER, base_map_layer
+
+    assert PROVIDER == "wms"
+    layer = base_map_layer(DEFAULT_SERVICES[0])
+    assert layer.isValid()
+    assert layer.dataProvider().name() == "wms"
+    assert "type=xyz" in layer.source()

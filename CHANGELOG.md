@@ -94,6 +94,12 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   far the station moved, and a contribution to the redundancy. Found while
   checking that a geoid-derived height's uncertainty reached the adjusted
   heights - it could not, because the constraint carrying it was not there.
+- **Every base map layer was invalid.** `QgsRasterLayer` was constructed with
+  the service kind as its **provider key**, and QGIS has no provider called
+  `xyz` or `wmts`: all three kinds load through the `wms` provider, with the
+  kind carried in the URI as `type=`, which the URI builder already wrote. Only
+  the CI QGIS job could catch it - without a runtime the layer is never
+  constructed - and it did, on the commit that introduced it.
 - **The enum-member check could not survive a lazy package.** It resolved each
   imported name with `getattr` on the module, guarding only the import; a
   package with a lazy `__getattr__` - which `geocomp.reports` became, above -

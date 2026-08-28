@@ -36,6 +36,15 @@ __all__ = ["add_base_map", "base_map_layer", "existing_base_map"]
 #: high latitudes and, worse, silently misplaces itself relative to the network.
 TILE_CRS = "EPSG:3857"
 
+#: **All three kinds load through the ``wms`` provider.** There is no provider
+#: called ``xyz`` or ``wmts`` in QGIS: the kind goes in the *URI* as ``type=``,
+#: which :meth:`BaseMapService.uri` already writes, and the provider key stays
+#: ``wms`` for all of them. Passing the kind as the provider key produced
+#: ``Invalid data provider xyz`` and an invalid layer for every service --
+#: caught by the CI QGIS job, which is the only environment that can catch it,
+#: since without a runtime the layer is never constructed at all.
+PROVIDER = "wms"
+
 
 def base_map_layer(service: BaseMapService) -> QgsRasterLayer:
     """Build the raster layer for *service*, without adding it to a project.
@@ -45,7 +54,7 @@ def base_map_layer(service: BaseMapService) -> QgsRasterLayer:
     misconfigured or unreachable, rather than adding an invalid layer that
     shows as a broken entry in the legend with no explanation.
     """
-    layer = QgsRasterLayer(service.uri(), service.name, service.kind.value)
+    layer = QgsRasterLayer(service.uri(), service.name, PROVIDER)
     if layer.isValid():
         layer.setCrs(QgsCoordinateReferenceSystem(TILE_CRS))
         # The attribution travels with the layer, so it reaches a print layout
@@ -96,8 +105,9 @@ def add_base_map(
         return None, "invalid"
 
     project.addMapLayer(layer, False)
-    root = project.layerTreeRoot()
     # Bottom of the tree: above the results, a base map hides what was just
-    # computed, and the adjustment reads as having produced nothing.
-    root.insertLayer(-1, layer)
+    # computed, and the adjustment reads as having produced nothing. `addLayer`
+    # appends, and the tree is ordered top to bottom, so appending *is* the
+    # bottom -- unambiguously, which `insertLayer(-1, ...)` is not.
+    project.layerTreeRoot().addLayer(layer)
     return layer, "added"
