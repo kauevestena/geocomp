@@ -94,13 +94,34 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: python3 -m pytest -q --collect-only | tail -3
 
-      # ``QT_QPA_PLATFORM=offscreen`` is what makes Qt headless, and it is
-      # sufficient on its own -- no X server and no ``xvfb-run`` wrapper, which
-      # is one more thing that has to be installed in the image to work.
+      # ``xvfb-run`` when the image has it, the offscreen platform alone when it
+      # does not: some Qt paths still want an X server even with the offscreen
+      # platform set, and a QGIS image without xvfb is not a reason to skip the
+      # whole suite.
       - name: Full suite with QGIS available
         env:
           QT_QPA_PLATFORM: offscreen
-        run: python3 -m pytest -q
+        run: |
+          set -o pipefail
+          if command -v xvfb-run >/dev/null 2>&1; then
+            echo "running under xvfb-run"
+            xvfb-run -a python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+          else
+            echo "xvfb-run not present; offscreen platform only"
+            python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+          fi
+
+      # A crash exits before pytest prints anything, and the run log is not
+      # reachable from every tool that reads this repository's CI. The log is an
+      # artifact so the failure can be read rather than guessed at -- which is
+      # how this job stayed red for ten runs.
+      - name: Keep the test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qgis-pytest-log
+          path: pytest.log
+          if-no-files-found: warn
 
   # NFR-005 and FR-306: the fallback paths are requirements, and an untested
   # fallback is a fallback that does not work.
