@@ -94,6 +94,20 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: python3 -m pytest -q --collect-only | tail -3
 
+      # A crash inside addAlgorithm takes the process down and the traceback
+      # names loadAlgorithms, not the algorithm being added -- so every tier-3
+      # test fails at once and none of them says which one is at fault. This
+      # walks the registry printing as it goes, so the last line before an abort
+      # names the culprit. It must not gate the suite: when it passes there is
+      # nothing to report, and when it aborts the suite's own failure is the one
+      # that matters.
+      - name: Name the algorithm that breaks the provider, if any
+        if: always()
+        continue-on-error: true
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: xvfb-run -a python3 scripts/diagnose_provider.py
+
       # ``xvfb-run`` when the image has it, the offscreen platform alone when it
       # does not: some Qt paths still want an X server even with the offscreen
       # platform set, and a QGIS image without xvfb is not a reason to skip the
