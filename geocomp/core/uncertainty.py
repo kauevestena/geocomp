@@ -95,6 +95,15 @@ class Strategy(Enum):
     EMPIRICAL_SCALING = "empirical_scaling"
     #: A derivative obtained by finite differences rather than analytically.
     NUMERIC_DERIVATIVE = "numeric_derivative"
+    #: The uncertainty implied by how many digits were written down. A value
+    #: recorded as ``32.4`` is somewhere in ``[32.35, 32.45)``, so its standard
+    #: deviation is ``0.05 / sqrt(3)`` under the uniform distribution that
+    #: rounding produces. Added in phase P4 for sight distances, and it is not
+    #: an invention: the information is genuinely in the file, in the number of
+    #: digits the observer chose to write. Use it only where nothing better
+    #: exists *and* the quantity is not load-bearing -- never for an observation
+    #: whose sigma becomes an adjustment weight.
+    RECORDED_PRECISION = "recorded_precision"
 
 
 def combine_modes(*quantities: Quantity) -> tuple[UncertaintyMode, frozenset[Strategy]]:

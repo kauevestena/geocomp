@@ -201,6 +201,13 @@ TRAVERSE_COMPASS = "compass"
 TRAVERSE_TRANSIT = "transit"
 TRAVERSE_LEAST_SQUARES = "least_squares"
 
+#: Values for ``level.weighting`` (FR-504). Length weighting suits long lines
+#: with consistent sight lengths; setup weighting suits short, irregular ones
+#: where the per-setup reading error dominates. Neither is derivable from the
+#: other, which is why specs/10 section 4 offers both rather than picking one.
+WEIGHTING_LENGTH = "length"
+WEIGHTING_SETUPS = "setups"
+
 SETTINGS: tuple[SettingDef, ...] = (
     # -- Total Station (FR-061, FR-062). Added in phase P3. -------------------
     #
@@ -328,6 +335,95 @@ SETTINGS: tuple[SettingDef, ...] = (
         minimum=0.0,
         maximum=0.1,
         requirement="FR-406",
+    ),
+    # -- Level (FR-061, FR-503, FR-504). Added in phase P4. -------------------
+    #
+    # Level profiles and levelling accuracy classes are not settings, for the
+    # same reason instrument profiles are not: they are named, structured
+    # records with their own uncertainties and their own provenance, so they
+    # live in geocomp.core.instruments.level. What is here is the configuration
+    # that is genuinely one value.
+    SettingDef(
+        key="level.weighting",
+        section="level",
+        type=SettingType.CHOICE,
+        default=WEIGHTING_LENGTH,
+        choices=(WEIGHTING_LENGTH, WEIGHTING_SETUPS),
+        requirement="FR-504",
+    ),
+    # Zero means "no tolerance configured", and a closure check then reports the
+    # misclosure with no verdict. Deliberate: k differs by country, by class
+    # within a country and by edition of the standard, and a default that is
+    # wrong does not fail loudly -- it silently accepts a line that should have
+    # been re-run. specs/10 section 3.
+    SettingDef(
+        key="level.tolerance_coefficient",
+        section="level",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=1.0,
+        requirement="FR-503",
+    ),
+    SettingDef(
+        key="level.max_sight_length",
+        section="level",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=500.0,
+        requirement="FR-500",
+    ),
+    SettingDef(
+        key="level.max_sight_imbalance",
+        section="level",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=100.0,
+        requirement="FR-500",
+    ),
+    # The one that actually matters. Per-setup imbalances of alternating sign
+    # cost nothing; it is their *sum* that drives the residual collimation
+    # error over a line (specs/10 section 2.1).
+    SettingDef(
+        key="level.max_accumulated_imbalance",
+        section="level",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=1000.0,
+        requirement="FR-500",
+    ),
+    # Refraction across water varies rapidly and asymmetrically, so the
+    # equidistant-sights model is deliberately more conservative than the
+    # equal-sights one and says so in its output (specs/10 section 2.2). The
+    # factor is configurable because its right value depends on the crossing,
+    # and one is nothing to defend.
+    SettingDef(
+        key="level.reciprocal_variance_inflation",
+        section="level",
+        type=SettingType.FLOAT,
+        default=2.0,
+        minimum=1.0,
+        maximum=100.0,
+        requirement="FR-501",
+    ),
+    SettingDef(
+        key="level.apply_orthometric_correction",
+        section="level",
+        type=SettingType.BOOL,
+        default=False,
+        requirement="FR-504",
+    ),
+    # The explicit acknowledgement specs/10 section 3 requires: GeoComp does not
+    # adjust a line that failed its tolerance until someone says to.
+    SettingDef(
+        key="level.adjust_failing_lines",
+        section="level",
+        type=SettingType.BOOL,
+        default=False,
+        requirement="FR-503",
     ),
     # -- Stochastic model (FR-064). Added in phase P3. ------------------------
     #

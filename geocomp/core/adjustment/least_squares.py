@@ -353,11 +353,18 @@ def starting_values(
 
 
 def _from_position(station, component: str, frame: Frame) -> float:
+    """Read one frame component out of a station's approximate position.
+
+    The reading half of :attr:`~geocomp.core.adjustment.parameters.Frame.position_components`;
+    :func:`to_solution` is the writing half, and both go through that one
+    mapping so they cannot drift apart again.
+    """
     position = station.approx_position
-    name = {"e": "easting", "n": "northing", "u": "up", "h": "up", "g": "up"}[component]
+    index = frame.components.index(component)
+    name = frame.position_components[index]
     if position.system is CoordinateSystem.PROJECTED:
         return position.component(name).value
-    return position.values[{"e": 0, "n": 1, "u": 2, "h": 2, "g": 2}[component]].value
+    return position.values[frame.position_indices[index]].value
 
 
 def _constraints_for(
@@ -465,22 +472,25 @@ def to_solution(
         if not columns:
             continue
 
-        quantities: list[Quantity] = []
-        for component in run.layout.frame.components:
+        # Each frame component goes into *its own* slot of the position triple,
+        # never simply the next free one: a 1D frame estimates a height, and a
+        # height belongs in "up". Padding in order would put it in "easting",
+        # which is what phase P2 did and phase P4 found -- see
+        # Frame.position_components.
+        quantities: list[Quantity] = [Quantity.exact(0.0, Unit.METRE)] * 3
+        for component, index in zip(
+            run.layout.frame.components, run.layout.frame.position_indices, strict=True
+        ):
             column = columns.get(component)
             if column is None:
                 value = run.layout.fixed_values[(station_id, component)]
-                quantities.append(Quantity.exact(value, Unit.METRE))
+                quantities[index] = Quantity.exact(value, Unit.METRE)
             else:
-                quantities.append(
-                    Quantity(
-                        value=float(run.parameters[column]),
-                        variance=float(covariance[column, column]),
-                        unit=units[column],
-                    )
+                quantities[index] = Quantity(
+                    value=float(run.parameters[column]),
+                    variance=float(covariance[column, column]),
+                    unit=units[column],
                 )
-        while len(quantities) < 3:
-            quantities.append(Quantity.exact(0.0, Unit.METRE))
 
         indices = [columns[c] for c in run.layout.frame.components if c in columns]
         block = Covariance(

@@ -36,6 +36,7 @@ __all__ = [
     "ColumnMapping",
     "FieldMapping",
     "infer_mapping",
+    "parse_number",
 ]
 
 
@@ -113,11 +114,15 @@ class ColumnMapping:
     constant: str | None = None
 
     def __post_init__(self) -> None:
-        if self.field not in FIELDS:
+        # The *name* is checked by whoever owns the mapping, not here: a
+        # levelling book and a total-station book have different vocabularies
+        # (:data:`~geocomp.io.levelbook.LEVEL_FIELDS` and :data:`FIELDS`), and a
+        # column does not know which kind of book it belongs to. Phase P4 moved
+        # the check outward when the second vocabulary arrived.
+        if not self.field or not self.field.strip():
             raise ValidationError(
-                "unknown_mapping_field",
-                received=self.field,
-                expected=f"one of: {', '.join(FIELDS)}",
+                "mapping_without_field",
+                expected="a logical field name",
             )
         if self.column is None and self.constant is None:
             raise ValidationError(
@@ -192,6 +197,15 @@ class FieldMapping:
             raise ValidationError(
                 "negative_skip_rows", received=self.skip_rows, expected="zero or more"
             )
+        unknown = sorted(
+            mapping.field for mapping in self.columns if mapping.field not in FIELDS
+        )
+        if unknown:
+            raise ValidationError(
+                "unknown_mapping_field",
+                received=unknown,
+                expected=f"one of: {', '.join(FIELDS)}",
+            )
         seen = [mapping.field for mapping in self.columns]
         duplicates = sorted({name for name in seen if seen.count(name) > 1})
         if duplicates:
@@ -250,17 +264,7 @@ class FieldMapping:
         under a comma-decimal locale reads back identically under a
         period-decimal one.
         """
-        cleaned = text.strip()
-        if not cleaned:
-            raise ValueError("empty value")
-
-        if self.decimal_separator == ",":
-            cleaned = cleaned.replace(",", ".")
-        elif self.decimal_separator == "auto" and "," in cleaned and "." not in cleaned:
-            cleaned = cleaned.replace(",", ".")
-
-        value = float(cleaned)
-        return convert(value, unit, _si_name(unit)) if unit else value
+        return parse_number(text, self.decimal_separator, unit=unit)
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -291,6 +295,27 @@ class FieldMapping:
             ),
             description=payload.get("description", ""),
         )
+
+
+def parse_number(text: str, decimal_separator: str, *, unit: str = "") -> float:
+    """Parse one number from a source file, in SI (FR-095).
+
+    Module-level rather than a method because every importer needs it and there
+    must be exactly one answer to "what does ``1,234`` mean in a field book". It
+    means 1.234: a field book never uses a comma as a thousands separator, and
+    that assumption is load-bearing for the ``auto`` mode.
+    """
+    cleaned = text.strip()
+    if not cleaned:
+        raise ValueError("empty value")
+
+    if decimal_separator == ",":
+        cleaned = cleaned.replace(",", ".")
+    elif decimal_separator == "auto" and "," in cleaned and "." not in cleaned:
+        cleaned = cleaned.replace(",", ".")
+
+    value = float(cleaned)
+    return convert(value, unit, _si_name(unit)) if unit else value
 
 
 def _si_name(unit: str) -> str:

@@ -67,6 +67,37 @@ class Frame(Enum):
         }[self]
 
     @property
+    def position_components(self) -> tuple[str, ...]:
+        """Where each of this frame's components lives in a projected position.
+
+        A :class:`~geocomp.core.models.position.Position` is always three
+        components named ``(easting, northing, up)``; a frame may estimate
+        fewer. The mapping between them is stated **once, here**, because
+        writing a solution and reading approximate coordinates are the two
+        directions of the same correspondence, and phase P4 found them
+        disagreeing: a 1D height solution was written into the *easting* slot
+        while approximate heights were read from the *up* slot, so every
+        levelling result reported a height of zero.
+
+        Gravity maps to ``up`` for want of anywhere better. That is a recorded
+        wart, not a claim: a gravity value in a metre-typed slot is
+        dimensionally wrong and phase P8 fixes it (``specs/12`` and
+        ``tests/test_gravimetry_is_levelling.py``).
+        """
+        return {
+            Frame.HEIGHT_1D: ("up",),
+            Frame.PLANE_2D: ("easting", "northing"),
+            Frame.SPACE_3D: ("easting", "northing", "up"),
+            Frame.GRAVITY_1D: ("up",),
+        }[self]
+
+    @property
+    def position_indices(self) -> tuple[int, ...]:
+        """The same correspondence as indices into the position's triple."""
+        names = ("easting", "northing", "up")
+        return tuple(names.index(name) for name in self.position_components)
+
+    @property
     def component_units(self) -> tuple[Unit, ...]:
         if self is Frame.GRAVITY_1D:
             return (Unit.ACCELERATION,)

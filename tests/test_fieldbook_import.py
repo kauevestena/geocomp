@@ -119,9 +119,21 @@ class TestMappingDocument:
         assert caught.value.code == "validation.mapping_without_source"
 
     def test_an_unknown_field_is_refused(self):
+        """Checked by the mapping that owns the column, not by the column.
+
+        Phase P4 moved it outward: a levelling book has its own vocabulary
+        (``geocomp.io.levelbook.LEVEL_FIELDS``), and a ColumnMapping cannot know
+        which kind of book it is in. The property being asserted is unchanged --
+        a typo'd field name is refused, by name.
+        """
         with pytest.raises(ValidationError) as caught:
-            ColumnMapping("wingspan", column="W")
+            FieldMapping(name="m", columns=(ColumnMapping("wingspan", column="W"),))
         assert caught.value.code == "validation.unknown_mapping_field"
+
+    def test_a_column_needs_a_field_name(self):
+        with pytest.raises(ValidationError) as caught:
+            ColumnMapping("", column="W")
+        assert caught.value.code == "validation.mapping_without_field"
 
     def test_a_constant_supplies_a_value_for_every_row(self):
         """Instrument height written once on the cover of a field book rather

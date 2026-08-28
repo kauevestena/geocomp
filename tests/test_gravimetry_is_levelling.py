@@ -251,3 +251,59 @@ class TestWhatIsActuallyDifferent:
 
         source = inspect.getsource(equations._gravity_difference)
         assert "drift" in source
+
+
+class TestP8InheritsP4sMachinery:
+    """The roadmap's P4 note, made a test rather than a hope.
+
+    ``specs/ROADMAP.md`` asks that the levelling phase build its weighting and
+    its difference-network datum handling so that gravimetry *inherits* them.
+    An intention like that decays silently -- the module gets a general name, and
+    then the second caller quietly writes its own. These assertions are the
+    second caller, arriving early.
+    """
+
+    def test_the_weighting_model_takes_a_gravity_difference_unchanged(self):
+        """A gravimeter's drift accumulates with elapsed time, a levelling line's
+        error with distance. One formula, ``sigma = k * sqrt(extent)``, and the
+        only difference is what is being accumulated."""
+        from geocomp.core.adjustment import DifferenceWeighting, ExtentKind
+
+        drift = DifferenceWeighting(
+            ExtentKind.DURATION, 2.0e-8, Unit.ACCELERATION, "hours"
+        )
+        weighted = drift.apply(1.2e-5, 4.0)
+        assert weighted.unit is Unit.ACCELERATION
+        assert weighted.std_dev == pytest.approx(4.0e-8)
+
+    def test_starting_values_are_derived_for_either_frame(self, levelling, gravimetry):
+        """One traversal, two frames. The component name changes and nothing
+        else -- which is the whole claim of ADR-0002, Amendment 1, applied to
+        the machinery around the equation rather than to the equation."""
+        from geocomp.core.adjustment import approximate_values
+
+        heights = approximate_values(levelling, Frame.HEIGHT_1D)
+        gravities = approximate_values(gravimetry, Frame.GRAVITY_1D)
+
+        assert set(heights.values) == set(gravities.values)
+        for station in heights.values:
+            assert set(heights.values[station]) == {"h"}
+            assert set(gravities.values[station]) == {"g"}
+
+    def test_connectivity_is_computed_the_same_way_for_both(self, levelling, gravimetry):
+        from geocomp.core.adjustment import connected_components
+
+        assert connected_components(levelling, Frame.HEIGHT_1D) == connected_components(
+            gravimetry, Frame.GRAVITY_1D
+        )
+
+    def test_the_difference_frames_are_the_only_ones_accepted(self):
+        """Guards the generalisation from being *over*-general: this machinery is
+        for networks of one unknown per station, and a 2D network is not one."""
+        from geocomp.core.adjustment import connected_components
+        from geocomp.core.errors import ValidationError
+
+        network = _network(ObservationType.HEIGHT_DIFFERENCE, Unit.METRE, "plane")
+        with pytest.raises(ValidationError) as caught:
+            connected_components(network, Frame.PLANE_2D)
+        assert caught.value.code == "validation.not_a_difference_frame"

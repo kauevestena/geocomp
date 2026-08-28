@@ -12,15 +12,26 @@ evidence available -- which is what makes phase P6 a cross-validation.
 
 from __future__ import annotations
 
+from geocomp.core.adjustment.difference_network import (
+    ApproximateValues,
+    approximate_values,
+    connected_components,
+)
 from geocomp.core.adjustment.equations import SUPPORTED_TYPES, EquationRow, evaluate, supports
 from geocomp.core.adjustment.parameters import Frame, ParameterLayout, ParameterSlot
+from geocomp.core.adjustment.weighting import DifferenceWeighting, ExtentKind
 
 __all__ = [
     "SUPPORTED_TYPES",
+    "ApproximateValues",
+    "DifferenceWeighting",
     "EquationRow",
+    "ExtentKind",
     "Frame",
     "ParameterLayout",
     "ParameterSlot",
+    "approximate_values",
+    "connected_components",
     "evaluate",
     "supports",
 ]

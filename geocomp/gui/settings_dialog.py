@@ -70,8 +70,53 @@ def section_label(section_id: str) -> str:
 
 
 def setting_label(key: str) -> str:
-    """Translated label for one setting."""
+    """Translated label for one setting.
+
+    Every declared setting must appear here:
+    ``tests/structural/test_settings_labels.py`` checks the correspondence, so a
+    new setting cannot reach the dialog showing its raw dotted key. Phases P3
+    and P4 both added settings, and P4 added the check after finding that P3's
+    seventeen were rendering as ``total_station.atmospheric_model``.
+    """
     return {
+        # -- Total Station (P3) ------------------------------------------
+        "total_station.atmospheric_model": _tr("Atmospheric model"),
+        "total_station.default_temperature_celsius": _tr("Default temperature (degrees Celsius)"),
+        "total_station.default_pressure_hpa": _tr("Default pressure (hPa)"),
+        "total_station.default_humidity_percent": _tr("Default relative humidity (%)"),
+        "total_station.default_temperature_sigma": _tr(
+            "Uncertainty of the default temperature (degrees Celsius)"
+        ),
+        "total_station.default_pressure_sigma_hpa": _tr("Uncertainty of the default pressure (hPa)"),
+        "total_station.refraction_coefficient": _tr("Coefficient of refraction (k)"),
+        "total_station.refraction_coefficient_sigma": _tr("Uncertainty of k"),
+        "total_station.face_distance_tolerance": _tr("Face-pair distance tolerance (m)"),
+        "total_station.collimation_tolerance": _tr("Collimation tolerance (rad)"),
+        "total_station.traverse_adjustment": _tr("Traverse adjustment method"),
+        "total_station.traverse_relative_precision": _tr("Required relative precision (1:N)"),
+        "total_station.traverse_angular_tolerance_per_station": _tr(
+            "Angular tolerance per station (rad)"
+        ),
+        # -- Level (P4) --------------------------------------------------
+        "level.weighting": _tr("Height-difference weighting"),
+        "level.tolerance_coefficient": _tr("Permissible misclosure k, in m per root kilometre"),
+        "level.max_sight_length": _tr("Longest permitted sight (m)"),
+        "level.max_sight_imbalance": _tr("Largest permitted imbalance per setup (m)"),
+        "level.max_accumulated_imbalance": _tr("Largest permitted imbalance per line (m)"),
+        "level.reciprocal_variance_inflation": _tr(
+            "Variance inflation for reciprocal sights"
+        ),
+        "level.apply_orthometric_correction": _tr("Apply orthometric corrections"),
+        "level.adjust_failing_lines": _tr("Adjust lines that failed their tolerance"),
+        # -- Stochastic model (P3) ---------------------------------------
+        "stochastic.default_sigma_direction": _tr("Default direction standard deviation (rad)"),
+        "stochastic.default_sigma_zenith_angle": _tr("Default zenith-angle standard deviation (rad)"),
+        "stochastic.default_sigma_slope_distance": _tr("Default slope-distance standard deviation (m)"),
+        "stochastic.default_sigma_height_difference": _tr("Default height-difference standard deviation (m)"),
+        "stochastic.outlier_alpha": _tr("Outlier test significance level"),
+        "stochastic.outlier_beta": _tr("Outlier test type II error rate"),
+        "stochastic.confidence_level": _tr("Confidence level"),
+        # -- Interface (P0) ----------------------------------------------
         "interface.language": _tr("Language"),
         "interface.mode": _tr("Usage mode"),
         "interface.distance_unit": _tr("Distance unit"),
@@ -103,6 +148,14 @@ def choice_label(key: str, value: str) -> str:
         ("interface.log_level", "info"): _tr("Information"),
         ("interface.log_level", "warning"): _tr("Warning"),
         ("interface.log_level", "critical"): _tr("Critical"),
+        ("total_station.atmospheric_model", "barrell_sears"): _tr("Barrell and Sears"),
+        ("total_station.atmospheric_model", "leica"): _tr("Leica"),
+        ("total_station.atmospheric_model", "trimble"): _tr("Trimble"),
+        ("total_station.traverse_adjustment", "least_squares"): _tr("Least squares"),
+        ("total_station.traverse_adjustment", "compass"): _tr("Compass (Bowditch) rule"),
+        ("total_station.traverse_adjustment", "transit"): _tr("Transit rule"),
+        ("level.weighting", "length"): _tr("Proportional to line length"),
+        ("level.weighting", "setups"): _tr("Proportional to the number of setups"),
     }.get((key, value), value)
 
 

@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.instruments.level import LevelProfile
 from geocomp.core.instruments.profiles import InstrumentProfile
 from geocomp.core.uncertainty import Quantity, Strategy
 from geocomp.core.units import Unit
@@ -57,6 +58,12 @@ HORIZONTAL_ANGLE = "horizontal_angle"
 HEIGHT_DIFFERENCE = "height_difference"
 INSTRUMENT_HEIGHT = "instrument_height"
 TARGET_HEIGHT = "target_height"
+#: One reading of a levelling staff, and the sight distance to it. Added in
+#: phase P4: the same precedence governs them, and a levelling importer that
+#: invented a reading sigma would corrupt the network exactly as a total-station
+#: one would.
+STAFF_READING = "staff_reading"
+SIGHT_DISTANCE = "sight_distance"
 
 _ANGULAR = frozenset({DIRECTION, ZENITH_ANGLE, HORIZONTAL_ANGLE})
 _LINEAR = frozenset(
@@ -66,6 +73,8 @@ _LINEAR = frozenset(
         HEIGHT_DIFFERENCE,
         INSTRUMENT_HEIGHT,
         TARGET_HEIGHT,
+        STAFF_READING,
+        SIGHT_DISTANCE,
     }
 )
 
@@ -115,6 +124,7 @@ def resolve_sigma(
     *,
     stated: float | None = None,
     instrument: InstrumentProfile | None = None,
+    level: LevelProfile | None = None,
     defaults: StochasticDefaults | None = None,
     sets: int = 1,
     observation_id: str = "",
@@ -127,6 +137,10 @@ def resolve_sigma(
             sigma grows with the distance being measured.
         stated: A per-observation sigma from the imported data, if any.
         instrument: The instrument profile, if one is available.
+        level: The level profile, for the levelling kinds. A separate argument
+            rather than a union because the two records answer different
+            questions and an operation that has one rarely has the other; both
+            feed the same step 2 of the precedence.
         defaults: The Global Settings type defaults, if any.
         sets: Number of independent sets averaged; angular precision improves
             as ``1 / sqrt(sets)``.
@@ -156,8 +170,12 @@ def resolve_sigma(
             )
         return Quantity.from_std_dev(value, stated, unit), SigmaSource.STATED
 
-    if instrument is not None:
-        sigma = _from_instrument(kind, value, instrument)
+    if instrument is not None or level is not None:
+        sigma = None
+        if instrument is not None:
+            sigma = _from_instrument(kind, value, instrument)
+        if sigma is None and level is not None:
+            sigma = _from_level(kind, level)
         if sigma is not None:
             # APPROXIMATE, not RIGOROUS: specs/05 section 2.3 lists
             # NOMINAL_PRECISION among the approximate strategies, and says there
@@ -211,4 +229,25 @@ def _from_instrument(kind: str, value: float, instrument: InstrumentProfile) -> 
         return instrument.sigma_instrument_height
     if kind == TARGET_HEIGHT:
         return instrument.sigma_target_height
+    return None
+
+
+def _from_level(kind: str, level: LevelProfile) -> float | None:
+    """The level profile's sigma for *kind*, or ``None`` if it has none.
+
+    Height differences are deliberately absent. A levelling height difference is
+    weighted by line length or by setup count
+    (:mod:`geocomp.core.adjustment.weighting`), and neither is derivable from the
+    height difference itself -- returning some other sigma here would answer a
+    question this function was not asked.
+    """
+    if kind == STAFF_READING:
+        return level.reading_sigma
+    if kind == SIGHT_DISTANCE:
+        stadia = level.stadia_sigma
+        if stadia is None:
+            return None
+        # Distance is factor * (upper - lower); two independent readings, so the
+        # interval's sigma is sqrt(2) times one reading's, then scaled.
+        return level.stadia_factor * stadia * (2.0**0.5)
     return None

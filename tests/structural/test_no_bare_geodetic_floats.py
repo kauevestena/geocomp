@@ -187,6 +187,63 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("InstrumentProfile", "sigma_instrument_height"): "is itself a standard deviation",
     ("InstrumentProfile", "sigma_target_height"): "is itself a standard deviation",
     ("StochasticDefaults", "values"): "a mapping of standard deviations",
+    ("LevelProfile", "sigma_per_km"): (
+        "the constant of proportionality of a precision model, in metres per sqrt(km)"
+    ),
+    ("LevelProfile", "sigma_per_setup"): "the same, per setup",
+    ("LevelProfile", "sigma_reading"): "is itself a standard deviation",
+    ("LevelProfile", "sigma_stadia_reading"): "is itself a standard deviation",
+    ("LevelProfile", "stadia_factor"): (
+        "the stadia multiplication constant engraved on the instrument's reticle; a "
+        "property of the optics, not something measured in the field"
+    ),
+    ("LevellingClass", "tolerance_coefficient"): (
+        "k in the permissible misclosure k*sqrt(L); a limit from a specification, not a "
+        "measurement of anything"
+    ),
+    ("LevellingClass", "max_sight_length"): "a configured limit",
+    ("LevellingClass", "max_sight_imbalance"): "a configured limit",
+    ("LevellingClass", "max_accumulated_imbalance"): "a configured limit",
+    # -- Levelling (phase P4) ------------------------------------------------
+    ("SetupReduction", "imbalances"): (
+        "the difference between two sight lengths, a property of where the instrument "
+        "was put rather than a measurement of anything"
+    ),
+    ("LineReduction", "length_km"): (
+        "the levelled route length, summed from the sight distances; an extent for the "
+        "weighting model and the tolerance, not an observation of a distance"
+    ),
+    ("LineReduction", "accumulated_imbalance"): "a sum of imbalances; see SetupReduction",
+    ("ReciprocalReduction", "discrepancy"): (
+        "the difference between two determinations of one height difference, whose "
+        "expected value is zero. A diagnostic, not a measurement"
+    ),
+    ("ReciprocalReduction", "inflation"): (
+        "the factor the variance was multiplied by; a modelling decision, recorded"
+    ),
+    ("ClosureCheck", "misclosure"): (
+        "the difference between a measured closure and the known one, whose expected "
+        "value is zero. The measurement it came from is the height difference"
+    ),
+    ("ClosureCheck", "permissible"): "a limit from a specification",
+    ("ClosureCheck", "standardised"): "already normalised by its own sigma",
+    ("ClosureCheck", "length_km"): "a route length; see LineReduction",
+    ("SetupShare", "correction"): (
+        "a share of a misclosure, distributed proportionally; a correction, not an "
+        "observation"
+    ),
+    ("SetupShare", "weight"): "a dimensionless share, summing to one",
+    ("SetupShare", "standardised"): "already normalised by its own sigma",
+    ("OrthometricCorrection", "mean_latitude"): (
+        "the latitude the correction was evaluated at; an input to a formula, needed "
+        "only to a few seconds of arc"
+    ),
+    ("OrthometricCorrection", "mean_height"): (
+        "the height the correction was evaluated at; needed only to a few metres"
+    ),
+    ("OrthometricCorrection", "latitude_difference"): (
+        "the latitude span of the section, an input to the same formula"
+    ),
     ("FaceReduction", "distance_difference"): (
         "the difference of two readings of one distance, whose expected value is zero; "
         "a diagnostic, not a measurement"
@@ -237,6 +294,10 @@ TECHNIQUE_PLAIN_RETURNS = {
         "formula and the carrier wavelength, exact for its inputs"
     ),
     "stochastic.unit_for": "the dimension of an observation kind, not a value",
+    "readings.empirical_reading_sigma": (
+        "a pooled standard deviation and the degrees of freedom behind it -- the "
+        "figure *is* an uncertainty, and the count is what says how much to trust it"
+    ),
 }
 
 

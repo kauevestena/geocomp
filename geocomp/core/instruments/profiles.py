@@ -30,6 +30,7 @@ from enum import Enum
 from typing import Any
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.instruments.level import LevellingClass, LevelProfile
 from geocomp.core.uncertainty import Quantity, Strategy
 from geocomp.core.units import Unit
 
@@ -420,9 +421,17 @@ class ProfileLibrary:
 
     instruments: dict[str, InstrumentProfile] = field(default_factory=dict)
     reflectors: dict[str, ReflectorProfile] = field(default_factory=dict)
+    levels: dict[str, LevelProfile] = field(default_factory=dict)
+    #: The accuracy classes lines are judged against (FR-503). In the library
+    #: rather than in Global Settings because an organisation distributes its
+    #: specification the same way it distributes a calibrated instrument, and a
+    #: project routinely runs more than one class of levelling at once.
+    levelling_classes: dict[str, LevellingClass] = field(default_factory=dict)
     #: Which profile is used when an observation names none.
     default_instrument: str = ""
     default_reflector: str = ""
+    default_level: str = ""
+    default_levelling_class: str = ""
 
     def add_instrument(self, profile: InstrumentProfile) -> None:
         if profile.id in self.instruments:
@@ -488,6 +497,81 @@ class ProfileLibrary:
                 expected=f"one of: {', '.join(sorted(self.reflectors)) or '(none defined)'}",
             ) from None
 
+    # -- levels and levelling classes (phase P4) --------------------------
+
+    def add_level(self, profile: LevelProfile) -> None:
+        if profile.id in self.levels:
+            raise ValidationError(
+                "duplicate_level_profile",
+                level=profile.id,
+                expected="a unique profile id; rename or replace the existing one",
+            )
+        self.levels[profile.id] = profile
+        if not self.default_level:
+            self.default_level = profile.id
+
+    def add_levelling_class(self, levelling_class: LevellingClass) -> None:
+        if levelling_class.id in self.levelling_classes:
+            raise ValidationError(
+                "duplicate_levelling_class",
+                levelling_class=levelling_class.id,
+                expected="a unique class id; rename or replace the existing one",
+            )
+        self.levelling_classes[levelling_class.id] = levelling_class
+        if not self.default_levelling_class:
+            self.default_levelling_class = levelling_class.id
+
+    def level(self, level_id: str | None) -> LevelProfile:
+        """Resolve a level reference, falling back to the default.
+
+        Raises rather than inventing a profile, for the same reason
+        :meth:`instrument` does: the precision figures on this record become the
+        weights of every height difference the instrument observed.
+        """
+        wanted = level_id or self.default_level
+        if not wanted:
+            raise ValidationError(
+                "no_level_profile",
+                expected=(
+                    "a level profile, either named on the line or set as the library "
+                    "default. GeoComp does not invent instrument precisions"
+                ),
+            )
+        try:
+            return self.levels[wanted]
+        except KeyError:
+            raise ValidationError(
+                "unknown_level_profile",
+                level=wanted,
+                expected=f"one of: {', '.join(sorted(self.levels)) or '(none defined)'}",
+            ) from None
+
+    def levelling_class(self, class_id: str | None) -> LevellingClass | None:
+        """Resolve an accuracy class.
+
+        ``None`` is a legitimate answer, unlike for a level profile: a line
+        observed under no stated specification still has a misclosure, and
+        reporting it without a verdict is more useful than refusing to compute
+        it (``specs/10`` section 3).
+        """
+        wanted = class_id or self.default_levelling_class
+        if not wanted:
+            return None
+        try:
+            return self.levelling_classes[wanted]
+        except KeyError:
+            raise ValidationError(
+                "unknown_levelling_class",
+                levelling_class=wanted,
+                expected=(
+                    f"one of: {', '.join(sorted(self.levelling_classes)) or '(none defined)'}"
+                ),
+            ) from None
+
+    def replace_level(self, profile: LevelProfile) -> None:
+        """Overwrite a level profile in place -- what a re-calibration produces."""
+        self.levels[profile.id] = profile
+
     def replace_instrument(self, profile: InstrumentProfile) -> None:
         """Overwrite a profile in place -- what a re-calibration produces."""
         self.instruments[profile.id] = profile
@@ -508,11 +592,17 @@ class ProfileLibrary:
         payload: dict[str, Any] = {
             "instruments": [p.to_dict() for p in self.instruments.values()],
             "reflectors": [p.to_dict() for p in self.reflectors.values()],
+            "levels": [p.to_dict() for p in self.levels.values()],
+            "levelling_classes": [c.to_dict() for c in self.levelling_classes.values()],
         }
-        if self.default_instrument:
-            payload["default_instrument"] = self.default_instrument
-        if self.default_reflector:
-            payload["default_reflector"] = self.default_reflector
+        for key, value in (
+            ("default_instrument", self.default_instrument),
+            ("default_reflector", self.default_reflector),
+            ("default_level", self.default_level),
+            ("default_levelling_class", self.default_levelling_class),
+        ):
+            if value:
+                payload[key] = value
         return payload
 
     @classmethod
@@ -524,8 +614,15 @@ class ProfileLibrary:
             reflectors={
                 p["id"]: ReflectorProfile.from_dict(p) for p in payload.get("reflectors", ())
             },
+            levels={p["id"]: LevelProfile.from_dict(p) for p in payload.get("levels", ())},
+            levelling_classes={
+                c["id"]: LevellingClass.from_dict(c)
+                for c in payload.get("levelling_classes", ())
+            },
             default_instrument=payload.get("default_instrument", ""),
             default_reflector=payload.get("default_reflector", ""),
+            default_level=payload.get("default_level", ""),
+            default_levelling_class=payload.get("default_levelling_class", ""),
         )
 
 

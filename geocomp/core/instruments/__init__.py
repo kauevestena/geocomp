@@ -12,6 +12,7 @@ calibration correction can be traced to exactly the observations it affects.
 
 from __future__ import annotations
 
+from geocomp.core.instruments.level import LevellingClass, LevelProfile
 from geocomp.core.instruments.profiles import (
     AtmosphericModel,
     EdmSpecification,
@@ -30,6 +31,8 @@ __all__ = [
     "AtmosphericModel",
     "EdmSpecification",
     "InstrumentProfile",
+    "LevelProfile",
+    "LevellingClass",
     "ProfileLibrary",
     "ReflectorProfile",
     "SigmaSource",

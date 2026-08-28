@@ -20,6 +20,14 @@ from geocomp.io.fieldbook import (
     read_field_book,
     read_field_book_csv,
 )
+from geocomp.io.levelbook import (
+    Layout,
+    LevelBookRecord,
+    LevelImportResult,
+    LevelMapping,
+    read_level_book,
+    read_level_book_csv,
+)
 from geocomp.io.mapping import (
     AngleFormat,
     ColumnMapping,
@@ -33,7 +41,13 @@ __all__ = [
     "FieldBookRecord",
     "FieldMapping",
     "ImportResult",
+    "Layout",
+    "LevelBookRecord",
+    "LevelImportResult",
+    "LevelMapping",
     "infer_mapping",
     "read_field_book",
     "read_field_book_csv",
+    "read_level_book",
+    "read_level_book_csv",
 ]

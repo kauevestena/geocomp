@@ -75,6 +75,15 @@ fins práticos". GeoComp provides these strategies, each named and recorded:
 | `INDEPENDENCE_ASSUMED` | Ignores unknown correlations, treating inputs as independent | Correlation information unavailable |
 | `DOMINANT_TERM` | Propagates only the dominant contributions, dropping negligible ones | Deliberate simplification, with the dropped terms listed |
 | `EMPIRICAL_SCALING` | Scales an a priori model by an empirically determined factor | Residual analysis shows the a priori model is optimistic |
+| `NUMERIC_DERIVATIVE` | Obtains a derivative by finite differences rather than analytically | No closed-form Jacobian is available |
+| `RECORDED_PRECISION` | Takes σ from how many digits were written: a value recorded as `32.4` lies in `[32.35, 32.45)`, so σ = `0.05 / √3` | Nothing better exists **and** the quantity is not load-bearing |
+
+**`RECORDED_PRECISION` is deliberately narrow** (added in phase P4). It is not an exception to *GeoComp does
+not invent a sigma*: the information is genuinely in the file, in the number of digits the observer chose to
+write. But it is weak information, so it is permitted only where the quantity does not carry the result — a
+levelling sight distance, whose uncertainty reaches the answer only multiplied by a collimation error of
+order 10⁻⁴, qualifies; **a staff reading, whose σ becomes an adjustment weight, does not, and the importer
+still refuses there.**
 
 A computation using any of these is `APPROXIMATE`. There is no partial credit: one approximate input makes
 the result approximate.
