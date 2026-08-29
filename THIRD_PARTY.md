@@ -47,6 +47,17 @@ RTKLIB 2.4.3 and optimised for low-cost receivers. The research project names RT
 Where GeoComp downloads an engine, it places that engine's own licence text alongside the binary and shows
 it in the About dialog.
 
+### Test data redistributed from DynAdjust
+
+`tests/data/dynadjust/sample-stn.xml` and `sample-msr.xml` are a **slice of upstream's own
+`sampleData/gnss-network` files**, from the DynAdjust repository, under **Apache-2.0**. Eleven stations and
+four measurements — one GNSS baseline cluster, one point cluster and two single baselines — kept because the
+parsers must be tested against files DynAdjust itself accepts, rather than against files written to satisfy
+the parser.
+
+This is the one place GeoComp redistributes anything of upstream's, and it is data rather than a binary.
+Apache-2.0 permits it; the attribution is here and in the test module that reads them.
+
 ## Attribution
 
 Beyond licence obligation. GeoComp exists because DynAdjust and RTKLIB exist, and the research project

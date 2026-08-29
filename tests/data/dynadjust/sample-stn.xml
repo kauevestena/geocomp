@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<DnaXmlFormat type="Station File" referenceframe="GDA2020" epoch="01.01.2020" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="DynaML.xsd">
+<!-- Created by:   dnaAdjust.dll, Geodetic network adjustment library -->
+<!-- Version:      1.0.0, Release (64-bit) -->
+<!-- Build:        Jun 14 2018, 11:20:32 (MSVC++ 14.14, VS2017) -->
+<!-- File type:    Station file -->
+<!-- Project name: GNSS_Sample_ -->
+<!-- Source data:  Coordinates estimated from least squares adjustment. -->
+<!-- Adj file:     ./GNSS_Sample_.simult.adj -->
+  <DnaStation>
+    <Name>324900360</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>324900360</Name>
+      <XAxis>-36.3330289906</XAxis>
+      <YAxis>146.4322017064</YAxis>
+      <Height>208.3086</Height>
+    </StationCoord>
+    <Description>324900360, ?, ?</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>356000780</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>356000780</Name>
+      <XAxis>-4283949.9939</XAxis>
+      <YAxis>2841259.3921</YAxis>
+      <Height>-3763295.2417</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>380700500</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>380700500</Name>
+      <XAxis>-36.4557116945</XAxis>
+      <YAxis>146.2453114085</YAxis>
+      <Height>245.6121</Height>
+    </StationCoord>
+    <Description>WHITFIELD PM   50</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>BEEC</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>BEEC</Name>
+      <XAxis>-4297030.4381</XAxis>
+      <YAxis>2827160.2309</YAxis>
+      <Height>-3759485.1829</Height>
+    </StationCoord>
+    <Description>BEEC</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>BNLA</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>BNLA</Name>
+      <XAxis>-4253632.2844</XAxis>
+      <YAxis>2868465.8326</YAxis>
+      <Height>-3776956.3212</Height>
+    </StationCoord>
+    <Description>BNLA</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>EURA</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>EURA</Name>
+      <XAxis>-4220394.7475</XAxis>
+      <YAxis>2892703.1823</YAxis>
+      <Height>-3795598.7892</Height>
+    </StationCoord>
+    <Description>EURA</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>HOTH</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>HOTH</Name>
+      <XAxis>-4286274.1603</XAxis>
+      <YAxis>2768476.3135</YAxis>
+      <Height>-3816870.3376</Height>
+    </StationCoord>
+    <Description>HOTH</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>MNSF</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>MNSF</Name>
+      <XAxis>-4228988.8767</XAxis>
+      <YAxis>2843212.8490</YAxis>
+      <Height>-3823409.5598</Height>
+    </StationCoord>
+    <Description>MNSF</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>MYRT</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>MYRT</Name>
+      <XAxis>-4288403.6055</XAxis>
+      <YAxis>2814576.3244</YAxis>
+      <Height>-3778237.8015</Height>
+    </StationCoord>
+    <Description>MYRT</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>211302450</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>211302450</Name>
+      <XAxis>-36.3310314683</XAxis>
+      <YAxis>145.5857072987</YAxis>
+      <Height>167.3013</Height>
+    </StationCoord>
+    <Description>211302450, ?, ?</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>320500750</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>320500750</Name>
+      <XAxis>-36.3636779636</XAxis>
+      <YAxis>146.2341565543</YAxis>
+      <Height>181.8212</Height>
+    </StationCoord>
+    <Description>320500750, ?, ?</Description>
+  </DnaStation>
+</DnaXmlFormat>
