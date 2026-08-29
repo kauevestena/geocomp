@@ -202,7 +202,9 @@ def extract(archive_path: str | Path, target: Path, *, expect: Iterable[str] = (
 
     Executables are made executable: a zip written on Windows carries no Unix
     permission bits, so the binaries arrive unrunnable and the failure appears
-    much later as a permission error nobody connects to the install.
+    much later as a permission error nobody connects to the install. On Windows
+    the call is a no-op beyond the read-only flag, which is right: executability
+    there comes from the extension, not from the mode.
     """
     target = Path(target)
     target.mkdir(parents=True, exist_ok=True)

@@ -68,11 +68,21 @@ jobs:
         with:
           name: geocomp-plugin
 
+      # Not unzip(1): the QGIS image does not ship it, and python3 is the one
+      # interpreter this job is already guaranteed to have.
       - name: Unpack into the QGIS plugin directory
         run: |
-          mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
-          unzip -q geocomp.zip -d ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
-          test -f ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/geocomp/metadata.txt
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          plugins = Path.home() / ".local/share/QGIS/QGIS3/profiles/default/python/plugins"
+          plugins.mkdir(parents=True, exist_ok=True)
+          zipfile.ZipFile("geocomp.zip").extractall(plugins)
+          metadata = plugins / "geocomp" / "metadata.txt"
+          assert metadata.is_file(), f"{metadata} is missing after unpacking"
+          print("unpacked into", plugins)
+          PY
 
       - name: The plugin must load and register its provider
         env:

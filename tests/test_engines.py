@@ -235,6 +235,7 @@ def test_a_symlink_member_is_refused(tmp_path: Path) -> None:
     assert excinfo.value.code == "data.engine_archive_contains_symlink"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="the mode bits are a Unix concern")
 def test_extracted_programs_are_executable(tmp_path: Path) -> None:
     """A zip written on Windows carries no Unix permission bits."""
     archive = make_zip(tmp_path / "engine.zip", {"dnaimport": b"#!/bin/sh\n"})
