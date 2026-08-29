@@ -1,0 +1,155 @@
+--------------------------------------------------------------------------------
+DYNADJUST ADJUSTMENT OUTPUT FILE
+
+Version:                           1.4.0, Release with OpenBLAS
+Build:                             Aug 28 2026, 21:20:56 - GNU GCC 13.3.0
+File created:                      Saturday, 29 August 2026, 04:11:28
+File name:                         ./angles.simult.adj
+
+Command line arguments:            dnaadjust -n angles --output-adj-msr --output-pos-uncertainty --output-corrections-file --stn-corrections 
+
+Input files:                       ./angles-stn.xml
+                                   ./angles-msr.xml
+Reference frame:                   GDA2020
+Epoch:                             01.01.2020
+Geoid model:                       
+Constrained Station S.D. (m):      1e-06
+Free Station S.D. (m):             10
+Iteration threshold:               0.0005
+Maximum iterations:                10
+Test confidence interval:          95.0%
+Uncertainties SD(e,n,up):          68.3% (1 sigma)
+Station coordinate types:          PLHhXYZ
+Stations printed in blocks:        No
+Station coordinate corrections:    Yes
+--------------------------------------------------------------------------------
+
++ Initialising adjustment
++ Loading network files
++ Allocating memory
+
++ Preparing for adjustment...  done.
++ Commencing simultaneous adjustment
+
+
+--------------------------------------------------------------------------------
+ITERATION                          1
+
+Elapsed time                       0.158ms
+Maximum station correction         Station EAST
+                                   63330.615, -1946.548, -137.163 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          2
+
+Elapsed time                       0.010ms
+Maximum station correction         Station EAST
+                                   351.606, 15287.375, 116.699 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          3
+
+Elapsed time                       0.009ms
+Maximum station correction         Station EAST
+                                   -2460.367, 2921.640, 14.713 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          4
+
+Elapsed time                       0.008ms
+Maximum station correction         Station EAST
+                                   -251.456, 594.151, 7.795 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          5
+
+Elapsed time                       0.008ms
+Maximum station correction         Station EAST
+                                   -38.504, 125.797, 2.391 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          6
+
+Elapsed time                       0.009ms
+Maximum station correction         Station EAST
+                                   -7.488, 26.046, 0.676 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          7
+
+Elapsed time                       0.008ms
+Maximum station correction         Station EAST
+                                   -1.525, 5.373, 0.189 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          8
+
+Elapsed time                       0.008ms
+Maximum station correction         Station EAST
+                                   -0.314, 1.107, 0.053 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          9
+
+Elapsed time                       0.008ms
+Maximum station correction         Station EAST
+                                   -0.065, 0.228, 0.015 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+ITERATION                          10
+
+Elapsed time                       0.007ms
+Maximum station correction         Station EAST
+                                   -0.013, 0.047, 0.004 (e, n, up)
+
+
+--------------------------------------------------------------------------------
+SOLUTION                           Failed to converge
+Total time                         0.381ms
+
+Number of unknown parameters       9
+Number of measurements             10
+Degrees of freedom                 1
+Chi squared                        0.00
+Rigorous Sigma Zero                0.000
+Global (Pelzer) Reliability        67.708  (excludes non redundant measurements)
+
+Chi-Square test (95.0%)            0.001 < 0.000 < 5.024         *** WARNING ***
+
+
+Adjusted Measurements
+------------------------------------------
+
+M Station 1           Station 2           Station 3           *  C            Measured           Adjusted  Correction     Meas. SD      Adj. SD     Corr. SD     N-stat  Pelzer Rel  Pre Adj Corr    Outlier?
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+S BASE                NORTH                                                  7523.1230          7523.1230      0.0000       0.0050       0.0050       0.0000       0.00      999.99        0.0000            
+S BASE                EAST                                                  64241.4258         64241.4258      0.0000       0.0050       0.0050       0.0000       0.01      999.99        0.0000            
+S BASE                HILL                                                    630.0880           630.0880      0.0000       0.0050       0.0050       0.0000       0.00      999.99        0.0000            
+V BASE                NORTH                                              89 53 56.7283      89 53 56.7291      0.0008      20.0000       0.2742      19.9981       0.00        1.00        0.0000            
+V BASE                EAST                                               89 59 14.8966      89 59 14.9018      0.0052      20.0000      16.9760      10.5744       0.00        1.89        0.0000            
+V BASE                HILL                                               82 17 30.0000      82 17 30.0000      0.0000      20.0000      19.9996       0.1222       0.00      163.68        0.0000            
+B BASE                NORTH                                              36 14 40.8152      36 14 40.8358      0.0206      20.0000      15.8782      12.1607       0.00        1.64        0.0000            
+K BASE                EAST                                               74 39 32.7159      74 39 32.7566      0.0407      20.0000      14.5504      13.7217       0.00        1.46        0.0000            
+A BASE                NORTH               EAST                           38 24 51.9007      38 24 51.9209      0.0202      20.0000      15.8959      12.1376       0.00        1.65        0.0000            
+L BASE                NORTH                                                    17.6929            17.6929      0.0000       0.0100       0.0100       0.0001       0.00       72.76        0.0000            
+
+
+Adjusted Coordinates
+------------------------------------------
+
+Station             Const      Latitude      Longitude   H(Ortho) h(Ellipse)              X              Y              Z       SD(e)     SD(n)    SD(up)      Corr(e)    Corr(n)   Corr(up)  Description
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BASE                CCC   -37.474800000  144.573600000   120.0000   120.0000  -4131736.7773   2897374.0784  -3887708.3639      0.0000    0.0000    0.0000      -0.0000    -0.0000    -0.0000  BASE test mark
+EAST                FFF   -37.382923673  145.394288045   457.2459   457.2459  -4175843.9090   2852637.1827  -3874287.0416      1.2328    4.3612    5.2869   60939.0974 17483.0127   654.0312  EAST test mark
+HILL                FFF   -37.475971259  144.575681999   204.5445   204.5445  -4131902.6880   2896868.3080  -3888045.5299      5.7834    8.1580    0.0605    -664.9162   471.3731    -0.4034  HILL test mark
+NORTH               FFF   -37.443117124  145.003766910   137.6929   137.6929  -4137343.6154   2895873.2947  -3882922.0924      0.4673    0.3422    0.0100    4396.1601  5237.2917     9.3626  NORTH test mark
+

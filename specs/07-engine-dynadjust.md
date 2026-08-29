@@ -249,6 +249,72 @@ GeoComp parses:
 | Iteration and convergence information | `statistics` |
 | Block structure, when phased | `statistics` / provenance |
 
+### 5.1 What the files do and do not say about their own layout [V]
+
+No output table has a fixed layout, and none may be parsed as though it had. The columns a run prints depend
+on its options -- `--stn-coord-types` chooses the coordinate columns *and their widths*, `--stn-corrections`
+adds three, `--output-tstat-adj-msr` and `--output-database-ids` add more, `--output-apu-vcv-units` renames
+three -- so the parsers build a column plan per file from the widths in `dnaconsts-iostream.hpp` and the
+file's own preamble and column-header line. A header that matches no known plan is refused.
+
+Three things the files state, and one they do not:
+
+| Fact | Where it is stated |
+|---|---|
+| Coordinate types, station corrections, reference frame, epoch | the preamble, in every file that has a coordinate table |
+| Variance-matrix units, whether the full covariance is present | the `.apu` preamble |
+| The optional measurement columns (`T-stat`, `Meas. ID`, `Clust. ID`) | the column-header line itself |
+| **Whether angles are HP notation or decimal degrees** | **nowhere but the recorded command line** |
+
+The last is the one that matters, because both readings of a number are valid. `-36.331031467` in HP is
+`-36.552865187` in decimal degrees, and the same field can hold either. The `.adj` records `Command line
+arguments:` and so can be read unaided; **the `.xyz` and `.apu` record no command line at all**. GeoComp
+therefore passes the format it used, falls back to the command line when there is one, and otherwise refuses
+rather than guessing -- a guess here is a coordinate wrong by up to 0.6 degrees that looks entirely plausible.
+
+HP validation catches part of it by accident: HP cannot hold minutes of 60 or more, so a decimal-degree value
+whose fractional part is 0.60 or greater is rejected. That covers much of a real file and is not a guarantee
+-- `145.55` reads as either.
+
+### 5.2 Units inside the measurement table [V]
+
+Confirmed against `PrintAdjMeasurementsAngular` and `PrintAdjMeasurementsLinear` at commit `5cdb897`:
+
+| Column | Angular measurement | Linear measurement |
+|---|---|---|
+| `Measured`, `Adjusted` | degrees/minutes/seconds, or HP, or decimal degrees, per the format options | metres |
+| `Correction`, `Meas. SD`, `Adj. SD`, `Corr. SD`, `Pre Adj Corr` | **seconds of arc**, in every format | metres |
+| `N-stat`, `T-stat`, `Pelzer Rel` | dimensionless | dimensionless |
+
+The second row is the trap: the correction and the precisions are wrapped in `Seconds(...)` whatever format
+the two value columns took, so reading them the same way as the value is an error of a factor of 3600.
+
+**Angularity is a property of the component, not the type.** `PrintAdjMeasurementsAngular` is called with the
+component letters `P`, `L`, `a` and `v`, and `PrintAdjMeasurementsLinear` with `H`, `X`, `Y`, `Z`, `e`, `h`,
+`n`, `s` and `u`. A `Y` cluster prints `P`, `L` and `H` under one type letter -- two angles and a height --
+so a rule keyed on the type letter reads a height as an angle. Only a row with no component letter falls
+back to the type.
+
+The `.cor` file is a further case: its `Azimuth` and `V. Angle` are written by
+`FormatDmsString(RadtoDms(...), 4, true, false)`, i.e. separated fields (`84 42 21`), unconditionally -- not
+in whatever format the `.adj` used for the same kind of quantity.
+
+### 5.3 Station names are not always recoverable [V]
+
+`std::setw(STATION)` pads to 20 characters but never truncates, and `STN_NAME_WIDTH` allows 30. A name of 20
+characters or more therefore runs into the next field **with no separator at all**:
+
+```text
+A STATION WITH SPACESCCC   -36.331031467  145.585707313 ...
+^-------- name --------^^-^
+                        the constraint, with no space before it
+```
+
+and names may contain spaces, so splitting on whitespace is no better than slicing. The field is genuinely
+ambiguous. It is *not* ambiguous when the caller knows which names it wrote, which GeoComp always does
+because it wrote the input files (rule 3 below), so the parsers resolve against a known set when given one
+and refuse -- naming the remedy -- when not.
+
 Parsing rules:
 
 1. **Parse defensively and version-explicitly.** Output layout can change between versions. Each parser

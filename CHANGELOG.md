@@ -5,6 +5,81 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Phase P6 - DynAdjust
+
+#### Added
+
+- **`engines/dynadjust/read_output.py`** - the output parsers (FR-322, FR-323).
+  `dnaadjust` writes up to four text files - `.adj`, `.xyz`, `.apu` and `.cor` -
+  and these read all four into the same `Solution` the in-house core produces,
+  which is what keeps everything downstream engine-agnostic and makes P6 a
+  cross-validation rather than a second pipeline.
+
+  **No table has a fixed layout**, so none is parsed as though it had. Which
+  columns appear depends on the run: `--stn-coord-types` chooses the coordinate
+  columns *and their widths*, `--stn-corrections` adds three, `--output-tstat-adj-msr`
+  and `--output-database-ids` add more, and `--output-apu-vcv-units` renames
+  three. Each file states its own options in its preamble, or shows them in its
+  column-header line, so the plan is built per file from the widths in
+  DynAdjust's own `dnaconsts-iostream.hpp` and a header that does not match is
+  refused rather than guessed at.
+- **`engines/dynadjust/columns.py`** - the fixed-width machinery, and the one
+  thing about these files that cannot be parsed at all in the general case:
+  `std::setw` pads but never truncates, and station names may be 30 characters
+  in a 20-character column, so a long name runs into the next field **with no
+  separator** (`A STATION WITH SPACESCCC`) - and names may contain spaces, so
+  splitting on whitespace is no better than slicing. Resolved against the names
+  GeoComp itself wrote, which it always knows; without them the ambiguous case
+  raises and says what to pass instead of inventing a split.
+- **`engines/dynadjust/solution.py`** - joining the four files into one
+  `Solution`, including the full parameter covariance assembled from the
+  `.apu`'s per-pair blocks.
+- **`scripts/check_dynadjust_fixtures.py`** and the `engine` CI workflow - the
+  guard against fixture drift. Every parser test reads committed real output,
+  which is what keeps them tier 1; the cost is that a DynAdjust which changed a
+  column would keep passing against a fixture written by the old one. This
+  regenerates all twelve fixtures with a real engine built from a pinned commit
+  and fails on any difference beyond the wall-clock timings.
+
+#### Fixed
+
+Four unit errors that the files' own numbers do not reveal, each found by
+checking one file against another rather than against itself:
+
+- **The `.apu` ellipse orientation is HP notation**, not decimal degrees:
+  `79.4724` is 79 deg 47 min 24 sec. `PrintPosUncertainty` writes `RadtoDms(azimuth)` with
+  no branch on `--angular-stn-type`, so a file can hold decimal-degree
+  coordinates and an HP orientation in the same row. Read as degrees it rotates
+  every ellipse by up to a third of a degree - small enough to look right.
+- **An angular measurement's correction and precisions are in seconds of arc**,
+  while its `Measured` and `Adjusted` are degrees/minutes/seconds. Both branches
+  of `PrintAdjMeasurementsAngular` wrap the former in `Seconds(...)` whatever
+  format the latter took, so reading them alike is a factor of 3600 on every
+  angular residual.
+- **Angularity is a property of the component, not the type.** A `Y` cluster
+  prints `P`, `L` and `H` under one type letter - two angles and a height - so a
+  rule keyed on the type reads a height as an angle.
+- **The `.cor` file writes separated fields** (`84 42 21`) where the `.adj`
+  writes HP (`84.4221`) for the same kind of quantity. A reader that assumed one
+  format for both divides by 100 in one of the two files.
+
+#### Known limits
+
+- **The angular format is not in any preamble.** Only the recorded command line
+  names it, and the `.xyz` and `.apu` files record no command line at all. Both
+  readings of `-36.552865187` are valid HP, so it cannot be recovered from the
+  number: the parsers take a declared format, fall back to the command line, and
+  otherwise refuse. HP validation catches a decimal-degree value whose fraction
+  is 0.60 or more, which is a useful net and not a guarantee.
+- **`--dms-msr-format 1`** (degrees, minutes and seconds with symbols) is
+  refused rather than parsed.
+- **The engine CI job builds rather than downloads.** ADR-0003 prefers a pinned
+  binary, but Geoscience Australia publishes Windows build artefacts and a
+  `:latest` Docker Hub tag - neither a versioned, digest-addressable Linux
+  binary. Building from an immutable commit is the pinnable option; `PINNED` in
+  `engines/manager.py` stays empty until a release that can honestly be pinned
+  exists.
+
 ### Phase P5 - Persistence, interoperability and reporting
 
 #### Added
