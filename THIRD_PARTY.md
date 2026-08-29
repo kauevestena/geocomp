@@ -49,8 +49,8 @@ it in the About dialog.
 
 ### Test data redistributed from DynAdjust
 
-`tests/data/dynadjust/sample-stn.xml` and `sample-msr.xml` are a **slice of upstream's own
-`sampleData/gnss-network` files**, from the DynAdjust repository, under **Apache-2.0**. Eleven stations and
+`tests/data/dynadjust/sample-stn.xml`, `sample-msr.xml`, `sample.stn` and `sample.msr` are a **slice of
+upstream's own `sampleData/gnss-network` files** — the same network in both DynaML and DNA form —, from the DynAdjust repository, under **Apache-2.0**. Around ten stations and
 four measurements — one GNSS baseline cluster, one point cluster and two single baselines — kept because the
 parsers must be tested against files DynAdjust itself accepts, rather than against files written to satisfy
 the parser.

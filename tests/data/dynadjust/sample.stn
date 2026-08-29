@@ -1,0 +1,17 @@
+!#=DNA 3.01 STN    13.12.2018       GDA2020    01.01.2020        10
+* Created by:   dnaInterop.dll, File import and format exchange library. 
+* Version:      1.0.0, Release (64-bit). 
+* Build:        Jun 14 2018, 11:20:33 (MSVC++ 14.14, VS2017)
+* File type:    Station file
+* Project name: GNSS_Sample_
+* Source files: gnss-networkstn.xml 
+324900360           FFF LLH      -36.3330289964      146.4322017031            208.3216    324900360, ?, ?
+380700500           FFF LLH      -36.4557116385      146.2453115729            245.6480    WHITFIELD PM   50
+BEEC                FFF XYZ       -4297030.4441        2827160.2393       -3759485.1905    BEEC
+BNLA                FFF XYZ       -4253632.2787        2868465.8331       -3776956.3223    BNLA
+EURA                FFF XYZ       -4220394.7357        2892703.1683       -3795598.7820    EURA
+HOTH                FFF XYZ       -4286274.1545        2768476.3092       -3816870.3366    HOTH
+MNSF                FFF XYZ       -4228988.8615        2843212.8433       -3823409.5586    MNSF
+MYRT                FFF XYZ       -4288403.5981        2814576.3209       -3778237.7979    MYRT
+211302450           FFF LLH      -36.3310361970      145.5857051757            167.3150    211302450, ?, ?
+320500750           FFF LLH      -36.3636827032      146.2341544485            192.1321    320500750, ?, ?
