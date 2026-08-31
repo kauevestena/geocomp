@@ -9,6 +9,7 @@ it is enforced for the core by ``structural/test_no_qgis_in_core.py``.
 
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -59,3 +60,21 @@ def has_qgis() -> bool:
 
 
 requires_qgis = pytest.mark.skipif(not has_qgis(), reason="requires a QGIS runtime")
+
+
+def has_dynadjust() -> bool:
+    """Whether a DynAdjust suite is on ``PATH``.
+
+    Tier-4 tests skip on this. Almost everything about the DynAdjust adapter is
+    tested against committed output instead, which is deliberate: the engine
+    tier is for what only a real engine can show -- that the files GeoComp
+    writes are ones DynAdjust accepts, and that the pipeline drives it to a
+    solution -- not for the parsing, which fixtures cover better because they
+    pin the exact bytes.
+    """
+    return all(shutil.which(program) for program in ("dnaimport", "dnaadjust"))
+
+
+requires_dynadjust = pytest.mark.skipif(
+    not has_dynadjust(), reason="requires the DynAdjust programs on PATH (tier 4)"
+)

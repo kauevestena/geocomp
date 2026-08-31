@@ -111,8 +111,17 @@ def test_require_passes_a_present_engine_through(tmp_path: Path) -> None:
     assert require(version, engine="DynAdjust", operation="x") is version
 
 
-def test_a_half_installed_suite_names_the_missing_program(tmp_path: Path) -> None:
-    """DynAdjust is a suite; a partial install fails halfway through a pipeline."""
+def test_a_half_installed_suite_names_the_missing_program(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """DynAdjust is a suite; a partial install fails halfway through a pipeline.
+
+    ``PATH`` is emptied for the duration. Without that the test asserts
+    something about the machine it runs on rather than about ``locate``: on one
+    with DynAdjust installed the "missing" program is found on ``PATH`` and the
+    suite is complete, which is correct behaviour and a failing test.
+    """
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
     (tmp_path / "dnaimport").write_text("#!/bin/sh\n", encoding="utf-8")
     status = locate("dynadjust", ["dnaimport", "dnaadjust"], extra_directories=[tmp_path])
     assert not status.available

@@ -460,6 +460,7 @@ def to_solution(
     crs: str,
     epoch: Epoch,
     datum: DatumDefinition,
+    system: CoordinateSystem = CoordinateSystem.PROJECTED,
     height_type: HeightType = HeightType.NONE,
     geoid_model: str | None = None,
     provenance: Provenance | None = None,
@@ -474,6 +475,14 @@ def to_solution(
     analysis never learn which engine produced a result.
 
     Args:
+        system: How to read the three components. ``PROJECTED`` is the ordinary
+            case and the default. ``CARTESIAN`` is for a network held in
+            geocentric X, Y and Z -- the adjustment is the same arithmetic
+            either way, since :class:`Frame` ``SPACE_3D`` is three orthogonal
+            metres whatever they are called, but the *label* is not a detail:
+            it is what lets a comparison against a DynAdjust solution know that
+            the two are in one frame, and what stops it differencing an easting
+            against an X if they are not (specs/07 section 6).
         geoid_model: The model that related the height systems, when one did
             (FR-804). Recorded on every adjusted position, so a report and a
             multi-epoch comparison can both see it.
@@ -532,7 +541,7 @@ def to_solution(
                 station_id=station_id,
                 position=Position(
                     values=tuple(quantities[:3]),  # type: ignore[arg-type]
-                    system=CoordinateSystem.PROJECTED,
+                    system=system,
                     crs=crs,
                     epoch=epoch,
                     height_type=height_type,

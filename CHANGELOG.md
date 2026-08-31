@@ -47,6 +47,31 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   wrong by a factor. Token *positions* are still compared exactly, so a column
   that moved fails even when every value it holds is unchanged.
 
+- **`engines/dynadjust/engine.py`** - the pipeline (FR-321, FR-325).
+  `dnaimport` -> `dnareftran` -> `dnageoid` -> `dnasegment` -> `dnaadjust`, with
+  `prepare`, `run` and `parse` separate so Advanced mode can stop after the
+  input is written. **Every stage appears in the plan whether it runs or not,
+  each with its reason**, because a provenance record that lists only what ran
+  cannot distinguish a transformation that was unnecessary from one that was
+  forgotten.
+- **`engines/dynadjust/crossvalidation.py`** - the P6 exit criterion. Compares
+  two `Solution`s on degrees of freedom, counts, variance factor, coordinates
+  and residuals. Coordinates are compared only when both are in the same frame,
+  and the check is real: differencing a geocentric X against a projected easting
+  produces a number, and the number means nothing, so a frame mismatch is
+  reported as not attempted rather than silently done.
+
+  **The result, on upstream's `gnss-network` slice:** the in-house core and
+  DynAdjust agree on degrees of freedom (3), observations (36) and parameters
+  (33) exactly, on the variance factor to the three decimals DynAdjust prints,
+  and on all eleven stations' coordinates to **0.047 mm** - with the core
+  started from coordinates perturbed by up to five metres, so the agreement is
+  not an artefact of the seed. Residuals agree to 0.05 mm.
+- **`to_solution` now takes the coordinate system** instead of hard-coding
+  `PROJECTED`. `Frame.SPACE_3D` is three orthogonal metres whatever they are
+  called, so the core can hold a network in geocentric X, Y and Z; saying so is
+  what lets the comparison above compare coordinates rather than refuse to.
+
 #### Fixed
 
 Four unit errors that the files' own numbers do not reveal, each found by
@@ -68,6 +93,21 @@ checking one file against another rather than against itself:
 - **The `.cor` file writes separated fields** (`84 42 21`) where the `.adj`
   writes HP (`84.4221`) for the same kind of quantity. A reader that assumed one
   format for both divides by 100 in one of the two files.
+
+- **`dnaimport` exits 0 on a measurement file it could not parse.** It warns on
+  stdout - "some files were not parsed", "there are no measurements to
+  process" - and returns success. Trusting the exit code alone carries an empty
+  network into `dnaadjust`; worse, when only *part* of a file fails to parse, it
+  carries an adjustment of fewer observations than intended, whose variance
+  factor looks perfectly healthy. The pipeline now checks the counts
+  `dnaimport` reports against what GeoComp wrote, which is exact - both numbers
+  are known - rather than matching the warning's wording, which is not.
+- **`test_a_half_installed_suite_names_the_missing_program` asserted something
+  about the machine it ran on.** It put a lone `dnaimport` in a temporary
+  directory and expected `dnaadjust` to be missing; on a machine with DynAdjust
+  installed, `locate` finds it on `PATH` and the suite is complete - correct
+  behaviour, failing test. It now empties `PATH` for its duration. Invisible
+  until the new `engine` job started running the suite with DynAdjust present.
 
 #### Known limits
 

@@ -17,11 +17,19 @@ wherever Python runs rather than only where QGIS does.
 
 from __future__ import annotations
 
+from geocomp.engines.dynadjust.crossvalidation import Agreement, Comparison, compare
 from geocomp.engines.dynadjust.dynaml import (
     DynaMLDocument,
     station_names,
     write_measurement_file,
     write_station_file,
+)
+from geocomp.engines.dynadjust.engine import (
+    DynAdjustEngine,
+    DynAdjustJob,
+    PreparedJob,
+    Stage,
+    plan,
 )
 from geocomp.engines.dynadjust.formats import (
     format_metres,
@@ -48,20 +56,29 @@ from geocomp.engines.dynadjust.read_output import (
     read_statistics,
     read_xyz,
 )
+from geocomp.engines.dynadjust.solution import read_solution
 
 __all__ = [
     "AdjustedMeasurement",
+    "Agreement",
     "AngularFormat",
+    "Comparison",
     "CoordinateRow",
+    "DynAdjustEngine",
+    "DynAdjustJob",
     "DynaMLDocument",
     "OutputPreamble",
+    "PreparedJob",
     "ReadReport",
+    "Stage",
     "StationCorrection",
     "StationUncertainty",
+    "compare",
     "format_metres",
     "format_variance",
     "hp_to_radians",
     "match_observations",
+    "plan",
     "radians_to_hp",
     "radians_to_seconds",
     "read_adj",
@@ -71,6 +88,7 @@ __all__ = [
     "read_dna_stations",
     "read_dynaml",
     "read_measurements",
+    "read_solution",
     "read_station_file",
     "read_statistics",
     "read_xyz",
