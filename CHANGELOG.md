@@ -72,6 +72,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   called, so the core can hold a network in geocentric X, Y and Z; saying so is
   what lets the comparison above compare coordinates rather than refuse to.
 
+- **`geocomp:analysis_dynadjust_adjust`** and **`geocomp:analysis_dynadjust_compare`**
+  - the Processing face of both (FR-321, FR-323), under the *Analysis* menu
+  beside the in-house adjustment. Which engine ran is an implementation choice
+  about one operation, not a different kind of work: a menu organised by engine
+  would ask a user to know which one they wanted before they knew what they
+  wanted done. When DynAdjust is absent the algorithm still appears, and fails
+  with a message saying how to get it rather than an import error (ADR-0003).
+
 #### Fixed
 
 Four unit errors that the files' own numbers do not reveal, each found by

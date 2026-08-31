@@ -122,6 +122,24 @@ structure, and states in the result that a phased adjustment was used.
 (FR-036, FR-304). A failure at any stage surfaces DynAdjust's own diagnostic to the user (FR-305), because
 its import validation messages are specific and genuinely useful.
 
+**Every stage is recorded whether it ran or not**, with the reason. A provenance record listing only what ran
+cannot distinguish a transformation that was unnecessary from one that was forgotten, and those are different
+answers to "is this solution in the frame I asked for".
+
+**An unstated input frame or epoch is not a different one** [V]. `dnareftran` runs when the target differs
+from the input's — which requires the input to *have* one. A network that states no frame is not in a
+different frame; it is in an unrecorded one, and transforming out of that applies a shift computed from an
+assumption, which is precisely what FR-105 forbids. So the job's frame is then taken as a statement of what
+the data already is, and the stage stays out.
+
+**The exit code is not the whole test** [V]. `dnaimport` returns 0 on a measurement file it could not parse:
+it prints `Warning: some files were not parsed` and `there are no measurements to process`, and succeeds.
+Trusting the exit code alone carries an empty network into `dnaadjust`; worse, where only *part* of a file
+fails to parse, it carries an adjustment of fewer observations than intended whose variance factor looks
+entirely healthy. GeoComp knows how many stations and measurement components it wrote, `dnaimport` reports
+how many it read, and a difference is a refusal naming both — a count, not a match on warning text, because
+the counts are what matters and they do not change wording between releases.
+
 ---
 
 ## 4. Input generation (FR-320, FR-163)
@@ -339,6 +357,43 @@ correctness; disagreement localises a real defect in one of them. Any discrepanc
 investigated and documented before release, and where it stems from a genuine methodological difference
 (a different refraction model, a different datum convention) that difference is documented rather than
 tuned away.
+
+### 6.1 The result [V]
+
+Measured on upstream's `gnss-network` slice (11 stations, one four-baseline `X` cluster, one six-point `Y`
+cluster and two standalone `G` baselines), the in-house core against DynAdjust 1.4.0:
+
+| Quantity | In-house | DynAdjust | Agreement |
+|---|---|---|---|
+| Degrees of freedom | 3 | 3 | exact |
+| Observations / parameters | 36 / 33 | 36 / 33 | exact |
+| Variance factor σ̂₀² | 0.13769 | 0.138 | to the three decimals DynAdjust prints |
+| Adjusted coordinates | — | — | **0.047 mm**, largest over 33 components |
+| Residuals | — | — | 0.050 mm, largest over 36 rows |
+
+The core is started from coordinates perturbed by up to **five metres**, so the agreement is a property of
+the two solutions and not of a shared starting point.
+
+**Why this network.** Its observations are GNSS baselines and points, both *linear* in the coordinates, so
+the two engines solve the identical problem and any difference is arithmetic rather than modelling. It also
+lets the core hold the network in geocentric metres directly — `Frame.SPACE_3D` is three orthogonal metres
+whatever they are called — so no frame conversion stands between the two answers to be blamed for a
+difference. Networks whose observation equations are non-linear (distances, angles, zenith angles) exercise
+the Jacobians as well, and are the natural next case; they need the core's local frame and DynAdjust's
+geodetic one to be related, which is a conversion GeoComp does not yet have.
+
+### 6.2 What is compared, and what is refused [V]
+
+`geocomp.engines.dynadjust.crossvalidation` compares degrees of freedom, observation and parameter counts
+exactly; the variance factor relatively; coordinates and residuals within a stated tolerance. Counts first,
+because they are properties of the model rather than of the arithmetic: if they differ the two engines were
+given different networks, and comparing residuals after that is meaningless.
+
+**Coordinates are compared only when both solutions are in the same frame**, and that is checked rather than
+assumed. Differencing a geocentric X against a projected easting produces a number and the number means
+nothing, so a frame mismatch is reported as *not compared*, naming both frames. A quantity that could not be
+compared does **not** count as a disagreement: absence of evidence is not evidence, and treating it as such
+would make an unconvertible frame look like a defect in an engine.
 
 ---
 

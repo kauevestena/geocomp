@@ -257,6 +257,164 @@
         </message>
     </context>
     <context>
+        <name>DynAdjustAdjustAlgorithm</name>
+        <message>
+            <source>%1 observation(s) have no DynAdjust equivalent and were not written: %2</source>
+            <translation>%1 observação(ões) não têm equivalente no DynAdjust e não foram escritas: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Adjusts a geodetic network using &lt;b&gt;DynAdjust&lt;/b&gt;, Geoscience Australia's least-squares suite, and reads its output back into the same solution structure GeoComp's own adjustment produces. Everything downstream &amp;mdash; reports, map layers, storage, multi-epoch comparison &amp;mdash; works the same way whichever engine produced the result.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust must be installed separately.&lt;/b&gt; It is not bundled: it is a large native program under a different licence, and shipping a copy inside a QGIS plugin would make GeoComp responsible for its build. If it is not found, this algorithm says so and names what is missing.&lt;/p&gt;&lt;p&gt;DynAdjust is a suite, not one program. This runs, in order, &lt;code&gt;dnaimport&lt;/code&gt;, then &lt;code&gt;dnareftran&lt;/code&gt; if the target frame or epoch differs from the network's, then &lt;code&gt;dnageoid&lt;/code&gt; if orthometric heights take part, then &lt;code&gt;dnasegment&lt;/code&gt; for a network too large to adjust in one piece, then &lt;code&gt;dnaadjust&lt;/code&gt;. Which stages ran, and why each other one did not, is recorded in the solution's provenance.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference frame&lt;/b&gt; and &lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the frame and epoch to adjust in. Leave them empty to use the network's own. Neither is ever guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed into the residuals.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid grid&lt;/b&gt; &amp;mdash; an NTv2 file, required when the network has orthometric heights, because the height systems cannot be related without one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the chi-square test and the positional uncertainties. &lt;b&gt;Convergence threshold&lt;/b&gt; and &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; passed to DynAdjust unchanged.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Segmentation threshold&lt;/b&gt; &amp;mdash; above this many stations the network is segmented and adjusted in phases, which is rigorous: the block solutions and their variances equal the simultaneous ones.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust directory&lt;/b&gt; &amp;mdash; where the programs are, when they are not on the system path. &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; seconds before a stage is abandoned and its process group killed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Keep the working files&lt;/b&gt; &amp;mdash; writes the generated input and the raw DynAdjust output to a folder instead of a temporary directory. An adjustment that surprises you is answerable only from the files that produced it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON: adjusted coordinates, the full variance matrix, per-observation residuals, the statistics, and the provenance recording every command line that ran.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta uma rede geodésica usando o &lt;b&gt;DynAdjust&lt;/b&gt;, o conjunto de programas de mínimos quadrados da Geoscience Australia, e lê sua saída de volta na mesma estrutura de solução que o ajustamento próprio do GeoComp produz. Tudo a jusante &amp;mdash; relatórios, camadas de mapa, armazenamento, comparação multiépoca &amp;mdash; funciona da mesma maneira, qualquer que seja o motor que produziu o resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O DynAdjust precisa ser instalado separadamente.&lt;/b&gt; Ele não é distribuído junto: é um programa nativo grande, sob outra licença, e embarcar uma cópia dentro de um complemento do QGIS tornaria o GeoComp responsável pela compilação dele. Se não for encontrado, este algoritmo avisa e diz o que está faltando.&lt;/p&gt;&lt;p&gt;O DynAdjust é um conjunto de programas, não um só. Este algoritmo executa, nesta ordem, &lt;code&gt;dnaimport&lt;/code&gt;, depois &lt;code&gt;dnareftran&lt;/code&gt; se o referencial ou a época de destino diferirem dos da rede, depois &lt;code&gt;dnageoid&lt;/code&gt; se altitudes ortométricas participarem, depois &lt;code&gt;dnasegment&lt;/code&gt; para uma rede grande demais para ser ajustada de uma vez, e por fim &lt;code&gt;dnaadjust&lt;/code&gt;. Quais etapas foram executadas, e por que cada uma das outras não foi, fica registrado na proveniência da solução.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; um documento de rede do GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Referencial&lt;/b&gt; e &lt;b&gt;Época de referência&lt;/b&gt; &amp;mdash; o referencial e a época em que ajustar. Deixe vazios para usar os da própria rede. Nenhum dos dois é jamais adivinhado: um referencial que o GeoComp inferiu em vez de saber é um deslocamento de datum absorvido pelos resíduos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Grade geoidal&lt;/b&gt; &amp;mdash; um arquivo NTv2, obrigatório quando a rede tem altitudes ortométricas, porque os sistemas de altitudes não podem ser relacionados sem ele.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt; &amp;mdash; para o teste qui-quadrado e as incertezas posicionais. &lt;b&gt;Limiar de convergência&lt;/b&gt; e &lt;b&gt;Número máximo de iterações&lt;/b&gt; &amp;mdash; repassados ao DynAdjust sem alteração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiar de segmentação&lt;/b&gt; &amp;mdash; acima deste número de estações a rede é segmentada e ajustada em fases, o que é rigoroso: as soluções dos blocos e suas variâncias são iguais às simultâneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Diretório do DynAdjust&lt;/b&gt; &amp;mdash; onde estão os programas, quando não estão no caminho do sistema. &lt;b&gt;Tempo limite&lt;/b&gt; &amp;mdash; segundos antes de uma etapa ser abandonada e seu grupo de processos encerrado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Manter os arquivos de trabalho&lt;/b&gt; &amp;mdash; escreve a entrada gerada e a saída bruta do DynAdjust em uma pasta em vez de um diretório temporário. Um ajustamento que surpreende só pode ser respondido a partir dos arquivos que o produziram.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, a matriz de variâncias completa, resíduos por observação, as estatísticas e a proveniência registrando cada linha de comando executada.&lt;/p&gt;&lt;p&gt;Saídas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a suite, and a partial installation fails part way through.</source>
+            <translation>Falta um programa do DynAdjust de que o fluxo precisa: %1. O DynAdjust é um conjunto de programas, e uma instalação parcial falha no meio do caminho.</translation>
+        </message>
+        <message>
+            <source>Adjust a network with Geoscience Australia's DynAdjust and read the result back.</source>
+            <translation>Ajustar uma rede com o DynAdjust da Geoscience Australia e ler o resultado de volta.</translation>
+        </message>
+        <message>
+            <source>Adjust network (DynAdjust)</source>
+            <translation>Ajustar rede (DynAdjust)</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Convergence threshold (m)</source>
+            <translation>Limiar de convergência (m)</translation>
+        </message>
+        <message>
+            <source>DynAdjust %1 has not been checked against this GeoComp release. It will be used, but if its output format has changed the result may be refused when it is read back.</source>
+            <translation>O DynAdjust %1 não foi verificado com esta versão do GeoComp. Ele será usado, mas se o formato de saída tiver mudado o resultado pode ser recusado na leitura.</translation>
+        </message>
+        <message>
+            <source>DynAdjust directory (empty = search the system path)</source>
+            <translation>Diretório do DynAdjust (vazio = procurar no caminho do sistema)</translation>
+        </message>
+        <message>
+            <source>DynAdjust was not found. Install it and put its programs on the system path, or give the directory holding them in the 'DynAdjust directory' parameter. GeoComp does not bundle it: it is a separate program under its own licence.</source>
+            <translation>O DynAdjust não foi encontrado. Instale-o e coloque seus programas no caminho do sistema, ou informe o diretório que os contém no parâmetro 'Diretório do DynAdjust'. O GeoComp não o distribui junto: é um programa separado, sob licença própria.</translation>
+        </message>
+        <message>
+            <source>Geoid grid (NTv2), for orthometric heights</source>
+            <translation>Grade geoidal (NTv2), para altitudes ortométricas</translation>
+        </message>
+        <message>
+            <source>Keep the generated input and raw output</source>
+            <translation>Manter a entrada gerada e a saída bruta</translation>
+        </message>
+        <message>
+            <source>Maximum iterations</source>
+            <translation>Número máximo de iterações</translation>
+        </message>
+        <message>
+            <source>Network document</source>
+            <translation>Documento de rede</translation>
+        </message>
+        <message>
+            <source>Pipeline: %1</source>
+            <translation>Fluxo: %1</translation>
+        </message>
+        <message>
+            <source>Reference epoch, decimal year (0 = the network's own)</source>
+            <translation>Época de referência, ano decimal (0 = a da própria rede)</translation>
+        </message>
+        <message>
+            <source>Reference frame (empty = the network's own)</source>
+            <translation>Referencial (vazio = o da própria rede)</translation>
+        </message>
+        <message>
+            <source>Segment above this many stations</source>
+            <translation>Segmentar acima deste número de estações</translation>
+        </message>
+        <message>
+            <source>Skipping %1: %2</source>
+            <translation>Pulando %1: %2</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Timeout per stage (s)</source>
+            <translation>Tempo limite por etapa (s)</translation>
+        </message>
+        <message>
+            <source>Using DynAdjust %1 from %2.</source>
+            <translation>Usando o DynAdjust %1 de %2.</translation>
+        </message>
+        <message>
+            <source>Working files</source>
+            <translation>Arquivos de trabalho</translation>
+        </message>
+    </context>
+    <context>
+        <name>DynAdjustCompareAlgorithm</name>
+        <message>
+            <source>%1 quantity/quantities disagree.</source>
+            <translation>%1 grandeza(s) discordam.</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as JSON: %2</source>
+            <translation>'%1' não pôde ser lido como JSON: %2</translation>
+        </message>
+        <message>
+            <source>'%1' is not a GeoComp solution document: %2</source>
+            <translation>'%1' não é um documento de solução do GeoComp: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Compares two solution documents of the same network and reports, quantity by quantity, where they agree and where they do not.&lt;/p&gt;&lt;p&gt;Its first purpose is cross-validating GeoComp's own least-squares core against &lt;b&gt;DynAdjust&lt;/b&gt;: two independent implementations of the same problem, so agreement is evidence about both and a disagreement is a real finding about one of them. It is not limited to that. Any two solutions compare on the same terms &amp;mdash; the same network adjusted with a different stochastic model, or before and after an observation was rejected &amp;mdash; because every engine fills the same structure.&lt;/p&gt;&lt;h3&gt;What is compared&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Degrees of freedom, observation count and parameter count&lt;/b&gt; must match &lt;i&gt;exactly&lt;/i&gt;. They are properties of the model rather than of the arithmetic, so a difference means the two solved different problems &amp;mdash; and comparing residuals after that would be meaningless.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The variance factor&lt;/b&gt; is compared relatively, because an absolute tolerance is wrong at both ends: it is a large error on a variance factor of 0.001 and negligible on one of 100.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinates&lt;/b&gt;, per station, as the largest difference over the three components &amp;mdash; but only when both solutions are in the same frame. Differencing a geocentric X against a projected easting produces a number, and the number means nothing, so a frame mismatch is reported as &lt;i&gt;not compared&lt;/i&gt; with both frames named.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Residuals&lt;/b&gt;, per observation. These move before the coordinates do: a sign error in a Jacobian or a dropped correlation between the components of a GNSS baseline shows here first.&lt;/p&gt;&lt;p&gt;A quantity that could not be compared does &lt;b&gt;not&lt;/b&gt; count as a disagreement. Absence of evidence is not evidence, and treating it as such would make an unconvertible frame look like a defect in an engine.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reference solution&lt;/b&gt; and &lt;b&gt;Other solution&lt;/b&gt; &amp;mdash; JSON documents. The comparison is symmetric; the names decide only which column is which.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinate tolerance&lt;/b&gt; &amp;mdash; metres. The default of 0.1 mm is far below any observation's precision and far above the last-digit differences two orderings of the same arithmetic produce.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Variance factor tolerance&lt;/b&gt; &amp;mdash; relative. The default of 1% accommodates DynAdjust printing sigma-nought to three decimals.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Report&lt;/b&gt; &amp;mdash; plain text, one line per quantity. &lt;b&gt;Differences&lt;/b&gt; &amp;mdash; JSON, per station and per observation, for a plot or a spreadsheet.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;AGREES&lt;/code&gt;, &lt;code&gt;LARGEST_COORDINATE_DIFFERENCE&lt;/code&gt;, &lt;code&gt;LARGEST_RESIDUAL_DIFFERENCE&lt;/code&gt; and &lt;code&gt;DISAGREEMENT_COUNT&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Compara dois documentos de solução da mesma rede e relata, grandeza por grandeza, onde eles concordam e onde não concordam.&lt;/p&gt;&lt;p&gt;Seu primeiro propósito é validar de forma cruzada o núcleo de mínimos quadrados do próprio GeoComp contra o &lt;b&gt;DynAdjust&lt;/b&gt;: duas implementações independentes do mesmo problema, de modo que a concordância é evidência sobre ambas e uma discordância é uma constatação real sobre uma delas. Não se limita a isso. Quaisquer duas soluções comparam-se nos mesmos termos &amp;mdash; a mesma rede ajustada com um modelo estocástico diferente, ou antes e depois de uma observação ser rejeitada &amp;mdash; porque todo motor preenche a mesma estrutura.&lt;/p&gt;&lt;h3&gt;O que é comparado&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Graus de liberdade, número de observações e número de parâmetros&lt;/b&gt; precisam coincidir &lt;i&gt;exatamente&lt;/i&gt;. São propriedades do modelo e não da aritmética, de modo que uma diferença significa que os dois resolveram problemas diferentes &amp;mdash; e comparar resíduos depois disso não faria sentido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O fator de variância&lt;/b&gt; é comparado relativamente, porque uma tolerância absoluta erra nos dois extremos: é um erro grande em um fator de variância de 0,001 e desprezível em um de 100.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordenadas&lt;/b&gt;, por estação, como a maior diferença entre as três componentes &amp;mdash; mas somente quando as duas soluções estão no mesmo referencial. Subtrair um X geocêntrico de um E projetado produz um número, e o número não significa nada, de modo que uma divergência de referencial é relatada como &lt;i&gt;não comparado&lt;/i&gt;, com ambos os referenciais nomeados.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Resíduos&lt;/b&gt;, por observação. Eles se movem antes das coordenadas: um erro de sinal em uma jacobiana ou uma correlação perdida entre as componentes de uma linha de base GNSS aparece aqui primeiro.&lt;/p&gt;&lt;p&gt;Uma grandeza que não pôde ser comparada &lt;b&gt;não&lt;/b&gt; conta como discordância. Ausência de evidência não é evidência, e tratá-la como tal faria um referencial inconversível parecer um defeito de um motor.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução de referência&lt;/b&gt; e &lt;b&gt;Outra solução&lt;/b&gt; &amp;mdash; documentos JSON. A comparação é simétrica; os nomes decidem apenas qual coluna é qual.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tolerância de coordenadas&lt;/b&gt; &amp;mdash; metros. O padrão de 0,1 mm está muito abaixo da precisão de qualquer observação e muito acima das diferenças de último dígito que duas ordenações da mesma aritmética produzem.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Tolerância do fator de variância&lt;/b&gt; &amp;mdash; relativa. O padrão de 1% acomoda o fato de o DynAdjust imprimir o sigma-zero com três casas decimais.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; texto puro, uma linha por grandeza. &lt;b&gt;Diferenças&lt;/b&gt; &amp;mdash; JSON, por estação e por observação, para um gráfico ou uma planilha.&lt;/p&gt;&lt;p&gt;Saídas escalares: &lt;code&gt;AGREES&lt;/code&gt;, &lt;code&gt;LARGEST_COORDINATE_DIFFERENCE&lt;/code&gt;, &lt;code&gt;LARGEST_RESIDUAL_DIFFERENCE&lt;/code&gt; e &lt;code&gt;DISAGREEMENT_COUNT&lt;/code&gt;.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Compare two solutions</source>
+            <translation>Comparar duas soluções</translation>
+        </message>
+        <message>
+            <source>Comparison report</source>
+            <translation>Relatório de comparação</translation>
+        </message>
+        <message>
+            <source>Coordinate tolerance (m)</source>
+            <translation>Tolerância de coordenadas (m)</translation>
+        </message>
+        <message>
+            <source>Cross-validate two adjustments of the same network, whichever engines produced them.</source>
+            <translation>Validar de forma cruzada dois ajustamentos da mesma rede, quaisquer que sejam os motores que os produziram.</translation>
+        </message>
+        <message>
+            <source>Differences</source>
+            <translation>Diferenças</translation>
+        </message>
+        <message>
+            <source>No solution document was given for parameter '%1'.</source>
+            <translation>Nenhum documento de solução foi informado para o parâmetro '%1'.</translation>
+        </message>
+        <message>
+            <source>Other solution</source>
+            <translation>Outra solução</translation>
+        </message>
+        <message>
+            <source>Reference solution</source>
+            <translation>Solução de referência</translation>
+        </message>
+        <message>
+            <source>The solution document '%1' does not exist.</source>
+            <translation>O documento de solução '%1' não existe.</translation>
+        </message>
+        <message>
+            <source>The two solutions name different networks (%1 and %2). Comparing them is only meaningful if they are in fact the same network under two names.</source>
+            <translation>As duas soluções nomeiam redes diferentes (%1 e %2). Compará-las só faz sentido se forem de fato a mesma rede sob dois nomes.</translation>
+        </message>
+        <message>
+            <source>Variance factor tolerance (relative)</source>
+            <translation>Tolerância do fator de variância (relativa)</translation>
+        </message>
+    </context>
+    <context>
         <name>EqualSightsAlgorithm</name>
         <message>
             <source>%1 line(s) are exactly balanced. On those the collimation error does not enter the result at all, whatever its value.</source>

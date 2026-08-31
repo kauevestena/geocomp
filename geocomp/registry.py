@@ -309,6 +309,32 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="analysis",
         menu_order=30,
     ),
+    # -- Phase P6: the same two operations, through DynAdjust ------------
+    #
+    # Under the *analysis* menu beside the in-house adjustment rather than in
+    # an "engines" group of their own. Which engine ran is an implementation
+    # choice about one operation, not a different kind of work: a user who
+    # wants their network adjusted looks under Analysis, and a menu organised
+    # by engine would ask them to know which one they wanted before they knew
+    # what they wanted done.
+    AlgorithmSpec(
+        operation="dynadjust_adjust",
+        group="analysis",
+        module="geocomp.algorithms.engines.dynadjust_adjust",
+        class_name="DynAdjustAdjustAlgorithm",
+        requirement="FR-321",
+        menu="analysis",
+        menu_order=40,
+    ),
+    AlgorithmSpec(
+        operation="dynadjust_compare",
+        group="analysis",
+        module="geocomp.algorithms.engines.dynadjust_compare",
+        class_name="DynAdjustCompareAlgorithm",
+        requirement="FR-323",
+        menu="analysis",
+        menu_order=50,
+    ),
     # -- Total Station (phase P3). The order mirrors the workflow, which is the
     # order specs/09 section 1 lists them in: get the data in, reduce it, then
     # compute with it.

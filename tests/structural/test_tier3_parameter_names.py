@@ -32,6 +32,33 @@ TIER_THREE = sorted((REPO_ROOT / "tests" / "qgis").glob("test_*.py"))
 #: station name in a fixture, not a parameter.
 KEY = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
 
+#: Strings that are upper case for a reason other than being a parameter key.
+#:
+#: The net above is cast wide on purpose -- a result key is read by subscripting
+#: a fixture, so there is no call to attribute it to -- and the cost of that is
+#: this list. Each entry is a word that is upper case in its own right: a CRS
+#: authority code, an environment variable, a file format. **An entry here must
+#: be one of those.** A parameter name that "does not need checking" belongs in
+#: the algorithm's declaration, not here, and adding it would remove exactly the
+#: protection this module exists to give.
+NOT_PARAMETER_KEYS = frozenset(
+    {
+        # Reference frames and CRS codes, in fixtures and assertions.
+        "GDA2020",
+        "SIRGAS2000",
+        "WGS84",
+        "ITRF2020",
+        # Environment variables a test sets.
+        "PATH",
+        "HOME",
+        # File and data formats named in assertions.
+        "JSON",
+        "CSV",
+        "HTML",
+        "XML",
+    }
+)
+
 #: Keys that belong to QGIS or to a test fixture rather than to a GeoComp
 #: algorithm, each with the reason it is not declared in this repository.
 FOREIGN_KEYS: dict[str, str] = {
@@ -78,7 +105,7 @@ def _used_keys(path: Path) -> dict[str, int]:
     used: dict[str, int] = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            if KEY.match(node.value):
+            if KEY.match(node.value) and node.value not in NOT_PARAMETER_KEYS:
                 used.setdefault(node.value, node.lineno)
     return used
 
