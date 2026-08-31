@@ -117,6 +117,24 @@ checking one file against another rather than against itself:
   behaviour, failing test. It now empties `PATH` for its duration. Invisible
   until the new `engine` job started running the suite with DynAdjust present.
 
+#### Phase P6 is not complete
+
+Three of its seven exit criteria are outstanding, and
+[`specs/ROADMAP.md`](specs/ROADMAP.md) records each with what it needs:
+
+- **Cross-validation ran on one network, not three.** The other two are blocked
+  on the same missing piece: GeoComp has no geodetic-to-geocentric conversion.
+  For a network of GNSS baselines and points the core's local frame and
+  DynAdjust's geocentric one coincide, because both observation equations are
+  coordinate differences and the frame cancels; for a levelling or terrestrial
+  network they do not, and the core's third component would be geocentric *Z*
+  where DynAdjust's is ellipsoidal *height*.
+- **The engine manager installs nothing**, because no DynAdjust release exists
+  that can honestly be pinned. The install path is implemented and tested
+  against synthetic archives; what is missing is a real release to point it at.
+- **FR-161, the *Adjust* format, moves again** - still no example file with a
+  published answer, and a parser written from a guess is not an implementation.
+
 #### Known limits
 
 - **The angular format is not in any preamble.** Only the recorded command line
