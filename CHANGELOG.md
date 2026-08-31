@@ -39,7 +39,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   which is what keeps them tier 1; the cost is that a DynAdjust which changed a
   column would keep passing against a fixture written by the old one. This
   regenerates all twelve fixtures with a real engine built from a pinned commit
-  and fails on any difference beyond the wall-clock timings.
+  and fails on any difference beyond the wall-clock timings. Numbers are
+  compared to a part in a million rather than textually: two builds of a
+  numerical program disagree in the last digits of an ill-conditioned inverse,
+  and everything this guard exists to catch -- a moved column, an angle read in
+  the wrong notation, a correction read as an angle rather than seconds -- is
+  wrong by a factor. Token *positions* are still compared exactly, so a column
+  that moved fails even when every value it holds is unchanged.
 
 #### Fixed
 

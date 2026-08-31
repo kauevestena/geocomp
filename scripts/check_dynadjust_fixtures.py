@@ -137,11 +137,68 @@ def sanitise(text: str) -> str:
     return "\n".join(lines) + "\n"
 
 
+#: How far two runs' numbers may differ and still count as the same output.
+#:
+#: Not zero, and the reason matters. This check asks whether the *layout*
+#: changed, and it compares the output of two builds of a numerical program:
+#: a different OpenBLAS, or the same one vectorising differently on another
+#: CPU, moves the last digits of a matrix inverse. An ill-conditioned station
+#: amplifies that -- in the ``angles`` fixture, whose ``HILL`` is barely
+#: determined, the variances differ in the eleventh significant figure between
+#: this machine and a CI runner.
+#:
+#: 1e-6 is far tighter than any error this check exists to catch. A column read
+#: from the wrong place, a unit taken as degrees instead of HP, a correction
+#: read as an angle rather than seconds of arc: all are wrong by a factor, not
+#: by a part in a million.
+RELATIVE_TOLERANCE = 1e-6
+
+
 def comparable(text: str) -> list[str]:
     """Drop the lines that cannot help but differ between two runs."""
     return [
         line for line in text.splitlines() if not any(line.startswith(key) for key in VOLATILE)
     ]
+
+
+def _tokens(line: str) -> list[tuple[int, str]]:
+    """Each whitespace-separated token with the column it starts at."""
+    return [(match.start(), match.group()) for match in re.finditer(r"\S+", line)]
+
+
+def same_line(committed: str, produced: str) -> bool:
+    """Is *produced* the same output as *committed*, allowing for arithmetic noise?
+
+    Identical text passes at once. Otherwise both lines are tokenised **with
+    their column positions**, and the line passes only if every token starts at
+    the same column and either matches exactly or is a number within
+    :data:`RELATIVE_TOLERANCE`.
+
+    Keeping the column positions in the comparison is what makes this a layout
+    check rather than a numbers check: a column that moved, widened or was
+    renamed shifts a start position and fails here, even when every value it
+    holds is unchanged.
+    """
+    if committed == produced:
+        return True
+    left, right = _tokens(committed), _tokens(produced)
+    if len(left) != len(right):
+        return False
+    for (column, expected), (other_column, actual) in zip(left, right, strict=True):
+        if column != other_column:
+            return False
+        if expected == actual:
+            continue
+        try:
+            first, second = float(expected), float(actual)
+        except ValueError:
+            return False
+        scale = max(abs(first), abs(second))
+        if scale and abs(first - second) / scale > RELATIVE_TOLERANCE:
+            return False
+        if not scale and first != second:
+            return False
+    return True
 
 
 def run_case(case: Case, work: Path) -> dict[str, str]:
@@ -204,7 +261,9 @@ def main() -> int:
                 failures += 1
                 continue
             expected, actual = comparable(fixture.read_text()), comparable(text)
-            if expected == actual:
+            if len(expected) == len(actual) and all(
+                same_line(one, other) for one, other in zip(expected, actual, strict=True)
+            ):
                 print(f"  ok      {fixture.relative_to(ROOT)}")
                 continue
             failures += 1

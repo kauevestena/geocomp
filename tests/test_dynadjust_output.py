@@ -520,3 +520,39 @@ def test_read_adj_returns_the_four_parts_of_one_file() -> None:
     assert len(measurements) == 36
     assert statistics.degrees_of_freedom == 3
     assert preamble.version == "1.4.0"
+
+
+class TestTheFixtureDriftGuard:
+    """``scripts/check_dynadjust_fixtures.py`` compares two runs of a numerical
+    program, so it compares numbers with a tolerance. These are the cases that
+    say the tolerance did not make it blind: everything the guard exists to
+    catch is wrong by a factor, not by a part in a million.
+    """
+
+    @staticmethod
+    def _same_line(first: str, second: str) -> bool:
+        from scripts.check_dynadjust_fixtures import same_line
+
+        return same_line(first, second)
+
+    @pytest.mark.parametrize(
+        ("what", "committed", "produced", "same"),
+        [
+            ("identical lines", "HILL  1.0  2.0", "HILL  1.0  2.0", True),
+            # A different OpenBLAS, or the same one vectorising differently on
+            # another CPU, moves the last digits of an ill-conditioned inverse.
+            ("arithmetic noise", "HILL  54.970877441", "HILL  54.970877438", True),
+            ("a value a part in 1e9 out", "X  1.00000000", "X  1.00000000100", True),
+            ("a column shifted right", "HILL  1.0  2.0", "HILL   1.0  2.0", False),
+            ("a column renamed", "  SD(e)  SD(n)", "  SD(E)  SD(n)", False),
+            ("HP read as decimal degrees", "X  -36.331031467", "X  -36.552865187", False),
+            ("seconds read as an angle", "X  0.0010", "X  3.6000", False),
+            ("a value a part in 1e5 out", "X  1.00000000", "X  1.00001000", False),
+            ("a token appearing", "HILL  1.0", "HILL  1.0  2.0", False),
+            ("zero against something small", "X  0.0000", "X  0.0001", False),
+        ],
+    )
+    def test_it_tolerates_noise_and_nothing_else(
+        self, what: str, committed: str, produced: str, same: bool
+    ) -> None:
+        assert self._same_line(committed, produced) is same, what
