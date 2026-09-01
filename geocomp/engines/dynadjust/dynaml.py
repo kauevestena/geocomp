@@ -45,6 +45,7 @@ from geocomp.core.models import (
     Station,
 )
 from geocomp.core.models.observation import OBSERVATION_TYPES
+from geocomp.core.models.position import CoordinateSystem
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.formats import (
     format_metres,
@@ -65,13 +66,29 @@ __all__ = [
 #: DynaML inherits the DNA field definitions.
 MAX_STATION_NAME = 20
 
-#: DynAdjust station coordinate types. GeoComp writes ``XYZ`` -- earth-centred
-#: cartesian, plain metres -- rather than ``LLH`` or ``UTM``. Not arbitrary:
-#: LLH requires latitude and longitude in HP notation *and* their variances in
-#: radians (Guide B.1.4), which is two more conversions on the most
-#: error-prone axis of the format, for no gain when GeoComp's own frames are
-#: cartesian or projected already.
-COORD_TYPE = "XYZ"
+#: DynAdjust station coordinate types, by the system the position is actually
+#: in. ``<Type>`` is a *declaration* about the three numbers beside it, so it
+#: has to follow them rather than be chosen once.
+#:
+#: This was a single constant ``"XYZ"`` until it was tested with a network that
+#: was not cartesian, and the reasoning recorded for it -- that GeoComp's frames
+#: "are cartesian or projected already" -- contained the defect: a projected
+#: easting is not a geocentric X. A UTM 22S station written as ``XYZ`` lands
+#: 845 km above the Earth's surface, and DynAdjust accepts it. In a network of
+#: absolute observations that goes unnoticed, because DynAdjust computes its own
+#: approximates and discards the nonsense; in a relative network -- a traverse, a
+#: levelling line -- the approximates set the datum, and the answer is wrong in a
+#: way that looks fine.
+COORD_TYPES = {
+    CoordinateSystem.CARTESIAN: "XYZ",
+    CoordinateSystem.GEODETIC: "LLH",
+}
+
+#: The ``<Coords>`` of a ``Y`` cluster, which is a different question: it
+#: declares the frame of the *measurement's* components, and this writer always
+#: emits those as cartesian X, Y and Z. Fixed on purpose, and named separately
+#: so it cannot drift with the station type above.
+CLUSTER_COORD_TYPE = "XYZ"
 
 #: The per-component constraint string: three characters, each ``C``
 #: (constrained) or ``F`` (free), as upstream's own sample stations use.
@@ -228,14 +245,14 @@ def write_station_file(
         element = ET.SubElement(root, "DnaStation")
         _text(element, "Name", names[station_id])
         _text(element, "Constraints", _constraints(station))
-        _text(element, "Type", COORD_TYPE)
+        coord_type, first, second, height = _coordinates(station)
+        _text(element, "Type", coord_type)
 
         coord = ET.SubElement(element, "StationCoord")
         _text(coord, "Name", names[station_id])
-        x, y, z = _approximate(station)
-        _text(coord, "XAxis", format_metres(x))
-        _text(coord, "YAxis", format_metres(y))
-        _text(coord, "Height", format_metres(z))
+        _text(coord, "XAxis", first)
+        _text(coord, "YAxis", second)
+        _text(coord, "Height", height)
         if station_id != names[station_id]:
             _text(element, "Description", station_id)
 
@@ -247,6 +264,53 @@ def write_station_file(
         epoch=epoch,
         renamed={k: v for k, v in names.items() if k != v},
     )
+
+
+def _coordinates(station: Station) -> tuple[str, str, str]:
+    """A station's ``<Type>`` and its three coordinate strings.
+
+    The type follows the position, because ``<Type>`` is a declaration *about*
+    the three numbers beside it. A geodetic position is written ``LLH`` with
+    latitude and longitude in HP notation (Guide Table B.2), which is what
+    upstream's own station files use and what
+    :mod:`~geocomp.engines.dynadjust.read_dynaml` reads back.
+
+    A **projected** position is refused. DynaML's third type, ``UTM``, needs a
+    zone and a hemisphere, and deriving those from a CRS string needs a
+    projection database GeoComp does not carry; converting to geodetic or
+    geocentric needs an inverse projection it does not carry either. Writing the
+    easting into ``XAxis`` under any other type is the alternative, and that is
+    the defect this function exists to prevent -- a UTM 22S station so written
+    sits 845 km above the Earth, which DynAdjust accepts without complaint.
+    """
+    position = station.approx_position or (
+        station.constraint.position if station.constraint else None
+    )
+    if position is None:
+        # Zeros, and cartesian: DynAdjust computes approximate coordinates for
+        # stations that have none, and refusing here would reject networks it
+        # can perfectly well adjust.
+        return COORD_TYPES[CoordinateSystem.CARTESIAN], *(format_metres(0.0),) * 3
+
+    coord_type = COORD_TYPES.get(position.system)
+    if coord_type is None:
+        raise ValidationError(
+            "dynadjust_cannot_write_projected_coordinates",
+            station=station.id,
+            received=position.system.value,
+            crs=position.crs,
+            expected="a geodetic or geocentric position",
+            hint=(
+                "DynaML's UTM type needs a zone and hemisphere GeoComp cannot "
+                "derive from a CRS string, and writing a projected easting under "
+                "any other type puts the station in the wrong place entirely"
+            ),
+        )
+
+    values = [quantity.value for quantity in position.values]
+    if position.system is CoordinateSystem.GEODETIC:
+        return coord_type, radians_to_hp(values[0]), radians_to_hp(values[1]), format_metres(values[2])
+    return coord_type, *(format_metres(value) for value in values)
 
 
 def _approximate(station: Station) -> tuple[float, float, float]:
@@ -531,7 +595,7 @@ def _write_gnss_cluster(
     for scale in ("Vscale", "Pscale", "Lscale", "Hscale"):
         _text(element, scale, "1.000")
     if code == "Y":
-        _text(element, "Coords", COORD_TYPE)
+        _text(element, "Coords", CLUSTER_COORD_TYPE)
     _text(element, "Total", str(len(members)))
 
     block_tag = "GPSBaseline" if code == "X" else "Clusterpoint"

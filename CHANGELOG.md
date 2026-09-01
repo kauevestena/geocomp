@@ -117,6 +117,21 @@ checking one file against another rather than against itself:
   behaviour, failing test. It now empties `PATH` for its duration. Invisible
   until the new `engine` job started running the suite with DynAdjust present.
 
+- **The DynaML writer declared `<Type>XYZ</Type>` and then wrote whatever the
+  position held.** Correct only for a cartesian position. A geodetic latitude in
+  radians went into `XAxis`, and a projected easting of 671 000 m put a UTM 22S
+  station **845 km above the Earth's surface** — which DynAdjust accepts without
+  complaint. It never showed up because the one network exercised end to end has
+  absolute GNSS point observations, so DynAdjust computed its own approximate
+  coordinates and discarded the nonsense; the cross-validation result is
+  unaffected for the same reason. In a *relative* network — a traverse, a
+  levelling line — the approximate coordinates set the datum, and the answer
+  would have been wrong in a way that looks healthy. The type now follows the
+  position: `XYZ` for cartesian, `LLH` with HP latitude and longitude for
+  geodetic (which is what upstream's own files use and what GeoComp's reader
+  reads back), and a **refusal** for projected, because DynaML's `UTM` needs a
+  zone and hemisphere GeoComp cannot derive.
+
 #### Phase P6 is not complete
 
 Three of its seven exit criteria are outstanding, and

@@ -267,6 +267,34 @@ GeoComp parses:
 | Iteration and convergence information | `statistics` |
 | Block structure, when phased | `statistics` / provenance |
 
+### 4.4 The station coordinate type follows the position [V]
+
+DynaML's `<Type>` is a **declaration about the three numbers beside it**, not a
+setting. GeoComp writes:
+
+| GeoComp position | `<Type>` | The three values |
+|---|---|---|
+| Cartesian | `XYZ` | geocentric X, Y, Z in metres |
+| Geodetic | `LLH` | latitude and longitude in HP notation, height in metres |
+| Projected | **refused** | — |
+
+A projected position is refused rather than converted. DynaML's third type,
+`UTM`, needs a zone and a hemisphere, and deriving those from a CRS string needs
+a projection database GeoComp does not carry; converting to geodetic or
+geocentric needs an inverse projection it does not carry either.
+
+This began as a single constant `XYZ`, with the recorded reasoning that
+GeoComp's frames "are cartesian or projected already" — and that sentence was
+the defect. A projected easting is not a geocentric X: a UTM 22S station written
+as `XYZ` sits **845 km above the Earth's surface**, and DynAdjust accepts it.
+A geodetic latitude in radians written into `XAxis` is wrong by the radius of the
+Earth. Neither shows up in a network of absolute observations, because DynAdjust
+computes its own approximate coordinates and discards the nonsense — which is why
+the `gnss-network` cross-validation in §6.1 was unaffected. In a **relative**
+network — a traverse, a levelling line, GNSS baselines without absolute points —
+the approximate coordinates set the datum, and the answer is wrong in a way that
+looks entirely healthy.
+
 ### 5.1 What the files do and do not say about their own layout [V]
 
 No output table has a fixed layout, and none may be parsed as though it had. The columns a run prints depend

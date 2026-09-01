@@ -50,6 +50,7 @@ from geocomp.engines.dynadjust.formats import (
     radians_to_seconds,
     seconds_to_radians,
 )
+from geocomp.engines.dynadjust.read_dynaml import read_station_file
 
 METRE, RADIAN = Unit.METRE, Unit.RADIAN
 FRAME, EPOCH = "GDA2020", "01.01.2020"
@@ -419,3 +420,96 @@ def test_the_network_checks_the_exact_component_count() -> None:
     )
     problems = network.validate()
     assert any("12-component covariance" in p for p in problems)
+
+
+class TestTheStationCoordinateType:
+    """``<Type>`` is a declaration about the three numbers beside it.
+
+    It was a single constant ``"XYZ"`` until a network that was not cartesian
+    was put through the writer. The reasoning recorded for the constant -- that
+    GeoComp's frames "are cartesian or projected already" -- was the defect: a
+    projected easting is not a geocentric X, and a geodetic latitude in radians
+    is not one either.
+    """
+
+    @staticmethod
+    def _station(system: CoordinateSystem, values: tuple[float, float, float]) -> Network:
+        units = (
+            (Unit.RADIAN, Unit.RADIAN, Unit.METRE)
+            if system is CoordinateSystem.GEODETIC
+            else (Unit.METRE, Unit.METRE, Unit.METRE)
+        )
+        network = Network(id="n", crs="GDA2020")
+        network.stations["A"] = Station(
+            id="A",
+            approx_position=Position(
+                values=tuple(
+                    Quantity.exact(value, unit)
+                    for value, unit in zip(values, units, strict=True)
+                ),  # type: ignore[arg-type]
+                system=system,
+                crs="GDA2020",
+                height_type=HeightType.ELLIPSOIDAL,
+            ),
+        )
+        return network
+
+    def _write(self, network: Network, tmp_path: Path) -> str:
+        path = tmp_path / "stn.xml"
+        write_station_file(network, path, frame="GDA2020", epoch="01.01.2020")
+        return path.read_text(encoding="utf-8")
+
+    def test_a_cartesian_position_is_written_as_xyz(self, tmp_path: Path) -> None:
+        network = self._station(
+            CoordinateSystem.CARTESIAN, (-4251956.4559, 2869868.5766, -3777753.7504)
+        )
+        text = self._write(network, tmp_path)
+        assert "<Type>XYZ</Type>" in text
+        assert "<XAxis>-4251956.4559</XAxis>" in text
+
+    def test_a_geodetic_position_is_written_as_llh_in_hp_notation(
+        self, tmp_path: Path
+    ) -> None:
+        """Which is what upstream's own station files use, and what the reader
+        reads back. Writing a latitude in radians into an ``XYZ`` slot puts the
+        station 6371 km from where it belongs."""
+        latitude = math.radians(-36 - 33 / 60 - 30.289906 / 3600)
+        longitude = math.radians(146 + 43 / 60 + 22.017064 / 3600)
+        network = self._station(CoordinateSystem.GEODETIC, (latitude, longitude, 208.3086))
+        text = self._write(network, tmp_path)
+        assert "<Type>LLH</Type>" in text
+        assert "<XAxis>-36.3330289" in text
+        assert "<YAxis>146.4322017" in text
+        assert "<Height>208.3086</Height>" in text
+
+    def test_a_geodetic_position_round_trips(self, tmp_path: Path) -> None:
+        latitude, longitude = math.radians(-25.45), math.radians(-49.23)
+        network = self._station(CoordinateSystem.GEODETIC, (latitude, longitude, 915.0))
+        path = tmp_path / "stn.xml"
+        write_station_file(network, path, frame="SIRGAS2000", epoch="01.01.2020")
+        back = read_station_file(path).network.stations["A"].approx_position
+        assert back.system is CoordinateSystem.GEODETIC
+        assert back.values[0].value == pytest.approx(latitude, abs=1e-10)
+        assert back.values[1].value == pytest.approx(longitude, abs=1e-10)
+        assert back.values[2].value == pytest.approx(915.0)
+
+    def test_a_projected_position_is_refused(self, tmp_path: Path) -> None:
+        """DynaML's UTM type needs a zone and hemisphere GeoComp cannot derive,
+        and every other type would put the easting somewhere it is not. A UTM
+        22S station written as XYZ sits 845 km above the Earth's surface, and
+        DynAdjust accepts it without complaint."""
+        network = self._station(CoordinateSystem.PROJECTED, (671000.0, 7185000.0, 915.0))
+        with pytest.raises(ValidationError) as excinfo:
+            self._write(network, tmp_path)
+        assert excinfo.value.code == "validation.dynadjust_cannot_write_projected_coordinates"
+        assert excinfo.value.context["station"] == "A"
+        assert excinfo.value.context["received"] == "projected"
+
+    def test_a_station_with_no_position_still_writes(self, tmp_path: Path) -> None:
+        """DynAdjust computes approximates for stations that lack them, so
+        refusing here would reject networks it can adjust perfectly well."""
+        network = Network(id="n", crs="GDA2020")
+        network.stations["A"] = Station(id="A")
+        text = self._write(network, tmp_path)
+        assert "<Type>XYZ</Type>" in text
+        assert "<XAxis>0.0000</XAxis>" in text
