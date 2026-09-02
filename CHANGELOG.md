@@ -132,6 +132,25 @@ checking one file against another rather than against itself:
   reads back), and a **refusal** for projected, because DynaML's `UTM` needs a
   zone and hemisphere GeoComp cannot derive.
 
+- **`HORIZONTAL_DISTANCE` had no row in the spec's measurement-type table at
+  all** — not mapped, not listed as unmappable, simply absent from a table that
+  called itself "the module's contract" and claimed every row confirmed. So the
+  writer skipped it, and RD-03's trilateration lost **ten of its eleven
+  observations** on the way to DynAdjust. It is genuinely unmappable — a
+  horizontal distance is a distance in a plane, and DynAdjust's are ellipsoidal,
+  sea-level or slope; converting needs the point scale factor and a height
+  reduction, the same missing geodetic reductions as the projected-coordinate
+  gap. Now documented with that reasoning, and
+  `tests/structural/test_dynadjust_type_table.py` makes the table and the
+  registry agree so neither can drift again.
+- **A network DynAdjust cannot represent whole is now refused**, rather than
+  adjusted in part. The remainder produces a variance factor and residuals that
+  look healthy for a network the user does not have, with nothing in the result
+  saying what was left out. `DynAdjustJob.allow_partial` accepts it explicitly.
+  The writer still reports rather than refuses — exporting part of a network is
+  a legitimate request — so the refusal sits at the layer whose promise is
+  "adjust this network".
+
 #### Phase P6 is not complete
 
 Three of its seven exit criteria are outstanding, and

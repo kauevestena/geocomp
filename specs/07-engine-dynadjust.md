@@ -210,6 +210,7 @@ The mapping below is the module's contract, and every row is now **[V]**.
 | `ORTHOMETRIC_HEIGHT` | H | **[V]** |
 | `ASTRONOMIC_LATITUDE` | I | **[V]** |
 | `ASTRONOMIC_LONGITUDE` | J | **[V]** |
+| `HORIZONTAL_DISTANCE` | **none** | **[V]** — see below |
 | `GRAVITY`, `GRAVITY_DIFFERENCE` | **none** | **[V]** — see §1.1 |
 
 **Two distinctions the original table blurred**, both of which would have been silent errors. `AZIMUTH` and
@@ -218,6 +219,18 @@ against a deflection of the vertical it never had. And `ZENITH_ANGLE` and `VERTI
 separate (V and Z), differing by 90°: writing one as the other is a 90° error that produces a plausible
 adjustment of the wrong network. GeoComp's own model already distinguishes both pairs, so the mapping is
 one-to-one; the risk was only in this table having collapsed each pair into a single row.
+
+**`HORIZONTAL_DISTANCE` has no DynAdjust counterpart**, and this row was missing from the table until a
+trilateration network was pushed through the writer and ten of its eleven observations were skipped. It is
+not an oversight in DynAdjust: a horizontal distance is a distance *in a plane* — a grid distance, or a
+distance reduced to a local horizontal — and DynAdjust's distances are ellipsoidal (`C`, `E`), sea-level
+(`M`) or slope (`S`). Converting one to another needs the point scale factor and a height reduction, which is
+the **same missing capability** as §4.4's projected coordinates: GeoComp has no geodetic reductions. Writing a
+grid distance as an ellipsoid arc would be a scale error of the order of 1 in 10⁴ — 10 cm on a kilometre,
+which passes every plausibility check a surveyor would apply and fails the adjustment quietly.
+
+The consequence is that **a plane trilateration or traverse network cannot presently be adjusted by
+DynAdjust**, and §4.3 rule 6 says what happens instead of a partial answer.
 
 **`M` (MSL arc distance) has no GeoComp counterpart** and none is invented. A distance reduced to mean sea
 level is a distance reduced to a surface GeoComp does not model, and inventing an equivalence to
@@ -266,6 +279,16 @@ GeoComp parses:
 | Global statistics: σ̂₀², degrees of freedom, chi-square test result | `statistics` |
 | Iteration and convergence information | `statistics` |
 | Block structure, when phased | `statistics` / provenance |
+
+6. **A network DynAdjust cannot represent whole is refused, not adjusted in part** [V]. Three GeoComp
+   observation types have no DynAdjust type (§4.2), and one of them — `HORIZONTAL_DISTANCE` — is the
+   *dominant* type in a plane trilateration or traverse: pushed through the writer, RD-03's trilateration
+   loses ten of its eleven observations. Adjusting the remainder produces a variance factor and residuals
+   that look entirely healthy for a network the user does not have, and nothing in the result says which
+   observations were not in it. The pipeline therefore refuses unless `allow_partial` is set, which is a
+   statement that a partial network is what was wanted. The writer itself still *reports* rather than
+   refuses, because exporting part of a network is a legitimate thing to ask it for; the refusal belongs at
+   the layer whose promise is "adjust this network".
 
 ### 4.4 The station coordinate type follows the position [V]
 

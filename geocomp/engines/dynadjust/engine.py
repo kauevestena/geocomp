@@ -157,6 +157,17 @@ class DynAdjustJob:
     maximum_iterations: int = 10
     phased: bool | None = None
     segmentation_threshold: int = SEGMENTATION_THRESHOLD
+    #: Adjust anyway when some observations have no DynAdjust equivalent.
+    #:
+    #: Off by default, and that is the whole point. Three GeoComp observation
+    #: types have no DynAdjust type (specs/07 §4.2): the two gravity ones, and
+    #: ``HORIZONTAL_DISTANCE`` -- which is the *dominant* type in a plane
+    #: trilateration or traverse. Adjusting what is left gives an answer to a
+    #: different network, with a variance factor and residuals that look
+    #: entirely healthy, and nothing in the result says which observations were
+    #: not in it. Turning this on is a statement that a partial network is what
+    #: was wanted; the skipped observations are still reported either way.
+    allow_partial: bool = False
 
     def __post_init__(self) -> None:
         if not self.network.stations:
@@ -502,6 +513,22 @@ class DynAdjustEngine:
         document = write_measurement_file(
             job.network, measurement_file, frame=job.frame, epoch=epoch, names=names
         )
+        skipped = tuple(document.skipped)
+        if skipped and not job.allow_partial:
+            kinds = sorted({reason for _, reason in skipped})
+            raise ValidationError(
+                "dynadjust_network_would_be_partial",
+                network=job.network.id,
+                skipped=len(skipped),
+                of=len(job.network.observations),
+                reasons=kinds[:5],
+                expected="a network every observation of which DynAdjust can represent",
+                hint=(
+                    "adjusting the remainder answers a different question, with a "
+                    "variance factor that looks healthy and nothing in the result "
+                    "saying what was left out; set allow_partial to accept that"
+                ),
+            )
         return PreparedJob(
             job=job,
             work_dir=work_dir,
@@ -509,7 +536,7 @@ class DynAdjustEngine:
             measurement_file=measurement_file,
             stages=stages,
             names=names,
-            skipped=tuple(document.skipped),
+            skipped=skipped,
         )
 
     def run(

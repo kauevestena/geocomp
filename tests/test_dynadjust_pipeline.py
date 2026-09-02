@@ -17,6 +17,7 @@ is marked ``engines`` and skipped without one.
 
 from __future__ import annotations
 
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -345,3 +346,70 @@ class TestAgainstARealEngine:
         with pytest.raises(ComputationError) as excinfo:
             engine.run(prepared)
         assert excinfo.value.context["diagnostic"]
+
+
+class TestAPartialNetwork:
+    """Three GeoComp observation types have no DynAdjust type, and one of them
+    -- ``HORIZONTAL_DISTANCE`` -- is the dominant type in a plane trilateration
+    or traverse. Adjusting what is left answers a different question.
+    """
+
+    @staticmethod
+    def _mixed() -> object:
+        from geocomp.core.models import Network, Observation, ObservationType
+
+        network = Network(id="mixed", crs="GDA2020", epoch=EPOCH_2020)
+        for name, lat, lon in (("A", -25.45, -49.23), ("B", -25.46, -49.22)):
+            network.stations[name] = Station(
+                id=name,
+                approx_position=Position(
+                    values=(
+                        Quantity.exact(math.radians(lat), Unit.RADIAN),
+                        Quantity.exact(math.radians(lon), Unit.RADIAN),
+                        Quantity.exact(915.0, Unit.METRE),
+                    ),
+                    system=CoordinateSystem.GEODETIC,
+                    crs="GDA2020",
+                    height_type=HeightType.ELLIPSOIDAL,
+                ),
+            )
+        network.observations["s1"] = Observation(
+            id="s1",
+            type=ObservationType.SLOPE_DISTANCE,
+            stations=("A", "B"),
+            values=(Quantity(1421.331, 0.005**2, Unit.METRE),),
+        )
+        network.observations["h1"] = Observation(
+            id="h1",
+            type=ObservationType.HORIZONTAL_DISTANCE,
+            stations=("A", "B"),
+            values=(Quantity(1421.000, 0.005**2, Unit.METRE),),
+        )
+        return network
+
+    def test_it_is_refused_by_default(self, tmp_path) -> None:
+        with pytest.raises(ValidationError) as excinfo:
+            DynAdjustEngine().prepare(DynAdjustJob(network=self._mixed()), tmp_path)
+        assert excinfo.value.code == "validation.dynadjust_network_would_be_partial"
+        assert excinfo.value.context["skipped"] == 1
+        assert excinfo.value.context["of"] == 2
+
+    def test_the_refusal_names_what_could_not_be_written(self, tmp_path) -> None:
+        with pytest.raises(ValidationError) as excinfo:
+            DynAdjustEngine().prepare(DynAdjustJob(network=self._mixed()), tmp_path)
+        assert "horizontal_distance" in " ".join(excinfo.value.context["reasons"])
+
+    def test_it_can_be_accepted_explicitly(self, tmp_path) -> None:
+        """Not a lint to silence: turning it on is a statement that a partial
+        network is what was wanted, and the skipped list still reports which."""
+        prepared = DynAdjustEngine().prepare(
+            DynAdjustJob(network=self._mixed(), allow_partial=True), tmp_path
+        )
+        assert len(prepared.skipped) == 1
+        assert prepared.measurement_file.is_file()
+
+    def test_a_network_that_maps_completely_is_untouched_by_this(
+        self, network, tmp_path
+    ) -> None:
+        prepared = DynAdjustEngine().prepare(DynAdjustJob(network=network), tmp_path)
+        assert prepared.skipped == ()
