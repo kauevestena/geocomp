@@ -52,9 +52,9 @@ permitting redistribution, and an expected-results file.
 | **RD-03** | Network adjustments with a known truth — 1D levelling, 2D trilateration, 2D triangulateration, free and constrained | [`06-adjustment-core.md`](./06-adjustment-core.md) | **Implemented** (P2), in `tests/networks.py`. Same citation note as RD-02 |
 | **RD-04** | Levelling field books generated from known heights, all three schemes, plus a loop with an injected blunder | [`10-module-levelling.md`](./10-module-levelling.md) | **Implemented** (P4), in `tests/reference_levelling.py`. Same citation note as RD-02 and RD-03 |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
-| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble |
-| **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble |
-| **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble |
+| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
 
@@ -91,7 +91,14 @@ matching a printed answer would not.
 
 What remains for both is *citation*: transcribing the published worked examples so the project can state
 agreement with the standard references by name, which matters for the commercial-comparison protocol (§5)
-and for the teaching material (FR-952). This needs the books, and is a task for a contributor who has them.
+and for the teaching material (FR-952).
+
+**A source for this has been found** and is described in
+[`22-reference-data-sources.md`](./22-reference-data-sources.md) §2: GNU Gama redistributes the 61 example
+networks of Krumm's *Geodetic Network Adjustment Examples* (Universität Stuttgart, 2020), **45 of them with
+the adjusted coordinates as published**, each citing the textbook it came from by edition and page — Ghilani
+and Niemeier among them. It no longer needs a contributor who owns the books, only a reader for one
+line-oriented text format.
 
 RD-04 goes one step further than either. Its field books are **generated from known heights by inverting
 the very equations under test**: a staff reading is `r = Z - H + c·d`, so a line that fails to recover the
