@@ -1,5 +1,12 @@
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
-# 22. Reference data sources
+# 22 — Reference data sources
+
+**Status:** Draft
+**Requirements covered:** FR-161, FR-952; the reference datasets RD-02…RD-08 of
+[`20-testing-and-validation.md`](./20-testing-and-validation.md) §3.
+**Source:** A search for reference data, prompted by three pieces of work stalling on the same shortage.
+
+---
 
 > **Verification note.** This document follows the convention of
 > [`07-engine-dynadjust.md`](./07-engine-dynadjust.md). **[V]** means verified directly — the files were
