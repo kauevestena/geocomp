@@ -9,6 +9,7 @@ it is enforced for the core by ``structural/test_no_qgis_in_core.py``.
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -77,4 +78,28 @@ def has_dynadjust() -> bool:
 
 requires_dynadjust = pytest.mark.skipif(
     not has_dynadjust(), reason="requires the DynAdjust programs on PATH (tier 4)"
+)
+
+
+def krumm_corpus() -> Path | None:
+    """Where the Krumm example networks are, if this machine has them.
+
+    ``specs/22-reference-data-sources.md`` section 2. The 61 ``.dat`` files and
+    their published answers are **not vendored**: they are GNU Gama's test data
+    (GPL-3-or-later) carrying Friedhelm Krumm's transcriptions of examples from
+    a dozen copyrighted textbooks, and GeoComp is not the right place to decide
+    that they may be redistributed under its own licence. Point
+    ``GEOCOMP_KRUMM_DIR`` at ``gnu-gama/tests/krumm/input`` and the corpus test
+    runs; leave it unset and it skips.
+    """
+    directory = os.environ.get("GEOCOMP_KRUMM_DIR")
+    if not directory:
+        return None
+    path = Path(directory)
+    return path if (path / "2D").is_dir() else None
+
+
+requires_krumm = pytest.mark.skipif(
+    krumm_corpus() is None,
+    reason="set GEOCOMP_KRUMM_DIR to gnu-gama/tests/krumm/input (tier 4)",
 )

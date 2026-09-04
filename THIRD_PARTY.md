@@ -58,6 +58,25 @@ the parser.
 This is the one place GeoComp redistributes anything of upstream's, and it is data rather than a binary.
 Apache-2.0 permits it; the attribution is here and in the test module that reads them.
 
+### Test data *not* redistributed — the Krumm examples
+
+`tests/test_krumm_corpus.py` reads the 61 example networks of
+
+> Friedhelm Krumm, *Geodetic Network Adjustment Examples*, Geodätisches Institut, Universität Stuttgart,
+> Rev. 3.5, 2020,
+
+as GNU Gama redistributes them in `tests/krumm/input/` ([GNU Gama](https://www.gnu.org/software/gama/),
+GPL-3.0-or-later). **They are not in this repository.** The test skips unless `GEOCOMP_KRUMM_DIR` points at a
+checkout.
+
+GeoComp is GPL-2.0-*or-later*, so combining with GPL-3.0 material is permitted and the combined portion is
+then GPL-3.0. That settles *use*. It does not settle *redistribution*: the numbers themselves are worked
+examples transcribed from a dozen copyrighted textbooks — Ghilani, Niemeier, Benning, Wolf, Leick, Strang and
+Borre among them — and GNU Gama's permission to carry them is not automatically GeoComp's. Vendoring them is
+a decision for the maintainers, recorded in
+[`specs/22-reference-data-sources.md`](specs/22-reference-data-sources.md) §2.3; until it is made, the corpus
+stays out of the tree and the tests reach it by path.
+
 ## Attribution
 
 Beyond licence obligation. GeoComp exists because DynAdjust and RTKLIB exist, and the research project
@@ -69,6 +88,9 @@ commits to feeding defects and improvements back upstream (FR-955):
 - **RTKLIB** — Takasu, T., *RTKLIB: An Open Source Program Package for GNSS Positioning*, and the
   RTKLIB-EX contributors.
 - **QGIS** — the QGIS Development Team, for the platform and its Processing framework.
+- **GNU Gama** — Aleš Čepek and contributors, for the adjustment package, for `krumm2gama-local` (the
+  reference implementation this project's Krumm reader was written against), and for assembling and
+  maintaining the example corpus. **Friedhelm Krumm**, Universität Stuttgart, for the examples themselves.
 
 ## Bundled assets
 

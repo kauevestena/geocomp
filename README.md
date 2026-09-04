@@ -79,6 +79,19 @@ dialogs, or the QML styles, and a change that passes them can still be broken ev
 it. Tests needing a QGIS newer than the one installed skip with the reason stated, rather than failing, so a
 red result is a real one.
 
+**Tier 4 needs data or binaries this repository does not carry**, and each part of it skips with its reason
+until you supply them:
+
+```sh
+# The published network adjustments of RD-11 -- 33 worked examples from Ghilani,
+# Niemeier, Benning, Wolf, Strang & Borre and others (specs/22 section 2).
+git clone https://github.com/Geo-Linux-Calculations/gnu-gama
+GEOCOMP_KRUMM_DIR=gnu-gama/tests/krumm/input python3 -m pytest -q tests/test_krumm_corpus.py
+
+# The DynAdjust suite, for the cross-validation.
+PATH="$PATH:/path/to/dynadjust/bin" python3 -m pytest -q -k dynadjust
+```
+
 ## What GeoComp does that the engines do not
 
 DynAdjust adjusts networks; `rnx2rtkp` processes GNSS. Neither performs the instrument-level pre-processing,

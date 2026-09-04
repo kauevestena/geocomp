@@ -14,7 +14,7 @@ document.
 | **T1 — Core unit** | Python + NumPy only | Every commit, seconds | The mathematics. No QGIS, no engines (NFR-002, NFR-011) |
 | **T2 — Reference** | T1 | Every commit | Reproduce published results (§3) |
 | **T3 — QGIS integration** | QGIS runtime | Every commit, containerised | Algorithms, layers, provider, menu, i18n |
-| **T4 — Engine integration** | Pinned engine binaries | Every commit where available; nightly in full | Real input generation, real runs, real parsing |
+| **T4 — Engine integration** | Pinned engine binaries, or a reference corpus on disk | Every commit where available; nightly in full | Real input generation, real runs, real parsing; and the published networks of RD-11 |
 | **T5 — Cross-validation** | T1 + T4 | Nightly and pre-release | In-house core vs DynAdjust (§4) |
 | **T6 — Commercial comparison** | Third-party licences | Per release, manual | The proposal's O9 protocol (§5) |
 
@@ -57,6 +57,7 @@ permitting redistribution, and an expected-results file.
 | **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
+| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T4), in `tests/test_krumm_corpus.py`. **33 reproduced to 0.05 mm.** Not vendored — see [`22`](./22-reference-data-sources.md) §2.3 |
 
 **RD-01 is special, and carries two known defects.** It is the author's own prototype data and it exercises
 the whole first vertical slice. It contains a real transcription blunder — a 1.000 m face-pair distance
@@ -73,7 +74,7 @@ angles sum to 38.24°, and implies a 2–3 distance of 4.43 m against 24.35 m me
 RD-01 ships with the plugin as a tutorial dataset (FR-952), with both defects documented — a tutorial in
 which the software catches two real errors in real data teaches more than one in which nothing is wrong.
 
-**RD-02, RD-03 and RD-04 note — validation complete, citation outstanding.** The cases implemented in
+**RD-02, RD-03 and RD-04 note — validation complete, citation now made by RD-11.** The cases implemented in
 `tests/test_reference_propagation.py`, `tests/networks.py` and `tests/reference_levelling.py` are *not*
 transcriptions from Ghilani or Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
 
@@ -93,12 +94,13 @@ What remains for both is *citation*: transcribing the published worked examples 
 agreement with the standard references by name, which matters for the commercial-comparison protocol (§5)
 and for the teaching material (FR-952).
 
-**A source for this has been found** and is described in
-[`22-reference-data-sources.md`](./22-reference-data-sources.md) §2: GNU Gama redistributes the 61 example
-networks of Krumm's *Geodetic Network Adjustment Examples* (Universität Stuttgart, 2020), **45 of them with
-the adjusted coordinates as published**, each citing the textbook it came from by edition and page — Ghilani
-and Niemeier among them. It no longer needs a contributor who owns the books, only a reader for one
-line-oriented text format.
+**The citation is now made — see RD-11.** GNU Gama redistributes the 61 example networks of Krumm's
+*Geodetic Network Adjustment Examples* (Universität Stuttgart, 2020), **45 of them with the adjusted
+coordinates as published**, each citing the textbook it came from by edition and page.
+`geocomp/io/krumm.py` reads them and **33 reproduce to 0.05 mm** — Ghilani, Niemeier, Benning, Wolf, Strang
+and Borre, Grossmann, Höpke, Lother and Strehle, Carosio, Weiss and Blankenbach among them. The full result
+and the reasons for every refusal are in
+[`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2.
 
 RD-04 goes one step further than either. Its field books are **generated from known heights by inverting
 the very equations under test**: a staff reading is `r = Z - H + c·d`, so a line that fails to recover the

@@ -281,6 +281,33 @@ def _slope_distance(observation, layout, x):
 
 def _zenith_angle(observation, layout, x):
     """Zenith angle from the local vertical: ``z = atan2(d_horizontal, du)``."""
+    zenith, terms = _vertical_geometry(observation, layout, x)
+    partials: dict[int, float] = {}
+    origin_id, target_id = observation.stations
+    _accumulate(partials, layout, origin_id, {k: -v for k, v in terms.items()})
+    _accumulate(partials, layout, target_id, terms)
+    return [EquationRow(zenith, partials)]
+
+
+def _vertical_angle(observation, layout, x):
+    """Vertical angle from the horizon: ``v = pi/2 - z``.
+
+    The same sight as a zenith angle, counted from the other end, so the value
+    is the complement and every partial derivative is negated. Kept as its own
+    type rather than converted on the way in because the *observation* is what
+    the instrument recorded, and a solution that reports a residual against a
+    zenith angle nobody measured is harder to check against a field book.
+    """
+    zenith, terms = _vertical_geometry(observation, layout, x)
+    partials: dict[int, float] = {}
+    origin_id, target_id = observation.stations
+    _accumulate(partials, layout, origin_id, terms)
+    _accumulate(partials, layout, target_id, {k: -v for k, v in terms.items()})
+    return [EquationRow(math.pi / 2.0 - zenith, partials)]
+
+
+def _vertical_geometry(observation, layout, x):
+    """The zenith angle of a sight and its partials at the *target*."""
     origin_id, target_id = observation.stations
     origin = _coordinates(origin_id, layout, x)
     target = _coordinates(target_id, layout, x)
@@ -295,17 +322,12 @@ def _zenith_angle(observation, layout, x):
             expected="a sight that is neither zero length nor exactly vertical",
         )
 
-    zenith = math.atan2(horizontal, du)
     # dz/d(du) = -h / s^2 ;  dz/d(de) = du * de / (s^2 * h)
-    terms = {
+    return math.atan2(horizontal, du), {
         "e": du * de / (squared * horizontal),
         "n": du * dn / (squared * horizontal),
         "u": -horizontal / squared,
     }
-    partials: dict[int, float] = {}
-    _accumulate(partials, layout, origin_id, {k: -v for k, v in terms.items()})
-    _accumulate(partials, layout, target_id, terms)
-    return [EquationRow(zenith, partials)]
 
 
 def _gnss_baseline(observation, layout, x):
@@ -356,6 +378,7 @@ _EQUATIONS = {
     ObservationType.HORIZONTAL_ANGLE: _horizontal_angle,
     ObservationType.SLOPE_DISTANCE: _slope_distance,
     ObservationType.ZENITH_ANGLE: _zenith_angle,
+    ObservationType.VERTICAL_ANGLE: _vertical_angle,
     ObservationType.GNSS_BASELINE: _gnss_baseline,
     ObservationType.GNSS_POINT: _gnss_point,
     ObservationType.GRAVITY: _gravity,

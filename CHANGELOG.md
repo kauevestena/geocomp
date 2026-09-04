@@ -5,6 +5,62 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Grounding - published network adjustments
+
+#### Added
+
+- **`io/krumm.py`** - a reader for the format of Friedhelm Krumm's *Geodetic
+  Network Adjustment Examples* (Universität Stuttgart, 2020), 61 worked networks
+  transcribed from a dozen textbooks and redistributed with GNU Gama, **45 of
+  them with the adjusted coordinates as published**
+  ([`specs/22`](specs/22-reference-data-sources.md) §2).
+
+  **33 of them now reproduce**, worst coordinate difference **0.05 mm** - which
+  is the rounding of a value printed to four decimals, not a residual
+  disagreement. Ghilani, Niemeier, Benning, Wolf, Strang and Borre, Grossmann,
+  Höpke, Lother and Strehle, Carosio, Weiss and Blankenbach, by name and page.
+  That is the citation RD-02, RD-03 and RD-04 have carried a standing note about
+  since P1: they were validated against the operations under test rather than
+  against a book, so "GeoComp agrees with itself" was all they established.
+
+  The remaining 18 files are **refused by name**, each for something GeoComp
+  cannot represent rather than something it reads badly - a weighted datum, an
+  ellipsoidal network, conditions between parameters, an azimuth to a point with
+  no coordinates. GNU Gama excludes most of the same files, for the same
+  reasons.
+- **`tests/test_krumm_corpus.py`** (RD-11, tier 4) - the corpus run, with the
+  expected outcome of every one of the 61 files recorded, so a change that turns
+  a reproduction into a refusal fails rather than quietly shrinking the
+  evidence. The data is **not vendored**: set `GEOCOMP_KRUMM_DIR` to run it.
+  Whether GeoComp may redistribute textbook transcriptions is the maintainers'
+  call ([`specs/22`](specs/22-reference-data-sources.md) §2.3).
+- **`VERTICAL_ANGLE` now has an observation equation.** It was in the type
+  registry, in the data model and in the DynAdjust type table, and the
+  adjustment core had no equation for it at all - a gap the corpus found.
+  ``v = pi/2 - z``, checked against complex-step differentiation and against the
+  zenith-angle equation on the same geometry, because a numerical Jacobian
+  cannot see a sign error in the value it is differentiating.
+
+#### Fixed
+
+Three defects the corpus found, each of which produced a plausible wrong answer
+rather than an error:
+
+- **A direction now carries its setup id**, not only its cluster id. The cluster
+  is what FR-104 holds the set's correlation on; the *setup* is what the
+  adjustment keys the orientation unknown on. Without it every direction is read
+  as an absolute azimuth and the network still solves - to coordinates wrong by
+  the unmodelled orientation, which reached **2 km** on one of Benning's
+  networks.
+- **A levelling standard deviation is per kilometre.** The line's own is
+  `sigma * sqrt(L/1000)`, so the length column decides the weight; reading the
+  stated value as the line's own weights a 1.2 km line and a 0.44 km line alike,
+  and put `Niemeier_Height_fix1` **1.9 mm** out.
+- **The station names after `free` are the datum stations**, not decoration.
+  `LotherStrehle_Direction4` is `LotherStrehle_Direction3` with one station left
+  out of the inner constraint, and the two published answers differ by
+  **3.6 mm**.
+
 ### Phase P6 - DynAdjust
 
 #### Added

@@ -220,7 +220,7 @@ types without a geoid model raises `ValidationError`.
 | `ASTRONOMIC_AZIMUTH` | 2 | angle | |
 | `ZENITH_ANGLE` | 2 | angle | |
 | `VERTICAL_ANGLE` | 2 | angle | 90° − zenith |
-| `SLOPE_DISTANCE` | 2 | length | Includes instrument and target heights |
+| `SLOPE_DISTANCE` | 2 | length | **Mark to mark.** Instrument and target heights are reduced away in [`09`](./09-module-total-station.md) §2.5, not carried on the observation, so the adjustment's equation is between the two marks |
 | `HORIZONTAL_DISTANCE` | 2 | length | Reduced |
 | `ELLIPSOID_DISTANCE` | 2 | length | Reduced to the ellipsoid |
 | `HEIGHT_DIFFERENCE` | 2 | length | Levelling; carries line length and setup count |

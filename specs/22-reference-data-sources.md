@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 # 22 — Reference data sources
 
-**Status:** Draft
+**Status:** Draft. §2 is implemented (RD-11); §§3-5 remain leads.
 **Requirements covered:** FR-161, FR-952; the reference datasets RD-02…RD-08 of
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §3.
 **Source:** A search for reference data, prompted by three pieces of work stalling on the same shortage.
@@ -85,17 +85,58 @@ The Ghilani files are named by chapter and example — `Ghilani12_6_Height_fix`,
 `Ghilani15_4_Angle_fix`, `Ghilani15_5_Angle_fix` — and cite pages. `Ghilani14_5` is a fixed trilateration
 network, which is the same *kind* of network as RD-03's, from the book RD-03's note names.
 
-### 2.2 What this would take, and what it is worth
+### 2.2 The reader, and what it reproduces **[V]**
 
-A reader for the Krumm `.dat` format is a modest piece of work: it is line-oriented with `[Section]`
-headers, documented in the README beside the data, and GNU Gama's own `krumm2gama-local` is a working
-reference implementation to check against. Against that cost:
+`geocomp/io/krumm.py` reads the format; `tests/test_krumm_corpus.py` runs every one of the 61 files.
+**33 networks reproduce their published coordinates**, the largest disagreement over all of them being
+**0.05 mm** — which is the rounding of a value printed to four decimals, not a residual difference.
+
+| | files | reproduced | refused, by name | read, no comparable answer |
+|---|---|---|---|---|
+| 1D | 14 | 5 | 3 | 6 |
+| 2D | 39 | 24 | 11 | 4 |
+| 3D | 8 | 4 | 4 | 0 |
+| **total** | **61** | **33** | **18** | **10** |
+
+Of the 45 files carrying a published answer: 33 are reproduced, 10 belong to files GeoComp refuses, and 2
+cannot be compared — `Hoepke_Distance_fix.adj` is gama-local XML rather than the printed table, and
+`Ghilani21_1_DistanceAngle_fix.adj` has its station names truncated in the corpus (`102`, `103`, `201`,
+`202`, `203` printed as `10`, `01`, `20`, `02`, `03`).
+
+Every refusal is stated by error code, and every one is a thing GeoComp cannot yet represent rather than a
+thing it reads badly: a **dynamic (weighted) datum** (5 files), an **azimuth to a point with no
+coordinates** combined with an angle turned from it (3 — GNU Gama excludes the same three, for the same
+reason), an **ellipsoidal network** (4), **conditions between parameters** (2), a **GNSS baseline** with a
+covariance this format states differently (2), **correlated distances** (1), **position angles** (1 — GNU
+Gama's converter leaves them out too), and a **slope distance measured instrument-to-reflector** (1), whose
+two setup heights belong in the observation equation and have nowhere to live in
+`Observation`.
+
+Four defects were found by running the corpus, each of which produced a plausible wrong answer rather than
+an error:
+
+1. **A direction with no setup id** is read as an absolute azimuth. Three direction networks were out by up
+   to 2 km before the reader started setting `Observation.setup_id`.
+2. **A levelling sigma is per kilometre.** Reading the stated value as the line's own standard deviation
+   weights a 1.2 km line and a 0.44 km line alike; `Niemeier_Height_fix1` was out by 1.9 mm.
+3. **The names after `free` are the datum stations.** `LotherStrehle_Direction4` is `Direction3` with one
+   station left out of the inner constraint, and the published answers differ by 3.6 mm.
+4. **`VERTICAL_ANGLE` had no observation equation** in the adjustment core at all — an unrelated gap the
+   corpus surfaced, now closed and covered by `specs/06` §7 criterion 1.
+
+What this buys:
 
 * RD-03's citation gap closes **by name and page**, for the book the note names.
-* The cross-validation gets its second and third networks — and many more — without needing the geodetic
+* The cross-validation gets its second and third networks — and thirty more — without needing the geodetic
   reductions GeoComp lacks.
-* A plane trilateration and a levelling network finally get adjusted by something other than GeoComp.
+* A plane trilateration and a levelling network are finally adjusted by something other than GeoComp.
 * GNU Gama becomes a **third** independent implementation, in the frame the core natively uses.
+
+### 2.3 Why the data is not vendored
+
+The corpus is **not** committed to this repository. `tests/test_krumm_corpus.py` skips unless
+`GEOCOMP_KRUMM_DIR` points at a checkout of `gnu-gama/tests/krumm/input`, on the tier-4 pattern already used
+for DynAdjust ([`20`](./20-testing-and-validation.md) §1).
 
 **Licensing.** The files are distributed inside GNU Gama under GPL-3.0. GeoComp is GPL-2.0-*or-later*, so it
 may be combined with GPL-3.0 material; the combined portion is then effectively GPL-3.0, which is worth
@@ -103,6 +144,12 @@ stating explicitly rather than discovering at release. Attribution to Krumm and 
 `THIRD_PARTY.md`, on the same terms as the DynAdjust sample data already there. The underlying numbers are
 worked examples from textbooks; GNU Gama redistributes them with attribution and a documented changelog of
 its edits, which is the model to follow.
+
+That reasoning is sound for *combining* with GNU Gama. Redistributing the example data inside GeoComp is a
+second question, and a heavier one: the numbers are worked examples transcribed from a dozen copyrighted
+textbooks, and GNU Gama's own permission to carry them is not automatically GeoComp's. **This is the
+maintainers' call, not one a reader can make**, so nothing is vendored until it is made. The tests are
+written so that the decision changes one environment variable and nothing else.
 
 ## 3. JAG3D, and how adjustment software gets certified **[C]**
 
@@ -170,8 +217,7 @@ Synthetic data with injected motion (already RD-08's second half) remains the on
 
 ## 6. Recommended order
 
-1. **The Krumm/GNU Gama examples.** Verified, licence-compatible, 45 published answers, and it unblocks both
-   the citation gap and the cross-validation count. Nothing else here has that ratio.
+1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 33 networks reproduced to 0.05 mm.
 2. **Fetch Krumm's document** and settle FR-161 one way or the other, since it is one download.
 3. **RD-06 from RBMC**, when P7 needs it.
 4. **Borrow the round-robin practice** for §5 rather than inventing a comparison protocol.

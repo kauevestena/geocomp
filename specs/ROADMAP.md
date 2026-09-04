@@ -324,6 +324,15 @@ an immutable commit instead — which is pinnable and verifiable, and is what th
 checked against. The install path itself is implemented and tested against synthetic archives; what is
 missing is a real release to point it at.
 
+**Independent validation, from a different direction.** The cross-validation criterion is specifically
+*against DynAdjust*, and one network is what it got. The in-house core is nonetheless no longer checked only
+against itself: `io/krumm.py` and `tests/test_krumm_corpus.py` (RD-11) reproduce **33 published network
+adjustments** — 1D, 2D and 3D, free and constrained — to 0.05 mm, from Ghilani, Niemeier, Benning, Wolf,
+Strang and Borre and others by name and page
+([`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2). That closes the citation gap
+RD-02, RD-03 and RD-04 have carried since P1, and it reaches the plane and levelling networks DynAdjust
+cannot take from GeoComp at all. It does **not** satisfy this criterion, which is about the engine.
+
 **FR-161 moves again**, to the phase that can obtain an *Adjust*-format example file with its published
 answer. P6 could not, for the reason P5 recorded: neither a specification of the format nor an example file
 is publicly available, and

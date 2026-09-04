@@ -20,6 +20,7 @@ from geocomp.io.fieldbook import (
     read_field_book,
     read_field_book_csv,
 )
+from geocomp.io.krumm import KrummReport, read_krumm
 from geocomp.io.levelbook import (
     Layout,
     LevelBookRecord,
@@ -41,6 +42,7 @@ __all__ = [
     "FieldBookRecord",
     "FieldMapping",
     "ImportResult",
+    "KrummReport",
     "Layout",
     "LevelBookRecord",
     "LevelImportResult",
@@ -48,6 +50,7 @@ __all__ = [
     "infer_mapping",
     "read_field_book",
     "read_field_book_csv",
+    "read_krumm",
     "read_level_book",
     "read_level_book_csv",
 ]

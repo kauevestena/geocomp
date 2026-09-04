@@ -127,6 +127,8 @@ JACOBIAN_CASES = [
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {}),
     (ObservationType.ZENITH_ANGLE, ("1", "2"), (1.53,), (RADIAN,),
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {}),
+    (ObservationType.VERTICAL_ANGLE, ("1", "2"), (0.04,), (RADIAN,),
+     Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {}),
     (ObservationType.GNSS_BASELINE, ("1", "2"), (11.5, 0.3, 6.4), (METRE, METRE, METRE),
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {"cluster_id": "c"}),
     (ObservationType.GNSS_POINT, ("1",), (1.0, 2.0, 3.0), (METRE, METRE, METRE),
@@ -213,6 +215,37 @@ class TestJacobians:
         row = evaluate(observation, layout, x)[0]
         assert row.partials[layout.column("setup1", "orientation")] == pytest.approx(-1.0)
         assert row.computed == pytest.approx(math.atan2(11.5, 7.3) - 0.35)
+
+    def test_a_vertical_angle_is_the_complement_of_the_zenith_angle(self):
+        """The numerical check above cannot see a sign error in the value.
+
+        It differentiates the same function it is checking, so a vertical angle
+        computed as ``z`` rather than ``pi/2 - z`` would pass it and put every
+        sight on the wrong side of the horizon. This compares the two equations
+        against each other on one geometry, which does see it.
+        """
+        network = Network(id="v")
+        for station_id in ("1", "2"):
+            network.add_station(Station(id=station_id))
+        layout = ParameterLayout.build(network, Frame.SPACE_3D)
+        x = np.array([0.0, 0.0, 0.0, 11.5, 0.3, 6.4])
+
+        def computed(observation_type):
+            observation = Observation(
+                id="o",
+                type=observation_type,
+                stations=("1", "2"),
+                values=(Quantity.from_std_dev(1.0, 1e-5, RADIAN),),
+            )
+            return evaluate(observation, layout, x)[0]
+
+        zenith = computed(ObservationType.ZENITH_ANGLE)
+        vertical = computed(ObservationType.VERTICAL_ANGLE)
+        assert vertical.computed == pytest.approx(math.pi / 2.0 - zenith.computed)
+        # The sight rises, so the vertical angle is above the horizon.
+        assert vertical.computed > 0.0
+        for column, partial in zenith.partials.items():
+            assert vertical.partials[column] == pytest.approx(-partial)
 
 
 class TestDatumDefect:
