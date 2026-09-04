@@ -63,6 +63,16 @@ rather than an error:
 
 ### Phase P6 - DynAdjust
 
+#### Fixed
+
+- **The `engine` workflow had been failing since its second run**, and I had
+  reported it green. The cache holds DynAdjust's binaries; the `apt-get install`
+  that provides the shared libraries they link against sat *inside* the
+  cache-guarded build step, so a cache hit skipped it and `dnaadjust` died with
+  `libboost_program_options.so.1.83.0: cannot open shared object file` before a
+  single fixture was compared. The job whose whole purpose is to catch fixture
+  drift had silently stopped catching it. The install is now unconditional.
+
 #### Added
 
 - **`engines/dynadjust/read_output.py`** - the output parsers (FR-322, FR-323).

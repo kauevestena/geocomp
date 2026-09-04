@@ -66,11 +66,21 @@ jobs:
           path: dynadjust-bin
           key: dynadjust-${{ runner.os }}-${{ env.DYNADJUST_COMMIT }}
 
-      - name: Build DynAdjust from the pinned commit
-        if: steps.engine-cache.outputs.cache-hit != 'true'
+      # Unconditional, and that is the point: the cache holds the binaries, not
+      # the shared libraries they link against. Installing these inside the
+      # build step meant a cache hit skipped them, and `dnaadjust` died with
+      # `libboost_program_options.so.1.83.0: cannot open shared object file`
+      # before a single fixture was compared -- so every run after the first
+      # one failed, and the guard against fixture drift silently stopped
+      # guarding. Roughly twenty seconds; the cache is there for the compile.
+      - name: Install the engine's runtime libraries
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends $DYNADJUST_PKGS
+
+      - name: Build DynAdjust from the pinned commit
+        if: steps.engine-cache.outputs.cache-hit != 'true'
+        run: |
           git clone --filter=blob:none https://github.com/GeoscienceAustralia/dynadjust.git upstream
           git -C upstream checkout --detach "$DYNADJUST_COMMIT"
           # Upstream's own recipe, from its build_and_test workflow.
