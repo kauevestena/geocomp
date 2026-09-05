@@ -28,12 +28,29 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   ellipsoidal network, conditions between parameters, an azimuth to a point with
   no coordinates. GNU Gama excludes most of the same files, for the same
   reasons.
-- **`tests/test_krumm_corpus.py`** (RD-11, tier 4) - the corpus run, with the
-  expected outcome of every one of the 61 files recorded, so a change that turns
-  a reproduction into a refusal fails rather than quietly shrinking the
-  evidence. The data is **not vendored**: set `GEOCOMP_KRUMM_DIR` to run it.
-  Whether GeoComp may redistribute textbook transcriptions is the maintainers'
-  call ([`specs/22`](specs/22-reference-data-sources.md) §2.3).
+- **`tests/data/krumm/`** (RD-11) - all 107 files, copied verbatim from GNU
+  Gama at commit `963c309`. Vendoring was the maintainers' call and they made
+  it, so the reference tests are now **tier 2**: they run on every commit, on
+  every platform, with no network and nothing to opt into.
+  `GEOCOMP_KRUMM_DIR` still overrides the path for checking the reader against a
+  different revision.
+
+  GNU Gama is GPL-3.0-or-later and GeoComp is GPL-2.0-**or-later**, so the
+  combined portion is effectively GPL-3.0; that directory carries a
+  GPL-3.0-or-later SPDX header rather than the repository's usual one.
+  `PROVENANCE.md` records the chain, Gama's own `README.md` sits beside it
+  unedited, and `THIRD_PARTY.md` carries the attribution.
+
+  Two claims hold the position up, and neither is left as a promise:
+  `scripts/check_krumm_corpus.py` compares every file against a fresh clone of
+  the pinned commit (the `reference` workflow runs it on any change and
+  monthly), and `TestTheCorpusIsTestDataOnly` asserts that no corpus file
+  reaches the plugin package and no plugin module reads the directory. The ZIP
+  is what users actually install, and it is unchanged: 164 entries, byte for
+  byte.
+- **`tests/test_krumm_corpus.py`** - the corpus run, with the expected outcome
+  of every one of the 61 files recorded, so a change that turns a reproduction
+  into a refusal fails rather than quietly shrinking the evidence.
 - **`VERTICAL_ANGLE` now has an observation equation.** It was in the type
   registry, in the data model and in the DynAdjust type table, and the
   adjustment core had no equation for it at all - a gap the corpus found.

@@ -12,9 +12,9 @@ document.
 | Tier | Needs | Runs | Purpose |
 |---|---|---|---|
 | **T1 — Core unit** | Python + NumPy only | Every commit, seconds | The mathematics. No QGIS, no engines (NFR-002, NFR-011) |
-| **T2 — Reference** | T1 | Every commit | Reproduce published results (§3) |
+| **T2 — Reference** | T1 | Every commit | Reproduce published results (§3), RD-11 among them |
 | **T3 — QGIS integration** | QGIS runtime | Every commit, containerised | Algorithms, layers, provider, menu, i18n |
-| **T4 — Engine integration** | Pinned engine binaries, or a reference corpus on disk | Every commit where available; nightly in full | Real input generation, real runs, real parsing; and the published networks of RD-11 |
+| **T4 — Engine integration** | Pinned engine binaries | Every commit where available; nightly in full | Real input generation, real runs, real parsing |
 | **T5 — Cross-validation** | T1 + T4 | Nightly and pre-release | In-house core vs DynAdjust (§4) |
 | **T6 — Commercial comparison** | Third-party licences | Per release, manual | The proposal's O9 protocol (§5) |
 
@@ -57,7 +57,7 @@ permitting redistribution, and an expected-results file.
 | **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
-| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T4), in `tests/test_krumm_corpus.py`. **33 reproduced to 0.05 mm.** Not vendored — see [`22`](./22-reference-data-sources.md) §2.3 |
+| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T2), in `tests/data/krumm/` and `tests/test_krumm_corpus.py`. **33 reproduced to 0.05 mm.** Vendored from GNU Gama at a pinned commit, on the terms in [`22`](./22-reference-data-sources.md) §2.3 |
 
 **RD-01 is special, and carries two known defects.** It is the author's own prototype data and it exercises
 the whole first vertical slice. It contains a real transcription blunder — a 1.000 m face-pair distance

@@ -132,24 +132,34 @@ What this buys:
 * A plane trilateration and a levelling network are finally adjusted by something other than GeoComp.
 * GNU Gama becomes a **third** independent implementation, in the frame the core natively uses.
 
-### 2.3 Why the data is not vendored
+### 2.3 The corpus is vendored, and on what terms
 
-The corpus is **not** committed to this repository. `tests/test_krumm_corpus.py` skips unless
-`GEOCOMP_KRUMM_DIR` points at a checkout of `gnu-gama/tests/krumm/input`, on the tier-4 pattern already used
-for DynAdjust ([`20`](./20-testing-and-validation.md) §1).
+`tests/data/krumm/` holds all 107 files, copied verbatim from GNU Gama at commit
+`963c3099054594922716786f92119732f12d714e`. The reference tests are therefore part of the ordinary suite —
+they run on every commit, on every platform, with no network and nothing to opt into. `GEOCOMP_KRUMM_DIR`
+still overrides the path, which is what you want when checking the reader against a different revision of
+the corpus.
 
 **Licensing.** The files are distributed inside GNU Gama under GPL-3.0. GeoComp is GPL-2.0-*or-later*, so it
 may be combined with GPL-3.0 material; the combined portion is then effectively GPL-3.0, which is worth
-stating explicitly rather than discovering at release. Attribution to Krumm and to GNU Gama belongs in
+stating explicitly rather than discovering at release. Attribution to Krumm and to GNU Gama is in
 `THIRD_PARTY.md`, on the same terms as the DynAdjust sample data already there. The underlying numbers are
 worked examples from textbooks; GNU Gama redistributes them with attribution and a documented changelog of
-its edits, which is the model to follow.
+its edits, which is the model followed here.
 
-That reasoning is sound for *combining* with GNU Gama. Redistributing the example data inside GeoComp is a
-second question, and a heavier one: the numbers are worked examples transcribed from a dozen copyrighted
-textbooks, and GNU Gama's own permission to carry them is not automatically GeoComp's. **This is the
-maintainers' call, not one a reader can make**, so nothing is vendored until it is made. The tests are
-written so that the decision changes one environment variable and nothing else.
+Three things hold that position up, and each is checked rather than promised:
+
+* **The copy is verbatim.** `scripts/check_krumm_corpus.py` compares every file against a fresh clone of the
+  pinned commit; the `reference` workflow runs it on any change to the directory and monthly. An attribution
+  to a source you have quietly edited is not an attribution.
+* **It is test data.** It lives under `tests/`, and `scripts/build.py` packages `geocomp/` alone, so nothing
+  here reaches an installed plugin. `tests/test_krumm_corpus.py::TestTheCorpusIsTestDataOnly` asserts both
+  halves — no corpus file in the package, no plugin module reading the directory. The ZIP is the artefact
+  users actually receive, and putting this data in it would be a different question from the one settled
+  here.
+* **The chain is written down.** `tests/data/krumm/PROVENANCE.md` names the upstream, the commit, the
+  document, and the textbooks behind it; GNU Gama's own `README.md` sits beside it unchanged, including its
+  changelog of the edits Gama made to Krumm's originals.
 
 ## 3. JAG3D, and how adjustment software gets certified **[C]**
 

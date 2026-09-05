@@ -9,15 +9,21 @@ Baumann and Hoepke by way of Friedhelm Krumm's *Geodetic Network Adjustment
 Examples*, and every one of them was **published with its adjusted
 coordinates**. Reproducing those is a statement about the books.
 
-The corpus is not vendored -- see ``conftest.krumm_corpus`` for why -- so this
-whole module skips unless ``GEOCOMP_KRUMM_DIR`` points at a checkout of
-``gnu-gama/tests/krumm/input``. The tables below are the expected outcome for
-every one of the 61 files, so a change that turns a reproduction into a refusal
-fails here rather than quietly shrinking the evidence.
+The corpus lives in ``tests/data/krumm/``: GNU Gama's files at a pinned commit,
+copied unchanged, with the licence chain in ``PROVENANCE.md`` beside them and
+``scripts/check_krumm_corpus.py`` to prove the copy is verbatim. It is
+**development data, not plugin content** -- see
+:meth:`TestTheCorpusIsTestDataOnly.test_the_plugin_package_carries_none_of_it`,
+which asserts that rather than trusting it.
+
+The tables below are the expected outcome for every one of the 61 files, so a
+change that turns a reproduction into a refusal fails here rather than quietly
+shrinking the evidence.
 """
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 
 import pytest
@@ -28,7 +34,7 @@ from geocomp.core.errors import GeoCompError
 from geocomp.core.models import DatumDefinition
 from geocomp.io.krumm import read_krumm
 
-from .conftest import krumm_corpus, requires_krumm
+from .conftest import REPO_ROOT, krumm_corpus, requires_krumm
 
 pytestmark = requires_krumm
 
@@ -227,3 +233,65 @@ def test_the_corpus_is_complete():
     assert len(corpus_files()) == 61
     assert len(REPRODUCED) == 33
     assert not set(REPRODUCED) & set(REFUSED)
+
+
+class TestTheCorpusIsTestDataOnly:
+    """The terms these files are here on, asserted rather than intended.
+
+    ``tests/data/krumm/PROVENANCE.md`` states two things: that the directory is
+    GNU Gama's files unchanged, and that they are development data which never
+    reaches an installed plugin. Both are load-bearing -- the first is what
+    makes the attribution true, the second is what keeps the question away from
+    the artefact that is actually distributed to users -- so neither is left as
+    a promise in a document.
+    """
+
+    def test_the_plugin_package_carries_none_of_it(self):
+        """``collect_files`` decides the archive's contents. Ask it directly."""
+        specification = importlib.util.spec_from_file_location(
+            "geocomp_build", REPO_ROOT / "scripts" / "build.py"
+        )
+        build = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(build)
+
+        shipped = build.collect_files()
+        assert shipped, "the build would produce an empty archive"
+
+        corpus = (REPO_ROOT / "tests" / "data" / "krumm").resolve()
+        offending = [
+            path.relative_to(REPO_ROOT).as_posix()
+            for path in shipped
+            if corpus in path.resolve().parents
+        ]
+        assert not offending, (
+            "the Krumm corpus reached the plugin package. It is redistributed here "
+            "as test data under GNU Gama's GPL-3; putting it in the artefact users "
+            "install is a different question, and one PROVENANCE.md does not answer."
+        )
+
+    def test_no_runtime_module_reads_the_corpus(self):
+        """Only the tests may name that directory."""
+        readers = [
+            path.relative_to(REPO_ROOT).as_posix()
+            for path in (REPO_ROOT / "geocomp").rglob("*.py")
+            if "data/krumm" in path.read_text(encoding="utf-8")
+        ]
+        assert not readers, f"plugin code reaching into the test corpus: {readers}"
+
+    def test_the_vendored_copy_is_verbatim(self):
+        """The provenance claim, checked against the digests it rests on.
+
+        Offline: this compares the files against nothing, because upstream is not
+        here. What it *can* do without a network is fail if somebody edits a
+        vendored file and forgets that `scripts/check_krumm_corpus.py` exists --
+        so it asserts the shape the checker depends on, and CI runs the checker
+        itself against a real clone.
+        """
+        root = krumm_corpus()
+        assert root is not None
+        assert (root / "README.md").read_text(encoding="utf-8").startswith(
+            "# Geodetic Network Adjustment Examples"
+        ), "GNU Gama's own README must stay verbatim; GeoComp's notes go in PROVENANCE.md"
+        assert (root / "PROVENANCE.md").is_file()
+        assert len(list(root.rglob("*.dat"))) == 61
+        assert len(list(root.rglob("*.adj"))) == 45

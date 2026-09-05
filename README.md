@@ -79,18 +79,19 @@ dialogs, or the QML styles, and a change that passes them can still be broken ev
 it. Tests needing a QGIS newer than the one installed skip with the reason stated, rather than failing, so a
 red result is a real one.
 
-**Tier 4 needs data or binaries this repository does not carry**, and each part of it skips with its reason
-until you supply them:
+**Tier 4 needs engine binaries this repository does not carry**, and skips with its reason until you supply
+them:
 
 ```sh
-# The published network adjustments of RD-11 -- 33 worked examples from Ghilani,
-# Niemeier, Benning, Wolf, Strang & Borre and others (specs/22 section 2).
-git clone https://github.com/Geo-Linux-Calculations/gnu-gama
-GEOCOMP_KRUMM_DIR=gnu-gama/tests/krumm/input python3 -m pytest -q tests/test_krumm_corpus.py
-
-# The DynAdjust suite, for the cross-validation.
 PATH="$PATH:/path/to/dynadjust/bin" python3 -m pytest -q -k dynadjust
 ```
+
+The published network adjustments of RD-11 need nothing: `tests/data/krumm/` carries all 61 of Krumm's
+example networks, so the 33 with published answers are checked on every commit. They are GNU Gama's files at
+a pinned commit, copied verbatim, redistributed on the terms in
+[`THIRD_PARTY.md`](THIRD_PARTY.md) — test data, never part of the plugin package. To check the reader
+against a different revision of the corpus, point `GEOCOMP_KRUMM_DIR` at it; to re-verify the copy against
+upstream, run `python3 scripts/check_krumm_corpus.py`.
 
 ## What GeoComp does that the engines do not
 

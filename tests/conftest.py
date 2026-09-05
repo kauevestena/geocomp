@@ -19,6 +19,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_DIR = REPO_ROOT / "geocomp"
 SPECS_DIR = REPO_ROOT / "specs"
+KRUMM_DIR = REPO_ROOT / "tests" / "data" / "krumm"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -82,24 +83,23 @@ requires_dynadjust = pytest.mark.skipif(
 
 
 def krumm_corpus() -> Path | None:
-    """Where the Krumm example networks are, if this machine has them.
+    """Where the Krumm example networks are.
 
-    ``specs/22-reference-data-sources.md`` section 2. The 61 ``.dat`` files and
-    their published answers are **not vendored**: they are GNU Gama's test data
-    (GPL-3-or-later) carrying Friedhelm Krumm's transcriptions of examples from
-    a dozen copyrighted textbooks, and GeoComp is not the right place to decide
-    that they may be redistributed under its own licence. Point
-    ``GEOCOMP_KRUMM_DIR`` at ``gnu-gama/tests/krumm/input`` and the corpus test
-    runs; leave it unset and it skips.
+    ``tests/data/krumm/`` -- vendored, so the reference tests are part of the
+    ordinary suite rather than something a contributor has to opt into. They are
+    GNU Gama's files at a pinned commit, copied unchanged; ``PROVENANCE.md``
+    beside them records the chain and ``scripts/check_krumm_corpus.py`` proves
+    the copy is verbatim.
+
+    ``GEOCOMP_KRUMM_DIR`` still overrides, which is what you want when checking
+    the reader against a *different* revision of the corpus.
     """
-    directory = os.environ.get("GEOCOMP_KRUMM_DIR")
-    if not directory:
-        return None
-    path = Path(directory)
+    override = os.environ.get("GEOCOMP_KRUMM_DIR")
+    path = Path(override) if override else KRUMM_DIR
     return path if (path / "2D").is_dir() else None
 
 
 requires_krumm = pytest.mark.skipif(
     krumm_corpus() is None,
-    reason="set GEOCOMP_KRUMM_DIR to gnu-gama/tests/krumm/input (tier 4)",
+    reason="tests/data/krumm is missing, and GEOCOMP_KRUMM_DIR names no corpus either",
 )

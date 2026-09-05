@@ -55,27 +55,45 @@ four measurements — one GNSS baseline cluster, one point cluster and two singl
 parsers must be tested against files DynAdjust itself accepts, rather than against files written to satisfy
 the parser.
 
-This is the one place GeoComp redistributes anything of upstream's, and it is data rather than a binary.
-Apache-2.0 permits it; the attribution is here and in the test module that reads them.
+Apache-2.0 permits it; the attribution is here and in the test module that reads them. It is data rather
+than a binary, and like the Krumm corpus below it is test data that never enters the plugin package.
 
-### Test data *not* redistributed — the Krumm examples
+### Test data redistributed from GNU Gama — the Krumm examples
 
-`tests/test_krumm_corpus.py` reads the 61 example networks of
+`tests/data/krumm/` is **107 files copied verbatim** from
+[GNU Gama](https://www.gnu.org/software/gama/)'s `tests/krumm/input/`, at commit
+`963c3099054594922716786f92119732f12d714e` (GNU Gama 2.24): 61 network
+definitions, 45 published answers, and Gama's own `README.md`. They are the
+example networks of
 
-> Friedhelm Krumm, *Geodetic Network Adjustment Examples*, Geodätisches Institut, Universität Stuttgart,
-> Rev. 3.5, 2020,
+> Friedhelm Krumm, *Geodetic Network Adjustment Examples*, Geodätisches Institut,
+> Universität Stuttgart, Rev. 3.5, 2020,
 
-as GNU Gama redistributes them in `tests/krumm/input/` ([GNU Gama](https://www.gnu.org/software/gama/),
-GPL-3.0-or-later). **They are not in this repository.** The test skips unless `GEOCOMP_KRUMM_DIR` points at a
-checkout.
+which transcribe worked examples from a dozen textbooks — Ghilani, Niemeier,
+Benning, Wolf, Leick, Strang and Borre among them — each `.dat` naming its own
+source by edition and page. GeoComp reproduces 33 of them to 0.05 mm (RD-11).
 
-GeoComp is GPL-2.0-*or-later*, so combining with GPL-3.0 material is permitted and the combined portion is
-then GPL-3.0. That settles *use*. It does not settle *redistribution*: the numbers themselves are worked
-examples transcribed from a dozen copyrighted textbooks — Ghilani, Niemeier, Benning, Wolf, Leick, Strang and
-Borre among them — and GNU Gama's permission to carry them is not automatically GeoComp's. Vendoring them is
-a decision for the maintainers, recorded in
-[`specs/22-reference-data-sources.md`](specs/22-reference-data-sources.md) §2.3; until it is made, the corpus
-stays out of the tree and the tests reach it by path.
+**Licence.** GNU Gama is **GPL-3.0-or-later**. GeoComp is GPL-2.0-*or-later*, so
+it may be combined with GPL-3.0 material; the combined work is then effectively
+GPL-3.0, and `tests/data/krumm/` carries a GPL-3.0-or-later SPDX header rather
+than the repository's usual one. The underlying numbers are transcriptions from
+copyrighted textbooks; GNU Gama redistributes them publicly with attribution and
+a documented changelog of its edits, and this repository does the same, unedited,
+from a named commit. That is the basis, and it is the same basis Gama relies on.
+
+**Test data, and what keeps it so.** These files exist to validate the
+adjustment core. They live under `tests/`, never under `geocomp/`, and
+`scripts/build.py` packages `geocomp/` alone — so **nothing here reaches an
+installed plugin**. That is asserted by
+`tests/test_krumm_corpus.py::TestTheCorpusIsTestDataOnly`, not merely intended,
+because the plugin ZIP is the artefact actually distributed to users and putting
+this data in it would be a different question from the one answered above.
+
+`scripts/check_krumm_corpus.py` compares every vendored file against a fresh
+clone of the pinned commit and fails on any difference; the `reference` workflow
+runs it. An attribution to a source you have quietly edited is not an
+attribution, so the "verbatim" claim is checked rather than asserted.
+`tests/data/krumm/PROVENANCE.md` records the whole chain.
 
 ## Attribution
 
@@ -98,6 +116,13 @@ commits to feeding defects and improvements back upstream (FR-955):
 |---|---|---|
 | `geocomp/resources/icons/geocomp.svg` | Original work for this project | GPL-2.0-or-later |
 | `topo_test/` (reference dataset RD-01) | Collected by the project author | GPL-2.0-or-later, as part of this repository |
+
+Development data, in the repository but **not** in the plugin package:
+
+| Asset | Origin | Licence |
+|---|---|---|
+| `tests/data/krumm/` (RD-11) | GNU Gama `tests/krumm/input` at `963c309`; examples by F. Krumm | GPL-3.0-or-later |
+| `tests/data/dynadjust/sample*` | DynAdjust `sampleData/gnss-network` | Apache-2.0 |
 
 ## Keeping this file current
 
