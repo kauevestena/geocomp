@@ -1,0 +1,121 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# The engine tier: the one job that runs a real DynAdjust.
+#
+# Everything about the DynAdjust adapter is otherwise tested against committed
+# fixtures, which is what keeps those tests tier 1 and runnable everywhere. The
+# cost of that is drift: a DynAdjust that changed a column would keep passing
+# against a fixture written by the old one. This job is the guard -- it
+# regenerates every fixture with a real engine and fails if any of them moved.
+#
+# **Why it builds rather than downloads.** ADR-0003 prefers a pinned binary to a
+# bundled one, and this would ideally fetch the official release and check its
+# digest. Geoscience Australia's own release automation publishes Windows build
+# artefacts and a `:latest` Docker Hub tag; neither is a versioned, digest-
+# addressable Linux binary that can be pinned the way ADR-0003 asks. Building
+# from a pinned commit is the option that *is* pinnable: the sha below is
+# immutable, it is the build the fixtures were produced with, and it is the
+# build specs/07 verified its claims against. The result is cached on that sha,
+# so it is built once and reused until the pin changes.
+name: engine
+
+on:
+  push:
+    paths:
+      - "geocomp/engines/**"
+      - "tests/data/dynadjust/**"
+      - "tests/test_dynadjust_*.py"
+      - "tests/test_dyna*.py"
+      - "tests/test_dna_reader.py"
+      - "tests/test_engines.py"
+      - "scripts/check_dynadjust_fixtures.py"
+      - ".github/workflows/engine.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: engine-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # DynAdjust 1.4.0. The fixtures in tests/data/dynadjust/output were produced
+  # by this build, and specs/07-engine-dynadjust.md discharges its [C] claims
+  # against this source. Changing it means re-running
+  # scripts/check_dynadjust_fixtures.py --write and re-reading the diff, not
+  # just bumping the sha.
+  DYNADJUST_COMMIT: 5cdb89715c2e51f7036e4dd8ae67dac3a20fc7a8
+  DYNADJUST_PKGS: libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
+
+jobs:
+  fixtures:
+    name: fixtures match a real DynAdjust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tooling
+        run: python -m pip install --upgrade pip pytest numpy
+
+      - name: Cache the built engine
+        id: engine-cache
+        uses: actions/cache@v4
+        with:
+          path: dynadjust-bin
+          key: dynadjust-${{ runner.os }}-${{ env.DYNADJUST_COMMIT }}
+
+      # Unconditional, and that is the point: the cache holds the binaries, not
+      # the shared libraries they link against. Installing these inside the
+      # build step meant a cache hit skipped them, and `dnaadjust` died with
+      # `libboost_program_options.so.1.83.0: cannot open shared object file`
+      # before a single fixture was compared -- so every run after the first
+      # one failed, and the guard against fixture drift silently stopped
+      # guarding. Roughly twenty seconds; the cache is there for the compile.
+      - name: Install the engine's runtime libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends $DYNADJUST_PKGS
+
+      - name: Build DynAdjust from the pinned commit
+        if: steps.engine-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --filter=blob:none https://github.com/GeoscienceAustralia/dynadjust.git upstream
+          git -C upstream checkout --detach "$DYNADJUST_COMMIT"
+          # Upstream's own recipe, from its build_and_test workflow.
+          cd upstream
+          cmake dynadjust -DBUILD_TESTING=OFF -DUSE_UNITY_BUILD=ON -DBLA_VENDOR=OpenBLAS
+          make -j"$(nproc)"
+          cd ..
+          mkdir -p dynadjust-bin
+          cp -a upstream/bin/. dynadjust-bin/
+
+      - name: Report what is under test
+        run: |
+          echo "$PWD/dynadjust-bin" >> "$GITHUB_PATH"
+          export PATH="$PWD/dynadjust-bin:$PATH"
+          export LD_LIBRARY_PATH="$PWD/dynadjust-bin:${LD_LIBRARY_PATH:-}"
+          echo "LD_LIBRARY_PATH=$PWD/dynadjust-bin" >> "$GITHUB_ENV"
+          dnaadjust --version
+
+      # The check this job exists for: the committed fixtures must be exactly
+      # what this engine produces from the committed inputs, timings aside.
+      - name: Fixtures must match what the engine produces
+        run: python3 scripts/check_dynadjust_fixtures.py
+
+      # And the parsers themselves, so a failure here separates "the fixtures
+      # moved" from "the parsers broke".
+      - name: The DynAdjust adapter's own tests
+        run: pytest -q tests/test_engines.py tests/test_dynaml_writer.py
+             tests/test_dynaml_reader.py tests/test_dna_reader.py
+             tests/test_dynadjust_output.py tests/test_dynadjust_solution.py
+
+      # The tier-4 tests proper: what only a running engine can show, and the
+      # evidence behind P6's cross-validation criterion. This file was missing
+      # from the list above, so every test in it -- the whole pipeline reaching
+      # a Solution, the provenance, the projected-network cross-validation --
+      # had never run in CI. A tier-4 test that only ever runs on a
+      # contributor's machine is a claim, not a check.
+      - name: The pipeline, against the real engine
+        run: pytest -q tests/test_dynadjust_pipeline.py

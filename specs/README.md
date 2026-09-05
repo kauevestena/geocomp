@@ -78,6 +78,7 @@ specification in the same PR.
 | 19 | [`19-visualization.md`](./19-visualization.md) | Styled layers, ellipses, vectors, plots, reports |
 | 20 | [`20-testing-and-validation.md`](./20-testing-and-validation.md) | Test tiers, reference datasets, numerical tolerances |
 | 21 | [`21-packaging-ci-release-licensing.md`](./21-packaging-ci-release-licensing.md) | ZIP layout, CI, releases, licence, third-party notices |
+| 22 | [`22-reference-data-sources.md`](./22-reference-data-sources.md) | Where the reference data comes from: the 33 published network adjustments GeoComp now reproduces (RD-11), and the candidate sources for the datasets still to assemble |
 
 ### Planning and provenance
 

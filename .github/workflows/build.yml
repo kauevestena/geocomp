@@ -1,0 +1,114 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  package:
+    name: plugin package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Qt linguist tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-l10n-tools
+          # Debian ships lrelease under a versioned name; expose the plain one.
+          sudo ln -sf "$(ls /usr/lib/qt6/bin/lrelease)" /usr/local/bin/lrelease
+          lrelease -version
+
+      - name: Build
+        run: python scripts/build.py
+
+      - name: The archive must be reproducible
+        run: |
+          sha256sum dist/geocomp.zip | tee first.sha
+          rm -rf dist
+          python scripts/build.py
+          sha256sum dist/geocomp.zip | tee second.sha
+          if ! diff <(cut -d' ' -f1 first.sha) <(cut -d' ' -f1 second.sha); then
+            echo "::error::Two builds of the same commit produced different archives"
+            exit 1
+          fi
+
+      - name: Compiled translations must be in the archive
+        run: |
+          python - <<'PY'
+          import sys, zipfile
+          names = zipfile.ZipFile("dist/geocomp.zip").namelist()
+          qm = [n for n in names if n.endswith(".qm")]
+          if not qm:
+              sys.exit("no .qm translations in the archive; lrelease did not run")
+          print("translations shipped:", qm)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geocomp-plugin
+          path: dist/geocomp.zip
+
+  install:
+    name: installs into QGIS
+    needs: package
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: geocomp-plugin
+
+      # Not unzip(1): the QGIS image does not ship it, and python3 is the one
+      # interpreter this job is already guaranteed to have.
+      - name: Unpack into the QGIS plugin directory
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          plugins = Path.home() / ".local/share/QGIS/QGIS3/profiles/default/python/plugins"
+          plugins.mkdir(parents=True, exist_ok=True)
+          zipfile.ZipFile("geocomp.zip").extractall(plugins)
+          metadata = plugins / "geocomp" / "metadata.txt"
+          assert metadata.is_file(), f"{metadata} is missing after unpacking"
+          print("unpacked into", plugins)
+          PY
+
+      - name: The plugin must load and register its provider
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          xvfb-run -a python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, str(Path.home() / ".local/share/QGIS/QGIS3/profiles/default/python/plugins"))
+
+          from qgis.core import QgsApplication
+
+          app = QgsApplication([], False)
+          app.initQgis()
+
+          from geocomp.provider import GeoCompProvider
+          from geocomp.registry import ALGORITHMS
+
+          provider = GeoCompProvider()
+          QgsApplication.processingRegistry().addProvider(provider)
+
+          registered = {a.id() for a in QgsApplication.processingRegistry().algorithms()
+                        if a.provider().id() == "geocomp"}
+          expected = {spec.id for spec in ALGORITHMS}
+          assert registered == expected, f"expected {expected}, registered {registered}"
+          print("provider registered", len(registered), "algorithm(s):", sorted(registered))
+
+          app.exitQgis()
+          PY

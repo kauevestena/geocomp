@@ -95,10 +95,24 @@ later modules.
 **Delivers.** `core/adjustment/`, `core/statistics/`, `core/preanalysis/`. Parametric LSQ with a full weight
 matrix; iteration to convergence; free (minimum- and inner-constraint) and constrained datum handling; rank
 diagnosis; 1D/2D/3D; global χ² test; data snooping; internal and external reliability; absolute and relative
-error ellipses; design simulation with its interactive canvas dialog; network inspection.
+error ellipses; design simulation; network inspection. Three Processing algorithms exposing them —
+`geocomp:analysis_network_inspect`, `geocomp:analysis_network_preanalysis`,
+`geocomp:analysis_network_adjust` — and with them the **Analysis** menu group, which settles what
+[`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.1 left open and amends FR-003 and FR-004 to
+seven entries.
 
 **Closes.** FR-220, FR-221, FR-222, FR-223, FR-224, FR-225, FR-226, FR-227, FR-250, FR-251, FR-252, FR-253,
-FR-254, FR-255, FR-270, FR-271, FR-272, FR-273, NFR-008
+FR-254, FR-255, FR-270, FR-271, FR-273, NFR-008
+
+**Amends.** FR-003 and FR-004 (a seventh menu entry) and NFR-008 (SciPy for scale — ADR-0008). Both stay
+owned by the phase that closed them; an amendment is not a transfer of ownership.
+
+**Re-planned out of this phase.** **FR-272** — editing a design on the QGIS canvas and re-evaluating it in a
+loop — moves to **P3**. P2 delivers the pre-analysis mathematics and the non-interactive route, both fully
+testable without QGIS; the canvas dialog needs a running QGIS to verify, and shipping interaction code
+nobody has run is how a phase reports done while leaving a defect. P3 is where the first custom dialog
+(field mapping, FR-160) and the first QGIS-job exit criteria arrive, so it is where FR-272 can be proved
+rather than asserted.
 
 **Exit.** Reproduces RD-03 — coordinates, residuals, σ̂₀², ellipses — to published precision. A 2 × MDB blunder
 injected into RD-09 is located on the first pass. A rank-deficient network produces a diagnosis naming the
@@ -119,16 +133,19 @@ adjusted, statistically validated, styled network on the map — **with no exter
 atmospheric and EDM corrections, basic and geometric reductions, traverse (classical and least-squares),
 resection, forward intersection, classical networks, trigonometric levelling with leap-frog, 3D radiation.
 The CSV/XLSX importer with saved field mappings. Instrument and reflector profiles. Basic/Advanced gating.
-Result layers with QML styles and error ellipses. RD-01 shipped as a tutorial dataset.
+Result layers with QML styles and error ellipses. RD-01 shipped as a tutorial dataset. **The interactive
+pre-analysis dialog (FR-272)**, re-planned out of P2: it belongs with the phase's other canvas and dialog
+work, and with its QGIS job, which is what lets it be verified rather than asserted.
 
-**Closes.** FR-033, FR-034, FR-035, FR-061, FR-062, FR-064, FR-069, FR-070, FR-071, FR-160, FR-166, FR-400,
-FR-401, FR-402, FR-403, FR-404, FR-405, FR-406, FR-407, FR-408, FR-409, FR-410, FR-411, FR-412, FR-900,
-FR-901, FR-904, FR-905, FR-950
+**Closes.** FR-033, FR-034, FR-035, FR-061, FR-062, FR-064, FR-069, FR-070, FR-071, FR-160, FR-166, FR-272,
+FR-400, FR-401, FR-402, FR-403, FR-404, FR-405, FR-406, FR-407, FR-408, FR-409, FR-410, FR-411, FR-412,
+FR-900, FR-901, FR-904, FR-905, FR-950
 
 **Exit.** RD-01 reproduces `topo_test/processed_data.csv` to 1e-9 **and attaches an uncertainty to every
 value**. RD-01's 1.000 m face-pair distance discrepancy is flagged as a blunder candidate, not averaged. The
 PD = 181° / PI = 1° wrap case returns 181°. The whole chain runs from the menu and from a model-builder model.
-Basic and Advanced modes give identical numbers with defaults.
+Basic and Advanced modes give identical numbers with defaults. A planned station added on the canvas
+re-evaluates the design without leaving the map.
 
 *This is the milestone worth demonstrating.* It is a complete, useful, teachable product.
 
@@ -142,12 +159,34 @@ Basic and Advanced modes give identical numbers with defaults.
 
 **Delivers.** `core/techniques/levelling/`: the three sight schemes, closure computation against tolerances,
 levelling network adjustment with length or setup weighting, three-wire import, orthometric corrections.
+Also `io/levelbook.py` (both common field-book layouts), the `level` settings section, six Processing
+algorithms under a populated Level menu, and `core/adjustment/{weighting,difference_network}.py` — see the
+note below.
+
+**Note for P8.** The height-difference observation equation *is* the gravity-difference equation — one
+function in the P2 core, verified in `tests/test_gravimetry_is_levelling.py` (ADR-0002, Amendment 1). The
+weighting work here, and the datum handling for a difference-only network, are therefore P8's as well; build
+them so that gravimetry inherits them rather than reimplementing them.
+
+**Done, and how.** The shared parts are `core/adjustment/weighting.py` (σ = k·√extent, with
+`ExtentKind.DURATION` present for a gravimeter's drift rather than promised) and
+`core/adjustment/difference_network.py` (starting values by traversal, connectivity — for a network of one
+unknown per station connected by differences, whichever kind). `tests/test_gravimetry_is_levelling.py`
+asserts both work unchanged in the gravity frame, as the second caller arriving early.
 
 **Closes.** FR-500, FR-501, FR-502, FR-503, FR-504, FR-505
 
 **Exit.** All three schemes reproduce RD-04. Loop misclosure and tolerance comparison match, including a
 failing case. Extreme-sight foresights are a correlated cluster, demonstrably reducing the uncertainty of
 derived differences between them. Mixing height types without a geoid model raises.
+
+**Two defects P4 found in earlier work**, both recorded here because they say something about where to look
+next. A 1D solution wrote its heights into the *easting* slot of its `Position` — so every levelling result
+would have reported a height of zero — because P2's `to_solution` padded frame components in order while
+`starting_values` read them by name. The correspondence is now stated once, as `Frame.position_components`.
+And the Global Settings dialog rendered its raw dotted key for all seventeen settings P3 declared, because
+the dialog is generated from the declarations but the *labels* are not; `tests/structural/test_settings_labels.py`
+now fails when a setting has none.
 
 ---
 
@@ -162,12 +201,63 @@ derived differences between them. Mixing height types without a geoid model rais
 recording; the *Adjust* (Ghilani) reader/writer; CSV and XLSX export; geoid and height model import; base map
 integration; the adjustment report.
 
-**Closes.** FR-065, FR-130, FR-132, FR-133, FR-134, FR-135, FR-161, FR-162, FR-165, FR-167, FR-930
+**Closes.** FR-065, FR-130, FR-132, FR-133, FR-134, FR-135, FR-162, FR-165, FR-167, FR-930
 
 **Exit.** A complete project round-trips through GeoPackage losslessly. A newer schema is refused; an older
 one migrates after a backup. Deleting observations a solution depends on is refused. An *Adjust* example file
 reads, adjusts and writes back equivalently. A geoid model imports, applies, records its identity and
 contributes its uncertainty. Reports render in all three languages, byte-identical across runs.
+
+**Delivered.** The store with its versioning and referential protections, CSV and `.xlsx` export, the
+adjustment report, geoid and height models, reference-system settings and base maps, and the four Processing
+algorithms that make them reachable — with an eighth menu entry, **Project**, to put them somewhere a user
+will look. FR-161 is the one exception, re-planned into P6 below.
+
+**Re-planned: the *Adjust* format (FR-161).** Blocked, not skipped. No specification of the format and no
+example file could be obtained — the book is not in this repository, the publisher's and Penn State's
+distribution pages are outside this environment's network policy, and no public description of the layout
+exists beyond "similar to a StarNet file". A guessed parser would fail the phase's own exit criterion, which
+requires round-tripping an example file, and would fail it invisibly: a misread worked example produces an
+adjustment of the wrong network, and matching the book's numbers is the entire point of the requirement. One
+example file with its published answer unblocks it. See
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2, which also
+records the trap that NGS ADJUST — open source, well documented, and what a search returns — is a different
+program.
+
+**Exit met**, with FR-161 re-planned into P6 and CI green on all nine jobs.
+
+**Four defects, and what each one says about where the tests were.** Two were of one shape — a feature
+declared, validated, displayed, and inert. Two were of another — a defect only one of the nine CI
+environments could see.
+
+*Inert features.*
+`ConstraintMode.WEIGHTED` reached the model layer and stopped there; the adjustment read only `FIXED`, so a
+weighted station was estimated as free and its published height thrown away. Every test of the model layer
+passed, because the model layer was right. It surfaced only when something downstream *depended* on the
+constraint doing work — checking that a geoid-derived height's uncertainty reached the adjusted heights, which
+it could not. And `geocomp.reports` re-exported its Qt-dependent renderer eagerly, so importing the pure-Python
+template engine pulled in `qgis` and its tier-1 tests could not even collect in the seven CI jobs without
+QGIS; CI run 26 was red on that commit and had not been checked before the phase moved on. Both are recorded
+in the CHANGELOG under Fixed, and the second is the reason the phase's own exit now says *confirm CI green*
+rather than *push*.
+
+*Environment-specific defects.* Every base map layer was invalid, because `QgsRasterLayer` was given the
+service kind as its provider key and QGIS has no provider called `xyz` — all three kinds load through `wms`,
+with the kind in the URI. And the store algorithm's "add" mode called `write`, which replaces, so saving a
+network into a monitoring project deleted every solution in it while leaving a GeoPackage that looked
+perfectly healthy. Both were caught by the QGIS job, on the commit that introduced them, which is the
+arrangement working.
+
+The second, though, is a **store** defect and the store is tier 1: it was found in the wrong place, and its
+regression tests now live in `tests/test_project_store.py` where eight of the nine jobs run them. The lesson
+generalises — when a tier-3 test fails, ask whether the defect it found is really tier-3's to catch, and if
+it is not, move the test down rather than leaving it where it happened to surface.
+
+A third of the same family: a tier-3 module carried `pytest.mark.qgis`, which labels and does not skip, so
+twenty-five tests *errored* rather than skipping in the seven jobs without QGIS.
+`tests/structural/test_tier3_skips_cleanly.py` now fails when a tier-3 module has neither `requires_qgis` in
+its `pytestmark` nor a skipping fixture reaching every test — a check that is structural precisely because
+neither environment anyone looks at can see the difference.
 
 ---
 
@@ -183,15 +273,75 @@ contributes its uncertainty. Reports render in all three languages, byte-identic
 verification, installation, version detection, graceful absence. `engines/dynadjust/`: the DynaML writer, the
 DNA reader, the pipeline driver, the output parsers, and the mapping into `Solution`.
 
-**Closes.** FR-036, FR-066, FR-163, FR-300, FR-301, FR-302, FR-303, FR-304, FR-305, FR-306, FR-320, FR-321,
-FR-322, FR-323, FR-324, FR-325
+**Closes.** FR-036, FR-066, FR-161, FR-163, FR-300, FR-301, FR-302, FR-303, FR-304, FR-305, FR-306, FR-320,
+FR-321, FR-322, FR-323, FR-324, FR-325
+
+**Re-planned into this phase.** **FR-161** — the *Adjust* (Ghilani) format — moves from **P5**, which could
+obtain neither a specification of it nor an example file. It lands here rather than later because P6 is
+already the interchange-format phase: the DynaML writer, the DNA reader and an *Adjust* reader are the same
+kind of work over the same `Network` and `Solution` types, and one example file with its published answer is
+all that is missing. See
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 for what was
+searched and what would unblock it. If P6 cannot obtain the file either, it moves again and says so — it is
+not to be implemented from a guess.
 
 **Exit.** DynaML written by GeoComp validates against the schema and imports without warnings for every
 mapped observation type. A GNSS baseline cluster round-trips with its covariance intact. **The same network
 adjusted by the in-house core and by DynAdjust agrees within the tolerances of
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §4, on at least three networks.** The engine
 manager installs on all three operating systems. With DynAdjust absent, everything else still works. Every
-**[C]** claim in [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) has been confirmed or corrected.
+**[C]** claim in [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) has been confirmed or corrected. An
+*Adjust*-format example file reads, adjusts and writes back equivalently — or FR-161 moves again with the
+reason recorded, since a parser written from a guess is not an implementation of it.
+
+### Exit status
+
+| Criterion | State |
+|---|---|
+| DynaML imports without warnings for every mapped type | **met** |
+| A GNSS baseline cluster round-trips with its covariance intact | **met** |
+| Cross-validation on **at least three** networks | **two of three** — see below |
+| The engine manager installs on all three operating systems | **not met** — see below |
+| With DynAdjust absent, everything else still works | **met** — the whole suite passes with no engine, and the algorithm fails with a message naming the remedy |
+| Every **[C]** claim confirmed or corrected | **met** |
+| FR-161, the *Adjust* format | **moves again** — see below |
+
+**Cross-validation: two networks, not three — and the reason the count moved.** The `gnss-network` slice
+agrees to 0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). A **projected levelling
+network** now agrees to 0.2 mm, which it could not before, because `core/geodesy/` supplies the conversion
+this entry used to say was missing: a projected network is inverse-projected to geodetic and written `LLH`,
+and its heights come back through geocentric cartesian to *h*. `tests/test_dynadjust_pipeline.py`
+`TestAProjectedNetworkCrossValidates` is the whole round trip.
+
+**The third is blocked on something else, and it is worth naming precisely.** RD-03's trilateration reaches
+DynAdjust's station file now, but only one of its eleven observations imports: a **horizontal distance has no
+DynAdjust equivalent at all** ([`07`](./07-engine-dynadjust.md) §4.2). That is not a conversion gap and no
+amount of geodesy fixes it — DynAdjust's distances are ellipsoidal, sea-level or slope, and a grid distance
+is none of those. The third network has to be one whose observation types DynAdjust carries.
+
+**The engine manager installs nothing** because there is nothing that can honestly be pinned. ADR-0003 asks
+for a downloaded binary verified against a digest; Geoscience Australia publishes Windows build artefacts and
+a `:latest` Docker Hub tag under a personal namespace, neither of which is a versioned, digest-addressable
+release. `PINNED` in `engines/manager.py` is therefore empty, and the `engine` CI job builds DynAdjust from
+an immutable commit instead — which is pinnable and verifiable, and is what the fixtures and this spec were
+checked against. The install path itself is implemented and tested against synthetic archives; what is
+missing is a real release to point it at.
+
+**Independent validation, from a different direction.** The cross-validation criterion is specifically
+*against DynAdjust*, and one network is what it got. The in-house core is nonetheless no longer checked only
+against itself: `io/krumm.py` and `tests/test_krumm_corpus.py` (RD-11) reproduce **33 published network
+adjustments** — 1D, 2D and 3D, free and constrained — to 0.05 mm, from Ghilani, Niemeier, Benning, Wolf,
+Strang and Borre and others by name and page
+([`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2). That closes the citation gap
+RD-02, RD-03 and RD-04 have carried since P1, and it reaches the plane and levelling networks DynAdjust
+cannot take from GeoComp at all. It does **not** satisfy this criterion, which is about the engine.
+
+**FR-161 moves again**, to the phase that can obtain an *Adjust*-format example file with its published
+answer. P6 could not, for the reason P5 recorded: neither a specification of the format nor an example file
+is publicly available, and
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 states what would
+unblock it. It is not to be implemented from a guess, and moving it twice with the reason recorded is the
+honest outcome rather than a parser nobody can validate.
 
 ---
 
@@ -219,12 +369,20 @@ show the FR-604 notice.
 
 ## P8 — Gravimetry
 
-**Goal.** The menu group with no engine behind it.
+**Goal.** The menu group whose *corrections* have no engine behind them.
 
 **Specs.** [`12-module-gravimetry.md`](./12-module-gravimetry.md)
 
 **Delivers.** `core/techniques/gravimetry/`: scale, tidal and drift corrections; gravimetric network
 adjustment on the in-house core with jointly estimated drift; gravimeter profiles.
+
+**Smaller than it looks.** The network adjustment is already written: a gravity difference and a height
+difference are the same observation equation, so P2's core and P4's 1D weighting and datum work both carry
+over unchanged (ADR-0002, Amendment 1). What is genuinely new here is the corrections, drift as a nuisance
+parameter — which is the one piece no external 1D engine can supply, since drift and gravity differences are
+not separable by pre-correction alone — and the datum of a difference-only network. It also means the P6
+cross-validation *can* cover gravimetry, by relabelling the differences as level differences, which the
+original plan assumed impossible.
 
 **Closes.** FR-700, FR-701, FR-702, FR-703
 

@@ -15,6 +15,8 @@ that later turned out to be wrong.
 | [0004](./0004-dynadjust-interchange-format.md) | Use DynaML XML as the primary DynAdjust interchange format | Accepted |
 | [0005](./0005-menu-algorithm-parity.md) | Every menu action is a Processing algorithm | Accepted |
 | [0006](./0006-storage.md) | GeoPackage canonical, PostGIS mirror, identical logical schema | Accepted |
+| [0007](./0007-qgis-4-minimum.md) | Target QGIS 4.x; do not support the 3.x series | Accepted |
+| [0008](./0008-scipy-and-network-scale.md) | SciPy optional for correctness, required for scale | Accepted |
 
 "Accepted" here means accepted into the draft specification set; all remain subject to the coordinator's
 first review ([`../README.md`](../README.md) §Document status).

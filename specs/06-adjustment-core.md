@@ -78,6 +78,13 @@ SciPy is available and falling back to dense NumPy otherwise
 ([`03-architecture.md`](./03-architecture.md) §3.7). For ill-conditioned systems, QR on the weighted design
 matrix is available as an alternative with better numerical behaviour.
 
+> **State, as of P2.** The dense NumPy path is implemented — Cholesky, falling back to QR when Cholesky
+> fails numerically — and is correct for every network. The **sparse path is not yet implemented**; it
+> belongs to P12 with the rest of the work against NFR-008, because it needs a network large enough to show
+> that it helps. [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md) records the
+> decision and what it means for NFR-008. SciPy is used today only for the statistical distributions, and
+> there too the NumPy path is the reference implementation.
+
 The condition number is computed and reported. A system that is rank-deficient or numerically singular
 produces a **diagnosis**, not a crash and not a meaningless answer (FR-226): the null-space vectors are
 examined and mapped back to the stations and components that are undetermined, and the message names them —
@@ -105,6 +112,26 @@ produce a beautiful adjustment of the wrong thing, so it is stated in the result
 Inner constraints matter specifically for monitoring (FR-835): if the datum is defined by holding a station
 that has in fact moved, its motion is redistributed across the whole network and appears as everyone else
 moving.
+
+**How `WEIGHTED` is implemented, and a defect it hid until P5.** A weighted constraint is an *observation of
+the station's own coordinates*, and enters the system as one: a row per constrained component, weight
+**Σ⁻¹** over the constraint's covariance block, so the station moves under the adjustment, carries a
+residual saying how far, and adds to the redundancy. Taken as a block rather than a diagonal, because a
+constraint from a GNSS solution has correlated components and reducing it to variances would discard the
+correlation that makes it what it is (FR-104). The rows are labelled `constraint:<station>` so a report can
+tell them from observations while the statistics treat them identically — which is the point of holding a
+benchmark weighted rather than fixed.
+
+Until phase P5 none of that happened. `WEIGHTED` was declared here, implemented in the model layer
+(`ConstraintSpec` refuses one without a covariance), and then **silently dropped by the adjustment**, which
+read only `FIXED`. A network held solely by weighted constraints was rank-deficient rather than constrained
+and refused to adjust; a network with one fixed and several weighted benchmarks used the first and discarded
+the rest, so the disagreement between benchmarks — the reason a user holds several — could never appear in
+the residuals. It was found while checking that a geoid-derived height's uncertainty reached the adjusted
+heights ([`13-module-integration.md`](./13-module-integration.md) §3.1): it could not, because the
+constraint carrying it was not in the system. The lesson is recorded rather than quietly fixed, because the
+shape of it — a mode that validates, stores and displays correctly while doing nothing — is one that a test
+of the model layer alone will never catch.
 
 ### 3.1 Dimensionality (FR-227)
 
@@ -207,6 +234,24 @@ specification.
 This runs on the QGIS canvas (FR-272): draw planned stations, draw intended observations, evaluate, see the
 expected ellipses, move a station, re-evaluate. This interactive loop is the reason pre-analysis belongs in a
 GIS at all, and it is a direct answer to the proposal's pedagogical justification.
+
+> **Phasing.** The mathematics above and the Processing algorithm that exposes it
+> (`geocomp:analysis_network_preanalysis`) shipped in **P2**; the canvas dialog (FR-272) shipped in **P3**,
+> where a running QGIS can verify it. [`ROADMAP.md`](./ROADMAP.md) records the re-planning. The split is
+> along a real seam: the algorithm is the whole computation, and the dialog is a way to drive it, so a model
+> or a script needs nothing from P3.
+>
+> The seam held in the implementation. The dialog builds the design and then hands it to the same algorithm
+> for the report, so an interactive design and one loaded from a file are evaluated by identical code
+> (ADR-0005). What an edit *means* — a removed station taking its observations with it, planned directions
+> from one setup forming one set — lives in `core/preanalysis/session.py`, which imports no Qt and is tested
+> without QGIS; the dialog contributes the map tool, the rubber bands and the panel.
+>
+> **Evaluation there never raises.** A design under construction spends most of its life un-evaluable — one
+> station, no observations, three stations and a rank defect — and an interactive loop that threw on each of
+> those would be unusable. A design that cannot be evaluated reports *why*, as findings, in the same shape as
+> one that can be evaluated but is poor, so the panel renders one thing rather than branching on which kind
+> of answer arrived.
 
 Supported design questions: *is this network strong enough?* · *where should I add an observation to improve
 it most?* · *what happens if I lose station X?* · *can I detect a 5 mm blunder anywhere in this network?*

@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# The provenance guard for RD-11 (specs/20 section 3, specs/22 section 2).
+#
+# `tests/data/krumm/` is 107 files copied verbatim from GNU Gama at a pinned
+# commit, and `tests/data/krumm/PROVENANCE.md` says so. That claim is the whole
+# basis on which the data is redistributed here: attribution to a source you
+# have quietly edited is not attribution. So it is checked against a real clone
+# rather than trusted.
+#
+# The adjustments themselves are **not** run here -- they are ordinary tier-2
+# tests now that the data is in the tree, so `test` runs them on every commit,
+# on every platform, with no network. This job only answers "are these still
+# Gama's files?", which is the one question that needs the network.
+name: reference
+
+on:
+  push:
+    paths:
+      - "tests/data/krumm/**"
+      - "scripts/check_krumm_corpus.py"
+      - ".github/workflows/reference.yml"
+  pull_request:
+    paths:
+      - "tests/data/krumm/**"
+      - "scripts/check_krumm_corpus.py"
+      - ".github/workflows/reference.yml"
+  # Upstream cannot change under a pinned commit, but a rewritten tag or a
+  # vanished repository can, and finding that out at release time is worse.
+  schedule:
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: reference-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  provenance:
+    name: the vendored corpus is still GNU Gama's
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No pip install: the checker is standard library and git alone, which is
+      # deliberate -- a provenance check that needs a dependency resolved from
+      # the network has more ways to be wrong than the thing it is checking.
+      - name: Every vendored file must match the pinned upstream commit
+        run: python3 scripts/check_krumm_corpus.py

@@ -21,6 +21,8 @@ GeoComp
  ├── GNSS                 ▸
  ├── Gravimetry           ▸
  ├── Integration          ▸
+ ├── Analysis             ▸     (added in phase P2 — see §1.1)
+ ├── Project              ▸     (added in phase P5 — see §1.1)
  ├──────────────────────────   (separator)
  └── Global Settings…
 ```
@@ -37,12 +39,41 @@ The separator before Global Settings, and the ellipsis on it, follow the figure 
 
 Directly from `tex §Painel de Configuração Global`:
 
-**Total Station** → Generalised pre-processing · Traverse · Resection · Forward intersection · Classical
-networks · Trigonometric levelling · 3D radiation.
+**Total Station** → Import field book · Generalised pre-processing · Traverse · Resection · Forward
+intersection · Classical networks · Trigonometric levelling · 3D radiation.
 See [`09-module-total-station.md`](./09-module-total-station.md).
 
-**Level** → Equal sights · Equidistant sights · Extreme sights · Levelling network adjustment.
+> **Import field book** is not in the proposal's list, which starts at pre-processing. It is added because
+> the list assumes the data is already in GeoComp and nothing else puts it there: FR-160's saved field
+> mapping is a total-station capability (`specs/09` §5 specifies it against RD-01's layout), and a user who
+> has to hunt for it in another submenu before they can use any of the seven has been given a worse menu,
+> not a purer one.
+
+**Level** → Import levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
+tolerances · Levelling network adjustment. *(Six as built in P4, rather than the proposal's four: import and
+closures were implicit in the others and each produces a document the next step reads — see
+[`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
+
+**Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Add base
+map · GeoComp system report · Install tutorial dataset.
+
+> **Why an eighth entry.** Six algorithms had accumulated with no menu home: P0's system report and tutorial
+> dataset, and P5's export, report, store and base map. Each was individually defensible as toolbox-only, and
+> `tests/test_registry.py` was right to fail when the sixth arrived — **six exceptions are not exceptions,
+> they are a category**, and the honest answer to a category is an entry rather than a longer list of reasons
+> it does not need one.
+>
+> They share a description that is not a stretch: *operations on a project's results rather than on one
+> technique's observations.* Exporting, reporting and storing a solution are identical whether it came from a
+> total station, a level, or P6's DynAdjust; a base map is context for any of them; the system report and the
+> tutorial dataset are the project's own housekeeping. Filing any under a technique would say something
+> false, and repeating them under all five would break the one-item-per-algorithm correspondence ADR-0005
+> rests on — the same argument that produced Analysis in P2.
+>
+> Discoverability is the other half of it. A user who has just adjusted a network wants the report; leaving
+> it reachable only from the Processing toolbox is a worse menu, not a purer one, in exactly the way this
+> section already says of *Import field book*.
 
 **GNSS** → Absolute (Static · Kinematic) · Relative (Static · Kinematic) · Scan sessions · Download products ·
 Batch processing · Build baselines · Compare configurations.
@@ -54,12 +85,29 @@ See [`12-module-gravimetry.md`](./12-module-gravimetry.md).
 **Integration** → GNSS and Total Station · Total Station and Level · GNSS and Level · Multiple.
 See [`13-module-integration.md`](./13-module-integration.md).
 
-Two groups of items appear across submenus because they belong to no single technique, and are placed where
-the user needs them: **Network pre-analysis** and **Network inspection**
-([`06-adjustment-core.md`](./06-adjustment-core.md) §5), and **Multi-epoch comparison** and **Monitoring
-report** ([`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md)). Their menu placement is settled
-during P3 with the coordinator; a top-level **Analysis** group is the likely answer, and adding one is a
-menu change, not an architectural one.
+**Analysis** → Inspect network · Pre-analyse network design · Adjust network · *(multi-epoch comparison and
+the monitoring report join it in P10).*
+See [`06-adjustment-core.md`](./06-adjustment-core.md) §5 and
+[`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md).
+
+#### Why Analysis is a seventh entry (settled in P2)
+
+This document previously left the placement open, noting that a top-level Analysis group was the likely
+answer. Phase P2 needed it, and it was settled then rather than in P3, because the alternatives are worse in
+ways that are easy to state:
+
+- **Filing them under one technique** — say Total Station — would say something false about them. Network
+  adjustment, inspection and pre-analysis are what the technique modules *feed*; a levelling user needs them
+  as much as a total-station user, and would not look under Total Station to find them.
+- **Duplicating them across all five** would break the one-item-per-algorithm correspondence ADR-0005 rests
+  on: the menu is generated from the algorithm registry, and an algorithm appearing five times has no single
+  menu route.
+- **Leaving them toolbox-only** would put the plugin's central capability outside the menu the proposal
+  devotes a figure to.
+
+A seventh entry leaves both the figure's five technique submenus and the algorithm correspondence intact.
+FR-003 and FR-004 are amended to say seven rather than being quietly contradicted by the code, and
+`tests/test_registry.py` asserts both the new list and that the figure's five come first, in its order.
 
 ### 1.2 The menu is a launcher (FR-005)
 
@@ -74,11 +122,33 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 | Custom dialog | Why the standard dialog is insufficient |
 |---|---|
 | Global Settings | Not an algorithm at all — it configures the others |
-| Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop |
+| Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop. Arrives in P3, re-planned out of P2 — see [`ROADMAP.md`](./ROADMAP.md). The non-interactive route, `geocomp:analysis_network_preanalysis`, ships in P2 |
 | Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
 | Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison |
 | Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
 | Monitoring time series (FR-838) | An interactive panel, not a one-shot run |
+
+#### Toolbox-only algorithms
+
+A small, enumerated set of algorithms has **no menu entry at all**. The GeoComp menu presents five
+technique-oriented entries plus Analysis (FR-003); an operation belonging to no survey technique and to no
+analysis of one — environment diagnostics, maintenance — would have to be filed under one of them, which
+would misrepresent that structure.
+
+Permitted only for maintenance and diagnostic operations, and only with the reason recorded in code, in
+`geocomp/registry.py`'s `TOOLBOX_ONLY_JUSTIFICATIONS`. The parity test holds the exception list to exactly
+the algorithms that declare a justification, fails on a justification left behind by a deleted algorithm, and
+fails if the list grows beyond a handful — a growing list means the menu is drifting away from the
+algorithms, which is the drift ADR-0005 exists to prevent.
+
+| Toolbox-only algorithm | Why it has no menu entry |
+|---|---|
+| `geocomp:project_system_report` | Environment diagnostics belong to no survey technique. Reachable from the toolbox and from the About dialog under Plugins ▸ GeoComp |
+| `geocomp:project_tutorial_dataset` | Installing a reference dataset belongs to no survey technique. RD-01 is a total-station survey, but the operation is *copy files somewhere writable*, and the levelling and GNSS datasets to come would use the same algorithm — filing it under Total Station would misplace it the moment the second one ships |
+
+Note the asymmetry, which is deliberate: **every menu item must resolve to a registered algorithm** with no
+exceptions, because a menu item pointing at nothing is a broken UI. The reverse direction admits this narrow,
+recorded exception.
 
 Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md).
 
@@ -112,6 +182,7 @@ A dialog with a **side menu**, the sections organised primarily by equipment typ
 │ Stochastic model │                                              │
 │ Reference systems│                                              │
 │ Paths & engines  │                                              │
+│ Base maps        │                                              │
 │ Interface        │                                              │
 ├──────────────────┴──────────────────────────────────────────────┤
 │                      [Restore defaults]  [Cancel]  [OK]         │
@@ -127,13 +198,40 @@ Each row below is a requirement, taken from `tex §Painel de Configuração Glob
 | Section | Contents | Req |
 |---|---|---|
 | **Total Station** | Instrument profiles (§2.2): vertical index correction, collimation, EDM additive constant and scale, cyclic error, nominal precisions for direction / zenith angle / distance. Reflector profiles with prism constants. Atmospheric model and default temperature, pressure, humidity. Refraction coefficient. Closure tolerances by traverse class | FR-061, FR-062 |
-| **Level** | Level instrument profiles: nominal precision per km and per setup, collimation from the two-peg test. Sight-length balance tolerance. Loop closure tolerance model by levelling class. Default weighting (length or setups) | FR-061 |
+| **Level** | Default weighting (length or setups). Permissible-misclosure coefficient *k*. Sight-length, per-setup and per-line imbalance limits. Reciprocal-sight variance inflation. Orthometric corrections on or off. Whether a line that failed its tolerance may be adjusted | FR-061, FR-503, FR-504 |
+
+**Level profiles and levelling classes are not settings**, for the same reason instrument profiles are not
+(§2.2): they are named, structured records with their own uncertainties and their own provenance, so they
+live in `geocomp.core.instruments.level` and travel as documents. A department owns several levels and works
+under more than one specification at once; a single "the" tolerance would be wrong for all but one job.
 | **GNSS** | Product and ephemeris directories; preferred download servers and their priority; default processing options per mode; antenna model database (ANTEX); reference station database; credential references (never the credentials) | FR-063, NFR-010 |
 | **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
 | **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
 | **Paths & engines** | DynAdjust and RTKLIB executable locations, engine installation and update, working directories, report templates | FR-066, FR-300 |
+| **Base maps** | Whether to offer a base map with result layers; which service to offer; the catalogue file; whether to reuse one already in the project | FR-167 |
 | **Interface** | Language; usage mode (Basic / Advanced); units of measure; angle display format; decimal places; log verbosity | FR-067, FR-092 |
+
+**Amendment (P5): a ninth section, Base maps.** `tex §Painel de Configuração Global` item 6 lists eight, and
+this table followed it. FR-167 asks for base map integration with "a configurable list with sensible
+defaults" ([`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.6), which
+is configuration and belongs in the panel; none of the eight is where a user would look for it — it is not
+equipment, not stochastic, not a reference system, not a path, and burying it under Interface would make
+"Interface" mean "everything left over". It sits after Paths & engines and before Interface, among the
+cross-cutting sections. FR-167 stays owned by P5; this is an amendment to the section list, not a transfer.
+
+**What P5 declared, and why every default is empty.** Reference systems carries preferred CRS, default
+epoch, transformation choice and preferred paths, transformation grid directory, default geoid model and its
+stated accuracy (FR-065). Every one of them defaults to empty or to "ask", and that is the design rather
+than an omission: GeoComp does not assume a CRS and refuses operations needing an epoch it was not given
+(FR-105), so a settings module shipping a plausible default for either would make the plugin assume exactly
+what the rest of it refuses. What the settings do is let a user state theirs once, and record in provenance
+that they did.
+
+The geoid model's **accuracy** is a setting because no grid format carries it and
+`geocomp.core.geoid` will not build a model without one (FR-204) — the figure that most often limits a
+combined height solution is the user's to state, from the model's own documentation, not the reader's to
+invent.
 
 ### 2.2 Instrument profiles (FR-069)
 
@@ -209,8 +307,8 @@ buried in an output file.
 
 ## 6. Acceptance criteria
 
-1. The GeoComp menu appears on the QGIS menu bar with the six entries in the specified order and the
-   separator before Global Settings.
+1. The GeoComp menu appears on the QGIS menu bar with the seven entries in the specified order — the
+   figure's five technique submenus, then Analysis — and the separator before Global Settings.
 2. Every submenu item launches an algorithm; a test asserts that the set of menu items and the set of
    registered algorithms correspond, with no orphan on either side (FR-005).
 3. Unloading the plugin removes the menu, toolbar, provider and panels; reloading produces no duplicates.

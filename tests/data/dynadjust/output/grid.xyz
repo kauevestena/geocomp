@@ -1,0 +1,36 @@
+--------------------------------------------------------------------------------
+DYNADJUST COORDINATE OUTPUT FILE
+
+Version:                           1.4.0, Release with OpenBLAS
+Build:                             Aug 28 2026, 21:20:56 - GNU GCC 13.3.0
+File created:                      Saturday, 05 September 2026, 06:17:14
+File name:                         ./grid.simult.xyz
+
+Reference frame:                   GDA2020
+Epoch:                             01.01.2020
+Geoid model:                       
+Station coordinate types:          ENz
+Stations printed in blocks:        No
+--------------------------------------------------------------------------------
+
+Adjusted Coordinates
+------------------------------------------
+
+Station             Const       Easting       Northing    Zone       SD(e)     SD(n)    SD(up)  Description
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+P00                 FFF    302961.67184  5014008.98250      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P01                 FFF    500000.00000  5017049.59964      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P02                 FFF    717070.57356  5013359.04349      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P03                 FFF    276090.88231  5957685.17800      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P04                 FFF    500000.00000  5960591.91745      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P05                 FFF    746678.14081  5957063.74944      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P06                 FFF    238852.76944  7757957.50341      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P07                 FFF    500000.00000  7759931.10628      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P08                 FFF    787712.13406  7757535.45312      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P09                 FFF    224425.80666  9113481.83313      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P10                 FFF    500000.00000  9114320.25407      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P11                 FFF    803610.83344  9113302.51756      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P12                 FFF    221723.68317 10000000.00000      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P13                 FFF    500000.00000 10000000.00000      55    10.00000  10.00000   0.99504  exact whole arcseconds
+P14                 FFF    806588.68321 10000000.00000      55    10.00000  10.00000   0.99504  exact whole arcseconds
+

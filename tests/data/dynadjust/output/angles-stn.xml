@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DnaXmlFormat type="Station File" referenceframe="GDA2020" epoch="01.01.2020"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DnaStation>
+    <Name>BASE</Name>
+    <Constraints>CCC</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>BASE</Name>
+      <XAxis>-37.474800000</XAxis><YAxis>144.573600000</YAxis><Height>120.0000</Height></StationCoord>
+    <Description>BASE test mark</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>NORTH</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>NORTH</Name>
+      <XAxis>-37.472100000</XAxis><YAxis>144.573800000</YAxis><Height>132.0000</Height></StationCoord>
+    <Description>NORTH test mark</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>EAST</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>EAST</Name>
+      <XAxis>-37.474900000</XAxis><YAxis>144.581200000</YAxis><Height>118.0000</Height></StationCoord>
+    <Description>EAST test mark</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>HILL</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>HILL</Name>
+      <XAxis>-37.481500000</XAxis><YAxis>144.578400000</YAxis><Height>205.0000</Height></StationCoord>
+    <Description>HILL test mark</Description>
+  </DnaStation>
+</DnaXmlFormat>

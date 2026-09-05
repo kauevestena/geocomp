@@ -1,0 +1,173 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: test
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Tier 1 and the structural checks: no QGIS, no engines, seconds to run.
+  # This is the gate that proves the QGIS-free core boundary is real rather
+  # than aspirational (NFR-002), so it runs on every OS.
+  core:
+    name: core (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install tooling
+        # NumPy is a hard dependency: it ships with QGIS and the geodetic core
+        # uses it from phase P1 onward (specs/03-architecture.md section 3.7).
+        #
+        # openpyxl is a *test* dependency and not a runtime one. GeoComp writes
+        # .xlsx with its own writer (specs/17 section 5.1), and openpyxl is here
+        # to read that file back with an independent implementation -- the only
+        # way to know the workbook is valid rather than merely self-consistent.
+        # The "degraded environments" job deliberately omits it, which is what
+        # proves the export does not need it.
+        run: python -m pip install --upgrade pip pytest ruff numpy openpyxl
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tier 1 and structural checks
+        run: pytest -q
+
+      - name: The plugin package must import without QGIS
+        run: python -c "import geocomp; print(geocomp.__version__)"
+
+  # FR-090 / FR-091: an untranslated string fails the build at the commit that
+  # introduces it, not at release.
+  translations:
+    name: translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check catalogue completeness
+        run: python scripts/update_translations.py --check
+
+      - name: Catalogues must be up to date with the sources
+        run: |
+          python scripts/update_translations.py
+          if ! git diff --quiet -- geocomp/i18n; then
+            echo "::error::Translation catalogues are stale. Run: python3 scripts/update_translations.py"
+            git diff --stat -- geocomp/i18n
+            exit 1
+          fi
+
+  # Tier 3: the parts that need a real QGIS. Runs in the official container so
+  # the QGIS version is explicit rather than whatever the runner happens to have.
+  qgis:
+    name: qgis integration
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install test tooling
+        run: pip3 install --break-system-packages pytest
+
+      # Each of these fails on its own line rather than inside the test run, so
+      # a broken environment is distinguishable from a broken plugin. This job
+      # spent ten runs failing in four seconds -- before a single test ran --
+      # and reporting that as though the suite had run and failed.
+      - name: Report the environment under test
+        run: |
+          python3 -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION)"
+          python3 -c "import numpy; print('numpy', numpy.__version__)"
+          python3 -c "import pytest; print('pytest', pytest.__version__)"
+          python3 -c "import geocomp; print('geocomp', geocomp.__version__)"
+
+      - name: Collect the suite
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python3 -m pytest -q --collect-only | tail -3
+
+      # A crash inside addAlgorithm takes the process down and the traceback
+      # names loadAlgorithms, not the algorithm being added -- so every tier-3
+      # test fails at once and none of them says which one is at fault. This
+      # walks the registry printing as it goes, so the last line before an abort
+      # names the culprit. It must not gate the suite: when it passes there is
+      # nothing to report, and when it aborts the suite's own failure is the one
+      # that matters.
+      - name: Name the algorithm that breaks the provider, if any
+        if: always()
+        continue-on-error: true
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: xvfb-run -a python3 scripts/diagnose_provider.py
+
+      # ``xvfb-run`` when the image has it, the offscreen platform alone when it
+      # does not: some Qt paths still want an X server even with the offscreen
+      # platform set, and a QGIS image without xvfb is not a reason to skip the
+      # whole suite.
+      - name: Full suite with QGIS available
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          set -o pipefail
+          if command -v xvfb-run >/dev/null 2>&1; then
+            echo "running under xvfb-run"
+            xvfb-run -a python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+          else
+            echo "xvfb-run not present; offscreen platform only"
+            python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+          fi
+
+      # A crash exits before pytest prints anything, and the run log is not
+      # reachable from every tool that reads this repository's CI. The log is an
+      # artifact so the failure can be read rather than guessed at -- which is
+      # how this job stayed red for ten runs.
+      - name: Keep the test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qgis-pytest-log
+          path: pytest.log
+          if-no-files-found: warn
+
+  # NFR-005 and FR-306: the fallback paths are requirements, and an untested
+  # fallback is a fallback that does not work.
+  degraded:
+    name: degraded environments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pytest numpy
+
+      - name: No SciPy, no QGIS, no engines
+        # SciPy is optional: the core must provide a NumPy-only fallback for
+        # sparse factorisation and distribution quantiles. An untested fallback
+        # is a fallback that does not work.
+        run: |
+          python -c "import numpy; print('numpy', numpy.__version__)"
+          python -c "
+          import importlib.util, sys
+          if importlib.util.find_spec('scipy'): sys.exit('scipy must be absent in this job')
+          print('scipy absent, as intended')
+          "
+          pytest -q
+
+      - name: No Qt linguist tools (the AST extractor must still work)
+        run: python scripts/update_translations.py --check

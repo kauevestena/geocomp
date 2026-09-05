@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Tooling configuration only. GeoComp is a QGIS plugin distributed as a ZIP
+# (see scripts/build.py), not a Python distribution package, so there is no
+# [project] table and nothing here is published to PyPI.
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["research_project", "topo_test", "dist"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "W",      # pycodestyle warnings
+    "I",      # import sorting
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # bugbear
+    "C4",     # comprehensions
+    "BLE",    # blind except
+    "RUF",    # ruff-specific
+]
+
+# Nothing is ignored globally. In particular:
+#
+# * N802 (function naming) stays enabled, because geocomp/core is our own code
+#   and that is where naming discipline matters. It is disabled per-file below
+#   for the modules that implement QGIS interfaces, where the names are fixed by
+#   the framework (classFactory, initGui, processAlgorithm, ...).
+# * BLE001 (blind except) stays enabled. Two broad excepts are deliberate and
+#   each carries a noqa with its reason -- the provider keeps loading algorithms
+#   when one module is broken, and a task captures any exception to re-raise it
+#   on the main thread. Leaving the rule on means a third, undocumented one is
+#   flagged rather than blending in.
+
+[tool.ruff.lint.per-file-ignores]
+# Method names fixed by the QGIS plugin and Processing interfaces.
+"geocomp/__init__.py" = ["N802"]
+"geocomp/plugin.py" = ["N802"]
+"geocomp/provider.py" = ["N802"]
+"geocomp/algorithms/**" = ["N802"]
+"geocomp/gui/**" = ["N802"]
+"geocomp/services/task_service.py" = ["N802"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+markers = [
+    "qgis: requires a QGIS runtime (tier 3; skipped when QGIS is unavailable)",
+    "engines: requires DynAdjust or RTKLIB binaries (tier 4)",
+]
+filterwarnings = ["error::DeprecationWarning:geocomp.*"]

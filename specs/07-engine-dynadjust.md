@@ -14,6 +14,14 @@ Fraser, Leahy & Collier, *Automatic segmentation and parallel phased least squar
 > specification. Statements marked **[C]** must be confirmed against the User's Guide when the module is
 > implemented (roadmap P6), and the specification updated if they differ. Implementation MUST NOT assume a
 > **[C]** claim is correct.
+>
+> **Discharged in P6.** Every **[C]** in this document has now been checked against upstream at commit
+> `5cdb897`, and each is marked **[V]** with its source. Three sources were used, in this order of
+> authority: the **source code**, which is what actually runs; the **User's Guide** (`resources/DynAdjust
+> Users Guide.pdf`), which documents the file formats column by column; and the **sample data**
+> (`sampleData/`), which shows real files. Where a claim could be checked in more than one, all agreed.
+> Nothing below is inferred from a sample file alone — a sample shows what one file happens to contain, not
+> what the format permits.
 
 ---
 
@@ -45,8 +53,11 @@ DynAdjust adjusts networks. It does not:
 - **perform instrument-level pre-processing** — no face-left/face-right reduction, no atmospheric or EDM
   correction, no traverse computation, no resection or intersection. All of this is GeoComp's work
   ([`09-module-total-station.md`](./09-module-total-station.md));
-- **adjust gravimetric networks** — there is no gravity measurement type **[C]**, so gravimetry runs entirely
-  on the in-house core ([`12-module-gravimetry.md`](./12-module-gravimetry.md));
+- **adjust gravimetric networks** — there is no gravity measurement type **[V]**, so gravimetry runs entirely
+  on the in-house core ([`12-module-gravimetry.md`](./12-module-gravimetry.md)). Confirmed twice over: the
+  measurement tally in `dnameasurement.hpp` declares exactly twenty types and none is gravimetric, and the
+  strings *gravity*, *gravimetr* and *mGal* do not appear anywhere in the source. ADR-0002's conclusion —
+  that gravimetry is levelling and runs on the in-house core — is therefore forced rather than chosen;
 - **perform network design / pre-analysis** on a network that has no observations
   ([`06-adjustment-core.md`](./06-adjustment-core.md) §5);
 - **process GNSS observations** — it consumes baselines, it does not compute them
@@ -111,6 +122,24 @@ structure, and states in the result that a phased adjustment was used.
 (FR-036, FR-304). A failure at any stage surfaces DynAdjust's own diagnostic to the user (FR-305), because
 its import validation messages are specific and genuinely useful.
 
+**Every stage is recorded whether it ran or not**, with the reason. A provenance record listing only what ran
+cannot distinguish a transformation that was unnecessary from one that was forgotten, and those are different
+answers to "is this solution in the frame I asked for".
+
+**An unstated input frame or epoch is not a different one** [V]. `dnareftran` runs when the target differs
+from the input's — which requires the input to *have* one. A network that states no frame is not in a
+different frame; it is in an unrecorded one, and transforming out of that applies a shift computed from an
+assumption, which is precisely what FR-105 forbids. So the job's frame is then taken as a statement of what
+the data already is, and the stage stays out.
+
+**The exit code is not the whole test** [V]. `dnaimport` returns 0 on a measurement file it could not parse:
+it prints `Warning: some files were not parsed` and `there are no measurements to process`, and succeeds.
+Trusting the exit code alone carries an empty network into `dnaadjust`; worse, where only *part* of a file
+fails to parse, it carries an adjustment of fewer observations than intended whose variance factor looks
+entirely healthy. GeoComp knows how many stations and measurement components it wrote, `dnaimport` reports
+how many it read, and a difference is a refusal naming both — a count, not a match on warning text, because
+the counts are what matters and they do not change wording between releases.
+
 ---
 
 ## 4. Input generation (FR-320, FR-163)
@@ -127,14 +156,38 @@ are column-oriented and unforgiving of a one-character misalignment; and XML gen
 
 ### 4.2 Mapping GeoComp observations to DynAdjust measurement types
 
-DynAdjust identifies measurement types by single-letter codes. Confirmed upstream: **G** (GNSS baseline),
-**X** (GNSS baseline cluster), **Y** (GNSS point cluster), **P** (geodetic latitude), **Q** (geodetic
-longitude), **R** (ellipsoid height), **C** (ellipsoid chord distance), **E** (ellipsoid arc distance)
-**[V]**; the suite also supports horizontal angles, geodetic azimuths, direction sets, slope distances,
-zenith distances and levelling height differences **[V]**, whose codes are **[C]**.
+DynAdjust identifies measurement types by single-letter codes. **There are exactly twenty**, and the list is
+now settled from three agreeing sources **[V]**: the tally structure in
+`dynadjust/include/measurement_types/dnameasurement.hpp`, which declares
+`UINT32 A, B, C, D, E, G, H, I, J, K, L, M, P, Q, R, S, V, X, Y, Z`; the parser's own switch in
+`dnaimport/dnainterop.cpp`, which names each; and Table 3.2 of the User's Guide. The letters F, N, O, T, U
+and W are **not** measurement types, which is worth stating because a writer that emitted one would produce
+a file `dnaimport` rejects with a message about an unknown type rather than about the observation.
 
-The mapping table below is the module's contract. **Implementation MUST validate every row against the
-User's Guide before the first release, and the DynaML schema is the authority.**
+| Code | DynAdjust measurement type |
+|---|---|
+| A | Horizontal angle (uncorrelated) |
+| B | Geodetic azimuth (or bearing) |
+| C | Ellipsoid chord distance |
+| D | Direction set |
+| E | Ellipsoid arc distance |
+| G | Single GNSS baseline (Δx Δy Δz) |
+| H | Orthometric height |
+| I | Astronomic latitude |
+| J | Astronomic longitude |
+| K | Astronomic (Laplace) azimuth |
+| L | Orthometric height difference |
+| M | Mean sea level (MSL) arc distance |
+| P | Geodetic latitude |
+| Q | Geodetic longitude |
+| R | Ellipsoid height |
+| S | Slope (direct) distance |
+| V | Zenith distance |
+| X | GNSS baseline cluster (full correlations) |
+| Y | GNSS point cluster (full correlations) |
+| Z | Vertical angle |
+
+The mapping below is the module's contract, and every row is now **[V]**.
 
 | GeoComp observation type ([`04-data-model.md`](./04-data-model.md) §4) | DynAdjust type | Status |
 |---|---|---|
@@ -146,15 +199,43 @@ User's Guide before the first release, and the DynaML schema is the authority.**
 | `ELLIPSOIDAL_HEIGHT` | R | **[V]** |
 | `ELLIPSOID_DISTANCE` (chord) | C | **[V]** |
 | `ELLIPSOID_DISTANCE` (arc) | E | **[V]** |
-| `HORIZONTAL_ANGLE` | angle type | **[C]** |
-| `DIRECTION` (set) | direction-set type | **[C]** |
-| `AZIMUTH` / `ASTRONOMIC_AZIMUTH` | azimuth types | **[C]** |
-| `SLOPE_DISTANCE` | slope distance type | **[C]** |
-| `ZENITH_ANGLE` / `VERTICAL_ANGLE` | zenith / vertical angle types | **[C]** |
-| `HEIGHT_DIFFERENCE` | levelling type | **[C]** |
-| `ORTHOMETRIC_HEIGHT` | orthometric height type | **[C]** |
-| `ASTRONOMIC_LATITUDE` / `ASTRONOMIC_LONGITUDE` | astronomic types | **[C]** |
-| `GRAVITY`, `GRAVITY_DIFFERENCE` | **none** | **[C]** — see §1.1 |
+| `HORIZONTAL_ANGLE` | A | **[V]** |
+| `DIRECTION` (set) | D | **[V]** |
+| `AZIMUTH` | B | **[V]** |
+| `ASTRONOMIC_AZIMUTH` | K | **[V]** |
+| `SLOPE_DISTANCE` | S | **[V]** |
+| `ZENITH_ANGLE` | V | **[V]** |
+| `VERTICAL_ANGLE` | Z | **[V]** |
+| `HEIGHT_DIFFERENCE` | L | **[V]** |
+| `ORTHOMETRIC_HEIGHT` | H | **[V]** |
+| `ASTRONOMIC_LATITUDE` | I | **[V]** |
+| `ASTRONOMIC_LONGITUDE` | J | **[V]** |
+| `HORIZONTAL_DISTANCE` | **none** | **[V]** — see below |
+| `GRAVITY`, `GRAVITY_DIFFERENCE` | **none** | **[V]** — see §1.1 |
+
+**Two distinctions the original table blurred**, both of which would have been silent errors. `AZIMUTH` and
+`ASTRONOMIC_AZIMUTH` are separate codes (B and K) — a geodetic azimuth written as K would be adjusted
+against a deflection of the vertical it never had. And `ZENITH_ANGLE` and `VERTICAL_ANGLE` are likewise
+separate (V and Z), differing by 90°: writing one as the other is a 90° error that produces a plausible
+adjustment of the wrong network. GeoComp's own model already distinguishes both pairs, so the mapping is
+one-to-one; the risk was only in this table having collapsed each pair into a single row.
+
+**`HORIZONTAL_DISTANCE` has no DynAdjust counterpart**, and this row was missing from the table until a
+trilateration network was pushed through the writer and ten of its eleven observations were skipped. It is
+not an oversight in DynAdjust: a horizontal distance is a distance *in a plane* — a grid distance, or a
+distance reduced to a local horizontal — and DynAdjust's distances are ellipsoidal (`C`, `E`), sea-level
+(`M`) or slope (`S`). Converting one to another needs the point scale factor and a height reduction, which is
+the **same missing capability** as §4.4's projected coordinates: GeoComp has no geodetic reductions. Writing a
+grid distance as an ellipsoid arc would be a scale error of the order of 1 in 10⁴ — 10 cm on a kilometre,
+which passes every plausibility check a surveyor would apply and fails the adjustment quietly.
+
+The consequence is that **a plane trilateration or traverse network cannot presently be adjusted by
+DynAdjust**, and §4.3 rule 6 says what happens instead of a partial answer.
+
+**`M` (MSL arc distance) has no GeoComp counterpart** and none is invented. A distance reduced to mean sea
+level is a distance reduced to a surface GeoComp does not model, and inventing an equivalence to
+`ELLIPSOID_DISTANCE` would be a metre-scale error over a long line. A network read from DNA or DynaML that
+contains one is reported, not silently reinterpreted (§4.4).
 
 ### 4.3 Generation rules
 
@@ -180,8 +261,15 @@ User's Guide before the first release, and the DynaML schema is the authority.**
 ## 5. Output parsing (FR-322, FR-323)
 
 `dnaadjust` writes an adjustment output file, a positional-uncertainty file, coordinate files and correction
-files; the exact extensions in use (`.adj`, `.apu`, `.xyz`, `.cor`, and the phased-adjustment variants) are
-**[C]** and MUST be confirmed against the User's Guide **[C]**. GeoComp parses:
+files. The extensions are **`.adj`, `.xyz`, `.apu` and `.cor`** **[V]**, appended in
+`dnaadjustwrapper.cpp`; `.apu` and `.cor` are written only when the corresponding option is given, so their
+absence is a configuration fact and not a failure. The User's Guide specifies each format **column by
+column** — Appendix C.7 for `.xyz`, C.8 for `.adj`, C.9 for `.cor` and C.10 for `.apu` — and those tables,
+not the sample files, are what the parsers are written against: a sample shows what one file happens to
+contain, and a fixed-width parser written from one sample breaks on the first file with a longer station
+name.
+
+GeoComp parses:
 
 | From | Into `Solution` |
 |---|---|
@@ -191,6 +279,149 @@ files; the exact extensions in use (`.adj`, `.apu`, `.xyz`, `.cor`, and the phas
 | Global statistics: σ̂₀², degrees of freedom, chi-square test result | `statistics` |
 | Iteration and convergence information | `statistics` |
 | Block structure, when phased | `statistics` / provenance |
+
+6. **A network DynAdjust cannot represent whole is refused, not adjusted in part** [V]. Three GeoComp
+   observation types have no DynAdjust type (§4.2), and one of them — `HORIZONTAL_DISTANCE` — is the
+   *dominant* type in a plane trilateration or traverse: pushed through the writer, RD-03's trilateration
+   loses ten of its eleven observations. Adjusting the remainder produces a variance factor and residuals
+   that look entirely healthy for a network the user does not have, and nothing in the result says which
+   observations were not in it. The pipeline therefore refuses unless `allow_partial` is set, which is a
+   statement that a partial network is what was wanted. The writer itself still *reports* rather than
+   refuses, because exporting part of a network is a legitimate thing to ask it for; the refusal belongs at
+   the layer whose promise is "adjust this network".
+
+### 4.4 The station coordinate type follows the position [V]
+
+DynaML's `<Type>` is a **declaration about the three numbers beside it**, not a
+setting. GeoComp writes:
+
+| GeoComp position | `<Type>` | The three values |
+|---|---|---|
+| Cartesian | `XYZ` | geocentric X, Y, Z in metres |
+| Geodetic | `LLH` | latitude and longitude in HP notation, height in metres |
+| Projected | **refused** | — |
+
+A projected position was refused rather than converted, because DynaML's third
+type, `UTM`, needs a zone and a hemisphere, and converting to geodetic or
+geocentric needed an inverse projection GeoComp did not carry.
+
+**It carries one now.** `core/geodesy/` has the ellipsoids, the geodetic↔geocentric
+conversion and Transverse Mercator in both directions (§4.5 for how it compares
+with DynAdjust's). What is still missing is smaller and different in kind:
+deriving the *zone and hemisphere* from a CRS string, which needs a projection
+database rather than mathematics. A caller that states the projection
+parameters can convert; one that has only an EPSG code still cannot, and the
+writer refuses that case by name rather than guessing a zone.
+
+This began as a single constant `XYZ`, with the recorded reasoning that
+GeoComp's frames "are cartesian or projected already" — and that sentence was
+the defect. A projected easting is not a geocentric X: a UTM 22S station written
+as `XYZ` sits **845 km above the Earth's surface**, and DynAdjust accepts it.
+A geodetic latitude in radians written into `XAxis` is wrong by the radius of the
+Earth. Neither shows up in a network of absolute observations, because DynAdjust
+computes its own approximate coordinates and discards the nonsense — which is why
+the `gnss-network` cross-validation in §6.1 was unaffected. In a **relative**
+network — a traverse, a levelling line, GNSS baselines without absolute points —
+the approximate coordinates set the datum, and the answer is wrong in a way that
+looks entirely healthy.
+
+### 4.5 DynAdjust's northing carries a meridian-arc truncation [V]
+
+Measured, not inferred. `tests/data/dynadjust/output/grid.xyz` is fifteen stations on **exact whole
+arcseconds** — values HP notation holds without rounding — all constrained, so DynAdjust's output is a pure
+conversion rather than an adjustment, with eastings printed to 0.01 mm. Against GeoComp's Krüger series:
+
+| latitude | Δ easting | Δ northing |
+|---|---|---|
+| 0° | 0.000 mm | 0.000 mm |
+| 8° | 0.001 mm | 0.004 mm |
+| 20° | 0.005 mm | 0.005 mm |
+| 36.5° | 0.003 mm | **0.085 mm** |
+| 45° | 0.002 mm | **0.253 mm** |
+
+**Easting agrees to the printed precision. Northing does not**, by an amount that grows with latitude and is
+independent of longitude — the same at 2.5° west of the central meridian, on it, and 2.75° east. A northing
+difference that does not vary with longitude is not in the projection: it is in the **meridian arc**, the
+term that carries the northing from the equator to the parallel.
+
+Which implementation is right is settled by an arbiter that uses no series at all. Integrating *M(φ)* by
+Gauss–Legendre quadrature puts GeoComp within **a micrometre** of the integral at every latitude from −84°
+to 84°, and DynAdjust away from it by exactly the differences tabulated above. The truncation is DynAdjust's.
+
+Two consequences, both practical:
+
+* **A cross-validation must not expect exact agreement in northing.** Sub-millimetre, latitude-dependent, and
+  entirely explained — but a tolerance set from the easting will fail on the northing at Australian or
+  Brazilian latitudes, and the failure looks like a bug in GeoComp.
+* **It is not worth working around.** 0.25 mm at 45° is far below the uncertainty of any observation feeding
+  a network, and matching DynAdjust's truncation deliberately would mean shipping a worse conversion to
+  agree with a better-known one.
+
+### 5.1 What the files do and do not say about their own layout [V]
+
+No output table has a fixed layout, and none may be parsed as though it had. The columns a run prints depend
+on its options -- `--stn-coord-types` chooses the coordinate columns *and their widths*, `--stn-corrections`
+adds three, `--output-tstat-adj-msr` and `--output-database-ids` add more, `--output-apu-vcv-units` renames
+three -- so the parsers build a column plan per file from the widths in `dnaconsts-iostream.hpp` and the
+file's own preamble and column-header line. A header that matches no known plan is refused.
+
+Three things the files state, and one they do not:
+
+| Fact | Where it is stated |
+|---|---|
+| Coordinate types, station corrections, reference frame, epoch | the preamble, in every file that has a coordinate table |
+| Variance-matrix units, whether the full covariance is present | the `.apu` preamble |
+| The optional measurement columns (`T-stat`, `Meas. ID`, `Clust. ID`) | the column-header line itself |
+| **Whether angles are HP notation or decimal degrees** | **nowhere but the recorded command line** |
+
+The last is the one that matters, because both readings of a number are valid. `-36.331031467` in HP is
+`-36.552865187` in decimal degrees, and the same field can hold either. The `.adj` records `Command line
+arguments:` and so can be read unaided; **the `.xyz` and `.apu` record no command line at all**. GeoComp
+therefore passes the format it used, falls back to the command line when there is one, and otherwise refuses
+rather than guessing -- a guess here is a coordinate wrong by up to 0.6 degrees that looks entirely plausible.
+
+HP validation catches part of it by accident: HP cannot hold minutes of 60 or more, so a decimal-degree value
+whose fractional part is 0.60 or greater is rejected. That covers much of a real file and is not a guarantee
+-- `145.55` reads as either.
+
+### 5.2 Units inside the measurement table [V]
+
+Confirmed against `PrintAdjMeasurementsAngular` and `PrintAdjMeasurementsLinear` at commit `5cdb897`:
+
+| Column | Angular measurement | Linear measurement |
+|---|---|---|
+| `Measured`, `Adjusted` | degrees/minutes/seconds, or HP, or decimal degrees, per the format options | metres |
+| `Correction`, `Meas. SD`, `Adj. SD`, `Corr. SD`, `Pre Adj Corr` | **seconds of arc**, in every format | metres |
+| `N-stat`, `T-stat`, `Pelzer Rel` | dimensionless | dimensionless |
+
+The second row is the trap: the correction and the precisions are wrapped in `Seconds(...)` whatever format
+the two value columns took, so reading them the same way as the value is an error of a factor of 3600.
+
+**Angularity is a property of the component, not the type.** `PrintAdjMeasurementsAngular` is called with the
+component letters `P`, `L`, `a` and `v`, and `PrintAdjMeasurementsLinear` with `H`, `X`, `Y`, `Z`, `e`, `h`,
+`n`, `s` and `u`. A `Y` cluster prints `P`, `L` and `H` under one type letter -- two angles and a height --
+so a rule keyed on the type letter reads a height as an angle. Only a row with no component letter falls
+back to the type.
+
+The `.cor` file is a further case: its `Azimuth` and `V. Angle` are written by
+`FormatDmsString(RadtoDms(...), 4, true, false)`, i.e. separated fields (`84 42 21`), unconditionally -- not
+in whatever format the `.adj` used for the same kind of quantity.
+
+### 5.3 Station names are not always recoverable [V]
+
+`std::setw(STATION)` pads to 20 characters but never truncates, and `STN_NAME_WIDTH` allows 30. A name of 20
+characters or more therefore runs into the next field **with no separator at all**:
+
+```text
+A STATION WITH SPACESCCC   -36.331031467  145.585707313 ...
+^-------- name --------^^-^
+                        the constraint, with no space before it
+```
+
+and names may contain spaces, so splitting on whitespace is no better than slicing. The field is genuinely
+ambiguous. It is *not* ambiguous when the caller knows which names it wrote, which GeoComp always does
+because it wrote the input files (rule 3 below), so the parsers resolve against a known set when given one
+and refuse -- naming the remedy -- when not.
 
 Parsing rules:
 
@@ -216,6 +447,43 @@ correctness; disagreement localises a real defect in one of them. Any discrepanc
 investigated and documented before release, and where it stems from a genuine methodological difference
 (a different refraction model, a different datum convention) that difference is documented rather than
 tuned away.
+
+### 6.1 The result [V]
+
+Measured on upstream's `gnss-network` slice (11 stations, one four-baseline `X` cluster, one six-point `Y`
+cluster and two standalone `G` baselines), the in-house core against DynAdjust 1.4.0:
+
+| Quantity | In-house | DynAdjust | Agreement |
+|---|---|---|---|
+| Degrees of freedom | 3 | 3 | exact |
+| Observations / parameters | 36 / 33 | 36 / 33 | exact |
+| Variance factor σ̂₀² | 0.13769 | 0.138 | to the three decimals DynAdjust prints |
+| Adjusted coordinates | — | — | **0.047 mm**, largest over 33 components |
+| Residuals | — | — | 0.050 mm, largest over 36 rows |
+
+The core is started from coordinates perturbed by up to **five metres**, so the agreement is a property of
+the two solutions and not of a shared starting point.
+
+**Why this network.** Its observations are GNSS baselines and points, both *linear* in the coordinates, so
+the two engines solve the identical problem and any difference is arithmetic rather than modelling. It also
+lets the core hold the network in geocentric metres directly — `Frame.SPACE_3D` is three orthogonal metres
+whatever they are called — so no frame conversion stands between the two answers to be blamed for a
+difference. Networks whose observation equations are non-linear (distances, angles, zenith angles) exercise
+the Jacobians as well, and are the natural next case; they need the core's local frame and DynAdjust's
+geodetic one to be related, which is a conversion GeoComp does not yet have.
+
+### 6.2 What is compared, and what is refused [V]
+
+`geocomp.engines.dynadjust.crossvalidation` compares degrees of freedom, observation and parameter counts
+exactly; the variance factor relatively; coordinates and residuals within a stated tolerance. Counts first,
+because they are properties of the model rather than of the arithmetic: if they differ the two engines were
+given different networks, and comparing residuals after that is meaningless.
+
+**Coordinates are compared only when both solutions are in the same frame**, and that is checked rather than
+assumed. Differencing a geocentric X against a projected easting produces a number and the number means
+nothing, so a frame mismatch is reported as *not compared*, naming both frames. A quantity that could not be
+compared does **not** count as a disagreement: absence of evidence is not evidence, and treating it as such
+would make an unconvertible frame look like a defect in an engine.
 
 ---
 

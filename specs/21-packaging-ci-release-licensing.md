@@ -30,7 +30,8 @@ A QGIS plugin ZIP must contain exactly one top-level directory whose name matche
 which contains `metadata.txt`. So `geocomp.zip` contains `geocomp/` with `metadata.txt`, `__init__.py` and
 the modules of [`03-architecture.md`](./03-architecture.md) §2.
 
-**`metadata.txt`** declares: name, `qgisMinimumVersion` (the current LTR, NFR-001), description, version,
+**`metadata.txt`** declares: name, `qgisMinimumVersion` (`4.0.0` — NFR-001 and
+[`adr/0007-qgis-4-minimum.md`](./adr/0007-qgis-4-minimum.md)), description, version,
 author, email, repository and tracker URLs, `license=GPL-2.0-or-later` (NFR-009), tags, homepage, category
 and changelog.
 

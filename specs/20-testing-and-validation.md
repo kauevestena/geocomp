@@ -12,7 +12,7 @@ document.
 | Tier | Needs | Runs | Purpose |
 |---|---|---|---|
 | **T1 — Core unit** | Python + NumPy only | Every commit, seconds | The mathematics. No QGIS, no engines (NFR-002, NFR-011) |
-| **T2 — Reference** | T1 | Every commit | Reproduce published results (§3) |
+| **T2 — Reference** | T1 | Every commit | Reproduce published results (§3), RD-11 among them |
 | **T3 — QGIS integration** | QGIS runtime | Every commit, containerised | Algorithms, layers, provider, menu, i18n |
 | **T4 — Engine integration** | Pinned engine binaries | Every commit where available; nightly in full | Real input generation, real runs, real parsing |
 | **T5 — Cross-validation** | T1 + T4 | Nightly and pre-release | In-house core vs DynAdjust (§4) |
@@ -33,6 +33,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Every menu item maps to a registered algorithm and vice versa | FR-005 |
 | Every algorithm has a translated `shortHelpString()` documenting every parameter with units | FR-090, [`16-processing-provider.md`](./16-processing-provider.md) §8 |
 | Every public core function returning a geodetic value returns a `Quantity`-bearing type | FR-200 |
+| Every message template interpolates only context keys its raising site supplies, has one `%n` per key, and names a code something raises | NFR-006, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §2 |
 | Every requirement ID in `02-requirements.md` appears in exactly one `ROADMAP.md` phase | [`README.md`](./README.md) |
 | Relative links between spec documents resolve | — |
 | Locale round trip: every output format written under a comma-decimal locale reads back under a period-decimal one | FR-095 |
@@ -47,20 +48,65 @@ permitting redistribution, and an expected-results file.
 | Id | Dataset | Validates | Status |
 |---|---|---|---|
 | **RD-01** | `topo_test/` — the project author's total-station triangle (3 stations, PD/PI, distances, zenith angles) | Face reduction, corrections, basic reductions, small-network adjustment, the field-mapping importer | **In repository** |
-| **RD-02** | Worked variance-propagation examples from Ghilani (2010) and Gemael | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | To assemble |
-| **RD-03** | Worked network adjustments from the same sources — free and constrained, 2D and 3D | [`06-adjustment-core.md`](./06-adjustment-core.md) | To assemble |
-| **RD-04** | Levelling networks with published solutions, all three schemes | [`10-module-levelling.md`](./10-module-levelling.md) | To assemble |
+| **RD-02** | Covariance-propagation reference cases, each validated three ways: a hand-derived closed form, the module's first-order propagation, and a derivative-free Monte Carlo simulation | [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) | **Implemented** (P1). See the note below |
+| **RD-03** | Network adjustments with a known truth — 1D levelling, 2D trilateration, 2D triangulateration, free and constrained | [`06-adjustment-core.md`](./06-adjustment-core.md) | **Implemented** (P2), in `tests/networks.py`. Same citation note as RD-02 |
+| **RD-04** | Levelling field books generated from known heights, all three schemes, plus a loop with an injected blunder | [`10-module-levelling.md`](./10-module-levelling.md) | **Implemented** (P4), in `tests/reference_levelling.py`. Same citation note as RD-02 and RD-03 |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
-| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble |
-| **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble |
-| **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble |
-| **RD-09** | Synthetic networks with injected blunders of known size and location | Data snooping, reliability | Generated |
+| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
+| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T2), in `tests/data/krumm/` and `tests/test_krumm_corpus.py`. **33 reproduced to 0.05 mm.** Vendored from GNU Gama at a pinned commit, on the terms in [`22`](./22-reference-data-sources.md) §2.3 |
 
-**RD-01 is special.** It is the author's own prototype data, it exercises the whole first vertical slice, and
-it contains a real transcription blunder (a 1.000 m face-pair distance discrepancy —
-[`09-module-total-station.md`](./09-module-total-station.md) §2.1) which becomes a detection test. It ships
-with the plugin as a tutorial dataset (FR-952).
+**RD-01 is special, and carries two known defects.** It is the author's own prototype data and it exercises
+the whole first vertical slice. It contains a real transcription blunder — a 1.000 m face-pair distance
+discrepancy ([`09-module-total-station.md`](./09-module-total-station.md) §2.1) — which becomes a detection
+test. And its `processed_data.csv`, produced by the prototype notebook, carries a **180° error** in one
+reduced direction, caused by the arithmetic-mean face reduction the same section documents. Both are
+assets rather than problems: a reference dataset whose expected output is known to be wrong in two specific,
+independently verifiable places tests more than a clean one would.
+
+The 180° error is established two ways, not asserted: the published value gives a triangle whose interior
+angles sum to 38.24°, and implies a 2–3 distance of 4.43 m against 24.35 m measured. Both checks are in
+`tests/test_reference_total_station.py`.
+
+RD-01 ships with the plugin as a tutorial dataset (FR-952), with both defects documented — a tutorial in
+which the software catches two real errors in real data teaches more than one in which nothing is wrong.
+
+**RD-02, RD-03 and RD-04 note — validation complete, citation now made by RD-11.** The cases implemented in
+`tests/test_reference_propagation.py`, `tests/networks.py` and `tests/reference_levelling.py` are *not*
+transcriptions from Ghilani or Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
+
+RD-02 agrees with a hand-derived closed form *and* with a Monte Carlo simulation that uses no derivative at
+all. That triangle is stronger evidence than matching a printed answer — a transcription error in a book's
+input value would be invisible, whereas the Monte Carlo check catches a sign error the closed form and the
+implementation could share.
+
+RD-03 has no closed form for most of its quantities, so it is validated against the **identities of least
+squares**, which hold for every network rather than for one: redundancy numbers sum to the degrees of
+freedom; a free and a constrained solution of the same data agree on residuals and on σ̂₀²; design simulation
+reproduces the adjustment's covariance to machine precision when both are evaluated at the same coordinates;
+every analytic Jacobian matches complex-step differentiation. Several of these would catch errors that
+matching a printed answer would not.
+
+What remains for both is *citation*: transcribing the published worked examples so the project can state
+agreement with the standard references by name, which matters for the commercial-comparison protocol (§5)
+and for the teaching material (FR-952).
+
+**The citation is now made — see RD-11.** GNU Gama redistributes the 61 example networks of Krumm's
+*Geodetic Network Adjustment Examples* (Universität Stuttgart, 2020), **45 of them with the adjusted
+coordinates as published**, each citing the textbook it came from by edition and page.
+`geocomp/io/krumm.py` reads them and **33 reproduce to 0.05 mm** — Ghilani, Niemeier, Benning, Wolf, Strang
+and Borre, Grossmann, Höpke, Lother and Strehle, Carosio, Weiss and Blankenbach among them. The full result
+and the reasons for every refusal are in
+[`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2.
+
+RD-04 goes one step further than either. Its field books are **generated from known heights by inverting
+the very equations under test**: a staff reading is `r = Z - H + c·d`, so a line that fails to recover the
+height it was built from has a sign error, exactly locatable, in the noiseless case. That is stronger than
+matching a printed answer, where a transcription error in the book's input is invisible. What it cannot do
+is confirm agreement with the standard references *by name*, which is what the citation is for.
 
 Synthetic datasets (RD-09) matter as much as published ones: only with synthetic data is the true answer
 known *exactly*, so blunder detection, reliability and deformation analysis can be tested against ground
@@ -133,7 +179,7 @@ recorded in provenance.
 | Axis | Values |
 |---|---|
 | OS | Linux (primary), Windows, macOS (NFR-003) |
-| QGIS | Current LTR (primary) and current stable (NFR-001) |
+| QGIS | The 4.x series: current 4.x LTR once one exists, current stable until then (NFR-001, [`adr/0007-qgis-4-minimum.md`](./adr/0007-qgis-4-minimum.md)) |
 | Python | As shipped by the targeted QGIS versions |
 | Engines | Present (T4, T5) and absent (asserting graceful degradation, FR-306) |
 | SciPy | Present and absent (asserting the NumPy-only fallback, [`03-architecture.md`](./03-architecture.md) §3.7) |

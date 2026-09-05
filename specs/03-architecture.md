@@ -208,10 +208,25 @@ justification, because a QGIS plugin cannot assume the user can run `pip`.
 | Dependency | Status | Note |
 |---|---|---|
 | NumPy | Assumed present | Ships with QGIS |
-| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path |
+| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path, which is the reference implementation. See [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md); as of P2 the distributions use it and the sparse factorisation is not yet written |
 | GDAL/OGR, `qgis.core` | Assumed present | Ships with QGIS; used only in `io/` and above |
-| `openpyxl` | Optional | Required only for `.xlsx` (FR-160); the feature degrades to CSV with a clear message when absent |
+| `openpyxl` | **Test-only** | Amended in P5 — see below. Not needed at runtime; used in the test suite to read GeoComp's own `.xlsx` back with an independent implementation |
 | `requests` | Avoided | Use Python's standard library plus the QGIS network stack, so proxy and authentication settings are honoured |
+
+**Amendment (phase P5): `.xlsx` export needs no dependency.** The original entry made `openpyxl` optional and
+had the feature "degrade to CSV with a clear message" where it is absent. Writing the exporter showed that to
+be the wrong trade: an `.xlsx` is a ZIP of XML, *writing* one needs no formulas, styles or number formats,
+and the whole writer is under a hundred lines of standard library. Requiring a dependency a QGIS user cannot
+`pip install` — in order to produce a file GeoComp can produce itself — buys nothing and removes the feature
+on exactly the machines least able to fix it.
+
+So `.xlsx` export always works, everywhere, and `openpyxl` moves to being a **test** dependency: the suite
+uses it to read GeoComp's workbook back with an implementation GeoComp did not write, which is the only way
+to know the file is valid rather than merely self-consistent. The "degraded environments" CI job deliberately
+omits it, and the export tests that need it skip there — which is what proves the export does not.
+
+`openpyxl` would return as an optional *runtime* dependency the day GeoComp needs to **read** an `.xlsx`,
+which is a genuinely harder problem than writing one.
 
 ---
 

@@ -61,6 +61,36 @@ The GNSS-and-levelling case is the sharpest.
    test of the geoid model over the project area — genuinely useful information the user would otherwise
    have to compute by hand.
 
+### 3.1 As implemented (P5)
+
+Items 1–4 are in place; item 5 waits on the combined adjustment itself (this module is still Draft).
+
+`geocomp.core.geoid` holds the model — identity, version, coverage, stated accuracy, bilinear interpolation
+with its own uncertainty — and `geocomp.io.geoid` reads one from GTX or ESRI ASCII
+([`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.5). The height-type
+conversion runs where a mixture first arises, which in P5 is a levelling network holding a benchmark whose
+height came from GNSS: `harmonise_benchmarks` converts to **orthometric**, and not arbitrarily — the
+observations are levelled height differences, which are differences of orthometric height, so converting the
+outliers into the system the observations are already in leaves the observations untouched. `to_solution`
+records the model on every adjusted position (FR-804).
+
+Three refusals rather than two, because "a geoid model was supplied" turned out to have three meanings:
+
+| Situation | Code |
+|---|---|
+| Mixed height types, no model at all | `mixed_height_types` |
+| A model **named** but its grid not supplied | `geoid_model_named_without_grid` |
+| A benchmark needing conversion with no latitude and longitude | `benchmark_without_position` |
+
+The middle one matters: a name records *which* model was used and cannot compute an undulation. Accepting
+the name as permission to mix would be the worst of both — heights wrong by the undulation, and a record
+asserting they had been corrected.
+
+**A defect this uncovered.** Checking that the geoid's uncertainty reached the adjusted heights showed that
+it could not: `ConstraintMode.WEIGHTED` was declared, validated, and then ignored by the adjustment, which
+read only `FIXED`. A geoid-derived height is exactly the kind that should be held weighted rather than
+fixed, so item 4 of §3 was unreachable. See [`06-adjustment-core.md`](./06-adjustment-core.md) §3.
+
 ---
 
 ## 4. Variance component estimation (FR-805)
