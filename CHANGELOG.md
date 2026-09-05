@@ -5,6 +5,51 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Geodetic reductions
+
+#### Added
+
+- **`core/geodesy/`** - the piece three of P6's exit criteria were waiting on.
+  Until now GeoComp had no ellipsoid at all: the distance reductions take a mean
+  Earth radius and a caller-supplied point scale factor, which is enough to
+  shorten a distance and not enough to say where a station is.
+
+  - `ellipsoid.py` stores the two **defining** constants and derives the rest,
+    so there is no table of pre-rounded values to disagree with itself in the
+    eleventh digit. `e^2` is computed as `2f - f^2`, not `1 - b^2/a^2`: equal on
+    paper, and the second form loses four significant figures to cancellation.
+  - `cartesian.py` converts geodetic to geocentric and back, with Jacobians, so
+    a coordinate that arrives with a covariance leaves with one (FR-201,
+    FR-205). The inverse is Bowring's start refined by Newton until the identity
+    is exact to floating point.
+  - `projection.py` is Transverse Mercator in both directions -- Krüger's series
+    in the third flattening, the form EPSG Guidance Note 7-2 gives for method
+    9807 -- plus UTM as a parameterisation of it, and the point scale factor
+    that `reduce_to_projection` has been taking as a magic argument.
+
+  Validated against an **arbiter**, not against another series: the meridian arc
+  integrated by Gauss-Legendre quadrature, NumPy only so it runs where SciPy is
+  absent (ADR-0008). GeoComp is within a micrometre of the integral from -84 to
+  84 degrees.
+
+#### Found
+
+- **DynAdjust's northing carries a meridian-arc truncation** ([`specs/07`](specs/07-engine-dynadjust.md) §4.5).
+  Measured on fifteen stations placed on exact whole arcseconds, all
+  constrained, so the engine's output is a pure conversion: **easting agrees to
+  the printed 0.01 mm; northing does not**, by 0.085 mm at 36.5 degrees and
+  0.253 mm at 45, growing with latitude and independent of longitude. That
+  signature is the meridian arc rather than the projection, and the quadrature
+  says the truncation is DynAdjust's. Recorded because a cross-validation that
+  expects exact northing agreement will keep rediscovering it, and because
+  matching it deliberately would mean shipping a worse conversion to agree with
+  a better-known one.
+- **The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.** It
+  refuses rather than mis-slicing, which is the right failure, but it means
+  `--stn-coord-types ENz` output is unreadable. Not fixed here; the widths are
+  in upstream's `dnaconsts-iostream.hpp` and this is the same work as the rest
+  of `columns.py`.
+
 ### Grounding - published network adjustments
 
 #### Added

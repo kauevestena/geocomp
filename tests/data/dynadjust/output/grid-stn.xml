@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<DnaXmlFormat type="Station File" referenceframe="GDA2020" epoch="01.01.2020" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="DynaML.xsd">
+  <DnaStation>
+    <Name>P00</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P00</Name>
+      <XAxis>-45.000000000000</XAxis>
+      <YAxis>144.300000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P01</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P01</Name>
+      <XAxis>-45.000000000000</XAxis>
+      <YAxis>147.000000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P02</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P02</Name>
+      <XAxis>-45.000000000000</XAxis>
+      <YAxis>149.451500000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P03</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P03</Name>
+      <XAxis>-36.300000000000</XAxis>
+      <YAxis>144.300000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P04</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P04</Name>
+      <XAxis>-36.300000000000</XAxis>
+      <YAxis>147.000000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P05</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P05</Name>
+      <XAxis>-36.300000000000</XAxis>
+      <YAxis>149.451500000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P06</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P06</Name>
+      <XAxis>-20.153000000000</XAxis>
+      <YAxis>144.300000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P07</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P07</Name>
+      <XAxis>-20.153000000000</XAxis>
+      <YAxis>147.000000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P08</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P08</Name>
+      <XAxis>-20.153000000000</XAxis>
+      <YAxis>149.451500000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P09</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P09</Name>
+      <XAxis>-8.004500000000</XAxis>
+      <YAxis>144.300000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P10</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P10</Name>
+      <XAxis>-8.004500000000</XAxis>
+      <YAxis>147.000000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P11</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P11</Name>
+      <XAxis>-8.004500000000</XAxis>
+      <YAxis>149.451500000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P12</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P12</Name>
+      <XAxis>0.000000000000</XAxis>
+      <YAxis>144.300000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P13</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P13</Name>
+      <XAxis>0.000000000000</XAxis>
+      <YAxis>147.000000000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>P14</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>P14</Name>
+      <XAxis>0.000000000000</XAxis>
+      <YAxis>149.451500000000</YAxis>
+      <Height>0.0000</Height>
+    </StationCoord>
+    <Description>exact whole arcseconds</Description>
+  </DnaStation>
+</DnaXmlFormat>

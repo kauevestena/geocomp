@@ -23,15 +23,29 @@ from geocomp.core.geodesy.cartesian import (
     geodetic_to_cartesian_quantities,
 )
 from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS, Ellipsoid, ellipsoid_by_name
+from geocomp.core.geodesy.projection import (
+    ProjectionParameters,
+    inverse_transverse_mercator,
+    point_scale_factor,
+    transverse_mercator,
+    utm_parameters,
+    utm_zone,
+)
 
 __all__ = [
     "DEFAULT_ELLIPSOID",
     "ELLIPSOIDS",
     "Ellipsoid",
+    "ProjectionParameters",
     "cartesian_to_geodetic",
     "cartesian_to_geodetic_quantities",
     "ellipsoid_by_name",
     "geodetic_to_cartesian",
     "geodetic_to_cartesian_jacobian",
     "geodetic_to_cartesian_quantities",
+    "inverse_transverse_mercator",
+    "point_scale_factor",
+    "transverse_mercator",
+    "utm_parameters",
+    "utm_zone",
 ]

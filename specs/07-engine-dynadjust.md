@@ -301,10 +301,17 @@ setting. GeoComp writes:
 | Geodetic | `LLH` | latitude and longitude in HP notation, height in metres |
 | Projected | **refused** | — |
 
-A projected position is refused rather than converted. DynaML's third type,
-`UTM`, needs a zone and a hemisphere, and deriving those from a CRS string needs
-a projection database GeoComp does not carry; converting to geodetic or
-geocentric needs an inverse projection it does not carry either.
+A projected position was refused rather than converted, because DynaML's third
+type, `UTM`, needs a zone and a hemisphere, and converting to geodetic or
+geocentric needed an inverse projection GeoComp did not carry.
+
+**It carries one now.** `core/geodesy/` has the ellipsoids, the geodetic↔geocentric
+conversion and Transverse Mercator in both directions (§4.5 for how it compares
+with DynAdjust's). What is still missing is smaller and different in kind:
+deriving the *zone and hemisphere* from a CRS string, which needs a projection
+database rather than mathematics. A caller that states the projection
+parameters can convert; one that has only an EPSG code still cannot, and the
+writer refuses that case by name rather than guessing a zone.
 
 This began as a single constant `XYZ`, with the recorded reasoning that
 GeoComp's frames "are cartesian or projected already" — and that sentence was
@@ -317,6 +324,38 @@ the `gnss-network` cross-validation in §6.1 was unaffected. In a **relative**
 network — a traverse, a levelling line, GNSS baselines without absolute points —
 the approximate coordinates set the datum, and the answer is wrong in a way that
 looks entirely healthy.
+
+### 4.5 DynAdjust's northing carries a meridian-arc truncation [V]
+
+Measured, not inferred. `tests/data/dynadjust/output/grid.xyz` is fifteen stations on **exact whole
+arcseconds** — values HP notation holds without rounding — all constrained, so DynAdjust's output is a pure
+conversion rather than an adjustment, with eastings printed to 0.01 mm. Against GeoComp's Krüger series:
+
+| latitude | Δ easting | Δ northing |
+|---|---|---|
+| 0° | 0.000 mm | 0.000 mm |
+| 8° | 0.001 mm | 0.004 mm |
+| 20° | 0.005 mm | 0.005 mm |
+| 36.5° | 0.003 mm | **0.085 mm** |
+| 45° | 0.002 mm | **0.253 mm** |
+
+**Easting agrees to the printed precision. Northing does not**, by an amount that grows with latitude and is
+independent of longitude — the same at 2.5° west of the central meridian, on it, and 2.75° east. A northing
+difference that does not vary with longitude is not in the projection: it is in the **meridian arc**, the
+term that carries the northing from the equator to the parallel.
+
+Which implementation is right is settled by an arbiter that uses no series at all. Integrating *M(φ)* by
+Gauss–Legendre quadrature puts GeoComp within **a micrometre** of the integral at every latitude from −84°
+to 84°, and DynAdjust away from it by exactly the differences tabulated above. The truncation is DynAdjust's.
+
+Two consequences, both practical:
+
+* **A cross-validation must not expect exact agreement in northing.** Sub-millimetre, latitude-dependent, and
+  entirely explained — but a tolerance set from the easting will fail on the northing at Australian or
+  Brazilian latitudes, and the failure looks like a bug in GeoComp.
+* **It is not worth working around.** 0.25 mm at 45° is far below the uncertainty of any observation feeding
+  a network, and matching DynAdjust's truncation deliberately would mean shipping a worse conversion to
+  agree with a better-known one.
 
 ### 5.1 What the files do and do not say about their own layout [V]
 
