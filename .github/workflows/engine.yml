@@ -110,3 +110,12 @@ jobs:
         run: pytest -q tests/test_engines.py tests/test_dynaml_writer.py
              tests/test_dynaml_reader.py tests/test_dna_reader.py
              tests/test_dynadjust_output.py tests/test_dynadjust_solution.py
+
+      # The tier-4 tests proper: what only a running engine can show, and the
+      # evidence behind P6's cross-validation criterion. This file was missing
+      # from the list above, so every test in it -- the whole pipeline reaching
+      # a Solution, the provenance, the projected-network cross-validation --
+      # had never run in CI. A tier-4 test that only ever runs on a
+      # contributor's machine is a claim, not a check.
+      - name: The pipeline, against the real engine
+        run: pytest -q tests/test_dynadjust_pipeline.py
