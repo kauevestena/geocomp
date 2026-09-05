@@ -300,21 +300,24 @@ reason recorded, since a parser written from a guess is not an implementation of
 |---|---|
 | DynaML imports without warnings for every mapped type | **met** |
 | A GNSS baseline cluster round-trips with its covariance intact | **met** |
-| Cross-validation on **at least three** networks | **one of three** — see below |
+| Cross-validation on **at least three** networks | **two of three** — see below |
 | The engine manager installs on all three operating systems | **not met** — see below |
 | With DynAdjust absent, everything else still works | **met** — the whole suite passes with no engine, and the algorithm fails with a message naming the remedy |
 | Every **[C]** claim confirmed or corrected | **met** |
 | FR-161, the *Adjust* format | **moves again** — see below |
 
-**Cross-validation: one network, not three.** The `gnss-network` slice agrees to 0.047 mm
-([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). The other two are blocked on the same missing
-piece: **GeoComp has no geodetic↔geocentric conversion.** The in-house core works in a local metre frame and
-DynAdjust in a geocentric one; for a network of GNSS baselines and points those coincide, because both
-observation equations are differences of coordinates and the frame cancels. For a levelling network, or any
-terrestrial one, they do not — the core's third component would be geocentric *Z* where DynAdjust's is
-ellipsoidal *height*, and the two differ by thousands of kilometres. The conversion is a self-contained piece
-of work (ellipsoid definitions, the closed-form inverse, its own reference cases) and belongs with the
-geodetic-computations work rather than bolted onto the end of this phase.
+**Cross-validation: two networks, not three — and the reason the count moved.** The `gnss-network` slice
+agrees to 0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). A **projected levelling
+network** now agrees to 0.2 mm, which it could not before, because `core/geodesy/` supplies the conversion
+this entry used to say was missing: a projected network is inverse-projected to geodetic and written `LLH`,
+and its heights come back through geocentric cartesian to *h*. `tests/test_dynadjust_pipeline.py`
+`TestAProjectedNetworkCrossValidates` is the whole round trip.
+
+**The third is blocked on something else, and it is worth naming precisely.** RD-03's trilateration reaches
+DynAdjust's station file now, but only one of its eleven observations imports: a **horizontal distance has no
+DynAdjust equivalent at all** ([`07`](./07-engine-dynadjust.md) §4.2). That is not a conversion gap and no
+amount of geodesy fixes it — DynAdjust's distances are ellipsoidal, sea-level or slope, and a grid distance
+is none of those. The third network has to be one whose observation types DynAdjust carries.
 
 **The engine manager installs nothing** because there is nothing that can honestly be pinned. ADR-0003 asks
 for a downloaded binary verified against a digest; Geoscience Australia publishes Windows build artefacts and

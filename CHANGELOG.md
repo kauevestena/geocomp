@@ -32,6 +32,32 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   absent (ADR-0008). GeoComp is within a micrometre of the integral from -84 to
   84 degrees.
 
+- **A projected network reaches DynAdjust.** `write_station_file` takes a
+  `projection=`, inverse-projects the stations and writes them `LLH`;
+  `DynAdjustJob` carries it, plus `geoid_undulations=` for a network whose
+  heights are orthometric, because DynaML's `LLH` height is *h* and writing *H*
+  there is out by tens of metres in Brazil (FR-804). Without a stated
+  projection it still refuses: GeoComp can invert a Transverse Mercator but
+  cannot tell *which* projection a CRS string names, and that needs a database
+  rather than mathematics.
+
+  When the job supplies undulations, `dnageoid` is **skipped** with that
+  recorded as the reason -- the heights arrive ellipsoidal already, and running
+  it would apply the separation twice.
+
+#### Changed
+
+- **P6's cross-validation is two networks of three**, up from one
+  ([`specs/ROADMAP.md`](specs/ROADMAP.md) P6). A projected levelling network now
+  agrees with the in-house core to **0.2 mm** across the whole round trip:
+  GeoComp's grid coordinates, inverse-projected to geodetic, adjusted by
+  DynAdjust, read back geocentric and converted to *h*.
+
+  The third is blocked on something geodesy cannot fix, and the roadmap now says
+  so precisely: RD-03's trilateration reaches the station file, and one of its
+  eleven observations imports, because a **horizontal distance has no DynAdjust
+  equivalent** at all.
+
 #### Found
 
 - **DynAdjust's northing carries a meridian-arc truncation** ([`specs/07`](specs/07-engine-dynadjust.md) §4.5).
@@ -44,6 +70,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   expects exact northing agreement will keep rediscovering it, and because
   matching it deliberately would mean shipping a worse conversion to agree with
   a better-known one.
+- **A covariance read from printed text cannot be held to a computed one's
+  tolerance.** A levelling network leaves the horizontal undetermined, so its
+  parameter covariance is near-singular; reassembled from the `.apu`'s four
+  printed decimals it comes back with an eigenvalue of -3e-9, and
+  `Covariance`'s positive-semi-definite check (`1e-12` relative) refuses it. The
+  matrix is fine to the precision it was printed at. Not fixed here -- the fix
+  belongs with the covariance reader, which should condition what it assembles
+  and say that it did.
 - **The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.** It
   refuses rather than mis-slicing, which is the right failure, but it means
   `--stn-coord-types ENz` output is unreadable. Not fixed here; the widths are

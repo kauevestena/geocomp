@@ -22,6 +22,7 @@ import numpy as np
 import pytest
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.geodesy import ELLIPSOIDS, transverse_mercator, utm_parameters
 from geocomp.core.models import (
     Cluster,
     ClusterKind,
@@ -513,3 +514,120 @@ class TestTheStationCoordinateType:
         text = self._write(network, tmp_path)
         assert "<Type>XYZ</Type>" in text
         assert "<XAxis>0.0000</XAxis>" in text
+
+
+class TestAProjectedNetworkReachesDynAdjust:
+    """``specs/07`` section 4.4, now that the inverse projection exists.
+
+    A projected station used to be refused outright. It still is when nobody
+    says *which* projection -- deriving a zone and a hemisphere from a CRS
+    string needs a projection database, which is a different thing from
+    mathematics -- but a caller that states the parameters gets an ``LLH``
+    station DynAdjust accepts.
+
+    This closes the coordinate half of the blocker behind P6's cross-validation
+    criterion. The other half, that a horizontal distance has no DynAdjust
+    equivalent at all (``specs/07`` section 4.2), is unaffected and still refuses.
+    """
+
+    #: SIRGAS 2000 / UTM 22S, which is what a Curitiba survey is actually in.
+    PROJECTION = utm_parameters(22, southern_hemisphere=True, ellipsoid=ELLIPSOIDS["GRS80"])
+
+    @staticmethod
+    def _network(height_type: HeightType, up: float = 915.0) -> Network:
+        network = Network(id="n", crs="EPSG:31982")
+        network.stations["A"] = Station(
+            id="A",
+            approx_position=Position(
+                values=(
+                    Quantity.exact(670000.0, Unit.METRE),
+                    Quantity.exact(7185000.0, Unit.METRE),
+                    Quantity.exact(up, Unit.METRE),
+                ),
+                system=CoordinateSystem.PROJECTED,
+                crs="EPSG:31982",
+                height_type=height_type,
+            ),
+        )
+        return network
+
+    def _write(self, network: Network, tmp_path: Path, **kwargs) -> str:
+        path = tmp_path / "stn.xml"
+        write_station_file(network, path, frame="GDA2020", epoch="01.01.2020", **kwargs)
+        return path.read_text(encoding="utf-8")
+
+    def test_without_a_stated_projection_it_is_still_refused(self, tmp_path: Path) -> None:
+        """The CRS string says EPSG:31982; reading a zone out of that is a
+        database lookup, and guessing one puts the station in another country."""
+        with pytest.raises(ValidationError) as excinfo:
+            self._write(self._network(HeightType.ELLIPSOIDAL), tmp_path)
+        assert excinfo.value.code == "validation.dynadjust_cannot_write_projected_coordinates"
+
+    def test_with_one_it_is_written_as_llh(self, tmp_path: Path) -> None:
+        text = self._write(
+            self._network(HeightType.ELLIPSOIDAL), tmp_path, projection=self.PROJECTION
+        )
+        assert "<Type>LLH</Type>" in text
+        # 670000 E, 7185000 N in UTM 22S is Curitiba: about 25.44 S, 49.31 W.
+        latitude = hp_to_radians(text.split("<XAxis>")[1].split("</XAxis>")[0])
+        longitude = hp_to_radians(text.split("<YAxis>")[1].split("</YAxis>")[0])
+        assert math.degrees(latitude) == pytest.approx(-25.44, abs=0.02)
+        assert math.degrees(longitude) == pytest.approx(-49.31, abs=0.02)
+
+    def test_the_conversion_round_trips_through_the_reader(self, tmp_path: Path) -> None:
+        """What the writer put in is what the reader gets out, to a micrometre."""
+        network = self._network(HeightType.ELLIPSOIDAL)
+        path = tmp_path / "stn.xml"
+        write_station_file(
+            network, path, frame="GDA2020", epoch="01.01.2020", projection=self.PROJECTION
+        )
+        back = read_station_file(path).network.stations["A"].approx_position
+        assert back.system is CoordinateSystem.GEODETIC
+
+        easting, northing = transverse_mercator(
+            back.values[0].value, back.values[1].value, self.PROJECTION
+        )
+        assert easting == pytest.approx(670000.0, abs=1e-3)
+        assert northing == pytest.approx(7185000.0, abs=1e-3)
+
+    def test_an_orthometric_height_without_a_geoid_model_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        """DynaML's LLH height is *h*. Writing *H* there is out by the undulation.
+
+        Tens of metres in Brazil, and nothing downstream can detect it: the
+        network adjusts, converges and reports a healthy variance factor with
+        every station on the wrong surface.
+        """
+        with pytest.raises(ValidationError) as excinfo:
+            self._write(
+                self._network(HeightType.ORTHOMETRIC), tmp_path, projection=self.PROJECTION
+            )
+        assert excinfo.value.code == (
+            "validation.dynadjust_orthometric_height_needs_a_geoid_model"
+        )
+        assert excinfo.value.context["station"] == "A"
+
+    def test_an_orthometric_height_with_an_undulation_is_converted(
+        self, tmp_path: Path
+    ) -> None:
+        text = self._write(
+            self._network(HeightType.ORTHOMETRIC, up=915.0),
+            tmp_path,
+            projection=self.PROJECTION,
+            undulations={"A": -4.0},
+        )
+        assert "<Height>911.0000</Height>" in text
+
+    def test_a_two_dimensional_network_needs_no_geoid_model(self, tmp_path: Path) -> None:
+        """``HeightType.NONE`` is a network with no height, not an unknown one.
+
+        The conversion does not use the third component, so requiring a geoid
+        undulation for it would refuse a plane network over a number that means
+        nothing.
+        """
+        text = self._write(
+            self._network(HeightType.NONE, up=0.0), tmp_path, projection=self.PROJECTION
+        )
+        assert "<Type>LLH</Type>" in text
+        assert "<Height>0.0000</Height>" in text

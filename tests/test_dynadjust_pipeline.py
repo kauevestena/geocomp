@@ -37,6 +37,7 @@ from geocomp.engines.dynadjust.engine import (
     plan,
 )
 from geocomp.engines.dynadjust.read_dynaml import read_dynaml
+from geocomp.engines.dynadjust.read_output import read_xyz
 
 from .conftest import requires_dynadjust
 
@@ -413,3 +414,141 @@ class TestAPartialNetwork:
     ) -> None:
         prepared = DynAdjustEngine().prepare(DynAdjustJob(network=network), tmp_path)
         assert prepared.skipped == ()
+
+
+@pytest.mark.engines
+@requires_dynadjust
+class TestAProjectedNetworkCrossValidates:
+    """The second cross-validation network P6's exit criterion asks for.
+
+    Before ``core/geodesy/``, no projected network could reach DynAdjust at all:
+    the writer refused, correctly, because a grid easting written under any
+    DynaML coordinate type puts the station somewhere it is not. That refusal is
+    why the criterion had one network of three (``specs/ROADMAP.md`` P6).
+
+    A levelling loop is the case that clears the *other* obstacle too. Its
+    height differences map to DynAdjust's ``L``, so the whole network imports --
+    unlike a trilateration, whose horizontal distances have no DynAdjust
+    equivalent (``specs/07`` section 4.2) and still refuse.
+    """
+
+    @staticmethod
+    def projected(reference, projection, *, easting=670000.0, northing=7185000.0):
+        """Place a local plane network inside SIRGAS 2000 / UTM 22S."""
+        network = reference.network
+        for index, (station_id, station) in enumerate(list(network.stations.items())):
+            east, north, up = (q.value for q in station.approx_position.values)
+            network.stations[station_id] = Station(
+                id=station.id,
+                name=station.name,
+                description=station.description,
+                approx_position=Position(
+                    values=(
+                        Quantity.exact(easting + east + index * 300.0, Unit.METRE),
+                        Quantity.exact(northing + north + index * 250.0, Unit.METRE),
+                        Quantity.exact(up, Unit.METRE),
+                    ),
+                    system=CoordinateSystem.PROJECTED,
+                    crs="EPSG:31982",
+                    height_type=station.approx_position.height_type,
+                ),
+                constraint=station.constraint,
+                station_type=station.station_type,
+            )
+        del projection
+        return network
+
+    def test_a_projected_levelling_network_adjusts(self, tmp_path) -> None:
+        """The heights come back agreeing with GeoComp's own to the printed 0.1 mm.
+
+        The comparison adds the geoid undulation back, and that is not a fudge:
+        GeoComp's heights are orthometric, the writer converts them to *h* for
+        DynaML (FR-804), and DynAdjust with **no geoid model loaded** prints
+        ``H(Ortho)`` equal to ``h(Ellipse)`` -- it has nothing to separate them
+        with. Differencing the two columns directly would show a constant offset
+        that looks like a datum error and is not one.
+        """
+        from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
+        from geocomp.core.adjustment.parameters import Frame
+        from geocomp.core.geodesy import (
+            ELLIPSOIDS,
+            cartesian_to_geodetic,
+            utm_parameters,
+        )
+        from tests import networks as reference_networks
+
+        undulation = -4.0
+        projection = utm_parameters(22, southern_hemisphere=True,
+                                    ellipsoid=ELLIPSOIDS["GRS80"])
+
+        in_house = adjust(
+            reference_networks.levelling_loop().network,
+            AdjustmentOptions(frame=Frame.HEIGHT_1D),
+        )
+        expected = {
+            station_id: (
+                float(in_house.parameters[in_house.layout.column(station_id, "h")])
+                if in_house.layout.column(station_id, "h") is not None
+                else in_house.layout.fixed_values[(station_id, "h")]
+            )
+            for station_id in reference_networks.levelling_loop().network.stations
+        }
+
+        network = self.projected(reference_networks.levelling_loop(), projection)
+        job = DynAdjustJob(
+            network=network,
+            name="levelled",
+            target_frame="GDA2020",
+            target_epoch=Epoch.from_decimal_year(2020.0),
+            projection=projection,
+            geoid_undulations=dict.fromkeys(network.stations, undulation),
+        )
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(job, tmp_path)
+        runs = engine.run(prepared)
+        assert all(run.exit_code == 0 for run in runs), [run.diagnostic for run in runs]
+
+        # Read the coordinates rather than the whole Solution, deliberately.
+        # `parse` also assembles the parameter covariance from the .apu, and a
+        # levelling network leaves the horizontal undetermined -- so that matrix
+        # is near-singular, and reconstructed from four printed decimals it comes
+        # back an eigenvalue of -3e-9 short of positive semi-definite. That is a
+        # covariance-reader problem (a matrix read from text cannot be held to a
+        # tolerance meant for a computed one) and is recorded as such; it is not
+        # what this test is about.
+        rows = {row.station_id: row for row in read_xyz(prepared.output("xyz"))}
+        assert set(rows) == set(expected)
+
+        # The pipeline asks for PLHhXYZ, so the row comes back geocentric. Turning
+        # it into a height uses the other half of core/geodesy, which makes this
+        # a round trip through the whole of it: GeoComp's grid coordinates ->
+        # geodetic (inverse projection) -> DynAdjust -> geocentric -> back to h.
+        for station_id, row in rows.items():
+            assert row.position.system is CoordinateSystem.CARTESIAN
+            _, _, ellipsoidal = cartesian_to_geodetic(
+                *(quantity.value for quantity in row.position.values),
+                ELLIPSOIDS["GRS80"],
+            )
+            assert ellipsoidal - undulation == pytest.approx(
+                expected[station_id], abs=2e-4
+            ), station_id
+
+    def test_a_projected_network_without_a_projection_is_still_refused(self, tmp_path) -> None:
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+        from tests import networks as reference_networks
+
+        projection = utm_parameters(22, southern_hemisphere=True,
+                                    ellipsoid=ELLIPSOIDS["GRS80"])
+        network = self.projected(reference_networks.levelling_loop(), projection)
+        job = DynAdjustJob(
+            network=network,
+            name="unstated",
+            target_frame="GDA2020",
+            target_epoch=Epoch.from_decimal_year(2020.0),
+            # Undulations, so that the *projection* refusal is what is under
+            # test rather than the geoid one that would otherwise fire first.
+            geoid_undulations=dict.fromkeys(network.stations, -4.0),
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            DynAdjustEngine().adjust(job, tmp_path)
+        assert excinfo.value.code == "validation.dynadjust_cannot_write_projected_coordinates"

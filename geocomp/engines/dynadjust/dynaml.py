@@ -36,6 +36,10 @@ from pathlib import Path
 from typing import Any
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.geodesy.projection import (
+    ProjectionParameters,
+    inverse_transverse_mercator,
+)
 from geocomp.core.models import (
     Cluster,
     ConstraintMode,
@@ -45,7 +49,7 @@ from geocomp.core.models import (
     Station,
 )
 from geocomp.core.models.observation import OBSERVATION_TYPES
-from geocomp.core.models.position import CoordinateSystem
+from geocomp.core.models.position import CoordinateSystem, HeightType
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.formats import (
     format_metres,
@@ -224,8 +228,22 @@ def write_station_file(
     frame: str,
     epoch: str,
     names: dict[str, str] | None = None,
+    projection: ProjectionParameters | None = None,
+    undulations: dict[str, float] | None = None,
 ) -> DynaMLDocument:
-    """Write the DynaML station file for *network*."""
+    """Write the DynaML station file for *network*.
+
+    Args:
+        projection: Required when the network's positions are **projected**, and
+            meaningless otherwise. DynAdjust has no way to take a grid
+            coordinate, so the stations are inverse-projected to geodetic and
+            written ``LLH``; without this the writer refuses rather than putting
+            an easting where a latitude belongs (``specs/07`` section 4.4).
+        undulations: ``{station id: N}`` in metres, for a projected network
+            whose heights are **orthometric**. DynaML's ``LLH`` height is *h*
+            above the ellipsoid, and the difference is tens of metres in Brazil
+            (FR-804).
+    """
     if not frame or not epoch:
         raise ValidationError(
             "dynadjust_frame_or_epoch_missing",
@@ -245,7 +263,7 @@ def write_station_file(
         element = ET.SubElement(root, "DnaStation")
         _text(element, "Name", names[station_id])
         _text(element, "Constraints", _constraints(station))
-        coord_type, first, second, height = _coordinates(station)
+        coord_type, first, second, height = _coordinates(station, projection, undulations)
         _text(element, "Type", coord_type)
 
         coord = ET.SubElement(element, "StationCoord")
@@ -266,7 +284,11 @@ def write_station_file(
     )
 
 
-def _coordinates(station: Station) -> tuple[str, str, str]:
+def _coordinates(
+    station: Station,
+    projection: ProjectionParameters | None = None,
+    undulations: dict[str, float] | None = None,
+) -> tuple[str, str, str]:
     """A station's ``<Type>`` and its three coordinate strings.
 
     The type follows the position, because ``<Type>`` is a declaration *about*
@@ -275,13 +297,14 @@ def _coordinates(station: Station) -> tuple[str, str, str]:
     upstream's own station files use and what
     :mod:`~geocomp.engines.dynadjust.read_dynaml` reads back.
 
-    A **projected** position is refused. DynaML's third type, ``UTM``, needs a
-    zone and a hemisphere, and deriving those from a CRS string needs a
-    projection database GeoComp does not carry; converting to geodetic or
-    geocentric needs an inverse projection it does not carry either. Writing the
-    easting into ``XAxis`` under any other type is the alternative, and that is
-    the defect this function exists to prevent -- a UTM 22S station so written
-    sits 845 km above the Earth, which DynAdjust accepts without complaint.
+    A **projected** position is inverse-projected to geodetic and written
+    ``LLH`` -- but only when *projection* says which projection it is. That
+    parameter is not a convenience: a projected position carries a CRS string,
+    and deriving a zone and a hemisphere from a string needs a projection
+    database GeoComp does not carry (``specs/07`` section 4.4). Without it the
+    station is refused, because the alternative is writing the easting into
+    ``XAxis`` under some other type, and a UTM 22S station so written sits
+    845 km above the Earth -- which DynAdjust accepts without complaint.
     """
     position = station.approx_position or (
         station.constraint.position if station.constraint else None
@@ -292,25 +315,82 @@ def _coordinates(station: Station) -> tuple[str, str, str]:
         # can perfectly well adjust.
         return COORD_TYPES[CoordinateSystem.CARTESIAN], *(format_metres(0.0),) * 3
 
-    coord_type = COORD_TYPES.get(position.system)
-    if coord_type is None:
+    if position.system is CoordinateSystem.PROJECTED:
+        return _from_projected(station, position, projection, undulations)
+
+    coord_type = COORD_TYPES[position.system]
+    values = [quantity.value for quantity in position.values]
+    if position.system is CoordinateSystem.GEODETIC:
+        return coord_type, radians_to_hp(values[0]), radians_to_hp(values[1]), format_metres(values[2])
+    return coord_type, *(format_metres(value) for value in values)
+
+
+def _from_projected(
+    station: Station,
+    position,
+    projection: ProjectionParameters | None,
+    undulations: dict[str, float] | None,
+) -> tuple[str, str, str]:
+    """Inverse-project a grid coordinate into the ``LLH`` DynAdjust wants."""
+    if projection is None:
         raise ValidationError(
             "dynadjust_cannot_write_projected_coordinates",
             station=station.id,
             received=position.system.value,
             crs=position.crs,
-            expected="a geodetic or geocentric position",
+            expected="a geodetic or geocentric position, or a stated projection",
             hint=(
-                "DynaML's UTM type needs a zone and hemisphere GeoComp cannot "
-                "derive from a CRS string, and writing a projected easting under "
-                "any other type puts the station in the wrong place entirely"
+                "GeoComp can invert a Transverse Mercator projection now "
+                "(core.geodesy.projection), but not derive which one a CRS "
+                "string names -- that needs a projection database. Pass "
+                "`projection=` to say, or the easting goes into XAxis and puts "
+                "the station in the wrong place entirely"
             ),
         )
 
-    values = [quantity.value for quantity in position.values]
-    if position.system is CoordinateSystem.GEODETIC:
-        return coord_type, radians_to_hp(values[0]), radians_to_hp(values[1]), format_metres(values[2])
-    return coord_type, *(format_metres(value) for value in values)
+    easting, northing, up = (quantity.value for quantity in position.values)
+    latitude, longitude = inverse_transverse_mercator(easting, northing, projection)
+
+    height = _ellipsoidal_height(station, position, up, undulations)
+    return (
+        COORD_TYPES[CoordinateSystem.GEODETIC],
+        radians_to_hp(latitude),
+        radians_to_hp(longitude),
+        format_metres(height),
+    )
+
+
+def _ellipsoidal_height(
+    station: Station, position, up: float, undulations: dict[str, float] | None
+) -> float:
+    """``h``, which is what DynAdjust's ``LLH`` height means.
+
+    An **orthometric** height is not it, and the difference is tens of metres in
+    Brazil. Applying a geoid model is FR-804's business and needs a model this
+    writer has not got, so an orthometric height without an undulation is
+    refused by name rather than written as though it were ellipsoidal.
+    """
+    if position.height_type is HeightType.ELLIPSOIDAL:
+        return up
+    if position.height_type is HeightType.NONE:
+        # A genuinely two-dimensional network. The height is not a height, and
+        # the conversion does not use it, so zero says so honestly.
+        return 0.0
+
+    undulation = (undulations or {}).get(station.id)
+    if undulation is None:
+        raise ValidationError(
+            "dynadjust_orthometric_height_needs_a_geoid_model",
+            station=station.id,
+            received=position.height_type.value,
+            expected="an ellipsoidal height, or a geoid undulation for this station",
+            hint=(
+                "DynaML's LLH height is h above the ellipsoid. Writing H above "
+                "the geoid there is an error of the undulation itself -- tens of "
+                "metres in Brazil (FR-804)"
+            ),
+        )
+    return up + undulation
 
 
 def _approximate(station: Station) -> tuple[float, float, float]:

@@ -38,6 +38,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from geocomp.core.errors import ComputationError, ValidationError
+from geocomp.core.geodesy.projection import ProjectionParameters
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.network import Network
 from geocomp.core.models.position import HeightType
@@ -157,6 +158,17 @@ class DynAdjustJob:
     maximum_iterations: int = 10
     phased: bool | None = None
     segmentation_threshold: int = SEGMENTATION_THRESHOLD
+    #: How to invert the network's projection, when its positions are projected.
+    #:
+    #: DynAdjust has no way to take a grid coordinate. GeoComp can invert a
+    #: Transverse Mercator (``core.geodesy.projection``) but cannot tell *which*
+    #: projection a CRS string names -- that needs a projection database
+    #: (``specs/07`` section 4.4) -- so the caller states it, or the job is
+    #: refused rather than writing an easting where a latitude belongs.
+    projection: ProjectionParameters | None = None
+    #: ``{station id: N}`` in metres, for a projected network with orthometric
+    #: heights. DynaML's LLH height is *h* above the ellipsoid (FR-804).
+    geoid_undulations: dict[str, float] = field(default_factory=dict)
     #: Adjust anyway when some observations have no DynAdjust equivalent.
     #:
     #: Off by default, and that is the whole point. Three GeoComp observation
@@ -327,7 +339,13 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
         Stage("dnareftran", tuple(reftran), included=frame_differs or epoch_differs, reason=reason)
     )
 
-    geoid = _needs_geoid(network)
+    # Orthometric heights need the separation applied -- but not necessarily by
+    # dnageoid. When the job carries per-station undulations the writer has
+    # already turned H into h, so the heights DynAdjust receives are ellipsoidal
+    # and there is nothing left for this stage to do. Running it anyway would
+    # apply the separation twice.
+    applied_by_geocomp = bool(job.geoid_undulations)
+    geoid = _needs_geoid(network) and not applied_by_geocomp
     stages.append(
         Stage(
             "dnageoid",
@@ -336,7 +354,12 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
             reason=(
                 "orthometric heights take part, so the geoid separation is needed (FR-804)"
                 if geoid
-                else "every height is ellipsoidal; no geoid is involved"
+                else (
+                    "the heights were converted with the undulations the job supplied, "
+                    "so they reach DynAdjust ellipsoidal already"
+                    if applied_by_geocomp
+                    else "every height is ellipsoidal; no geoid is involved"
+                )
             ),
         )
     )
@@ -497,11 +520,18 @@ class DynAdjustEngine:
 
         stages = plan(job)
         geoid_stage = next(stage for stage in stages if stage.program == "dnageoid")
-        if geoid_stage.included and not job.geoid_grid:
+        # Per-station undulations are a geoid model too, in a coarser form: the
+        # writer uses them to turn H into the h DynaML's LLH height means, which
+        # is the same job dnageoid does from a grid. Requiring the grid as well
+        # would refuse a network whose height systems are already related.
+        if geoid_stage.included and not (job.geoid_grid or job.geoid_undulations):
             raise ValidationError(
                 "dynadjust_geoid_grid_required",
                 network=job.network.id,
-                expected="a geoid grid; orthometric heights take part in this network",
+                expected=(
+                    "a geoid grid, or per-station undulations; orthometric heights "
+                    "take part in this network"
+                ),
                 hint="FR-804: the height systems cannot be related without one",
             )
 
@@ -509,7 +539,15 @@ class DynAdjustEngine:
         names = station_names(job.network)
         station_file = work_dir / f"{job.name}-stn.xml"
         measurement_file = work_dir / f"{job.name}-msr.xml"
-        write_station_file(job.network, station_file, frame=job.frame, epoch=epoch, names=names)
+        write_station_file(
+            job.network,
+            station_file,
+            frame=job.frame,
+            epoch=epoch,
+            names=names,
+            projection=job.projection,
+            undulations=job.geoid_undulations or None,
+        )
         document = write_measurement_file(
             job.network, measurement_file, frame=job.frame, epoch=epoch, names=names
         )
