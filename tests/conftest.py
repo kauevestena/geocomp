@@ -20,6 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_DIR = REPO_ROOT / "geocomp"
 SPECS_DIR = REPO_ROOT / "specs"
 KRUMM_DIR = REPO_ROOT / "tests" / "data" / "krumm"
+ADJUST_DIR = REPO_ROOT / "tests" / "data" / "adjust"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -102,4 +103,30 @@ def krumm_corpus() -> Path | None:
 requires_krumm = pytest.mark.skipif(
     krumm_corpus() is None,
     reason="tests/data/krumm is missing, and GEOCOMP_KRUMM_DIR names no corpus either",
+)
+
+
+def adjust_sources() -> Path | None:
+    """Where the original ``.Adat`` files are, if anywhere.
+
+    **Nothing is vendored here**: ``tests/data/adjust/`` carries the five
+    networks converted into GeoComp's own serialisation, because the data is CC
+    BY 4.0 and free to redistribute while the *format* is Ghilani's
+    (``tests/data/adjust/PROVENANCE.md``). So the corpus tests read the
+    converted files, and the reader is exercised by round trip.
+
+    ``GEOCOMP_ADJUST_DIR`` points at the originals for anyone who has them, and
+    the tests that can use them then do -- reading a real published file is
+    worth more than reading one this project wrote.
+    """
+    override = os.environ.get("GEOCOMP_ADJUST_DIR")
+    if not override:
+        return None
+    path = Path(override)
+    return path if any(path.glob("*.Adat")) else None
+
+
+requires_adjust_sources = pytest.mark.skipif(
+    adjust_sources() is None,
+    reason="GEOCOMP_ADJUST_DIR names no directory of .Adat files",
 )

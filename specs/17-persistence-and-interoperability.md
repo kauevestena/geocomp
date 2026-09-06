@@ -149,50 +149,71 @@ Export to CSV and `.xlsx` covers stations, observations, adjusted results, resid
 `.xlsx` requires `openpyxl`; where it is unavailable, the feature degrades to CSV with a clear message
 ([`03-architecture.md`](./03-architecture.md) §3.7).
 
-### 5.2 The *Adjust* format (FR-161)
+### 5.2 The *Adjust* format (FR-161) **[V]**
 
 The proposal requires interoperability with the format of the *Adjust* software accompanying Ghilani (2010) —
 a widely used teaching tool, which makes this directly valuable for the pedagogical goal: a class's existing
 worked examples can be opened in GeoComp and compared.
 
-Read and write. The format's own conventions (its observation type codes, units and station referencing) are
-documented in the implementation and validated against published example files.
+**Implemented in `geocomp/io/adjust.py`**, read and write, after being re-planned out of P5, P6 and P7 for
+want of a single example file. What unblocked it was a public dataset of five surveying networks published in
+the format ([`22-reference-data-sources.md`](./22-reference-data-sources.md) §4), CC BY 4.0.
 
-#### Blocked, and on what (P5)
+#### The grammar is inferred, and that is a bounded claim
 
-**Not implemented, and deliberately not guessed.** P5 could not obtain a specification of the format or a
-single example file:
+There is still no published specification. The reader was written against ten example files, and what makes
+that solid rather than hopeful is that **the format carries its own check**: the second line declares how many
+observations of each kind follow, so a misparse does not produce a plausible network — it produces a count
+that disagrees, on every file, immediately.
 
-- Ghilani (2010) is not available to this repository. `research_project/referencias.bib` cites it
-  (`Ghilani2010`, and the 6th edition as `ghilani_adjustment`), but `research_project/bibliography/` holds
-  only the DynAdjust and RTKLIB material.
-- The software and its documentation are distributed from the publisher's and Penn State's student-resource
-  pages, which this environment's network policy does not reach.
-- No public description of the file layout was found. The one substantive statement located is that ADJUST
-  *"reads a text file similar in format to a StarNet file, though a bit more cumbersome to write"* — which
-  names a resemblance, not a grammar, and is not something a parser can be written against.
+The two conventions a reader can get wrong without noticing were settled by arithmetic rather than by eye.
+Reading the coordinate pair as **x = easting, y = northing** and each angle as **clockwise from backsight to
+foresight**, the angles the files state agree with the angles their own approximate coordinates imply to a
+**median of 0.000°** over 143 angles in five networks. No other reading of either convention is close.
 
-Writing a plausible parser anyway would fail this section's own acceptance criterion 7 — *an* Adjust*-format
-example file reads, adjusts, and writes back to the same format equivalently* — since there is no example
-file to round-trip. Worse, it would fail it invisibly: a reader that misinterprets a class's worked example
-produces an adjustment of the wrong network, and the pedagogical value FR-161 exists for depends entirely on
-the numbers matching what the student's book says. Interoperability that is wrong is worse than
-interoperability that is absent, because the second is obvious.
+```text
+POLIGONAL AC                      <- title
+6 7 0 4 9                         <- distances, angles, azimuths, control, stations
+A 382.0000 1214.0000 0.010 0.010  <- control:  name x y sigma_x sigma_y
+5 538.0000 1202.0000              <- unknown:  name x y
+A 5 156.066 0.004                 <- distance: from to value sigma
+B A 5 53 17 04 9.1                <- angle:    backsight at foresight D M S sigma
+```
 
-> **A trap for whoever implements this.** There are two unrelated programs called ADJUST. **NGS ADJUST**
+Four rules the implementation follows, each of which would be a silent error if taken the other way:
+
+1. **Control is weighted, not held.** The two extra numbers on a control row are standard deviations, so the
+   station becomes `ConstraintMode.WEIGHTED`. Holding it exactly would turn a stated uncertainty into an
+   assertion of certainty — the same rule §4.3 of [`07`](./07-engine-dynadjust.md) applies to DynAdjust, in
+   the other direction.
+2. **The occupied station is named second.** The file writes `backsight at foresight`; the observation
+   equation takes `(at, backsight, foresight)`. Passing the row through unchanged computes the angle at the
+   *backsight*, which is a different angle whose adjustment converges.
+3. **An angle's sigma is seconds of arc**, while a distance's is metres.
+4. **Azimuth rows are refused rather than guessed.** The header has a slot for them and no file in the corpus
+   uses it, so there is no example to pin the layout against. Guessing it would be exactly the error this
+   requirement spent three phases avoiding.
+
+#### Two halves of a pair
+
+Each network is published twice: once with values, once without. The valueless half lists the same
+observations as bare station pairs and triples — an observation *programme*, which is what pre-analysis takes
+(FR-273). The reader returns stations and a topology for it and no observations, because an observation
+without a value is not one (FR-200). Being able to read both is what let the two be compared, and comparing
+them found a real defect in the publication ([`22`](./22-reference-data-sources.md) §4.2).
+
+> **A trap for whoever maintains this.** There are two unrelated programs called ADJUST. **NGS ADJUST**
 > (NOAA/National Geodetic Survey, `github.com/noaa-ngs/adjust`) is a Blue Book adjustment program reading
 > A-, B- and G-files, is open source, and is what a search for "ADJUST file format" returns. It is **not**
-> the program FR-161 names. FR-161 is Ghilani's teaching software accompanying *Adjustment Computations*.
-> Implementing the Blue Book formats would satisfy a search result and not the requirement.
+> the program FR-161 names, and the format above is not its.
 
-**What unblocks it**, in order of preference: an example input file with its published answer (enough on its
-own — the format is small and a worked example pins the grammar); the software's help file or manual; or the
-book's software appendix. Any one of these turns this into a day's work, since the reader and writer sit on
-the `Network`/`Solution` types that already exist.
+#### What the repository does not carry
 
-Until then FR-161's *Adjust* half is **re-planned, not dropped**: it is recorded here, in
-[`ROADMAP.md`](./ROADMAP.md) under P5, and in [`traceability.md`](./traceability.md), so that it is visibly
-outstanding rather than quietly missing. FR-162 (CSV and `.xlsx`) is unaffected and is implemented.
+The **data** of the reference corpus is CC BY 4.0 and redistributable; the **format** is Ghilani's. So the
+five networks are vendored as `Network.to_dict()` JSON rather than as `.Adat` files
+(`tests/data/adjust/PROVENANCE.md`), and the reader and writer are exercised by **round trip**. Anyone
+holding the originals can set `GEOCOMP_ADJUST_DIR` and the corpus tests read those too, which is how the
+conversion is checked against the publication rather than against itself.
 
 ### 5.3 DynAdjust formats (FR-163)
 

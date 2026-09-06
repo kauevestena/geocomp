@@ -5,6 +5,85 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### FR-161: the *Adjust* format, after three re-plannings
+
+**Met.** The requirement had moved out of P5, P6 and P7 for one reason — neither a
+specification of the format nor an example file was publicly reachable, and the
+specs recorded that it was not to be implemented from a guess. A public dataset
+of five networks published in the format
+([`specs/22`](specs/22-reference-data-sources.md) §4, CC BY 4.0) closed it.
+
+#### Added
+
+- **`geocomp/io/adjust.py`** — reads and writes the format
+  ([`specs/17`](specs/17-persistence-and-interoperability.md) §5.2).
+
+  **The grammar is inferred from ten example files, not transcribed from a
+  specification**, and two things bound that. The format **declares its own
+  observation counts**, so a misparse produces a count that disagrees rather
+  than a plausible network — `read_adjust` refuses on it by default. And the two
+  conventions that can be silently wrong were settled by arithmetic: read as
+  *x = easting, y = northing* with angles *clockwise from backsight to
+  foresight*, the angles the files state agree with those their own coordinates
+  imply to a **median of 0.000°** over 143 angles.
+
+  Four rules, each a silent error the other way round: control is **weighted,
+  not held** (the file states two standard deviations, and holding it exactly
+  would assert a certainty the file does not); the occupied station is named
+  **second** in the file and **first** in the observation; an angle's sigma is
+  **seconds of arc**; and **azimuth rows are refused rather than guessed**,
+  since no example exists to pin their layout.
+
+- **RD-12** ([`specs/20`](specs/20-testing-and-validation.md) §3) — the same
+  ground surveyed three ways: twelve free stations, three traverses and a
+  triangulateration over one set of control. The free-station network adjusts to
+  **σ̂₀² = 0.0028**, worst standardised residual 0.09.
+
+- **`scripts/convert_adjust_corpus.py`** and `tests/data/adjust/` — the networks
+  vendored as `Network.to_dict()` JSON. The **data** is CC BY 4.0 and
+  redistributable; the **format** is Ghilani's and is not carried here. The
+  reader is exercised by round trip, and against the original files for anyone
+  who sets `GEOCOMP_ADJUST_DIR`.
+
+#### Found
+
+Two defects in the published dataset, both recorded rather than repaired.
+
+- **`MMEL dados.Adat` miscounts its own angles** — header 51, file 52. Against
+  its valueless half one distance was removed and *both* counts decremented.
+
+- **The round of six angles at station 9 of the triangulateration is cyclically
+  rotated**: each row carries the value belonging to the next row. Each matches
+  the next row's computed angle to 0.18°, while the other 63 angles agree to a
+  median of 0.0001°.
+
+  **A closure check cannot see it** — the round still sums to 360.00028°,
+  because rotating a closed round leaves its sum unchanged. The least-squares
+  residuals find it emphatically: **σ̂₀² of 8.6 × 10⁶ against 61.5** once the
+  values are rotated back, and a worst standardised residual of 12040 against
+  8.3.
+
+  The file is vendored **twice** — faithful, as a blunder-detection reference,
+  and corrected, for validating the adjustment. The faithful copy teaches
+  something synthetic data cannot: least squares **smears** a blunder this
+  large, and the network's largest residual belongs to an observation that is
+  *not* one of the six wrong ones. Ranking by residual would accuse the
+  innocent.
+
+#### Recorded, not claimed
+
+- **The traverses have no redundancy of their own.** Freed of their control they
+  adjust with **negative** degrees of freedom — 13 observations against 14
+  estimable parameters. All three of their degrees of freedom come from the
+  weighted control, so σ̂₀² of 482–1195 measures how far each traverse misses its
+  control, not how well its observations agree. Reading it the other way is the
+  obvious mistake.
+- **No published answer accompanies the data.** RD-12 validates the reader, the
+  writer and the weighted-constraint path; it is not an independent check of the
+  adjustment, which is what RD-11 is for. Correcting the rotated round does not
+  make the network fit its stated sigmas either.
+
+
 ### The third cross-validation network, and four defects on the way to it
 
 **P6's cross-validation criterion is met**: three networks, one per family of
