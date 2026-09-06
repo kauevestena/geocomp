@@ -77,6 +77,7 @@ REPRODUCED = (
     "2D/StrangBorre_Distance_free",
     "2D/WeissEtAl_Distance_fix",
     "2D/Wolf_DistanceDirectionAngle_free",
+    "3D/Baumann23_3_4_fix",
     "3D/BlankenbachWillert3D_Distance_fix",
     "3D/Wolf_3D_DistanceVerticalAngle_fix",
     "3D/Wolf_3D_Distance_fix",
@@ -124,7 +125,6 @@ REFUSED = {
     "3D/Caspary": "data.krumm_section_unsupported",
     "3D/Ghilani_GNSS_Baselines": "data.krumm_section_unsupported",
     "3D/Wolf_PosAngle_and_Dist": "data.krumm_section_unsupported",
-    "3D/Baumann23_3_4_fix": "data.krumm_setup_heights_unsupported",
 }
 
 
@@ -231,7 +231,7 @@ def test_the_published_coordinates_are_reproduced(name):
 def test_the_corpus_is_complete():
     """61 files, every one of them accounted for."""
     assert len(corpus_files()) == 61
-    assert len(REPRODUCED) == 33
+    assert len(REPRODUCED) == 34
     assert not set(REPRODUCED) & set(REFUSED)
 
 

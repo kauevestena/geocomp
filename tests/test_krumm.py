@@ -49,6 +49,37 @@ A C 141.421
 """
 
 
+#: A resection in three dimensions, measured from the instrument to the target.
+#: Written for the test: the observations are exact for N at (100, 57.7, 90)
+#: **with** a 1.600 m instrument height and a 1.500 m target height, so removing
+#: the two columns moves the answer by the difference rather than leaving it
+#: unchanged.
+SETUP_HEIGHTS = """\
+[Project]
+A resection measured trunnion-axis to reflector
+
+[Coordinates]
+%   x       y       z
+A     0.000   0.000 100.000
+B   200.000   0.000 104.000
+C   100.000 173.200  96.000
+N   100.000  57.700  90.000
+
+[Datum]
+fix xA yA zA xB yB zB xC yC zC
+
+[SpatialDistances]
+N A 115.8762 0.005 1.600 1.500
+N B 116.2863 0.005 1.600 1.500
+N C 115.6506 0.005 1.600 1.500
+
+[ZenithAngles]
+N A 94.5543 0.0025 1.600 1.500
+N B 92.3721 0.0025 1.600 1.500
+N C 96.7508 0.0025 1.600 1.500
+"""
+
+
 def write(tmp_path, text, name="network.dat"):
     path = tmp_path / name
     path.write_text(text, encoding="utf-8")
@@ -275,21 +306,18 @@ class TestRefusals:
             read_krumm(write(tmp_path, text))
         assert caught.value.code == "data.krumm_section_unknown"
 
-    def test_instrument_and_target_heights(self, tmp_path):
-        text = """\
-[Coordinates]
-N 0 0 100
-1 100 0 110
+    def test_one_setup_height_without_the_other(self, tmp_path):
+        """They are written as a pair, so a lone value is a truncated line.
 
-[Datum]
-fix x1 y1 z1
-
-[SpatialDistances]
-N 1 100.4988 0.005 1.600 1.572
-"""
+        Reading zero for the missing one would put the sight metres off with
+        nothing to show for it.
+        """
+        text = SETUP_HEIGHTS.replace("N A 115.8762 0.005 1.600 1.500",
+                                     "N A 115.8762 0.005 1.600")
         with pytest.raises(DataError) as caught:
             read_krumm(write(tmp_path, text))
-        assert caught.value.code == "data.krumm_setup_heights_unsupported"
+        assert caught.value.code == "data.krumm_setup_heights_incomplete"
+        assert caught.value.context["received"] == ["1.600"]
 
     def test_an_observation_reaching_a_station_with_no_coordinates(self, tmp_path):
         """Krumm's traverses do this on purpose; GNU Gama excludes them too."""
@@ -298,6 +326,88 @@ N 1 100.4988 0.005 1.600 1.572
             read_krumm(write(tmp_path, text))
         assert caught.value.code == "data.krumm_observation_station_unknown"
         assert caught.value.context["received"] == ["Z"]
+
+
+class TestSetupHeights:
+    """``from to value sigma instrument_height target_height`` (specs/09 §2.5).
+
+    The six-column form of a spatial distance or zenith angle. The sight runs
+    from the trunnion axis to the reflector, not between the marks, and reducing
+    it needs the coordinates the adjustment is solving for -- so the reader
+    carries the two heights and the observation equation does the reduction,
+    which is what GNU Gama does with ``from_dh``/``to_dh``.
+    """
+
+    def test_both_heights_reach_the_observation(self, tmp_path):
+        report = read_krumm(write(tmp_path, SETUP_HEIGHTS))
+        distance = next(
+            o for o in report.network.observations.values()
+            if o.type is ObservationType.SLOPE_DISTANCE
+        )
+        assert distance.instrument_height.value == pytest.approx(1.600)
+        assert distance.target_height.value == pytest.approx(1.500)
+        assert distance.instrument_height.unit is Unit.METRE
+        assert distance.height_offset == pytest.approx(1.500 - 1.600)
+
+    def test_a_zenith_angle_carries_them_too(self, tmp_path):
+        report = read_krumm(write(tmp_path, SETUP_HEIGHTS))
+        zenith = next(
+            o for o in report.network.observations.values()
+            if o.type is ObservationType.ZENITH_ANGLE
+        )
+        assert zenith.height_offset == pytest.approx(1.500 - 1.600)
+
+    def test_a_row_without_them_carries_neither(self, tmp_path):
+        """Absent, not zero. The two are the same number here and not the same
+        statement, and only one of them serialises."""
+        text = SETUP_HEIGHTS.replace(" 1.600 1.500", "")
+        report = read_krumm(write(tmp_path, text))
+        for observation in report.network.observations.values():
+            assert observation.instrument_height is None
+            assert observation.target_height is None
+            assert observation.height_offset == 0.0
+
+    def test_the_heights_move_the_answer_by_exactly_their_difference(self, tmp_path):
+        """Not decoration, and not a small correction either.
+
+        Dropping the two columns moves this network **100 mm** -- the whole of
+        ``1.600 - 1.500`` -- and moves it purely vertically, which is the shape
+        the geometry predicts: both sights are near-horizontal, so raising the
+        instrument 100 mm above the reflector lifts the computed point by the
+        same amount and leaves the plan position alone. If the difference were
+        negligible, ignoring the heights would be an acceptable simplification
+        rather than a defect.
+        """
+        from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
+        from geocomp.core.adjustment.parameters import Frame
+
+        options = AdjustmentOptions(frame=Frame.SPACE_3D)
+        with_heights = adjust(
+            read_krumm(write(tmp_path, SETUP_HEIGHTS, name="with")).network, options
+        )
+        without = adjust(
+            read_krumm(
+                write(tmp_path, SETUP_HEIGHTS.replace(" 1.600 1.500", ""), name="without")
+            ).network,
+            options,
+        )
+        layout = with_heights.layout
+        moved = {
+            component: float(without.parameters[layout.column("N", component)])
+            - float(with_heights.parameters[layout.column("N", component)])
+            for component in ("e", "n", "u")
+        }
+        assert moved["u"] == pytest.approx(1.600 - 1.500, abs=1e-4)
+        assert moved["e"] == pytest.approx(0.0, abs=1e-6)
+        assert moved["n"] == pytest.approx(0.0, abs=1e-6)
+
+        # And the network with the heights recovers the point they were measured
+        # from, which is what says the sign is right rather than merely
+        # consistent. To 0.1 mm: the observations above are written to four
+        # decimals, so that is the rounding they carry, not a residual.
+        assert float(
+            with_heights.parameters[layout.column("N", "u")]
+        ) == pytest.approx(90.0, abs=1e-4)
 
 
 class TestComments:

@@ -5,6 +5,58 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### A sight measured from the instrument, not from the mark
+
+#### Added
+
+- **`Observation.instrument_height` and `.target_height`**, and the observation
+  equations that use them ([`specs/09`](specs/09-module-total-station.md) §2.5,
+  [`specs/04`](specs/04-data-model.md) §2.5).
+
+  A slope distance runs from the trunnion axis to the reflector, and reducing it
+  to the marks needs the coordinates the adjustment is solving for — so applying
+  the reduction in the importer is wrong by however wrong the approximate
+  coordinates are, and looks right. `SLOPE_DISTANCE`, `ZENITH_ANGLE` and
+  `VERTICAL_ANGLE` now compute their model value on the raised geometry:
+  `Δu = (u_to + target) − (u_from + instrument)`. The offsets are constants, so
+  the partials keep their form and need no iteration — GNU Gama reaches the same
+  answer by iterating a reduction (`refine_obsdh_reductions`).
+
+- **`ObservationTypeSpec.uses_setup_heights`**, so which types take them is a
+  registry entry rather than knowledge spread through the equations. A type that
+  does not use them **refuses** them: a horizontal angle is unaffected by how
+  high the instrument stood, and a 1.5 m height silently dropped is a
+  metre-scale error that looks like nothing.
+
+- **Schema 2, and the store's first migration.** `gc_observation` gains
+  `instrument_height` and `target_height`. Nothing is back-filled and nothing
+  can be — a height GeoComp never had is absent, not zero, and writing zero
+  would say the instrument stood on the mark. This is also the first exercise of
+  the migration machinery against a real store rather than a monkeypatched one.
+
+- **DynaML's `InstHeight`/`TargHeight` reach the observation.** They were being
+  written and read into `meta`, where the adjustment never saw them. The reader
+  now refuses a **non-zero** height on a type whose geometry it cannot move, and
+  ignores a zero — upstream's own sample data writes `0.000` on every `S`, which
+  is a statement that the instrument stood on the mark, and that statement is
+  kept through a round trip.
+
+#### Fixed
+
+- **`3D/Baumann23_3_4_fix` reproduces**, taking the Krumm corpus from 33
+  published networks to **34**. It was the one file refused for a reason that
+  was GeoComp's rather than the format's, and it now agrees to **0.03 mm** — a
+  fifth of the published rounding, so the heights are applied the way Baumann
+  applied them and not merely applied.
+
+#### Not done
+
+- **The heights' uncertainty does not reach the observation's weight.** They are
+  stored as `Quantity`, and treated as exact in the adjustment. That is the model
+  the published examples were adjusted under, and changing it would change every
+  existing result; `specs/09` §2.5 records it as a limit rather than leaving it
+  implied.
+
 ### What the angular columns do wrong
 
 #### Fixed

@@ -472,6 +472,14 @@ class GeoPackageStore:
                 "rejection": _dumps(
                     observation.rejection.to_dict() if observation.rejection else None
                 ),
+                "instrument_height": _dumps(
+                    observation.instrument_height.to_dict()
+                    if observation.instrument_height
+                    else None
+                ),
+                "target_height": _dumps(
+                    observation.target_height.to_dict() if observation.target_height else None
+                ),
                 "meta": _dumps(
                     {
                         **dict(observation.meta),
@@ -886,6 +894,8 @@ class GeoPackageStore:
         meta = _loads(row["meta"]) or {}
         setup_id = meta.pop("setup_id", None)
         instrument_id = meta.pop("instrument_id", None)
+        instrument_height = _loads(row["instrument_height"])
+        target_height = _loads(row["target_height"])
         rejection = _loads(row["rejection"])
         return Observation(
             id=row["id"],
@@ -896,6 +906,10 @@ class GeoPackageStore:
             setup_id=setup_id,
             instrument_id=instrument_id,
             cluster_id=row["cluster_id"],
+            instrument_height=(
+                Quantity.from_dict(instrument_height) if instrument_height else None
+            ),
+            target_height=Quantity.from_dict(target_height) if target_height else None,
             status=ObservationStatus[row["status"]],
             rejection=RejectionRecord.from_dict(rejection) if rejection else None,
             meta=meta,

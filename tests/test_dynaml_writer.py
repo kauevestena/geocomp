@@ -423,6 +423,99 @@ def test_the_network_checks_the_exact_component_count() -> None:
     assert any("12-component covariance" in p for p in problems)
 
 
+class TestSetupHeights:
+    """``InstHeight`` and ``TargHeight`` round-trip (specs/09 §2.5).
+
+    DynaML has the same two fields the observation equations use, and until
+    ``Observation`` had somewhere to put them they lived in ``meta`` -- written
+    and read, but not reaching the adjustment. Now the writer takes them from
+    the observation, so the file and the equation agree by construction.
+    """
+
+    @staticmethod
+    def network(**heights) -> Network:
+        network = Network(id="s", crs="EPSG:7843")
+        for name, (x, y, z) in {
+            "A": (-4052051.7, 4212836.2, -2545106.0),
+            "B": (-4052052.7, 4212837.2, -2545107.0),
+        }.items():
+            network.add_station(Station(id=name, approx_position=cartesian(x, y, z)))
+        network.add_observation(
+            Observation(
+                id="s1",
+                type=ObservationType.SLOPE_DISTANCE,
+                stations=("A", "B"),
+                values=(Quantity.from_std_dev(1.732, 0.003, Unit.METRE),),
+                **heights,
+            )
+        )
+        return network
+
+    def test_the_heights_reach_the_file_and_come_back(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.read_dynaml import read_measurement_file
+
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(
+                instrument_height=Quantity.exact(1.600, Unit.METRE),
+                target_height=Quantity.exact(1.500, Unit.METRE),
+            ),
+            path,
+            frame="GDA2020",
+            epoch="01.01.2020",
+        )
+        root = parse(path)
+        assert root.findtext(".//InstHeight").strip() == "1.6000"
+        assert root.findtext(".//TargHeight").strip() == "1.5000"
+
+        network = Network(id="s", crs="EPSG:7843")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name))
+        read_measurement_file(path, network)
+        (observation,) = network.observations.values()
+        assert observation.instrument_height.value == pytest.approx(1.600)
+        assert observation.target_height.value == pytest.approx(1.500)
+        assert observation.height_offset == pytest.approx(-0.100)
+
+    def test_a_sight_without_them_writes_neither_element(self, tmp_path) -> None:
+        """Absent, not zero. DynAdjust reads a missing element as zero anyway,
+        so writing ``0.000`` would say something the observation does not."""
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(), path, frame="GDA2020", epoch="01.01.2020"
+        )
+        root = parse(path)
+        assert root.find(".//InstHeight") is None
+        assert root.find(".//TargHeight") is None
+
+    def test_an_explicit_zero_survives_the_round_trip(self, tmp_path) -> None:
+        """Upstream's own sample data writes ``0.000`` on every ``S``.
+
+        That is a statement -- the instrument stood on the mark -- and it is kept
+        rather than collapsed into absence.
+        """
+        from geocomp.engines.dynadjust.read_dynaml import read_measurement_file
+
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(
+                instrument_height=Quantity.exact(0.0, Unit.METRE),
+                target_height=Quantity.exact(0.0, Unit.METRE),
+            ),
+            path,
+            frame="GDA2020",
+            epoch="01.01.2020",
+        )
+        network = Network(id="s", crs="EPSG:7843")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name))
+        read_measurement_file(path, network)
+        (observation,) = network.observations.values()
+        assert observation.instrument_height is not None
+        assert observation.instrument_height.value == 0.0
+        assert observation.height_offset == 0.0
+
+
 class TestTheStationCoordinateType:
     """``<Type>`` is a declaration about the three numbers beside it.
 

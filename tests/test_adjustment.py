@@ -32,7 +32,7 @@ from geocomp.core.adjustment.least_squares import (
     to_solution,
 )
 from geocomp.core.adjustment.normal_equations import assemble, diagnose_rank, solve
-from geocomp.core.errors import ComputationError, ValidationError
+from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.core.models import (
     Cluster,
     ClusterKind,
@@ -108,6 +108,12 @@ class TestParameterLayout:
         assert caught.value.code == "validation.no_estimable_parameters"
 
 
+#: A sight measured trunnion-axis to reflector rather than mark to mark.
+SETUP_HEIGHTS = {
+    "instrument_height": Quantity.exact(1.600, METRE),
+    "target_height": Quantity.exact(1.500, METRE),
+}
+
 #: One case per supported observation type: the equation, a frame it is
 #: valid in, and a point to differentiate at.
 JACOBIAN_CASES = [
@@ -129,6 +135,16 @@ JACOBIAN_CASES = [
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {}),
     (ObservationType.VERTICAL_ANGLE, ("1", "2"), (0.04,), (RADIAN,),
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {}),
+    # The three types a vertical offset moves, measured from the instrument. The
+    # offsets are constants, so the partials keep their form -- but they are
+    # evaluated on the raised geometry, and a value that used the offset while
+    # the partials did not would show here as a mismatch.
+    (ObservationType.SLOPE_DISTANCE, ("1", "2"), (13.2,), (METRE,),
+     Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], SETUP_HEIGHTS),
+    (ObservationType.ZENITH_ANGLE, ("1", "2"), (1.53,), (RADIAN,),
+     Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], SETUP_HEIGHTS),
+    (ObservationType.VERTICAL_ANGLE, ("1", "2"), (0.04,), (RADIAN,),
+     Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], SETUP_HEIGHTS),
     (ObservationType.GNSS_BASELINE, ("1", "2"), (11.5, 0.3, 6.4), (METRE, METRE, METRE),
      Frame.SPACE_3D, ["1", "2"], [0.0, 0.0, 0.0, 11.5, 0.3, 6.4], {"cluster_id": "c"}),
     (ObservationType.GNSS_POINT, ("1",), (1.0, 2.0, 3.0), (METRE, METRE, METRE),
@@ -167,7 +183,10 @@ class TestJacobians:
     @pytest.mark.parametrize(
         ("observation_type", "stations", "values", "units", "frame", "ids", "x", "extra"),
         JACOBIAN_CASES,
-        ids=[case[0].value for case in JACOBIAN_CASES],
+        ids=[
+            case[0].value + ("_with_setup_heights" if "target_height" in case[7] else "")
+            for case in JACOBIAN_CASES
+        ],
     )
     def test_analytic_jacobian_matches_numerical(
         self, observation_type, stations, values, units, frame, ids, x, extra
@@ -215,6 +234,54 @@ class TestJacobians:
         row = evaluate(observation, layout, x)[0]
         assert row.partials[layout.column("setup1", "orientation")] == pytest.approx(-1.0)
         assert row.computed == pytest.approx(math.atan2(11.5, 7.3) - 0.35)
+
+    def test_a_setup_offset_raises_the_sight_by_the_difference_of_the_heights(self):
+        """The numerical check cannot see the sign of a constant.
+
+        It differentiates the same function it is checking, so a reduction
+        applied as ``instrument - target`` rather than ``target - instrument``
+        passes it while putting every sight on the wrong side of the mark. This
+        compares the offset sight against the plain one on one geometry, where
+        the answer is arithmetic: the target is 1.500 m up and the instrument
+        1.600 m up, so the sight rises 0.100 m *less* than the marks suggest.
+        """
+        network = Network(id="s")
+        for station_id in ("1", "2"):
+            network.add_station(Station(id=station_id))
+        layout = ParameterLayout.build(network, Frame.SPACE_3D)
+        x = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 6.4])   # straight north, rising
+
+        def computed(**extra):
+            observation = Observation(
+                id="o",
+                type=ObservationType.SLOPE_DISTANCE,
+                stations=("1", "2"),
+                values=(Quantity.from_std_dev(6.4, 1e-4, METRE),),
+                **extra,
+            )
+            return evaluate(observation, layout, x)[0].computed
+
+        assert computed() == pytest.approx(6.4)
+        assert computed(**SETUP_HEIGHTS) == pytest.approx(6.4 - 0.100)
+
+    def test_a_type_whose_geometry_the_heights_do_not_change_refuses_them(self):
+        """Ignoring them would be the dangerous outcome.
+
+        A horizontal angle is turned about the vertical axis and is unaffected
+        by how high the instrument stood, so heights attached to one are either
+        a mistake or a misunderstanding. Accepting and dropping them would look
+        like the equation had used them.
+        """
+        with pytest.raises(DataError) as caught:
+            Observation(
+                id="o",
+                type=ObservationType.HORIZONTAL_ANGLE,
+                stations=("2", "1", "3"),
+                values=(Quantity.from_std_dev(1.1, 1e-5, RADIAN),),
+                **SETUP_HEIGHTS,
+            )
+        assert caught.value.code == "data.observation_type_ignores_setup_heights"
+        assert "slope_distance" in caught.value.context["expected"]
 
     def test_a_vertical_angle_is_the_complement_of_the_zenith_angle(self):
         """The numerical check above cannot see a sign error in the value.

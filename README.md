@@ -87,7 +87,7 @@ PATH="$PATH:/path/to/dynadjust/bin" python3 -m pytest -q -k dynadjust
 ```
 
 The published network adjustments of RD-11 need nothing: `tests/data/krumm/` carries all 61 of Krumm's
-example networks, so the 33 with published answers are checked on every commit. They are GNU Gama's files at
+example networks, so the 34 with published answers are checked on every commit. They are GNU Gama's files at
 a pinned commit, copied verbatim, redistributed on the terms in
 [`THIRD_PARTY.md`](THIRD_PARTY.md) — test data, never part of the plugin package. To check the reader
 against a different revision of the corpus, point `GEOCOMP_KRUMM_DIR` at it; to re-verify the copy against

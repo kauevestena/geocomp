@@ -260,3 +260,62 @@ def test_an_angular_value_survives_the_round_trip() -> None:
             hp_to_radians(text), abs=1e-12
         )
     assert math.degrees(hp_to_radians("45.3000")) == pytest.approx(45.5)
+
+
+class TestSetupHeightsOnTheWrongType:
+    """DynaML allows ``InstHeight`` on any measurement; geometry does not.
+
+    Upstream's own sample data writes the two elements only on ``S``, and always
+    as ``0.000``. So a zero on a type a vertical offset cannot move is the
+    schema's filler and is ignored; a **non-zero** one is real information
+    GeoComp would otherwise drop, and it is refused by name (specs/09 §2.5).
+    """
+
+    HEADER = (
+        '<?xml version="1.0"?>\n'
+        '<DnaXmlFormat type="Measurement File" referenceframe="GDA2020" '
+        'epoch="01.01.2020">\n'
+    )
+
+    def measurement(self, code: str, height: str) -> str:
+        # An azimuth's value is HP and its sigma seconds of arc; a slope
+        # distance's are both metres.
+        value, sigma = ("45.3000", "2.0") if code == "B" else ("1.7320", "0.0030")
+        return (
+            self.HEADER
+            + "<DnaMeasurement><Type>" + code + "</Type><Ignore/>"
+            "<First>A</First><Second>B</Second>"
+            "<Value>" + value + "</Value><StdDev>" + sigma + "</StdDev>"
+            "<InstHeight>" + height + "</InstHeight>"
+            "</DnaMeasurement>\n</DnaXmlFormat>\n"
+        )
+
+    def read(self, tmp_path, text):
+        from geocomp.core.models import Network, Station
+        from geocomp.engines.dynadjust.read_dynaml import read_measurement_file
+
+        path = tmp_path / "msr.xml"
+        path.write_text(text, encoding="utf-8")
+        network = Network(id="n", crs="EPSG:7843")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name))
+        read_measurement_file(path, network)
+        return network
+
+    def test_a_zero_on_an_unaffected_type_is_ignored(self, tmp_path) -> None:
+        # B is an azimuth: turned about the vertical axis, unmoved by height.
+        network = self.read(tmp_path, self.measurement("B", "0.000"))
+        (observation,) = network.observations.values()
+        assert observation.instrument_height is None
+
+    def test_a_real_height_on_an_unaffected_type_is_refused(self, tmp_path) -> None:
+        with pytest.raises(DataError) as caught:
+            self.read(tmp_path, self.measurement("B", "1.600"))
+        assert caught.value.code == "data.dynaml_setup_height_on_an_unaffected_type"
+        assert caught.value.context["field"] == "InstHeight"
+        assert caught.value.context["received"] == 1.6
+
+    def test_the_same_height_on_a_slope_distance_is_kept(self, tmp_path) -> None:
+        network = self.read(tmp_path, self.measurement("S", "1.600"))
+        (observation,) = network.observations.values()
+        assert observation.instrument_height.value == pytest.approx(1.600)

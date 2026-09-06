@@ -348,7 +348,7 @@ parsers against the exact binary they were written for.
 
 **Independent validation, from a different direction.** The cross-validation criterion is specifically
 *against DynAdjust*, and one network is what it got. The in-house core is nonetheless no longer checked only
-against itself: `io/krumm.py` and `tests/test_krumm_corpus.py` (RD-11) reproduce **33 published network
+against itself: `io/krumm.py` and `tests/test_krumm_corpus.py` (RD-11) reproduce **34 published network
 adjustments** — 1D, 2D and 3D, free and constrained — to 0.05 mm, from Ghilani, Niemeier, Benning, Wolf,
 Strang and Borre and others by name and page
 ([`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2). That closes the citation gap

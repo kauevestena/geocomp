@@ -88,17 +88,17 @@ network, which is the same *kind* of network as RD-03's, from the book RD-03's n
 ### 2.2 The reader, and what it reproduces **[V]**
 
 `geocomp/io/krumm.py` reads the format; `tests/test_krumm_corpus.py` runs every one of the 61 files.
-**33 networks reproduce their published coordinates**, the largest disagreement over all of them being
+**34 networks reproduce their published coordinates**, the largest disagreement over all of them being
 **0.05 mm** — which is the rounding of a value printed to four decimals, not a residual difference.
 
 | | files | reproduced | refused, by name | read, no comparable answer |
 |---|---|---|---|---|
 | 1D | 14 | 5 | 3 | 6 |
 | 2D | 39 | 24 | 11 | 4 |
-| 3D | 8 | 4 | 4 | 0 |
-| **total** | **61** | **33** | **18** | **10** |
+| 3D | 8 | 5 | 3 | 0 |
+| **total** | **61** | **34** | **17** | **10** |
 
-Of the 45 files carrying a published answer: 33 are reproduced, 10 belong to files GeoComp refuses, and 2
+Of the 45 files carrying a published answer: **34** are reproduced, 9 belong to files GeoComp refuses, and 2
 cannot be compared — `Hoepke_Distance_fix.adj` is gama-local XML rather than the printed table, and
 `Ghilani21_1_DistanceAngle_fix.adj` has its station names truncated in the corpus (`102`, `103`, `201`,
 `202`, `203` printed as `10`, `01`, `20`, `02`, `03`).
@@ -107,10 +107,13 @@ Every refusal is stated by error code, and every one is a thing GeoComp cannot y
 thing it reads badly: a **dynamic (weighted) datum** (5 files), an **azimuth to a point with no
 coordinates** combined with an angle turned from it (3 — GNU Gama excludes the same three, for the same
 reason), an **ellipsoidal network** (4), **conditions between parameters** (2), a **GNSS baseline** with a
-covariance this format states differently (2), **correlated distances** (1), **position angles** (1 — GNU
-Gama's converter leaves them out too), and a **slope distance measured instrument-to-reflector** (1), whose
-two setup heights belong in the observation equation and have nowhere to live in
-`Observation`.
+covariance this format states differently (2), **correlated distances** (1), and **position angles** (1 — GNU
+Gama's converter leaves them out too).
+
+`Baumann23_3_4_fix` used to be a tenth refusal: a **slope distance measured instrument-to-reflector**, whose
+two setup heights belonged in the observation equation and had nowhere to live on `Observation`. They live
+there now ([`09`](./09-module-total-station.md) §2.5) and it reproduces to **0.03 mm** — which is a fifth of
+the published rounding, so the heights are being applied the way Baumann applied them and not merely applied.
 
 Four defects were found by running the corpus, each of which produced a plausible wrong answer rather than
 an error:
@@ -123,6 +126,9 @@ an error:
    station left out of the inner constraint, and the published answers differ by 3.6 mm.
 4. **`VERTICAL_ANGLE` had no observation equation** in the adjustment core at all — an unrelated gap the
    corpus surfaced, now closed and covered by `specs/06` §7 criterion 1.
+5. **Setup heights had nowhere to live**, so a sight measured from the instrument could not be adjusted at
+   all. The refusal was correct — applying the reduction in the reader is wrong by however wrong the
+   approximate coordinates are — but the fix belonged in the observation equation, and that is where it went.
 
 What this buys:
 
@@ -227,7 +233,7 @@ Synthetic data with injected motion (already RD-08's second half) remains the on
 
 ## 6. Recommended order
 
-1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 33 networks reproduced to 0.05 mm.
+1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 34 networks reproduced to 0.05 mm.
 2. **Fetch Krumm's document** and settle FR-161 one way or the other, since it is one download.
 3. **RD-06 from RBMC**, when P7 needs it.
 4. **Borrow the round-robin practice** for §5 rather than inventing a comparison protocol.

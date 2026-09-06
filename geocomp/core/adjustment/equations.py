@@ -262,10 +262,21 @@ def _horizontal_angle(observation, layout, x):
 
 
 def _slope_distance(observation, layout, x):
+    """A distance measured from the instrument to the reflector, as measured.
+
+    The sight runs from the trunnion axis to the reflector centre, not between
+    the two marks, so ``target_height - instrument_height`` raises the vertical
+    difference (``specs/09`` section 2.5). It is added to the *model* value
+    rather than subtracted from the observation, which is the same reduction
+    GNU Gama iterates towards in ``refine_obsdh_reductions`` and needs no
+    iteration: the offsets are constants, so the partials keep their form and
+    are simply evaluated on the raised geometry.
+    """
     origin_id, target_id = observation.stations
     origin = _coordinates(origin_id, layout, x)
     target = _coordinates(target_id, layout, x)
-    de, dn, du = target["e"] - origin["e"], target["n"] - origin["n"], target["u"] - origin["u"]
+    de, dn = target["e"] - origin["e"], target["n"] - origin["n"]
+    du = target["u"] - origin["u"] + observation.height_offset
     distance = math.sqrt(de * de + dn * dn + du * du)
     if distance == 0.0:
         raise ComputationError(
@@ -307,11 +318,18 @@ def _vertical_angle(observation, layout, x):
 
 
 def _vertical_geometry(observation, layout, x):
-    """The zenith angle of a sight and its partials at the *target*."""
+    """The zenith angle of a sight and its partials at the *target*.
+
+    ``target_height - instrument_height`` raises the vertical difference, for
+    the reason ``_slope_distance`` gives: the angle was turned from the trunnion
+    axis to the target centre, and reducing it to the marks needs the
+    coordinates being solved for.
+    """
     origin_id, target_id = observation.stations
     origin = _coordinates(origin_id, layout, x)
     target = _coordinates(target_id, layout, x)
-    de, dn, du = target["e"] - origin["e"], target["n"] - origin["n"], target["u"] - origin["u"]
+    de, dn = target["e"] - origin["e"], target["n"] - origin["n"]
+    du = target["u"] - origin["u"] + observation.height_offset
     horizontal = math.hypot(de, dn)
     squared = de * de + dn * dn + du * du
     if squared == 0.0 or horizontal == 0.0:

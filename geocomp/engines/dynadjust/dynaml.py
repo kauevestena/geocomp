@@ -509,11 +509,14 @@ def _write_measurement(
         _text(element, "Value", format_metres(quantity.value))
         _text(element, "StdDev", format_metres(quantity.std_dev))
 
-    heights = observation.meta or {}
-    if "instrument_height" in heights:
-        _text(element, "InstHeight", format_metres(float(heights["instrument_height"])))
-    if "target_height" in heights:
-        _text(element, "TargHeight", format_metres(float(heights["target_height"])))
+    # DynaML's own fields for the same geometry the observation equations use
+    # (``specs/09`` section 2.5). Written from the observation rather than from
+    # ``meta``, which is where they lived while ``Observation`` had nowhere to
+    # put them.
+    if observation.instrument_height is not None:
+        _text(element, "InstHeight", format_metres(observation.instrument_height.value))
+    if observation.target_height is not None:
+        _text(element, "TargHeight", format_metres(observation.target_height.value))
 
 
 def _write_gnss_components(

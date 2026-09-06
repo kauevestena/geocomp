@@ -133,6 +133,36 @@ All three propagate covariance, including the d–z correlation from the common 
 ([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) §4.1). This is exactly what the
 prototype computes (`DH`, `DV`, `dH`) — the difference is that GeoComp attaches an uncertainty to each.
 
+#### The two heights are geometry, not a pre-correction
+
+The formulae above reduce **one sight in isolation**, which is what a survey computation asks for. An
+*adjustment* cannot use them: reducing a slope distance from the trunnion axis to the mark needs the vertical
+difference between the two stations, and that is one of the things the adjustment is solving for. Applying
+the reduction in the importer would be wrong by however wrong the approximate coordinates are, and would look
+right.
+
+So `Observation` carries `instrument_height` and `target_height`, and the observation equations use them
+directly: the sight runs between two points offset vertically from the marks, so
+
+> Δu = (u_to + target_height) − (u_from + instrument_height)
+
+and the partial derivatives keep their form — the offsets are constants — but are evaluated on the raised
+geometry. This is what GNU Gama does with `from_dh`/`to_dh`, except that Gama reaches it by iterating a
+*reduction* applied to the observed value (`refine_obsdh_reductions`); computing the model value on the
+offset geometry needs no iteration.
+
+**Only three types take them**: `SLOPE_DISTANCE`, `ZENITH_ANGLE` and `VERTICAL_ANGLE`. A horizontal angle or
+a levelled height difference is unaffected by how high the instrument stood, so heights attached to one are
+**refused rather than ignored** — a 1.5 m instrument height silently dropped is a metre-scale error that
+looks like nothing. The registry entry (`ObservationTypeSpec.uses_setup_heights`) is what decides, so adding
+a type that needs them is a registry change rather than an edit to the equations.
+
+**Limit, stated rather than hidden.** The heights are stored as `Quantity` and their *uncertainty is not
+propagated into the observation's weight*. That is the model the published examples were adjusted under —
+Krumm's `Baumann23_3_4_fix` reproduces to 0.03 mm with the heights treated as exact — and changing it would
+change every existing result. It is worth revisiting when the stochastic model is next opened; it is not
+worth doing quietly.
+
 ### 2.6 Geometric and atmospheric-geometric reductions (FR-405)
 
 - **Earth curvature and refraction** in trigonometric heighting: (1 − k)·d²/(2R), with k the refraction

@@ -61,7 +61,7 @@ __all__ = [
 #: with a migration added in :mod:`geocomp.io.store.migrations`. A monitoring
 #: project accumulates epochs over years and outlives several plugin releases,
 #: so this is load-bearing rather than ceremonial.
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 class ColumnKind(Enum):
@@ -305,6 +305,15 @@ SCHEMA: tuple[Table, ...] = (
             _text("status", nullable=False),
             _json("rejection"),
             _json("meta"),
+            _json(
+                "instrument_height",
+                note=(
+                    "A Quantity document, or null. Height of the trunnion axis "
+                    "above the mark, for a sight measured from the instrument "
+                    "rather than from the point (specs/09 section 2.5)."
+                ),
+            ),
+            _json("target_height", note="A Quantity document, or null."),
         ),
         geometry=GeometryKind.LINESTRING,
         indexes=(("type",), ("station_from",), ("cluster_id",)),
