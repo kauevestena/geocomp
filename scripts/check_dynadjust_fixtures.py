@@ -106,6 +106,31 @@ CASES = (
         outputs=("adj", "apu", "xyz"),
     ),
     Case(
+        name="grid",
+        station_file="output/grid-stn.xml",
+        measurement_file="output/grid-msr.xml",
+        options=("--stn-coord-types", "ENz", "--precision-stn-linear", "5"),
+        outputs=("xyz",),
+    ),
+    # The same network with the angular columns added, at two precisions. Both
+    # are files GeoComp refuses, and each is committed so that the refusal is
+    # the right one (specs/07 section 5.5): the default precision shows
+    # DynAdjust printing 60 minutes, and 7 overflows the latitude column.
+    Case(
+        name="grid-hp-carry",
+        station_file="output/grid-stn.xml",
+        measurement_file="output/grid-msr.xml",
+        options=("--stn-coord-types", "ENzPLH"),
+        outputs=("xyz",),
+    ),
+    Case(
+        name="grid-precision7",
+        station_file="output/grid-stn.xml",
+        measurement_file="output/grid-msr.xml",
+        options=("--stn-coord-types", "ENzPLH", "--precision-stn-angular", "7"),
+        outputs=("xyz",),
+    ),
+    Case(
         name="angles",
         station_file="output/angles-stn.xml",
         measurement_file="output/angles-msr.xml",

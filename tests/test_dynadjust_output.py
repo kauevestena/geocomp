@@ -57,6 +57,9 @@ SAMPLE_COR = DATA / "sample.cor"
 SAMPLE_XYZ = DATA / "sample.xyz"
 ALT_ADJ = DATA / "alt-flags.adj"
 ALT_APU = DATA / "alt-flags.apu"
+GRID_XYZ = DATA / "grid.xyz"
+GRID_PRECISION7 = DATA / "grid-precision7.xyz"
+GRID_HP_CARRY = DATA / "grid-hp-carry.xyz"
 ANGLES_ADJ = DATA / "angles.adj"
 
 
@@ -531,6 +534,106 @@ class TestStationNames:
         with_names = read_coordinates(SAMPLE_ADJ, known=names)[0]
         assert [row.station_id for row in with_names] == [row.station_id for row in plain]
         assert [row.local_sigmas for row in with_names] == [row.local_sigmas for row in plain]
+
+
+class TestWhatHighAngularPrecisionDoesToTheLayout:
+    """``specs/07`` section 5.5, measured on DynAdjust 1.4.0.
+
+    Two separate defects, both reached by asking for angular columns, and both
+    found while checking a note in this repository that claimed something else
+    entirely — that the ``.xyz`` parser could not read a column set containing
+    ``E``, ``N`` and ``z``. It reads that fixture perfectly.
+    """
+
+    def test_the_enz_fixture_this_was_wrongly_blamed_on_still_parses(self) -> None:
+        """The correction. `grid.xyz` is `--stn-coord-types ENz` and always read."""
+        rows = read_xyz(GRID_XYZ)
+        assert len(rows) == 15
+        assert rows[0].position.system is CoordinateSystem.PROJECTED
+        assert [q.value for q in rows[0].position.values][:2] == [302961.67184, 5014008.98250]
+
+    def test_precision_seven_overflows_and_the_error_says_so(self) -> None:
+        """A 15-character latitude in a 14-character field.
+
+        `std::setw` pads but never truncates, so Zone, Latitude and Longitude
+        run together with no separator at all and every field after them is a
+        slice of the wrong text. The complaint used to be `not a number` in
+        `SD(n)` — a column that is perfectly well formed, several to the right
+        of the fault.
+        """
+        with pytest.raises(DataError) as caught:
+            read_xyz(GRID_PRECISION7, angular_format=AngularFormat.HP)
+        assert caught.value.code == "data.dynadjust_output_column_overflowed"
+        assert caught.value.context["column"] == "Latitude"
+        assert caught.value.context["station"] == "P00"
+        # What it used to be reported as, kept so the improvement is visible.
+        assert caught.value.context["reported_as"] == "SD(n)"
+
+    def test_a_field_that_merely_fills_its_column_is_not_an_overflow(self) -> None:
+        """`--precision-stn-angular 6` abuts without losing anything.
+
+        The distinction the diagnosis has to make: two right-aligned columns
+        touch whenever the left one's value fills its width exactly, and the row
+        still slices correctly. Refusing that row would be a false alarm, so the
+        check is consulted only to explain a parse that already failed.
+        """
+        plan = ColumnPlan((Column("A", 4), Column("B", 4)))
+        assert plan.unseparated("  12  34") is None
+        assert plan.unseparated("  121234") == "B"
+
+    def test_the_name_boundary_is_skipped_when_asked(self) -> None:
+        """A name that fills its column legitimately abuts the constraint, and
+        `_normalise_name` has already dealt with it."""
+        plan = ColumnPlan((Column("Station", 4, "l"), Column("Const", 4), Column("V", 4)))
+        assert plan.unseparated("NAMEFFF   12", first=2) is None
+        assert plan.unseparated("NAMEFFF   12", first=1) == "Const"
+
+    def test_dynadjusts_hp_printer_can_emit_sixty_minutes(self) -> None:
+        """The second defect, and the one that needs no unusual flags.
+
+        `grid-hp-carry.xyz` is the **default** angular precision. Every station
+        in it is at latitude -45 degrees to within eight nanoseconds of arc, and
+        DynAdjust prints two of them as `-45.000000000` and the third as
+        `-44.600000000` — 44 degrees **60** minutes, which HP notation cannot
+        hold. GeoComp refuses it rather than reading 60 minutes as an hour, and
+        now names the row so it can be found.
+        """
+        with pytest.raises(ValidationError) as caught:
+            read_xyz(GRID_HP_CARRY, angular_format=AngularFormat.HP)
+        assert caught.value.code == "validation.hp_angle_minutes_out_of_range"
+        assert caught.value.context["received"] == "-44.6"
+        assert caught.value.context["station"] == "P02"
+
+    def test_the_carry_is_dynadjusts_and_not_a_real_difference(self) -> None:
+        """P00 and P02 are printed 24 arcminutes apart and are not.
+
+        Both rows carry an easting and a northing in the same file, and inverse-
+        projecting those puts both stations at -45 degrees. So the two printed
+        latitudes describe the same parallel and one of them is malformed --
+        which is what makes this DynAdjust's formatting rather than GeoComp's
+        reading.
+        """
+        import math
+
+        from geocomp.core.geodesy import ELLIPSOIDS, inverse_transverse_mercator, utm_parameters
+        from geocomp.engines.dynadjust.read_output import coordinate_plan, read_preamble
+
+        lines = GRID_HP_CARRY.read_text().splitlines()
+        plan = coordinate_plan(read_preamble(lines, path=GRID_HP_CARRY))
+        printed = {
+            plan.value(line, "Station"): line
+            for line in lines
+            if line.startswith(("P00", "P02"))
+        }
+        assert plan.value(printed["P00"], "Latitude") == "-45.000000000"
+        assert plan.value(printed["P02"], "Latitude") == "-44.600000000"
+
+        parameters = utm_parameters(55, southern_hemisphere=True, ellipsoid=ELLIPSOIDS["GRS80"])
+        for station, line in printed.items():
+            latitude, _ = inverse_transverse_mercator(
+                float(plan.value(line, "Easting")), float(plan.value(line, "Northing")), parameters
+            )
+            assert math.degrees(latitude) == pytest.approx(-45.0, abs=1e-8), station
 
 
 class TestTheColumnPlan:

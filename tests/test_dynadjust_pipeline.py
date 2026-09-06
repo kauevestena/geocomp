@@ -192,6 +192,20 @@ class TestThePlan:
         arguments = stage(DynAdjustJob(network=network), "dnaadjust").arguments
         assert "--angular-stn-type" in arguments
 
+    def test_no_requested_precision_can_overflow_a_column(self, network) -> None:
+        """GeoComp controls the flags it passes, so this is its own to get right.
+
+        ``--precision-stn-angular 7`` makes DynAdjust print a 15-character
+        latitude into a 14-character field, and the row stops being sliceable
+        (``specs/07`` section 5.5). GeoComp asks for no angular precision at all
+        and takes DynAdjust's default of 5; if it ever does ask, 6 is the last value
+        that fits.
+        """
+        arguments = stage(DynAdjustJob(network=network), "dnaadjust").arguments
+        if "--precision-stn-angular" in arguments:
+            requested = int(arguments[arguments.index("--precision-stn-angular") + 1])
+            assert requested <= 6, "a 15-character angle does not fit a 14-character column"
+
     def test_the_confidence_reaches_the_command_line(self, network) -> None:
         arguments = stage(DynAdjustJob(network=network, confidence=0.99), "dnaadjust").arguments
         assert arguments[arguments.index("--conf-interval") + 1] == "99"

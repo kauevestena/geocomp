@@ -403,7 +403,8 @@ rather than guessing -- a guess here is a coordinate wrong by up to 0.6 degrees 
 
 HP validation catches part of it by accident: HP cannot hold minutes of 60 or more, so a decimal-degree value
 whose fractional part is 0.60 or greater is rejected. That covers much of a real file and is not a guarantee
--- `145.55` reads as either.
+-- `145.55` reads as either. §5.5 has the two ways the *angular* columns go wrong in particular, one of which
+that same validation catches on purpose.
 
 ### 5.2 Units inside the measurement table [V]
 
@@ -482,6 +483,48 @@ It is recorded, not silent. The conditioned covariance is `APPROXIMATE` and carr
 §2.3), and the `Solution` built from it is `APPROXIMATE` too — so a report cannot present a repaired matrix
 as a rigorously propagated one (FR-203). A covariance that needed no repair is returned untouched and
 unlabelled: reporting a conditioning that did not happen is its own dishonesty.
+
+### 5.5 What the angular columns do wrong [V]
+
+Two defects, both in DynAdjust 1.4.0, both reached by asking for `Latitude` and `Longitude` columns. They
+were found while checking a note in this repository that claimed something else — that the `.xyz` parser
+could not read a column set containing `E`, `N` and `z`. **That note was wrong**: `grid.xyz` is
+`--stn-coord-types ENz` and has always read. The real limits are these.
+
+**1. `--precision-stn-angular 7` overflows the column.** An HP latitude is `sign + DD + . + MM + SS +
+precision`, so at precision 7 it is 15 characters and `LAT_EAST` is 14. `std::setw` pads but never truncates,
+so Zone, Latitude and Longitude run together with no separator at all:
+
+```text
+  55  -45.00000000   144.30000000     precision 4 — separated
+  55 -45.000000000  144.300000000     precision 5 — DynAdjust's default
+  55-44.6000000000 144.3000000000     precision 6 — abuts, still sliceable
+  55-44.60000000000144.30000000000    precision 7 — overflowed, nothing after it is its own field
+```
+
+Note precision 6: the fields **touch without anything being lost**, because two right-aligned columns abut
+whenever the left one's value fills its width exactly. A missing separator is therefore not by itself an
+overflow, and refusing that row would be a false alarm. So `ColumnPlan.unseparated` is a *diagnosis* — it is
+consulted to explain a conversion that already failed and never to refuse a row on its own. Without it the
+first complaint is `not a number` in `SD(n)`, several columns to the right of the fault and naming a field
+that is perfectly well formed.
+
+**GeoComp must never request a precision that overflows**, and this one is entirely its own to get right: it
+composes the command line. It asks for no angular precision at all and takes DynAdjust's default of 5; 6 is
+the last value that fits, and a test asserts it.
+
+**2. DynAdjust's HP printer can emit 60 minutes.** This one needs no unusual flags. In `grid-hp-carry.xyz`,
+written at the *default* precision, three stations sit at latitude −45° — confirmed to eight nanoseconds of
+arc by inverse-projecting the eastings and northings printed in the same rows — and DynAdjust prints two of
+them as `-45.000000000` and the third as **`-44.600000000`**: 44 degrees, **60** minutes. The seconds round up
+to 60 and the carry into minutes, and from minutes into degrees, is not made.
+
+HP notation cannot hold it, and GeoComp refuses it rather than reading 60 minutes as an hour
+(`validation.hp_angle_minutes_out_of_range`) — the reader now names the station so the row can be found. The
+trigger is a value within half of the last printed digit of a whole minute, so in real data it is rare; in a
+network laid out on whole degrees it is not. **Reading it leniently is the wrong repair**: the same
+validation is what stops a decimal-degree value being read as HP (§5.1), and a reader that accepts 60
+minutes from one source accepts it from all of them.
 
 Parsing rules:
 

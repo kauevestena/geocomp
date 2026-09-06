@@ -5,6 +5,54 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### What the angular columns do wrong
+
+#### Fixed
+
+- **A false note is withdrawn.** The `.xyz` parser reads `E`, `N` and `z`
+  perfectly — `grid.xyz` is exactly that column set and is parsed by the
+  projection tests. Checking the claim found two real defects in its place,
+  both in DynAdjust and both recorded in
+  [`specs/07`](specs/07-engine-dynadjust.md) §5.5.
+
+- **An overflowed row now names the column that overflowed.** At
+  `--precision-stn-angular 7` an HP latitude is 15 characters and its column is
+  14, so `std::setw` runs Zone, Latitude and Longitude together with no
+  separator. The first complaint used to be `not a number` in **`SD(n)`** —
+  several columns to the right of the fault, naming a field that is perfectly
+  well formed.
+
+  The check had to be careful: at precision **6** the fields abut and nothing is
+  lost, because two right-aligned columns touch whenever the left one's value
+  fills its width exactly. A missing separator is not by itself an overflow, so
+  `ColumnPlan.unseparated` is a diagnosis consulted to explain a conversion that
+  already failed, never a reason to refuse a row.
+
+- **A bad angle now names its station.** Findable in a file of 200 stations,
+  where `received='-44.6'` alone was not.
+
+#### Found
+
+- **DynAdjust's HP printer can emit 60 minutes, at the default precision.**
+  Three stations in `grid-hp-carry.xyz` are at latitude −45° — confirmed to
+  eight nanoseconds of arc by inverse-projecting the eastings and northings
+  printed in the same rows — and DynAdjust writes two of them `-45.000000000` and
+  the third **`-44.600000000`**: 44 degrees, 60 minutes. The seconds round up to
+  60 and the carry is not made.
+
+  GeoComp refuses it. Reading it leniently would be the wrong repair: the same
+  validation is what stops a decimal-degree value being read as HP, and a reader
+  that accepts 60 minutes from one source accepts it from all of them.
+
+#### Added
+
+- **`grid-precision7.xyz` and `grid-hp-carry.xyz`** — real output from the same
+  `grid-*.xml` inputs, one file per defect. Both are files GeoComp refuses, and
+  each is committed so that the refusal is the right one and says why.
+- **GeoComp asks for no angular precision** and takes DynAdjust's default of 5.
+  A test asserts that if it ever does ask, the value fits the column — this is
+  entirely GeoComp's own to get right, since it composes the command line.
+
 ### A covariance read from printed text
 
 #### Added
@@ -178,11 +226,10 @@ archive in the suite was synthetic.
   details of this note are also corrected -- it is each station's own block that
   fails, before the parameter matrix is ever assembled, and the `.apu` prints
   ten significant figures rather than four decimals.
-- **The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.** It
-  refuses rather than mis-slicing, which is the right failure, but it means
-  `--stn-coord-types ENz` output is unreadable. Not fixed here; the widths are
-  in upstream's `dnaconsts-iostream.hpp` and this is the same work as the rest
-  of `columns.py`.
+- ~~**The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.**~~
+  **This was wrong.** `grid.xyz` is `--stn-coord-types ENz` and has always read.
+  What actually breaks the angular columns is two other things entirely, both
+  recorded below.
 
 ### Grounding - published network adjustments
 

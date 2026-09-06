@@ -48,7 +48,7 @@ from pathlib import Path
 
 import numpy as np
 
-from geocomp.core.errors import DataError
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.observation import OBSERVATION_TYPES, ObservationType
 from geocomp.core.models.position import CoordinateSystem, HeightType, Position
@@ -485,6 +485,36 @@ def printed_half_width(text: str) -> float:
     return 0.5 * 10.0 ** (int(exponent or 0) - len(fraction))
 
 
+def _overflow_or(error: DataError, plan: ColumnPlan, row: str, *, station: str) -> DataError:
+    """Re-word a failed conversion as an overflow, when the row shows one.
+
+    ``std::setw`` pads but never truncates, so a value wider than its column
+    displaces every field after it. The conversion then fails somewhere to the
+    right of the real fault, naming a column that is perfectly well formed --
+    ``--precision-stn-angular 7`` puts a 15-character latitude in a 14-character
+    field, and the first complaint is about ``SD(n)``.
+
+    Returns the original error unchanged when no column has lost its separator,
+    since a missing separator is what an overflow looks like and a failure with
+    every separator intact is something else.
+    """
+    overflowed = plan.unseparated(row, first=2)
+    if overflowed is None:
+        return error
+    return DataError(
+        "dynadjust_output_column_overflowed",
+        station=station,
+        column=overflowed,
+        reported_as=error.context.get("field"),
+        line=row.rstrip()[:120],
+        hint=(
+            "a value was wider than the column DynAdjust reserved for it, so every "
+            "field from there on is a slice of the wrong text; "
+            "--precision-stn-angular above 6 does this to Latitude and Longitude"
+        ),
+    )
+
+
 def _optional_float(text: str, *, what: str, line: str) -> float | None:
     return _float(text, what=what, line=line) if text else None
 
@@ -666,21 +696,39 @@ def read_coordinates(
         name, row = _normalise_name(raw, 0, STATION, known)
         if not name:
             continue
-        sigmas = tuple(
-            _float(plan.value(row, label), what=label, line=row)
-            for label in ("SD(e)", "SD(n)", "SD(up)")
-        )
-        correction: tuple[float, float, float] | None = None
-        if preamble.station_corrections:
-            correction = tuple(  # type: ignore[assignment]
+        try:
+            sigmas = tuple(
                 _float(plan.value(row, label), what=label, line=row)
-                for label in ("Corr(e)", "Corr(n)", "Corr(up)")
+                for label in ("SD(e)", "SD(n)", "SD(up)")
             )
+            correction: tuple[float, float, float] | None = None
+            if preamble.station_corrections:
+                correction = tuple(  # type: ignore[assignment]
+                    _float(plan.value(row, label), what=label, line=row)
+                    for label in ("Corr(e)", "Corr(n)", "Corr(up)")
+                )
+            position = _coordinate_position(plan, preamble, row, resolved)
+        except DataError as error:
+            if error.code != "data.dynadjust_output_not_a_number":
+                raise
+            # A field that is not a number is usually a field that is not the
+            # field: something to its left was wider than its column and every
+            # slice after it is offset. Checked from the constraint's successor,
+            # because a name that fills its column legitimately abuts the
+            # constraint and ``_normalise_name`` has already handled that.
+            raise _overflow_or(error, plan, row, station=name) from error
+        except ValidationError as error:
+            # An angle the format cannot hold -- DynAdjust's HP printer emits 60
+            # minutes at a boundary (specs/07 section 5.5) -- is findable only if
+            # the row is named. The code and type stay as they are: this is a bad
+            # angle, not a bad column.
+            error.context.setdefault("station", name)
+            raise
         description_start = plan.offsets()[plan.index("Description")][0]
         rows.append(
             CoordinateRow(
                 station_id=name,
-                position=_coordinate_position(plan, preamble, row, resolved),
+                position=position,
                 constraint=plan.value(row, "Const"),
                 local_sigmas=sigmas,  # type: ignore[arg-type]
                 correction=correction,
