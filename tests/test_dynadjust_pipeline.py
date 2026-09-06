@@ -21,6 +21,7 @@ import math
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from geocomp.core.errors import ValidationError
@@ -37,7 +38,7 @@ from geocomp.engines.dynadjust.engine import (
     plan,
 )
 from geocomp.engines.dynadjust.read_dynaml import read_dynaml
-from geocomp.engines.dynadjust.read_output import read_xyz
+from geocomp.engines.dynadjust.solution import read_solution
 
 from .conftest import requires_dynadjust
 
@@ -508,15 +509,13 @@ class TestAProjectedNetworkCrossValidates:
         runs = engine.run(prepared)
         assert all(run.exit_code == 0 for run in runs), [run.diagnostic for run in runs]
 
-        # Read the coordinates rather than the whole Solution, deliberately.
-        # `parse` also assembles the parameter covariance from the .apu, and a
-        # levelling network leaves the horizontal undetermined -- so that matrix
-        # is near-singular, and reconstructed from four printed decimals it comes
-        # back an eigenvalue of -3e-9 short of positive semi-definite. That is a
-        # covariance-reader problem (a matrix read from text cannot be held to a
-        # tolerance meant for a computed one) and is recorded as such; it is not
-        # what this test is about.
-        rows = {row.station_id: row for row in read_xyz(prepared.output("xyz"))}
+        solution = read_solution(
+            prepared.output("adj"),
+            network=network,
+            apu_path=prepared.output("apu"),
+            cor_path=prepared.output("cor"),
+        )
+        rows = {station.station_id: station for station in solution.adjusted_stations}
         assert set(rows) == set(expected)
 
         # The pipeline asks for PLHhXYZ, so the row comes back geocentric. Turning
@@ -532,6 +531,78 @@ class TestAProjectedNetworkCrossValidates:
             assert ellipsoidal - undulation == pytest.approx(
                 expected[station_id], abs=2e-4
             ), station_id
+
+    def test_the_near_singular_covariance_is_conditioned_and_labelled(self, tmp_path) -> None:
+        """The whole ``Solution`` reads back, and says what it cost.
+
+        A levelling network determines no horizontal position, so each station's
+        cartesian covariance has an eigenvalue that ought to be zero. DynAdjust
+        prints ten significant figures, which is not enough to keep it there:
+        station A comes back at ``-3e-9``, which :class:`Covariance` refuses,
+        and before ``covariance_from_printed`` that made the file unreadable as
+        a solution at all.
+
+        What is asserted here is the whole chain: the matrix is repaired, the
+        repair is named on the covariance, and the name reaches the
+        ``Solution``'s own mode -- because that is what a report prints (FR-203).
+        """
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+        from tests import networks as reference_networks
+
+        projection = utm_parameters(22, southern_hemisphere=True,
+                                    ellipsoid=ELLIPSOIDS["GRS80"])
+        network = self.projected(reference_networks.levelling_loop(), projection)
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(
+            DynAdjustJob(
+                network=network,
+                name="conditioned",
+                target_frame="GDA2020",
+                target_epoch=Epoch.from_decimal_year(2020.0),
+                projection=projection,
+                geoid_undulations=dict.fromkeys(network.stations, -4.0),
+            ),
+            tmp_path,
+        )
+        assert all(run.exit_code == 0 for run in engine.run(prepared))
+
+        solution = read_solution(
+            prepared.output("adj"),
+            network=network,
+            apu_path=prepared.output("apu"),
+            cor_path=prepared.output("cor"),
+        )
+
+        carried = [
+            station.covariance
+            for station in solution.adjusted_stations
+            if station.covariance is not None
+        ]
+        assert len(carried) == len(solution.adjusted_stations)
+        conditioned = [
+            covariance
+            for covariance in carried
+            if Strategy.ROUNDING_CONDITIONED in covariance.strategies
+        ]
+        assert conditioned, "the printed matrix used to be indefinite; it should need repair"
+
+        # Every matrix that came back is usable, repaired or not.
+        for covariance in carried:
+            scale = max(float(np.max(np.abs(covariance.matrix))), 1.0)
+            smallest = float(np.linalg.eigvalsh(covariance.matrix)[0])
+            assert smallest >= -covariance.EIGENVALUE_TOLERANCE * scale
+
+        # The label survives to the Solution, and only when it was earned.
+        assert solution.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        assert all(
+            covariance.mode is UncertaintyMode.APPROXIMATE for covariance in conditioned
+        )
+
+        # The full parameter matrix assembles too, which is what needed the
+        # cross blocks' precision as well as each station's own.
+        assert solution.parameter_covariance is not None
+        assert solution.parameter_covariance.size == 3 * len(solution.adjusted_stations)
 
     def test_a_projected_network_without_a_projection_is_still_refused(self, tmp_path) -> None:
         from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters

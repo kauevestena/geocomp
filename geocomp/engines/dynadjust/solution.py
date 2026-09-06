@@ -30,7 +30,7 @@ from geocomp.core.models.solution import (
     Solution,
     SolutionKind,
 )
-from geocomp.core.uncertainty import Covariance, UncertaintyMode
+from geocomp.core.uncertainty import Covariance, UncertaintyMode, covariance_from_printed
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.read_output import (
     AngularFormat,
@@ -174,6 +174,22 @@ def read_solution(
             ),
         )
 
+    # DynAdjust propagates the full variance matrix, so nothing here is an
+    # approximation GeoComp made -- unless reading one back off the page needed
+    # conditioning, which is an approximation GeoComp made and must say so
+    # (FR-203). The conditioning itself is named on the covariance that carries
+    # it; this is the summary flag the reports and exports read.
+    stations = adjusted_stations(rows, uncertainties)
+    parameter_covariance = _full_covariance(uncertainties)
+    carried = [station.covariance for station in stations if station.covariance is not None]
+    if parameter_covariance is not None:
+        carried.append(parameter_covariance)
+    mode = (
+        UncertaintyMode.APPROXIMATE
+        if any(covariance.mode is UncertaintyMode.APPROXIMATE for covariance in carried)
+        else UncertaintyMode.RIGOROUS
+    )
+
     return Solution(
         id=solution_id or f"{network.id}:dynadjust",
         network_id=network.id,
@@ -181,13 +197,11 @@ def read_solution(
         crs=preamble.reference_frame or network.crs,
         epoch=epoch,
         datum_definition=datum_definition(rows),
-        adjusted_stations=adjusted_stations(rows, uncertainties),
-        parameter_covariance=_full_covariance(uncertainties),
+        adjusted_stations=stations,
+        parameter_covariance=parameter_covariance,
         observation_results=tuple(match_observations(measurements, network)),
         statistics=statistics,
-        # DynAdjust propagates the full variance matrix; nothing here is an
-        # approximation GeoComp made (FR-203).
-        uncertainty_mode=UncertaintyMode.RIGOROUS,
+        uncertainty_mode=mode,
         provenance=provenance,
     )
 
@@ -200,6 +214,12 @@ def _full_covariance(uncertainties: list[StationUncertainty]) -> Covariance | No
     assembled from those would assert that every pair of stations is
     uncorrelated -- which is false in every adjusted network, and is exactly the
     kind of plausible fabrication FR-322 forbids.
+
+    Conditioned for printing, as each station's own block is: the parameter
+    matrix of a network with an undetermined direction has a zero eigenvalue by
+    construction, and ten printed significant figures put it on whichever side
+    of zero the rounding falls
+    (:func:`~geocomp.core.uncertainty.covariance_from_printed`).
     """
     if not uncertainties or not any(item.cross for item in uncertainties):
         return None
@@ -223,4 +243,9 @@ def _full_covariance(uncertainties: list[StationUncertainty]) -> Covariance | No
             matrix[column : column + 3, start : start + 3] = block.T
 
     labels = tuple(label for item in uncertainties for label in item.covariance.labels)
-    return Covariance(matrix=matrix, labels=labels, units=(Unit.METRE,) * size)
+    return covariance_from_printed(
+        matrix,
+        labels,
+        (Unit.METRE,) * size,
+        half_width=max(item.printed_half_width for item in uncertainties),
+    )

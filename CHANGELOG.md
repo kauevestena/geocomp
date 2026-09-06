@@ -5,6 +5,54 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### A covariance read from printed text
+
+#### Added
+
+- **`core.uncertainty.covariance_from_printed`** — conditions a covariance
+  parsed out of an engine's output file, bounded by the file's own precision
+  ([`specs/05`](specs/05-uncertainty-and-covariance.md) §2.3,
+  [`specs/07`](specs/07-engine-dynadjust.md) §5.4).
+
+  The `.apu` prints variances to ten significant figures, which discards the
+  rest of the double DynAdjust computed. A matrix with a mathematically zero
+  eigenvalue — every rank-deficient network has one — then reads back on
+  whichever side of zero the rounding falls. Weyl's inequality gives
+  `n × half_width` as the furthest rounding alone can move an eigenvalue;
+  negative eigenvalues within that bound are clipped to zero, and **anything
+  beyond it is refused unrepaired**, which is what stops the conditioning
+  quietly rescuing a matrix that is indefinite for a real reason.
+
+  `Covariance.EIGENVALUE_TOLERANCE` is untouched. It is right for a computed
+  matrix, and loosening it globally would stop it catching real defects
+  everywhere else.
+
+- **`read_output.printed_half_width`** — the precision read out of the text
+  rather than assumed. DynAdjust's output precision is settable per column from
+  the command line, so a constant would have been right for the default
+  invocation and quietly wrong for any other. `StationUncertainty` now carries
+  the coarsest printing across its own block and every cross block with it.
+
+- **`Strategy.ROUNDING_CONDITIONED`** — a conditioned covariance is
+  `APPROXIMATE` and says which repair it took, and the `Solution` assembled from
+  it is `APPROXIMATE` too, so a report cannot present a repaired matrix as a
+  rigorously propagated one (FR-203). A covariance that needed no repair is
+  returned untouched and unlabelled.
+
+#### Fixed
+
+- **A levelling network's `Solution` can be read at all.** It could not before:
+  `read_apu` refused station A's own 3×3 block, so the file never reached the
+  parameter matrix. `tests/test_dynadjust_pipeline.py` no longer works around it
+  by reading coordinates out of the `.xyz` — it reads the whole `Solution`, and
+  a second tier-4 test asserts the repair happened, that every returned matrix
+  is positive semi-definite, and that the label reached the `Solution`.
+
+  The repair moves the block by **1.4 × 10⁻⁹** — less than the 5 × 10⁻⁹ half-width
+  of a single printed digit — so the conditioned matrix is one the file's own
+  digits are equally consistent with.
+
+
 ### The engine manager installs
 
 #### Added
@@ -122,13 +170,14 @@ archive in the suite was synthetic.
   matching it deliberately would mean shipping a worse conversion to agree with
   a better-known one.
 - **A covariance read from printed text cannot be held to a computed one's
-  tolerance.** A levelling network leaves the horizontal undetermined, so its
-  parameter covariance is near-singular; reassembled from the `.apu`'s four
-  printed decimals it comes back with an eigenvalue of -3e-9, and
-  `Covariance`'s positive-semi-definite check (`1e-12` relative) refuses it. The
-  matrix is fine to the precision it was printed at. Not fixed here -- the fix
-  belongs with the covariance reader, which should condition what it assembles
-  and say that it did.
+  tolerance.** A levelling network leaves the horizontal undetermined, so a
+  station's covariance has an eigenvalue that is mathematically zero; read back
+  from the `.apu` it comes back at -3e-9, and `Covariance`'s
+  positive-semi-definite check (`1e-12` relative) refuses it. The matrix is fine
+  to the precision it was printed at. Not fixed here; **fixed below**, where two
+  details of this note are also corrected -- it is each station's own block that
+  fails, before the parameter matrix is ever assembled, and the `.apu` prints
+  ten significant figures rather than four decimals.
 - **The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.** It
   refuses rather than mis-slicing, which is the right failure, but it means
   `--stn-coord-types ENz` output is unreadable. Not fixed here; the widths are

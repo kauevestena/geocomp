@@ -29,6 +29,7 @@ from geocomp.engines.dynadjust.columns import Column, ColumnPlan, take_name
 from geocomp.engines.dynadjust.read_output import (
     AngularFormat,
     measurement_angular_format,
+    printed_half_width,
     read_adj,
     read_apu,
     read_coordinates,
@@ -418,6 +419,49 @@ class TestPositionalUncertainty:
             assert np.sqrt(np.diag(station.covariance.matrix)) == pytest.approx(
                 np.array(sigmas[station.station_id]), abs=1e-4
             )
+
+
+class TestThePrintedPrecision:
+    """How much of the computed matrix the file did not carry (specs/07 section 5).
+
+    A covariance is computed in double precision and written to a fixed number
+    of significant figures, and the difference is what makes a near-singular
+    matrix come back marginally indefinite. The precision is read out of the
+    text rather than assumed, because DynAdjust's output precision is settable
+    from the command line.
+    """
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("6.547721537e+01", 5e-9),   # ten significant figures, the .apu default
+            ("-2.844812885e-08", 5e-18),
+            ("1e-05", 5e-6),
+            ("0.0122", 5e-5),
+            (" 12 ", 0.5),
+        ],
+    )
+    def test_the_half_width_is_half_the_last_digit_printed(self, text, expected) -> None:
+        assert printed_half_width(text) == pytest.approx(expected, rel=1e-12)
+
+    def test_the_apu_reports_the_precision_it_was_written_at(self) -> None:
+        stations, _ = read_apu(SAMPLE_APU, angular_format=AngularFormat.HP)
+        # The largest variance in the sample is order 1e-4, printed to ten
+        # significant figures, so the last digit sits around 1e-13.
+        assert stations[0].printed_half_width == pytest.approx(5e-14, rel=1e-9)
+        assert all(station.printed_half_width > 0.0 for station in stations)
+
+    def test_a_cross_block_coarser_than_the_own_block_widens_it(self) -> None:
+        """The bound has to cover every element the assembled matrix will hold,
+        and the cross blocks arrive after the station's own row."""
+        stations, _ = read_apu(SAMPLE_APU, angular_format=AngularFormat.HP)
+        first = stations[0]
+        coarsest = max(
+            printed_half_width(f"{value:.9e}")
+            for block in first.cross.values()
+            for value in block.flatten()
+        )
+        assert first.printed_half_width >= coarsest
 
 
 class TestCorrections:

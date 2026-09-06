@@ -311,7 +311,10 @@ agrees to 0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1).
 network** now agrees to 0.2 mm, which it could not before, because `core/geodesy/` supplies the conversion
 this entry used to say was missing: a projected network is inverse-projected to geodetic and written `LLH`,
 and its heights come back through geocentric cartesian to *h*. `tests/test_dynadjust_pipeline.py`
-`TestAProjectedNetworkCrossValidates` is the whole round trip.
+`TestAProjectedNetworkCrossValidates` is the whole round trip. It reads the whole `Solution` back, covariance
+included — which needed the printed matrix to be conditioned within its own precision
+([`07`](./07-engine-dynadjust.md) §5.4), since a levelling network's near-zero eigenvalue does not survive
+being printed to ten significant figures.
 
 **The third is blocked on something else, and it is worth naming precisely.** RD-03's trilateration reaches
 DynAdjust's station file now, but only one of its eleven observations imports: a **horizontal distance has no

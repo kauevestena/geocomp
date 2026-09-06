@@ -41,7 +41,7 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
@@ -58,7 +58,7 @@ from geocomp.core.models.solution import (
     ObservationResult,
     TestResult,
 )
-from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.uncertainty import Covariance, Quantity, covariance_from_printed
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.columns import (
     CONSTRAINT,
@@ -463,6 +463,26 @@ def _float(text: str, *, what: str, line: str) -> float:
             received=text,
             line=line.rstrip()[:120],
         ) from error
+
+
+def printed_half_width(text: str) -> float:
+    """Half the place value of the last digit *text* actually carries.
+
+    ``6.547721537e+01`` is nine mantissa decimals on an exponent of one, so its
+    last digit sits at ``1e-8`` and the double it was printed from lies within
+    ``5e-9`` of it. ``0.0122`` is four decimals at exponent zero, so ``5e-5``.
+
+    Read out of the text rather than assumed, because DynAdjust's output
+    precision is settable per column from the command line
+    (``--output-stn-cov-precision`` and its siblings): a constant here would be
+    right for the default invocation and quietly wrong for any other. What it
+    is for is :func:`~geocomp.core.uncertainty.covariance_from_printed`, which
+    needs to know how much of a covariance the file failed to carry.
+    """
+    cleaned = text.strip().lstrip("+-")
+    mantissa, _, exponent = cleaned.partition("e") if "e" in cleaned else cleaned.partition("E")
+    _, _, fraction = mantissa.partition(".")
+    return 0.5 * 10.0 ** (int(exponent or 0) - len(fraction))
 
 
 def _optional_float(text: str, *, what: str, line: str) -> float | None:
@@ -973,10 +993,20 @@ class StationUncertainty:
     ellipse: ErrorEllipse
     covariance: Covariance
     cross: dict[str, np.ndarray] = field(default_factory=dict)
+    #: Half the last printed digit, across this station's own block and every
+    #: cross block with it -- how much of the computed matrix the file did not
+    #: carry. :func:`~geocomp.core.uncertainty.covariance_from_printed` needs it
+    #: to tell a rounding artefact from a genuinely indefinite matrix.
+    printed_half_width: float = 0.0
 
 
-def _triple(line: str, plan: ColumnPlan, labels: Sequence[str]) -> list[float]:
-    return [_float(plan.value(line, label), what=label, line=line) for label in labels]
+def _triple(line: str, plan: ColumnPlan, labels: Sequence[str]) -> list[str]:
+    """The three variance columns of one ``.apu`` line, unconverted.
+
+    Text rather than float because the digits themselves are information: how
+    many were printed is what bounds the conditioning in :func:`read_apu`.
+    """
+    return [plan.value(line, label) for label in labels]
 
 
 def read_apu(
@@ -1013,15 +1043,26 @@ def read_apu(
     # so the second starts one variance column in and the third two.
     first_variance = plan.offsets()[plan.index(variance_labels[0])][0]
 
-    def continuation(line: str, skipped: int) -> list[float]:
+    def continuation(line: str, skipped: int) -> list[str]:
         start = first_variance + skipped * MSR
         return [
-            _float(line[start + step * MSR : start + (step + 1) * MSR].strip(), what="variance", line=line)
+            line[start + step * MSR : start + (step + 1) * MSR].strip()
             for step in range(3 - skipped)
+        ]
+
+    def numbers(texts: Sequence[str], line: str, labels: Sequence[str] = ()) -> list[float]:
+        names = tuple(labels) or ("variance",) * len(texts)
+        return [
+            _float(text, what=name, line=line)
+            for text, name in zip(texts, names, strict=True)
         ]
 
     rows = [line for line in lines[header_index + 2 :] if line.strip()]
     stations: list[StationUncertainty] = []
+    #: Per station, the coarsest printing seen in any cross block with it. The
+    #: blocks arrive after the station's own row, so it is collected here and
+    #: folded in once the file is read.
+    cross_width: dict[str, float] = {}
     index = 0
     current: StationUncertainty | None = None
 
@@ -1033,9 +1074,14 @@ def read_apu(
         has_position = bool(plan.value(row, "Hz PosU"))
 
         if has_position:
-            upper = _triple(row, plan, variance_labels)
-            upper += continuation(rows[index + 1], 1)
-            upper += continuation(rows[index + 2], 2)
+            printed = _triple(row, plan, variance_labels)
+            second, third = continuation(rows[index + 1], 1), continuation(rows[index + 2], 2)
+            upper = (
+                numbers(printed, row, variance_labels)
+                + numbers(second, rows[index + 1])
+                + numbers(third, rows[index + 2])
+            )
+            half_width = max(printed_half_width(text) for text in printed + second + third)
             matrix = np.array(
                 [
                     [upper[0], upper[1], upper[2]],
@@ -1069,30 +1115,46 @@ def read_apu(
                     ),
                     confidence=preamble.ellipse_confidence,
                 ),
-                covariance=Covariance(
-                    matrix=matrix,
+                # Conditioned rather than constructed directly: a station whose
+                # position the network does not determine has a near-zero
+                # eigenvalue, and ten printed significant figures are not enough
+                # to keep it on the non-negative side of zero.
+                covariance=covariance_from_printed(
+                    matrix,
                     # The same ``station.component`` labelling the in-house core
                     # uses, so a block from either engine reads the same way.
-                    labels=tuple(f"{name}.{axis}" for axis in axes),
-                    units=(Unit.METRE, Unit.METRE, Unit.METRE),
+                    tuple(f"{name}.{axis}" for axis in axes),
+                    (Unit.METRE, Unit.METRE, Unit.METRE),
+                    half_width=half_width,
                 ),
+                printed_half_width=half_width,
             )
             stations.append(current)
         else:
             if current is None:
                 raise DataError("dynadjust_apu_covariance_before_any_station", line=raw.rstrip()[:120])
-            block = np.array(
+            printed = _triple(row, plan, variance_labels)
+            second, third = continuation(rows[index + 1], 0), continuation(rows[index + 2], 0)
+            current.cross[name] = np.array(
                 [
-                    _triple(row, plan, variance_labels),
-                    continuation(rows[index + 1], 0),
-                    continuation(rows[index + 2], 0),
+                    numbers(printed, row, variance_labels),
+                    numbers(second, rows[index + 1]),
+                    numbers(third, rows[index + 2]),
                 ],
                 dtype=float,
             )
-            current.cross[name] = block
+            coarsest = max(printed_half_width(text) for text in printed + second + third)
+            cross_width[current.station_id] = max(
+                cross_width.get(current.station_id, 0.0), coarsest
+            )
         index += 3
 
-    return stations, preamble
+    return [
+        replace(item, printed_half_width=max(item.printed_half_width, widest))
+        if (widest := cross_width.get(item.station_id, 0.0)) > item.printed_half_width
+        else item
+        for item in stations
+    ], preamble
 
 
 @dataclass(frozen=True)

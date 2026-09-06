@@ -444,6 +444,45 @@ ambiguous. It is *not* ambiguous when the caller knows which names it wrote, whi
 because it wrote the input files (rule 3 below), so the parsers resolve against a known set when given one
 and refuse -- naming the remedy -- when not.
 
+### 5.4 A covariance read from printed text needs conditioning [V]
+
+Measured on DynAdjust 1.4.0. A levelling network determines no horizontal position, so each station's
+cartesian covariance has an eigenvalue that is mathematically zero. The `.apu` prints variances to **ten
+significant figures** — `6.547721537e+01` — which discards the rest of the double DynAdjust computed, and
+the zero eigenvalue lands on whichever side of zero the rounding puts it. For the four-station loop in
+`tests/test_dynadjust_pipeline.py` it lands at **−3.03 × 10⁻⁹**, and `Covariance` refuses the matrix:
+
+```text
+data.covariance_not_positive_semidefinite (smallest_eigenvalue=-3.0336929576346763e-09, labels=['A.x', 'A.y', 'A.z'])
+```
+
+The whole solution was unreadable over an artefact of printing. The matrix is sound to the precision it was
+printed at; what is unsound is holding it to a tolerance meant for a matrix that was never printed.
+
+**The tolerance is not loosened.** `Covariance.EIGENVALUE_TOLERANCE` at `1e-12` relative is correct for a
+computed matrix — far above double precision's round-off, far below any real defect — and relaxing it
+globally would stop it catching genuine data problems everywhere else. Instead
+`core.uncertainty.covariance_from_printed` conditions explicitly, and the bound comes from the file:
+
+* `read_output.printed_half_width` reads the precision out of the text — half the place value of the last
+  digit each number actually carries — rather than assuming a format, because DynAdjust's output precision
+  is settable per column from the command line and a constant here would be right only for the defaults.
+* Weyl's inequality bounds an eigenvalue's error by the perturbation's spectral norm, and
+  ‖E‖₂ ≤ ‖E‖_F ≤ *n*·max|E_ij|, so **n × half_width** is the furthest rounding alone can push an eigenvalue
+  negative. For the block above that is 3 × 5 × 10⁻⁹ = 1.5 × 10⁻⁸, comfortably covering the 3.03 × 10⁻⁹ found.
+* Within the bound the negative eigenvalues are clipped to zero — the nearest positive semi-definite matrix
+  in the Frobenius norm. The repair moves the whole block by **less than one printed digit**, so the result
+  is a matrix the file's own digits are equally consistent with.
+* **Beyond the bound nothing is repaired.** The matrix goes to `Covariance` unchanged and is refused naming
+  the eigenvalue actually found, which is what keeps the conditioning from quietly rescuing a matrix that is
+  indefinite for a real reason.
+
+It is recorded, not silent. The conditioned covariance is `APPROXIMATE` and carries
+`Strategy.ROUNDING_CONDITIONED` ([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md)
+§2.3), and the `Solution` built from it is `APPROXIMATE` too — so a report cannot present a repaired matrix
+as a rigorously propagated one (FR-203). A covariance that needed no repair is returned untouched and
+unlabelled: reporting a conditioning that did not happen is its own dishonesty.
+
 Parsing rules:
 
 1. **Parse defensively and version-explicitly.** Output layout can change between versions. Each parser

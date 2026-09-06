@@ -77,6 +77,7 @@ fins práticos". GeoComp provides these strategies, each named and recorded:
 | `EMPIRICAL_SCALING` | Scales an a priori model by an empirically determined factor | Residual analysis shows the a priori model is optimistic |
 | `NUMERIC_DERIVATIVE` | Obtains a derivative by finite differences rather than analytically | No closed-form Jacobian is available |
 | `RECORDED_PRECISION` | Takes σ from how many digits were written: a value recorded as `32.4` lies in `[32.35, 32.45)`, so σ = `0.05 / √3` | Nothing better exists **and** the quantity is not load-bearing |
+| `ROUNDING_CONDITIONED` | Moves a covariance *read from printed text* to the nearest positive semi-definite matrix, by less than its printed digits can resolve | A matrix with a near-zero eigenvalue came back marginally indefinite because the file could not carry the digits that kept it non-negative |
 
 **`RECORDED_PRECISION` is deliberately narrow** (added in phase P4). It is not an exception to *GeoComp does
 not invent a sigma*: the information is genuinely in the file, in the number of digits the observer chose to
@@ -84,6 +85,18 @@ write. But it is weak information, so it is permitted only where the quantity do
 levelling sight distance, whose uncertainty reaches the answer only multiplied by a collimation error of
 order 10⁻⁴, qualifies; **a staff reading, whose σ becomes an adjustment weight, does not, and the importer
 still refuses there.**
+
+**`ROUNDING_CONDITIONED` is bounded by the file, not by a constant** (added in phase P6, for engine output).
+A covariance is computed in double precision and written to a fixed number of significant figures; a matrix
+with a mathematically zero eigenvalue — every rank-deficient network has one — then reads back on whichever
+side of zero the rounding falls. `Covariance`'s positive-semi-definite check is right to refuse that matrix
+and would be wrong to be loosened for it, since the same check catches real defects in matrices that were
+never printed. So the repair is separate, explicit, and **smaller than one printed digit**: Weyl's inequality
+gives `n × half_width` as the furthest rounding alone can move an eigenvalue, negative eigenvalues within
+that are clipped to zero, and anything beyond it is refused unrepaired. The strategy is what makes the
+difference visible, because the alternative — a matrix silently nudged — is exactly the kind of quiet
+adjustment §2.4 exists to prevent. See
+[`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §5.4 for the measurement that motivated it.
 
 A computation using any of these is `APPROXIMATE`. There is no partial credit: one approximate input makes
 the result approximate.

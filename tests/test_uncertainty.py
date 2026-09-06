@@ -29,6 +29,7 @@ from geocomp.core.uncertainty import (
     atan2,
     combine_modes,
     cos,
+    covariance_from_printed,
     exp,
     hypot,
     log,
@@ -238,6 +239,122 @@ class TestCovarianceValidation:
         with pytest.raises(ValidationError) as caught:
             covariance.index("c")
         assert caught.value.context["expected"] == ["a", "b"]
+
+
+class TestConditioningAMatrixReadFromText:
+    """``covariance_from_printed`` -- specs/05 section 2.3, specs/07 section 5.
+
+    The station block that motivated this is DynAdjust's, for a levelling
+    network whose horizontal position nothing determines. It is real output, not
+    a constructed example: two eigenvalues near 100 m^2 and one that should be
+    zero, printed to ten significant figures, which puts the third at
+    ``-3.03e-9`` instead.
+    """
+
+    #: DynAdjust 1.4.0, ``.apu`` of a four-station levelling loop, station A.
+    PRINTED = np.array(
+        [
+            [65.47721537, 40.51221749, 25.16384102],
+            [40.51221749, 53.34715312, -29.50580431],
+            [25.16384102, -29.50580431, 81.51243781],
+        ]
+    )
+    #: Half of the last digit those ten significant figures reach.
+    HALF_WIDTH = 5e-9
+    LABELS = ("A.x", "A.y", "A.z")
+    UNITS = (METRE, METRE, METRE)
+
+    def test_the_printed_matrix_is_what_covariance_refuses(self):
+        """The premise. If this ever stops holding, the rest is pointless."""
+        assert np.linalg.eigvalsh(self.PRINTED)[0] == pytest.approx(-3.03e-9, rel=1e-2)
+        with pytest.raises(DataError) as caught:
+            Covariance(self.PRINTED, self.LABELS, self.UNITS)
+        assert caught.value.code == "data.covariance_not_positive_semidefinite"
+
+    def test_it_is_conditioned_and_says_so(self):
+        conditioned = covariance_from_printed(
+            self.PRINTED, self.LABELS, self.UNITS, half_width=self.HALF_WIDTH
+        )
+        assert np.linalg.eigvalsh(conditioned.matrix)[0] >= -1e-12 * 81.6
+        assert conditioned.mode is UncertaintyMode.APPROXIMATE
+        assert conditioned.strategies == frozenset({Strategy.ROUNDING_CONDITIONED})
+
+    def test_the_repair_is_smaller_than_one_printed_digit(self):
+        """The claim the labelling rests on: nothing was invented.
+
+        The whole matrix moves by less than the last digit the file carried, so
+        the conditioned matrix is one the printed digits are equally consistent
+        with -- which is why clipping is honest here and would not be for a
+        matrix GeoComp computed itself.
+        """
+        conditioned = covariance_from_printed(
+            self.PRINTED, self.LABELS, self.UNITS, half_width=self.HALF_WIDTH
+        )
+        moved = float(np.max(np.abs(conditioned.matrix - self.PRINTED)))
+        assert moved < self.HALF_WIDTH
+
+    def test_a_matrix_that_needs_nothing_is_neither_touched_nor_labelled(self):
+        """Reporting a conditioning that did not happen is its own dishonesty."""
+        sound = np.array([[4.0, 2.0], [2.0, 9.0]])
+        result = covariance_from_printed(
+            sound, ("a", "b"), (METRE, METRE), half_width=5e-9
+        )
+        assert np.array_equal(result.matrix, sound)
+        assert result.mode is UncertaintyMode.RIGOROUS
+        assert result.strategies == frozenset()
+
+    def test_a_genuinely_indefinite_matrix_is_still_refused(self):
+        """Past what the printing explains, nothing is repaired.
+
+        This is the property that makes the conditioning safe to have at all: it
+        is bounded by the file's own precision, so it cannot quietly rescue a
+        matrix that is wrong for a real reason.
+        """
+        indefinite = np.array([[1.0, 2.0], [2.0, 1.0]])
+        with pytest.raises(DataError) as caught:
+            covariance_from_printed(
+                indefinite, ("a", "b"), (METRE, METRE), half_width=5e-9
+            )
+        assert caught.value.code == "data.covariance_not_positive_semidefinite"
+        assert caught.value.context["smallest_eigenvalue"] == pytest.approx(-1.0)
+
+    def test_the_bound_scales_with_the_printing(self):
+        """Four printed decimals excuse what ten significant figures do not."""
+        coarse = np.array([[1.0, 1.0], [1.0, 1.0 - 1e-6]])
+        assert np.linalg.eigvalsh(coarse)[0] < 0
+        with pytest.raises(DataError):
+            covariance_from_printed(coarse, ("a", "b"), (METRE, METRE), half_width=1e-12)
+        relaxed = covariance_from_printed(
+            coarse, ("a", "b"), (METRE, METRE), half_width=5e-5
+        )
+        assert relaxed.strategies == frozenset({Strategy.ROUNDING_CONDITIONED})
+
+    def test_asymmetry_beyond_the_printing_is_left_for_covariance_to_refuse(self):
+        """Symmetrising here would hide a file that disagrees with itself."""
+        with pytest.raises(DataError) as caught:
+            covariance_from_printed(
+                np.array([[1.0, 0.5], [0.4, 1.0]]), ("a", "b"), (METRE, METRE),
+                half_width=5e-9,
+            )
+        assert caught.value.code == "data.covariance_not_symmetric"
+
+    def test_a_half_width_of_zero_is_refused(self):
+        """A caller that does not know the precision must not get a free pass."""
+        with pytest.raises(ValidationError) as caught:
+            covariance_from_printed(
+                self.PRINTED, self.LABELS, self.UNITS, half_width=0.0
+            )
+        assert caught.value.code == "validation.printed_half_width_not_positive"
+
+    def test_the_conditioned_matrix_still_yields_quantities(self):
+        """Covariance.quantity copies mode and strategies into the Quantity, and
+        Quantity refuses RIGOROUS-with-strategies -- so the two must agree."""
+        conditioned = covariance_from_printed(
+            self.PRINTED, self.LABELS, self.UNITS, half_width=self.HALF_WIDTH
+        )
+        quantity = conditioned.quantity("A.x", 1.0)
+        assert quantity.mode is UncertaintyMode.APPROXIMATE
+        assert Strategy.ROUNDING_CONDITIONED in quantity.strategies
 
 
 class TestCorrelationGuard:
