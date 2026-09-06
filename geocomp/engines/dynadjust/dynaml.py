@@ -181,7 +181,15 @@ def _text(parent: ET.Element, tag: str, value: Any) -> ET.Element:
     return element
 
 
-def _constraints(station: Station) -> str:
+#: How a projected station's components line up with the ``LLH`` axes it is
+#: written on. Easting is a *longitude*, not a latitude: the writer converts a
+#: projected position to geodetic and puts latitude in ``XAxis``, so a
+#: constraint stated on the grid has to be reordered to match, or a station held
+#: in easting is written as held in latitude -- the perpendicular axis.
+_PROJECTED_TO_LLH = ("northing", "easting", "up")
+
+
+def _constraints(station: Station, projection: ProjectionParameters | None = None) -> str:
     """The three-character constraint string for a station.
 
     ``specs/07`` section 4.3 rule 4: a constraint GeoComp cannot express exactly
@@ -216,6 +224,9 @@ def _constraints(station: Station) -> str:
         if position is not None
         else ("easting", "northing", "up")
     )
+    if names == CoordinateSystem.PROJECTED.component_names and projection is not None:
+        # The station is written LLH, so the string must be in that order.
+        names = _PROJECTED_TO_LLH
     return "".join(
         CONSTRAINED if constraint.constrains(name) else FREE for name in names
     )
@@ -262,7 +273,7 @@ def write_station_file(
         station = network.stations[station_id]
         element = ET.SubElement(root, "DnaStation")
         _text(element, "Name", names[station_id])
-        _text(element, "Constraints", _constraints(station))
+        _text(element, "Constraints", _constraints(station, projection))
         coord_type, first, second, height = _coordinates(station, projection, undulations)
         _text(element, "Type", coord_type)
 
@@ -436,6 +447,28 @@ def write_measurement_file(
             continue
         code = _code_for(members[0], document)
         if code is None:
+            written_ids.update(o.id for o in members)
+            continue
+        if code == "D" and len(members) < 2:
+            # DynAdjust's D is a *reference* direction plus the directions
+            # observed from it, so a set of one has nothing to write and
+            # dnaimport refuses the file outright: "Direction set declares total
+            # of 0 but there aren't any non-ignored directions in the set."
+            #
+            # Nothing is lost. A lone direction carries its own orientation
+            # unknown -- one observation, one parameter -- so it contributes
+            # exactly zero to the adjustment, which
+            # ``tests/test_dynadjust_pipeline.py`` asserts rather than assumes.
+            # It is still reported: an observation that leaves the network
+            # without the user being told is the thing this list exists for.
+            document.skipped.append(
+                (
+                    members[0].id,
+                    "a direction set of one has no DynAdjust equivalent; its own "
+                    "orientation unknown makes it information-free, so the "
+                    "adjustment is unchanged",
+                )
+            )
             written_ids.update(o.id for o in members)
             continue
         # The code the *cluster writer* used, not the registry's: a cluster of

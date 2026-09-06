@@ -423,6 +423,82 @@ def test_the_network_checks_the_exact_component_count() -> None:
     assert any("12-component covariance" in p for p in problems)
 
 
+class TestDirectionSets:
+    """DynAdjust's ``D`` is a reference direction plus the ones measured from it.
+
+    GeoComp models all *N* directions of a set plus the setup's orientation
+    unknown; DynAdjust models one reference plus *N-1* directions. The two carry
+    the same information in different parameterisations, and getting the row
+    count wrong makes the import check report a loss where there is none
+    (``specs/07`` §5.6).
+    """
+
+    @staticmethod
+    def network(members: int) -> Network:
+        network = Network(id="d", crs="EPSG:7843")
+        places = {
+            "A": (-4052051.7, 4212836.2, -2545106.0),
+            "B": (-4052052.7, 4212837.2, -2545107.0),
+            "C": (-4052053.7, 4212838.2, -2545108.0),
+        }
+        for name, (x, y, z) in places.items():
+            network.add_station(Station(id=name, approx_position=cartesian(x, y, z)))
+        ids = []
+        for index, target in enumerate(("B", "C")[:members]):
+            identifier = f"dir{index}"
+            ids.append(identifier)
+            network.add_observation(
+                Observation(
+                    id=identifier,
+                    type=ObservationType.DIRECTION,
+                    stations=("A", target),
+                    values=(Quantity.from_std_dev(index * 0.5, 1e-5, Unit.RADIAN),),
+                    cluster_id="set",
+                    setup_id="A",
+                )
+            )
+        network.add_cluster(
+            Cluster(
+                id="set",
+                kind=ClusterKind.DIRECTION_SET,
+                observation_ids=tuple(ids),
+                covariance=Covariance(
+                    matrix=np.eye(len(ids)) * 1e-10,
+                    labels=tuple(ids),
+                    units=tuple(Unit.RADIAN for _ in ids),
+                ),
+            )
+        )
+        return network
+
+    def test_a_set_of_two_is_one_printed_row(self) -> None:
+        """The reference direction has no value of its own, so it is not a row."""
+        from geocomp.engines.dynadjust.read_output import printed_rows
+
+        rows = printed_rows(self.network(2))
+        assert [identifier for identifier, _code, _stations in rows] == ["dir1"]
+        assert {code for _id, code, _stations in rows} == {"D"}
+
+    def test_a_set_of_one_is_no_rows_and_is_reported(self, tmp_path) -> None:
+        """``dnaimport`` refuses a set that declares zero directions outright.
+
+        Nothing is lost by leaving it out -- one direction with its own
+        orientation unknown contributes nothing -- but it is reported rather
+        than dropped, and the pipeline refuses unless the caller accepts a
+        partial network.
+        """
+        from geocomp.engines.dynadjust.read_output import printed_rows
+
+        network = self.network(1)
+        assert printed_rows(network) == []
+
+        document = write_measurement_file(
+            network, tmp_path / "msr.xml", frame="GDA2020", epoch="01.01.2020"
+        )
+        assert [identifier for identifier, _reason in document.skipped] == ["dir0"]
+        assert "information-free" in document.skipped[0][1]
+
+
 class TestSetupHeights:
     """``InstHeight`` and ``TargHeight`` round-trip (specs/09 §2.5).
 

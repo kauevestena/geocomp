@@ -300,24 +300,27 @@ reason recorded, since a parser written from a guess is not an implementation of
 |---|---|
 | DynaML imports without warnings for every mapped type | **met** |
 | A GNSS baseline cluster round-trips with its covariance intact | **met** |
-| Cross-validation on **at least three** networks | **two of three** — see below |
+| Cross-validation on **at least three** networks | **met** — three networks, see below |
 | The engine manager installs on all three operating systems | **met on Linux, untested on Windows and macOS** — see below |
 | With DynAdjust absent, everything else still works | **met** — the whole suite passes with no engine, and the algorithm fails with a message naming the remedy |
 | Every **[C]** claim confirmed or corrected | **met** |
 | FR-161, the *Adjust* format | **moves again** — see below |
 
-**Cross-validation: two networks, not three — and the reason the count moved.** The `gnss-network` slice
-agrees to 0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). A **projected levelling
-network** now agrees to 0.2 mm, which it could not before, because `core/geodesy/` supplies the conversion
-this entry used to say was missing: a projected network is inverse-projected to geodetic and written `LLH`,
-and its heights come back through geocentric cartesian to *h*. `tests/test_dynadjust_pipeline.py`
-`TestAProjectedNetworkCrossValidates` is the whole round trip. It reads the whole `Solution` back, covariance
-included — which needed the printed matrix to be conditioned within its own precision
-([`07`](./07-engine-dynadjust.md) §5.4), since a levelling network's near-zero eigenvalue does not survive
-being printed to ten significant figures.
+**Cross-validation: three networks, one per family of observation.** The `gnss-network` slice agrees to
+0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). A **projected levelling network**
+agrees to 0.2 mm, which it could not before `core/geodesy/` supplied the inverse projection this entry used
+to say was missing. **RD-01**, the terrestrial case — directions, zenith angles and slope distances together,
+measured instrument-to-reflector, on the author's own field data — agrees to **0.12 mm in the sides and
+0.03 mm in the heights**. `tests/test_dynadjust_pipeline.py` holds all three.
 
-**The third is blocked on something else, and it is worth naming precisely.** RD-03's trilateration reaches
-DynAdjust's station file now, but only one of its eleven observations imports: a **horizontal distance has no
+RD-01 cost four defects, none of which raised anything: the 3D pipeline dropped the setup heights
+([`09`](./09-module-total-station.md) §2.5); `detect_defect` did not know a zenith angle fixes tilt, so the
+inner-constraint solution forced the network flat; a direction set was mapped a row per direction rather than
+*N−1* ([`07`](./07-engine-dynadjust.md) §5.6); and a constraint on a projected station was written on the
+perpendicular axis (§5.7). `dimension=3` had never been exercised anywhere, which is how all four survived.
+
+**RD-03 is still not one of them, and it is worth naming precisely why.** Its trilateration reaches
+DynAdjust's station file, but only one of its eleven observations imports: a **horizontal distance has no
 DynAdjust equivalent at all** ([`07`](./07-engine-dynadjust.md) §4.2). That is not a conversion gap and no
 amount of geodesy fixes it — DynAdjust's distances are ellipsoidal, sea-level or slope, and a grid distance
 is none of those. The third network has to be one whose observation types DynAdjust carries.

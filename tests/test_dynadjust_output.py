@@ -424,6 +424,44 @@ class TestPositionalUncertainty:
             )
 
 
+class TestADirectionSetsRows:
+    """``specs/07`` §5.6: a ``D`` header row, then one row per direction.
+
+    The header names the instrument and the reference direction and carries no
+    value; the rows after it hold the directions, with the target in the third
+    station column and **no type letter**. Read row by row, as every other
+    measurement type allows, a direction set vanishes entirely: the header has
+    no value to parse and the members have no code to identify them.
+    """
+
+    #: A ``D`` header as DynAdjust prints it: instrument, reference, set count.
+    HEADER = "D 1                   3                                          1 "
+
+    def test_the_set_count_is_not_a_component_letter(self) -> None:
+        """The ``C`` column of a ``D`` header holds *how many* directions follow.
+
+        Passing that digit to the component test raised
+        ``dynadjust_unknown_measurement_component`` -- and that raise was itself
+        broken, because its context key ``code`` collided with the error code
+        argument, so the guard against a factor-of-3600 misread failed with a
+        TypeError instead of its own message.
+        """
+        from geocomp.engines.dynadjust.read_output import _ANGULAR_CODES, _is_angular
+
+        assert _is_angular("D", "1", _ANGULAR_CODES, line=self.HEADER) is True
+        assert _is_angular("S", "", _ANGULAR_CODES, line="") is False
+
+    def test_an_unknown_component_still_reports_itself(self) -> None:
+        """The message the collision used to swallow."""
+        from geocomp.engines.dynadjust.read_output import _ANGULAR_CODES, _is_angular
+
+        with pytest.raises(DataError) as caught:
+            _is_angular("D", "?", _ANGULAR_CODES, line="a row")
+        assert caught.value.code == "data.dynadjust_unknown_measurement_component"
+        assert caught.value.context["measurement"] == "D"
+        assert caught.value.context["component"] == "?"
+
+
 class TestThePrintedPrecision:
     """How much of the computed matrix the file did not carry (specs/07 section 5).
 

@@ -19,7 +19,7 @@ import pytest
 from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
 from geocomp.core.adjustment.parameters import Frame
 from geocomp.core.findings import Severity
-from geocomp.core.models import DatumDefinition
+from geocomp.core.models import DatumDefinition, ObservationType
 from geocomp.core.techniques.total_station import (
     Face,
     FacePair,
@@ -415,6 +415,45 @@ class TestTheWholeSliceOverRd01:
             dimension=dimension,
             fixed=fixed,
         )
+
+    def test_a_three_dimensional_network_carries_the_setup_heights(self):
+        """RD-01 records ``hi`` and ``hs`` on every row, and a 3D adjustment
+        needs them (``specs/09`` section 2.5).
+
+        In 1D and 2D they are already spent -- the basic reduction folds them
+        into the height difference and the horizontal distance. A 3D adjustment
+        takes the raw zenith angle and slope distance instead, so the geometry
+        has to travel with them; dropping it put every sight a tripod's worth
+        out of place with nothing raised. ``dimension=3`` had never been
+        exercised anywhere, which is why it went unnoticed.
+        """
+        network = self._network(dimension=3)
+        sights = [
+            observation
+            for observation in network.observations.values()
+            if observation.type
+            in (ObservationType.SLOPE_DISTANCE, ObservationType.ZENITH_ANGLE)
+        ]
+        assert sights
+        for observation in sights:
+            assert observation.instrument_height is not None, observation.id
+            assert observation.target_height is not None, observation.id
+        # From raw_data.csv: the setup at station 1 stood 1.495 m up, sighting a
+        # target 1.500 m up, so the sight rises 5 mm less than the marks do.
+        sight = network.observations["1-sd-2"]
+        assert sight.instrument_height.value == pytest.approx(1.495)
+        assert sight.target_height.value == pytest.approx(1.500)
+        assert sight.height_offset == pytest.approx(0.005)
+
+    def test_the_directions_carry_no_heights(self):
+        """A direction is turned about the vertical axis; how high the
+        instrument stood does not move it, and the model refuses heights on a
+        type they cannot move."""
+        network = self._network(dimension=3)
+        for observation in network.observations.values():
+            if observation.type is ObservationType.DIRECTION:
+                assert observation.instrument_height is None
+                assert observation.target_height is None
 
     def test_the_network_assembles_and_passes_inspection(self):
         from geocomp.core.preanalysis import inspect

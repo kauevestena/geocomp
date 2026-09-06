@@ -478,6 +478,14 @@ def check_import(run: EngineRun, prepared: PreparedJob) -> None:
     a difference is a refusal naming both. Counting rather than matching the
     warning text: the counts are the thing that actually matters, and they do
     not change wording between releases.
+
+    **Both sides count printed rows**, which is what makes the comparison valid
+    and is easy to get wrong. ``dnaimport``'s tally is per row, not per cluster:
+    a GNSS cluster of two baselines is 6, and a direction set of two directions
+    is **1** -- the first direction is the set's reference and is never a row of
+    its own. :func:`printed_rows` applies the same rule, so the two agree; a
+    version of this that counted clusters reported a loss of 24 measurements on
+    the GNSS sample where nothing was lost.
     """
     counts = imported_counts(run.stdout)
     if not counts["stations"] and not counts["measurements"]:

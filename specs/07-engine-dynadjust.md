@@ -526,6 +526,57 @@ network laid out on whole degrees it is not. **Reading it leniently is the wrong
 validation is what stops a decimal-degree value being read as HP (§5.1), and a reader that accepts 60
 minutes from one source accepts it from all of them.
 
+### 5.6 A direction set is not a row per direction [V]
+
+The two engines parameterise a set of directions differently, and the difference is invisible until one is
+written and read back.
+
+**GeoComp** holds *N* directions plus the setup's orientation unknown (FR-104): every direction is an
+observation, and the unknown absorbs the arbitrary circle zero. **DynAdjust's `D`** holds a *reference*
+direction plus the *N−1* measured from it — the reference has no value of its own, so it is never a printed
+row. The two carry the same information; they do not map row for row.
+
+```text
+D 1                   3                                          1
+                                          2             199 06 36.5000  199 06 41.0993 ...
+^ instrument          ^ reference                        ^ the one direction that has a value
+                                          ^ target       ^ and the C column holds the set *count*
+```
+
+Three consequences, each of which was a defect until RD-01 became the first network with directions to reach
+the engine:
+
+* **`printed_rows` emits *N−1* rows for a set of *N*.** Emitting one per direction reported a lost
+  measurement on every network with a direction set — `check_import` compares its count against
+  `dnaimport`'s, and `dnaimport` counts printed rows too.
+* **The parser must carry the set across rows.** The header has no value to read and the member rows have no
+  type letter, so reading rows independently drops the whole set silently.
+* **The `C` column of a header is a count, not a component.** Handing that digit to the angular/linear test
+  raised `dynadjust_unknown_measurement_component` — and *that raise was itself broken*: its context key
+  `code` collided with `GeoCompError`'s first positional argument, so a guard written to prevent a
+  factor-of-3600 misread failed with a `TypeError` instead of its own message.
+
+**A direction set of one has no equivalent at all.** `dnaimport` refuses the file: *"Direction set declares
+total of 0 but there aren't any non-ignored directions in the set."* Nothing is lost by leaving it out — one
+direction with its own orientation unknown is one observation and one parameter, contributing exactly zero —
+but it is **reported as skipped** rather than dropped, so the pipeline refuses unless `allow_partial` says a
+partial network is what was wanted (§5 rule 6). `tests/test_dynadjust_pipeline.py` asserts the "contributes
+zero" claim rather than resting on it.
+
+### 5.7 A constraint on a projected station is written on the LLH axes [V]
+
+A projected position is inverse-projected and written `LLH` (§4.4), so `XAxis` is a **latitude**. A
+constraint stated on the grid must be reordered before it is written: easting is a *longitude*.
+
+| held in GeoComp | written | not |
+|---|---|---|
+| easting | `FCF` | ~~`CFF`~~ |
+| northing | `CFF` | ~~`FCF`~~ |
+
+Latent until a **partially** constrained projected station was written — a fully fixed or fully free one is
+`CCC` or `FFF` either way, which is why every earlier test passed. The failure it would have caused is the
+quiet kind: the network is constrained along the perpendicular axis, and it still converges.
+
 Parsing rules:
 
 1. **Parse defensively and version-explicitly.** Output layout can change between versions. Each parser

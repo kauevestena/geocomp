@@ -109,6 +109,11 @@ class ProcessedPointing:
             their joint covariance. ``None`` for an angles-only pointing.
         atmospheric_ppm: What the first-velocity correction applied, or ``None``
             when it was not run.
+        instrument_height: The setup's, carried through so a 3D observation can
+            state the geometry it was measured in rather than pretending the
+            sight ran mark to mark (``specs/09`` section 2.5).
+        target_height: The reflector's, for the same reason. Per pointing, since
+            a setup may sight targets at different heights.
     """
 
     station: str
@@ -117,6 +122,8 @@ class ProcessedPointing:
     basic: BasicReduction | None = None
     atmospheric_ppm: Quantity | None = None
     findings: tuple[Finding, ...] = ()
+    instrument_height: Quantity | None = None
+    target_height: Quantity | None = None
 
     @property
     def is_usable(self) -> bool:
@@ -281,6 +288,8 @@ def _finish_pointing(
         basic=basic,
         atmospheric_ppm=ppm,
         findings=tuple(findings),
+        instrument_height=setup.instrument_height,
+        target_height=target_height,
     )
 
 
@@ -355,12 +364,24 @@ def to_observations(
             direction_quantities.append(pointing.reduction.horizontal)
 
         if dimension == 3:
+            # The sight as it was measured: trunnion axis to reflector, not mark
+            # to mark. In 1D and 2D the heights are already spent -- ``basic``
+            # reduces them into the height difference and the horizontal
+            # distance -- but a 3D adjustment takes the raw zenith angle and
+            # slope distance, so the geometry has to travel with them
+            # (``specs/09`` section 2.5). Dropping them here put every RD-01
+            # sight a tripod's worth out of place, with nothing to show for it.
+            heights = {
+                "instrument_height": pointing.instrument_height,
+                "target_height": pointing.target_height,
+            }
             observations.append(
                 Observation(
                     id=f"{tag}-zen-{target}",
                     type=ObservationType.ZENITH_ANGLE,
                     stations=(result.station, target),
                     values=(pointing.reduction.zenith,),
+                    **heights,
                 )
             )
             if pointing.reduction.distance is not None:
@@ -370,6 +391,7 @@ def to_observations(
                         type=ObservationType.SLOPE_DISTANCE,
                         stations=(result.station, target),
                         values=(pointing.reduction.distance,),
+                        **heights,
                     )
                 )
         elif dimension == 2 and pointing.basic is not None:

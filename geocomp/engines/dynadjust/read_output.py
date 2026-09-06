@@ -904,7 +904,11 @@ def _is_angular(code: str, component: str, angular_codes: frozenset[str] | set[s
     a wrong guess here is a factor-of-3600 error that looks like a blunder.
     """
     component = component.strip()
-    if not component:
+    if not component or component.isdigit():
+        # A direction set's header row puts the **number of directions** in the
+        # component column, not a component letter: ``D 1  3  ...  1`` is one
+        # direction observed from station 1 with station 3 as the reference. A
+        # count is not a component, so the type letter decides.
         return code in angular_codes
     if component in _ANGULAR_COMPONENTS:
         return True
@@ -912,7 +916,12 @@ def _is_angular(code: str, component: str, angular_codes: frozenset[str] | set[s
         return False
     raise DataError(
         "dynadjust_unknown_measurement_component",
-        code=code,
+        # Not ``code=``: ``GeoCompError.__init__`` takes the error code as its
+        # first positional argument, so a context key of that name collides with
+        # it and the raise itself fails with a TypeError -- which is how a
+        # diagnostic written to prevent a factor-of-3600 misread came to be
+        # unraisable. Found the first time a direction set reached the parser.
+        measurement=code,
         component=component,
         line=line.rstrip()[:120],
         hint="the component letter is not one this parser knows to be angular or linear",
@@ -961,6 +970,15 @@ def read_measurements(
     )
 
     results: list[AdjustedMeasurement] = []
+    #: The direction set currently open: its instrument station, and how many
+    #: directions are still to come. A ``D`` row is a *header* -- it names the
+    #: instrument and the reference direction and carries no value of its own,
+    #: because the reference is what the other directions are measured from --
+    #: and each following row holds one direction, with the target in the third
+    #: station column and the type letter blank. Reading rows independently, as
+    #: every other measurement type allows, drops the whole set: the header has
+    #: no value to read and the members have no code to identify them.
+    open_set: str | None = None
     for raw in rows:
         row = raw
         names: list[str] = []
@@ -968,8 +986,16 @@ def read_measurements(
             name, row = _normalise_name(row, PAD2 + position * STATION, STATION, known)
             names.append(name)
         code = plan.value(row, "M")
-        if not code:
+
+        if code == "D":
+            open_set = names[0]
             continue
+        if not code and open_set is not None and names[2]:
+            code, names = "D", [open_set, names[2], ""]
+        elif not code:
+            continue
+        else:
+            open_set = None
 
         component = plan.value(row, "C")
         angular = _is_angular(code, component, angular_codes, line=row)
@@ -1307,6 +1333,19 @@ def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
         if not members:
             continue
         code = _cluster_code(members)
+        if (code or _own_code(members[0])) == "D":
+            # DynAdjust's D holds a **reference** direction plus the ones
+            # measured from it, and prints a row for each of the latter only:
+            # the reference has no value of its own. GeoComp models all N
+            # directions plus the setup's orientation unknown, which carries the
+            # same information in a different parameterisation -- so N members
+            # are N-1 printed rows, and a set of one is not written at all
+            # (``dynaml.write_measurement_file`` reports it as skipped).
+            for member in members:
+                seen.add(member.id)
+            for member in members[1:]:
+                emit(member, "D")
+            continue
         for member in members:
             seen.add(member.id)
             emit(member, code or _own_code(member))

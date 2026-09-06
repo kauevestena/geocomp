@@ -353,6 +353,49 @@ class TestDatumDefect:
         defect = detect_defect(list(reference.network.observations.values()), Frame.PLANE_2D)
         assert defect.components == (DefectComponent.TRANSLATION_E, DefectComponent.TRANSLATION_N)
 
+    def test_a_zenith_angle_fixes_the_tilt(self):
+        """It is measured **from the local vertical**, so it references the plumb
+        line the way an azimuth references north.
+
+        Leaving zenith and vertical angles out of the table made every 3D
+        network whose only vertical reference is its zenith angles report a
+        defect of six instead of four. An inner-constraint solution then imposes
+        two constraints that are not defects, which forces the network flat --
+        and it converges, so nothing says anything is wrong. RD-01 came back
+        with all three stations at exactly the same height while its own zenith
+        angles said one was 0.43 m above another.
+        """
+        network = Network(id="z")
+        for station_id in ("A", "B"):
+            network.add_station(Station(id=station_id))
+        zenith = Observation(
+            id="v",
+            type=ObservationType.ZENITH_ANGLE,
+            stations=("A", "B"),
+            values=(Quantity.from_std_dev(1.53, 1e-5, RADIAN),),
+        )
+        defect = detect_defect([zenith], Frame.SPACE_3D)
+        assert DefectComponent.ROTATION_E not in defect.components
+        assert DefectComponent.ROTATION_N not in defect.components
+        # It says nothing about where the network is, or which way it faces.
+        assert DefectComponent.ROTATION_U in defect.components
+        assert DefectComponent.TRANSLATION_U in defect.components
+
+    def test_a_vertical_angle_fixes_the_same_two(self):
+        """The complement of a zenith angle, so the same reference."""
+        network = Network(id="z")
+        for station_id in ("A", "B"):
+            network.add_station(Station(id=station_id))
+        vertical = Observation(
+            id="v",
+            type=ObservationType.VERTICAL_ANGLE,
+            stations=("A", "B"),
+            values=(Quantity.from_std_dev(0.04, 1e-5, RADIAN),),
+        )
+        defect = detect_defect([vertical], Frame.SPACE_3D)
+        assert DefectComponent.ROTATION_E not in defect.components
+        assert DefectComponent.ROTATION_N not in defect.components
+
     def test_the_constraint_matrix_has_one_column_per_free_direction(self):
         reference = free_trilateration()
         layout = ParameterLayout.build(reference.network, Frame.PLANE_2D)

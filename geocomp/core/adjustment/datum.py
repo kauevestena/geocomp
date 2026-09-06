@@ -61,6 +61,16 @@ _FIXES: dict[ObservationType, set[DefectComponent]] = {
     # An azimuth fixes orientation about the vertical.
     ObservationType.AZIMUTH: {DefectComponent.ROTATION_U},
     ObservationType.ASTRONOMIC_AZIMUTH: {DefectComponent.ROTATION_U},
+    # A zenith or vertical angle is measured **from the local vertical**, so it
+    # references the plumb line the way an azimuth references north: it fixes
+    # tilt, both components of it. Leaving these out made every 3D network whose
+    # only vertical reference is its zenith angles report a defect of 6 instead
+    # of 4 -- and an inner-constraint solution then imposes two constraints that
+    # are not defects, which forces the network flat. RD-01 came back with all
+    # three stations at exactly the same height while its own zenith angles said
+    # one was 0.43 m above another, and nothing raised.
+    ObservationType.ZENITH_ANGLE: {DefectComponent.ROTATION_E, DefectComponent.ROTATION_N},
+    ObservationType.VERTICAL_ANGLE: {DefectComponent.ROTATION_E, DefectComponent.ROTATION_N},
     # A height observed directly fixes the vertical translation.
     ObservationType.ORTHOMETRIC_HEIGHT: {DefectComponent.TRANSLATION_U},
     ObservationType.ELLIPSOIDAL_HEIGHT: {DefectComponent.TRANSLATION_U},

@@ -5,6 +5,72 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### The third cross-validation network, and four defects on the way to it
+
+**P6's cross-validation criterion is met**: three networks, one per family of
+observation ([`specs/ROADMAP.md`](specs/ROADMAP.md) P6). **RD-01** is the
+terrestrial case — directions, zenith angles and slope distances together,
+measured instrument-to-reflector, on the author's own field data — and it agrees
+with DynAdjust to **0.12 mm in the sides and 0.03 mm in the heights**.
+
+Getting there cost four defects. **Not one of them raised anything**; each
+produced a plausible wrong answer. They survived because **`dimension=3` was
+exercised nowhere** — no test in the repository had ever adjusted a
+three-dimensional terrestrial network, and RD-01 is the first to reach the
+engine with directions in it at all.
+
+#### Fixed
+
+- **The 3D pipeline dropped the setup heights.** `to_observations` emitted the
+  raw zenith angle and slope distance — sights measured trunnion-axis to
+  reflector — with no heights attached, so the adjustment reduced them as though
+  they ran mark to mark. In 1D and 2D the heights are already spent; in 3D they
+  are the geometry ([`specs/09`](specs/09-module-total-station.md) §2.5).
+
+- **`detect_defect` did not know a zenith angle fixes tilt.** It is measured
+  *from the local vertical*, so it references the plumb line the way an azimuth
+  references north. Without that, a 3D network whose only vertical reference is
+  its zenith angles reports a defect of **six** instead of four — and the
+  inner-constraint solution then imposes two constraints that are not defects,
+  which **forces the network flat**. RD-01 came back with all three stations at
+  exactly the same height while its own zenith angles said one was 0.43 m above
+  another. It converged.
+
+- **A direction set was mapped a row per direction.** DynAdjust's `D` is a
+  *reference* direction plus the *N−1* measured from it, and the reference is
+  never a printed row; GeoComp holds all *N* plus an orientation unknown
+  ([`specs/07`](specs/07-engine-dynadjust.md) §5.6). Three things followed: the
+  import check reported a lost measurement on every network with a direction
+  set, the parser dropped whole sets silently (the header has no value, the
+  members have no type letter), and the `C` column's *set count* was read as a
+  component letter — whose error **could not be raised at all**, because its
+  context key `code` collided with `GeoCompError`'s first positional argument.
+  A guard written to prevent a factor-of-3600 misread failed with a `TypeError`.
+
+- **A constraint on a projected station was written on the wrong axis**
+  (§5.7). A projected position is inverse-projected and written `LLH`, so
+  `XAxis` is a latitude — and easting is a *longitude*. Holding station 2 in
+  easting wrote `CFF`, which DynAdjust reads as latitude held: the perpendicular
+  axis, still converging. Latent until a **partially** constrained projected
+  station was written, since a fully fixed or free one is `CCC`/`FFF` either way.
+
+#### Added
+
+- **A direction set of one is reported, not written.** `dnaimport` refuses a set
+  declaring zero directions outright. Nothing is lost — one direction with its
+  own orientation unknown is one observation and one parameter, contributing
+  exactly zero — and the tier-4 test **asserts that** rather than resting on it.
+  The writer reports it as skipped, so the pipeline still refuses unless the
+  caller accepts a partial network.
+
+#### Corrected here
+
+- A first attempt at the import-count fix compared against the writer's
+  per-cluster tally, on the theory that DynAdjust counts clusters. It counts
+  printed rows — the GNSS sample reports 36 for six baselines, one X cluster and
+  one Y cluster — so that version reported a loss of 24 measurements where
+  nothing was lost. The existing engine test caught it before the push.
+
 ### A sight measured from the instrument, not from the mark
 
 #### Added
