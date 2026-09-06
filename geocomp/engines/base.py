@@ -227,6 +227,7 @@ def discover(
     *,
     configured: str | Path | None = None,
     extra_directories: Sequence[Path] = (),
+    candidates: Sequence[str] = (),
 ) -> tuple[Path | None, str]:
     """Find *program*, returning its path and how it was found.
 
@@ -239,32 +240,48 @@ def discover(
     A configured path that does not exist is an **error**, not a fall-through:
     falling back would run a different program than the one named, which is the
     failure mode this order exists to prevent.
+
+    Args:
+        candidates: The filenames *program* may actually have on disk, most
+            likely first. Engines whose builds rename their programs per
+            platform pass them here -- DynAdjust's Windows archive ships
+            ``import.exe`` where its Unix one ships ``dnaimport`` -- and without
+            them a perfectly good installation is invisible. Defaults to
+            *program* itself.
     """
+    names = tuple(candidates) or (program,)
+
     if configured:
-        candidate = Path(configured)
-        if candidate.is_dir():
-            candidate = candidate / program
-        if not candidate.exists():
-            raise ValidationError(
-                "engine_path_not_found",
-                program=program,
-                received=str(configured),
-                expected=(
-                    "an existing executable, or no configured path at all. "
-                    "GeoComp does not fall back to a different program than the "
-                    "one you named"
-                ),
-            )
-        return candidate, "configured"
+        base = Path(configured)
+        if base.is_dir():
+            for name in names:
+                candidate = base / name
+                if candidate.exists():
+                    return candidate, "configured"
+        elif base.exists():
+            return base, "configured"
+        raise ValidationError(
+            "engine_path_not_found",
+            program=program,
+            received=str(configured),
+            tried=list(names),
+            expected=(
+                "an existing executable, or no configured path at all. "
+                "GeoComp does not fall back to a different program than the "
+                "one you named"
+            ),
+        )
 
     for directory in extra_directories:
-        candidate = Path(directory) / program
-        if candidate.exists():
-            return candidate, "managed"
+        for name in names:
+            candidate = Path(directory) / name
+            if candidate.exists():
+                return candidate, "managed"
 
-    found = shutil.which(program)
-    if found:
-        return Path(found), "path"
+    for name in names:
+        found = shutil.which(name)
+        if found:
+            return Path(found), "path"
     return None, "absent"
 
 

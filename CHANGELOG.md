@@ -5,6 +5,57 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### The engine manager installs
+
+#### Added
+
+- **`PINNED` holds all five DynAdjust v1.4.0 releases** — Linux (OpenBLAS static
+  and MKL), macOS (static), Windows (OpenBLAS and MKL). Every digest was computed
+  from an archive actually downloaded and hashed by
+  `scripts/pin_engine_release.py`, never copied from a published checksum.
+
+  Verified end to end on Linux: the pinned archive downloads, matches its digest,
+  extracts, is discovered by all five pipeline programs and reports
+  `Version: 1.4.0` to GeoComp's own parser. **Windows and macOS are pinned and
+  untested** — this container can hash their archives but not run them — so
+  `specs/ROADMAP.md` records the criterion as met on one platform of three.
+
+#### Fixed
+
+Three defects, all of the same shape: an install that verifies perfectly and is
+then invisible. None was reachable with a synthetic archive, and every test
+archive in the suite was synthetic.
+
+- **The archives nest.** Programs land under `dynadjust-linux-static/`, and
+  `discover` looks for a *direct child* of the directory it is given.
+  `manager.install` returned the extraction directory, so a correct install was
+  undiscoverable. It now returns the directory the programs are actually in,
+  derived from where the expected members landed rather than assumed, and
+  refuses a layout that scatters them across directories.
+- **Windows names its programs differently, and irregularly.** `dnaadjust` ships
+  as `adjust.exe` and `dnaimport` as `import.exe`, but `dnadiff` keeps its prefix;
+  the `dna*.dll` files beside them are libraries. `discover` was looking for a
+  file called `dnaimport` in a directory holding `import.exe`, so **DynAdjust
+  could not be found on Windows at all**, installed or not.
+  `WINDOWS_PROGRAM_NAMES` is a table because no rule covers all eight.
+- **`pin_engine_release.py` silently produced empty `members` for Windows.** Its
+  filter dropped any name containing a dot — right for Unix programs, total for
+  `.exe`. Both Windows rows were first generated with `members=()`, which would
+  have made `install` verify that an archive contained none of the files it was
+  asked to check.
+
+#### Changed
+
+- **The false note in `specs/ROADMAP.md` P6 is corrected.** It said the engine
+  manager installed nothing because "there is nothing that can honestly be
+  pinned" — upstream publishing no versioned release. Upstream publishes five.
+  The criterion was never blocked by upstream; it was blocked by a note nobody
+  rechecked.
+- **`specs/07` §2's [V] asset list is corrected** — it named a macOS dynamic
+  build and an "Ubuntu 22.04+ OpenBLAS dynamic" that are not among v1.4.0's
+  assets, and did not say that **no statically linked Windows build exists**,
+  which is why ADR-0003 rule 1 cannot be satisfied there.
+
 ### Geodetic reductions
 
 #### Added

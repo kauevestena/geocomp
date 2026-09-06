@@ -71,10 +71,49 @@ __all__ = [
     "imported_counts",
     "parse_version",
     "plan",
+    "program_filenames",
 ]
 
 #: The programs a pipeline may use, in the order they run.
 PROGRAMS = ("dnaimport", "dnareftran", "dnageoid", "dnasegment", "dnaadjust")
+
+#: What those programs are called inside the **Windows** release archive [V].
+#:
+#: Upstream's Windows build renames them, and irregularly: ``dnaadjust`` ships as
+#: ``adjust.exe`` and ``dnaimport`` as ``import.exe``, but ``dnadiff`` keeps its
+#: prefix as ``dnadiff.exe``. The ``dna*.dll`` files beside them are libraries,
+#: not programs, so a rule like "add .exe" finds a DLL and a rule like "strip
+#: dna" misses ``dnadiff`` -- which is why this is a table and not a rule.
+#: Verified against both ``dynadjust-windows-openblas.zip`` and
+#: ``dynadjust-windows-mkl.zip`` at v1.4.0.
+#:
+#: Without it, :func:`~geocomp.engines.base.discover` looks for a file named
+#: ``dnaimport`` in a directory holding ``import.exe``, finds nothing, and every
+#: operation reports the engine absent on a machine where it was just installed
+#: successfully.
+WINDOWS_PROGRAM_NAMES = {
+    "dnaadjust": "adjust.exe",
+    "dnaimport": "import.exe",
+    "dnageoid": "geoid.exe",
+    "dnareftran": "reftran.exe",
+    "dnasegment": "segment.exe",
+    "dnaplot": "plot.exe",
+    "dnadiff": "dnadiff.exe",
+    "dynadjust": "dynadjust.exe",
+}
+
+
+def program_filenames(program: str) -> tuple[str, ...]:
+    """The filenames *program* may have on disk, most likely first.
+
+    Both names are offered on every platform rather than branching on
+    ``sys.platform``. A user may well have a Windows build reachable from a
+    Unix-like shell -- WSL, MSYS, a mounted share -- and the Unix name is tried
+    first either way, so the cost of the second candidate is one ``exists()``
+    call on the platform that does not need it.
+    """
+    windows = WINDOWS_PROGRAM_NAMES.get(program)
+    return (program, windows) if windows and windows != program else (program,)
 
 #: Above this many stations, segment before adjusting. DynAdjust's own default
 #: block size is 500 stations (``dnasegment --max-block-stns``), and a network
@@ -490,8 +529,12 @@ class DynAdjustEngine:
         returning ``None``: by the time a stage needs a program, absence is a
         failure of this run and not a fact to be handled inline.
         """
-        configured = self._configured / program if self._configured else None
-        path, _ = discover(program, configured=configured, extra_directories=self._extra)
+        path, _ = discover(
+            program,
+            configured=self._configured,
+            extra_directories=self._extra,
+            candidates=program_filenames(program),
+        )
         if path is None:
             raise EngineAbsentError(
                 "dynadjust_program_not_found",

@@ -67,10 +67,31 @@ DynAdjust adjusts networks. It does not:
 
 ## 2. Acquisition and version handling (FR-300…FR-302)
 
-Upstream distributes **pre-built binaries for Windows x64 (OpenBLAS and Intel MKL builds), macOS 14 Apple
-Silicon (dynamic and static), Ubuntu 22.04+ (OpenBLAS dynamic) and generic x86-64 Linux (static)**, plus a
-Docker image **[V]**. This is what makes FR-301 — installation without a command line — achievable. The
-acquisition strategy is [`adr/0003-engine-acquisition.md`](./adr/0003-engine-acquisition.md).
+Upstream's **v1.4.0 release carries five binary archives [V]**, listed here as they are actually named,
+because an earlier description of this section named builds that do not exist:
+
+| Asset | Platform | Self-contained |
+|---|---|---|
+| `dynadjust-linux-openblas-static.zip` | Linux x86-64 | yes |
+| `dynadjust-linux-mkl.zip` | Linux x86-64 | no — needs the MKL runtime |
+| `dynadjust-macos-static.zip` | macOS Apple Silicon | yes |
+| `dynadjust-windows-openblas.zip` | Windows x64 | no — ships its own DLLs |
+| `dynadjust-windows-mkl.zip` | Windows x64 | no |
+
+Plus a Docker image. **There is no statically linked Windows build**, so ADR-0003 rule 1 is satisfied on
+Linux and macOS and cannot be on Windows; `PINNED` records which is which rather than leaving it to be
+inferred. This is what makes FR-301 — installation without a command line — achievable. The acquisition
+strategy is [`adr/0003-engine-acquisition.md`](./adr/0003-engine-acquisition.md).
+
+**Two things about the archives that only appear when one is installed [V]:**
+
+- **They nest.** Every program sits under a single top-level folder (`dynadjust-linux-static/`), so the
+  directory an archive is extracted into is not the directory the programs are in. `manager.install`
+  returns the latter, derived from where the expected members actually landed.
+- **Windows renames the programs, irregularly.** `dnaadjust` ships as `adjust.exe` and `dnaimport` as
+  `import.exe`, but `dnadiff` keeps its prefix as `dnadiff.exe`; the `dna*.dll` files beside them are
+  libraries. `engines.dynadjust.engine.WINDOWS_PROGRAM_NAMES` is the table, and it is a table rather than
+  a rule because no rule covers all eight.
 
 Requirements specific to this engine:
 

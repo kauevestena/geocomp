@@ -12,7 +12,7 @@ Run this on a machine that can reach the upstream releases page::
 
     python3 scripts/pin_engine_release.py \\
         --engine dynadjust --platform linux-x86_64 --version 1.4.0 \\
-        --url https://github.com/geoscienceaustralia/DynAdjust/releases/download/v1.4.0/dynadjust-linux-static.zip
+        --url https://github.com/GeoscienceAustralia/DynAdjust/releases/download/v1.4.0/dynadjust-linux-openblas-static.zip
 
 It prints an :class:`~geocomp.engines.manager.EngineRelease` to paste into
 ``PINNED``, having listed the archive's contents so the ``members`` tuple states
@@ -47,12 +47,33 @@ def digest(path: Path) -> str:
     return hasher.hexdigest()
 
 
+#: Suffixes that are never a program. ``.dll`` and ``.so`` matter as much as the
+#: documentation ones: DynAdjust's Windows archive ships ``dnaadjust.dll`` beside
+#: ``adjust.exe``, and listing the library as a member would have ``install``
+#: check for the wrong file.
+NOT_PROGRAMS = {".txt", ".md", ".xsd", ".json", ".pdf", ".dll", ".so", ".dylib", ".lib", ".a"}
+
+
 def executables(path: Path) -> list[str]:
-    """Archive members that look like programs rather than documentation."""
+    """Archive members that look like programs rather than documentation.
+
+    A Unix build names its programs without a suffix; a Windows one gives every
+    program ``.exe``. An earlier version of this excluded any name containing a
+    dot, which is correct for the first case and silently returns **nothing**
+    for the second -- so the two Windows archives were pinned with an empty
+    ``members`` tuple, and ``install`` would have verified that an archive
+    contained none of the files it was asked to check.
+    """
     with zipfile.ZipFile(path) as archive:
         names = [Path(info.filename).name for info in archive.infolist() if not info.is_dir()]
-    skip = {".txt", ".md", ".xsd", ".json", ".pdf"}
-    return sorted({n for n in names if Path(n).suffix.lower() not in skip and "." not in n})
+    return sorted(
+        {
+            name
+            for name in names
+            if Path(name).suffix.lower() not in NOT_PROGRAMS
+            and (Path(name).suffix.lower() == ".exe" or "." not in name)
+        }
+    )
 
 
 def main() -> int:

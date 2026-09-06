@@ -301,7 +301,7 @@ reason recorded, since a parser written from a guess is not an implementation of
 | DynaML imports without warnings for every mapped type | **met** |
 | A GNSS baseline cluster round-trips with its covariance intact | **met** |
 | Cross-validation on **at least three** networks | **two of three** — see below |
-| The engine manager installs on all three operating systems | **not met** — see below |
+| The engine manager installs on all three operating systems | **met on Linux, untested on Windows and macOS** — see below |
 | With DynAdjust absent, everything else still works | **met** — the whole suite passes with no engine, and the algorithm fails with a message naming the remedy |
 | Every **[C]** claim confirmed or corrected | **met** |
 | FR-161, the *Adjust* format | **moves again** — see below |
@@ -319,13 +319,29 @@ DynAdjust equivalent at all** ([`07`](./07-engine-dynadjust.md) §4.2). That is 
 amount of geodesy fixes it — DynAdjust's distances are ellipsoidal, sea-level or slope, and a grid distance
 is none of those. The third network has to be one whose observation types DynAdjust carries.
 
-**The engine manager installs nothing** because there is nothing that can honestly be pinned. ADR-0003 asks
-for a downloaded binary verified against a digest; Geoscience Australia publishes Windows build artefacts and
-a `:latest` Docker Hub tag under a personal namespace, neither of which is a versioned, digest-addressable
-release. `PINNED` in `engines/manager.py` is therefore empty, and the `engine` CI job builds DynAdjust from
-an immutable commit instead — which is pinnable and verifiable, and is what the fixtures and this spec were
-checked against. The install path itself is implemented and tested against synthetic archives; what is
-missing is a real release to point it at.
+**The engine manager now installs, and the previous note here was wrong.** It said there was "nothing that
+can honestly be pinned" because upstream published no versioned release. Upstream publishes five: DynAdjust
+v1.4.0 carries binary archives for Linux, macOS and Windows ([`07`](./07-engine-dynadjust.md) §2). `PINNED`
+holds all five, each digest computed from an archive actually downloaded and hashed by
+`scripts/pin_engine_release.py`. The criterion was never blocked by upstream — it was blocked by a note
+nobody rechecked.
+
+**Verified end to end on Linux only.** The pinned Linux archive downloads, matches its digest, extracts,
+is discovered by every pipeline program and reports `Version: 1.4.0` to GeoComp's own parser. Windows and
+macOS are pinned and **untested** — this container can hash their archives but cannot run them — so the
+criterion is recorded as met on one platform of three rather than met.
+
+Installing it for real found two defects that synthetic archives could not, both of the same shape — an
+install that verifies perfectly and is then invisible:
+
+- **The archives nest.** Programs land under `dynadjust-linux-static/`, and `discover` looks for a direct
+  child. `install` now returns the directory the programs are actually in.
+- **Windows renames the programs.** It ships `adjust.exe`, not `dnaadjust.exe`, so every lookup would have
+  failed on the one platform this criterion is most about.
+
+The `engine` CI job still builds from an immutable commit rather than installing the pinned release: the
+build is what the fixtures were produced with, and a job that tests the pin instead would stop testing the
+parsers against the exact binary they were written for.
 
 **Independent validation, from a different direction.** The cross-validation criterion is specifically
 *against DynAdjust*, and one network is what it got. The in-house core is nonetheless no longer checked only
