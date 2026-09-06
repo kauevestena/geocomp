@@ -95,6 +95,36 @@ runs it. An attribution to a source you have quietly edited is not an
 attribution, so the "verbatim" claim is checked rather than asserted.
 `tests/data/krumm/PROVENANCE.md` records the whole chain.
 
+### Test data redistributed from a public dataset — the *Adjust*-format networks
+
+`tests/data/adjust/` holds **five surveying networks** — twelve free stations, three traverses and a
+triangulateration over one set of four control points — from
+
+> the dataset at <https://data.mendeley.com/datasets/rr8js427vt/1>, `doi:10.17632/rr8js427vt.1`,
+> accompanying a doctoral thesis on network establishment methods,
+
+under **CC BY 4.0**. They are RD-12 ([`specs/22`](specs/22-reference-data-sources.md) §4), and they are what
+closed FR-161 after it had been re-planned out of three phases for want of one example file in the format.
+
+**Converted, not copied.** The dataset is published as `.Adat` files — the format of Charles Ghilani's
+*Adjust* teaching software. The *data* is CC BY 4.0 and free to redistribute; the *format* is not this
+repository's to carry, so the networks are vendored as `Network.to_dict()` JSON instead, produced by
+`scripts/convert_adjust_corpus.py`. GeoComp's own serialisation is a documented format the project already
+round-trips, so nothing is lost.
+
+Interoperability with the format is still implemented — that *is* FR-161, and `geocomp/io/adjust.py` reads
+and writes it. It is exercised by round trip, and against the original files for anyone who sets
+`GEOCOMP_ADJUST_DIR`.
+
+**Attribution** is the licence's one obligation, and it is met here, in
+`tests/data/adjust/PROVENANCE.md`, and in the test module that reads them. Two defects in the publication are
+documented in both rather than quietly repaired; the file carrying the more interesting one is vendored twice,
+faithfully and corrected, and PROVENANCE.md says which is which.
+
+**Test data, and what keeps it so.** These files live under `tests/`, never under `geocomp/`, and
+`scripts/build.py` packages `geocomp/` alone — so nothing here reaches an installed plugin. That is asserted
+by `tests/test_adjust_corpus.py::TestTheCorpusIsTestDataOnly`, not merely intended.
+
 ## Attribution
 
 Beyond licence obligation. GeoComp exists because DynAdjust and RTKLIB exist, and the research project

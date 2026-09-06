@@ -24,8 +24,9 @@ with the standard references *by name*.
 
 Three separate pieces of work have now stalled on the same thing:
 
-* **FR-161**, the *Adjust* (Ghilani) format, has been re-planned twice — out of P5 and then out of P6 — for
-  want of one example file with a published answer.
+* ~~**FR-161**, the *Adjust* (Ghilani) format, has been re-planned twice — out of P5 and then out of P6 — for
+  want of one example file with a published answer.~~ **Resolved** — §4. It took a third re-planning and a
+  public dataset of five networks published in the format.
 * **P6's cross-validation** exit criterion asks for three networks and has one, because the other two need
   observation types and coordinate frames that DynAdjust cannot take from GeoComp
   ([`07`](./07-engine-dynadjust.md) §4.4, §4.2).
@@ -193,19 +194,102 @@ question this project keeps running into — *how do you validate an adjustment 
 The round-robin idea is worth borrowing whatever else is done: *the same data, several implementations, the
 spread reported.* It is a stronger statement than "matches the book" and it is what §5 is reaching for.
 
-## 4. FR-161 — a specific lead, not a resolution **[C]**
+## 4. RD-12 — the *Adjust*-format corpus that closed FR-161 **[V]**
 
-Krumm's document is reported to ship **input files for Charles Ghilani's `Adjust` program**, with the ASCII
-data in companion zip archives, alongside the examples above. If so, that is exactly what FR-161 has twice
-been re-planned for want of: an *Adjust*-format file whose published answer is known.
+FR-161 was re-planned out of three phases for want of one thing: an example file in the *Adjust* format. It
+is met now, and what met it was a public dataset rather than the lead §4 used to record.
 
-**Not verified.** GNU Gama's copy of the Krumm data contains only `.dat` and `.adj` — no Adjust-format files
-— and `www.gis.uni-stuttgart.de` is unreachable from this environment. The document itself is at
-`https://www.gis.uni-stuttgart.de/lehre/campus-docs/adjustment_examples.pdf`. Ghilani's `ADJUST` program is
-separately distributed from the Wiley student companion site for *Adjustment Computations*.
+| | |
+|---|---|
+| **Source** | <https://data.mendeley.com/datasets/rr8js427vt/1> (`doi:10.17632/rr8js427vt.1`) |
+| **Licence** | **CC BY 4.0** |
+| **Content** | ten `.Adat` files — five networks, each published with and without its observed values |
+| **Accompanies** | a doctoral thesis on network establishment methods |
 
-This changes FR-161's status from *blocked, no known source* to *blocked on one download somebody with a
-normal connection can do in a minute*. It should not be implemented until the file is in hand.
+The dataset is the **same ground surveyed three ways** over one set of four control stations: twelve free
+stations, three traverses, and a conventional triangulateration. That is what makes it worth having — the
+comparison is the data, not any single network.
+
+`tests/data/adjust/PROVENANCE.md` records the chain and the numbers; this section records what the corpus
+established.
+
+### 4.1 The grammar, and how far it can be trusted
+
+There is no published specification, so the reader is written against the examples. Two properties bound
+that inference, and both are checkable:
+
+* **The format declares its own observation counts.** A misparse produces a count that disagrees rather than
+  a network that looks fine, and `read_adjust` refuses on the disagreement by default.
+* **The two conventions that can be silently wrong were settled numerically.** Reading the coordinate pair
+  as *x = easting, y = northing* and each angle as *clockwise from backsight to foresight*, the angles the
+  files state agree with those their own approximate coordinates imply to a **median of 0.000°** over 143
+  angles. Neither convention has a plausible alternative at that level of agreement.
+
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 has the layout and
+the four rules the reader follows.
+
+### 4.2 Two defects in the publication, both recorded rather than repaired
+
+A reference dataset whose defects are undocumented is a trap, so both are pinned by tests.
+
+**`MMEL dados.Adat` miscounts its own angles.** The header declares 51 distances and 51 angles; the file
+holds 51 and **52**. Against its valueless half, which declares 52 of each and holds them, one distance
+(`EL10 16`) was removed and *both* counts were decremented. The rows are the data and the header is a
+summary; the summary is wrong by one.
+
+**The round of six angles at station 9 of the triangulateration is cyclically rotated.** Each row carries the
+value belonging to the *next* row in the round:
+
+| row | value in the file | implied by the file's own coordinates |
+|---|---|---|
+| `D 9 4` | 71.158° | 32.293° |
+| `4 9 8` | 62.061° | 71.158° |
+| `8 9 14` | 67.185° | 62.061° |
+| `14 9 16` | 34.178° | 67.185° |
+| `16 9 C` | 93.302° | 34.167° |
+| `C 9 D` | 32.117° | 93.136° |
+
+Each matches the next row's computed angle to 0.18°, while the other 63 angles in the file agree to a median
+of 0.0001°. **A closure check cannot see it**: the round still sums to 360.00028°, because rotating a closed
+round leaves its sum unchanged. Only the least-squares residuals find it — σ̂₀² of 8.6 × 10⁶ against 61.5
+once the values are rotated back.
+
+The file is vendored **twice**: faithfully, as the reference case for blunder detection, and corrected, for
+validating the adjustment. The faithful copy teaches something a synthetic blunder cannot — least squares
+**smears** a blunder this large, and the largest residual in the network belongs to an observation that is
+not one of the six wrong ones. Ranking by residual would accuse the innocent.
+
+### 4.3 What GeoComp measures, and what it does not claim
+
+Adjusted as plane networks with the control weighted as published:
+
+| Network | dof | σ̂₀² | worst standardised residual |
+|---|---|---|---|
+| free stations (12) | 47 | **0.0028** | 0.09 |
+| traverse A→C | 3 | 845 | 19.7 |
+| traverse A→D | 3 | 1195 | 15.3 |
+| traverse B→C | 3 | 482 | 12.1 |
+| triangulateration, as published | 77 | **8.6 × 10⁶** | 12040 |
+| triangulateration, corrected | 77 | 61.5 | 8.3 |
+
+**The traverses have no redundancy of their own.** Freed of their control they adjust with *negative* degrees
+of freedom — thirteen observations against fourteen estimable parameters. All three of their degrees of
+freedom come from the weighted control, so their σ̂₀² measures how far each traverse misses that control, not
+how well its own observations agree. Reading 845 as "these angles disagree with each other" is the obvious
+mistake and it is wrong.
+
+**No published answer accompanies the data.** These five networks validate the reader, the writer and the
+weighted-constraint path; they are not a check of GeoComp's adjustment against an independent one, which is
+what RD-11 provides. Correcting the rotated round does not make the triangulateration fit its stated sigmas
+either — σ̂₀² is 61.5 — and whether that is optimistic sigmas or something else in the data, this repository
+does not claim to know.
+
+### 4.4 What the repository carries
+
+The **data** is CC BY 4.0 and redistributable. The **format** is Ghilani's, and this repository does not
+carry files in it: the five networks are vendored as `Network.to_dict()` JSON, produced by
+`scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
+and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
 ## 5. RD-06, RD-07, RD-08 — the three still to assemble **[C]**
 
@@ -234,7 +318,10 @@ Synthetic data with injected motion (already RD-08's second half) remains the on
 ## 6. Recommended order
 
 1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 34 networks reproduced to 0.05 mm.
-2. **Fetch Krumm's document** and settle FR-161 one way or the other, since it is one download.
+2. ~~**Fetch Krumm's document** and settle FR-161.~~ **Settled another way** — see §4. A public dataset of
+   five networks published in the *Adjust* format did what the document was wanted for, and did it under a
+   licence that permits redistribution. Krumm's document is still the shortest route to *published answers*
+   in that format, which §4.3 records this corpus as not having.
 3. **RD-06 from RBMC**, when P7 needs it.
 4. **Borrow the round-robin practice** for §5 rather than inventing a comparison protocol.
 5. RD-07 and RD-08 when P8 and the monitoring phase need them.

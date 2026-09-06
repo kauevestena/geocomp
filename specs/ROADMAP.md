@@ -304,7 +304,7 @@ reason recorded, since a parser written from a guess is not an implementation of
 | The engine manager installs on all three operating systems | **met on Linux, untested on Windows and macOS** — see below |
 | With DynAdjust absent, everything else still works | **met** — the whole suite passes with no engine, and the algorithm fails with a message naming the remedy |
 | Every **[C]** claim confirmed or corrected | **met** |
-| FR-161, the *Adjust* format | **moves again** — see below |
+| FR-161, the *Adjust* format | **met, after P6 closed** — see below |
 
 **Cross-validation: three networks, one per family of observation.** The `gnss-network` slice agrees to
 0.047 mm ([`07-engine-dynadjust.md`](./07-engine-dynadjust.md) §6.1). A **projected levelling network**
@@ -358,12 +358,17 @@ Strang and Borre and others by name and page
 RD-02, RD-03 and RD-04 have carried since P1, and it reaches the plane and levelling networks DynAdjust
 cannot take from GeoComp at all. It does **not** satisfy this criterion, which is about the engine.
 
-**FR-161 moves again**, to the phase that can obtain an *Adjust*-format example file with its published
-answer. P6 could not, for the reason P5 recorded: neither a specification of the format nor an example file
-is publicly available, and
-[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 states what would
-unblock it. It is not to be implemented from a guess, and moving it twice with the reason recorded is the
-honest outcome rather than a parser nobody can validate.
+**FR-161 is met, and it took a fourth attempt.** It had moved out of P5, P6 and P7 for one reason: neither a
+specification of the *Adjust* format nor an example file was publicly reachable, and
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.2 recorded that it
+was not to be implemented from a guess. What unblocked it was **a public dataset of five networks published
+in the format** ([`22-reference-data-sources.md`](./22-reference-data-sources.md) §4, CC BY 4.0), supplied by
+the maintainer.
+
+The reader and writer are in `geocomp/io/adjust.py`, and the grammar is still **inferred rather than
+specified** — bounded by the fact that the format declares its own observation counts, so a misparse fails
+loudly on every file, and by two conventions settled to a median of 0.000° against the files' own
+coordinates. Three phases of refusing to guess bought a reader whose assumptions are each measured.
 
 ---
 
