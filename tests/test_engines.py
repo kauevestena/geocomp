@@ -33,6 +33,11 @@ from geocomp.engines.base import (
     require,
     run_process,
 )
+from geocomp.engines.dynadjust.engine import (
+    PROGRAMS,
+    WINDOWS_PROGRAM_NAMES,
+    program_filenames,
+)
 from geocomp.engines.manager import (
     PINNED,
     EngineRelease,
@@ -42,6 +47,8 @@ from geocomp.engines.manager import (
     install_pinned,
     installation_root,
     locate,
+    program_directory,
+    releases_for,
     verify,
 )
 
@@ -162,11 +169,24 @@ def test_every_pinned_release_has_a_well_formed_digest() -> None:
 
 
 def test_an_unpinned_engine_refuses_and_names_the_script(tmp_path: Path) -> None:
-    """The refusal has to be actionable: the fix is a two-minute job."""
+    """The refusal has to be actionable: the fix is a two-minute job.
+
+    Asked about a *combination that is genuinely unpinned* rather than relying
+    on the table being empty. It was empty when this test was written, so
+    ``dynadjust`` on Linux exercised the refusal; now that the five v1.4.0
+    releases are pinned, that combination installs and this would have been a
+    test passing for a reason that had gone away.
+    """
     with pytest.raises(ValidationError) as excinfo:
-        install_pinned("dynadjust", "linux-x86_64", root=tmp_path, fetch=lambda url, path: None)
+        install_pinned("rtklib", "linux-x86_64", root=tmp_path, fetch=lambda url, path: None)
     assert excinfo.value.code == "validation.engine_release_not_pinned"
     assert "pin_engine_release.py" in str(excinfo.value)
+
+
+def test_an_unpinned_platform_refuses_too(tmp_path: Path) -> None:
+    with pytest.raises(ValidationError) as excinfo:
+        install_pinned("dynadjust", "linux-aarch64", root=tmp_path, fetch=lambda url, path: None)
+    assert excinfo.value.code == "validation.engine_release_not_pinned"
 
 
 # -- verification (ADR-0003 rule 2) --------------------------------------
@@ -436,3 +456,173 @@ def test_the_version_travels_with_the_run(tmp_path: Path) -> None:
     run = run_process([sys.executable, "-c", "pass"], work_dir=tmp_path, version=version)
     assert run.to_dict()["version"]["version"] == "1.4.0"
     assert run.to_dict()["version"]["tested"] is False
+
+
+class TestThePinnedReleases:
+    """ADR-0003's table, now that it has entries.
+
+    It was empty for the whole of P6, and `ROADMAP` P6 recorded the reason as
+    "there is nothing that can honestly be pinned" -- upstream publishing no
+    versioned release. That was **wrong**: DynAdjust v1.4.0 carries five binary
+    assets. The criterion was never blocked by upstream.
+    """
+
+    def test_every_platform_has_a_release(self):
+        assert PINNED
+        platforms = {release.platform for release in PINNED}
+        assert platforms == {"linux-x86_64", "macos-arm64", "windows-x86_64"}
+
+    def test_every_release_lists_the_programs_it_should_contain(self):
+        """The check that would have caught the pinning script's own bug.
+
+        `install` verifies `members` after extraction, so an empty tuple means
+        it verifies nothing. Both Windows rows were first produced with
+        `members=()` because the script's filter dropped every name containing a
+        dot -- correct for Unix programs, and silently total for `.exe`.
+        """
+        for release in PINNED:
+            assert release.members, release.url
+            assert len(release.members) == 8, release.url
+
+    def test_the_self_contained_build_is_offered_first(self):
+        """ADR-0003 rule 1: never ask the user to resolve a library chain."""
+        for platform in ("linux-x86_64", "macos-arm64"):
+            candidates = releases_for("dynadjust", platform)
+            assert candidates[0].static is True, platform
+
+    def test_windows_has_no_static_build_and_says_so(self):
+        """Upstream ships no statically linked Windows build; both rows carry
+        their DLLs instead. Recorded rather than claimed static by default."""
+        candidates = releases_for("dynadjust", "windows-x86_64")
+        assert candidates
+        assert all(not release.static for release in candidates)
+
+    def test_the_windows_members_are_the_windows_names(self):
+        """`adjust.exe`, not `dnaadjust.exe` -- and the difference is load-bearing."""
+        (windows,) = (r for r in releases_for("dynadjust", "windows-x86_64") if "openblas" in r.url)
+        assert "adjust.exe" in windows.members
+        assert "dnaadjust.exe" not in windows.members
+        assert not any(name.endswith(".dll") for name in windows.members)
+
+        (unix,) = (r for r in releases_for("dynadjust", "macos-arm64"))
+        assert "dnaadjust" in unix.members
+        assert not any(name.endswith(".exe") for name in unix.members)
+
+    def test_every_url_is_the_pinned_version(self):
+        """A URL naming a tag other than the pinned version would download
+        something the digest cannot match, which is a confusing way to fail."""
+        for release in PINNED:
+            assert f"/v{release.version}/" in release.url
+
+
+class TestTheWindowsProgramNames:
+    """Why a DynAdjust install on Windows used to find nothing at all.
+
+    `discover` looks for a file named `dnaimport`. The Windows archive contains
+    `import.exe` and a *library* called `dnaimport.dll`. So the install would
+    succeed, verify, and then every operation would report the engine absent.
+    """
+
+    def test_the_mapping_is_irregular_enough_to_need_a_table(self):
+        assert program_filenames("dnaadjust") == ("dnaadjust", "adjust.exe")
+        assert program_filenames("dnaimport") == ("dnaimport", "import.exe")
+        # dnadiff keeps its prefix, which is why a strip-the-prefix rule fails.
+        assert program_filenames("dnadiff") == ("dnadiff", "dnadiff.exe")
+
+    def test_an_unknown_program_is_just_itself(self):
+        assert program_filenames("rnx2rtkp") == ("rnx2rtkp",)
+
+    def test_every_pipeline_program_has_a_windows_name(self):
+        """A program in PROGRAMS with no mapping is one that cannot be found on
+        Windows, which is exactly the defect this table exists to close."""
+        for program in PROGRAMS:
+            assert program in WINDOWS_PROGRAM_NAMES, program
+
+    def test_discover_finds_the_windows_name_in_a_managed_directory(self, tmp_path):
+        (tmp_path / "import.exe").write_text("")
+        path, source = discover(
+            "dnaimport", extra_directories=[tmp_path], candidates=program_filenames("dnaimport")
+        )
+        assert path == tmp_path / "import.exe"
+        assert source == "managed"
+
+    def test_the_unix_name_wins_when_both_are_present(self, tmp_path):
+        (tmp_path / "dnaimport").write_text("")
+        (tmp_path / "import.exe").write_text("")
+        path, _ = discover(
+            "dnaimport", extra_directories=[tmp_path], candidates=program_filenames("dnaimport")
+        )
+        assert path.name == "dnaimport"
+
+    def test_a_configured_directory_is_searched_for_both_names(self, tmp_path):
+        (tmp_path / "adjust.exe").write_text("")
+        path, source = discover(
+            "dnaadjust", configured=tmp_path, candidates=program_filenames("dnaadjust")
+        )
+        assert path == tmp_path / "adjust.exe"
+        assert source == "configured"
+
+    def test_a_configured_directory_holding_neither_still_raises(self, tmp_path):
+        with pytest.raises(ValidationError) as caught:
+            discover("dnaadjust", configured=tmp_path, candidates=program_filenames("dnaadjust"))
+        assert caught.value.code == "validation.engine_path_not_found"
+        assert caught.value.context["tried"] == ["dnaadjust", "adjust.exe"]
+
+
+class TestTheArchiveLayout:
+    """Upstream nests; `discover` does not recurse. Both are fine, together they were not.
+
+    `dynadjust-linux-openblas-static.zip` puts its programs in
+    `dynadjust-linux-static/`, so extracting into `<engine>/<version>/` leaves
+    that directory holding one folder. `install` used to return it, and
+    `discover` looks for a program as a *direct child* — so a download that
+    verified against its digest and extracted every expected program would then
+    report the engine absent. Every synthetic archive in these tests is flat,
+    which is why nothing caught it until a real one was installed.
+    """
+
+    def test_the_program_directory_is_the_nested_one(self, tmp_path: Path) -> None:
+        written = [
+            tmp_path / "dynadjust-linux-static" / "dnaimport",
+            tmp_path / "dynadjust-linux-static" / "dnaadjust",
+            tmp_path / "dynadjust-linux-static" / "README.txt",
+        ]
+        found = program_directory(written, ("dnaimport", "dnaadjust"), fallback=tmp_path)
+        assert found == tmp_path / "dynadjust-linux-static"
+
+    def test_a_flat_archive_still_returns_where_it_extracted(self, tmp_path: Path) -> None:
+        written = [tmp_path / "dnaimport", tmp_path / "dnaadjust"]
+        assert program_directory(written, ("dnaimport", "dnaadjust"), fallback=tmp_path) == tmp_path
+
+    def test_programs_in_two_directories_are_refused_at_install_time(self, tmp_path: Path) -> None:
+        """More use than letting discovery report half of them missing later."""
+        written = [tmp_path / "a" / "dnaimport", tmp_path / "b" / "dnaadjust"]
+        with pytest.raises(DataError) as caught:
+            program_directory(written, ("dnaimport", "dnaadjust"), fallback=tmp_path)
+        assert caught.value.code == "data.engine_archive_programs_scattered"
+
+    def test_install_of_a_nested_archive_is_discoverable(self, tmp_path: Path) -> None:
+        """The end-to-end shape of the defect, on a synthetic nested archive."""
+        payload = {
+            "dynadjust-linux-static/dnaimport": b"#!/bin/sh\n",
+            "dynadjust-linux-static/dnaadjust": b"#!/bin/sh\n",
+        }
+        archive = make_zip(tmp_path / "nested.zip", payload)
+        release = EngineRelease(
+            engine="dynadjust",
+            version="1.4.0",
+            platform="linux-x86_64",
+            url="https://example.org/nested.zip",
+            sha256=sha_of(archive.read_bytes()),
+            members=("dnaimport", "dnaadjust"),
+        )
+        root = tmp_path / "root"
+        where = install(release, root=root, fetch=lambda url, path: path.write_bytes(
+            archive.read_bytes()
+        ))
+
+        assert where.name == "dynadjust-linux-static"
+        for program in ("dnaimport", "dnaadjust"):
+            path, source = discover(program, extra_directories=[where])
+            assert source == "managed", program
+            assert path is not None

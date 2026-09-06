@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import zipfile
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -44,6 +44,7 @@ __all__ = [
     "Fetcher",
     "install",
     "installation_root",
+    "program_directory",
     "verify",
 ]
 
@@ -91,21 +92,102 @@ class EngineRelease:
 
 #: The releases this GeoComp release was built and tested against.
 #:
-#: **Empty of DynAdjust entries, and that is the honest state.** Upstream
-#: publishes ``dynadjust-linux-static.zip`` and the rest on its releases page,
-#: and ADR-0003 rule 1 says to prefer the static builds -- but a pinned digest
-#: has to be *computed from the archive somebody checked*, and this environment's
-#: network policy blocks GitHub release downloads (raw file and git access are
-#: served; ``releases/download`` is not). Writing a plausible URL with an
-#: invented digest would produce a table that looks complete and fails at the
-#: first real download, which is worse than a table that says what it knows.
+#: Every digest here was computed from an archive actually downloaded and
+#: hashed by ``scripts/pin_engine_release.py`` -- never copied from a checksum
+#: published beside the download, which proves only that a transfer was not
+#: corrupted, and never invented.
 #:
-#: What fills it: run ``scripts/pin_engine_release.py`` on a machine that can
-#: reach the releases page. It downloads, hashes, and prints the row to paste.
-#: Until then :func:`install` refuses with a message naming that script, and
-#: everything else -- discovery of an existing installation, version detection,
-#: the whole pipeline against a user's own build -- works unchanged.
-PINNED: tuple[EngineRelease, ...] = ()
+#: **Two builds per platform where upstream offers them**, and the order
+#: matters: :func:`releases_for` returns them as listed, so the self-contained
+#: build comes first (ADR-0003 rule 1). The MKL builds link Intel's runtime and
+#: are offered second for users who want it; ``static`` says which is which
+#: rather than leaving it to be inferred from a filename.
+PINNED: tuple[EngineRelease, ...] = (
+    EngineRelease(
+        engine="dynadjust",
+        version="1.4.0",
+        platform="linux-x86_64",
+        url=(
+            "https://github.com/GeoscienceAustralia/DynAdjust/releases/download/"
+            "v1.4.0/dynadjust-linux-openblas-static.zip"
+        ),
+        sha256="5cc371bfe030815fc8b7af7d6ec00640bdd64bbeac5d0bc559296cd5b9d4f239",
+        members=(
+            "dnaadjust", "dnadiff", "dnageoid", "dnaimport",
+            "dnaplot", "dnareftran", "dnasegment", "dynadjust",
+        ),
+        static=True,
+        notes="OpenBLAS, statically linked. 34.9 MB.",
+    ),
+    EngineRelease(
+        engine="dynadjust",
+        version="1.4.0",
+        platform="linux-x86_64",
+        url=(
+            "https://github.com/GeoscienceAustralia/DynAdjust/releases/download/"
+            "v1.4.0/dynadjust-linux-mkl.zip"
+        ),
+        sha256="965002d8edb720732e101193fe5ad65034ed8ff9908cbc13026d06e8507b3b26",
+        members=(
+            "dnaadjust", "dnadiff", "dnageoid", "dnaimport",
+            "dnaplot", "dnareftran", "dnasegment", "dynadjust",
+        ),
+        static=False,
+        notes="Intel MKL. Needs the MKL runtime present.",
+    ),
+    EngineRelease(
+        engine="dynadjust",
+        version="1.4.0",
+        platform="macos-arm64",
+        url=(
+            "https://github.com/GeoscienceAustralia/DynAdjust/releases/download/"
+            "v1.4.0/dynadjust-macos-static.zip"
+        ),
+        sha256="849c665ff186aba7231bccccdf0c08dd5777d73aa4574787e5e531039db9699e",
+        members=(
+            "dnaadjust", "dnadiff", "dnageoid", "dnaimport",
+            "dnaplot", "dnareftran", "dnasegment", "dynadjust",
+        ),
+        static=True,
+        notes="Apple Silicon, statically linked.",
+    ),
+    # The Windows programs are named differently -- `adjust.exe`, not
+    # `dnaadjust.exe` -- which is why `members` here does not mirror the Unix
+    # rows and why the adapter carries
+    # `engines.dynadjust.engine.WINDOWS_PROGRAM_NAMES`.
+    EngineRelease(
+        engine="dynadjust",
+        version="1.4.0",
+        platform="windows-x86_64",
+        url=(
+            "https://github.com/GeoscienceAustralia/DynAdjust/releases/download/"
+            "v1.4.0/dynadjust-windows-openblas.zip"
+        ),
+        sha256="ccbae5ce395848f4525b0f52d766ad2860c98b2bed177050cb1f9c246e827a69",
+        members=(
+            "adjust.exe", "dnadiff.exe", "dynadjust.exe", "geoid.exe",
+            "import.exe", "plot.exe", "reftran.exe", "segment.exe",
+        ),
+        static=False,
+        notes="OpenBLAS. Ships its own DLLs beside the programs.",
+    ),
+    EngineRelease(
+        engine="dynadjust",
+        version="1.4.0",
+        platform="windows-x86_64",
+        url=(
+            "https://github.com/GeoscienceAustralia/DynAdjust/releases/download/"
+            "v1.4.0/dynadjust-windows-mkl.zip"
+        ),
+        sha256="f1f085a684163eb8c65fb2d7f80f24c3035b781f68e02403e0b002c7712140f4",
+        members=(
+            "adjust.exe", "dnadiff.exe", "dynadjust.exe", "geoid.exe",
+            "import.exe", "plot.exe", "reftran.exe", "segment.exe",
+        ),
+        static=False,
+        notes="Intel MKL. Needs the MKL runtime present.",
+    ),
+)
 
 
 def installation_root(profile_directory: str | Path) -> Path:
@@ -243,8 +325,15 @@ def install(
 ) -> Path:
     """Download, verify, extract and check one pinned release.
 
-    The order is the whole point: **verify before extract**, always. Returns the
-    directory the programs were installed into.
+    The order is the whole point: **verify before extract**, always.
+
+    Returns **the directory the programs are actually in**, which is not always
+    the one they were extracted into: upstream's archives nest everything under
+    a single folder, so ``dynadjust-linux-openblas-static.zip`` puts its
+    programs in ``<version>/dynadjust-linux-static/``. Returning the version
+    directory would hand :func:`~geocomp.engines.base.discover` a path whose
+    direct children are one folder, and the engine would be reported absent on
+    a machine where it had just installed and verified perfectly.
     """
     root = Path(root)
     destination = root / release.engine / release.version
@@ -261,11 +350,41 @@ def install(
         )
 
     verify(archive_path, release.sha256)
-    extract(archive_path, destination, expect=release.members)
+    written = extract(archive_path, destination, expect=release.members)
 
     if not keep_archive:
         archive_path.unlink(missing_ok=True)
-    return destination
+    return program_directory(written, release.members, fallback=destination)
+
+
+def program_directory(
+    written: Sequence[Path], members: Sequence[str], *, fallback: Path
+) -> Path:
+    """The one directory holding the programs, from where they actually landed.
+
+    Derived from the extracted paths rather than assumed, because upstream's
+    layout is upstream's to change: v1.4.0 nests under
+    ``dynadjust-linux-static/``, and a later release that stops doing so should
+    keep working without an edit here.
+
+    Raises:
+        DataError: when the programs are spread across more than one directory.
+            GeoComp drives them from a single directory, so this is a layout it
+            cannot use -- and saying so at install time is far more use than
+            letting :func:`~geocomp.engines.base.discover` report half of them
+            missing later, on a machine where the install just succeeded.
+    """
+    wanted = set(members)
+    homes = {path.parent for path in written if path.name in wanted}
+    if not homes:
+        return fallback
+    if len(homes) > 1:
+        raise DataError(
+            "engine_archive_programs_scattered",
+            received=sorted(str(home) for home in homes),
+            expected="every program in one directory, which is how GeoComp runs them",
+        )
+    return homes.pop()
 
 
 def install_pinned(engine: str, platform: str, *, root: str | Path, fetch: Fetcher) -> Path:

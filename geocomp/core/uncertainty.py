@@ -52,6 +52,7 @@ __all__ = [
     "atan2",
     "combine_modes",
     "cos",
+    "covariance_from_printed",
     "exp",
     "hypot",
     "log",
@@ -104,6 +105,16 @@ class Strategy(Enum):
     #: exists *and* the quantity is not load-bearing -- never for an observation
     #: whose sigma becomes an adjustment weight.
     RECORDED_PRECISION = "recorded_precision"
+    #: A covariance read back from printed text was moved to the nearest
+    #: positive semi-definite matrix, by less than its own printed digits can
+    #: resolve. Added in phase P6 for engine output files. A matrix computed in
+    #: double precision and then written to ten significant figures loses the
+    #: last eight of them, so one with a near-zero eigenvalue -- every
+    #: rank-deficient network has several -- comes back very slightly
+    #: indefinite. Permitted only when the repair is smaller than the rounding
+    #: that explains it; past that the matrix is indefinite for some other
+    #: reason and is still refused.
+    ROUNDING_CONDITIONED = "rounding_conditioned"
 
 
 def combine_modes(*quantities: Quantity) -> tuple[UncertaintyMode, frozenset[Strategy]]:
@@ -815,6 +826,102 @@ class Covariance:
 
     def __repr__(self) -> str:
         return f"Covariance({list(self.labels)}, {self.mode.value})"
+
+
+def covariance_from_printed(
+    matrix: np.ndarray,
+    labels: Sequence[str],
+    units: Sequence[Unit],
+    *,
+    half_width: float,
+    mode: UncertaintyMode = UncertaintyMode.RIGOROUS,
+    strategies: Iterable[Strategy] = (),
+) -> Covariance:
+    """A :class:`Covariance` read out of a text file, conditioned if rounding needs it.
+
+    :class:`Covariance` refuses a matrix whose smallest eigenvalue is below
+    ``-EIGENVALUE_TOLERANCE`` times its scale, and that tolerance is right for a
+    matrix GeoComp *computed*: at ``1e-12`` relative it is far above double
+    precision's round-off and far below any real defect, so it catches genuine
+    data problems and nothing else.
+
+    It is not right for a matrix GeoComp *read*. An engine prints its covariance
+    to a fixed number of significant figures -- DynAdjust's ``.apu`` writes ten
+    -- which discards the rest of the double it computed. A matrix with a
+    near-zero eigenvalue, which every rank-deficient network has, then comes
+    back marginally indefinite: not because the adjustment produced a bad
+    matrix, but because the file could not carry the digits that made it good.
+    Refusing it loses the whole solution over an artefact of printing.
+
+    Loosening the global tolerance would be the wrong repair, because it would
+    also stop catching real defects in matrices that were never printed. So the
+    conditioning is explicit, bounded by the printing itself, and recorded:
+
+    * *half_width* is half the place value of the last digit the file printed,
+      taken across the whole matrix -- the most any single entry can be wrong by.
+      :func:`geocomp.engines.dynadjust.read_output.printed_half_width` derives it
+      from the text rather than assuming a format.
+    * Weyl's inequality bounds an eigenvalue's error by the perturbation's
+      spectral norm, and ``||E||_2 <= ||E||_F <= n * max|E_ij|``, so ``n *
+      half_width`` is how far rounding alone can push an eigenvalue negative.
+    * Within that bound the negative eigenvalues are clipped to zero, which is
+      the nearest positive semi-definite matrix in the Frobenius norm, and the
+      result is :attr:`UncertaintyMode.APPROXIMATE` carrying
+      :attr:`Strategy.ROUNDING_CONDITIONED`.
+    * Beyond it, nothing is repaired: the matrix goes to :class:`Covariance`
+      unchanged so the refusal names the eigenvalue actually found.
+
+    A matrix that is already positive semi-definite is returned untouched and
+    unlabelled. The conditioning is reported only when it happened.
+    """
+    values = np.asarray(matrix, dtype=float)
+    extra = frozenset(strategies)
+
+    def build(final: np.ndarray, *, conditioned: bool) -> Covariance:
+        return Covariance(
+            matrix=final,
+            labels=tuple(labels),
+            units=tuple(units),
+            mode=UncertaintyMode.APPROXIMATE if conditioned else mode,
+            strategies=extra | {Strategy.ROUNDING_CONDITIONED} if conditioned else extra,
+        )
+
+    if values.ndim != 2 or values.shape[0] != values.shape[1] or not values.size:
+        # Not this function's complaint to make: Covariance words the shape
+        # errors, and wording them twice is how the two drift apart.
+        return build(values, conditioned=False)
+    if not half_width > 0.0:
+        raise ValidationError(
+            "printed_half_width_not_positive",
+            half_width=half_width,
+            expected="half the place value of the last digit printed, which is positive",
+        )
+
+    size = int(values.shape[0])
+    bound = size * half_width
+
+    # Symmetrising is a guard rather than a repair for every caller there is
+    # today -- both DynAdjust paths mirror one printed triangle, so the matrix
+    # arrives exactly symmetric. Where a file does print both halves, two
+    # roundings of one number differ by at most twice the half-width, and more
+    # than that is a disagreement rounding cannot explain: leave it for
+    # Covariance to refuse by name.
+    asymmetry = float(np.max(np.abs(values - values.T)))
+    if asymmetry > 2.0 * half_width:
+        return build(values, conditioned=False)
+    symmetric = (values + values.T) / 2.0 if asymmetry else values
+
+    eigenvalues, vectors = np.linalg.eigh(symmetric)
+    smallest = float(eigenvalues[0])
+    scale = max(float(np.max(np.abs(symmetric))), 1.0)
+    if smallest >= -Covariance.EIGENVALUE_TOLERANCE * scale or smallest < -bound:
+        # Sound already, or too far gone for printing to be the reason.
+        return build(symmetric, conditioned=bool(asymmetry))
+
+    repaired = (vectors * np.maximum(eigenvalues, 0.0)) @ vectors.T
+    # The reconstruction is a matrix product like any other, so it leaves
+    # asymmetry in the last bit (specs/05 section 6, limit 4).
+    return build((repaired + repaired.T) / 2.0, conditioned=True)
 
 
 def propagate(

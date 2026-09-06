@@ -36,7 +36,10 @@ from geocomp.core.models import (
     GnssSession,
     HeightType,
     Network,
+    Observation,
+    ObservationType,
     Project,
+    Station,
 )
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.solution import (
@@ -193,6 +196,40 @@ class TestARoundTrip:
                 assert restored.value == original.value
                 assert restored.variance == original.variance
                 assert restored.unit is original.unit
+
+    def test_setup_heights_survive(self, tmp_path):
+        """Columns of their own, not a corner of ``meta`` (specs/09 §2.5).
+
+        The heights are what the observation equation reduces the sight by, so
+        a store that loses them adjusts a different network -- by the height of
+        a tripod, in a result that looks entirely healthy.
+        """
+        project = Project(id="p")
+        network = Network(id="n", crs="EPSG:31982")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name, approx_position=None))
+        network.add_observation(
+            Observation(
+                id="s1",
+                type=ObservationType.SLOPE_DISTANCE,
+                stations=("A", "B"),
+                values=(Quantity.from_std_dev(115.876, 0.005, Unit.METRE),),
+                instrument_height=Quantity.exact(1.600, Unit.METRE),
+                target_height=Quantity.exact(1.500, Unit.METRE),
+            )
+        )
+        project.add_network(network)
+
+        path = tmp_path / "heights.gpkg"
+        with open_store(path, create=True) as store:
+            store.write(project)
+        with open_store(path) as store:
+            back = store.read().networks["n"].observations["s1"]
+
+        assert back.instrument_height.value == 1.600
+        assert back.target_height.value == 1.500
+        assert back.height_offset == pytest.approx(-0.100)
+        assert back.meta == {}
 
     def test_a_constraint_survives(self, stored):
         path, _project, _solution, network = stored
@@ -497,12 +534,51 @@ class TestVersioning:
         assert target.suffix == ".gpkg"
         assert "backup-" in target.name
 
-    def test_the_migration_chain_starts_empty_and_says_so(self):
-        """Version 1 is the first released schema, so there is nothing to
-        migrate *to* it. An invented migration from a version that never
-        existed is a step that has never run against real data."""
-        assert MIGRATIONS == {}
-        assert SCHEMA_VERSION == 1
+    def test_the_chain_has_a_migration_for_every_version_after_the_first(self):
+        """Version 1 is the first released schema, so nothing migrates *to* it.
+        Every later version needs a step, or a store from the field cannot be
+        brought forward at all."""
+        assert set(MIGRATIONS) == set(range(2, SCHEMA_VERSION + 1))
+
+    def test_a_schema_one_store_gains_the_setup_height_columns(self, stored, tmp_path):
+        """The schema's first real migration, run against a real store.
+
+        A store written before ``instrument_height`` and ``target_height``
+        existed has neither column. The migration adds them empty and **does not
+        back-fill**: a height GeoComp never had is absent, not zero, and writing
+        zero would turn "we do not know" into "the instrument stood on the mark".
+        """
+        path, *_ = stored
+        connection = sqlite3.connect(path)
+        with connection:
+            for column in ("instrument_height", "target_height"):
+                connection.execute(f'ALTER TABLE "gc_observation" DROP COLUMN "{column}"')
+            connection.execute('UPDATE "gc_project" SET schema_version = 1')
+        connection.close()
+
+        connection = sqlite3.connect(path)
+        report = migrate(connection, path, found=1)
+        columns = {
+            row[1] for row in connection.execute('PRAGMA table_info("gc_observation")')
+        }
+        heights = list(
+            connection.execute(
+                'SELECT instrument_height, target_height FROM "gc_observation"'
+            )
+        )
+        connection.close()
+
+        assert report.migrated and report.to_version == SCHEMA_VERSION
+        assert {"instrument_height", "target_height"} <= columns
+        assert heights and all(row == (None, None) for row in heights)
+
+        with open_store(path) as store:
+            reopened = store.read()
+        assert all(
+            observation.instrument_height is None and observation.target_height is None
+            for network in reopened.networks.values()
+            for observation in network.observations.values()
+        )
 
     def test_the_machinery_runs_a_registered_migration(self, stored, monkeypatch):
         """The chain is empty today, so the machinery is exercised with a

@@ -181,3 +181,21 @@ def migrate(
             )
             report.steps.append(f"{version}: {description}")
     return report
+
+
+@register(2, "gc_observation gains instrument_height and target_height")
+def _setup_heights(connection: sqlite3.Connection) -> None:
+    """Carry a sight's instrument and target heights (specs/09 section 2.5).
+
+    A slope distance or zenith angle measured trunnion-axis to reflector needs
+    both heights in the observation equation; before this they could not be
+    stored at all, so a store written by schema 1 simply has none and the two
+    columns are added empty. Nothing is back-filled, and nothing can be: a
+    height GeoComp never had is not zero, it is absent, and writing zero would
+    turn "we do not know" into "the instrument stood on the mark".
+
+    This is the schema's first migration, which makes it the first exercise of
+    the machinery as well as of itself.
+    """
+    for column in ("instrument_height", "target_height"):
+        connection.execute(f'ALTER TABLE "gc_observation" ADD COLUMN "{column}" TEXT')

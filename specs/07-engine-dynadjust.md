@@ -67,10 +67,31 @@ DynAdjust adjusts networks. It does not:
 
 ## 2. Acquisition and version handling (FR-300…FR-302)
 
-Upstream distributes **pre-built binaries for Windows x64 (OpenBLAS and Intel MKL builds), macOS 14 Apple
-Silicon (dynamic and static), Ubuntu 22.04+ (OpenBLAS dynamic) and generic x86-64 Linux (static)**, plus a
-Docker image **[V]**. This is what makes FR-301 — installation without a command line — achievable. The
-acquisition strategy is [`adr/0003-engine-acquisition.md`](./adr/0003-engine-acquisition.md).
+Upstream's **v1.4.0 release carries five binary archives [V]**, listed here as they are actually named,
+because an earlier description of this section named builds that do not exist:
+
+| Asset | Platform | Self-contained |
+|---|---|---|
+| `dynadjust-linux-openblas-static.zip` | Linux x86-64 | yes |
+| `dynadjust-linux-mkl.zip` | Linux x86-64 | no — needs the MKL runtime |
+| `dynadjust-macos-static.zip` | macOS Apple Silicon | yes |
+| `dynadjust-windows-openblas.zip` | Windows x64 | no — ships its own DLLs |
+| `dynadjust-windows-mkl.zip` | Windows x64 | no |
+
+Plus a Docker image. **There is no statically linked Windows build**, so ADR-0003 rule 1 is satisfied on
+Linux and macOS and cannot be on Windows; `PINNED` records which is which rather than leaving it to be
+inferred. This is what makes FR-301 — installation without a command line — achievable. The acquisition
+strategy is [`adr/0003-engine-acquisition.md`](./adr/0003-engine-acquisition.md).
+
+**Two things about the archives that only appear when one is installed [V]:**
+
+- **They nest.** Every program sits under a single top-level folder (`dynadjust-linux-static/`), so the
+  directory an archive is extracted into is not the directory the programs are in. `manager.install`
+  returns the latter, derived from where the expected members actually landed.
+- **Windows renames the programs, irregularly.** `dnaadjust` ships as `adjust.exe` and `dnaimport` as
+  `import.exe`, but `dnadiff` keeps its prefix as `dnadiff.exe`; the `dna*.dll` files beside them are
+  libraries. `engines.dynadjust.engine.WINDOWS_PROGRAM_NAMES` is the table, and it is a table rather than
+  a rule because no rule covers all eight.
 
 Requirements specific to this engine:
 
@@ -382,7 +403,8 @@ rather than guessing -- a guess here is a coordinate wrong by up to 0.6 degrees 
 
 HP validation catches part of it by accident: HP cannot hold minutes of 60 or more, so a decimal-degree value
 whose fractional part is 0.60 or greater is rejected. That covers much of a real file and is not a guarantee
--- `145.55` reads as either.
+-- `145.55` reads as either. §5.5 has the two ways the *angular* columns go wrong in particular, one of which
+that same validation catches on purpose.
 
 ### 5.2 Units inside the measurement table [V]
 
@@ -422,6 +444,138 @@ and names may contain spaces, so splitting on whitespace is no better than slici
 ambiguous. It is *not* ambiguous when the caller knows which names it wrote, which GeoComp always does
 because it wrote the input files (rule 3 below), so the parsers resolve against a known set when given one
 and refuse -- naming the remedy -- when not.
+
+### 5.4 A covariance read from printed text needs conditioning [V]
+
+Measured on DynAdjust 1.4.0. A levelling network determines no horizontal position, so each station's
+cartesian covariance has an eigenvalue that is mathematically zero. The `.apu` prints variances to **ten
+significant figures** — `6.547721537e+01` — which discards the rest of the double DynAdjust computed, and
+the zero eigenvalue lands on whichever side of zero the rounding puts it. For the four-station loop in
+`tests/test_dynadjust_pipeline.py` it lands at **−3.03 × 10⁻⁹**, and `Covariance` refuses the matrix:
+
+```text
+data.covariance_not_positive_semidefinite (smallest_eigenvalue=-3.0336929576346763e-09, labels=['A.x', 'A.y', 'A.z'])
+```
+
+The whole solution was unreadable over an artefact of printing. The matrix is sound to the precision it was
+printed at; what is unsound is holding it to a tolerance meant for a matrix that was never printed.
+
+**The tolerance is not loosened.** `Covariance.EIGENVALUE_TOLERANCE` at `1e-12` relative is correct for a
+computed matrix — far above double precision's round-off, far below any real defect — and relaxing it
+globally would stop it catching genuine data problems everywhere else. Instead
+`core.uncertainty.covariance_from_printed` conditions explicitly, and the bound comes from the file:
+
+* `read_output.printed_half_width` reads the precision out of the text — half the place value of the last
+  digit each number actually carries — rather than assuming a format, because DynAdjust's output precision
+  is settable per column from the command line and a constant here would be right only for the defaults.
+* Weyl's inequality bounds an eigenvalue's error by the perturbation's spectral norm, and
+  ‖E‖₂ ≤ ‖E‖_F ≤ *n*·max|E_ij|, so **n × half_width** is the furthest rounding alone can push an eigenvalue
+  negative. For the block above that is 3 × 5 × 10⁻⁹ = 1.5 × 10⁻⁸, comfortably covering the 3.03 × 10⁻⁹ found.
+* Within the bound the negative eigenvalues are clipped to zero — the nearest positive semi-definite matrix
+  in the Frobenius norm. The repair moves the whole block by **less than one printed digit**, so the result
+  is a matrix the file's own digits are equally consistent with.
+* **Beyond the bound nothing is repaired.** The matrix goes to `Covariance` unchanged and is refused naming
+  the eigenvalue actually found, which is what keeps the conditioning from quietly rescuing a matrix that is
+  indefinite for a real reason.
+
+It is recorded, not silent. The conditioned covariance is `APPROXIMATE` and carries
+`Strategy.ROUNDING_CONDITIONED` ([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md)
+§2.3), and the `Solution` built from it is `APPROXIMATE` too — so a report cannot present a repaired matrix
+as a rigorously propagated one (FR-203). A covariance that needed no repair is returned untouched and
+unlabelled: reporting a conditioning that did not happen is its own dishonesty.
+
+### 5.5 What the angular columns do wrong [V]
+
+Two defects, both in DynAdjust 1.4.0, both reached by asking for `Latitude` and `Longitude` columns. They
+were found while checking a note in this repository that claimed something else — that the `.xyz` parser
+could not read a column set containing `E`, `N` and `z`. **That note was wrong**: `grid.xyz` is
+`--stn-coord-types ENz` and has always read. The real limits are these.
+
+**1. `--precision-stn-angular 7` overflows the column.** An HP latitude is `sign + DD + . + MM + SS +
+precision`, so at precision 7 it is 15 characters and `LAT_EAST` is 14. `std::setw` pads but never truncates,
+so Zone, Latitude and Longitude run together with no separator at all:
+
+```text
+  55  -45.00000000   144.30000000     precision 4 — separated
+  55 -45.000000000  144.300000000     precision 5 — DynAdjust's default
+  55-44.6000000000 144.3000000000     precision 6 — abuts, still sliceable
+  55-44.60000000000144.30000000000    precision 7 — overflowed, nothing after it is its own field
+```
+
+Note precision 6: the fields **touch without anything being lost**, because two right-aligned columns abut
+whenever the left one's value fills its width exactly. A missing separator is therefore not by itself an
+overflow, and refusing that row would be a false alarm. So `ColumnPlan.unseparated` is a *diagnosis* — it is
+consulted to explain a conversion that already failed and never to refuse a row on its own. Without it the
+first complaint is `not a number` in `SD(n)`, several columns to the right of the fault and naming a field
+that is perfectly well formed.
+
+**GeoComp must never request a precision that overflows**, and this one is entirely its own to get right: it
+composes the command line. It asks for no angular precision at all and takes DynAdjust's default of 5; 6 is
+the last value that fits, and a test asserts it.
+
+**2. DynAdjust's HP printer can emit 60 minutes.** This one needs no unusual flags. In `grid-hp-carry.xyz`,
+written at the *default* precision, three stations sit at latitude −45° — confirmed to eight nanoseconds of
+arc by inverse-projecting the eastings and northings printed in the same rows — and DynAdjust prints two of
+them as `-45.000000000` and the third as **`-44.600000000`**: 44 degrees, **60** minutes. The seconds round up
+to 60 and the carry into minutes, and from minutes into degrees, is not made.
+
+HP notation cannot hold it, and GeoComp refuses it rather than reading 60 minutes as an hour
+(`validation.hp_angle_minutes_out_of_range`) — the reader now names the station so the row can be found. The
+trigger is a value within half of the last printed digit of a whole minute, so in real data it is rare; in a
+network laid out on whole degrees it is not. **Reading it leniently is the wrong repair**: the same
+validation is what stops a decimal-degree value being read as HP (§5.1), and a reader that accepts 60
+minutes from one source accepts it from all of them.
+
+### 5.6 A direction set is not a row per direction [V]
+
+The two engines parameterise a set of directions differently, and the difference is invisible until one is
+written and read back.
+
+**GeoComp** holds *N* directions plus the setup's orientation unknown (FR-104): every direction is an
+observation, and the unknown absorbs the arbitrary circle zero. **DynAdjust's `D`** holds a *reference*
+direction plus the *N−1* measured from it — the reference has no value of its own, so it is never a printed
+row. The two carry the same information; they do not map row for row.
+
+```text
+D 1                   3                                          1
+                                          2             199 06 36.5000  199 06 41.0993 ...
+^ instrument          ^ reference                        ^ the one direction that has a value
+                                          ^ target       ^ and the C column holds the set *count*
+```
+
+Three consequences, each of which was a defect until RD-01 became the first network with directions to reach
+the engine:
+
+* **`printed_rows` emits *N−1* rows for a set of *N*.** Emitting one per direction reported a lost
+  measurement on every network with a direction set — `check_import` compares its count against
+  `dnaimport`'s, and `dnaimport` counts printed rows too.
+* **The parser must carry the set across rows.** The header has no value to read and the member rows have no
+  type letter, so reading rows independently drops the whole set silently.
+* **The `C` column of a header is a count, not a component.** Handing that digit to the angular/linear test
+  raised `dynadjust_unknown_measurement_component` — and *that raise was itself broken*: its context key
+  `code` collided with `GeoCompError`'s first positional argument, so a guard written to prevent a
+  factor-of-3600 misread failed with a `TypeError` instead of its own message.
+
+**A direction set of one has no equivalent at all.** `dnaimport` refuses the file: *"Direction set declares
+total of 0 but there aren't any non-ignored directions in the set."* Nothing is lost by leaving it out — one
+direction with its own orientation unknown is one observation and one parameter, contributing exactly zero —
+but it is **reported as skipped** rather than dropped, so the pipeline refuses unless `allow_partial` says a
+partial network is what was wanted (§5 rule 6). `tests/test_dynadjust_pipeline.py` asserts the "contributes
+zero" claim rather than resting on it.
+
+### 5.7 A constraint on a projected station is written on the LLH axes [V]
+
+A projected position is inverse-projected and written `LLH` (§4.4), so `XAxis` is a **latitude**. A
+constraint stated on the grid must be reordered before it is written: easting is a *longitude*.
+
+| held in GeoComp | written | not |
+|---|---|---|
+| easting | `FCF` | ~~`CFF`~~ |
+| northing | `CFF` | ~~`FCF`~~ |
+
+Latent until a **partially** constrained projected station was written — a fully fixed or fully free one is
+`CCC` or `FFF` either way, which is why every earlier test passed. The failure it would have caused is the
+quiet kind: the network is constrained along the perpendicular axis, and it still converges.
 
 Parsing rules:
 

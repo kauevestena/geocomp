@@ -18,9 +18,11 @@ is marked ``engines`` and skipped without one.
 from __future__ import annotations
 
 import math
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from geocomp.core.errors import ValidationError
@@ -37,7 +39,7 @@ from geocomp.engines.dynadjust.engine import (
     plan,
 )
 from geocomp.engines.dynadjust.read_dynaml import read_dynaml
-from geocomp.engines.dynadjust.read_output import read_xyz
+from geocomp.engines.dynadjust.solution import read_solution
 
 from .conftest import requires_dynadjust
 
@@ -190,6 +192,20 @@ class TestThePlan:
         they can be read without guessing is for GeoComp to have asked."""
         arguments = stage(DynAdjustJob(network=network), "dnaadjust").arguments
         assert "--angular-stn-type" in arguments
+
+    def test_no_requested_precision_can_overflow_a_column(self, network) -> None:
+        """GeoComp controls the flags it passes, so this is its own to get right.
+
+        ``--precision-stn-angular 7`` makes DynAdjust print a 15-character
+        latitude into a 14-character field, and the row stops being sliceable
+        (``specs/07`` section 5.5). GeoComp asks for no angular precision at all
+        and takes DynAdjust's default of 5; if it ever does ask, 6 is the last value
+        that fits.
+        """
+        arguments = stage(DynAdjustJob(network=network), "dnaadjust").arguments
+        if "--precision-stn-angular" in arguments:
+            requested = int(arguments[arguments.index("--precision-stn-angular") + 1])
+            assert requested <= 6, "a 15-character angle does not fit a 14-character column"
 
     def test_the_confidence_reaches_the_command_line(self, network) -> None:
         arguments = stage(DynAdjustJob(network=network, confidence=0.99), "dnaadjust").arguments
@@ -508,15 +524,13 @@ class TestAProjectedNetworkCrossValidates:
         runs = engine.run(prepared)
         assert all(run.exit_code == 0 for run in runs), [run.diagnostic for run in runs]
 
-        # Read the coordinates rather than the whole Solution, deliberately.
-        # `parse` also assembles the parameter covariance from the .apu, and a
-        # levelling network leaves the horizontal undetermined -- so that matrix
-        # is near-singular, and reconstructed from four printed decimals it comes
-        # back an eigenvalue of -3e-9 short of positive semi-definite. That is a
-        # covariance-reader problem (a matrix read from text cannot be held to a
-        # tolerance meant for a computed one) and is recorded as such; it is not
-        # what this test is about.
-        rows = {row.station_id: row for row in read_xyz(prepared.output("xyz"))}
+        solution = read_solution(
+            prepared.output("adj"),
+            network=network,
+            apu_path=prepared.output("apu"),
+            cor_path=prepared.output("cor"),
+        )
+        rows = {station.station_id: station for station in solution.adjusted_stations}
         assert set(rows) == set(expected)
 
         # The pipeline asks for PLHhXYZ, so the row comes back geocentric. Turning
@@ -532,6 +546,78 @@ class TestAProjectedNetworkCrossValidates:
             assert ellipsoidal - undulation == pytest.approx(
                 expected[station_id], abs=2e-4
             ), station_id
+
+    def test_the_near_singular_covariance_is_conditioned_and_labelled(self, tmp_path) -> None:
+        """The whole ``Solution`` reads back, and says what it cost.
+
+        A levelling network determines no horizontal position, so each station's
+        cartesian covariance has an eigenvalue that ought to be zero. DynAdjust
+        prints ten significant figures, which is not enough to keep it there:
+        station A comes back at ``-3e-9``, which :class:`Covariance` refuses,
+        and before ``covariance_from_printed`` that made the file unreadable as
+        a solution at all.
+
+        What is asserted here is the whole chain: the matrix is repaired, the
+        repair is named on the covariance, and the name reaches the
+        ``Solution``'s own mode -- because that is what a report prints (FR-203).
+        """
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+        from tests import networks as reference_networks
+
+        projection = utm_parameters(22, southern_hemisphere=True,
+                                    ellipsoid=ELLIPSOIDS["GRS80"])
+        network = self.projected(reference_networks.levelling_loop(), projection)
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(
+            DynAdjustJob(
+                network=network,
+                name="conditioned",
+                target_frame="GDA2020",
+                target_epoch=Epoch.from_decimal_year(2020.0),
+                projection=projection,
+                geoid_undulations=dict.fromkeys(network.stations, -4.0),
+            ),
+            tmp_path,
+        )
+        assert all(run.exit_code == 0 for run in engine.run(prepared))
+
+        solution = read_solution(
+            prepared.output("adj"),
+            network=network,
+            apu_path=prepared.output("apu"),
+            cor_path=prepared.output("cor"),
+        )
+
+        carried = [
+            station.covariance
+            for station in solution.adjusted_stations
+            if station.covariance is not None
+        ]
+        assert len(carried) == len(solution.adjusted_stations)
+        conditioned = [
+            covariance
+            for covariance in carried
+            if Strategy.ROUNDING_CONDITIONED in covariance.strategies
+        ]
+        assert conditioned, "the printed matrix used to be indefinite; it should need repair"
+
+        # Every matrix that came back is usable, repaired or not.
+        for covariance in carried:
+            scale = max(float(np.max(np.abs(covariance.matrix))), 1.0)
+            smallest = float(np.linalg.eigvalsh(covariance.matrix)[0])
+            assert smallest >= -covariance.EIGENVALUE_TOLERANCE * scale
+
+        # The label survives to the Solution, and only when it was earned.
+        assert solution.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        assert all(
+            covariance.mode is UncertaintyMode.APPROXIMATE for covariance in conditioned
+        )
+
+        # The full parameter matrix assembles too, which is what needed the
+        # cross blocks' precision as well as each station's own.
+        assert solution.parameter_covariance is not None
+        assert solution.parameter_covariance.size == 3 * len(solution.adjusted_stations)
 
     def test_a_projected_network_without_a_projection_is_still_refused(self, tmp_path) -> None:
         from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
@@ -552,3 +638,214 @@ class TestAProjectedNetworkCrossValidates:
         with pytest.raises(ValidationError) as excinfo:
             DynAdjustEngine().adjust(job, tmp_path)
         assert excinfo.value.code == "validation.dynadjust_cannot_write_projected_coordinates"
+
+
+@pytest.mark.engines
+@requires_dynadjust
+class TestATerrestrialNetworkCrossValidates:
+    """RD-01 against DynAdjust: the third network P6's exit criterion asks for.
+
+    The first two are a GNSS slice and a projected levelling loop, both of which
+    exercise one observation type. RD-01 is the terrestrial case -- **directions,
+    zenith angles and slope distances together**, measured from the instrument
+    rather than from the mark -- and it is the author's own field data rather
+    than anything written to be adjustable.
+
+    Nothing in it had ever reached the engine, and nothing had ever adjusted it
+    in three dimensions either; ``dimension=3`` appears in no other test. Four
+    defects sat on the path, each of which produced a plausible wrong answer
+    rather than an error, and they are covered by name in the tier-1 tests.
+    """
+
+    UNDULATION = -4.0
+    EASTING, NORTHING, HEIGHT = 670000.0, 7185000.0, 100.0
+
+    @classmethod
+    def network(cls):
+        """RD-01 in three dimensions, placed in SIRGAS 2000 / UTM 22S.
+
+        The datum is the one DynAdjust can express. RD-01 has no azimuth and no
+        known point, so its defect is three translations and a rotation about
+        the vertical -- and DynAdjust has no inner constraints, only fixed or
+        free per axis. Station 1 is held in all three and station 2 in easting
+        alone: four constraints for a four-parameter defect, which is a minimum
+        constraint rather than an over-constrained solution.
+        """
+        from geocomp.core.models import ConstraintMode, ConstraintSpec
+        from geocomp.core.techniques.total_station import build_network, preprocess_setup
+        from tests import reference_rd01 as rd01
+
+        profiles = rd01.library()
+        results = [preprocess_setup(setup, profiles) for _id, setup in sorted(rd01.setups().items())]
+        network = build_network(
+            results, rd01.approximate_coordinates(), crs="EPSG:31982", dimension=3
+        )
+        held = {"1": frozenset({"easting", "northing", "up"}), "2": frozenset({"easting"})}
+        for station_id, station in list(network.stations.items()):
+            east, north, up = (q.value for q in station.approx_position.values)
+            position = Position(
+                values=(
+                    Quantity.exact(cls.EASTING + east, Unit.METRE),
+                    Quantity.exact(cls.NORTHING + north, Unit.METRE),
+                    Quantity.exact(cls.HEIGHT + up, Unit.METRE),
+                ),
+                system=CoordinateSystem.PROJECTED,
+                crs="EPSG:31982",
+                height_type=HeightType.ORTHOMETRIC,
+            )
+            components = held.get(station_id)
+            network.stations[station_id] = Station(
+                id=station.id,
+                name=station.name,
+                description=station.description,
+                approx_position=position,
+                constraint=(
+                    ConstraintSpec(
+                        mode=ConstraintMode.FIXED, components=components, position=position
+                    )
+                    if components
+                    else ConstraintSpec()
+                ),
+                station_type=station.station_type,
+            )
+        return network
+
+    @staticmethod
+    def in_house(network):
+        from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
+        from geocomp.core.adjustment.parameters import Frame
+        from geocomp.core.models.solution import DatumDefinition
+
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.SPACE_3D, datum=DatumDefinition.CONSTRAINED),
+        )
+        assert run.converged, "the in-house adjustment is the thing being compared against"
+        return run, {
+            station_id: tuple(
+                float(run.parameters[run.layout.column(station_id, component)])
+                if run.layout.column(station_id, component) is not None
+                else run.layout.fixed_values[(station_id, component)]
+                for component in ("e", "n", "u")
+            )
+            for station_id in network.stations
+        }
+
+    def engine_solution(self, network, tmp_path):
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+
+        projection = utm_parameters(22, southern_hemisphere=True, ellipsoid=ELLIPSOIDS["GRS80"])
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(
+            DynAdjustJob(
+                network=network,
+                name="rd01",
+                target_frame="GDA2020",
+                target_epoch=Epoch.from_decimal_year(2020.0),
+                projection=projection,
+                geoid_undulations=dict.fromkeys(network.stations, self.UNDULATION),
+                # The one skipped observation is station 3's direction set of
+                # one, which carries its own orientation unknown and therefore
+                # no information at all -- asserted below rather than assumed.
+                allow_partial=True,
+            ),
+            tmp_path,
+        )
+        assert [identifier for identifier, _reason in prepared.skipped] == ["3-dir-1"]
+        runs = engine.run(prepared)
+        assert all(run.exit_code == 0 for run in runs), [run.diagnostic for run in runs]
+        return prepared, read_solution(
+            prepared.output("adj"),
+            network=network,
+            apu_path=prepared.output("apu"),
+            cor_path=prepared.output("cor"),
+        )
+
+    def test_the_lone_direction_set_carries_no_information(self) -> None:
+        """What licenses ``allow_partial`` here, and it is a fact, not a hope.
+
+        A direction set of one is one observation and one orientation unknown,
+        so it adds a row and a column and changes nothing. DynAdjust cannot
+        express it -- its ``D`` is a reference direction plus the directions
+        measured from it, and ``dnaimport`` refuses a set that declares zero --
+        so the writer reports it as skipped. That is only acceptable because
+        removing it leaves the adjustment identical, which is asserted here.
+        """
+        from geocomp.core.adjustment.least_squares import AdjustmentOptions, adjust
+        from geocomp.core.adjustment.parameters import Frame
+        from geocomp.core.models.solution import DatumDefinition
+
+        full = self.network()
+        trimmed = self.network()
+        for cluster_id, cluster in list(trimmed.clusters.items()):
+            if len(cluster.observation_ids) < 2:
+                for identifier in cluster.observation_ids:
+                    del trimmed.observations[identifier]
+                del trimmed.clusters[cluster_id]
+        assert len(trimmed.observations) == len(full.observations) - 1
+
+        options = AdjustmentOptions(
+            frame=Frame.SPACE_3D, datum=DatumDefinition.CONSTRAINED
+        )
+        with_it, without = adjust(full, options), adjust(trimmed, options)
+        assert with_it.degrees_of_freedom == without.degrees_of_freedom
+        for station_id in full.stations:
+            for component in ("e", "n", "u"):
+                a, b = (
+                    with_it.layout.column(station_id, component),
+                    without.layout.column(station_id, component),
+                )
+                if a is None or b is None:
+                    continue
+                assert float(with_it.parameters[a]) == pytest.approx(
+                    float(without.parameters[b]), abs=1e-9
+                )
+
+    def test_the_two_engines_agree_on_the_triangle(self, tmp_path) -> None:
+        """The criterion itself: same network, two adjustments, sub-millimetre.
+
+        The comparison is on the **shape** -- the three side lengths -- and on
+        the heights. Comparing coordinates directly would compare the round trip
+        through the projection as well, which `specs/07` section 4.5 measures
+        separately and which is a quarter of a millimetre at these latitudes.
+        """
+        import itertools
+
+        from geocomp.core.geodesy import ELLIPSOIDS, cartesian_to_geodetic
+
+        network = self.network()
+        _run, in_house = self.in_house(network)
+        _prepared, solution = self.engine_solution(network, tmp_path)
+
+        engine = {}
+        for station in solution.adjusted_stations:
+            assert station.position.system is CoordinateSystem.CARTESIAN
+            engine[station.station_id] = np.array(
+                [quantity.value for quantity in station.position.values]
+            )
+        assert set(engine) == set(in_house)
+
+        for first, second in itertools.combinations(sorted(engine), 2):
+            theirs = float(np.linalg.norm(engine[first] - engine[second]))
+            ours = math.dist(in_house[first], in_house[second])
+            assert theirs == pytest.approx(ours, abs=5e-4), f"side {first}-{second}"
+
+        for station_id, point in engine.items():
+            _lat, _lon, ellipsoidal = cartesian_to_geodetic(*point, ELLIPSOIDS["GRS80"])
+            assert ellipsoidal - self.UNDULATION == pytest.approx(
+                in_house[station_id][2], abs=2e-4
+            ), station_id
+
+    def test_the_partial_constraint_reaches_the_right_axis(self, tmp_path) -> None:
+        """Station 2 is held in **easting**, which is a longitude.
+
+        The writer converts a projected position to geodetic and puts latitude
+        in ``XAxis``, so a constraint stated on the grid has to be reordered
+        before it is written. Without that, ``CFF`` holds the latitude -- the
+        perpendicular axis -- and the network is constrained in a direction
+        nobody asked for, which still adjusts and still converges.
+        """
+        prepared, _solution = self.engine_solution(self.network(), tmp_path)
+        written = prepared.station_file.read_text()
+        constraints = re.findall(r"<Constraints>(\w+)</Constraints>", written)
+        assert constraints == ["CCC", "FCF", "FFF"]

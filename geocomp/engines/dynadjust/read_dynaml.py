@@ -33,6 +33,7 @@ import numpy as np
 
 from geocomp.core.errors import DataError
 from geocomp.core.models import (
+    OBSERVATION_TYPES,
     Cluster,
     ClusterKind,
     ConstraintMode,
@@ -307,11 +308,7 @@ def _read_scalar(
         sigma = float(sigma_text)
         unit = METRE
 
-    meta: dict[str, Any] = {}
-    for tag, key in (("InstHeight", "instrument_height"), ("TargHeight", "target_height")):
-        text = element.findtext(tag)
-        if text and text.strip():
-            meta[key] = float(text)
+    heights = _setup_heights(element, observation_type, code=code, index=index)
 
     network.add_observation(
         Observation(
@@ -320,9 +317,47 @@ def _read_scalar(
             stations=_stations(element),
             values=(Quantity.from_std_dev(value, sigma, unit),),
             status=_status(element),
-            meta=meta,
+            **heights,
         )
     )
+
+
+def _setup_heights(
+    element: ET.Element, observation_type: ObservationType, *, code: str, index: int
+) -> dict[str, Quantity]:
+    """``InstHeight`` and ``TargHeight``, for the types whose geometry they change.
+
+    DynaML's schema allows both on any measurement, and upstream's own sample
+    data writes them only on ``S`` -- as ``0.000``, which is a statement that the
+    instrument stood on the mark rather than an absence. That statement is kept.
+
+    On a type a vertical offset does not move -- a direction, a levelled height
+    difference -- a **zero** is the schema's filler and is ignored, while a
+    non-zero one is refused: GeoComp would otherwise drop a real height silently,
+    and a metre of it is a metre of error nobody would see.
+    """
+    values: dict[str, Quantity] = {}
+    for tag, key in (("InstHeight", "instrument_height"), ("TargHeight", "target_height")):
+        text = element.findtext(tag)
+        if not text or not text.strip():
+            continue
+        height = float(text)
+        if not OBSERVATION_TYPES[observation_type].uses_setup_heights:
+            if height:
+                raise DataError(
+                    "dynaml_setup_height_on_an_unaffected_type",
+                    measurement=f"{code}{index}",
+                    type=observation_type.value,
+                    field=tag,
+                    received=height,
+                    expected=(
+                        "zero, or no element at all; a vertical offset does not move "
+                        "this type's geometry, so a real height here would be dropped"
+                    ),
+                )
+            continue
+        values[key] = Quantity.exact(height, METRE)
+    return values
 
 
 #: Types whose value is an angle, and therefore arrives in HP notation with a

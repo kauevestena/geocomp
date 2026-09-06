@@ -88,6 +88,12 @@ class ObservationTypeSpec:
             DynAdjust User's Guide. ``specs/07-engine-dynadjust.md`` section 4.2
             marks unconfirmed entries **[C]**; this carries that marking into
             code so the P6 implementation cannot forget to check them.
+        uses_setup_heights: Whether the observation equation reduces the sight
+            from the instrument's trunnion axis and the target's centre to the
+            marks below them. True only for the three types whose geometry a
+            vertical offset actually changes; a horizontal angle or a levelled
+            height difference is unaffected by how high the instrument stood, so
+            attaching heights to one is refused rather than ignored.
     """
 
     type: ObservationType
@@ -98,6 +104,7 @@ class ObservationTypeSpec:
     dimensionality: frozenset[int] = field(default_factory=lambda: frozenset({1, 2, 3}))
     dynadjust_code: str | None = None
     dynadjust_verified: bool = False
+    uses_setup_heights: bool = False
 
     def __post_init__(self) -> None:
         if len(self.components) != len(self.units):
@@ -114,6 +121,7 @@ def _spec(
     dims: set[int] | None = None,
     dna: str | None = None,
     dna_verified: bool = False,
+    heights: bool = False,
 ) -> ObservationTypeSpec:
     return ObservationTypeSpec(
         type=observation_type,
@@ -124,6 +132,7 @@ def _spec(
         dimensionality=frozenset(dims if dims is not None else {1, 2, 3}),
         dynadjust_code=dna,
         dynadjust_verified=dna_verified,
+        uses_setup_heights=heights,
     )
 
 
@@ -169,15 +178,15 @@ OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
         ),
         _spec(
             ObservationType.ZENITH_ANGLE, 2, ("angle",), (ANGLE,),
-            dims={3}, dna="V", dna_verified=True,
+            dims={3}, dna="V", dna_verified=True, heights=True,
         ),
         _spec(
             ObservationType.VERTICAL_ANGLE, 2, ("angle",), (ANGLE,),
-            dims={3}, dna="Z", dna_verified=True,
+            dims={3}, dna="Z", dna_verified=True, heights=True,
         ),
         _spec(
             ObservationType.SLOPE_DISTANCE, 2, ("distance",), (LENGTH,),
-            dims={3}, dna="S", dna_verified=True,
+            dims={3}, dna="S", dna_verified=True, heights=True,
         ),
         # No DynAdjust equivalent, and the absence is verified rather than
         # unexamined: M is a *mean sea level* arc, not a horizontal distance.
@@ -315,6 +324,23 @@ class Observation:
             carries its uncertainty (FR-200).
         cluster_id: Membership of a correlated group (FR-104). Required for
             types whose specification sets ``always_clustered``.
+        instrument_height: Height of the instrument's trunnion axis above the
+            mark it stands on, when the observation was measured from the
+            instrument rather than from the mark.
+        target_height: Height of the reflector or target above the mark it
+            stands on.
+
+    **The two heights are geometry, not a correction the reader can apply.** A
+    slope distance runs from the trunnion axis to the reflector, and reducing it
+    to the marks needs the coordinates the adjustment is solving for -- so they
+    are carried into the observation equation (``specs/09`` section 2.5), which
+    is what GNU Gama does with ``from_dh``/``to_dh``. Applying them in the
+    importer would be wrong by the amount the approximate coordinates are wrong.
+
+    Their *uncertainty* is stored and is deliberately **not** propagated into
+    the observation's weight. That is the model the published examples were
+    adjusted under, and changing it would change every existing result; it is
+    recorded as a limit in ``specs/09`` section 2.5 rather than done quietly.
     """
 
     id: str
@@ -325,6 +351,8 @@ class Observation:
     setup_id: str | None = None
     instrument_id: str | None = None
     cluster_id: str | None = None
+    instrument_height: Quantity | None = None
+    target_height: Quantity | None = None
     status: ObservationStatus = ObservationStatus.ACTIVE
     rejection: RejectionRecord | None = None
     meta: dict[str, Any] = field(default_factory=dict)
@@ -378,6 +406,40 @@ class Observation:
             raise DataError(
                 "active_observation_with_rejection", observation=self.id
             )
+        for name, height in (
+            ("instrument_height", self.instrument_height),
+            ("target_height", self.target_height),
+        ):
+            if height is None:
+                continue
+            if not isinstance(height, Quantity) or height.unit is not Unit.METRE:
+                raise DataError(
+                    "observation_setup_height_unit",
+                    observation=self.id,
+                    field=name,
+                    received=getattr(height, "unit", type(height).__name__),
+                    expected="a Quantity in metres",
+                )
+            if not spec.uses_setup_heights:
+                # Ignoring it would be the dangerous outcome: a 1.5 m instrument
+                # height silently dropped from a sight is a metre-scale error
+                # that looks like nothing.
+                raise DataError(
+                    "observation_type_ignores_setup_heights",
+                    observation=self.id,
+                    type=self.type.value,
+                    field=name,
+                    expected=(
+                        "a type whose geometry a vertical offset changes: "
+                        + ", ".join(
+                            sorted(
+                                other.value
+                                for other, entry in OBSERVATION_TYPES.items()
+                                if entry.uses_setup_heights
+                            )
+                        )
+                    ),
+                )
 
     @property
     def spec(self) -> ObservationTypeSpec:
@@ -402,6 +464,21 @@ class Observation:
     def supports_dimension(self, dimension: int) -> bool:
         return dimension in self.spec.dimensionality
 
+    @property
+    def height_offset(self) -> float:
+        """``target_height - instrument_height`` in metres, zero when neither is set.
+
+        The only form the observation equations need: the sight runs between two
+        points offset vertically from the marks, and what moves its geometry is
+        the *difference* of the two offsets, not either alone
+        (GNU Gama's ``refine_obsdh_reductions`` reduces by exactly this).
+        """
+        target = self.target_height.value if self.target_height is not None else 0.0
+        instrument = (
+            self.instrument_height.value if self.instrument_height is not None else 0.0
+        )
+        return target - instrument
+
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "id": self.id,
@@ -415,6 +492,11 @@ class Observation:
             ("setup_id", self.setup_id),
             ("instrument_id", self.instrument_id),
             ("cluster_id", self.cluster_id),
+            (
+                "instrument_height",
+                self.instrument_height.to_dict() if self.instrument_height else None,
+            ),
+            ("target_height", self.target_height.to_dict() if self.target_height else None),
             ("rejection", self.rejection.to_dict() if self.rejection else None),
             ("meta", dict(self.meta) if self.meta else None),
         ):
@@ -426,6 +508,8 @@ class Observation:
     def from_dict(cls, payload: dict[str, Any]) -> Observation:
         epoch = payload.get("epoch")
         rejection = payload.get("rejection")
+        instrument_height = payload.get("instrument_height")
+        target_height = payload.get("target_height")
         return cls(
             id=payload["id"],
             type=ObservationType[payload["type"]],
@@ -435,6 +519,10 @@ class Observation:
             setup_id=payload.get("setup_id"),
             instrument_id=payload.get("instrument_id"),
             cluster_id=payload.get("cluster_id"),
+            instrument_height=(
+                Quantity.from_dict(instrument_height) if instrument_height else None
+            ),
+            target_height=Quantity.from_dict(target_height) if target_height else None,
             status=ObservationStatus[payload["status"]],
             rejection=RejectionRecord.from_dict(rejection) if rejection else None,
             meta=dict(payload.get("meta", {})),

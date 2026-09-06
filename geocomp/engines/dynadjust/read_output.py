@@ -41,14 +41,14 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 
 import numpy as np
 
-from geocomp.core.errors import DataError
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.observation import OBSERVATION_TYPES, ObservationType
 from geocomp.core.models.position import CoordinateSystem, HeightType, Position
@@ -58,7 +58,7 @@ from geocomp.core.models.solution import (
     ObservationResult,
     TestResult,
 )
-from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.uncertainty import Covariance, Quantity, covariance_from_printed
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.columns import (
     CONSTRAINT,
@@ -465,6 +465,56 @@ def _float(text: str, *, what: str, line: str) -> float:
         ) from error
 
 
+def printed_half_width(text: str) -> float:
+    """Half the place value of the last digit *text* actually carries.
+
+    ``6.547721537e+01`` is nine mantissa decimals on an exponent of one, so its
+    last digit sits at ``1e-8`` and the double it was printed from lies within
+    ``5e-9`` of it. ``0.0122`` is four decimals at exponent zero, so ``5e-5``.
+
+    Read out of the text rather than assumed, because DynAdjust's output
+    precision is settable per column from the command line
+    (``--output-stn-cov-precision`` and its siblings): a constant here would be
+    right for the default invocation and quietly wrong for any other. What it
+    is for is :func:`~geocomp.core.uncertainty.covariance_from_printed`, which
+    needs to know how much of a covariance the file failed to carry.
+    """
+    cleaned = text.strip().lstrip("+-")
+    mantissa, _, exponent = cleaned.partition("e") if "e" in cleaned else cleaned.partition("E")
+    _, _, fraction = mantissa.partition(".")
+    return 0.5 * 10.0 ** (int(exponent or 0) - len(fraction))
+
+
+def _overflow_or(error: DataError, plan: ColumnPlan, row: str, *, station: str) -> DataError:
+    """Re-word a failed conversion as an overflow, when the row shows one.
+
+    ``std::setw`` pads but never truncates, so a value wider than its column
+    displaces every field after it. The conversion then fails somewhere to the
+    right of the real fault, naming a column that is perfectly well formed --
+    ``--precision-stn-angular 7`` puts a 15-character latitude in a 14-character
+    field, and the first complaint is about ``SD(n)``.
+
+    Returns the original error unchanged when no column has lost its separator,
+    since a missing separator is what an overflow looks like and a failure with
+    every separator intact is something else.
+    """
+    overflowed = plan.unseparated(row, first=2)
+    if overflowed is None:
+        return error
+    return DataError(
+        "dynadjust_output_column_overflowed",
+        station=station,
+        column=overflowed,
+        reported_as=error.context.get("field"),
+        line=row.rstrip()[:120],
+        hint=(
+            "a value was wider than the column DynAdjust reserved for it, so every "
+            "field from there on is a slice of the wrong text; "
+            "--precision-stn-angular above 6 does this to Latitude and Longitude"
+        ),
+    )
+
+
 def _optional_float(text: str, *, what: str, line: str) -> float | None:
     return _float(text, what=what, line=line) if text else None
 
@@ -646,21 +696,39 @@ def read_coordinates(
         name, row = _normalise_name(raw, 0, STATION, known)
         if not name:
             continue
-        sigmas = tuple(
-            _float(plan.value(row, label), what=label, line=row)
-            for label in ("SD(e)", "SD(n)", "SD(up)")
-        )
-        correction: tuple[float, float, float] | None = None
-        if preamble.station_corrections:
-            correction = tuple(  # type: ignore[assignment]
+        try:
+            sigmas = tuple(
                 _float(plan.value(row, label), what=label, line=row)
-                for label in ("Corr(e)", "Corr(n)", "Corr(up)")
+                for label in ("SD(e)", "SD(n)", "SD(up)")
             )
+            correction: tuple[float, float, float] | None = None
+            if preamble.station_corrections:
+                correction = tuple(  # type: ignore[assignment]
+                    _float(plan.value(row, label), what=label, line=row)
+                    for label in ("Corr(e)", "Corr(n)", "Corr(up)")
+                )
+            position = _coordinate_position(plan, preamble, row, resolved)
+        except DataError as error:
+            if error.code != "data.dynadjust_output_not_a_number":
+                raise
+            # A field that is not a number is usually a field that is not the
+            # field: something to its left was wider than its column and every
+            # slice after it is offset. Checked from the constraint's successor,
+            # because a name that fills its column legitimately abuts the
+            # constraint and ``_normalise_name`` has already handled that.
+            raise _overflow_or(error, plan, row, station=name) from error
+        except ValidationError as error:
+            # An angle the format cannot hold -- DynAdjust's HP printer emits 60
+            # minutes at a boundary (specs/07 section 5.5) -- is findable only if
+            # the row is named. The code and type stay as they are: this is a bad
+            # angle, not a bad column.
+            error.context.setdefault("station", name)
+            raise
         description_start = plan.offsets()[plan.index("Description")][0]
         rows.append(
             CoordinateRow(
                 station_id=name,
-                position=_coordinate_position(plan, preamble, row, resolved),
+                position=position,
                 constraint=plan.value(row, "Const"),
                 local_sigmas=sigmas,  # type: ignore[arg-type]
                 correction=correction,
@@ -836,7 +904,11 @@ def _is_angular(code: str, component: str, angular_codes: frozenset[str] | set[s
     a wrong guess here is a factor-of-3600 error that looks like a blunder.
     """
     component = component.strip()
-    if not component:
+    if not component or component.isdigit():
+        # A direction set's header row puts the **number of directions** in the
+        # component column, not a component letter: ``D 1  3  ...  1`` is one
+        # direction observed from station 1 with station 3 as the reference. A
+        # count is not a component, so the type letter decides.
         return code in angular_codes
     if component in _ANGULAR_COMPONENTS:
         return True
@@ -844,7 +916,12 @@ def _is_angular(code: str, component: str, angular_codes: frozenset[str] | set[s
         return False
     raise DataError(
         "dynadjust_unknown_measurement_component",
-        code=code,
+        # Not ``code=``: ``GeoCompError.__init__`` takes the error code as its
+        # first positional argument, so a context key of that name collides with
+        # it and the raise itself fails with a TypeError -- which is how a
+        # diagnostic written to prevent a factor-of-3600 misread came to be
+        # unraisable. Found the first time a direction set reached the parser.
+        measurement=code,
         component=component,
         line=line.rstrip()[:120],
         hint="the component letter is not one this parser knows to be angular or linear",
@@ -893,6 +970,15 @@ def read_measurements(
     )
 
     results: list[AdjustedMeasurement] = []
+    #: The direction set currently open: its instrument station, and how many
+    #: directions are still to come. A ``D`` row is a *header* -- it names the
+    #: instrument and the reference direction and carries no value of its own,
+    #: because the reference is what the other directions are measured from --
+    #: and each following row holds one direction, with the target in the third
+    #: station column and the type letter blank. Reading rows independently, as
+    #: every other measurement type allows, drops the whole set: the header has
+    #: no value to read and the members have no code to identify them.
+    open_set: str | None = None
     for raw in rows:
         row = raw
         names: list[str] = []
@@ -900,8 +986,16 @@ def read_measurements(
             name, row = _normalise_name(row, PAD2 + position * STATION, STATION, known)
             names.append(name)
         code = plan.value(row, "M")
-        if not code:
+
+        if code == "D":
+            open_set = names[0]
             continue
+        if not code and open_set is not None and names[2]:
+            code, names = "D", [open_set, names[2], ""]
+        elif not code:
+            continue
+        else:
+            open_set = None
 
         component = plan.value(row, "C")
         angular = _is_angular(code, component, angular_codes, line=row)
@@ -973,10 +1067,20 @@ class StationUncertainty:
     ellipse: ErrorEllipse
     covariance: Covariance
     cross: dict[str, np.ndarray] = field(default_factory=dict)
+    #: Half the last printed digit, across this station's own block and every
+    #: cross block with it -- how much of the computed matrix the file did not
+    #: carry. :func:`~geocomp.core.uncertainty.covariance_from_printed` needs it
+    #: to tell a rounding artefact from a genuinely indefinite matrix.
+    printed_half_width: float = 0.0
 
 
-def _triple(line: str, plan: ColumnPlan, labels: Sequence[str]) -> list[float]:
-    return [_float(plan.value(line, label), what=label, line=line) for label in labels]
+def _triple(line: str, plan: ColumnPlan, labels: Sequence[str]) -> list[str]:
+    """The three variance columns of one ``.apu`` line, unconverted.
+
+    Text rather than float because the digits themselves are information: how
+    many were printed is what bounds the conditioning in :func:`read_apu`.
+    """
+    return [plan.value(line, label) for label in labels]
 
 
 def read_apu(
@@ -1013,15 +1117,26 @@ def read_apu(
     # so the second starts one variance column in and the third two.
     first_variance = plan.offsets()[plan.index(variance_labels[0])][0]
 
-    def continuation(line: str, skipped: int) -> list[float]:
+    def continuation(line: str, skipped: int) -> list[str]:
         start = first_variance + skipped * MSR
         return [
-            _float(line[start + step * MSR : start + (step + 1) * MSR].strip(), what="variance", line=line)
+            line[start + step * MSR : start + (step + 1) * MSR].strip()
             for step in range(3 - skipped)
+        ]
+
+    def numbers(texts: Sequence[str], line: str, labels: Sequence[str] = ()) -> list[float]:
+        names = tuple(labels) or ("variance",) * len(texts)
+        return [
+            _float(text, what=name, line=line)
+            for text, name in zip(texts, names, strict=True)
         ]
 
     rows = [line for line in lines[header_index + 2 :] if line.strip()]
     stations: list[StationUncertainty] = []
+    #: Per station, the coarsest printing seen in any cross block with it. The
+    #: blocks arrive after the station's own row, so it is collected here and
+    #: folded in once the file is read.
+    cross_width: dict[str, float] = {}
     index = 0
     current: StationUncertainty | None = None
 
@@ -1033,9 +1148,14 @@ def read_apu(
         has_position = bool(plan.value(row, "Hz PosU"))
 
         if has_position:
-            upper = _triple(row, plan, variance_labels)
-            upper += continuation(rows[index + 1], 1)
-            upper += continuation(rows[index + 2], 2)
+            printed = _triple(row, plan, variance_labels)
+            second, third = continuation(rows[index + 1], 1), continuation(rows[index + 2], 2)
+            upper = (
+                numbers(printed, row, variance_labels)
+                + numbers(second, rows[index + 1])
+                + numbers(third, rows[index + 2])
+            )
+            half_width = max(printed_half_width(text) for text in printed + second + third)
             matrix = np.array(
                 [
                     [upper[0], upper[1], upper[2]],
@@ -1069,30 +1189,46 @@ def read_apu(
                     ),
                     confidence=preamble.ellipse_confidence,
                 ),
-                covariance=Covariance(
-                    matrix=matrix,
+                # Conditioned rather than constructed directly: a station whose
+                # position the network does not determine has a near-zero
+                # eigenvalue, and ten printed significant figures are not enough
+                # to keep it on the non-negative side of zero.
+                covariance=covariance_from_printed(
+                    matrix,
                     # The same ``station.component`` labelling the in-house core
                     # uses, so a block from either engine reads the same way.
-                    labels=tuple(f"{name}.{axis}" for axis in axes),
-                    units=(Unit.METRE, Unit.METRE, Unit.METRE),
+                    tuple(f"{name}.{axis}" for axis in axes),
+                    (Unit.METRE, Unit.METRE, Unit.METRE),
+                    half_width=half_width,
                 ),
+                printed_half_width=half_width,
             )
             stations.append(current)
         else:
             if current is None:
                 raise DataError("dynadjust_apu_covariance_before_any_station", line=raw.rstrip()[:120])
-            block = np.array(
+            printed = _triple(row, plan, variance_labels)
+            second, third = continuation(rows[index + 1], 0), continuation(rows[index + 2], 0)
+            current.cross[name] = np.array(
                 [
-                    _triple(row, plan, variance_labels),
-                    continuation(rows[index + 1], 0),
-                    continuation(rows[index + 2], 0),
+                    numbers(printed, row, variance_labels),
+                    numbers(second, rows[index + 1]),
+                    numbers(third, rows[index + 2]),
                 ],
                 dtype=float,
             )
-            current.cross[name] = block
+            coarsest = max(printed_half_width(text) for text in printed + second + third)
+            cross_width[current.station_id] = max(
+                cross_width.get(current.station_id, 0.0), coarsest
+            )
         index += 3
 
-    return stations, preamble
+    return [
+        replace(item, printed_half_width=max(item.printed_half_width, widest))
+        if (widest := cross_width.get(item.station_id, 0.0)) > item.printed_half_width
+        else item
+        for item in stations
+    ], preamble
 
 
 @dataclass(frozen=True)
@@ -1197,6 +1333,19 @@ def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
         if not members:
             continue
         code = _cluster_code(members)
+        if (code or _own_code(members[0])) == "D":
+            # DynAdjust's D holds a **reference** direction plus the ones
+            # measured from it, and prints a row for each of the latter only:
+            # the reference has no value of its own. GeoComp models all N
+            # directions plus the setup's orientation unknown, which carries the
+            # same information in a different parameterisation -- so N members
+            # are N-1 printed rows, and a set of one is not written at all
+            # (``dynaml.write_measurement_file`` reports it as skipped).
+            for member in members:
+                seen.add(member.id)
+            for member in members[1:]:
+                emit(member, "D")
+            continue
         for member in members:
             seen.add(member.id)
             emit(member, code or _own_code(member))

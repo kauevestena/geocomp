@@ -139,6 +139,37 @@ class ColumnPlan:
         start, end = self.offsets()[self.index(label)]
         return line[start:end].strip()
 
+    def unseparated(self, line: str, *, first: int = 1) -> str | None:
+        """The label of the first column in *line* with no space before it.
+
+        ``std::setw`` pads but never truncates, so a value wider than its column
+        runs into the next one and **every field from there on is a slice of the
+        wrong text**. The symptom appears nowhere near the cause: an overflowed
+        latitude in a ``.xyz`` first shows up as ``not a number`` in ``SD(n)``,
+        several columns to the right, naming a field that is perfectly well
+        formed. This finds the place to point at instead.
+
+        **A missing separator is not by itself an overflow.** Two right-aligned
+        numeric columns abut whenever the left one's value happens to fill its
+        width exactly, and the row is still sliced correctly --
+        ``--precision-stn-angular 6`` does this to Latitude and loses nothing.
+        So this is a diagnosis, consulted to explain a parse that already
+        failed, and never a reason to refuse a row on its own.
+
+        *first* is the column to start at. The station name is the one field
+        whose overflow is ordinary and already handled -- :func:`take_name`
+        resolves it and re-pads the row -- so a caller reading a table that
+        starts with a name skips past it.
+        """
+        offsets = self.offsets()
+        for position in range(max(first, 1), len(self.columns)):
+            start = offsets[position][0]
+            if start >= len(line):
+                break
+            if not line[start - 1].isspace() and not line[start].isspace():
+                return self.columns[position].label
+        return None
+
 
 @dataclass(frozen=True)
 class NameResolution:

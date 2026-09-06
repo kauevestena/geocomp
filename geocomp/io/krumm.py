@@ -468,10 +468,11 @@ def _observation(
              metres(tokens[2]), sigma, Unit.METRE, "d")
     elif handler == "spatial_distance":
         _require(tokens, 3, handler, line)
-        _refuse_setup_heights(tokens, handler, line)
+        instrument, target = _setup_heights(tokens, handler, line)
         sigma = _sticky(state, handler, tokens, 3, 0.010, metres)
         _add(network, state, ObservationType.SLOPE_DISTANCE, tokens[:2],
-             metres(tokens[2]), sigma, Unit.METRE, "s")
+             metres(tokens[2]), sigma, Unit.METRE, "s",
+             instrument_height=instrument, target_height=target)
     elif handler == "direction":
         _require(tokens, 3, handler, line)
         sigma = _sticky(state, handler, tokens, 3, DEFAULT_DIRECTION_SIGMA,
@@ -501,11 +502,12 @@ def _observation(
              angle(tokens[2]), sigma, Unit.RADIAN, "b")
     elif handler == "zenith_angle":
         _require(tokens, 3, handler, line)
-        _refuse_setup_heights(tokens, handler, line)
+        instrument, target = _setup_heights(tokens, handler, line)
         sigma = _sticky(state, handler, tokens, 3, DEFAULT_ANGLE_SIGMA,
                         _sigma_converter(units, line))
         _add(network, state, ObservationType.ZENITH_ANGLE, tokens[:2],
-             angle(tokens[2]), sigma, Unit.RADIAN, "z")
+             angle(tokens[2]), sigma, Unit.RADIAN, "z",
+             instrument_height=instrument, target_height=target)
     elif handler == "vertical_angle":
         _require(tokens, 3, handler, line)
         sigma = _sticky(state, handler, tokens, 3, DEFAULT_ANGLE_SIGMA,
@@ -541,29 +543,37 @@ def _observation(
         raise DataError("krumm_handler_unimplemented", handler=handler)
 
 
-def _refuse_setup_heights(tokens: list[str], handler: str, line: str) -> None:
-    """Refuse a spatial distance or zenith angle measured instrument-to-target.
+def _setup_heights(
+    tokens: list[str], handler: str, line: str
+) -> tuple[Quantity | None, Quantity | None]:
+    """The instrument and target heights of a spatial distance or zenith angle.
 
     ``from to value sigma instrument_height target_height`` is the six-column
-    form (``input.cpp``, ``spatial_distances``). Those two heights are not a
+    form (``input.cpp``, ``spatial_distances``). The two heights are not a
     correction the reader can apply: the measurement runs from the instrument's
     trunnion axis to the reflector, and reducing it to the marks needs the
-    coordinates the adjustment is solving for. GNU Gama carries them into the
-    observation equation as ``from_dh`` and ``to_dh``; GeoComp's
-    :class:`~geocomp.core.models.Observation` has nowhere to put them, so the
-    file is refused rather than adjusted 7 mm out with no sign of it.
+    coordinates the adjustment is solving for. So they are read and carried, and
+    :mod:`geocomp.core.adjustment.equations` reduces the sight -- which is what
+    GNU Gama does with ``from_dh``/``to_dh``.
+
+    A row with one of the two and not the other is refused. In this format they
+    are written as a pair, so a lone value is a truncated line rather than an
+    instrument at an unstated height, and guessing zero for the other would put
+    the sight metres off with nothing to show for it.
     """
     if len(tokens) <= 4:
-        return
-    raise DataError(
-        "krumm_setup_heights_unsupported",
-        section=handler,
-        line=line[:120],
-        received=tokens[4:6],
-        expected=(
-            "a row without instrument and target heights; reducing them to the "
-            "marks is part of the observation equation, not of reading the file"
-        ),
+        return None, None
+    if len(tokens) == 5:
+        raise DataError(
+            "krumm_setup_heights_incomplete",
+            section=handler,
+            line=line[:120],
+            received=tokens[4:],
+            expected="instrument and target heights together, or neither",
+        )
+    return (
+        Quantity.exact(_number(tokens[4], line=line), Unit.METRE),
+        Quantity.exact(_number(tokens[5], line=line), Unit.METRE),
     )
 
 
@@ -605,6 +615,8 @@ def _add(
     prefix: str,
     cluster_id: str | None = None,
     setup_id: str | None = None,
+    instrument_height: Quantity | None = None,
+    target_height: Quantity | None = None,
 ) -> None:
     identifier = state.identifier(prefix)
     network.observations[identifier] = Observation(
@@ -614,6 +626,8 @@ def _add(
         values=(Quantity(value, sigma**2, unit),),
         cluster_id=cluster_id,
         setup_id=setup_id,
+        instrument_height=instrument_height,
+        target_height=target_height,
     )
 
 

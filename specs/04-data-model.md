@@ -104,6 +104,8 @@ plan (a benchmark used in a 3D network) or the reverse.
 | `setup_id` | str \| None | The occupation it belongs to |
 | `instrument_id` | str \| None | Which instrument, for constants and nominal precision |
 | `cluster_id` | str \| None | Membership of a correlated group (FR-104) |
+| `instrument_height` | `Quantity` \| None | Trunnion axis above the mark, for a sight measured from the instrument ([`09`](./09-module-total-station.md) §2.5) |
+| `target_height` | `Quantity` \| None | Reflector or target above the mark |
 | `status` | enum | `ACTIVE`, `REJECTED`, `EXCLUDED` |
 | `rejection` | `RejectionRecord` \| None | Why, by which test, when, by whom (FR-255) |
 | `provenance` | `Provenance` | Where this observation came from |
@@ -220,7 +222,7 @@ types without a geoid model raises `ValidationError`.
 | `ASTRONOMIC_AZIMUTH` | 2 | angle | |
 | `ZENITH_ANGLE` | 2 | angle | |
 | `VERTICAL_ANGLE` | 2 | angle | 90° − zenith |
-| `SLOPE_DISTANCE` | 2 | length | **Mark to mark.** Instrument and target heights are reduced away in [`09`](./09-module-total-station.md) §2.5, not carried on the observation, so the adjustment's equation is between the two marks |
+| `SLOPE_DISTANCE` | 2 | length | **Mark to mark, unless the observation says otherwise.** When `instrument_height` and `target_height` are set, the equation reduces the sight itself ([`09`](./09-module-total-station.md) §2.5): the measurement runs trunnion axis to reflector, and reducing it needs the coordinates being solved for |
 | `HORIZONTAL_DISTANCE` | 2 | length | Reduced |
 | `ELLIPSOID_DISTANCE` | 2 | length | Reduced to the ellipsoid |
 | `HEIGHT_DIFFERENCE` | 2 | length | Levelling; carries line length and setup count |

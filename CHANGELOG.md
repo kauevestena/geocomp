@@ -5,6 +5,271 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### The third cross-validation network, and four defects on the way to it
+
+**P6's cross-validation criterion is met**: three networks, one per family of
+observation ([`specs/ROADMAP.md`](specs/ROADMAP.md) P6). **RD-01** is the
+terrestrial case — directions, zenith angles and slope distances together,
+measured instrument-to-reflector, on the author's own field data — and it agrees
+with DynAdjust to **0.12 mm in the sides and 0.03 mm in the heights**.
+
+Getting there cost four defects. **Not one of them raised anything**; each
+produced a plausible wrong answer. They survived because **`dimension=3` was
+exercised nowhere** — no test in the repository had ever adjusted a
+three-dimensional terrestrial network, and RD-01 is the first to reach the
+engine with directions in it at all.
+
+#### Fixed
+
+- **The 3D pipeline dropped the setup heights.** `to_observations` emitted the
+  raw zenith angle and slope distance — sights measured trunnion-axis to
+  reflector — with no heights attached, so the adjustment reduced them as though
+  they ran mark to mark. In 1D and 2D the heights are already spent; in 3D they
+  are the geometry ([`specs/09`](specs/09-module-total-station.md) §2.5).
+
+- **`detect_defect` did not know a zenith angle fixes tilt.** It is measured
+  *from the local vertical*, so it references the plumb line the way an azimuth
+  references north. Without that, a 3D network whose only vertical reference is
+  its zenith angles reports a defect of **six** instead of four — and the
+  inner-constraint solution then imposes two constraints that are not defects,
+  which **forces the network flat**. RD-01 came back with all three stations at
+  exactly the same height while its own zenith angles said one was 0.43 m above
+  another. It converged.
+
+- **A direction set was mapped a row per direction.** DynAdjust's `D` is a
+  *reference* direction plus the *N−1* measured from it, and the reference is
+  never a printed row; GeoComp holds all *N* plus an orientation unknown
+  ([`specs/07`](specs/07-engine-dynadjust.md) §5.6). Three things followed: the
+  import check reported a lost measurement on every network with a direction
+  set, the parser dropped whole sets silently (the header has no value, the
+  members have no type letter), and the `C` column's *set count* was read as a
+  component letter — whose error **could not be raised at all**, because its
+  context key `code` collided with `GeoCompError`'s first positional argument.
+  A guard written to prevent a factor-of-3600 misread failed with a `TypeError`.
+
+- **A constraint on a projected station was written on the wrong axis**
+  (§5.7). A projected position is inverse-projected and written `LLH`, so
+  `XAxis` is a latitude — and easting is a *longitude*. Holding station 2 in
+  easting wrote `CFF`, which DynAdjust reads as latitude held: the perpendicular
+  axis, still converging. Latent until a **partially** constrained projected
+  station was written, since a fully fixed or free one is `CCC`/`FFF` either way.
+
+#### Added
+
+- **A direction set of one is reported, not written.** `dnaimport` refuses a set
+  declaring zero directions outright. Nothing is lost — one direction with its
+  own orientation unknown is one observation and one parameter, contributing
+  exactly zero — and the tier-4 test **asserts that** rather than resting on it.
+  The writer reports it as skipped, so the pipeline still refuses unless the
+  caller accepts a partial network.
+
+#### Corrected here
+
+- A first attempt at the import-count fix compared against the writer's
+  per-cluster tally, on the theory that DynAdjust counts clusters. It counts
+  printed rows — the GNSS sample reports 36 for six baselines, one X cluster and
+  one Y cluster — so that version reported a loss of 24 measurements where
+  nothing was lost. The existing engine test caught it before the push.
+
+### A sight measured from the instrument, not from the mark
+
+#### Added
+
+- **`Observation.instrument_height` and `.target_height`**, and the observation
+  equations that use them ([`specs/09`](specs/09-module-total-station.md) §2.5,
+  [`specs/04`](specs/04-data-model.md) §2.5).
+
+  A slope distance runs from the trunnion axis to the reflector, and reducing it
+  to the marks needs the coordinates the adjustment is solving for — so applying
+  the reduction in the importer is wrong by however wrong the approximate
+  coordinates are, and looks right. `SLOPE_DISTANCE`, `ZENITH_ANGLE` and
+  `VERTICAL_ANGLE` now compute their model value on the raised geometry:
+  `Δu = (u_to + target) − (u_from + instrument)`. The offsets are constants, so
+  the partials keep their form and need no iteration — GNU Gama reaches the same
+  answer by iterating a reduction (`refine_obsdh_reductions`).
+
+- **`ObservationTypeSpec.uses_setup_heights`**, so which types take them is a
+  registry entry rather than knowledge spread through the equations. A type that
+  does not use them **refuses** them: a horizontal angle is unaffected by how
+  high the instrument stood, and a 1.5 m height silently dropped is a
+  metre-scale error that looks like nothing.
+
+- **Schema 2, and the store's first migration.** `gc_observation` gains
+  `instrument_height` and `target_height`. Nothing is back-filled and nothing
+  can be — a height GeoComp never had is absent, not zero, and writing zero
+  would say the instrument stood on the mark. This is also the first exercise of
+  the migration machinery against a real store rather than a monkeypatched one.
+
+- **DynaML's `InstHeight`/`TargHeight` reach the observation.** They were being
+  written and read into `meta`, where the adjustment never saw them. The reader
+  now refuses a **non-zero** height on a type whose geometry it cannot move, and
+  ignores a zero — upstream's own sample data writes `0.000` on every `S`, which
+  is a statement that the instrument stood on the mark, and that statement is
+  kept through a round trip.
+
+#### Fixed
+
+- **`3D/Baumann23_3_4_fix` reproduces**, taking the Krumm corpus from 33
+  published networks to **34**. It was the one file refused for a reason that
+  was GeoComp's rather than the format's, and it now agrees to **0.03 mm** — a
+  fifth of the published rounding, so the heights are applied the way Baumann
+  applied them and not merely applied.
+
+#### Not done
+
+- **The heights' uncertainty does not reach the observation's weight.** They are
+  stored as `Quantity`, and treated as exact in the adjustment. That is the model
+  the published examples were adjusted under, and changing it would change every
+  existing result; `specs/09` §2.5 records it as a limit rather than leaving it
+  implied.
+
+### What the angular columns do wrong
+
+#### Fixed
+
+- **A false note is withdrawn.** The `.xyz` parser reads `E`, `N` and `z`
+  perfectly — `grid.xyz` is exactly that column set and is parsed by the
+  projection tests. Checking the claim found two real defects in its place,
+  both in DynAdjust and both recorded in
+  [`specs/07`](specs/07-engine-dynadjust.md) §5.5.
+
+- **An overflowed row now names the column that overflowed.** At
+  `--precision-stn-angular 7` an HP latitude is 15 characters and its column is
+  14, so `std::setw` runs Zone, Latitude and Longitude together with no
+  separator. The first complaint used to be `not a number` in **`SD(n)`** —
+  several columns to the right of the fault, naming a field that is perfectly
+  well formed.
+
+  The check had to be careful: at precision **6** the fields abut and nothing is
+  lost, because two right-aligned columns touch whenever the left one's value
+  fills its width exactly. A missing separator is not by itself an overflow, so
+  `ColumnPlan.unseparated` is a diagnosis consulted to explain a conversion that
+  already failed, never a reason to refuse a row.
+
+- **A bad angle now names its station.** Findable in a file of 200 stations,
+  where `received='-44.6'` alone was not.
+
+#### Found
+
+- **DynAdjust's HP printer can emit 60 minutes, at the default precision.**
+  Three stations in `grid-hp-carry.xyz` are at latitude −45° — confirmed to
+  eight nanoseconds of arc by inverse-projecting the eastings and northings
+  printed in the same rows — and DynAdjust writes two of them `-45.000000000` and
+  the third **`-44.600000000`**: 44 degrees, 60 minutes. The seconds round up to
+  60 and the carry is not made.
+
+  GeoComp refuses it. Reading it leniently would be the wrong repair: the same
+  validation is what stops a decimal-degree value being read as HP, and a reader
+  that accepts 60 minutes from one source accepts it from all of them.
+
+#### Added
+
+- **`grid-precision7.xyz` and `grid-hp-carry.xyz`** — real output from the same
+  `grid-*.xml` inputs, one file per defect. Both are files GeoComp refuses, and
+  each is committed so that the refusal is the right one and says why.
+- **GeoComp asks for no angular precision** and takes DynAdjust's default of 5.
+  A test asserts that if it ever does ask, the value fits the column — this is
+  entirely GeoComp's own to get right, since it composes the command line.
+
+### A covariance read from printed text
+
+#### Added
+
+- **`core.uncertainty.covariance_from_printed`** — conditions a covariance
+  parsed out of an engine's output file, bounded by the file's own precision
+  ([`specs/05`](specs/05-uncertainty-and-covariance.md) §2.3,
+  [`specs/07`](specs/07-engine-dynadjust.md) §5.4).
+
+  The `.apu` prints variances to ten significant figures, which discards the
+  rest of the double DynAdjust computed. A matrix with a mathematically zero
+  eigenvalue — every rank-deficient network has one — then reads back on
+  whichever side of zero the rounding falls. Weyl's inequality gives
+  `n × half_width` as the furthest rounding alone can move an eigenvalue;
+  negative eigenvalues within that bound are clipped to zero, and **anything
+  beyond it is refused unrepaired**, which is what stops the conditioning
+  quietly rescuing a matrix that is indefinite for a real reason.
+
+  `Covariance.EIGENVALUE_TOLERANCE` is untouched. It is right for a computed
+  matrix, and loosening it globally would stop it catching real defects
+  everywhere else.
+
+- **`read_output.printed_half_width`** — the precision read out of the text
+  rather than assumed. DynAdjust's output precision is settable per column from
+  the command line, so a constant would have been right for the default
+  invocation and quietly wrong for any other. `StationUncertainty` now carries
+  the coarsest printing across its own block and every cross block with it.
+
+- **`Strategy.ROUNDING_CONDITIONED`** — a conditioned covariance is
+  `APPROXIMATE` and says which repair it took, and the `Solution` assembled from
+  it is `APPROXIMATE` too, so a report cannot present a repaired matrix as a
+  rigorously propagated one (FR-203). A covariance that needed no repair is
+  returned untouched and unlabelled.
+
+#### Fixed
+
+- **A levelling network's `Solution` can be read at all.** It could not before:
+  `read_apu` refused station A's own 3×3 block, so the file never reached the
+  parameter matrix. `tests/test_dynadjust_pipeline.py` no longer works around it
+  by reading coordinates out of the `.xyz` — it reads the whole `Solution`, and
+  a second tier-4 test asserts the repair happened, that every returned matrix
+  is positive semi-definite, and that the label reached the `Solution`.
+
+  The repair moves the block by **1.4 × 10⁻⁹** — less than the 5 × 10⁻⁹ half-width
+  of a single printed digit — so the conditioned matrix is one the file's own
+  digits are equally consistent with.
+
+
+### The engine manager installs
+
+#### Added
+
+- **`PINNED` holds all five DynAdjust v1.4.0 releases** — Linux (OpenBLAS static
+  and MKL), macOS (static), Windows (OpenBLAS and MKL). Every digest was computed
+  from an archive actually downloaded and hashed by
+  `scripts/pin_engine_release.py`, never copied from a published checksum.
+
+  Verified end to end on Linux: the pinned archive downloads, matches its digest,
+  extracts, is discovered by all five pipeline programs and reports
+  `Version: 1.4.0` to GeoComp's own parser. **Windows and macOS are pinned and
+  untested** — this container can hash their archives but not run them — so
+  `specs/ROADMAP.md` records the criterion as met on one platform of three.
+
+#### Fixed
+
+Three defects, all of the same shape: an install that verifies perfectly and is
+then invisible. None was reachable with a synthetic archive, and every test
+archive in the suite was synthetic.
+
+- **The archives nest.** Programs land under `dynadjust-linux-static/`, and
+  `discover` looks for a *direct child* of the directory it is given.
+  `manager.install` returned the extraction directory, so a correct install was
+  undiscoverable. It now returns the directory the programs are actually in,
+  derived from where the expected members landed rather than assumed, and
+  refuses a layout that scatters them across directories.
+- **Windows names its programs differently, and irregularly.** `dnaadjust` ships
+  as `adjust.exe` and `dnaimport` as `import.exe`, but `dnadiff` keeps its prefix;
+  the `dna*.dll` files beside them are libraries. `discover` was looking for a
+  file called `dnaimport` in a directory holding `import.exe`, so **DynAdjust
+  could not be found on Windows at all**, installed or not.
+  `WINDOWS_PROGRAM_NAMES` is a table because no rule covers all eight.
+- **`pin_engine_release.py` silently produced empty `members` for Windows.** Its
+  filter dropped any name containing a dot — right for Unix programs, total for
+  `.exe`. Both Windows rows were first generated with `members=()`, which would
+  have made `install` verify that an archive contained none of the files it was
+  asked to check.
+
+#### Changed
+
+- **The false note in `specs/ROADMAP.md` P6 is corrected.** It said the engine
+  manager installed nothing because "there is nothing that can honestly be
+  pinned" — upstream publishing no versioned release. Upstream publishes five.
+  The criterion was never blocked by upstream; it was blocked by a note nobody
+  rechecked.
+- **`specs/07` §2's [V] asset list is corrected** — it named a macOS dynamic
+  build and an "Ubuntu 22.04+ OpenBLAS dynamic" that are not among v1.4.0's
+  assets, and did not say that **no statically linked Windows build exists**,
+  which is why ADR-0003 rule 1 cannot be satisfied there.
+
 ### Geodetic reductions
 
 #### Added
@@ -71,18 +336,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   matching it deliberately would mean shipping a worse conversion to agree with
   a better-known one.
 - **A covariance read from printed text cannot be held to a computed one's
-  tolerance.** A levelling network leaves the horizontal undetermined, so its
-  parameter covariance is near-singular; reassembled from the `.apu`'s four
-  printed decimals it comes back with an eigenvalue of -3e-9, and
-  `Covariance`'s positive-semi-definite check (`1e-12` relative) refuses it. The
-  matrix is fine to the precision it was printed at. Not fixed here -- the fix
-  belongs with the covariance reader, which should condition what it assembles
-  and say that it did.
-- **The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.** It
-  refuses rather than mis-slicing, which is the right failure, but it means
-  `--stn-coord-types ENz` output is unreadable. Not fixed here; the widths are
-  in upstream's `dnaconsts-iostream.hpp` and this is the same work as the rest
-  of `columns.py`.
+  tolerance.** A levelling network leaves the horizontal undetermined, so a
+  station's covariance has an eigenvalue that is mathematically zero; read back
+  from the `.apu` it comes back at -3e-9, and `Covariance`'s
+  positive-semi-definite check (`1e-12` relative) refuses it. The matrix is fine
+  to the precision it was printed at. Not fixed here; **fixed below**, where two
+  details of this note are also corrected -- it is each station's own block that
+  fails, before the parameter matrix is ever assembled, and the `.apu` prints
+  ten significant figures rather than four decimals.
+- ~~**The `.xyz` parser cannot read a column set containing `E`, `N` and `z`.**~~
+  **This was wrong.** `grid.xyz` is `--stn-coord-types ENz` and has always read.
+  What actually breaks the angular columns is two other things entirely, both
+  recorded below.
 
 ### Grounding - published network adjustments
 

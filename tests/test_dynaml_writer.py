@@ -423,6 +423,175 @@ def test_the_network_checks_the_exact_component_count() -> None:
     assert any("12-component covariance" in p for p in problems)
 
 
+class TestDirectionSets:
+    """DynAdjust's ``D`` is a reference direction plus the ones measured from it.
+
+    GeoComp models all *N* directions of a set plus the setup's orientation
+    unknown; DynAdjust models one reference plus *N-1* directions. The two carry
+    the same information in different parameterisations, and getting the row
+    count wrong makes the import check report a loss where there is none
+    (``specs/07`` §5.6).
+    """
+
+    @staticmethod
+    def network(members: int) -> Network:
+        network = Network(id="d", crs="EPSG:7843")
+        places = {
+            "A": (-4052051.7, 4212836.2, -2545106.0),
+            "B": (-4052052.7, 4212837.2, -2545107.0),
+            "C": (-4052053.7, 4212838.2, -2545108.0),
+        }
+        for name, (x, y, z) in places.items():
+            network.add_station(Station(id=name, approx_position=cartesian(x, y, z)))
+        ids = []
+        for index, target in enumerate(("B", "C")[:members]):
+            identifier = f"dir{index}"
+            ids.append(identifier)
+            network.add_observation(
+                Observation(
+                    id=identifier,
+                    type=ObservationType.DIRECTION,
+                    stations=("A", target),
+                    values=(Quantity.from_std_dev(index * 0.5, 1e-5, Unit.RADIAN),),
+                    cluster_id="set",
+                    setup_id="A",
+                )
+            )
+        network.add_cluster(
+            Cluster(
+                id="set",
+                kind=ClusterKind.DIRECTION_SET,
+                observation_ids=tuple(ids),
+                covariance=Covariance(
+                    matrix=np.eye(len(ids)) * 1e-10,
+                    labels=tuple(ids),
+                    units=tuple(Unit.RADIAN for _ in ids),
+                ),
+            )
+        )
+        return network
+
+    def test_a_set_of_two_is_one_printed_row(self) -> None:
+        """The reference direction has no value of its own, so it is not a row."""
+        from geocomp.engines.dynadjust.read_output import printed_rows
+
+        rows = printed_rows(self.network(2))
+        assert [identifier for identifier, _code, _stations in rows] == ["dir1"]
+        assert {code for _id, code, _stations in rows} == {"D"}
+
+    def test_a_set_of_one_is_no_rows_and_is_reported(self, tmp_path) -> None:
+        """``dnaimport`` refuses a set that declares zero directions outright.
+
+        Nothing is lost by leaving it out -- one direction with its own
+        orientation unknown contributes nothing -- but it is reported rather
+        than dropped, and the pipeline refuses unless the caller accepts a
+        partial network.
+        """
+        from geocomp.engines.dynadjust.read_output import printed_rows
+
+        network = self.network(1)
+        assert printed_rows(network) == []
+
+        document = write_measurement_file(
+            network, tmp_path / "msr.xml", frame="GDA2020", epoch="01.01.2020"
+        )
+        assert [identifier for identifier, _reason in document.skipped] == ["dir0"]
+        assert "information-free" in document.skipped[0][1]
+
+
+class TestSetupHeights:
+    """``InstHeight`` and ``TargHeight`` round-trip (specs/09 §2.5).
+
+    DynaML has the same two fields the observation equations use, and until
+    ``Observation`` had somewhere to put them they lived in ``meta`` -- written
+    and read, but not reaching the adjustment. Now the writer takes them from
+    the observation, so the file and the equation agree by construction.
+    """
+
+    @staticmethod
+    def network(**heights) -> Network:
+        network = Network(id="s", crs="EPSG:7843")
+        for name, (x, y, z) in {
+            "A": (-4052051.7, 4212836.2, -2545106.0),
+            "B": (-4052052.7, 4212837.2, -2545107.0),
+        }.items():
+            network.add_station(Station(id=name, approx_position=cartesian(x, y, z)))
+        network.add_observation(
+            Observation(
+                id="s1",
+                type=ObservationType.SLOPE_DISTANCE,
+                stations=("A", "B"),
+                values=(Quantity.from_std_dev(1.732, 0.003, Unit.METRE),),
+                **heights,
+            )
+        )
+        return network
+
+    def test_the_heights_reach_the_file_and_come_back(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.read_dynaml import read_measurement_file
+
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(
+                instrument_height=Quantity.exact(1.600, Unit.METRE),
+                target_height=Quantity.exact(1.500, Unit.METRE),
+            ),
+            path,
+            frame="GDA2020",
+            epoch="01.01.2020",
+        )
+        root = parse(path)
+        assert root.findtext(".//InstHeight").strip() == "1.6000"
+        assert root.findtext(".//TargHeight").strip() == "1.5000"
+
+        network = Network(id="s", crs="EPSG:7843")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name))
+        read_measurement_file(path, network)
+        (observation,) = network.observations.values()
+        assert observation.instrument_height.value == pytest.approx(1.600)
+        assert observation.target_height.value == pytest.approx(1.500)
+        assert observation.height_offset == pytest.approx(-0.100)
+
+    def test_a_sight_without_them_writes_neither_element(self, tmp_path) -> None:
+        """Absent, not zero. DynAdjust reads a missing element as zero anyway,
+        so writing ``0.000`` would say something the observation does not."""
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(), path, frame="GDA2020", epoch="01.01.2020"
+        )
+        root = parse(path)
+        assert root.find(".//InstHeight") is None
+        assert root.find(".//TargHeight") is None
+
+    def test_an_explicit_zero_survives_the_round_trip(self, tmp_path) -> None:
+        """Upstream's own sample data writes ``0.000`` on every ``S``.
+
+        That is a statement -- the instrument stood on the mark -- and it is kept
+        rather than collapsed into absence.
+        """
+        from geocomp.engines.dynadjust.read_dynaml import read_measurement_file
+
+        path = tmp_path / "msr.xml"
+        write_measurement_file(
+            self.network(
+                instrument_height=Quantity.exact(0.0, Unit.METRE),
+                target_height=Quantity.exact(0.0, Unit.METRE),
+            ),
+            path,
+            frame="GDA2020",
+            epoch="01.01.2020",
+        )
+        network = Network(id="s", crs="EPSG:7843")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name))
+        read_measurement_file(path, network)
+        (observation,) = network.observations.values()
+        assert observation.instrument_height is not None
+        assert observation.instrument_height.value == 0.0
+        assert observation.height_offset == 0.0
+
+
 class TestTheStationCoordinateType:
     """``<Type>`` is a declaration about the three numbers beside it.
 
