@@ -492,6 +492,14 @@ the results panel completed; Basic/Advanced review across every algorithm now th
 translations completed and reviewed by native speakers against the glossary; performance work against
 NFR-008; documentation of every **[C]** claim resolved.
 
+**Also delivers, added by the pre-P7 review: the settings actually reaching the computation.** 36 of the 47
+declared settings are read by nothing — the Global Settings window presents controls that resolve correctly
+and change no result, because every algorithm declares hard-coded Processing parameter defaults instead
+([`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §2.3). `interface.angle_format` and the three
+display settings beside it need `core/units.py`'s formatting half, which until the review had no caller
+anywhere and two defects in it. `tests/structural/test_settings_are_honoured.py` holds the list and fails
+on any new setting added without a consumer.
+
 **Closes.** FR-902, FR-931
 
 **Exit.** No untranslated string in any language. Every algorithm passes the Basic/Advanced identity check.

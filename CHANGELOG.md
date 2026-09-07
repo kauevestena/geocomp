@@ -66,6 +66,7 @@ true but could not.
 
 #### Changed — specifications
 
+
 - **[`specs/05`](specs/05-uncertainty-and-covariance.md) §2.2 and §7** — acceptance
   criterion 1 read "agrees with complex-step differentiation to ≤ 1e-9
   relative". The observation equations cannot meet it and never could; nothing
@@ -84,6 +85,84 @@ true but could not.
   SciPy is installed" was true of neither half. Rewritten to say what was
   actually the case, what is the case now, and the measured agreement.
 
+
+### Pre-P7 review: two defects in `core/units.py`, and 36 settings nothing reads
+
+The second half of the review. Where the first found guards that could not
+fail, this found code nobody called — and two real defects sitting inside it,
+which is why "no caller" is a finding rather than a tidiness note.
+
+#### Fixed
+
+- **`format_dms` printed 60 seconds.** `DMS.from_decimal_degrees` guards that
+  boundary, but against the *unrounded* value and only within 5e-10 of it;
+  formatting rounds, and rounding reaches 60 from much further away. At the
+  default one decimal place **every angle whose seconds are 59.95 or more
+  printed as `60.0`** — about one angle in 1200. The output was wrong twice
+  over: `DMS(12, 30, 60.0)` is refused by this module's own validation, so
+  GeoComp could not read back what it wrote, and the string denotes an angle
+  0.0003° from the one asked for. Formatting now rounds first and carries
+  after, into the minute and on into the degree.
+
+- **`parse_angle("12 30")` was 12° 00′ 30″, not 12° 30′.** The pattern's minute
+  group requires a *trailing* separator, so a bare second number fell through
+  into the seconds group. Two spellings of the same angle differed by a factor
+  of sixty according to whether the typist reached for the prime: `12° 30'`
+  parsed correctly. Components now fill left to right unless a mark says
+  otherwise — `12 45"` is still seconds.
+
+  Both had survived since P1 because **nothing in `geocomp/` calls the display
+  half of `core/units.py` and no test file covered the module** — it was at 64%,
+  incidentally, through importers that happen to parse angles.
+
+#### Added
+
+- **`tests/test_units.py`** — the module's first test file. 64% → 99%,
+  including the two defects above, the sign convention that makes `0 -30 0`
+  minus half a degree, the US survey foot against the international foot, and
+  the affine-scale reason Celsius is deliberately absent from a multiplicative
+  conversion table.
+
+- **`tests/qgis/test_task_service.py`** — `services/task_service.py` was at
+  **0%, with no caller anywhere**. It is not dead by accident: everything slow
+  in GeoComp is a Processing algorithm, and Processing threads its own and
+  supplies `QgsProcessingFeedback`, which is how FR-008 is actually met
+  ([`specs/16`](specs/16-processing-provider.md) §7). The module stays, because
+  the first thing that does need it — a long import, a GNSS batch in P7, a
+  monitoring run in P10 — should not have to write it under deadline. Now at
+  98%: cancellation adapter, progress clamping, success and failure dispatch,
+  and the distinction between a cancelled run and a failed one.
+
+- **`tests/structural/test_settings_are_honoured.py`** — **36 of 47 declared
+  settings are read by nothing at all.** Only `interface.mode`,
+  `interface.language`, `interface.log_level`, `interface.show_toolbar`,
+  `basemaps.catalogue` and `basemaps.default_service` have a consumer. A user
+  can change the angle format, the default meteorology, the levelling class
+  tolerances or the default observation weights, have the value stored,
+  resolved and displayed back correctly — and change no computation, because
+  every algorithm declares hard-coded Processing parameter defaults instead.
+  Nothing looks wrong at the default, since the numbers agree; only a user who
+  changes one finds out.
+
+  This is the shape of the defect P4 recorded one level up, when the dialog
+  rendered raw dotted keys for the seventeen settings P3 declared — the dialog
+  is generated from the declarations, the labels were not, and nobody looked.
+  The new test fails on any newly declared setting nothing reads, and holds the
+  current 36 as an explicit list, each with the phase that owes it.
+
+#### Changed — specifications
+
+- **[`specs/04`](specs/04-data-model.md) §6** — the two display-boundary rules
+  the defects above broke: formatting rounds before it carries, and sexagesimal
+  components fill left to right unless a mark says otherwise.
+- **[`specs/15`](specs/15-ui-menu-and-settings.md) §2.3** — "What is wired, and
+  what is not": the settings mechanism works and is tested; the *use* of the
+  resolved value is not generated, and 36 declarations have no consumer.
+- **[`specs/03`](specs/03-architecture.md) §3.5** — records that
+  `task_service.py` has no caller, why that is defensible, and what now tests
+  it.
+- **[`specs/ROADMAP.md`](specs/ROADMAP.md) P12** — the settings wiring assigned,
+  with what it involves.
 
 ### FR-161: the *Adjust* format, after three re-plannings
 
