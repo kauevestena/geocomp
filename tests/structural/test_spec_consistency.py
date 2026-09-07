@@ -16,7 +16,7 @@ from __future__ import annotations
 import re
 from collections import Counter
 
-from tests.conftest import SPECS_DIR
+from tests.conftest import PLUGIN_DIR, REPO_ROOT, SPECS_DIR
 
 REQUIREMENT_ROW = re.compile(r"^\| ((?:FR|NFR)-\d+)", re.MULTILINE)
 REQUIREMENT_ANY = re.compile(r"(?:FR|NFR)-\d+")
@@ -148,4 +148,51 @@ def test_the_storage_schema_matches_the_specification():
     assert not unimplemented, (
         "specs/17 section 2 lists these tables and the code does not declare them: "
         f"{unimplemented}"
+    )
+
+
+TEST_FILE_REFERENCE = re.compile(r"tests/[A-Za-z0-9_/]+\.py")
+
+
+def _cited_test_files() -> dict[str, list[str]]:
+    """Every ``tests/...py`` path named by shipped code or a live specification."""
+    cited: dict[str, list[str]] = {}
+    sources = list(PLUGIN_DIR.rglob("*.py")) + list(PLUGIN_DIR.rglob("*.md"))
+    sources += [path for path in SPECS_DIR.rglob("*.md") if "archive" not in path.parts]
+    for path in sources:
+        for reference in TEST_FILE_REFERENCE.findall(path.read_text(encoding="utf-8")):
+            cited.setdefault(reference, []).append(str(path.relative_to(REPO_ROOT)))
+    return cited
+
+
+def test_there_are_test_file_citations_to_check():
+    """Guards the regex, as ``test_requirements_are_declared`` guards its own."""
+    assert len(_cited_test_files()) > 10
+
+
+def test_every_cited_test_file_exists():
+    """A docstring that names the test proving its claim must name a real one.
+
+    This check was added by the pre-P7 review, which found
+    ``core/adjustment/equations.py`` asserting that every Jacobian in it had a
+    test in ``tests/test_equations.py`` -- a file that has never existed. The
+    Jacobians are in fact tested, in ``tests/test_adjustment.py``, so nothing
+    was wrong with the code; what was wrong was that a reader following the
+    citation to check the claim would have found nothing and had no way to tell
+    whether the tests or the file name had gone. A citation nobody can follow is
+    not evidence, and both failure modes -- a renamed test file and a claim that
+    was never true -- look identical from the outside.
+
+    ``specs/archive/`` is excluded: it holds superseded plans whose unticked
+    boxes name files that were never written, and rewriting history to satisfy
+    a check would defeat the purpose of keeping it.
+    """
+    missing = {
+        reference: sorted(set(citing))
+        for reference, citing in _cited_test_files().items()
+        if not (REPO_ROOT / reference).exists()
+    }
+    assert not missing, (
+        "these test files are cited but do not exist "
+        f"(reference -> the files citing it): {missing}"
     )

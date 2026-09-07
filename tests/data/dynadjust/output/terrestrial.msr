@@ -1,0 +1,15 @@
+!#=DNA 3.01 MSR    07.09.2026       GDA2020    01.01.2020         6
+* Created by:   dnaimport, File import and format exchange software. 
+* Version:      1.4.0, Release with OpenBLAS. 
+* Build:        Aug 28 2026, 21:23:45 - GNU GCC 13.3.0
+* File type:    Measurement file
+* Project name: terrestrial
+* Source files: terrestrial-msr.xml 
+D OCC                 RO                  2                                   0 00 00.0000    2.500                                           
+D                                         TGT1                               63 36 12.4700    2.500
+D                                         TGT2                              171 20 33.5800    2.500
+S OCC                 TGT1                                         6714.9420                  0.005  1.523  1.684                             
+V OCC                 TGT1                                                   90 01 00.0000    3.000  1.523  1.684                             
+A OCC                 RO                  TGT2                              171 20 33.5800    3.500                                           
+L OCC                 TGT2                                          -15.0000                  0.010                                           
+H TGT1                                                              118.0000                  0.020                                           

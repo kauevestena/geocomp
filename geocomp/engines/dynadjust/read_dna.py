@@ -33,6 +33,7 @@ import numpy as np
 
 from geocomp.core.errors import DataError
 from geocomp.core.models import (
+    OBSERVATION_TYPES,
     Cluster,
     ClusterKind,
     CoordinateSystem,
@@ -250,6 +251,29 @@ def _status(line: str) -> ObservationStatus:
     return ObservationStatus.EXCLUDED if _field(line, 2, 2) == "*" else ObservationStatus.ACTIVE
 
 
+def _hp_from_columns(degrees: str, minutes: str, seconds: str) -> str:
+    """Three DNA angle columns as one ``DDD.MMSSsssss`` string.
+
+    HP notation carries exactly one decimal point, after the degrees; the
+    minutes and seconds follow it as plain digits. Both callers used to build
+    the string by formatting the seconds as ``{seconds:08.5f}`` and
+    concatenating, which keeps the seconds' *own* decimal point and produces
+    ``171.2033.58000`` -- two points, and every angular measurement in a DNA
+    file refused as a malformed HP angle.
+
+    Neither caller had a test. The only committed ``.stn``/``.msr`` pair was the
+    GNSS sample, whose measurements are all Cartesian, so the whole terrestrial
+    half of this reader was unreachable from the suite. The pre-P7 review added
+    a terrestrial pair and this was the first thing it found.
+    """
+    sign = "-" if degrees.strip().startswith("-") else ""
+    # Five decimals covers DNA's four; the point is stripped so SS and its
+    # fraction sit directly against MM, and the width keeps the leading zero of
+    # a value like 05.5".
+    fraction = f"{abs(float(seconds)):08.5f}".replace(".", "")
+    return f"{sign}{abs(int(float(degrees)))}.{abs(int(float(minutes))):02d}{fraction}"
+
+
 def _read_scalar(
     line: str,
     code: str,
@@ -269,34 +293,32 @@ def _read_scalar(
             stations.append(third)
 
     if observation_type in _ANGULAR:
-        degrees = _field(line, 77, 80) or "0"
-        minutes = _field(line, 81, 82) or "0"
-        seconds = _field(line, 83, 90) or "0"
         # Reassembled into HP so the single HP implementation in `formats` is
         # used, rather than a second degrees/minutes/seconds path here that can
         # drift from it. DNA splits the angle across three columns; DynaML packs
         # it into one; both must produce the same radians.
-        negative = degrees.strip().startswith("-")
-        hp = (
-            f"{'-' if negative else ''}{abs(int(degrees))}"
-            f".{int(minutes):02d}{float(seconds):08.5f}".replace(" ", "0")
+        value = hp_to_radians(
+            _hp_from_columns(
+                _field(line, 77, 80) or "0",
+                _field(line, 81, 82) or "0",
+                _field(line, 83, 90) or "0",
+            )
         )
-        value = hp_to_radians(hp)
         sigma = seconds_to_radians(_field(line, 91, 99) or "1")
         unit = RADIAN
     else:
-        value = float(_field(line, 63, 82) or _field(line, 77, 90) or "0")
-        sigma = float(_field(line, 83, 102) or _field(line, 91, 99) or "1")
+        # 63-76 is the linear value and 91-99 the standard deviation, the same
+        # deviation column the angular branch above reads. Until the pre-P7
+        # review these were 63-82 and *83*-102, with 77-90 and 91-99 as
+        # fallbacks: the value field ran six columns into the degrees and the
+        # deviation field started eight columns early, so on a real row it read
+        # ``0.005  1`` -- the deviation, two spaces and the first digit of the
+        # instrument height -- and refused the file. Nothing caught it because
+        # the only committed DNA pair was the all-Cartesian GNSS sample, which
+        # reaches neither branch.
+        value = float(_field(line, 63, 76) or "0")
+        sigma = float(_field(line, 91, 99) or "1")
         unit = METRE
-
-    meta = {}
-    for key, (start, end) in (
-        ("instrument_height", (100, 106)),
-        ("target_height", (107, 113)),
-    ):
-        text = _field(line, start, end)
-        if text:
-            meta[key] = float(text)
 
     network.add_observation(
         Observation(
@@ -305,9 +327,52 @@ def _read_scalar(
             stations=tuple(stations),
             values=(Quantity.from_std_dev(value, sigma, unit),),
             status=_status(line),
-            meta=meta,
+            **_setup_heights(line, observation_type, measurement=f"{code}{counter}"),
         )
     )
+
+
+def _setup_heights(
+    line: str, observation_type: ObservationType, *, measurement: str
+) -> dict[str, Quantity]:
+    """Columns 100-106 and 107-113: instrument height and target height.
+
+    These used to land in ``Observation.meta`` as bare floats, where the
+    adjustment never looked -- the same defect P6 found and fixed on the DynaML
+    side, left standing here because no test read a DNA file that had them. A
+    slope distance measured instrument-to-reflector was therefore read from
+    DynaML with its heights and from DNA without, silently, for the same
+    network.
+
+    The rule is the DynaML reader's, deliberately: a zero on a type a vertical
+    offset does not move is the format's filler and is ignored; a non-zero one
+    is refused rather than dropped.
+    """
+    values: dict[str, Quantity] = {}
+    for key, (start, end), field in (
+        ("instrument_height", (100, 106), "instrument height"),
+        ("target_height", (107, 113), "target height"),
+    ):
+        text = _field(line, start, end)
+        if not text:
+            continue
+        height = float(text)
+        if not OBSERVATION_TYPES[observation_type].uses_setup_heights:
+            if height:
+                raise DataError(
+                    "dna_setup_height_on_an_unaffected_type",
+                    measurement=measurement,
+                    type=observation_type.value,
+                    field=field,
+                    received=height,
+                    expected=(
+                        "zero, or a blank column; a vertical offset does not move "
+                        "this type's geometry, so a real height here would be dropped"
+                    ),
+                )
+            continue
+        values[key] = Quantity.exact(height, METRE)
+    return values
 
 
 def _read_gnss(
@@ -451,7 +516,20 @@ def _read_gnss(
 
 
 def _read_directions(rows: list[str], index: int, network: Network, counter: int) -> int:
-    """A direction set: header, then ``Total`` further directions."""
+    """A direction set: header, then ``Total`` further directions.
+
+    **The target is in a different column on the header row and on the rows
+    that follow it.** The header carries the origin in 3-22 and the *reference*
+    direction's target in 23-42, with the count of further directions in 43-62;
+    each following row carries only its own target, and puts it in **43-62**.
+
+    Until the pre-P7 review this function read 23-42 for every row, so every
+    direction after the first came back with an empty target -- an observation
+    pointing at a station that does not exist, built without complaint. It is
+    what DynAdjust's own exporter writes and what its importer reads back, which
+    is how the column was settled: the file round-trips through ``dnaimport``
+    with both targets recovered.
+    """
     header_line = rows[index]
     origin = _field(header_line, 3, 22)
     total = int(_field(header_line, 43, 62) or 0)
@@ -459,15 +537,17 @@ def _read_directions(rows: list[str], index: int, network: Network, counter: int
     members: list[Observation] = []
 
     def add(position: int, line: str) -> None:
-        degrees = int(_field(line, 77, 80) or 0)
-        minutes = int(_field(line, 81, 82) or 0)
-        seconds = float(_field(line, 83, 90) or 0.0)
-        hp = f"{degrees}.{minutes:02d}{seconds:08.5f}".replace(" ", "0")
+        target = _field(line, 23, 42) if position == 0 else _field(line, 43, 62)
+        hp = _hp_from_columns(
+            _field(line, 77, 80) or "0",
+            _field(line, 81, 82) or "0",
+            _field(line, 83, 90) or "0",
+        )
         members.append(
             Observation(
                 id=f"D{counter}-{position}",
                 type=ObservationType.DIRECTION,
-                stations=(origin, _field(line, 23, 42)),
+                stations=(origin, target),
                 values=(
                     Quantity.from_std_dev(
                         hp_to_radians(hp),

@@ -175,6 +175,41 @@ interoperability with existing user data. Rationale in
 schema-validated, so a generation error is caught by the schema rather than by a misparse; the DNA formats
 are column-oriented and unforgiving of a one-character misalignment; and XML generation is far easier to test.
 
+#### The DNA measurement columns [V]
+
+"Unforgiving of a one-character misalignment" turned out to be the operative sentence: the pre-P7 review
+found **four defects in `read_dna.py`, all of them column arithmetic**, and all in branches the only
+committed `.stn`/`.msr` pair — upstream's all-Cartesian GNSS sample — never reaches. The layout below is
+taken from what `dnaimport --export-dna-files` writes and reads back, and
+`tests/data/dynadjust/output/terrestrial.{stn,msr}` pins it with a live-engine check in
+`scripts/check_dynadjust_fixtures.py`.
+
+| Columns | Field |
+|---|---|
+| 1 | measurement code |
+| 2 | `*` for an ignored measurement |
+| 3–22 | first station |
+| 23–42 | second station — **on a direction set's header row, the reference direction's target** |
+| 43–62 | third station; on a direction set's header, the count of further directions; on each **following** row, that row's own target |
+| 63–76 | linear value |
+| 77–80 · 81–82 · 83–90 | degrees · minutes · seconds |
+| 91–99 | standard deviation — metres for a linear value, **seconds of arc** for an angular one |
+| 100–106 | instrument height |
+| 107–113 | target height |
+
+Two of the four are worth stating as rules rather than as fixed numbers, because both were *plausible*
+readings that produced a network rather than an error:
+
+- **A direction set's target moves between the header row and the rows after it** (23–42, then 43–62).
+  Reading 23–42 throughout builds every direction after the first against a station named `''` — an
+  observation pointing at nothing, and no complaint anywhere.
+- **The three angle columns reassemble into HP notation**, which has exactly one decimal point. Formatting
+  the seconds with their own point and concatenating gives `171.2033.58000`, which fails; that is the benign
+  half. The malign half is §5.5's: a reader that *accepts* a malformed HP angle gets a wrong angle.
+
+Setup heights follow §4.2's rule for DynaML unchanged: a blank or a zero on a type a vertical offset does
+not move is the format's filler; a non-zero one is refused rather than dropped.
+
 ### 4.2 Mapping GeoComp observations to DynAdjust measurement types
 
 DynAdjust identifies measurement types by single-letter codes. **There are exactly twenty**, and the list is

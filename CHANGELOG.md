@@ -5,6 +5,226 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Pre-P7 review: four column defects in the DNA reader
+
+The third and last part of the review, and the one that found the most. Every
+one of these is in `engines/dynadjust/read_dna.py`, and every one is in a branch
+that the only committed `.stn`/`.msr` pair — upstream's GNSS network, whose
+measurements are all Cartesian clusters — never reaches. The module was at 65%,
+and the terrestrial half of a **public reader** had no test at all.
+
+#### Fixed
+
+- **Every angular measurement in a DNA file was refused.** Both places that
+  reassemble the three angle columns into HP notation formatted the seconds as
+  `{seconds:08.5f}` and concatenated, keeping the seconds' *own* decimal point:
+  `171.2033.58000`, two points, `hp_angle_malformed`. Now built by one shared
+  helper that strips it.
+
+- **The linear value and its deviation were read from the wrong columns** —
+  63–82 and 83–102, where they are 63–76 and 91–99. The deviation field started
+  eight columns early, so on a row that also carried setup heights it read
+  `0.005  1`: the deviation, two spaces, and the first digit of the instrument
+  height.
+
+- **Instrument and target heights went into `Observation.meta` as bare floats**,
+  where the adjustment never looks. This is the same defect P6 found and fixed
+  on the DynaML side; it was left standing here because no test read a DNA file
+  that had them. The consequence was silent and asymmetric: one network read
+  from DynaML with its heights and from DNA without.
+
+- **Every direction after the first in a set came back with an empty target
+  station.** A set's rows carry their target in columns **43–62**; only the
+  header row uses 23–42, for the reference direction. The reader used 23–42
+  throughout and built observations pointing at a station named `''`, without
+  complaint. Settled by round-tripping the file through `dnaimport`, which
+  recovers both targets.
+
+#### Added
+
+- **`tests/data/dynadjust/output/terrestrial.{stn,msr}`** with the
+  `terrestrial-{stn,msr}.xml` they came from — a direction set, a slope distance
+  and a zenith angle with setup heights, a three-station horizontal angle, a
+  height difference and an orthometric height. Produced by
+  `dnaimport --export-dna-files`, so the columns are DynAdjust's own.
+
+- **`scripts/check_dynadjust_fixtures.py` gains an export case.** The guard
+  could only run `dnaadjust` and compare its output; it now also runs
+  `dnaimport --export-dna-files` and compares the DNA station and measurement
+  files themselves, which is where the column layout the reader depends on
+  actually lives.
+
+- **Fifteen tests in `tests/test_dna_reader.py`**, including an
+  observation-by-observation comparison against the DynaML reader on the same
+  network — two formats with nothing in common read to the same result, which is
+  what makes the pair a check rather than two views of one parser. 65% → 88%.
+
+#### Changed — specifications
+
+- **[`specs/07`](specs/07-engine-dynadjust.md) §4.1** — the DNA measurement
+  column table, marked **[V]** against a live engine, with the two traps stated
+  as rules: a direction set's target moves between the header row and the rows
+  after it, and HP notation carries exactly one decimal point.
+
+### Pre-P7 review: two defects in `core/units.py`, and 36 settings nothing reads
+
+The second half of the review. Where the first found guards that could not
+fail, this found code nobody called — and two real defects sitting inside it,
+which is why "no caller" is a finding rather than a tidiness note.
+
+#### Fixed
+
+- **`format_dms` printed 60 seconds.** `DMS.from_decimal_degrees` guards that
+  boundary, but against the *unrounded* value and only within 5e-10 of it;
+  formatting rounds, and rounding reaches 60 from much further away. At the
+  default one decimal place **every angle whose seconds are 59.95 or more
+  printed as `60.0`** — about one angle in 1200. The output was wrong twice
+  over: `DMS(12, 30, 60.0)` is refused by this module's own validation, so
+  GeoComp could not read back what it wrote, and the string denotes an angle
+  0.0003° from the one asked for. Formatting now rounds first and carries
+  after, into the minute and on into the degree.
+
+- **`parse_angle("12 30")` was 12° 00′ 30″, not 12° 30′.** The pattern's minute
+  group requires a *trailing* separator, so a bare second number fell through
+  into the seconds group. Two spellings of the same angle differed by a factor
+  of sixty according to whether the typist reached for the prime: `12° 30'`
+  parsed correctly. Components now fill left to right unless a mark says
+  otherwise — `12 45"` is still seconds.
+
+  Both had survived since P1 because **nothing in `geocomp/` calls the display
+  half of `core/units.py` and no test file covered the module** — it was at 64%,
+  incidentally, through importers that happen to parse angles.
+
+#### Added
+
+- **`tests/test_units.py`** — the module's first test file. 64% → 99%,
+  including the two defects above, the sign convention that makes `0 -30 0`
+  minus half a degree, the US survey foot against the international foot, and
+  the affine-scale reason Celsius is deliberately absent from a multiplicative
+  conversion table.
+
+- **`tests/qgis/test_task_service.py`** — `services/task_service.py` was at
+  **0%, with no caller anywhere**. It is not dead by accident: everything slow
+  in GeoComp is a Processing algorithm, and Processing threads its own and
+  supplies `QgsProcessingFeedback`, which is how FR-008 is actually met
+  ([`specs/16`](specs/16-processing-provider.md) §7). The module stays, because
+  the first thing that does need it — a long import, a GNSS batch in P7, a
+  monitoring run in P10 — should not have to write it under deadline. Now at
+  98%: cancellation adapter, progress clamping, success and failure dispatch,
+  and the distinction between a cancelled run and a failed one.
+
+- **`tests/structural/test_settings_are_honoured.py`** — **36 of 47 declared
+  settings are read by nothing at all.** Only `interface.mode`,
+  `interface.language`, `interface.log_level`, `interface.show_toolbar`,
+  `basemaps.catalogue` and `basemaps.default_service` have a consumer. A user
+  can change the angle format, the default meteorology, the levelling class
+  tolerances or the default observation weights, have the value stored,
+  resolved and displayed back correctly — and change no computation, because
+  every algorithm declares hard-coded Processing parameter defaults instead.
+  Nothing looks wrong at the default, since the numbers agree; only a user who
+  changes one finds out.
+
+  This is the shape of the defect P4 recorded one level up, when the dialog
+  rendered raw dotted keys for the seventeen settings P3 declared — the dialog
+  is generated from the declarations, the labels were not, and nobody looked.
+  The new test fails on any newly declared setting nothing reads, and holds the
+  current 36 as an explicit list, each with the phase that owes it.
+
+#### Changed — specifications
+
+- **[`specs/04`](specs/04-data-model.md) §6** — the two display-boundary rules
+  the defects above broke: formatting rounds before it carries, and sexagesimal
+  components fill left to right unless a mark says otherwise.
+- **[`specs/15`](specs/15-ui-menu-and-settings.md) §2.3** — "What is wired, and
+  what is not": the settings mechanism works and is tested; the *use* of the
+  resolved value is not generated, and 36 declarations have no consumer.
+- **[`specs/03`](specs/03-architecture.md) §3.5** — records that
+  `task_service.py` has no caller, why that is defensible, and what now tests
+  it.
+- **[`specs/ROADMAP.md`](specs/ROADMAP.md) P12** — the settings wiring assigned,
+  with what it involves.
+
+### Pre-P7 review: three guards that could not fail, and a citation that led nowhere
+
+A review before starting P7, at the maintainer's request. Nothing here changes a
+computed number. What it changes is the set of statements the project makes
+about itself that were not true, and the tests that were supposed to keep them
+true but could not.
+
+#### Fixed
+
+- **The ADR-0008 parity test asked SciPy whether it agreed with itself.** Every
+  function in `core/statistics/distributions.py` dispatches *to SciPy* when
+  SciPy is importable. `test_the_two_paths_agree_where_scipy_exists` was guarded
+  by `skipif(not USING_SCIPY)`, so with SciPy it compared `norm.ppf` against
+  `norm.ppf` and without SciPy it was skipped: it could not fail in either
+  environment, from P2 until now. By the same mechanism the published table
+  values in that class tested SciPy wherever SciPy was installed, while the
+  class docstring asserted the opposite — that the NumPy-only fallback "is what
+  runs here", true when it was written and false from the day SciPy appeared in
+  the environment.
+
+  Every test in `TestDistributions` now takes a `both_paths` fixture and runs
+  down both implementations, and the parity test compares them directly at the
+  critical values the adjustment, the global test, data snooping and the
+  ellipses actually ask for. Verified by mutation: perturbing the NumPy-only
+  normal quantile by 1e-6 relative now fails six tests, all of them the
+  `numpy_only` parameters, and would have failed none before.
+
+  **The fallback itself is sound** — worst disagreement 2.2e-9 relative, on
+  `t_quantile(0.99, 2)`. The defect was the guard, not the arithmetic.
+
+- **`core/adjustment/equations.py` cited a test file that has never existed.**
+  Its docstring claimed every Jacobian in it had a test against complex-step
+  differentiation in `tests/test_equations.py`. The Jacobians *are* tested — in
+  `tests/test_adjustment.py` — but by central differences, and they have to be:
+  the equations are written over `math.atan2`, `math.sqrt` and `math.hypot`,
+  which take no complex argument. Both halves of the claim were wrong, and a
+  reader following the citation to check it would have found nothing.
+
+  `tests/structural/test_spec_consistency.py` now fails on any `tests/….py` path
+  cited by shipped code or a live specification that does not exist.
+
+- **Five `pytest.skip` branches in `tests/structural/test_no_bare_geodetic_floats.py`
+  that could no longer fire.** Written in P1 against packages that did not yet
+  exist, they answered an empty discovery walk with a skip. From P3 an empty
+  walk means the discovery is broken — a renamed package would have retired the
+  whole file into a green skip. They are assertions now.
+
+#### Added
+
+- **`tests/test_differentiation.py`** — `core/differentiation.py` was 40%
+  covered and **five of its six public functions had no caller anywhere**,
+  in `geocomp/` or in the suite. `tests/test_adjustment.py` needed the very
+  method it provides and had inlined a copy of the algorithm instead. The copy
+  is gone, the module is called, and it is at 100%. The tests also measure the
+  claim the module's docstring makes for existing: on Squire and Trapp's
+  function the complex step beats a central difference by more than four orders
+  of magnitude, and shrinking the difference's step below its optimum makes it
+  worse rather than better.
+
+#### Changed — specifications
+
+
+- **[`specs/05`](specs/05-uncertainty-and-covariance.md) §2.2 and §7** — acceptance
+  criterion 1 read "agrees with complex-step differentiation to ≤ 1e-9
+  relative". The observation equations cannot meet it and never could; nothing
+  noticed, because no test enforced the criterion's own wording. Split into
+  complex-step at 1e-9 where the function is complex-safe and central
+  differences at 1e-7 where it is not, with a table saying which is which.
+  `TestJacobians` now asserts the non-complex-safety itself, so a rewrite over
+  `cmath` is told to tighten the tolerance rather than leave 1e-7 in place.
+  Also records that `Strategy.NUMERIC_DERIVATIVE` is declared and unused, and
+  why that is the intended state.
+- **[`specs/20`](specs/20-testing-and-validation.md) §6** and
+  **[`specs/ROADMAP.md`](specs/ROADMAP.md) P1** — the same correction, where they
+  restate the criterion.
+- **[`specs/adr/0008`](specs/adr/0008-scipy-and-network-scale.md)** — "Both paths
+  are tested against published table values, and against each other wherever
+  SciPy is installed" was true of neither half. Rewritten to say what was
+  actually the case, what is the case now, and the measured agreement.
+
+
 ### FR-161: the *Adjust* format, after three re-plannings
 
 **Met.** The requirement had moved out of P5, P6 and P7 for one reason — neither a

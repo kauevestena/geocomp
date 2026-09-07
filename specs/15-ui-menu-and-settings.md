@@ -259,6 +259,30 @@ Three scopes, resolving **run parameter → project → global → built-in defa
 - The effective value and its origin are recorded in provenance (FR-134), which is what makes a result
   explicable months later.
 
+#### What is wired, and what is not — as of the pre-P7 review
+
+The *mechanism* above works and is tested: declare a `SettingDef` and a labelled control appears, resolving
+correctly through run, project and global scope. What is not generated is the **use** of the resolved value,
+and the review found **36 of 47 declared settings read by nothing at all**. Only `interface.mode`,
+`interface.language`, `interface.log_level`, `interface.show_toolbar`, `basemaps.catalogue` and
+`basemaps.default_service` have a consumer.
+
+A user can therefore open Global Settings, change the angle format, the default meteorology, the levelling
+class tolerances or the default observation weights, have the value stored and resolved and shown back
+correctly — and change no computation. The Processing algorithms expose the same quantities as run
+parameters with **hard-coded defaults**, which is why nothing looks wrong at the default: the numbers agree
+today, and only a user who changes one discovers they do not.
+
+This is the same shape as the defect P4 recorded one level up, when the dialog rendered raw dotted keys for
+all seventeen settings P3 had declared — the dialog is generated from the declarations, the labels were not,
+and nobody looked. Labels are guarded by `tests/structural/test_settings_labels.py`; the behaviour is now
+guarded by `tests/structural/test_settings_are_honoured.py`, which fails on a newly declared setting that
+nothing reads and holds the current 36 as an explicit list with the phase that owes each one.
+
+**The wiring is assigned to P12**, whose deliverables already cover this document. It is not a small change:
+each algorithm must resolve its parameter defaults through the settings service rather than declaring
+literals, and `specs/16` §5's Basic/Advanced identity check has to keep holding across the change.
+
 ---
 
 ## 3. Basic and Advanced modes (FR-070, FR-071)

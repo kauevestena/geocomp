@@ -18,6 +18,23 @@ All were produced by **DynAdjust 1.4.0** built from upstream commit `5cdb897`.
 | `grid-hp-carry.xyz` | `--stn-coord-types ENzPLH` on the same `grid-*.xml`, default angular precision | **DynAdjust printing 60 minutes**: three stations at latitude -45 degrees, two written `-45.00000000` and one `-44.60000000`, which HP notation cannot hold. No unusual flags are needed for this one |
 | `angles.{adj,apu,cor,xyz}` | the default flags on the network in `angles-*.xml` | every angular measurement type — `S`, `V`, `B`, `K`, `A`, `L` — with values in separated degrees/minutes/seconds and corrections and precisions in **seconds of arc**; also a `Failed to converge` solution and a `*** WARNING ***` chi-square verdict, which must not be read as success |
 
+`terrestrial.{stn,msr}` are not an adjustment at all: they are what
+`dnaimport --export-dna-files` makes of `terrestrial-{stn,msr}.xml`, which are
+ours. They exist because every other DNA pair here is upstream's GNSS sample,
+whose measurements are all Cartesian clusters — so the whole terrestrial half of
+`engines/dynadjust/read_dna.py` was unreachable from the suite, and four column
+defects were sitting in it. This pair carries a direction set, a slope distance
+and a zenith angle with instrument and target heights, a horizontal angle with
+three stations, a height difference and an orthometric height:
+
+```sh
+dnaimport -n terrestrial terrestrial-stn.xml terrestrial-msr.xml --export-dna-files
+```
+
+Its coordinates are made up. Every one is valid HP notation, which is less
+obvious than it sounds: `-37.4782` looks like a latitude and is not one, because
+82 seconds do not exist.
+
 `sample.*` is an adjustment of the slice of upstream's `gnss-network` sample that
 `tests/data/dynadjust/sample-{stn,msr}.xml` holds; that data is Apache-2.0 and is
 attributed in `THIRD_PARTY.md`. `angles-stn.xml` and `angles-msr.xml` are ours,

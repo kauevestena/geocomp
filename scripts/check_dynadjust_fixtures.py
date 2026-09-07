@@ -65,6 +65,13 @@ class Case:
     outputs: tuple[str, ...]
     prefix: str = ""
     extra: dict[str, str] = field(default_factory=dict)
+    #: Stop after ``dnaimport --export-dna-files`` instead of adjusting, and take
+    #: the outputs from ``<network>.<suffix>`` rather than
+    #: ``<network>.simult.<suffix>``. For the DNA station and measurement files,
+    #: whose *column layout* is what the reader depends on.
+    export_dna: bool = False
+    #: Extra line prefixes to drop before comparing, on top of :data:`VOLATILE`.
+    volatile: tuple[str, ...] = ()
 
 
 CASES = (
@@ -142,6 +149,23 @@ CASES = (
         ),
         outputs=("adj", "apu", "cor", "xyz"),
     ),
+    # Not an adjustment: `dnaimport --export-dna-files` writing the DNA station
+    # and measurement files themselves. Their fixed-column layout is what
+    # `engines/dynadjust/read_dna.py` reads by absolute position, and the
+    # pre-P7 review found four defects in the columns it read -- every one in a
+    # branch the all-Cartesian GNSS sample never reaches. This case pins the
+    # layout the way the others pin the output layouts.
+    Case(
+        name="terrestrial",
+        station_file="output/terrestrial-stn.xml",
+        measurement_file="output/terrestrial-msr.xml",
+        options=(),
+        outputs=("stn", "msr"),
+        export_dna=True,
+        # The DNA header stamps the day of the run and the build that made it;
+        # every other line in the file is data.
+        volatile=("!#=DNA", "* "),
+    ),
 )
 
 
@@ -179,11 +203,10 @@ def sanitise(text: str) -> str:
 RELATIVE_TOLERANCE = 1e-6
 
 
-def comparable(text: str) -> list[str]:
+def comparable(text: str, extra: tuple[str, ...] = ()) -> list[str]:
     """Drop the lines that cannot help but differ between two runs."""
-    return [
-        line for line in text.splitlines() if not any(line.startswith(key) for key in VOLATILE)
-    ]
+    keys = VOLATILE + extra
+    return [line for line in text.splitlines() if not any(line.startswith(key) for key in keys)]
 
 
 def _tokens(line: str) -> list[tuple[int, str]]:
@@ -232,10 +255,17 @@ def run_case(case: Case, work: Path) -> dict[str, str]:
         shutil.copy(INPUTS / name, work / Path(name).name)
 
     network = "fixture"
-    commands = [
-        ["dnaimport", "-n", network, Path(case.station_file).name, Path(case.measurement_file).name],
-        ["dnaadjust", "-n", network, *case.options],
+    import_command = [
+        "dnaimport",
+        "-n",
+        network,
+        Path(case.station_file).name,
+        Path(case.measurement_file).name,
     ]
+    if case.export_dna:
+        commands = [[*import_command, "--export-dna-files"]]
+    else:
+        commands = [import_command, ["dnaadjust", "-n", network, *case.options]]
     for command in commands:
         result = subprocess.run(command, cwd=work, capture_output=True, text=True, check=False)
         if result.returncode != 0:
@@ -246,9 +276,10 @@ def run_case(case: Case, work: Path) -> dict[str, str]:
 
     produced: dict[str, str] = {}
     for suffix in case.outputs:
-        path = work / f"{network}.simult.{suffix}"
+        path = work / (f"{network}.{suffix}" if case.export_dna else f"{network}.simult.{suffix}")
         if not path.is_file():
-            raise SystemExit(f"case {case.name}: dnaadjust wrote no .{suffix}")
+            writer = "dnaimport" if case.export_dna else "dnaadjust"
+            raise SystemExit(f"case {case.name}: {writer} wrote no .{suffix}")
         produced[suffix] = sanitise(path.read_text())
     return produced
 
@@ -285,7 +316,8 @@ def main() -> int:
                 print(f"  MISSING {fixture.relative_to(ROOT)}")
                 failures += 1
                 continue
-            expected, actual = comparable(fixture.read_text()), comparable(text)
+            expected = comparable(fixture.read_text(), case.volatile)
+            actual = comparable(text, case.volatile)
             if len(expected) == len(actual) and all(
                 same_line(one, other) for one, other in zip(expected, actual, strict=True)
             ):

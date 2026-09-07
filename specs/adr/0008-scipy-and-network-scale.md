@@ -63,8 +63,22 @@ ADR.
 **Delivered.** `core/statistics/distributions.py` implements the normal, chi-square, F and t distributions
 with a SciPy fast path and a complete NumPy-only fallback: Acklam's rational approximation refined by
 Newton for the normal quantile, the regularised incomplete gamma (series and continued fraction) for
-chi-square, and Lentz's continued fraction for the incomplete beta behind F and t. Both paths are tested
-against published table values, and against each other wherever SciPy is installed.
+chi-square, and Lentz's continued fraction for the incomplete beta behind F and t.
+
+**Both paths are tested against published table values, and against each other — since the pre-P7 review,
+and not before it.** The original wording of this paragraph claimed exactly that and neither half was true.
+Every function in the module dispatches *to SciPy* when SciPy is importable, so where SciPy was installed
+the table values tested SciPy and the fallback was exercised only by CI's `degraded` job; and the test named
+for the against-each-other claim compared `scipy.norm.ppf` against `scipy.norm.ppf`, skipped where SciPy was
+absent, unable to fail in either environment. `tests/test_statistics.py` now runs every table value down
+both implementations through a fixture, and compares them directly at the critical values the adjustment,
+the global test, data snooping and the ellipses ask for.
+
+**The fallback is sound, which is the reassuring half.** Worst disagreement over that grid is **2.2e-9
+relative** — `t_quantile(0.99, 2)`, 6.96455673 against SciPy's 6.96455672 — four orders inside the precision
+the critical values are quoted to. The defect was in the guard, not in the arithmetic; but a guard that
+cannot fail is how an unsound fallback would have reached a user unremarked, so the correction stands on its
+own.
 
 **Not delivered.** The sparse solver. `core/adjustment/normal_equations.py` forms and factorises a **dense**
 normal matrix — Cholesky, falling back to QR on the weighted design matrix when Cholesky fails numerically.

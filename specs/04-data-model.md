@@ -267,6 +267,16 @@ Rules, all consequences of NFR-007 and FR-095:
 
 - Floating-point values serialise at full precision (`repr`-equivalent), never at display precision.
 - Angles serialise in radians; DMS is a *display* format only (see [`00-glossary.md`](./00-glossary.md)).
+  Two rules govern the boundary either way, both added by the pre-P7 review after
+  `core/units.py` was found breaking them:
+  - **Formatting rounds before it carries.** A seconds value that *rounds* to 60 at the requested number of
+    decimals carries into the minute, and a minute so reached carries into the degree. Printing `60.0` is a
+    defect, not a rounding: this project's own `DMS` validation refuses it, so GeoComp could not read back
+    what it wrote, and the string denotes an angle a whole rounding step away from the one asked for. At one
+    decimal place it happens to about one angle in 1200.
+  - **Sexagesimal components fill left to right unless a mark says otherwise.** `12 30` is 12° 30′, not
+    12° 00′ 30″; an explicit `"`, `″` or `s` still means seconds. Two spellings of the same angle must not
+    differ by a factor of sixty according to whether the typist reached for the prime.
 - Timestamps are ISO 8601 UTC with an explicit offset.
 - Covariance matrices serialise as the full matrix or as an upper-triangular packed form with the storage
   form declared — never as a bare standard deviation when correlations exist.

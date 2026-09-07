@@ -79,7 +79,10 @@ Jacobians, the approximate strategies, and the `RIGOROUS`/`APPROXIMATE` labellin
 FR-204, FR-205, FR-206, FR-207, FR-208, NFR-002, NFR-007
 
 **Exit.** Reproduces the worked propagation examples of RD-02 to published precision. Every analytic Jacobian
-agrees with complex-step differentiation to ≤ 1e-9 relative. No public core function can return a geodetic
+agrees with a numerical derivative — complex-step to ≤ 1e-9 relative, or central differences to ≤ 1e-7 where
+the function takes no complex argument
+([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) §2.2; the split was recorded in the
+pre-P7 review, which found this criterion stated in a form the observation equations could not meet). No public core function can return a geodetic
 value without an uncertainty — asserted by a test. Combining two quantities from one `Covariance` through the
 scalar path raises. All of it runs with no QGIS and no engines.
 
@@ -488,6 +491,14 @@ product.
 the results panel completed; Basic/Advanced review across every algorithm now that all exist; pt-BR and es
 translations completed and reviewed by native speakers against the glossary; performance work against
 NFR-008; documentation of every **[C]** claim resolved.
+
+**Also delivers, added by the pre-P7 review: the settings actually reaching the computation.** 36 of the 47
+declared settings are read by nothing — the Global Settings window presents controls that resolve correctly
+and change no result, because every algorithm declares hard-coded Processing parameter defaults instead
+([`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §2.3). `interface.angle_format` and the three
+display settings beside it need `core/units.py`'s formatting half, which until the review had no caller
+anywhere and two defects in it. `tests/structural/test_settings_are_honoured.py` holds the list and fails
+on any new setting added without a consumer.
 
 **Closes.** FR-902, FR-931
 

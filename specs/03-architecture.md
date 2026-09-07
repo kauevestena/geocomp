@@ -184,6 +184,18 @@ Anything that runs an engine, touches the network, or adjusts more than a trivia
 - Every task reports determinate progress where the work is countable (a batch of GNSS sessions, adjustment
   iterations) and indeterminate otherwise.
 
+**Where this stands, as of the pre-P7 review.** `services/task_service.py` implements the rules above and
+**no caller uses it.** That is not an oversight to correct blindly: everything that takes real time in
+GeoComp today is a Processing algorithm, and Processing threads its own algorithms and supplies its own
+`QgsProcessingFeedback` ([`16-processing-provider.md`](./16-processing-provider.md) §7), which is how FR-008
+is actually met. The one computation the plugin runs on the main thread is the pre-analysis dialog's
+`DesignSession.evaluate()`, on networks of a few dozen stations — well inside NFR-004's 200 ms.
+
+The module stays, because the first thing that does need it (a long import, a multi-session GNSS batch in
+P7, a monitoring run in P10) should not have to write it under deadline. It was at **0% coverage** until the
+review; `tests/qgis/test_task_service.py` now exercises the cancellation adapter, the progress clamping, the
+success and failure dispatch, and the distinction between a cancelled run and a failed one.
+
 ### 3.6 Errors (NFR-006)
 
 A single exception hierarchy rooted at `GeoCompError`, with subclasses carrying structured context:

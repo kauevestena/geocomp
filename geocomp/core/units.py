@@ -167,21 +167,52 @@ def format_dms(value: float, decimals: int = 1, symbols: bool = True) -> str:
             with spaces, which is what most engines expect in a text file.
     """
     dms = DMS.from_radians(value)
+    degrees, minutes, seconds = _carry_after_rounding(
+        dms.degrees, dms.minutes, dms.seconds, decimals
+    )
     sign = "-" if dms.negative else ""
     # Two digits for the integer part, plus the point and the decimals when
     # there are any. Computing this as 3 + decimals pads "48" to "048" at
     # decimals=0.
     width = 2 if decimals == 0 else 3 + decimals
     if symbols:
-        return f"{sign}{dms.degrees}° {dms.minutes:02d}' {dms.seconds:0{width}.{decimals}f}\""
-    return f"{sign}{dms.degrees} {dms.minutes:02d} {dms.seconds:.{decimals}f}"
+        return f"{sign}{degrees}° {minutes:02d}' {seconds:0{width}.{decimals}f}\""
+    return f"{sign}{degrees} {minutes:02d} {seconds:.{decimals}f}"
+
+
+def _carry_after_rounding(
+    degrees: int, minutes: int, seconds: float, decimals: int
+) -> tuple[int, int, float]:
+    """Carry a seconds value that *rounds* to 60, and a minute that follows it.
+
+    :meth:`DMS.from_decimal_degrees` guards the same boundary, but against the
+    unrounded value and only within 5e-10 of it. Formatting rounds, and rounding
+    reaches 60 from much further away: at the default one decimal place every
+    angle whose seconds are 59.95 or more prints as ``60.0`` -- one angle in
+    about 1200, not a corner case.
+
+    The output of that is wrong twice over. ``DMS(12, 30, 60.0)`` is refused by
+    this module's own validation, so GeoComp could not read back what it wrote;
+    and the string parses, here and elsewhere, as an angle 0.0003 degrees from
+    the one it was asked to print. Found by the pre-P7 review, which was the
+    first thing to call this function.
+    """
+    seconds = round(seconds, decimals)
+    if seconds < 60.0:
+        return degrees, minutes, seconds
+    seconds = 0.0
+    minutes += 1
+    if minutes >= 60:
+        minutes = 0
+        degrees += 1
+    return degrees, minutes, seconds
 
 
 _DMS_PATTERN = re.compile(
     r"""^\s*(?P<sign>[+-])?\s*
         (?P<deg>\d+(?:\.\d+)?)\s*[°dD:\s]\s*
         (?:(?P<min>\d+(?:\.\d+)?)\s*['′mM:\s]\s*)?
-        (?:(?P<sec>\d+(?:\.\d+)?)\s*["″sS]?\s*)?$""",  # noqa: RUF001 - U+2032/U+2033
+        (?:(?P<sec>\d+(?:\.\d+)?)\s*(?P<secmark>["″sS])?\s*)?$""",  # noqa: RUF001 - U+2032/U+2033
         # are the real prime and double-prime marks used in field books and
         # vendor exports; they are not typos for a grave accent.
     re.VERBOSE,
@@ -207,10 +238,21 @@ def parse_angle(text: str, default_unit: str = "degrees") -> float:
 
     match = _DMS_PATTERN.match(normalised.lstrip("+-").strip())
     if match and (match.group("min") is not None or match.group("sec") is not None):
+        minutes, seconds = match.group("min"), match.group("sec")
+        if minutes is None and match.group("secmark") is None:
+            # Two components and no mark to say which: "12 30" is 12 deg 30 min,
+            # filled left to right, as every field book and every reader of one
+            # would take it. The pattern reaches here because its minute group
+            # requires a *trailing* separator, so a bare second number falls
+            # through into the seconds group -- which made "12 30" parse as
+            # 12 deg 00 min 30 sec, sixty times smaller than intended, while
+            # "12 deg 30'" with the mark parsed correctly. An explicit mark
+            # still wins: '12 45"' is seconds because it says so.
+            minutes, seconds = seconds, None
         value = dms_to_radians(
             float(match.group("deg")),
-            float(match.group("min") or 0.0),
-            float(match.group("sec") or 0.0),
+            float(minutes or 0.0),
+            float(seconds or 0.0),
         )
         return -abs(value) if negative else value
 
