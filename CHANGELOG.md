@@ -5,6 +5,86 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Pre-P7 review: three guards that could not fail, and a citation that led nowhere
+
+A review before starting P7, at the maintainer's request. Nothing here changes a
+computed number. What it changes is the set of statements the project makes
+about itself that were not true, and the tests that were supposed to keep them
+true but could not.
+
+#### Fixed
+
+- **The ADR-0008 parity test asked SciPy whether it agreed with itself.** Every
+  function in `core/statistics/distributions.py` dispatches *to SciPy* when
+  SciPy is importable. `test_the_two_paths_agree_where_scipy_exists` was guarded
+  by `skipif(not USING_SCIPY)`, so with SciPy it compared `norm.ppf` against
+  `norm.ppf` and without SciPy it was skipped: it could not fail in either
+  environment, from P2 until now. By the same mechanism the published table
+  values in that class tested SciPy wherever SciPy was installed, while the
+  class docstring asserted the opposite — that the NumPy-only fallback "is what
+  runs here", true when it was written and false from the day SciPy appeared in
+  the environment.
+
+  Every test in `TestDistributions` now takes a `both_paths` fixture and runs
+  down both implementations, and the parity test compares them directly at the
+  critical values the adjustment, the global test, data snooping and the
+  ellipses actually ask for. Verified by mutation: perturbing the NumPy-only
+  normal quantile by 1e-6 relative now fails six tests, all of them the
+  `numpy_only` parameters, and would have failed none before.
+
+  **The fallback itself is sound** — worst disagreement 2.2e-9 relative, on
+  `t_quantile(0.99, 2)`. The defect was the guard, not the arithmetic.
+
+- **`core/adjustment/equations.py` cited a test file that has never existed.**
+  Its docstring claimed every Jacobian in it had a test against complex-step
+  differentiation in `tests/test_equations.py`. The Jacobians *are* tested — in
+  `tests/test_adjustment.py` — but by central differences, and they have to be:
+  the equations are written over `math.atan2`, `math.sqrt` and `math.hypot`,
+  which take no complex argument. Both halves of the claim were wrong, and a
+  reader following the citation to check it would have found nothing.
+
+  `tests/structural/test_spec_consistency.py` now fails on any `tests/….py` path
+  cited by shipped code or a live specification that does not exist.
+
+- **Five `pytest.skip` branches in `tests/structural/test_no_bare_geodetic_floats.py`
+  that could no longer fire.** Written in P1 against packages that did not yet
+  exist, they answered an empty discovery walk with a skip. From P3 an empty
+  walk means the discovery is broken — a renamed package would have retired the
+  whole file into a green skip. They are assertions now.
+
+#### Added
+
+- **`tests/test_differentiation.py`** — `core/differentiation.py` was 40%
+  covered and **five of its six public functions had no caller anywhere**,
+  in `geocomp/` or in the suite. `tests/test_adjustment.py` needed the very
+  method it provides and had inlined a copy of the algorithm instead. The copy
+  is gone, the module is called, and it is at 100%. The tests also measure the
+  claim the module's docstring makes for existing: on Squire and Trapp's
+  function the complex step beats a central difference by more than four orders
+  of magnitude, and shrinking the difference's step below its optimum makes it
+  worse rather than better.
+
+#### Changed — specifications
+
+- **[`specs/05`](specs/05-uncertainty-and-covariance.md) §2.2 and §7** — acceptance
+  criterion 1 read "agrees with complex-step differentiation to ≤ 1e-9
+  relative". The observation equations cannot meet it and never could; nothing
+  noticed, because no test enforced the criterion's own wording. Split into
+  complex-step at 1e-9 where the function is complex-safe and central
+  differences at 1e-7 where it is not, with a table saying which is which.
+  `TestJacobians` now asserts the non-complex-safety itself, so a rewrite over
+  `cmath` is told to tighten the tolerance rather than leave 1e-7 in place.
+  Also records that `Strategy.NUMERIC_DERIVATIVE` is declared and unused, and
+  why that is the intended state.
+- **[`specs/20`](specs/20-testing-and-validation.md) §6** and
+  **[`specs/ROADMAP.md`](specs/ROADMAP.md) P1** — the same correction, where they
+  restate the criterion.
+- **[`specs/adr/0008`](specs/adr/0008-scipy-and-network-scale.md)** — "Both paths
+  are tested against published table values, and against each other wherever
+  SciPy is installed" was true of neither half. Rewritten to say what was
+  actually the case, what is the case now, and the measured agreement.
+
+
 ### FR-161: the *Adjust* format, after three re-plannings
 
 **Met.** The requirement had moved out of P5, P6 and P7 for one reason — neither a

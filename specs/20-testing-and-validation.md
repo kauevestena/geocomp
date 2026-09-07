@@ -88,7 +88,9 @@ RD-03 has no closed form for most of its quantities, so it is validated against 
 squares**, which hold for every network rather than for one: redundancy numbers sum to the degrees of
 freedom; a free and a constrained solution of the same data agree on residuals and on σ̂₀²; design simulation
 reproduces the adjustment's covariance to machine precision when both are evaluated at the same coordinates;
-every analytic Jacobian matches complex-step differentiation. Several of these would catch errors that
+every analytic Jacobian matches a numerical derivative — complex-step, or central differences where the
+function is not complex-safe ([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md)
+§2.2). Several of these would catch errors that
 matching a printed answer would not.
 
 What remains for both is *citation*: transcribing the published worked examples so the project can state
@@ -166,6 +168,7 @@ form that lines up against a commercial package's output.
 |---|---|
 | Against an analytic result | 1e-12 relative |
 | Against complex-step differentiation (Jacobians) | 1e-9 relative |
+| Against central differences (Jacobians of functions that are not complex-safe) | 1e-7 relative |
 | Against a published worked example | The precision printed in the source |
 | Between the two engines (§4) | The table in §4 |
 | Against commercial software | Documented per comparison; unexplained differences are defects |

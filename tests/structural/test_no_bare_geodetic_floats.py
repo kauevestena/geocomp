@@ -29,8 +29,6 @@ import ast
 import dataclasses
 import typing
 
-import pytest
-
 from geocomp.core import models
 from geocomp.core.models.position import Position
 from geocomp.core.uncertainty import Covariance, Quantity
@@ -307,6 +305,21 @@ TECHNIQUE_PLAIN_RETURNS = {
 }
 
 
+#: Every check below is written against modules it discovers by walking
+#: ``core/techniques`` and ``core/instruments``. Until this pre-P7 review the
+#: five call sites answered an empty walk with ``pytest.skip`` -- correct in P1,
+#: when those packages did not exist, and a silent hole from P3 onwards: a
+#: renamed package or a broken glob would have retired the whole file into a
+#: green skip rather than failing. The packages have been there since P3, so
+#: an empty walk now means the discovery is broken, and that is a failure.
+_EMPTY_DISCOVERY = (
+    "the walk over core/techniques and core/instruments found nothing. Those "
+    "packages have existed since P3, so this means the discovery in this file "
+    "is broken, not that there is nothing to check -- fix it rather than "
+    "letting these checks pass vacuously."
+)
+
+
 def _uncertainty_bearing_dataclasses():
     """Dataclasses in the technique and instrument packages, by name.
 
@@ -343,14 +356,12 @@ class TestTechniqueDeclaredTypes:
 
     def test_there_are_dataclasses_to_check(self):
         found = _uncertainty_bearing_dataclasses()
-        if not found:
-            pytest.skip("no technique or instrument modules yet")
+        assert found, _EMPTY_DISCOVERY
         assert len(found) >= 5
 
     def test_every_plain_float_field_is_justified(self):
         found = _uncertainty_bearing_dataclasses()
-        if not found:
-            pytest.skip("no technique or instrument modules yet")
+        assert found, _EMPTY_DISCOVERY
 
         undeclared: list[str] = []
         for class_name, model_class in sorted(found.items()):
@@ -373,8 +384,7 @@ class TestTechniqueDeclaredTypes:
 
     def test_the_technique_justification_list_has_no_stale_entries(self):
         found = _uncertainty_bearing_dataclasses()
-        if not found:
-            pytest.skip("no technique or instrument modules yet")
+        assert found, _EMPTY_DISCOVERY
         existing = {
             (class_name, field.name)
             for class_name, model_class in found.items()
@@ -437,8 +447,7 @@ class TestTechniqueModuleReturns:
         import importlib
 
         sources = self._technique_sources()
-        if not sources:
-            pytest.skip("no technique modules yet; they arrive in phase P3")
+        assert sources, _EMPTY_DISCOVERY
 
         bearing = _uncertainty_bearing_dataclasses()
         offenders: list[str] = []
@@ -473,8 +482,7 @@ class TestTechniqueModuleReturns:
 
     def test_the_plain_return_list_has_no_stale_entries(self):
         sources = self._technique_sources()
-        if not sources:
-            pytest.skip("no technique modules yet")
+        assert sources, _EMPTY_DISCOVERY
         names = set()
         for root in ("techniques", "instruments"):
             directory = PLUGIN_DIR / "core" / root

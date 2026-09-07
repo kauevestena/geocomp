@@ -79,7 +79,10 @@ Jacobians, the approximate strategies, and the `RIGOROUS`/`APPROXIMATE` labellin
 FR-204, FR-205, FR-206, FR-207, FR-208, NFR-002, NFR-007
 
 **Exit.** Reproduces the worked propagation examples of RD-02 to published precision. Every analytic Jacobian
-agrees with complex-step differentiation to ≤ 1e-9 relative. No public core function can return a geodetic
+agrees with a numerical derivative — complex-step to ≤ 1e-9 relative, or central differences to ≤ 1e-7 where
+the function takes no complex argument
+([`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) §2.2; the split was recorded in the
+pre-P7 review, which found this criterion stated in a form the observation equations could not meet). No public core function can return a geodetic
 value without an uncertainty — asserted by a test. Combining two quantities from one `Covariance` through the
 scalar path raises. All of it runs with no QGIS and no engines.
 

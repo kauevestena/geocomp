@@ -10,11 +10,20 @@ Dispatch is through the observation type registry in
 entry and one function here -- not editing the design-matrix builder
 (``specs/03-architecture.md`` section 4).
 
-**Every Jacobian in this module has a test against complex-step
-differentiation** (``tests/test_equations.py``). That is not routine diligence:
-a sign error in a Jacobian raises nothing, produces no obviously silly number,
-and yields a coordinate that is wrong by an amount nobody can see. The
-machinery in :mod:`geocomp.core.differentiation` exists for exactly this check.
+**Every Jacobian in this module has a test against a numerical derivative**
+(``tests/test_adjustment.py``, ``TestJacobians``). That is not routine
+diligence: a sign error in a Jacobian raises nothing, produces no obviously
+silly number, and yields a coordinate that is wrong by an amount nobody can
+see. The machinery in :mod:`geocomp.core.differentiation` exists for exactly
+this check.
+
+The check is a **central difference**, not the complex step ``specs/05``
+section 2.2 prefers, because the functions below are written over ``math.atan2``,
+``math.sqrt`` and ``math.hypot`` and take no complex argument -- the fallback
+case that section names. ``TestJacobians`` asserts that too, so a rewrite that
+made them complex-safe would be told to tighten the tolerance rather than leave
+1e-7 in place. (An earlier version of this paragraph claimed the complex step
+and cited a ``test_equations`` module that has never existed.)
 
 Angles follow the survey convention: azimuth is measured **from north, clockwise**,
 so ``azimuth = atan2(dE, dN)``; zenith angles are measured from the local

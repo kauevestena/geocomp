@@ -62,6 +62,23 @@ Three ways to obtain **A**, in order of preference:
 value.** A sign error in a Jacobian produces a plausible-looking, wrong uncertainty — the failure mode this
 whole document exists to prevent.
 
+**Which of the two verifies which, in practice** — corrected by the pre-P7 review, which found this section
+read as though the complex step verified everything:
+
+| Verified | By | Why, and to what |
+|---|---|---|
+| The propagation Jacobians (`core/uncertainty.py`, the total-station reductions) | Complex step | The functions are written over NumPy and take a complex argument. 1e-9 relative, per §7 criterion 1 |
+| The observation equations (`core/adjustment/equations.py`) | Central differences | They are written over `math.atan2`, `math.sqrt` and `math.hypot`, which take no complex argument — case 3 above. **1e-7 relative**, which is what a second-order difference can offer |
+
+`tests/test_adjustment.py::TestJacobians` asserts the non-complex-safety itself, so a rewrite over `cmath`
+fails that test and is told to tighten its tolerance rather than leaving 1e-7 in place unexamined.
+
+**`Strategy.NUMERIC_DERIVATIVE` is declared and unused, and that is the intended state.** Every Jacobian
+that reaches a result today is analytic; `core/differentiation.py` is a *verification* instrument, not a
+production path, so nothing has yet had cause to flag a derivative as approximate. `numeric_jacobian`
+returns the method it used precisely so that the first production caller can set the strategy — the
+mechanism exists and is tested (`tests/test_differentiation.py`); no caller needs it yet.
+
 ### 2.3 The approximate path (FR-202)
 
 The proposal explicitly requires approximate or heuristic estimation "úteis em situações onde não se dispõe
@@ -244,7 +261,10 @@ the implementer is not a limit, it is a trap.
 
 Implementation of this specification is complete when:
 
-1. Every analytic Jacobian has a test agreeing with complex-step differentiation to ≤ 1e-9 relative.
+1. Every analytic Jacobian has a test agreeing with a numerical derivative: complex-step to ≤ 1e-9 relative
+   where the function is complex-safe, central differences to ≤ 1e-7 relative where it is not (§2.2). The
+   split is the honest form of this criterion; stated as "complex-step" alone it was unmeetable for the
+   observation equations and nobody noticed, because no test enforced the criterion's own wording.
 2. Rigorous propagation reproduces the worked examples in the reference textbooks (Ghilani; Gemael) to the
    precision printed there — see [`20-testing-and-validation.md`](./20-testing-and-validation.md).
 3. A round trip through a full pre-processing chain preserves the covariance that a single combined

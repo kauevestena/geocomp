@@ -25,7 +25,7 @@ from geocomp.core.errors import ValidationError
 from geocomp.core.models import DatumDefinition, Network, Observation, ObservationType, Station
 from geocomp.core.preanalysis import inspect, simulate
 from geocomp.core.preanalysis.inspection import Severity
-from geocomp.core.statistics import USING_SCIPY
+from geocomp.core.statistics import USING_SCIPY, distributions
 from geocomp.core.statistics.distributions import (
     chi2_cdf,
     chi2_quantile,
@@ -54,16 +54,39 @@ def constrained(frame: Frame) -> AdjustmentOptions:
     return AdjustmentOptions(frame=frame, datum=DatumDefinition.CONSTRAINED)
 
 
+@pytest.fixture(params=["as_installed", "numpy_only"])
+def both_paths(request, monkeypatch):
+    """Runs the test that asks for it down both implementations.
+
+    ADR-0008 makes SciPy a *speed* path, not a different answer. Holding that
+    claim requires the same assertions to run down both, and until this fixture
+    existed they did not: every function in ``distributions`` dispatches to
+    SciPy when SciPy is importable, so wherever SciPy was installed the table
+    values below tested SciPy and the fallback was exercised only by CI's
+    ``degraded`` job. The class docstring here used to assert the opposite --
+    that the fallback "is what runs here" -- which stopped being true the day
+    SciPy appeared in the environment.
+
+    Where SciPy is absent the two parameters run identical code. That duplicate
+    is the price of a guard that cannot quietly stop testing anything.
+    """
+    if request.param == "numpy_only":
+        monkeypatch.setattr(distributions, "_scipy_stats", None)
+    return request.param
+
+
 class TestDistributions:
-    """Against published table values. The NumPy-only fallback is what runs
-    here, since this container has no SciPy -- so these also prove the fallback
-    is real rather than assumed (ADR-0008)."""
+    """Against published table values, down both paths (ADR-0008).
+
+    Every test here takes ``both_paths``, so each published value is reproduced
+    by SciPy and by the NumPy-only implementation independently.
+    """
 
     @pytest.mark.parametrize(
         ("probability", "expected"),
         [(0.975, 1.959964), (0.995, 2.575829), (0.9995, 3.290527), (0.80, 0.841621)],
     )
-    def test_normal_quantiles(self, probability, expected):
+    def test_normal_quantiles(self, both_paths, probability, expected):
         assert normal_quantile(probability) == pytest.approx(expected, abs=1e-6)
 
     @pytest.mark.parametrize(
@@ -74,50 +97,79 @@ class TestDistributions:
             (0.975, 20, 34.1696),
         ],
     )
-    def test_chi_square_quantiles(self, probability, dof, expected):
+    def test_chi_square_quantiles(self, both_paths, probability, dof, expected):
         assert chi2_quantile(probability, dof) == pytest.approx(expected, abs=1e-4)
 
     @pytest.mark.parametrize(
         ("probability", "df1", "df2", "expected"),
         [(0.95, 2, 10, 4.1028), (0.95, 3, 20, 3.0984), (0.95, 1, 1, 161.4476), (0.99, 5, 15, 4.5556)],
     )
-    def test_f_quantiles(self, probability, df1, df2, expected):
+    def test_f_quantiles(self, both_paths, probability, df1, df2, expected):
         assert f_quantile(probability, df1, df2) == pytest.approx(expected, abs=1e-3)
 
     @pytest.mark.parametrize(
         ("probability", "dof", "expected"),
         [(0.975, 10, 2.2281), (0.975, 30, 2.0423), (0.995, 5, 4.0321), (0.975, 1, 12.7062)],
     )
-    def test_student_t_quantiles(self, probability, dof, expected):
+    def test_student_t_quantiles(self, both_paths, probability, dof, expected):
         assert t_quantile(probability, dof) == pytest.approx(expected, abs=1e-4)
 
-    def test_the_classic_geodetic_non_centrality(self):
+    def test_the_classic_geodetic_non_centrality(self, both_paths):
         """delta_0 = 4.13 at alpha = 0.001, beta = 0.20 (specs/06 section 4.3)."""
         assert non_centrality(0.001, 0.20) == pytest.approx(4.13, abs=0.005)
 
-    def test_quantiles_and_cdfs_are_inverse(self):
+    def test_quantiles_and_cdfs_are_inverse(self, both_paths):
         for probability in (0.01, 0.25, 0.5, 0.9, 0.999):
             assert normal_cdf(normal_quantile(probability)) == pytest.approx(probability, abs=1e-9)
             assert chi2_cdf(chi2_quantile(probability, 7), 7) == pytest.approx(probability, abs=1e-9)
 
-    def test_invalid_probabilities_are_refused(self):
+    def test_invalid_probabilities_are_refused(self, both_paths):
         for bad in (0.0, 1.0, -0.5, 1.5):
             with pytest.raises(ValidationError):
                 normal_quantile(bad)
 
-    def test_zero_degrees_of_freedom_is_refused(self):
+    def test_zero_degrees_of_freedom_is_refused(self, both_paths):
         with pytest.raises(ValidationError) as caught:
             chi2_quantile(0.95, 0)
         assert "no test to apply" in caught.value.context["expected"]
 
     @pytest.mark.skipif(not USING_SCIPY, reason="SciPy not installed in this environment")
-    def test_the_two_paths_agree_where_scipy_exists(self):  # pragma: no cover
-        """ADR-0008: SciPy is a speed path, not a different answer."""
+    def test_the_two_paths_agree_at_the_values_the_project_uses(self, monkeypatch):
+        """ADR-0008: SciPy is a speed path, not a different answer.
+
+        The predecessor of this test asked SciPy whether it agreed with itself.
+        It was guarded by ``skipif(not USING_SCIPY)``, and every function in
+        ``distributions`` dispatches *to SciPy* when SciPy is present -- so with
+        SciPy it compared ``norm.ppf`` against ``norm.ppf``, and without SciPy
+        it was skipped. It could not fail in either environment, and ADR-0008's
+        claim went unguarded from P2 until this review.
+
+        This one takes each value twice, once with the dispatch forced off, and
+        compares. The worst disagreement over the grid below is **2.2e-9
+        relative** -- ``t_quantile(0.99, 2)``, 6.96455673 against SciPy's
+        6.96455672 -- which is four orders of magnitude inside the 1e-5 the
+        critical values are quoted to and utterly negligible against the
+        1e-9-relative tolerance ``specs/20`` section 5 sets for a Jacobian.
+        The bound here is 1e-8 relative, so a genuine divergence fails while
+        the last-digit noise of two different rational approximations does not.
+        """
         from scipy import stats
 
-        for probability in (0.025, 0.5, 0.975):
-            assert normal_quantile(probability) == pytest.approx(
-                float(stats.norm.ppf(probability)), rel=1e-10
+        cases: list[tuple[str, tuple, float]] = []
+        for probability in (0.025, 0.5, 0.975, 0.995, 0.9995):
+            cases.append(("normal_quantile", (probability,), stats.norm.ppf(probability)))
+        for dof in (1, 2, 3, 5, 10, 30, 100):
+            for probability in (0.95, 0.975, 0.99):
+                cases.append(
+                    ("chi2_quantile", (probability, dof), stats.chi2.ppf(probability, dof))
+                )
+                cases.append(("t_quantile", (probability, dof), stats.t.ppf(probability, dof)))
+
+        monkeypatch.setattr(distributions, "_scipy_stats", None)
+        for name, arguments, with_scipy in cases:
+            without = getattr(distributions, name)(*arguments)
+            assert without == pytest.approx(float(with_scipy), rel=1e-8, abs=1e-9), (
+                f"{name}{arguments}: fallback {without!r} vs SciPy {float(with_scipy)!r}"
             )
 
 

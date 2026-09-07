@@ -32,6 +32,7 @@ from geocomp.core.adjustment.least_squares import (
     to_solution,
 )
 from geocomp.core.adjustment.normal_equations import assemble, diagnose_rank, solve
+from geocomp.core.differentiation import central_difference_jacobian, is_complex_safe
 from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.core.models import (
     Cluster,
@@ -162,6 +163,14 @@ class TestJacobians:
     A sign error here raises nothing and produces a coordinate that is wrong by
     an amount nobody can see, so each equation is differentiated numerically and
     compared.
+
+    **Central differences, not the complex step**, and the reason is the second
+    test below rather than convenience: the equations are written with
+    ``math.atan2``, ``math.sqrt`` and ``math.hypot``, which take no complex
+    argument. That is exactly the case ``specs/05`` section 2.2 names as the
+    fallback's, and until this review it was met by a copy of the algorithm
+    inlined here while :mod:`geocomp.core.differentiation` -- the module written
+    for it in P1 -- sat unused. The copy is gone; the module is called.
     """
 
     @staticmethod
@@ -171,14 +180,32 @@ class TestJacobians:
                 [row.computed for row in evaluate(observation, layout, np.asarray(v, float))]
             )
 
-        columns = []
-        for index in range(layout.size):
-            step = 1e-6 * max(abs(float(x[index])), 1.0)
-            forward, backward = x.copy(), x.copy()
-            forward[index] += step
-            backward[index] -= step
-            columns.append((values(forward) - values(backward)) / (2 * step))
-        return np.column_stack(columns)
+        return central_difference_jacobian(values, x)
+
+    def test_the_equations_are_not_complex_safe(self):
+        """Which is why the check above is a difference and not the complex step.
+
+        Stated as a test rather than a comment: if the equations were ever
+        rewritten over ``cmath`` or plain NumPy, this fails and says so, and the
+        checks above should then be tightened from 1e-7 to machine precision.
+        """
+        network = Network(id="c")
+        for station_id in ("1", "2"):
+            network.add_station(Station(id=station_id))
+        layout = ParameterLayout.build(network, Frame.PLANE_2D)
+        observation = Observation(
+            id="o",
+            type=ObservationType.HORIZONTAL_DISTANCE,
+            stations=("1", "2"),
+            values=(Quantity.from_std_dev(10.0, 0.001, METRE),),
+        )
+
+        def values(v):
+            return np.array(
+                [row.computed for row in evaluate(observation, layout, np.asarray(v, float))]
+            )
+
+        assert not is_complex_safe(values, [0.0, 0.0, 6.0, 8.0])
 
     @pytest.mark.parametrize(
         ("observation_type", "stations", "values", "units", "frame", "ids", "x", "extra"),
