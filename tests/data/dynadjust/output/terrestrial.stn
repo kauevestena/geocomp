@@ -1,0 +1,11 @@
+!#=DNA 3.01 STN    07.09.2026       GDA2020    01.01.2020         4
+* Created by:   dnaimport, File import and format exchange software. 
+* Version:      1.4.0, Release with OpenBLAS. 
+* Build:        Aug 28 2026, 21:23:45 - GNU GCC 13.3.0
+* File type:    Station file
+* Project name: terrestrial
+* Source files: terrestrial-stn.xml 
+OCC                 CCC LLH      -37.4748000000      144.5736000000            120.0000    occupied mark
+RO                  CCC LLH      -37.4721000000      144.5738000000            132.0000    reference object
+TGT1                FFF LLH      -37.4749000000      144.5812000000            118.0000    first target
+TGT2                FFF LLH      -37.4752000000      144.5759000000            105.0000    second target

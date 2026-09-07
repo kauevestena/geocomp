@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DnaXmlFormat type="Station File" referenceframe="GDA2020" epoch="01.01.2020"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DnaStation>
+    <Name>OCC</Name>
+    <Constraints>CCC</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>OCC</Name>
+      <XAxis>-37.474800000</XAxis><YAxis>144.573600000</YAxis><Height>120.0000</Height></StationCoord>
+    <Description>occupied mark</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>RO</Name>
+    <Constraints>CCC</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>RO</Name>
+      <XAxis>-37.472100000</XAxis><YAxis>144.573800000</YAxis><Height>132.0000</Height></StationCoord>
+    <Description>reference object</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>TGT1</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>TGT1</Name>
+      <XAxis>-37.474900000</XAxis><YAxis>144.581200000</YAxis><Height>118.0000</Height></StationCoord>
+    <Description>first target</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>TGT2</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord><Name>TGT2</Name>
+      <XAxis>-37.475200000</XAxis><YAxis>144.575900000</YAxis><Height>105.0000</Height></StationCoord>
+    <Description>second target</Description>
+  </DnaStation>
+</DnaXmlFormat>
