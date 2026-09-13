@@ -1,0 +1,18 @@
+     3.04           OBSERVATION DATA    M (MIXED)           RINEX VERSION / TYPE
+GeoComp transcript  GeoComp             20260913 000000 UTC PGM / RUN BY / DATE
+TRANSCRIBED FIXTURE -- see PROVENANCE.md                    COMMENT
+PORTO ALEGRE 1                                              MARKER NAME
+91234M001                                                   MARKER NUMBER
+GEODETIC                                                    MARKER TYPE
+K VESTENA           UFPR                                    OBSERVER / AGENCY
+3047521             SEPT POLARX5        5.3.2               REC # / TYPE / VERS
+1440118802          TRM59800.00     SCIS                    ANT # / TYPE
+  3826851.2345 -4652051.3456 -3672625.4567                  APPROX POSITION XYZ
+        1.5230        0.0120       -0.0080                  ANTENNA: DELTA H/E/N
+G   16 C1C L1C D1C S1C C2W L2W D2W S2W C2L L2L D2L S2L C5Q  SYS / # / OBS TYPES
+       L5Q D5Q S5Q                                          SYS / # / OBS TYPES
+R    8 C1C L1C D1C S1C C2P L2P D2P S2P                      SYS / # / OBS TYPES
+    30.000                                                  INTERVAL
+  2026     9    13     0     0    0.0000000     GPS         TIME OF FIRST OBS
+  2026     9    13    23    59   30.0000000     GPS         TIME OF LAST OBS
+                                                            END OF HEADER
