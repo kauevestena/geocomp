@@ -53,7 +53,7 @@ env:
   DYNADJUST_COMMIT: 5cdb89715c2e51f7036e4dd8ae67dac3a20fc7a8
   DYNADJUST_PKGS: libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
   # RTKLIB-EX. The .pos fixtures in tests/data/rtklib/pos were produced by this
-  # build, and specs/08 section 4.1 -- the column table, including the header
+  # build, and specs/08 section 7.1 -- the column table, including the header
   # upstream labels wrongly -- was established against this source. Changing it
   # means re-running scripts/check_rtklib_fixtures.py --write and reading the
   # diff, not just bumping the sha.

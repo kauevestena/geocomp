@@ -11,7 +11,7 @@ fixture written by the old one.
 This is the guard, and it matters more here than for DynAdjust. The `.pos`
 column layout is not documented anywhere GeoComp can cite: it was established by
 reading ``src/solution.c`` and running the engine four ways, and one of the
-headers is **wrong upstream** (``specs/08`` section 4.1). A parser built on that
+headers is **wrong upstream** (``specs/08`` section 7.1). A parser built on that
 reading has to be told the day the reading stops being true.
 
 Usage::

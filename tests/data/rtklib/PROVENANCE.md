@@ -76,4 +76,5 @@ same solution again, and proves that ignoring a wrong column label is correct:
 > the pinned commit, and by running the engine both ways and comparing the
 > printed values, which are identical.
 
-`specs/08-engine-rtklib.md` §4.1 records the column table this establishes.
+`specs/08-engine-rtklib.md` §7.1 records the column table this establishes, §7.2 the
+signed-square-root encoding, and §7.3 the mislabelled header.

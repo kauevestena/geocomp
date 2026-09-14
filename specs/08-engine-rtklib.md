@@ -10,6 +10,13 @@ RTKLIB manual (2.4.x) · `manual_demo5.pdf` for the fork.
 
 > **Verification note.** Statements marked **[V]** were verified upstream during specification; **[C]** must
 > be confirmed against the RTKLIB manual when the module is implemented (roadmap P7).
+>
+> **Discharged in P7.** The one **[C]** in this document — §7's column set — has been confirmed, and against
+> something better than the manual: `src/solution.c` at commit `06e8644` (`rnx2rtkp ver.EX 2.5.1`), the code
+> that writes the file, cross-checked by running the engine in every output format and comparing what came
+> out. It is now **[V]**, with the table in §7. Two things that confirmation found are recorded there and in
+> §2 because neither is in any manual: the cross-covariance columns are *signed square roots*, and one of the
+> column headers is **wrong upstream**.
 
 ---
 
@@ -64,7 +71,46 @@ Mapping to the GNSS menu (FR-600, FR-601):
 
 **GeoComp invokes with `-k <config>` as the primary mechanism** (FR-354), because a configuration file is
 reproducible, storable in provenance, attachable to a bug report, and editable by the user in Advanced mode.
-Command-line flags are used only where they have no configuration-file equivalent.
+Command-line flags are used only where they have no configuration-file equivalent — in practice the inputs,
+the output path and the time window.
+
+### 2.1 A configuration file is not the same run as the equivalent flags [V]
+
+**`rnx2rtkp -k <config>` and `rnx2rtkp -p 3` are not equivalent, and the difference is silent.** Loading a
+configuration file rebuilds the whole processing option set from the option table, whose default base-station
+position is `ant2-postype = llh` with `ant2-pos1/2/3 = 0` — latitude 0, longitude 0, height 0. The
+command-line path instead leaves the base position to be taken from the base receiver's RINEX header.
+
+So a generated configuration that does not state `ant2-postype` puts the base station in the Gulf of Guinea.
+Measured on the sample pair in `tests/data/rtklib/`: with `ant2-postype = rinexhead`, 120 epochs and 117 of
+them ambiguity-fixed; without it, **no solution at all**.
+
+Two things make this worth a section rather than a code comment:
+
+- The whole reason §2 prefers `-k` is that it is *reproducible*. Omitting this option would have made it
+  reproducibly **wrong**, which is worse than a flag nobody recorded.
+- It failed loudly here only because the default is 9 000 km away. A base station wrong by ten metres — an
+  outdated published coordinate, a transcription slip — produces a solution that succeeds, looks ordinary,
+  and is wrong by ten metres.
+
+**Therefore: every configuration GeoComp writes states the base-station position type explicitly**, and
+explicit base coordinates given with a position type that would ignore them are refused rather than accepted
+and dropped.
+
+### 2.2 `convbin` is broken at this commit [V]
+
+Not a GeoComp deliverable, recorded so the next reader does not spend the afternoon on it. Converting
+RINEX 2 to RINEX 3 — the obvious way to produce a RINEX 3 test file — aborts:
+
+```console
+$ convbin -r rinex -v 3.04 -o base.rnx 07590920.05o
+scanning: 2005/04/02 00:59:00 G
+*** buffer overflow detected ***: terminated
+```
+
+Reproducible with those flags alone, on RTKLIB's own sample data. GeoComp's RINEX 3 header support is
+therefore tested against a fixture transcribed from the published format definition, and
+`tests/data/rtklib/PROVENANCE.md` says so rather than letting a transcript pass for a tool's output.
 
 ---
 
@@ -171,9 +217,53 @@ plugin, and it is how a researcher answers "does this setting matter for my data
 
 The `.pos` solution file carries, per epoch: time, position (in the configured representation — ECEF,
 geodetic, or ENU baseline), the quality flag Q, satellite count, the standard deviations of the position
-components, the corresponding correlation/covariance terms, age of differential, and the ambiguity ratio
-factor. The exact column set depends on the selected output format **[C]** and MUST be confirmed against the
-RTKLIB manual; the parser MUST read the file's own header rather than assuming a column order.
+components, the corresponding covariance terms, age of differential, and the ambiguity ratio factor.
+
+### 7.1 The column set, confirmed [V]
+
+Established from `src/solution.c` at commit `06e8644` — `outecef`, `outpos`, `outenu` and `outsolheads` —
+and confirmed by running the engine in each format over one dataset and comparing the output.
+`tests/data/rtklib/pos/` holds one fixture per row below, and `scripts/check_rtklib_fixtures.py` re-derives
+them from a live engine so this table cannot quietly go stale.
+
+Every format is **fourteen columns** of the same shape — two of time, three of position, Q, satellite count,
+three standard deviations, three cross terms, age, ratio — with two exceptions: `-g` splits the latitude and
+longitude into degrees, minutes and seconds (seven position columns), and the velocity option appends nine.
+
+| Format | Flag | Position | Deviations | Cross terms, **as written** | Header labels |
+|---|---|---|---|---|---|
+| Geodetic | default | lat, lon, h | n, e, u | N–E, E–U, N–U | `sdne sdeu sdun` ✔ |
+| Geodetic, sexagesimal | `-g` | lat, lon as d/m/s | n, e, u | N–E, E–U, N–U | `sdne sdeu` **`sdue`** ✘ |
+| ECEF | `-e` | x, y, z | x, y, z | X–Y, Y–Z, Z–X | `sdxy sdyz sdzx` ✔ |
+| ENU baseline | `-a` | e, n, u | e, n, u | E–N, N–U, E–U | `sden sdnu sdue` ✔ |
+
+**The deviation triple and the cross triple do not run in the same order as each other in any format**, and
+the cross triple's order differs between formats. The pairing is positional, not nominal.
+
+### 7.2 The cross columns are signed square roots [V]
+
+`sqvar(covar)` is `covar < 0 ? -sqrt(-covar) : sqrt(covar)` (`solution.c:132`). A printed `-0.6097` is
+therefore neither a covariance nor a correlation: **the covariance is `-0.6097²`, with the sign restored**.
+
+This is the whole of FR-206 for this engine, and nothing in the file says it. Getting it wrong has two
+distinct failure modes, both silent:
+
+- **Squaring without restoring the sign** turns every negative covariance positive. The north–up and east–up
+  terms are routinely negative in a levelled solution, so the resulting error ellipse leans the wrong way.
+- **Using the printed value as a covariance** is wrong by a square — at these magnitudes, by three orders.
+
+### 7.3 Reading the header is necessary and not sufficient [V]
+
+The parser MUST read the file's own header rather than assuming a column order — and MUST NOT trust the
+labels it finds there, because **one of them is wrong upstream**. With `-g`, RTKLIB labels the third cross
+column `sdue` while writing the same `sqvar(Q[5])` — the **N–U** covariance — that the default format
+correctly calls `sdun`. And `sdue` genuinely denotes E–U in the ENU format. The same label therefore means
+two different things across formats, and in one of them it is wrong.
+
+So: **the header decides the format, the format decides each column's meaning**, and the labels are compared
+against what the format says they should be and *reported* rather than obeyed. `llh.pos` and `llh-dms.pos`
+in the fixtures are the same solution written both ways, and their parsed covariances are identical to the
+bit — which is the evidence that ignoring the wrong label is right.
 
 **Covariance is preserved, not reduced** (FR-206). The per-epoch standard deviations *and* their
 cross-component terms are read and assembled into a `Covariance`

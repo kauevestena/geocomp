@@ -395,6 +395,64 @@ is correctly identified. Antenna height reduction applied twice is prevented. A 
 completes and reports it. No credential appears in any log, config, provenance record or export. PPP modes
 show the FR-604 notice.
 
+### P7a — the foundation: RINEX in, a real baseline out
+
+**Delivered.** The phase was split after its first slice, at the maintainer's decision: P7 closes seventeen
+requirements, roughly twice P6, and stopping at a working engine lets the rest be planned against something
+that runs rather than against a specification.
+
+| Delivered | Where |
+|---|---|
+| RINEX 2 and 3 header scanning (FR-164) | `io/rinex.py` |
+| Session discovery and simultaneity grouping (FR-350, FR-351) | `io/gnss_discovery.py` |
+| The configuration writer, runner, version detection and graceful absence (FR-354, FR-355, FR-302, FR-304, FR-306, FR-036) | `engines/rtklib/` |
+| `.pos` parsing with the covariance whole (FR-356, FR-206) | `engines/rtklib/read_pos.py` |
+
+**Every `[C]` in [`08-engine-rtklib.md`](./08-engine-rtklib.md) is discharged**, against the source that
+writes the file rather than against the manual — and the confirmation turned up two things no manual states:
+the cross-covariance columns are *signed square roots*, and one column header is **wrong upstream** (§7.1–7.3).
+A third came from running the engine: `-k <config>` and the equivalent flags are **not the same run**, because
+loading a configuration file silently relocates the base station to latitude 0, longitude 0 (§2.1).
+
+**Exit status of this slice**
+
+| Criterion | State |
+|---|---|
+| RINEX 2 and 3 headers read, mismatches reported | **met** |
+| Sessions discovered and grouped by simultaneity | **met** |
+| A configuration fed back through `-k` reproduces the run | **met** |
+| `.pos` parsed in every output format, covariance intact | **met** — five fixtures, one per format, re-derived from a live engine by `scripts/check_rtklib_fixtures.py` |
+| With RTKLIB absent, everything else still works | **met** — the suite passes with no engine and the adapter reports what is missing |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met** — see below |
+
+**RD-06 is blocked, and not by a note this time.** All four candidate archives — `geoftp.ibge.gov.br`,
+`cddis.nasa.gov`, `igs.bkg.bund.de`, `files.igs.org` — are denied by the egress policy of the development
+environment ([`22-reference-data-sources.md`](./22-reference-data-sources.md) §5). The chain is validated
+end to end on RTKLIB's own sample pair, which resolves its ambiguities and yields a full covariance; that
+demonstrates the **pipeline**, not the **accuracy**, and the criterion stays open rather than being
+reinterpreted into one the available data can satisfy.
+
+**Deferred out of this slice: products and credentials.** FR-352 (automatic product download), FR-353
+(credentials through the QGIS authentication system), NFR-010 and the GNSS half of FR-063 are **not** in P7a,
+at the maintainer's decision and for the same reason RD-06 is blocked: the archives they would download from
+are unreachable from this environment, so the code could be written but not exercised, and an untested
+download path is a claim rather than a feature. There are no credentials to leak until there is something to
+authenticate to.
+
+They remain **P7's** — they are P7b's, not another phase's — and that is deliberate: the blocker is an egress
+policy, not a technical obstacle, and it could be lifted before P7b runs. **If it has not been, P7b moves
+them again and records the move**, the way FR-161 was moved out of P5, P6 and P7 rather than implemented from
+a guess. The pipeline works against products supplied on disk in the meantime, which is what
+`RtklibJob.products` is for.
+
+### P7b — the rest of the phase
+
+Still to do, and named so this slice's green tick does not imply them: baseline construction and the
+independent subset (FR-602, FR-104), antenna height reduction applied once (FR-602), quality reporting
+(FR-603), comparative configurations (FR-359), the GNSS menu and its algorithms (FR-600, FR-601, FR-604),
+result layers (FR-357), the reference station database (FR-105, FR-832), and batch execution proper (FR-355's
+second half).
+
 ---
 
 ## P8 — Gravimetry
