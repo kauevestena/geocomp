@@ -23,12 +23,20 @@ on:
   push:
     paths:
       - "geocomp/engines/**"
+      - "geocomp/io/rinex.py"
+      - "geocomp/io/gnss_discovery.py"
       - "tests/data/dynadjust/**"
+      - "tests/data/rtklib/**"
       - "tests/test_dynadjust_*.py"
       - "tests/test_dyna*.py"
       - "tests/test_dna_reader.py"
       - "tests/test_engines.py"
+      - "tests/test_rtklib_*.py"
+      - "tests/test_pos_reader.py"
+      - "tests/test_rinex.py"
+      - "tests/test_gnss_discovery.py"
       - "scripts/check_dynadjust_fixtures.py"
+      - "scripts/check_rtklib_fixtures.py"
       - ".github/workflows/engine.yml"
   workflow_dispatch:
 
@@ -44,6 +52,12 @@ env:
   # just bumping the sha.
   DYNADJUST_COMMIT: 5cdb89715c2e51f7036e4dd8ae67dac3a20fc7a8
   DYNADJUST_PKGS: libxerces-c-dev xsdcxx libboost-program-options-dev libopenblas-dev liblapacke-dev
+  # RTKLIB-EX. The .pos fixtures in tests/data/rtklib/pos were produced by this
+  # build, and specs/08 section 4.1 -- the column table, including the header
+  # upstream labels wrongly -- was established against this source. Changing it
+  # means re-running scripts/check_rtklib_fixtures.py --write and reading the
+  # diff, not just bumping the sha.
+  RTKLIB_COMMIT: 06e8644287ff07efc4c53bbf3e7f9dafb0355605
 
 jobs:
   fixtures:
@@ -119,3 +133,71 @@ jobs:
       # contributor's machine is a claim, not a check.
       - name: The pipeline, against the real engine
         run: pytest -q tests/test_dynadjust_pipeline.py
+
+  # The same shape as the job above, for the second engine. rnx2rtkp has no
+  # pinnable Linux binary to install: upstream publishes Windows executables
+  # only (readme.txt), so building from a pinned commit is the option that *is*
+  # pinnable, exactly as ADR-0003's reasoning runs for DynAdjust.
+  rtklib:
+    name: fixtures match a real rnx2rtkp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tooling
+        run: python -m pip install --upgrade pip pytest numpy
+
+      - name: Cache the built engine
+        id: rtklib-cache
+        uses: actions/cache@v4
+        with:
+          path: rtklib-bin
+          key: rtklib-${{ runner.os }}-${{ env.RTKLIB_COMMIT }}
+
+      # Unconditional, like the DynAdjust job's, and for the same reason: the
+      # cache holds the binary, not what it links against. rnx2rtkp links
+      # -lgfortran, which is not in the runner image, and a cache hit that
+      # skipped this step would leave every run after the first one failing on
+      # a missing shared library.
+      - name: Install the engine's runtime library
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gfortran
+
+      - name: Build rnx2rtkp from the pinned commit
+        if: steps.rtklib-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --filter=blob:none https://github.com/rtklibexplorer/RTKLIB.git rtklib-src
+          git -C rtklib-src checkout --detach "$RTKLIB_COMMIT"
+          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)"
+          mkdir -p rtklib-bin
+          cp rtklib-src/app/consapp/rnx2rtkp/gcc/rnx2rtkp rtklib-bin/
+
+      - name: Report what is under test
+        run: |
+          echo "$PWD/rtklib-bin" >> "$GITHUB_PATH"
+          export PATH="$PWD/rtklib-bin:$PATH"
+          rnx2rtkp --version
+
+      # The check this job exists for. The .pos column layout is not documented
+      # anywhere GeoComp can cite -- it was read out of src/solution.c and
+      # confirmed by running the engine four ways -- so a parser built on that
+      # reading has to be told the day the reading stops being true.
+      - name: Fixtures must match what the engine produces
+        run: python3 scripts/check_rtklib_fixtures.py
+
+      # The parsers themselves, so a failure separates "the fixtures moved"
+      # from "the parsers broke".
+      - name: The RTKLIB adapter's own tests
+        run: pytest -q tests/test_rinex.py tests/test_gnss_discovery.py
+             tests/test_pos_reader.py tests/test_rtklib_engine.py
+
+      # And the tier-4 tests proper: what only a running engine shows, which is
+      # that the configuration GeoComp writes is one rnx2rtkp accepts and that
+      # the chain from a folder of RINEX to a fixed solution runs.
+      - name: The pipeline, against the real engine
+        run: pytest -q tests/test_rtklib_engine.py -k AgainstTheRealEngine

@@ -8,6 +8,23 @@ adapter with a distribution and version identifier attached (FR-302).
 
 from __future__ import annotations
 
+from geocomp.engines.rtklib.config import (
+    PROFILES,
+    PositioningMode,
+    RtklibConfig,
+    parse_config,
+    profile,
+    write_config,
+)
+from geocomp.engines.rtklib.engine import (
+    PROGRAM,
+    RtklibEngine,
+    RtklibJob,
+    RtklibResult,
+    command_line,
+    parse_version,
+    program_filenames,
+)
 from geocomp.engines.rtklib.read_pos import (
     PosEpoch,
     PosFormat,
@@ -17,9 +34,22 @@ from geocomp.engines.rtklib.read_pos import (
 )
 
 __all__ = [
+    "PROFILES",
+    "PROGRAM",
     "PosEpoch",
     "PosFormat",
     "PosSolution",
+    "PositioningMode",
+    "RtklibConfig",
+    "RtklibEngine",
+    "RtklibJob",
+    "RtklibResult",
     "SolutionStatus",
+    "command_line",
+    "parse_config",
+    "parse_version",
+    "profile",
+    "program_filenames",
     "read_pos",
+    "write_config",
 ]
