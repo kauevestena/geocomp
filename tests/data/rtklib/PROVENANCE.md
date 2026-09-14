@@ -40,3 +40,40 @@ this is recorded rather than worked around. The RINEX 3 header path in
 `geocomp/io/rinex.py` is therefore covered by a **transcribed** fixture built
 from the published RINEX 3.04 format definition — `rinex3-header.rnx` — and the
 tests say so rather than implying a tool wrote it.
+
+## `pos/` — solution files written by a real engine
+
+Four runs of the **same** relative-static solution over the RINEX pair above,
+one per output format, produced by `rnx2rtkp ver.EX 2.5.1` built from RTKLIB-EX
+commit `06e8644`:
+
+```sh
+rnx2rtkp -p 3 -m 15 [FLAGS] -o pos/NAME.pos 07590920.05o 30400920.05o nav.05n
+```
+
+| Fixture | Flags | What it is here to exercise |
+|---|---|---|
+| `llh.pos` | none | The default: latitude, longitude, height, with cross columns labelled `sdne sdeu sdun` |
+| `llh-dms.pos` | `-g` | The same solution with latitude and longitude split into degrees, minutes and seconds — **seven** position columns, a seven-number `% ref pos` line, and the mislabelled third cross column (below) |
+| `xyz.pos` | `-e` | ECEF, whose cross columns are `sdxy sdyz sdzx` — a different pairing order from either geodetic format |
+| `enu.pos` | `-a` | The ENU **baseline**, whose cross columns are `sden sdnu sdue` — a third pairing order |
+| `llh-calendar.pos` | `-t` | A calendar date and time where the default writes a GPS week and second-of-week. Both are two whitespace-separated fields, which is what lets one parser take either |
+
+Only the absolute paths on the `% inp file` lines were rewritten to relative
+ones, exactly as the DynAdjust fixtures were: they name the machine that
+produced them and nothing reads them. Every number is as the engine wrote it.
+
+**Why four.** `llh.pos` and `enu.pos` are one solution in two orderings, so
+their covariances must be one matrix under permutation — which is what makes the
+per-format column mapping evidence rather than assertion. `llh-dms.pos` is the
+same solution again, and proves that ignoring a wrong column label is correct:
+
+> With `-g`, RTKLIB labels the third cross column **`sdue`** while writing the
+> same `sqvar(Q[5])` — the **N–U** covariance — that the default format
+> correctly calls `sdun`. And `sdue` genuinely means E–U in the ENU format. So
+> the same label means two different things across formats, and in one of them
+> it is wrong. Confirmed twice: by reading `outsolheads` in `src/solution.c` at
+> the pinned commit, and by running the engine both ways and comparing the
+> printed values, which are identical.
+
+`specs/08-engine-rtklib.md` §4.1 records the column table this establishes.
