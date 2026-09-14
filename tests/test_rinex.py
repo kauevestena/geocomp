@@ -23,6 +23,8 @@ from geocomp.io.rinex import (
     Compression,
     HeightMethod,
     compression_of,
+    name_hints,
+    read_last_epoch,
     read_rinex_header,
 )
 
@@ -403,3 +405,114 @@ class TestMalformedFieldsAreSkippedNotGuessed:
         assert header.time_system == "GLO"
         assert header.first_observation is None
         assert header.span is None
+
+
+class TestNameHints:
+    """What the file name claims -- kept separate from what the header states.
+
+    ``specs/08`` §4 makes the header authoritative and the name a cross-check,
+    and the two can only be compared if they are read separately.
+    """
+
+    @pytest.mark.parametrize(
+        ("name", "station", "year", "day"),
+        [
+            ("07590920.05o", "0759", 2005, 92),
+            ("30400920.05o.gz", "3040", 2005, 92),
+            ("ABCD00BRA_R_20260010000_01D_30S_MO.rnx", "ABCD00BRA", 2026, 1),
+            # The two-digit year pivot: RINEX predates the convention that
+            # would have disambiguated it, and the format did not exist before
+            # 1980, so 80 is where every reader of these files splits.
+            ("07590920.99o", "0759", 1999, 92),
+            ("07590920.80o", "0759", 1980, 92),
+            ("07590920.79o", "0759", 2079, 92),
+        ],
+    )
+    def test_both_conventions_are_parsed(self, name, station, year, day):
+        hints = name_hints(name)
+        assert hints is not None
+        assert (hints.station, hints.year, hints.day_of_year) == (station, year, day)
+        assert hints.has_date
+
+    @pytest.mark.parametrize("name", ["brdc_0759.05n.gz", "notes.txt", "session.dat", "x.rnx"])
+    def test_a_name_following_neither_convention_is_no_claim(self, name):
+        """Not a problem to report: a campaign may name its files anything, and
+        the header is what GeoComp reads. It only means there is nothing to
+        cross-check."""
+        assert name_hints(name) is None
+
+
+class TestLastEpochFromTheTail:
+    def test_the_end_is_measured_where_the_header_omits_it(self):
+        """RTKLIB's sample files carry no ``TIME OF LAST OBS``, which leaves a
+        session with a start and no end -- and two such sessions cannot be
+        tested for simultaneity, so the very pair that forms a baseline looks
+        like two unrelated files."""
+        header = read_rinex_header(BASE)
+        assert header.last_observation is None
+        last = read_last_epoch(BASE, header)
+        assert last is not None
+        assert last.replace(microsecond=0) == datetime(2005, 4, 2, 0, 59, 30, tzinfo=UTC)
+
+    def test_the_last_line_is_not_the_last_epoch(self):
+        """The reason the scan runs backwards looking for an epoch record.
+
+        RINEX 2 splices comment blocks into the observation body, and this
+        sample file ends with one: ``RINEX FILE SPLICE; other post-header
+        comments skipped``. Taking whatever the file ends with returns nothing.
+        """
+        assert BASE.read_text(encoding="ascii").rstrip().endswith("COMMENT")
+        assert read_last_epoch(BASE) is not None
+
+    def test_the_century_comes_from_the_file_not_from_a_pivot(self):
+        """A RINEX 2 epoch record writes a two-digit year. The file's own first
+        epoch supplies the century, so this cannot be wrong once a century."""
+        assert read_last_epoch(BASE).year == 2005
+
+    def test_both_stations_end_within_a_second_of_each_other(self):
+        """Which is what makes them simultaneous."""
+        difference = abs(
+            (read_last_epoch(BASE) - read_last_epoch(ROVER)).total_seconds()
+        )
+        assert difference < 1.0
+
+    def test_a_navigation_file_has_no_epochs_to_find(self):
+        assert read_last_epoch(NAVIGATION) is None
+
+    def test_a_compressed_file_is_an_honest_unknown(self, tmp_path):
+        """gzip cannot be seeked and Hatanaka observations are not plain text,
+        so the answer is None rather than a guess."""
+        path = tmp_path / "07590920.05o.gz"
+        with gzip.open(path, "wt", encoding="ascii") as handle:
+            handle.write(BASE.read_text(encoding="ascii"))
+        assert read_last_epoch(path) is None
+
+    def test_a_header_only_file_yields_nothing(self):
+        assert read_last_epoch(RINEX3) is None
+
+    def test_a_rinex_3_body_is_read_by_its_own_epoch_marker(self, tmp_path):
+        """RINEX 3 marks an epoch with ``>`` and writes a four-digit year, so
+        neither the positional test nor the century rule of RINEX 2 applies."""
+        path = tmp_path / "body.rnx"
+        header = RINEX3.read_text(encoding="ascii")
+        body = "".join(
+            f">{2026:5d}{9:3d}{13:3d}{0:3d}{minute:3d}{0.0000000:11.7f}  0  8\n"
+            "G01  23000000.000 7 120000000.000 7\n"
+            for minute in range(0, 40, 10)
+        )
+        path.write_text(header + body, encoding="ascii")
+        last = read_last_epoch(path)
+        assert last == datetime(2026, 9, 13, 0, 30, tzinfo=UTC)
+
+    def test_a_rinex_3_record_that_is_not_an_epoch_is_ignored(self, tmp_path):
+        """An observation line begins with a satellite id, not with ``>``."""
+        path = tmp_path / "trailing.rnx"
+        header = RINEX3.read_text(encoding="ascii")
+        path.write_text(
+            header
+            + f">{2026:5d}{9:3d}{13:3d}{0:3d}{0:3d}{0.0000000:11.7f}  0  1\n"
+            + "G01  23000000.000 7 120000000.000 7\n"
+            + "G02  24000000.000 6 125000000.000 6\n",
+            encoding="ascii",
+        )
+        assert read_last_epoch(path) == datetime(2026, 9, 13, 0, 0, tzinfo=UTC)

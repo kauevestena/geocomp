@@ -62,9 +62,12 @@ __all__ = [
     "AntennaDelta",
     "Compression",
     "HeightMethod",
+    "NameHints",
     "ReceiverInfo",
     "RinexHeader",
     "compression_of",
+    "name_hints",
+    "read_last_epoch",
     "read_rinex_header",
 ]
 
@@ -202,6 +205,70 @@ _LONG_NAME = re.compile(r"^(?P<station>[A-Z0-9]{9})_(?P<source>[RSU])_"
                         r"\.(?P<ext>rnx|crx)$", re.IGNORECASE)
 
 
+@dataclass(frozen=True)
+class NameHints:
+    """What a RINEX file's *name* claims, which is not evidence.
+
+    ``specs/08`` section 4 makes the header authoritative and the name a
+    cross-check. These are the name's claims, kept separate from
+    :class:`RinexHeader` so the two can be compared rather than conflated: a
+    disagreement between them is a warning a human should see, and a reader
+    that merges them silently is the reason a mis-attributed session reaches an
+    adjustment as a confidently wrong baseline.
+
+    Attributes:
+        station: Four characters in a short name, nine in a long one. Compared
+            against the header's marker, case-insensitively -- the conventions
+            differ on case and that alone is not a disagreement.
+        year, day_of_year: From the name. ``None`` where the name form does not
+            carry them.
+    """
+
+    station: str = ""
+    year: int | None = None
+    day_of_year: int | None = None
+
+    @property
+    def has_date(self) -> bool:
+        return self.year is not None and self.day_of_year is not None
+
+
+def name_hints(path: str | Path) -> NameHints | None:
+    """What the file name claims, or ``None`` if it follows neither convention.
+
+    ``None`` is not a problem to report: a campaign may name its files anything,
+    and the header is what GeoComp reads. It only means there is nothing to
+    cross-check against.
+    """
+    name = Path(path).name
+    for suffix in (".gz", ".Z", ".z", ".zip"):
+        if name.lower().endswith(suffix.lower()):
+            name = name[: -len(suffix)]
+            break
+
+    short = _SHORT_NAME.match(name)
+    if short:
+        # Two-digit years: RINEX 2 predates the convention that would have
+        # disambiguated them, and 80 is the pivot every reader of these files
+        # uses -- the format did not exist before 1980.
+        year = int(short.group("year"))
+        return NameHints(
+            station=short.group("station"),
+            year=year + (1900 if year >= 80 else 2000),
+            day_of_year=int(short.group("day")),
+        )
+
+    long = _LONG_NAME.match(name)
+    if long:
+        start = long.group("start")
+        return NameHints(
+            station=long.group("station"),
+            year=int(start[0:4]),
+            day_of_year=int(start[4:7]),
+        )
+    return None
+
+
 def compression_of(path: str | Path) -> Compression:
     """How *path* is wrapped, from its suffixes.
 
@@ -262,6 +329,99 @@ def read_rinex_header(path: str | Path) -> RinexHeader:
         compression=compression,
         **header.fields(),
     )
+
+
+#: How much of the end of a file to read when looking for its last epoch. An
+#: epoch record plus its observations is at most a few kilobytes even for a
+#: full constellation, and RINEX 2 files splice comment blocks into the body,
+#: so the tail must be big enough to hold one of those and still reach an epoch.
+_TAIL_BYTES = 65536
+
+
+def read_last_epoch(path: str | Path, header: RinexHeader | None = None) -> datetime | None:
+    """The last observation epoch, read from the end of the file.
+
+    ``TIME OF LAST OBS`` is optional and RTKLIB's own sample files omit it,
+    which leaves a session with a start and no end -- and two such sessions
+    cannot be tested for simultaneity at all, so the pair that forms a baseline
+    looks like two unrelated files. Reading the tail turns that unknown into a
+    measurement without reading the file: the seek is to the last 64 KiB
+    whatever the file's size, so a scan stays proportional to the number of
+    files rather than to their length.
+
+    Returns ``None`` -- an honest unknown, never a guess -- for a navigation
+    file, a compressed one (gzip cannot be seeked and Hatanaka observations are
+    not plain text), or a body this cannot make sense of.
+
+    **The last line is not the last epoch.** RINEX 2 splices comment blocks into
+    the observation body; the sample file this was written against ends with
+    one. The scan runs backwards looking for a record that is shaped like an
+    epoch, rather than taking whatever the file ends with.
+    """
+    path = Path(path)
+    header = header or read_rinex_header(path)
+    if not header.is_observation or header.compression is not Compression.NONE:
+        return None
+
+    size = path.stat().st_size
+    with path.open("rb") as handle:
+        handle.seek(max(0, size - _TAIL_BYTES))
+        tail = handle.read().decode("ascii", errors="replace")
+
+    lines = tail.splitlines()
+    for line in reversed(lines):
+        moment = _epoch_record(line, version=header.version, century=header.first_observation)
+        if moment is not None:
+            return moment
+    return None
+
+
+def _epoch_record(line: str, *, version: float, century: datetime | None) -> datetime | None:
+    """Parse one observation epoch record, or ``None`` if it is not one.
+
+    RINEX 3 marks an epoch with ``>`` and writes a four-digit year. RINEX 2
+    writes a **two-digit** one, which is why *century* is needed: the file's own
+    first epoch supplies it, rather than this applying a pivot of its own and
+    being wrong once every hundred years.
+    """
+    if version >= 3.0:
+        if not line.startswith(">"):
+            return None
+        parts = line[1:].split()
+        if len(parts) < 6:
+            return None
+        try:
+            year, month, day, hour, minute = (int(part) for part in parts[:5])
+            seconds = float(parts[5])
+        except ValueError:
+            return None
+    else:
+        # Positional: yy mm dd hh mm ss.sssssss then the event flag and the
+        # satellite count. The flag and count are what separate an epoch record
+        # from an observation line, which is all numbers and no structure.
+        if len(line) < 32 or line[26:29].strip() not in {"0", "1", "2", "3", "4", "5", "6"}:
+            return None
+        if not line[29:32].strip().isdigit() or not line[0:3].strip().isdigit():
+            return None
+        try:
+            year, month, day = (int(line[start : start + 3]) for start in (0, 3, 6))
+            hour, minute = (int(line[start : start + 3]) for start in (9, 12))
+            seconds = float(line[15:26])
+        except ValueError:
+            return None
+        if century is not None:
+            year += (century.year // 100) * 100
+        else:
+            year += 1900 if year >= 80 else 2000
+
+    whole = int(seconds)
+    try:
+        return datetime(
+            year, month, day, hour, minute, whole,
+            round((seconds - whole) * 1_000_000), tzinfo=UTC,
+        )
+    except ValueError:
+        return None
 
 
 def _header_records(path: Path, compression: Compression) -> Iterator[str]:
