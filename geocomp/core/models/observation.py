@@ -30,6 +30,7 @@ from geocomp.core.units import Unit
 
 __all__ = [
     "OBSERVATION_TYPES",
+    "BaselineFrame",
     "Cluster",
     "ClusterKind",
     "Observation",
@@ -37,6 +38,7 @@ __all__ = [
     "ObservationType",
     "ObservationTypeSpec",
     "RejectionRecord",
+    "baseline_frame",
     "observation_type_spec",
 ]
 
@@ -527,6 +529,74 @@ class Observation:
             rejection=RejectionRecord.from_dict(rejection) if rejection else None,
             meta=dict(payload.get("meta", {})),
         )
+
+
+#: Where a baseline's frame is recorded on an :class:`Observation`.
+BASELINE_FRAME_KEY = "baseline_frame"
+
+
+class BaselineFrame(Enum):
+    """Which frame a ``GNSS_BASELINE``'s three components are expressed in.
+
+    **A baseline is ECEF unless it says otherwise, and the two consumers of one
+    disagreed about that until phase P7b.**
+
+    ``specs/04-data-model.md`` section 2.5.1. A GNSS baseline is naturally a
+    geocentric cartesian vector: that is what the engines compute, what a
+    DynAdjust ``G`` or ``X`` measurement means, and what
+    :mod:`geocomp.engines.dynadjust.dynaml` writes into ``<GPSBaseline>``. But
+    the in-house core adjusts in a *local* frame -- ``Frame.SPACE_3D`` has
+    components ``(e, n, u)`` -- and its observation equation zips the three
+    values straight onto them. So an ECEF baseline adjusted in-house was read as
+    east, north and up: no error, an answer wrong by a rotation of the whole
+    frame, and nothing anywhere in the codebase to rotate between the two.
+
+    The resolution is that ``ECEF`` is the definition and the default, which
+    makes every reader and the writer correct as they already stand, and each
+    consumer refuses the frame it cannot handle rather than misreading it
+    (``geocomp.core.adjustment.equations`` and
+    ``geocomp.engines.dynadjust.dynaml`` both raise). ``LOCAL`` exists because
+    the rotation has to produce *something*, and the thing it produces is still
+    a baseline; it is what
+    :func:`geocomp.core.techniques.gnss.baselines.rotate_baseline_to_local`
+    returns.
+    """
+
+    #: Geocentric cartesian dX, dY, dZ. What every engine produces.
+    ECEF = "ecef"
+    #: Differences in the adjustment frame's own components -- de, dn, du.
+    LOCAL = "local"
+
+
+def baseline_frame(observation: Observation) -> BaselineFrame:
+    """The frame of *observation*'s components, defaulting to ECEF.
+
+    The default is not a guess: it is what every producer in the codebase
+    already emits -- the DNA reader, the DynaML reader, and the engine output
+    parsers all build geocentric vectors -- so an observation carrying no frame
+    at all is ECEF, and saying so costs nothing and breaks nothing.
+
+    Raises:
+        DataError: if the recorded frame is not a member of
+            :class:`BaselineFrame`. An unrecognised value is not defaulted: a
+            typo would otherwise silently select the frame this function happens
+            to prefer, which is the exact failure the frame record exists to
+            prevent.
+    """
+    recorded = observation.meta.get(BASELINE_FRAME_KEY)
+    if recorded is None:
+        return BaselineFrame.ECEF
+    if isinstance(recorded, BaselineFrame):
+        return recorded
+    try:
+        return BaselineFrame(recorded)
+    except ValueError:
+        raise DataError(
+            "baseline_frame_unknown",
+            observation=observation.id,
+            received=str(recorded),
+            expected=f"one of {sorted(f.value for f in BaselineFrame)}",
+        ) from None
 
 
 class ClusterKind(Enum):

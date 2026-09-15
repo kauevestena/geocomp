@@ -304,6 +304,73 @@ engine-side contract).
    provide them, they are absent and the result says so, rather than a fabricated correlation being
    supplied.
 
+### 8.1 How the vector comes out of a `.pos` **[V]**
+
+Confirmed in phase P7b by running the engine and comparing its own two output formats against each other.
+
+**Use the ECEF format, and subtract.** `rnx2rtkp -e` writes the rover's absolute geocentric position per
+epoch and the base in the `% ref pos` header; the base is held in relative mode, so the rover's covariance
+*is* the baseline's and the vector is one subtraction:
+
+```text
+d = last_epoch_position - reference_position
+```
+
+Measured on the committed fixtures: `[2022.7707, −468.6291, 2610.2891]`, length **3335.3896 m**, against
+**3335.3895 m** for the length of the independently computed ENU baseline in `enu.pos` — the same run in a
+different format. **They agree to 0.05 mm.** No rotation, no projection, and nothing to undo.
+
+The other formats are refused rather than converted (`pos_not_geocentric`): deriving a baseline from the LLH
+or ENU output means inverting a projection or a rotation the engine has already applied, losing precision to
+no purpose.
+
+**The last epoch is the answer.** A static run writes the filter's state at every epoch, so the earlier ones
+are a converging filter's guesses — `xyz.pos`'s first epoch is a float solution two metres out.
+
+### 8.2 The printed covariance is worth about one significant figure **[V]**
+
+Every deviation and cross column is written `%8.4f`, so 0.1 mm. At the sub-centimetre magnitudes a fixed
+static solution reaches, that is one or two significant figures and the covariance built from them is
+uncertain by several per cent. `covariance_from_printed` (`core/uncertainty.py`) exists for exactly this —
+**but the half-width it is given is not the printing's half-width**, and that distinction is the whole of
+this section.
+
+The file prints `v = sqvar(c) = sign(c)·√|c|` (§7.2), so `c = sign(v)·v²` and `dc/dv = 2|v|`. A printed value
+uncertain by `0.5e-4` therefore gives a covariance uncertain by `2·|v|·0.5e-4`:
+
+| Quantity | Value |
+|---|---|
+| Printed half-width | `0.5e-4` |
+| Largest `|v|` in a fixed static epoch | ≈ `0.0025` |
+| Covariance half-width | **`2.5e-7`** |
+
+Passing `0.5e-4` through unchanged would be **two hundred times too loose**, and would condition away
+matrices that are indefinite for a real reason instead of only those rounding explains.
+
+**No approximation strategy is asserted** on a baseline covariance read this way, and that is a decision
+rather than an omission. `RECORDED_PRECISION` would be the wrong label: the sigma is the engine's own, not
+one invented from how many digits were written, and its own definition forbids it "for an observation whose
+sigma becomes an adjustment weight" — which is what this becomes. `covariance_from_printed` adds
+`ROUNDING_CONDITIONED` itself, and only if it had to move the matrix.
+
+### 8.3 Antenna reduction needs both horizons **[V]**
+
+Rule 4 above, made exact. An engine determines the vector between two *antenna reference points*; the
+adjustment wants the vector between two *marks*:
+
+```text
+d_mark = d_ARP − R(rover)ᵀ·o_rover + R(base)ᵀ·o_base
+```
+
+**The two rotations are different rotations.** Over a 3 km baseline the local vertical turns by about 0.03°,
+which is 0.8 mm across a 1.5 m antenna offset — larger than the millimetre everything else here is careful
+about. Using one horizon for both ends makes two equal vertical offsets cancel exactly, which looks tidier
+and is wrong; `tests/test_gnss_baselines.py` asserts the residue is there.
+
+A **slant** height is refused rather than assumed vertical (`antenna_height_is_slant`): it is measured to the
+antenna rim and needs the antenna's dimensions to be converted, which is FR-063's antenna database and does
+not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
+
 ---
 
 ## 9. Failure handling

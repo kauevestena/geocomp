@@ -386,3 +386,125 @@ class TestAgainstTheRealEngine:
             "engine.rtklib_wrote_no_output",
         }
         assert caught.value.context["message"]
+
+
+@requires_rtklib
+class TestABaselineFromALiveRun:
+    """Tier 4: the whole of P7b against a real engine, not a fixture.
+
+    The committed ``.pos`` files make the baseline tests fast and offline; this
+    makes them true. Everything here runs ``rnx2rtkp`` now, in ECEF, and turns
+    its output into the observation an adjustment takes.
+
+    The numbers asserted are the ones ``tests/test_gnss_baselines.py`` gets from
+    the committed fixture, which is how a change in the engine that moved the
+    answer would show up as a disagreement between the two rather than as both
+    of them quietly agreeing on something new.
+    """
+
+    @staticmethod
+    def _pair(sessions):
+        """Base 3040, rover 0759 -- the assignment the committed ``.pos`` files
+        were written with.
+
+        Named rather than taken from the ``sessions`` fixture's order, which
+        sorts by station id and so hands them back the other way round. Getting
+        it backwards yields the negated baseline, which every length check
+        passes and every component check fails -- and ``scripts/
+        check_rtklib_fixtures.py`` pins the same assignment for the same reason.
+        """
+        by_station = {session.station_id: session for session in sessions}
+        return by_station["3040"], by_station["0759"]
+
+    @staticmethod
+    def _run(base, rover, work):
+        from geocomp.engines.rtklib.baseline import baseline_from_solution
+
+        result = RtklibEngine().run(
+            RtklibJob(
+                rover=rover,
+                base=base,
+                config=profile("relative-static").with_options(output_format="xyz"),
+            ),
+            work_dir=work,
+        )
+        return baseline_from_solution(
+            result.solution,
+            base_station=base.station_id,
+            rover_station=rover.station_id,
+            baseline_id="live",
+        )
+
+    def test_a_live_run_gives_the_ecef_vector_the_fixture_gives(self, sessions):
+        base, rover = self._pair(sessions)
+        with tempfile.TemporaryDirectory() as work:
+            baseline = self._run(base, rover, work)
+        found = [q.value for q in baseline.components]
+        assert found == pytest.approx((2022.7707, -468.6291, 2610.2891), abs=1e-3)
+        assert baseline.length.value == pytest.approx(3335.3896, abs=1e-3)
+
+    def test_the_live_baseline_rotates_onto_the_engines_own_enu(self, sessions):
+        """Two independent computations of one vector: the engine's ENU output,
+        and GeoComp's rotation of the engine's ECEF output."""
+        from geocomp.core.techniques.gnss import rotate_baseline_to_local
+
+        base, rover = self._pair(sessions)
+        with tempfile.TemporaryDirectory() as work:
+            rotated = rotate_baseline_to_local(self._run(base, rover, work))
+        found = [q.value for q in rotated.components]
+        assert found == pytest.approx((-953.3367, 3196.2371, -6.3992), abs=1e-3)
+
+    def test_the_live_baseline_reaches_a_cluster_an_adjustment_accepts(self, sessions):
+        from geocomp.core.models import Network, Station
+        from geocomp.core.techniques.gnss import to_cluster
+
+        base, rover = self._pair(sessions)
+        with tempfile.TemporaryDirectory() as work:
+            baseline = self._run(base, rover, work)
+
+        observations, cluster = to_cluster([baseline], cluster_id="c1")
+        network = Network(id="live")
+        for station in (base.station_id, rover.station_id):
+            network.add_station(Station(id=station, name=station))
+        for observation in observations:
+            network.add_observation(observation)
+        network.add_cluster(cluster)
+        network.require_valid()
+        assert cluster.covariance.size == 3
+
+    def test_the_antenna_reduction_runs_on_a_live_baseline_exactly_once(self, sessions):
+        from geocomp.core.techniques.gnss import AntennaOffset, reduce_to_marks
+        from geocomp.core.uncertainty import Quantity
+        from geocomp.core.units import Unit
+
+        base, rover = self._pair(sessions)
+        with tempfile.TemporaryDirectory() as work:
+            baseline = self._run(base, rover, work)
+
+        offset = AntennaOffset(
+            up=Quantity.from_std_dev(1.500, 0.002, Unit.METRE), method="vertical"
+        )
+        reduced = reduce_to_marks(baseline, offset, offset)
+        # Equal offsets at both ends cancel to within the turn of the vertical.
+        assert reduced.length.value == pytest.approx(baseline.length.value, abs=2e-3)
+        with pytest.raises(ValidationError, match="antenna_height_already_reduced"):
+            reduce_to_marks(reduced, offset, offset)
+
+    def test_the_quality_summary_comes_from_the_run_that_happened(self, sessions):
+        from geocomp.engines.rtklib.baseline import quality_from_solution
+
+        base, rover = self._pair(sessions)
+        with tempfile.TemporaryDirectory() as work:
+            result = RtklibEngine().run(
+                RtklibJob(
+                    rover=rover,
+                    base=base,
+                    config=profile("relative-static").with_options(output_format="xyz"),
+                ),
+                work_dir=work,
+            )
+            quality = quality_from_solution(result.solution, session_id=rover.station_id)
+        assert quality.epochs == 120
+        assert quality.fixed_fraction > 0.9
+        assert quality.interval == pytest.approx(30.0)
+        assert quality.dilution_of_precision is None

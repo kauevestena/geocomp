@@ -114,6 +114,39 @@ plan (a benchmark used in a 3D network) or the reverse.
 `REJECTED` means a statistical test rejected it (FR-251); `EXCLUDED` means a human removed it. Both are
 reversible and neither deletes the record (FR-255, FR-135).
 
+#### 2.5.1 The frame of a GNSS baseline **[V]**
+
+A `GNSS_BASELINE` observation's three components are **geocentric cartesian ΔX, ΔY, ΔZ**, and the observation
+records the fact rather than leaving it to be inferred: `meta["baseline_frame"]` holds a `BaselineFrame`,
+which is `ECEF` when absent. Added in phase **P7b**, when the first code to *construct* a baseline had to
+decide what one is.
+
+ECEF is the definition rather than a convention because everything that already existed meant it: a
+DynAdjust `G` or `X` measurement is geocentric by DynAdjust's own definition ([`07`](./07-engine-dynadjust.md)
+§4.3), the DNA and DynaML readers produce geocentric vectors, and an engine computes one. `rnx2rtkp -e`
+writes the rover's ECEF position and its base in the file header, so the baseline is one subtraction with
+nothing applied to it ([`08`](./08-engine-rtklib.md) §8).
+
+**The in-house core is frame-agnostic, and that is the point of the record.** Its equation is
+`target[c] − origin[c]`, a difference of two cartesian coordinates, which is correct in *any* orthogonal
+3-frame — `Frame.SPACE_3D` is three orthogonal metres whatever its components are called, which is precisely
+what lets `tests/test_dynadjust_crossvalidation.py` adjust a geocentric network directly and reproduce
+DynAdjust to a twentieth of a millimetre. What is *not* correct, and raises nothing, is **mixing**: an ECEF
+baseline differenced against projected eastings and northings is wrong by a rotation of the whole frame.
+
+So the check is a consistency check, not a preference:
+
+| Side | Rule |
+|---|---|
+| `Network.cartesian_frame` | The frame the station coordinates are written in, or `None` for unstated |
+| `core/adjustment/equations.py` | Raises `gnss_baseline_frame_mismatch` when both are stated and they differ. A network that states nothing is **not** checked — there is nothing to check against, and defaulting would refuse the legitimate geocentric case above |
+| `engines/dynadjust/dynaml.py` | Raises `gnss_baseline_not_geocentric` on a locally rotated baseline. `<GPSBaseline>`'s X, Y and Z are geocentric, so a rotated vector written there is read back as though the rotation never happened |
+
+Both guards are needed. Either one alone leaves the mirror-image mistake reachable, and both mistakes are
+silent. `core/geodesy/cartesian.py`'s `enu_rotation` is what makes the refusal actionable rather than a dead
+end; `core/techniques/gnss/baselines.py`'s `rotate_baseline_to_local` applies it to a baseline and its
+covariance together.
+
 ### 2.6 `Cluster` (FR-104)
 
 A group of observations sharing one covariance matrix. GNSS baselines (3 correlated components), GNSS point

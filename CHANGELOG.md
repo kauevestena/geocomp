@@ -5,6 +5,104 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7b — baselines into an adjustment
+
+The computation half of the rest of the GNSS phase, split from the surface at
+the maintainer's decision so the correctness work arrives on its own. A parsed
+`.pos` now becomes the observation an adjustment takes: reduced to the survey
+marks, marked independent or not, and clustered with its covariance whole.
+
+#### Added
+
+- **`geocomp/core/techniques/gnss/`** (FR-602, FR-603, FR-104) — `Baseline`,
+  the antenna reduction, the independent subset and the session quality
+  summary. Engine-agnostic: it imports no engine, no I/O module and no QGIS, so
+  a second GNSS engine reuses all of it.
+- **`geocomp/engines/rtklib/baseline.py`** — the `.pos`-specific half: which
+  epoch is the answer, and how far a printed covariance can be trusted.
+- **`enu_rotation`, `ecef_to_enu`, `ecef_to_enu_covariance`, `enu_to_ecef`** in
+  `geocomp/core/geodesy/cartesian.py`. There was no ECEF↔ENU rotation anywhere
+  in the project before this.
+- **`BaselineFrame`** on `Observation.meta` and **`Network.cartesian_frame`** —
+  what a baseline is expressed in, and what a network's coordinates are
+  ([`specs/04`](specs/04-data-model.md) §2.5.1).
+
+#### Found
+
+- **A GNSS baseline had no declared frame**, and the two consumers meant
+  different things by one. The DynaML writer means geocentric — `<GPSBaseline>`
+  is ECEF by DynAdjust's definition — and `Frame.SPACE_3D`'s components are
+  called east, north and up.
+
+  **The first reading of this was wrong and is corrected here**, because the
+  correction is the interesting part. The in-house equation is
+  `target[c] − origin[c]`, a difference of two cartesian coordinates, which is
+  correct in *any* orthogonal 3-frame: a geocentric network adjusted with
+  geocentric baselines is right, which is exactly what P6's cross-validation
+  has been relying on to reproduce DynAdjust to a twentieth of a millimetre.
+  The real hazard is **mixing** — an ECEF baseline differenced against
+  projected eastings and northings is wrong by a rotation and raises nothing.
+
+  So the guard is a consistency check and not a preference: a network that
+  states its frame gets one, a network that states nothing is not checked, and
+  the DynaML writer's guard is the absolute one because its field genuinely is
+  geocentric. A first attempt that refused every ECEF baseline at the equation
+  broke six cross-validation tests, which is how the misreading surfaced.
+
+- **The printed covariance's half-width is not the printing's half-width.** The
+  file writes the *signed square root* at `%8.4f`, so `dc/dv = 2|v|` and a
+  covariance entry is uncertain by `2·|v|·0.5e-4` — about `2.5e-7`, not `5e-5`.
+  Passing the printed half-width to `covariance_from_printed` unchanged would
+  be two hundred times too loose and would condition away matrices that are
+  indefinite for a real reason.
+
+- **The antenna reduction needs two rotations, not one.** Over 3 km the local
+  vertical turns by about 0.03°, which is 0.8 mm across a 1.5 m offset. Using
+  the base's horizon at both ends makes two equal vertical offsets cancel
+  exactly — tidier, and wrong by more than the millimetre everything else here
+  is careful about.
+
+- **`rnx2rtkp` reports no DOP**, in any of its four output formats. FR-603 names
+  it, so `SessionQuality.dilution_of_precision` exists and is always `None`:
+  it could be derived from the position covariance by dividing out an assumed
+  a-priori sigma, but that is a different quantity and naming it DOP would be a
+  claim. Recorded unmet rather than substituted for.
+
+#### Verified
+
+- The rotation reproduces the engine's **own** independently computed ENU
+  baseline to 0.006 / 0.047 / 0.024 mm and its standard deviations to every
+  printed digit. `xyz.pos` and `enu.pos` are one run written twice, so this is
+  a cross-check rather than a self-consistency test — the same device P7a used
+  on the two formats' covariances.
+- A baseline written to DynaML and read back is the same 3×3, signs included,
+  and a two-baseline cluster round-trips as a 6×6 whose off-diagonal blocks are
+  zero because `rnx2rtkp` measured no correlation between two separate runs.
+- Eleven tier-4 tests against a live `rnx2rtkp ver.EX 2.5.1`, five of them new:
+  the live run's ECEF vector matches the committed fixture's to a millimetre.
+
+#### Changed — specifications
+
+- [`specs/04`](specs/04-data-model.md) §2.5.1 (new) — the frame of a GNSS
+  baseline, both guards, and why neither alone is enough.
+- [`specs/08`](specs/08-engine-rtklib.md) §8.1–§8.3 (new) — the subtraction, the
+  printed half-width, and the two horizons.
+- [`specs/11`](specs/11-module-gnss.md) §4.1, §4.2 (new) and §5 — the
+  independent subset, the once-only reduction, and the DOP gap.
+- [`specs/ROADMAP.md`](specs/ROADMAP.md) — P7b's exit table; **FR-352, FR-353
+  and NFR-010 moved from P7 to P10**, after re-checking the egress policy and
+  finding `igs.bkg.bund.de` and `geoftp.ibge.gov.br` still 403 on CONNECT. P10
+  is the first phase that genuinely needs an archive, so the download path gets
+  built where it is load-bearing. P7c is named with what it carries.
+
+#### Not done
+
+- **RD-06 is still blocked** and P7's accuracy criterion is still open;
+  nothing here changes that.
+- **P7c** — the GNSS menu and its algorithms (FR-600, FR-601, FR-604), result
+  layers (FR-357), comparative configurations (FR-359), the reference station
+  database (FR-063) and batch execution (FR-355's second half).
+
 ### P7a — RINEX in, a real baseline out
 
 The GNSS phase, split after its first slice at the maintainer's decision: P7

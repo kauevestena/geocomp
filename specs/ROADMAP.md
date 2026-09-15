@@ -386,8 +386,12 @@ services and credentials through the QGIS authentication system; the `rnx2rtkp` 
 and `.pos` parser; batch processing; baseline construction with independent-set identification; quality
 reporting; comparative configuration testing; the reference station database.
 
-**Closes.** FR-063, FR-164, FR-350, FR-351, FR-352, FR-353, FR-354, FR-355, FR-356, FR-357, FR-358, FR-359,
-FR-600, FR-601, FR-602, FR-603, FR-604, NFR-010
+**Closes.** FR-063, FR-164, FR-350, FR-351, FR-354, FR-355, FR-356, FR-357, FR-358, FR-359, FR-600, FR-601,
+FR-602, FR-603, FR-604
+
+**Re-planned out of this phase: FR-352, FR-353 and NFR-010** — product download, credentials through the QGIS
+authentication system, and the rule that no credential reaches a log or an export. They move to **P10**; see
+the P7b section below for the re-check that settled it and the P10 section for why there.
 
 **Exit.** A static relative session over RD-06 reproduces the published coordinates within tolerance.
 Baselines reach DynAdjust as G measurements with their 3×3 covariance intact. The independent baseline subset
@@ -445,13 +449,60 @@ them again and records the move**, the way FR-161 was moved out of P5, P6 and P7
 a guess. The pipeline works against products supplied on disk in the meantime, which is what
 `RtklibJob.products` is for.
 
-### P7b — the rest of the phase
+### P7b — baselines into an adjustment
 
-Still to do, and named so this slice's green tick does not imply them: baseline construction and the
-independent subset (FR-602, FR-104), antenna height reduction applied once (FR-602), quality reporting
-(FR-603), comparative configurations (FR-359), the GNSS menu and its algorithms (FR-600, FR-601, FR-604),
-result layers (FR-357), the reference station database (FR-105, FR-832), and batch execution proper (FR-355's
-second half).
+**Delivered.** The phase was split a second time, at the maintainer's decision: the *computation* lands here
+and the *surface* becomes P7c, so the correctness work arrives reviewable on its own rather than in the same
+diff as menu wiring.
+
+| Delivered | Where |
+|---|---|
+| Baseline construction from a `.pos`, with the covariance conditioned by what the file can carry (FR-602) | `engines/rtklib/baseline.py` |
+| Antenna height reduction, applied once and recorded on what it produced (FR-602, FR-204) | `core/techniques/gnss/baselines.py` |
+| The independent subset, by quality, with the dependent ones marked rather than dropped (FR-602, FR-104) | `core/techniques/gnss/baselines.py` |
+| The baseline cluster reaching DynAdjust as a `G` or `X` (FR-104) | round-tripped in `tests/test_gnss_to_dynadjust.py` |
+| Session and per-epoch quality indicators (FR-603) | `core/techniques/gnss/quality.py` |
+| ECEF↔ENU rotation of a vector and its covariance | `core/geodesy/cartesian.py` |
+
+**What planning it turned up.** A `GNSS_BASELINE` observation had **no declared frame**, and P7b is the first
+code that had to construct one rather than read one. The finding is smaller than it first looked and worth
+stating precisely, because the first reading of it was wrong: the in-house core's equation is
+`target[c] − origin[c]`, which is correct in *any* orthogonal cartesian 3-frame, so a geocentric network
+adjusted with geocentric baselines is right — as P6's cross-validation already relied on. The real hazard is
+**mixing** an ECEF baseline with projected station coordinates, which is wrong by a rotation and silent. So
+`Network.cartesian_frame` records what the coordinates are, the observation records what the baseline is, and
+the equation refuses only a genuine disagreement ([`04-data-model.md`](./04-data-model.md) §2.5.1). The
+DynaML writer's guard is absolute rather than conditional, because `<GPSBaseline>` *is* geocentric by
+definition.
+
+**Two numbers make the rotation evidence rather than assertion.** `xyz.pos` and `enu.pos` are one run written
+twice, so rotating the first must reproduce the second: it does, to **0.006 / 0.047 / 0.024 mm** on the
+components and to **every printed digit** on the standard deviations. Nothing else in the suite would catch a
+transposed row of the rotation.
+
+**Exit status of this slice**
+
+| Criterion | State |
+|---|---|
+| A baseline is built from a real run with its covariance intact | **met** — tier 4, live engine |
+| It reaches DynAdjust as a `G` measurement and comes back the same matrix | **met** — `specs/11` criterion 4 |
+| Antenna height reduction applied twice is detected and prevented | **met** — `specs/11` criterion 5 |
+| The independent subset is identified and the dependent ones marked | **met** — `specs/11` criterion 3 |
+| Quality indicators per session and per epoch | **met, except DOP** — see below |
+| **DOP reported per session** | **not met** — `rnx2rtkp` writes none in any format ([`11`](./11-module-gnss.md) §5) |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met** — unchanged from P7a |
+
+**FR-352, FR-353 and NFR-010 move to P10.** P7a deferred them and committed that P7b would move them if the
+egress policy still held. It does: `igs.bkg.bund.de` and `geoftp.ibge.gov.br` were re-checked in the P7b
+session and both still return 403 on CONNECT. The move and its reasoning are recorded in P7's `Closes` line
+and in P10 below.
+
+### P7c — the surface
+
+Still to do, and named so this slice's green tick does not imply them: the GNSS menu and its algorithms
+(FR-600, FR-601, FR-604), result layers (FR-357), comparative configurations (FR-359), the reference station
+database (FR-063, using FR-105 and FR-832), and batch execution proper (FR-355's second half). FR-358's
+precise-ephemeris half also lands there, since it needs products supplied on disk.
 
 ---
 
@@ -510,7 +561,16 @@ propagated uncertainty, displacement computation with cross-covariance, signific
 stability testing, congruency and strain analysis, alert thresholds, the time series panel, the monitoring
 report.
 
-**Closes.** FR-830, FR-831, FR-832, FR-833, FR-834, FR-835, FR-836, FR-837, FR-838, FR-903, FR-932
+**Closes.** FR-352, FR-353, FR-830, FR-831, FR-832, FR-833, FR-834, FR-835, FR-836, FR-837, FR-838, FR-903,
+FR-932, NFR-010
+
+**Re-planned into this phase: product download and credentials (FR-352, FR-353, NFR-010).** They were P7's,
+and moved after P7b re-checked the egress policy and found it unchanged. **P10 rather than a consolidation
+phase because P10 is the first phase that genuinely needs an archive**: a multi-epoch series over published
+reference stations is not something a user assembles by hand, so the download path gets built where it is
+load-bearing rather than parked somewhere it would be written and never exercised. If the archives are still
+unreachable when P10 runs, the same rule applies again — it moves and the move is recorded, as FR-161 did
+three times before it landed.
 
 **Exit.** RD-08 reproduces, including the significance decisions. A synthetic injected displacement is
 recovered and found significant, with no false positives elsewhere. A *moving reference station* is caught by

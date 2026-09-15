@@ -105,6 +105,33 @@ requirements are:
 4. **Provenance** links each baseline back to its sessions, products, configuration and engine run
    (FR-134).
 
+### 4.1 The independent subset **[V]**
+
+Delivered in phase P7b as `core/techniques/gnss/baselines.py::independent_subset`.
+
+*n* simultaneously observing stations yield *n(n−1)/2* baselines of which only *n−1* carry new information.
+The independent set is a **maximum spanning forest** over the station graph, and "maximum" is by quality: a
+baseline whose covariance has the smaller trace is preferred, so the chosen set is the best-determined
+spanning tree rather than whichever one the input order happened to produce.
+
+*Forest*, not tree, is deliberate — two disconnected pairs of stations give two independent baselines and no
+error, because there is no baseline between the groups to be dependent on.
+
+**Nothing is discarded.** Both lists come back with every baseline marked `is_independent`, because §3.1
+allows the full set in Advanced mode with the consequence stated, and that needs the dependent ones to still
+exist and to know what they are.
+
+### 4.2 Antenna height reduction happens once **[V]**
+
+The reduction is recorded **on the baseline it produced**, not beside it: `Baseline.antenna_reduction` is
+`None` until `reduce_to_marks` runs and holds both offsets afterwards, and a second call raises
+`antenna_height_already_reduced`. Acceptance criterion 5 below asks for a test that a double reduction is
+prevented; a flag that a caller has to remember to check is not that, because any caller that copies the
+components out can separate the record from the thing it describes.
+
+The geometry, including why each end is rotated at its *own* horizon, is in
+[`08-engine-rtklib.md`](./08-engine-rtklib.md) §8.3.
+
 ---
 
 ## 5. Quality reporting (FR-603)
@@ -120,6 +147,15 @@ Per session and, for kinematic, per epoch:
 | Percentage of epochs fixed (kinematic) | The single most informative summary of a kinematic run |
 | Observation span and interval | Whether the session was long enough for the mode used |
 | Cycle slips / rejected epochs | Data quality |
+
+**DOP is not available from `rnx2rtkp`, and is recorded as absent rather than substituted for** (phase P7b).
+No column of the `.pos` file in any of its four output formats carries a dilution of precision
+([`08-engine-rtklib.md`](./08-engine-rtklib.md) §7.1). It could be computed from the position covariance by
+dividing out an assumed a-priori sigma, but that number would be a function of the weighting RTKLIB happened
+to use, and presenting it as DOP would be presenting a different quantity under a familiar name.
+`SessionQuality.dilution_of_precision` therefore exists and is always `None` today: the field is there so an
+engine that *does* report DOP has somewhere to put it, and so the gap is visible rather than silently absent.
+**This clause of FR-603 is unmet**, and the requirement is not recorded as fully closed on its account.
 
 These surface in the results table, in the layer attributes, in the report (FR-930), and as thematic styling
 (FR-902) — a map of sessions coloured by solution status is the fastest way to see what a campaign actually
