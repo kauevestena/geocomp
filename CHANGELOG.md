@@ -5,6 +5,213 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7b — baselines into an adjustment
+
+The computation half of the rest of the GNSS phase, split from the surface at
+the maintainer's decision so the correctness work arrives on its own. A parsed
+`.pos` now becomes the observation an adjustment takes: reduced to the survey
+marks, marked independent or not, and clustered with its covariance whole.
+
+#### Added
+
+- **`geocomp/core/techniques/gnss/`** (FR-602, FR-603, FR-104) — `Baseline`,
+  the antenna reduction, the independent subset and the session quality
+  summary. Engine-agnostic: it imports no engine, no I/O module and no QGIS, so
+  a second GNSS engine reuses all of it.
+- **`geocomp/engines/rtklib/baseline.py`** — the `.pos`-specific half: which
+  epoch is the answer, and how far a printed covariance can be trusted.
+- **`enu_rotation`, `ecef_to_enu`, `ecef_to_enu_covariance`, `enu_to_ecef`** in
+  `geocomp/core/geodesy/cartesian.py`. There was no ECEF↔ENU rotation anywhere
+  in the project before this.
+- **`BaselineFrame`** on `Observation.meta` and **`Network.cartesian_frame`** —
+  what a baseline is expressed in, and what a network's coordinates are
+  ([`specs/04`](specs/04-data-model.md) §2.5.1).
+
+#### Found
+
+- **A GNSS baseline had no declared frame**, and the two consumers meant
+  different things by one. The DynaML writer means geocentric — `<GPSBaseline>`
+  is ECEF by DynAdjust's definition — and `Frame.SPACE_3D`'s components are
+  called east, north and up.
+
+  **The first reading of this was wrong and is corrected here**, because the
+  correction is the interesting part. The in-house equation is
+  `target[c] − origin[c]`, a difference of two cartesian coordinates, which is
+  correct in *any* orthogonal 3-frame: a geocentric network adjusted with
+  geocentric baselines is right, which is exactly what P6's cross-validation
+  has been relying on to reproduce DynAdjust to a twentieth of a millimetre.
+  The real hazard is **mixing** — an ECEF baseline differenced against
+  projected eastings and northings is wrong by a rotation and raises nothing.
+
+  So the guard is a consistency check and not a preference: a network that
+  states its frame gets one, a network that states nothing is not checked, and
+  the DynaML writer's guard is the absolute one because its field genuinely is
+  geocentric. A first attempt that refused every ECEF baseline at the equation
+  broke six cross-validation tests, which is how the misreading surfaced.
+
+- **The printed covariance's half-width is not the printing's half-width.** The
+  file writes the *signed square root* at `%8.4f`, so `dc/dv = 2|v|` and a
+  covariance entry is uncertain by `2·|v|·0.5e-4` — about `2.5e-7`, not `5e-5`.
+  Passing the printed half-width to `covariance_from_printed` unchanged would
+  be two hundred times too loose and would condition away matrices that are
+  indefinite for a real reason.
+
+- **The antenna reduction needs two rotations, not one.** Over 3 km the local
+  vertical turns by about 0.03°, which is 0.8 mm across a 1.5 m offset. Using
+  the base's horizon at both ends makes two equal vertical offsets cancel
+  exactly — tidier, and wrong by more than the millimetre everything else here
+  is careful about.
+
+- **`rnx2rtkp` reports no DOP**, in any of its four output formats. FR-603 names
+  it, so `SessionQuality.dilution_of_precision` exists and is always `None`:
+  it could be derived from the position covariance by dividing out an assumed
+  a-priori sigma, but that is a different quantity and naming it DOP would be a
+  claim. Recorded unmet rather than substituted for.
+
+#### Verified
+
+- The rotation reproduces the engine's **own** independently computed ENU
+  baseline to 0.006 / 0.047 / 0.024 mm and its standard deviations to every
+  printed digit. `xyz.pos` and `enu.pos` are one run written twice, so this is
+  a cross-check rather than a self-consistency test — the same device P7a used
+  on the two formats' covariances.
+- A baseline written to DynaML and read back is the same 3×3, signs included,
+  and a two-baseline cluster round-trips as a 6×6 whose off-diagonal blocks are
+  zero because `rnx2rtkp` measured no correlation between two separate runs.
+- Eleven tier-4 tests against a live `rnx2rtkp ver.EX 2.5.1`, five of them new:
+  the live run's ECEF vector matches the committed fixture's to a millimetre.
+
+#### Changed — specifications
+
+- [`specs/04`](specs/04-data-model.md) §2.5.1 (new) — the frame of a GNSS
+  baseline, both guards, and why neither alone is enough.
+- [`specs/08`](specs/08-engine-rtklib.md) §8.1–§8.3 (new) — the subtraction, the
+  printed half-width, and the two horizons.
+- [`specs/11`](specs/11-module-gnss.md) §4.1, §4.2 (new) and §5 — the
+  independent subset, the once-only reduction, and the DOP gap.
+- [`specs/ROADMAP.md`](specs/ROADMAP.md) — P7b's exit table; **FR-352, FR-353
+  and NFR-010 moved from P7 to P10**, after re-checking the egress policy and
+  finding `igs.bkg.bund.de` and `geoftp.ibge.gov.br` still 403 on CONNECT. P10
+  is the first phase that genuinely needs an archive, so the download path gets
+  built where it is load-bearing. P7c is named with what it carries.
+
+#### Not done
+
+- **RD-06 is still blocked** and P7's accuracy criterion is still open;
+  nothing here changes that.
+- **P7c** — the GNSS menu and its algorithms (FR-600, FR-601, FR-604), result
+  layers (FR-357), comparative configurations (FR-359), the reference station
+  database (FR-063) and batch execution (FR-355's second half).
+
+### P7a — RINEX in, a real baseline out
+
+The GNSS phase, split after its first slice at the maintainer's decision: P7
+closes seventeen requirements, roughly twice P6, and stopping at a working
+engine lets the rest be planned against something that runs.
+
+**What it does.** A folder of RINEX becomes sessions; sessions that observed
+simultaneously become a job; the job writes an `rnx2rtkp` configuration, runs
+the engine, and the `.pos` comes back as a solution with its covariance whole.
+End to end on RTKLIB's own 2005 sample pair: 120 epochs, 117 ambiguity-fixed,
+0.9 mm / 0.7 mm / 2.5 mm with the cross-component terms intact.
+
+#### Added
+
+- **`geocomp/io/rinex.py`** (FR-164) — RINEX 2 and 3 header scanning. Header
+  over file name per [`specs/08`](specs/08-engine-rtklib.md) §4, and only the
+  header: a day of 1 s observations is hundreds of megabytes and discovery
+  scans folders of them.
+- **`geocomp/io/gnss_discovery.py`** (FR-350, FR-351) — sessions, simultaneity
+  grouping, navigation pairing, and a report of every file that could not be
+  read (FR-166). `GnssSession` needed no change: P1 already built it.
+- **`geocomp/engines/rtklib/`** (FR-354, FR-355, FR-302, FR-304, FR-306,
+  FR-036) — the configuration writer with named profiles for the four menu
+  modes, the runner, version detection across both forks, and graceful absence.
+  `engines/base.py` was reused unchanged, which is the test of whether P6's
+  engine abstraction was one.
+- **`geocomp/engines/rtklib/read_pos.py`** (FR-356, FR-206) — the solution file
+  in every output format.
+- **`scripts/check_rtklib_fixtures.py`** and a second job in the `engine`
+  workflow, built from a pinned commit. Upstream publishes Windows executables
+  only, so there is no pinnable Linux binary and ADR-0003's reasoning for
+  DynAdjust applies unchanged.
+
+#### Found
+
+Each of these is a way to be wrong with no error appearing, and each was found
+by running the engine rather than by reading about it.
+
+- **The `.pos` cross-covariance columns are signed square roots.** `sqvar()` is
+  `covar<0 ? -sqrt(-covar) : sqrt(covar)`, so a printed `-0.6097` is neither a
+  covariance nor a correlation — the covariance is `-0.6097²`, sign restored.
+  Squaring without restoring the sign turns every negative covariance positive,
+  and the north–up and east–up terms are routinely negative, so the error
+  ellipse leans the wrong way. Using the printed value directly is wrong by a
+  square. This is the whole of FR-206 for this engine and nothing in the file
+  says it.
+- **One `.pos` column header is wrong upstream.** With `-g`, RTKLIB labels the
+  third cross column `sdue` while writing the same N–U covariance the default
+  format calls `sdun` — and `sdue` genuinely means E–U in the ENU format. So
+  "read the file's own header", which [`specs/08`](specs/08-engine-rtklib.md)
+  §7 instructs, is necessary and **not sufficient**: the header decides the
+  format, the format decides each column's meaning, and the labels are reported
+  rather than obeyed.
+- **`rnx2rtkp -k <config>` is not the same run as the equivalent flags.**
+  Loading a configuration file resets the base-station position to latitude 0,
+  longitude 0, height 0, while the command-line path takes it from the base's
+  RINEX header. Measured: with `ant2-postype = rinexhead`, 120 solutions;
+  without it, none. §2 prefers `-k` *because it is reproducible* — omitting this
+  would have made it reproducibly wrong, and a base wrong by ten metres would
+  have succeeded rather than failed.
+- **The observation-type stride differs between RINEX 2 and 3** — six
+  characters against four. Reading a RINEX 3 list at stride 6 raises nothing; it
+  returns codes chopped across their boundaries, which reads as a receiver
+  tracking fewer signals than it does.
+- **`TIME OF LAST OBS` is optional and RTKLIB's samples omit it**, which left
+  two sessions with a start and no end — and two such sessions cannot be tested
+  for simultaneity, so the very pair that forms a baseline came back as two
+  unrelated files. `read_last_epoch()` seeks the last 64 KiB and scans backwards
+  for an epoch record; the last *line* is not the last epoch, because RINEX 2
+  splices comment blocks into the observation body and the sample file ends with
+  one.
+- **`convbin` aborts with a glibc buffer overflow** converting RINEX 2 to
+  RINEX 3 on RTKLIB's own data at the pinned commit. Not a GeoComp deliverable,
+  so it is recorded rather than worked around — and it is why no tool-written
+  RINEX 3 fixture exists.
+
+#### Recorded, not claimed
+
+- **RD-06 is blocked.** All four candidate archives — `geoftp.ibge.gov.br`,
+  `cddis.nasa.gov`, `igs.bkg.bund.de`, `files.igs.org` — are denied by the
+  development environment's egress policy. The pipeline is validated end to end
+  on RTKLIB's sample pair, which shows the **plumbing** and not the
+  **accuracy**; P7's criterion that a session reproduces published coordinates
+  stays **open** rather than being reinterpreted into one the available data can
+  satisfy. [`specs/22`](specs/22-reference-data-sources.md) §5 names what would
+  unblock it.
+- **Products and credentials are not in this slice.** FR-352, FR-353, NFR-010
+  and the GNSS half of FR-063 are P7b's. The archives are unreachable here, so
+  the code could be written but not exercised. They stay assigned to P7 because
+  the blocker is a policy rather than a technical obstacle; if it still holds
+  when P7b runs, P7b moves them again and records the move.
+- **Not in this slice, so a green tick does not imply them:** baselines into the
+  adjustment and the independent subset (FR-602, FR-104), quality reporting
+  (FR-603), comparative configurations (FR-359), the GNSS menu and its
+  algorithms (FR-600, FR-601, FR-604), result layers (FR-357).
+
+#### Changed — specifications
+
+- **[`specs/08`](specs/08-engine-rtklib.md)** — its one **[C]** discharged, and
+  against the source that writes the file rather than the manual: §7.1 the
+  column table, §7.2 the signed-square-root encoding, §7.3 why the labels
+  cannot be trusted. New §2.1 for the configuration-file trap and §2.2 for
+  `convbin`.
+- **[`specs/22`](specs/22-reference-data-sources.md) §5** — RD-06 blocked, with
+  the four denied hosts and three ways to unblock it.
+- **[`specs/ROADMAP.md`](specs/ROADMAP.md)** — P7 split into P7a and P7b, with
+  this slice's exit status stating plainly which criterion is unmet.
+
+
 ### Pre-P7 review: four column defects in the DNA reader
 
 The third and last part of the review, and the one that found the most. Every

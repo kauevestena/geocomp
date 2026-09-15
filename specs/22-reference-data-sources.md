@@ -300,6 +300,28 @@ at 1 s has been available since 2020. This is the natural choice for a Brazilian
 official, the frame is the national one, and the data is public. NGS/CORS and Geoscience Australia are the
 equivalents elsewhere. Licence terms were not checked.
 
+> **P7 could not obtain it, and the reason is not upstream's.** Every candidate archive is **denied by the
+> egress policy of the environment GeoComp is developed in** — `geoftp.ibge.gov.br`, `cddis.nasa.gov`,
+> `igs.bkg.bund.de` and `files.igs.org` all answer 403 to CONNECT. That is an organisation policy, not a
+> service outage and not a missing dataset: the data is public and reachable from an ordinary network.
+>
+> So RD-06 is **blocked rather than absent**, and P7's exit criterion that a static relative session
+> reproduces published coordinates is recorded **unmet** rather than quietly reinterpreted. What would
+> unblock it, in order of preference:
+>
+> 1. **A maintainer-supplied dataset** — RINEX for a station whose official coordinates are published, the
+>    way the *Adjust* corpus unblocked FR-161. One station over one day is enough.
+> 2. Egress for one of the four hosts above.
+> 3. A CI job that runs where those hosts are reachable, fetching at test time rather than vendoring.
+>
+> **What P7 validated instead, and what that is worth.** RTKLIB's own sample pair — two Japanese GSI marks
+> observing the same hour of 2 April 2005 — runs the whole chain and resolves its ambiguities
+> (`tests/data/rtklib/`). That shows the pipeline works: RINEX read, sessions paired, configuration written,
+> engine run, covariance recovered. It shows **nothing about accuracy**, because those stations have no
+> published coordinates reachable here. The distinction is the same one §2.2 draws for RD-11 against RD-03:
+> a reference case built from the operations a program performs is not a transcription of a published answer,
+> and only the second can settle whether the program is right.
+
 **RD-07, a gravimetric network with a published solution.**
 [IBGE's Rede Gravimétrica](https://www.ibge.gov.br/geociencias/informacoes-sobre-posicionamento-geodesico/rede-geodesica/16286-rede-gravimetrica.html),
 and **RENEGA**, the national absolute-gravity network (stations at Brasília, Valinhos, Curitiba, Lages, Santa

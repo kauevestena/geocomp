@@ -287,6 +287,35 @@ TECHNIQUE_PLAIN_FLOATS = {
         "the fraction of the refraction uncertainty that survived the method, a "
         "dimensionless ratio derived from the geometry"
     ),
+    # -- GNSS (phase P7b) ----------------------------------------------------
+    ("Baseline", "base_horizon"): (
+        "the latitude and longitude at which the local horizon is defined, used to build "
+        "a rotation. A lookup key, not an observation: a metre of error here turns a "
+        "3 km baseline by 0.5 mm, and the position it comes from is the base station's "
+        "own known coordinate, whose uncertainty belongs to that coordinate"
+    ),
+    ("Baseline", "rover_horizon"): "the same, at the far end",
+    ("EpochQuality", "ratio"): (
+        "RTKLIB's ambiguity ratio factor: the ratio of the second-best to the best "
+        "integer candidate's residual. A test statistic about the solution, not a "
+        "measured quantity"
+    ),
+    ("EpochQuality", "age"): (
+        "seconds since the differential correction used; a latency, and a property of "
+        "the data stream rather than a measurement of the ground"
+    ),
+    ("SessionQuality", "fixed_fraction"): "a proportion of epochs, dimensionless",
+    ("SessionQuality", "ratio_best"): "an ambiguity ratio; see EpochQuality.ratio",
+    ("SessionQuality", "ratio_median"): "an ambiguity ratio; see EpochQuality.ratio",
+    ("SessionQuality", "interval"): (
+        "the nominal seconds between epochs, a receiver setting rather than something "
+        "observed"
+    ),
+    ("SessionQuality", "dilution_of_precision"): (
+        "a geometry factor, dimensionless and derived from satellite positions. Always "
+        "None today: rnx2rtkp writes no DOP column in any output format, and the field "
+        "exists so the gap is visible rather than silently absent (specs/11 section 5)"
+    ),
 }
 
 #: Public functions in the technique and instrument modules that return a plain

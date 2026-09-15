@@ -83,6 +83,24 @@ requires_dynadjust = pytest.mark.skipif(
 )
 
 
+def has_rtklib() -> bool:
+    """Whether ``rnx2rtkp`` is on ``PATH``.
+
+    The same division as :func:`has_dynadjust`: the ``.pos`` parser and the
+    configuration writer are tested against committed fixtures, which pin the
+    exact bytes better than a live run can, and this tier is for what only a
+    real engine shows -- that the configuration GeoComp writes is one
+    ``rnx2rtkp`` accepts, and that the chain from a folder of RINEX to a fixed
+    solution actually runs.
+    """
+    return shutil.which("rnx2rtkp") is not None
+
+
+requires_rtklib = pytest.mark.skipif(
+    not has_rtklib(), reason="requires rnx2rtkp on PATH (tier 4)"
+)
+
+
 def krumm_corpus() -> Path | None:
     """Where the Krumm example networks are.
 

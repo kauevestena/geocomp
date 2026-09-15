@@ -18,7 +18,7 @@ appears in exactly one phase of [`ROADMAP.md`](./ROADMAP.md), and no row below i
 |---|---|---|---|
 | **O1** | Architect GeoComp as a QGIS *Processing Provider*, covering network pre-analysis, data preparation and processing | FR-005, FR-030…FR-036, FR-070, FR-270…FR-273 | P0, P2, P3 |
 | **O2** | Integrate DynAdjust via the command line: automatic input generation, execution, result import into QGIS | FR-036, FR-163, FR-300…FR-306, FR-320…FR-325, FR-930 | P5, P6 |
-| **O3** | Integrate `rnx2rtkp` (RTKLIB) for GNSS processing, including batch runs and automatic product download | FR-164, FR-350…FR-359, FR-600…FR-604 | P7 |
+| **O3** | Integrate `rnx2rtkp` (RTKLIB) for GNSS processing, including batch runs and automatic product download | FR-164, FR-350…FR-359, FR-600…FR-604 | P7 (FR-352, FR-353 re-planned into P10 — the egress policy blocks every candidate archive from the development environment, and P10 is the first phase whose work needs one) |
 | **O4** | Support multiple geodetic observation types: angles, distances, height differences, gravimetry, GNSS points and baselines | FR-103, FR-104, FR-227, FR-400…FR-411, FR-500…FR-504, FR-602, FR-700, FR-800…FR-803 | P1, P3, P4, P7, P8, P9 |
 | **O5** | Integrate PostGIS and other spatial databases for persistent storage of networks, observations and results | FR-130…FR-135 | P5, P11 |
 | **O6** | Multi-epoch comparison and structural monitoring: temporal metadata, compatibility checks, transformation, displacements and deformation | FR-105, FR-207, FR-830…FR-838, FR-903, FR-932 | P1, P10 |
@@ -153,7 +153,7 @@ not additions to the project's scope. Each names what it derives from. They fall
 | Correctness safeguards | FR-104 (clusters), FR-203 (labelling approximations), FR-208 (correlations), FR-226 (rank diagnosis), FR-255 (no silent rejection) | Preventing silently wrong results |
 | Reproducibility | FR-133 (schema versioning), FR-134 (provenance), FR-302 (engine versions), NFR-007 | O11 |
 | Usability consequences | FR-068 (layered settings), FR-069 (instrument profiles), FR-166 (partial import), FR-901 (stated exaggeration) | Making a stated capability actually usable |
-| Security | FR-353, NFR-010 | FR-352 requiring authenticated downloads |
+| Security | FR-353, NFR-010 | FR-352 requiring authenticated downloads. All three re-planned from P7 into P10 — there are no credentials to protect until there is something to authenticate to |
 
 If a `derived` requirement cannot be traced to one of these, it is scope creep and should be challenged in
 review.

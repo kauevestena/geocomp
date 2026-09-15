@@ -17,7 +17,7 @@ from typing import Any
 
 from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.epoch import Epoch
-from geocomp.core.models.observation import Cluster, Observation
+from geocomp.core.models.observation import BaselineFrame, Cluster, Observation
 from geocomp.core.models.station import Station
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -179,6 +179,16 @@ class Network:
     clusters: dict[str, Cluster] = field(default_factory=dict)
     crs: str = ""
     epoch: Epoch | None = None
+    #: Which cartesian frame the station coordinates are written in, when it is
+    #: known. ``None`` means unstated, which is not a loophole: the 3D
+    #: observation equations are frame-agnostic -- ``Frame.SPACE_3D`` is three
+    #: orthogonal metres whatever they are called, which is what lets
+    #: ``tests/test_dynadjust_crossvalidation.py`` adjust a geocentric network
+    #: directly. What is *not* safe is **mixing**, and that is what stating this
+    #: catches: an ECEF baseline against projected station coordinates is wrong
+    #: by a rotation and raises nothing. A network that says nothing is not
+    #: checked, because there is nothing to check it against.
+    cartesian_frame: BaselineFrame | None = None
     meta: dict[str, Any] = field(default_factory=dict)
 
     # -- assembly --------------------------------------------------------

@@ -39,7 +39,11 @@ import numpy as np
 
 from geocomp.core.adjustment.parameters import Frame, ParameterLayout
 from geocomp.core.errors import ComputationError, ValidationError
-from geocomp.core.models import Observation, ObservationType
+from geocomp.core.models import (
+    Observation,
+    ObservationType,
+    baseline_frame,
+)
 from geocomp.core.units import wrap_to_pi
 
 __all__ = ["SUPPORTED_TYPES", "EquationRow", "evaluate", "supports"]
@@ -363,7 +367,41 @@ def _gnss_baseline(observation, layout, x):
     The three rows are correlated through the cluster's 3x3 covariance, which
     the weight matrix carries (FR-104). The equations themselves are simple; the
     correctness is in not decomposing the cluster.
+
+    **This equation is frame-agnostic, and the check below is about *mixing*
+    rather than about which frame is right.** ``target[c] - origin[c]`` is a
+    difference of two cartesian coordinates, so it is correct in any orthogonal
+    3-frame -- ``Frame.SPACE_3D`` is "three orthogonal metres whatever they are
+    called", which is exactly what lets
+    ``tests/test_dynadjust_crossvalidation.py`` adjust a geocentric network here
+    and get DynAdjust's answer to a twentieth of a millimetre.
+
+    What is *not* correct is a baseline in one frame against station
+    coordinates in another: an ECEF vector against projected eastings and
+    northings is wrong by a rotation and raises nothing. So the check compares
+    the two statements when both exist, and does nothing when the network has
+    not said what frame it is in -- there is then nothing to compare against,
+    and inventing a default would refuse the legitimate case above
+    (``specs/04-data-model.md`` section 2.5.1).
     """
+    stated = layout.cartesian_frame
+    if stated is not None:
+        frame = baseline_frame(observation)
+        if frame is not stated:
+            raise ValidationError(
+                "gnss_baseline_frame_mismatch",
+                observation=observation.id,
+                received=frame.value,
+                expected=(
+                    f"a baseline in the network's own frame, {stated.value} -- "
+                    "a baseline differenced against coordinates in another "
+                    "frame is wrong by a rotation and raises nothing. Rotate it "
+                    "with geocomp.core.techniques.gnss.baselines."
+                    "rotate_baseline_to_local, or state the network's frame to "
+                    "match"
+                ),
+            )
+
     origin_id, target_id = observation.stations
     origin = _coordinates(origin_id, layout, x)
     target = _coordinates(target_id, layout, x)

@@ -33,7 +33,7 @@ not derivation, and their licences do not combine with GeoComp's.
 | Component | Licence | Upstream |
 |---|---|---|
 | **DynAdjust** — least-squares network adjustment | Apache-2.0 | <https://github.com/GeoscienceAustralia/DynAdjust> |
-| **RTKLIB** / **RTKLIB-EX** — GNSS post-processing (`rnx2rtkp`) | See the upstream `license.txt` | <https://www.rtklib.com/> · <https://github.com/rtklibexplorer/RTKLIB> |
+| **RTKLIB** / **RTKLIB-EX** — GNSS post-processing (`rnx2rtkp`) | BSD-2-Clause | <https://www.rtklib.com/> · <https://github.com/rtklibexplorer/RTKLIB> |
 
 **DynAdjust** is developed by Geoscience Australia. It builds against Boost, Apache Xerces-C++ and
 CodeSynthesis XSD; the last is GPL-2.0-licensed, which affects the distribution terms of the DynAdjust binary
@@ -42,7 +42,9 @@ of redistributing them.
 
 **RTKLIB** was written by T. Takasu; **RTKLIB-EX** (formerly "demo5") is the rtklibexplorer fork, based on
 RTKLIB 2.4.3 and optimised for low-cost receivers. The research project names RTKLIB-EX; GeoComp targets
-`rnx2rtkp` from both distributions and records which one produced a result.
+`rnx2rtkp` from both distributions and records which one produced a result. The licence is **BSD 2-clause**
+(`license.txt`, "Copyright (c) 2007-2020, T. Takasu, All rights reserved"), confirmed at the pinned commit in
+phase P7 — the previous entry here said only "see the upstream `license.txt`", which is not an answer.
 
 Where GeoComp downloads an engine, it places that engine's own licence text alongside the binary and shows
 it in the About dialog.
@@ -57,6 +59,26 @@ the parser.
 
 Apache-2.0 permits it; the attribution is here and in the test module that reads them. It is data rather
 than a binary, and like the Krumm corpus below it is test data that never enters the plugin package.
+
+### Test data redistributed from RTKLIB
+
+`tests/data/rtklib/07590920.05o`, `30400920.05o` and `brdc_0759.05n.gz` are
+**RTKLIB's own sample data**, copied unmodified from `test/data/rinex/` of
+[RTKLIB-EX](https://github.com/rtklibexplorer/RTKLIB) at commit `06e8644`
+(`rnx2rtkp ver.EX 2.5.1`); the navigation file is gzipped here and otherwise
+byte-identical. They are a real 2005 GSI Japan survey: two marks observing the
+same hour at 30 s, which is a genuine relative-static baseline rather than a
+pair of unrelated files.
+
+**BSD 2-clause** permits the redistribution with the copyright notice, which is
+this entry. Like the other corpora below, it is test data and never enters the
+plugin package.
+
+The RINEX 3 fixture beside them, `rinex3-header.rnx`, is **not** RTKLIB's — it
+is transcribed from the published RINEX 3.04 format definition, because nothing
+in the RTKLIB tree is RINEX 3 and `convbin` aborts with a buffer overflow when
+asked to convert one. `tests/data/rtklib/PROVENANCE.md` records both facts, and
+the tests say which fixture is which.
 
 ### Test data redistributed from GNU Gama — the Krumm examples
 

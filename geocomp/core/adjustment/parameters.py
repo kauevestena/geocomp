@@ -23,7 +23,7 @@ from enum import Enum
 import numpy as np
 
 from geocomp.core.errors import DataError, ValidationError
-from geocomp.core.models import ConstraintMode, Network, Station
+from geocomp.core.models import BaselineFrame, ConstraintMode, Network, Station
 from geocomp.core.uncertainty import Covariance
 from geocomp.core.units import Unit
 
@@ -144,6 +144,10 @@ class ParameterLayout:
     """
 
     frame: Frame
+    #: The network's stated cartesian frame, carried so the observation
+    #: equations can refuse a baseline expressed in a different one. ``None``
+    #: when the network did not say -- see :attr:`Network.cartesian_frame`.
+    cartesian_frame: BaselineFrame | None = None
     slots: list[ParameterSlot] = field(default_factory=list)
     _columns: dict[tuple[str, str], int] = field(default_factory=dict, repr=False)
     #: Values of components that are held fixed, keyed as (owner, component).
@@ -167,7 +171,7 @@ class ParameterLayout:
             auxiliary: ``{owner: (parameter name, ...)}`` for orientation and
                 drift unknowns, in a stable order.
         """
-        layout = cls(frame=frame)
+        layout = cls(frame=frame, cartesian_frame=network.cartesian_frame)
 
         for station_id in sorted(network.stations):
             station = network.stations[station_id]
