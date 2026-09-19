@@ -86,6 +86,27 @@ them:
 PATH="$PATH:/path/to/dynadjust/bin" python3 -m pytest -q -k dynadjust
 ```
 
+**RD-06 checks GNSS against published NGS coordinates**, using frozen NOAA data
+in `tests/data/rd06/`. Source-integrity and recorded-output tests run offline.
+To process both observation days through the current GeoComp code:
+
+```sh
+python3 -m pip install -r tests/data/rd06/requirements.txt
+python3 scripts/check_rd06.py --fetch-inputs --verify-inputs
+PATH="$PATH:/path/to/rtklib/bin" python3 -m pytest -q tests/test_rd06.py
+PATH="$PATH:/path/to/rtklib/bin" python3 scripts/check_rd06.py --output build/rd06
+```
+
+The published-coordinate criterion **remains unmet** (primary result: 7.512 mm
+in 3D). Local pytest reports that assertion as a strict expected failure; the
+standalone checker exits 1. Engine CI uses `--runxfail`, enforces the assertion
+and retains its evidence, so the accuracy check stays red. Missing prerequisites
+skip locally and fail in that CI job. No tolerance is relaxed. See
+[`tests/data/rd06/PROVENANCE.md`](tests/data/rd06/PROVENANCE.md).
+The [GNSS development examples](tests/data/rd06/EXAMPLES.md) list the five
+processing cases and smaller runnable examples for formats, covariance, antenna
+heights, baseline dependence and adjustment interchange.
+
 The published network adjustments of RD-11 need nothing: `tests/data/krumm/` carries all 61 of Krumm's
 example networks, so the 34 with published answers are checked on every commit. They are GNU Gama's files at
 a pinned commit, copied verbatim, redistributed on the terms in

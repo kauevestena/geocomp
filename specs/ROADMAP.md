@@ -429,12 +429,23 @@ loading a configuration file silently relocates the base station to latitude 0, 
 | With RTKLIB absent, everything else still works | **met** — the suite passes with no engine and the adapter reports what is missing |
 | **A static relative session over RD-06 reproduces published coordinates** | **not met** — see below |
 
-**RD-06 is blocked, and not by a note this time.** All four candidate archives — `geoftp.ibge.gov.br`,
+**RD-06 was blocked during P7a.** All four candidate archives — `geoftp.ibge.gov.br`,
 `cddis.nasa.gov`, `igs.bkg.bund.de`, `files.igs.org` — are denied by the egress policy of the development
 environment ([`22-reference-data-sources.md`](./22-reference-data-sources.md) §5). The chain is validated
 end to end on RTKLIB's own sample pair, which resolves its ambiguities and yields a full covariance; that
 demonstrates the **pipeline**, not the **accuracy**, and the criterion stays open rather than being
 reinterpreted into one the available data can satisfy.
+
+**Validation update, 17 September 2026.** Official NOAA RINEX and independent NGS ITRF2020 coordinates have
+now been obtained for GODN–GODS and integrated into `tests/data/rd06/`. The evidence at the reviewed
+commit with the pinned engine shows the calibrated full-day result differs by **7.512 mm in 3D**, and fails the
+conservative 1 mm XYZ comparison derived from the source's printed precision. A second day, reciprocal
+processing and precise orbits do not close that gap. RD-06 acquisition is unblocked; **this exit criterion
+is still not met**. See [`22-reference-data-sources.md`](./22-reference-data-sources.md) §5. No tolerance
+has been changed, and this evidence does not close P7c or the deferred product/credential requirements.
+`tests/test_rd06.py` now exercises the current development code; the engine workflow enforces its accuracy
+assertion with `--runxfail` and retains the resulting evidence. That CI check remains red until the
+criterion is met. Local development labels only this known discrepancy as a strict expected failure.
 
 **Deferred out of this slice: products and credentials.** FR-352 (automatic product download), FR-353
 (credentials through the QGIS authentication system), NFR-010 and the GNSS half of FR-063 are **not** in P7a,

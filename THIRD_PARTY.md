@@ -147,6 +147,24 @@ faithfully and corrected, and PROVENANCE.md says which is which.
 `scripts/build.py` packages `geocomp/` alone — so nothing here reaches an installed plugin. That is asserted
 by `tests/test_adjust_corpus.py::TestTheCorpusIsTestDataOnly`, not merely intended.
 
+### NOAA/NGS, NASA Goddard and IGS reference data (RD-06)
+
+`tests/data/rd06/sources/` preserves NOAA CORS Network observations and navigation
+for NASA Goddard's GODN/GODS stations, official NGS coordinate sheets and station
+logs, an IGS final orbit, and the NGS IGS20 composite antenna calibration.
+Sources were acquired 17 September 2026 from NOAA's official distribution.
+The calibration alone is losslessly gzipped; original and packaged SHA-256
+hashes, URLs and dates are in `source_manifest.json` beside the data.
+
+The [NOAA NODD NCN terms](https://registry.opendata.aws/noaa-ncn/) permit public
+use and dissemination with attribution. IGS product terms and source notices
+are preserved with the files. NOAA/NGS, NASA, IGS and calibration contributors
+retain their authorship; no endorsement is implied. Derived coordinates and
+engine outputs are labelled analysis, not original official products. See
+[`NOTICE.md`](tests/data/rd06/NOTICE.md) and
+[`PROVENANCE.md`](tests/data/rd06/PROVENANCE.md) for the terms and full chain.
+These are test fixtures only and do not enter the plugin package.
+
 ## Attribution
 
 Beyond licence obligation. GeoComp exists because DynAdjust and RTKLIB exist, and the research project

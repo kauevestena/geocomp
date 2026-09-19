@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  
+    
+  
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+    
+    <link rel="shortcut icon" type="image/ico" href="https://a0.awsstatic.com/libra-css/images/site/fav/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="57x57" href="https://a0.awsstatic.com/libra-css/images/site/touch-icon-iphone-114-smile.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="https://a0.awsstatic.com/libra-css/images/site/touch-icon-ipad-144-smile.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="https://a0.awsstatic.com/libra-css/images/site/touch-icon-iphone-114-smile.png"/>
+    <link rel="apple-touch-icon" sizes="144x144" href="https://a0.awsstatic.com/libra-css/images/site/touch-icon-ipad-144-smile.png"/>  
+  
+    <title>NOAA Continuously Operating Reference Stations (CORS) Network (NCN) - Registry of Open Data on AWS</title>
+  
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://assets.opendata.aws/css/bootstrap/3.4.1/bootstrap.min.css">
+  
+    <!-- Our local CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+  
+    <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Dataset",
+      "name" : "NOAA Continuously Operating Reference Stations (CORS) Network (NCN)",
+      "description" : "The \u003ca href=\"https://geodesy.noaa.gov/CORS/\"\u003eNOAA Continuously Operating Reference Stations (CORS) Network (NCN)\u003c/a\u003e, managed by NOAA/National Geodetic Survey (\u003ca href=\"https://geodesy.noaa.gov/\"\u003eNGS\u003c/a\u003e), provide Global Navigation Satellite System (GNSS) data, supporting three dimensional positioning, meteorology, space weather, and geophysical applications throughout the United States. The NCN is a multi-purpose, multi-agency cooperative endeavor, combining the efforts of hundreds of government, academic, and private organizations. The stations are independently owned and operated. Each agency shares their GNSS/GPS carrier phase and code range measurements and station metadata with NGS, which are analyzed and distributed free of charge.\nNGS provides access to all NCN data collected since 9 February (040) 1994.\u003cul\u003e\n\u003cli\u003e\u003ch4 id=\"access-to-ncn-data-and-products\"\u003eAccess to NCN Data and Products\u003c/h4\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ca href=\"https://noaa-cors-pds.s3.amazonaws.com/index.html\"\u003eNOAA-NCN on AWS\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://geodesy.noaa.gov/corsdata/\"\u003eNGS server: https://geodesy.noaa.gov/corsdata/\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://geodesy.noaa.gov/UFCORS/\"\u003eNGS\u0026#39;s customized data request service (UFCORS)\u003c/a\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003ch4 id=\"ncn-data-and-products\"\u003eNCN Data and Products\u003c/h4\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eRINEX\u003c/strong\u003e: The GPS/GNSS data collected at NCN stations are made available to the public by NGS in Receiver INdependent EXchange (RINEX) format. Most data are available within 1 hour (60 minutes) from when they were recorded at the remote site, and a few sites have a delay of 24 hours (1440 minutes).\u003cbr/\u003eRINEX data can be found at: \u003cem\u003erinex/\u003ccode\u003eYYYY\u003c/code\u003e/\u003ccode\u003eDDD\u003c/code\u003e/\u003ccode\u003essss\u003c/code\u003e/\u003c/em\u003e\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eStation logs\u003c/strong\u003e: \u003cul\u003e\n\u003cli\u003eStation log files contain all the historical equipment (receiver/antenna) used at that station, approximate location, owner and operating agency, etc..\u003cbr/\u003eStation log files can be found at: \u003cem\u003estation_log/\u003ccode\u003essss\u003c/code\u003e.log.txt\u003c/em\u003e\u003c/li\u003e\n\u003cli\u003eHistorical and current equipment information of all NCN stations, except those that are considered IGS stations.\u003cbr/\u003eThese data can be found at: \u003cem\u003estation_log/cumulative.station.info.cors\u003c/em\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003ePublished Coordinates and Velocities\u003c/strong\u003e: NAD83 and ITRF coordinates and velocities of each NCN station. All published coordinates and velocities are given for the Antenna Reference Point (ARP).\u003cbr/\u003ePublished coordinate and velocity files can be found at: \u003cem\u003ecoord/coord_\u003ccode\u003eYY\u003c/code\u003e/\u003c/em\u003e\u003cbr/\u003eIn July 2019, NGS published \u003ca href=\"https://geodesy.noaa.gov/CORS/news/mycs2/mycs2.shtml\"\u003eMYCS2\u003c/a\u003e!\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eTime-series Plots\u003c/strong\u003e:\u003cul\u003e\n\u003cli\u003e\u003cem\u003eShort-term\u003c/em\u003e plots show the repeatability of a site for the last 90-days with respect to the current published position, corrected for the effect of the published velocity. These plots are updated daily.\u003cbr/\u003eShort-term plots can be found at: \u003cem\u003e/Plots/\u003ccode\u003essss\u003c/code\u003e_\u003ccode\u003eYY\u003c/code\u003e.short.png\u003c/em\u003e\u003c/li\u003e\n\u003cli\u003e\u003cem\u003eLong-term\u003c/em\u003e plots show the show weekly residual positions with respect to the current published coordinates from our stacked solution. Newer sites may not have a long-term plot if they were added after our Multi-year Solution Processing campaign.\u003cbr/\u003eLong-term plots can be found at: \u003cem\u003e/Plots/Longterm/\u003ccode\u003essss\u003c/code\u003e_\u003ccode\u003eYY\u003c/code\u003e.long.png\u003c/em\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eDaily Broadcast Ephemeris\u003c/strong\u003e:\u003cul\u003e\n\u003cli\u003eDaily GPS Broadcast ephemeris can be found at: \u003cem\u003erinex/\u003ccode\u003eYYYY\u003c/code\u003e/\u003ccode\u003eDDD\u003c/code\u003e/brdc\u003ccode\u003eDDD\u003c/code\u003e0.\u003ccode\u003eYY\u003c/code\u003en.gz\u003c/em\u003e\u003c/li\u003e\n\u003cli\u003eDaily GLONASS-only Broadcast ephemeris can be found at: \u003cem\u003erinex/\u003ccode\u003eYYYY\u003c/code\u003e/\u003ccode\u003eDDD\u003c/code\u003e/brdc\u003ccode\u003eDDD\u003c/code\u003e0.\u003ccode\u003eYY\u003c/code\u003eg.gz\u003c/em\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eDaily final, rapid, and hourly ultra-rapid GNSS Orbit\u003c/strong\u003e can be found at: \u003cul\u003e\n\u003cli\u003eDaily final and rapid GNSS Orbit can be found at: \u003cem\u003erinex/\u003ccode\u003eYYYY\u003c/code\u003e/\u003ccode\u003eDDD\u003c/code\u003e/\u003ccode\u003eAAAWWWWD\u003c/code\u003e.sp3.gz\u003c/em\u003e\u003c/li\u003e\n\u003cli\u003eHourly ultra-rapid GNSS Orbit can be found at: \u003cem\u003erinex/\u003ccode\u003eYYYY\u003c/code\u003e/\u003ccode\u003eDDD\u003c/code\u003e/\u003ccode\u003eAAAWWWWD\u003c/code\u003e_\u003ccode\u003eHH\u003c/code\u003e.sp3.gz\u003c/em\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eIn which:\u003cul\u003e\n\u003cli\u003e\u003ccode\u003eYYYY\u003c/code\u003e: 4-digit year\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eYY\u003c/code\u003e: The last 2-digit of year\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eDDD\u003c/code\u003e: 3-digit day of year [001,002,..366]\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eD\u003c/code\u003e: day of week [Sun=0, Mon=1,..,Fri=6]\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003essss\u003c/code\u003e: 4-char station ID\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eh\u003c/code\u003e: 1-char hour of day (a=00, b=01, c=02,..,x=23)\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eHH\u003c/code\u003e: 2-digit hour of day (00,01,02,..,23)\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eWWWW\u003c/code\u003e: 4-digit GPS week number\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eAAA\u003c/code\u003e: 3-char analysis center name/type of solution, such as:\u003cul\u003e\n\u003cli\u003eigs: IGS final solution combination\u003c/li\u003e\n\u003cli\u003eigl: IGS final solution combination (GLONASS-only)\u003c/li\u003e\n\u003cli\u003eigr: IGS rapid solution combination\u003c/li\u003e\n\u003cli\u003eigu: IGS ultra-rapid solution combination\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n",
+      "license" : "NOAA data disseminated through NODD are open to the public and can be used as desired.\u003cbr/\u003e \u003cbr/\u003eNOAA makes data openly available to ensure maximum use of our data, and to spur and encourage exploration and innovation throughout the industry. NOAA requests attribution for the use or dissemination of unaltered NOAA data. However, it is not permissible to state or imply endorsement by or affiliation with NOAA. If you modify NOAA data, you may not state or imply that it is original, unaltered NOAA data.",
+      "sourceOrganization" : "\u003ca href=\"http://www.noaa.gov/\"\u003eNOAA\u003c/a\u003e"
+    }
+    </script>
+  
+  </head>
+  <body>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://assets.opendata.aws/js/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://assets.opendata.aws/js/bootstrap/3.4.1/bootstrap.min.js"></script>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="roda-header">
+          <h2><a href="/" alt="Home">Registry of Open Data on AWS</a></h2>
+          <a href="http://aws.amazon.com/what-is-cloud-computing">
+            <img src="https://assets.opendata.aws/img/AWS-Logo_White-Color_300x180.png" alt="Powered by AWS Cloud Computing" id="aws_header_logo">
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div class="container" >
+
+    <h1>NOAA Continuously Operating Reference Stations (CORS) Network (NCN)</h1>
+    <p>
+      
+
+      <span class="label label-info tag link-tag">broadcast ephemeris</span>
+
+      <span class="label label-info tag link-tag">Continuously Operating Reference Station (CORS)</span>
+
+      <span class="label label-info tag link-tag">earth observation</span>
+
+      <span class="label label-info tag link-tag">geospatial</span>
+
+      <span class="label label-info tag link-tag">GNSS</span>
+
+      <span class="label label-info tag link-tag">GPS</span>
+
+      <span class="label label-info tag link-tag">mapping</span>
+
+      <span class="label label-info tag link-tag">NOAA CORS Network (NCN)</span>
+
+      <span class="label label-info tag link-tag">post-processing</span>
+
+      <span class="label label-info tag link-tag">RINEX</span>
+
+      <span class="label label-info tag link-tag">survey</span>
+    </p>
+    <div class="row">
+      <div class="col-md-6">
+      <h3>Description</h3>
+      <p>The <a href="https://geodesy.noaa.gov/CORS/">NOAA Continuously Operating Reference Stations (CORS) Network (NCN)</a>, managed by NOAA/National Geodetic Survey (<a href="https://geodesy.noaa.gov/">NGS</a>), provide Global Navigation Satellite System (GNSS) data, supporting three dimensional positioning, meteorology, space weather, and geophysical applications throughout the United States. The NCN is a multi-purpose, multi-agency cooperative endeavor, combining the efforts of hundreds of government, academic, and private organizations. The stations are independently owned and operated. Each agency shares their GNSS/GPS carrier phase and code range measurements and station metadata with NGS, which are analyzed and distributed free of charge.
+NGS provides access to all NCN data collected since 9 February (040) 1994.<ul>
+<li><h4 id="access-to-ncn-data-and-products">Access to NCN Data and Products</h4>
+<ul>
+<li><a href="https://noaa-cors-pds.s3.amazonaws.com/index.html">NOAA-NCN on AWS</a></li>
+<li><a href="https://geodesy.noaa.gov/corsdata/">NGS server: https://geodesy.noaa.gov/corsdata/</a></li>
+<li><a href="https://geodesy.noaa.gov/UFCORS/">NGS&#39;s customized data request service (UFCORS)</a></li>
+</ul>
+</li>
+<li><h4 id="ncn-data-and-products">NCN Data and Products</h4>
+<ul>
+<li><strong>RINEX</strong>: The GPS/GNSS data collected at NCN stations are made available to the public by NGS in Receiver INdependent EXchange (RINEX) format. Most data are available within 1 hour (60 minutes) from when they were recorded at the remote site, and a few sites have a delay of 24 hours (1440 minutes).<br/>RINEX data can be found at: <em>rinex/<code>YYYY</code>/<code>DDD</code>/<code>ssss</code>/</em></li>
+<li><strong>Station logs</strong>: <ul>
+<li>Station log files contain all the historical equipment (receiver/antenna) used at that station, approximate location, owner and operating agency, etc..<br/>Station log files can be found at: <em>station_log/<code>ssss</code>.log.txt</em></li>
+<li>Historical and current equipment information of all NCN stations, except those that are considered IGS stations.<br/>These data can be found at: <em>station_log/cumulative.station.info.cors</em></li>
+</ul>
+</li>
+<li><strong>Published Coordinates and Velocities</strong>: NAD83 and ITRF coordinates and velocities of each NCN station. All published coordinates and velocities are given for the Antenna Reference Point (ARP).<br/>Published coordinate and velocity files can be found at: <em>coord/coord_<code>YY</code>/</em><br/>In July 2019, NGS published <a href="https://geodesy.noaa.gov/CORS/news/mycs2/mycs2.shtml">MYCS2</a>!</li>
+<li><strong>Time-series Plots</strong>:<ul>
+<li><em>Short-term</em> plots show the repeatability of a site for the last 90-days with respect to the current published position, corrected for the effect of the published velocity. These plots are updated daily.<br/>Short-term plots can be found at: <em>/Plots/<code>ssss</code>_<code>YY</code>.short.png</em></li>
+<li><em>Long-term</em> plots show the show weekly residual positions with respect to the current published coordinates from our stacked solution. Newer sites may not have a long-term plot if they were added after our Multi-year Solution Processing campaign.<br/>Long-term plots can be found at: <em>/Plots/Longterm/<code>ssss</code>_<code>YY</code>.long.png</em></li>
+</ul>
+</li>
+<li><strong>Daily Broadcast Ephemeris</strong>:<ul>
+<li>Daily GPS Broadcast ephemeris can be found at: <em>rinex/<code>YYYY</code>/<code>DDD</code>/brdc<code>DDD</code>0.<code>YY</code>n.gz</em></li>
+<li>Daily GLONASS-only Broadcast ephemeris can be found at: <em>rinex/<code>YYYY</code>/<code>DDD</code>/brdc<code>DDD</code>0.<code>YY</code>g.gz</em></li>
+</ul>
+</li>
+<li><strong>Daily final, rapid, and hourly ultra-rapid GNSS Orbit</strong> can be found at: <ul>
+<li>Daily final and rapid GNSS Orbit can be found at: <em>rinex/<code>YYYY</code>/<code>DDD</code>/<code>AAAWWWWD</code>.sp3.gz</em></li>
+<li>Hourly ultra-rapid GNSS Orbit can be found at: <em>rinex/<code>YYYY</code>/<code>DDD</code>/<code>AAAWWWWD</code>_<code>HH</code>.sp3.gz</em></li>
+</ul>
+</li>
+<li>In which:<ul>
+<li><code>YYYY</code>: 4-digit year</li>
+<li><code>YY</code>: The last 2-digit of year</li>
+<li><code>DDD</code>: 3-digit day of year [001,002,..366]</li>
+<li><code>D</code>: day of week [Sun=0, Mon=1,..,Fri=6]</li>
+<li><code>ssss</code>: 4-char station ID</li>
+<li><code>h</code>: 1-char hour of day (a=00, b=01, c=02,..,x=23)</li>
+<li><code>HH</code>: 2-digit hour of day (00,01,02,..,23)</li>
+<li><code>WWWW</code>: 4-digit GPS week number</li>
+<li><code>AAA</code>: 3-char analysis center name/type of solution, such as:<ul>
+<li>igs: IGS final solution combination</li>
+<li>igl: IGS final solution combination (GLONASS-only)</li>
+<li>igr: IGS rapid solution combination</li>
+<li>igu: IGS ultra-rapid solution combination</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+
+      <h4>Update Frequency</h4>
+      <p>Most data are available within 1 hour from when they were recorded at the remote site, and a few sites have a delay of 24 hours.</p>
+
+      <h4>License</h4>
+      <p>NOAA data disseminated through NODD are open to the public and can be used as desired.<br/> <br/>NOAA makes data openly available to ensure maximum use of our data, and to spur and encourage exploration and innovation throughout the industry. NOAA requests attribution for the use or dissemination of unaltered NOAA data. However, it is not permissible to state or imply endorsement by or affiliation with NOAA. If you modify NOAA data, you may not state or imply that it is original, unaltered NOAA data.</p>
+
+      <h4>Documentation</h4>
+      <p>For more information, visit <a href="https://geodesy.noaa.gov/CORS/data.shtml">NCN Data and Products</a></p>
+
+      <h4>Managed By</h4>
+      <p><a href="http://www.noaa.gov/"><img src="/img/logos/noaa-logo.png" class="managed-by-logo" alt="NOAA"></a></p>
+      <p>See all datasets managed by <a href="https://registry.opendata.aws/collab/noaa">NOAA</a>.</p>
+
+      <h4>Contact</h4>
+      <p><ul>
+<li>For general inquiries about NCN data and products, email ✉ ngs.cors at noaa.gov</li>
+<li>For any questions regarding data delivery or any general questions regarding the NOAA Open Data Dissemination (NODD) Program, email the NODD Team at <a href="mailto:nodd@noaa.gov">&#110;&#x6f;&#x64;&#x64;&#64;&#110;&#111;&#97;&#x61;&#x2e;&#103;&#x6f;&#118;</a>.</li>
+<li>We also seek to identify case studies on how NOAA data is being used and will be featuring those stories in joint publications and in upcoming events. If you are interested in seeing your story highlighted, please share it with the NODD team by emailing <a href="mailto:nodd@noaa.gov">&#110;&#x6f;&#100;&#x64;&#x40;&#x6e;&#111;&#97;&#x61;&#x2e;&#x67;&#111;&#x76;</a></li>
+</ul>
+</p>
+
+      <h4>How to Cite</h4>
+      <p>NOAA Continuously Operating Reference Stations (CORS) Network (NCN) was accessed on <code>DATE</code> from https://registry.opendata.aws/noaa-ncn. </p>
+
+
+    </div>
+    <div class="col-md-5 col-md-offset-1">
+      <h3>Resources on AWS</h3>
+      <ul class="resource-list">
+        <li>
+          <dl class="resource-list">
+            <dt class="resource-description">Description</dt>
+            <dd class="resource-description"><a href="https://geodesy.noaa.gov/CORS/data.shtml">NCN Data and Products</a></dd>
+            <dt class="resource-type">Resource type</dt>
+            <dd class="resource-type s3-bucket">S3 Bucket</dd>
+            <dt class="resource-arn">Amazon Resource Name (ARN)</dt>
+            <dd><code>arn:aws:s3:::noaa-cors-pds</code></dd>
+            <dt class="resource-region">AWS Region</dt>
+            <dd><code>us-east-1</code></dd>
+            <dt class="resource-region"><a href="https://aws.amazon.com/cli/">AWS CLI</a> Access (No AWS account required)</dt>
+            <dd><code>aws s3 ls --no-sign-request s3://noaa-cors-pds/</code></dd>
+            <dt class="resource-explore">Explore</dt>
+            <dd><a href="https://noaa-cors-pds.s3.amazonaws.com/index.html">Browse NOAA-NCN Bucket</a></dd>
+          </dl>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+    <hr/>
+    <p><a href="https://github.com/awslabs/open-data-registry/blob/main/datasets/noaa-ncn.yaml">Edit this dataset entry on GitHub</a></p>
+    <p><a href="mailto:opendata@amazon.com">Tell us about your project</a></p>
+    <p><a href="/"><b>Home</b></a></p>
+  </div>
+  <script src="/js/tags.js"></script>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>NCN Data and Products - National Geodetic Survey</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <meta name="DC.title" content="NCN Data and Products - National Geodetic Survey">
+    <meta name="DC.description" content="The National Geodetic Survey manages a network of 2000+ Continuously Operating Reference Stations (CORS) that provide GNSS data in support of 3 dimention positioning and other geospatial applications throughout the United States, its territories, and a few foreign countries.">
+    <meta name="DC.creator" content="US Department of Commerce, National Oceanic and Atmospheric Administration, National Ocean Service, National Geodetic Survey">
+    <meta name="keywords" content="NGS,geodetic,survey,NAD,NSRS" />
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="DC.language" scheme="DCTERMS.RFC1766" content="EN-US">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PDTL9NJYZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-7PDTL9NJYZ');
+</script>
+<script src="/ngsstandard/assets/js/jquery.min.js"></script>
+<script src="/ngsstandard/assets/js/bootstrap.min.js"></script>
+<script async="" src="//www.google-analytics.com/analytics.js"></script>
+<!-- DAP tag -->
+<script src="//dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=DOC&amp;subagency=NOAA" id="_fed_an_ua_tag"></script>
+<!-- DAP tag -->
+<link rel="apple-touch-icon" href="/ngsstandard/images/apple-touch-icon.png">
+<!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+<link rel="apple-touch-icon-precomposed" href="/ngsstandard/images/apple-touch-icon-precomposed.png">
+<script type="text/javascript">
+$(document).ready(function(){
+	$(".dropdown, .btn-group").hover(function(){
+		var dropdownMenu = $(this).children(".dropdown-menu");
+		if(dropdownMenu.is(":visible")){
+			dropdownMenu.parent().toggleClass("open");
+		}
+	});
+});		
+</script>
+<link rel="stylesheet" href="/ngsstandard/assets/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/ngsstandard/assets/css/ngs-theme-lite.css">
+<link rel="stylesheet" type="text/css" href="/ngsstandard/assets/css/media-queries.css">
+<link rel="stylesheet" href="/ngsstandard/assets/css/font-awesome/4.5.0/css/font-awesome.min.css" >
+    
+    
+    <link rel="stylesheet" type="text/css" href="/CORS/css/ncn.css">
+    <link rel="stylesheet" type="text/css" href="/CORS/css/data.css">
+</head>
+
+<body>
+    <!-- Page banner and navigation -->
+        <!-- Skip Nav -->
+    <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+    <!-- APP CONTENT -->
+<!-- jQuery local fallback -->
+<!--script>window.jQuery || document.write('<script src="/ngsstandard/assets/bootstrap/js/jquery.min.js"><\/script>')</script-->
+<!-- Bootstrap JS local fallback -->
+<!--script>if(typeof($.fn.modal) === 'undefined') {document.write('<script src="/ngsstandard/assets/bootstrap/js/bootstrap.min.js"><\/script>')}</script-->
+<!-- Bootstrap CSS local fallback -->
+
+<script>
+    $(document).ready(function() {
+        var bodyColor = $('body').css('color');
+        if(bodyColor != 'rgb(51, 51, 51)') {
+            $("head").prepend('<link rel="stylesheet" href="/ngsstandard/assets/bootstrap/css/bootstrap.min.css">');}});
+</script>
+
+    <header>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="noaa"> 
+                    <!--<a href="#" title="NOAA website">noaa.gov</a>-->
+					<a class="NOAA_LINK" title="NOAA Home Page" href="https://www.noaa.gov"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container"> 
+  <!--Navbar with dropdown menu-->
+  <nav id="myNavbar" class="navbar navbar-default" role="navigation"> 
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+        <a class="navbar-brand" href="/index.shtml">NGS Home</a> </div>
+      
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+  <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">About NGS </a>
+    <ul class="dropdown-menu">
+      <li> <a href="https://geodesy.noaa.gov/INFO/WhatWeDo.shtml">What We Do</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web/about_ngs/info/mission-strategic-planning.shtml">Mission and Strategic Plan</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/leadership.shtml">NGS Leadership</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/programs-products.shtml">Programs and Products</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/ADVISORS/index.shtml">Geodetic Advisors</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/history/">NGS History</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/Policy/">Policies</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/activities.shtml">Activities in My Area</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/grant-opportunities/index.shtml">Grant Opportunities</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/ContractingOpportunities/">Contracting Opportunities</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/student-opportunities/index.shtml">Student Opportunities</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/faq.shtml">FAQ</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/NGSinfo.shtml">Contact Us</a> </li>
+    </ul>
+  </li>
+  <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Data & Imagery</a>
+    <ul class="dropdown-menu">
+      <li> <a href="https://geodesy.noaa.gov/OPUS/view.jsp">OPUS Share</a> </li>
+      <!--<li> <a href="https://geodesy.noaa.gov/NGSDataExplorer/">NGS Data Explorer</a> </li>-->
+      <li> <a href="https://geodesy.noaa.gov/datasheets/">Survey Mark Datasheets</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/datasheets/ngs_map/">NGS Web Map</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/CORS/">NOAA CORS Network (NCN)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/ANTCAL/">Antenna Calibration Data</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/RSD/rsd_home.shtml">Remote Sensing</a></li>
+      <li> <a href="https://storms.ngs.noaa.gov/">Storm Imagery</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web/APOS2/APOS.shtml">Coastal Imagery</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/RSD/cmp_data.shtml">Shoreline Data Explorer</a> </li>
+      <li> <a href="https://coast.noaa.gov/dataviewer/#/imagery/search/where:projectid=1020">Orthomosaics</a> </li>
+      <li> <a href="https://coast.noaa.gov/dataviewer/#/lidar/search/where:projectid=24">Lidar</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/AERO/aero.html">Aeronautical Data</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GRAV-D/data_products.shtml">Gravity Data</a> </li>
+      <!--<li> <a href="https://geodesy.noaa.gov/orbits/">Orbit Data</a> </li>-->
+    </ul>
+  </li>
+  <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Tools</a>
+    <ul class="dropdown-menu">
+      <li> <a href="https://geodesy.noaa.gov/OPUS/">Process GPS Data (OPUS)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/NCAT/">Coordinate Conversion and Transformation Tool (NCAT)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/TOOLS/">Geodetic Tool Kit</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/PC_PROD/">Geodetic Software</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web_services/">Web Services</a> </li>
+      <li> <a href="http://vdatum.noaa.gov">Vertical Datum Conversions (VDATUM)</a> </li>
+      <!--<li> <a href="/PC_PROD/VERTCON/">VERTCON</a> </li>-->
+      <li> <a href="https://geodesy.noaa.gov/gps-toolbox/">GPS Toolbox</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GEOID/GEOID18/computation.html">GEOID18 Computation</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/locus/">Adjust Leveling (LOCUS)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/TOOLS/Htdp/Htdp.shtml">Horizontal Time-Dependent Positioning (HTDP)</a> </li>
+    </ul>
+  </li>
+  <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Surveys</a>
+    <ul class="dropdown-menu">
+      <li> <a href="https://geodesy.noaa.gov/SurveyProposal/">Survey Project Proposal Form</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/OPUS/about.jsp#sharing">OPUS Share</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/surveys/mark-recovery/index.shtml">Mark Recovery</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/FGCS/BlueBook/">User-submitted Survey Projects (Bluebooking)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GEOID/GSVS/">Geoid Slope Validation Survey (GSVS)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/CBLINES/calibration.shtml">Calibration Base Lines (CBLs)</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GPSonBM/">GPS on Bench Marks</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GRAV-D/">GRAV-D</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/heightmod/">Height Modernization</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/leveling/">Leveling</a> </li>
+      <!--<li> <a href="/web/surveys/NA2011/">National Adjustment of 2011</a> </li>-->
+    </ul>
+  </li>
+  <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Science & Education</a>
+    <ul class="dropdown-menu multi-level">
+      <li> <a href="https://geodesy.noaa.gov/datums/index.shtml">Datums and Reference Frames</a> </li>
+      <li> <a href="https://beta.ngs.noaa.gov/new-datums/">New Datums</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/research/index.shtml">Research</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/GEOID/">Geoid Models</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web/science_edu/training/">Conferences/Training</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/conferences.shtml">Upcoming and Recent NGS Presentations</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/corbin/class_description/NGS_Video_Library.shtml">Educational Videos</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web/science_edu/online_lessons/index.shtml">Online Lessons</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/web/science_edu/webinar_series/">Webinar Series</a></li>
+      <li> <a href="https://geodesy.noaa.gov/web/science_edu/presentations_library/">Presentation Library</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/library/">Publication Library</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/commemorative/index.shtml">Commemorative Marks</a> </li>
+      <li> <a href="https://geodesy.noaa.gov/INFO/applications-of-geodesy.shtml">Applications of Geodesy</a> </li>
+    </ul>
+  </li>
+</ul>
+
+        <div id="menus_ngs_main_search">
+          <form method="get" action="//search.usa.gov/search" id="myform">
+            <div>
+              <input name="affiliate" value="nationalgeodeticsurvey" type="hidden">
+              <input size="10" name="query" class="searchbox" type="text" aria-label="Search">
+              <input name="Submit" value="Search" class="searchbtn" type="submit">
+            </div>
+            <input type="hidden" name="dump_app_trace" value="false">
+            <input type="hidden" name="db_debug" value="false">
+            <input type="hidden" name="dump_app_trace" value="false">
+            <input type="hidden" name="db_debug" value="false">
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  </div>
+
+
+    <!-- Page content -->
+    <div id="ncnpage_content" class="container">
+        <div id="divImgModal" class="modal modal-fullscreen fade" role="image" tabindex="-1">
+            <div class="modal-content">
+                <span id="imgModalClose" class="modal-close" aria-hidden="true">&times;</span>
+                <div class="modal-body">
+                    <h4 class="caption-container" id="imgModalTitleTop">Modal title</h4>
+                    <img id="imgModalImg" atl="" src="" class="image-responsive center-block" style="width:90%;">
+                    <h4 class="caption-container" id="imgModalTitleBottom">Modal title</h4>
+                </div>
+            </div>
+        </div><!-- /#divImgModal -->
+        <!-- Breadcrumbs -->
+        <div class="row">
+            <div class="col-sm-12">
+                <ol class="breadcrumb">
+                    <li><a href="/CORS/index.shtml">NCN Home</a></li>
+                    <li class="active"><a href="/CORS/data.shtml">NCN GPS/GNSS Data & Products</a></li>
+                </ol>
+            </div>
+        </div>
+        <!-- Main content -->
+        <div class="main_content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1>NCN GPS/GNSS Data and Products</h1>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>NGS provides access to all NCN data collected since February 9, 1994 (1994:040). The data include observation, meteorological, navigation/ephemeris, station logs and NGS coordinate files associated with the stations.</p>
+                            <h3>General Access Methods:</h3>
+                            <ul>
+                                <li><a href="https://geodesy.noaa.gov/CORS/data/kmz/NOAA_CORS_Network_NetworkLink.kml" download>View NCN on Google Earth Pro</a> (~2KB): this network link is configured to fetch the NCN in .kmz format at 24-hour interval.</li>
+                                <li><a href="https://https://geodesy.noaa.gov/CORS/data/kmz/NOAA_CORS_Network.kmz" download>NCN in .kmz format</a> (~600KB): offers details about NCN stations. This file is generated daily.</li>
+                                <li>NCN on AWS: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html">https://noaa-cors-pds.s3.amazonaws.com/index.html</a>. This service is part of the <a href="https://www.noaa.gov/information-technology/open-data-dissemination" target="_blank">NOAA Open Data Dissemination program (NODD)</a>, which facilitates public access to NOAA’s open data on commercial cloud platforms through public-private partnerships.</li>
+                                <li>NCN on NGS servers: <a href="https://geodesy.noaa.gov/corsdata/" target="_blank">https://geodesy.noaa.gov/corsdata/</a></li>
+                                <li>NCN on NCEI's CLASS: <a href="https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS" target="_blank">https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS</a> - the National Centers for Environmental Information (NCEI) via NOAA's Comprehensive Large Array-data Stewardship System (CLASS) - for downloading <strong>original at-sampling rate RINEX data</strong> from 2004 to present, with 30-day delay. While large data orders may take a few days to fulfill, small data requests are typically processed within the same day.</li>
+                                <li>NGS's UFCORS: <a href="https://geodesy.noaa.gov/UFCORS/" target="_blank">NGS's customized data request service (UFCORS)</a></li>
+                                <li>NCN on <a href="https://geodesy.noaa.gov/datasheets/ngs_map/" target="_blank">NGS Web Map</a>: <a href="https://arcg.is/18fWq8" target="_blank">https://arcg.is/18fWq8</a></li>
+                                <li>NOAA's OPUS : <a href="https://geodesy.noaa.gov/OPUS/" target="_blank">NOAA's Online Positioning User Service (OPUS)</a></li>
+                            </ul>
+                            <p>Example using cURL for downloading RINEX data</p>
+                            <ul>
+                                <li><strong>From NCN on AWS:</strong><br />
+                                    <pre> curl -O https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/ssss/ssssDDD0.YYd.gz</code></pre>
+                                    <p>e.g.: curl -O https://noaa-cors-pds.s3.amazonaws.com/rinex/2021/027/ab02/ab020270.21o.gz</p>
+                                </li>
+                                <li><strong>From NGS servers: </strong><br />
+                                    <pre> curl -O https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/ssss/ssssDDD0.YYd.gz</code></pre>
+                                    <p>e.g.: curl -O https://geodesy.noaa.gov/corsdata/rinex/2021/027/ab02/ab020270.21o.gz</p>
+                                </li>
+                                <li>where: <br />
+                                    <ul>
+                                        <li> -O : save file to local system using remote filename(s) </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <p>More details about NCN data and products are below.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Nav tabs -->
+                    <div>
+                        <button class="nav-btt bg-primary align-center nav-btt-active" onclick="showData(event,'rinex')"><span>RINEX</span></button>
+                        <button class="nav-btt bg-primary align-center" onclick="showData(event,'stationlog')"><span>Station Logs</span></button>
+                        <button class="nav-btt bg-primary align-center" onclick="showData(event,'publishedcoord')"><span>Published Coordinates and Velocities</span></button>
+                        <button class="nav-btt bg-primary align-center" onclick="showData(event,'ephorbit')"><span>Ephemeris and Orbit</span></button>
+                        <button class="nav-btt bg-primary align-center" onclick="showData(event,'ncnlists')"><span>NCN Lists</span></button>
+                    </div>
+                    <div id="rinex" class="data-type">
+                        <p>The GNSS data collected at NCN stations are made available to the public by NGS in Receiver INdependent EXchange (RINEX) format. Most data are available within 1 hour (60 minutes) from when they were recorded
+                            at the remote site, and a few sites have a delay of 24 hours (1440 minutes).</p>
+                        <ul>
+                            <li>Hourly files are only kept for 2 days.</li>
+                            <li>Daily files are kept permanently, available in 2 formats:
+                                <ul>
+                                    <li>GNU gzip-compressed of data in the Hatanaka-compression RINEX format (*.yyd.gz)</li>
+                                    <li>GNU gzip-compressed of data in RINEX format (*.yyo.gz)</li>
+                                </ul>
+                                However,
+                                <ul>
+                                    <li>After 30 days, daily files are decimated to 30s sampling rate.</li>
+                                    <li>After 6 months, only gzip-compressed files of daily data in the Hatanaka-compression RINEX format (*.yyd.gz) are provided.</li>
+                                </ul>
+                            </li>
+                            <li>For RINEX v2 data, NGS utilizes UNAVCO's TEQC software on incoming data for quality checking purposes. Daily data quality information generated by TEQC -qc are stored with daily data files.</li>
+                            <li>Navigation data files are available only for sites that NGS submits to the IGS network.</li>
+                            <li>Meteorological data files are available only for sites with independent meteorological sensors.</li>
+                        </ul>
+                        <h4>Access Methods:</h4>
+                        <ul>
+                            <li><strong>Daily RINEX</strong> observation data can be found at:<ul>
+                                    <li>NCN on AWS: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#rinex/">https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/ssss/File-Name</code></a>
+                                        <br />For more information about this service, visit <a href="https://www.noaa.gov/information-technology/open-data-dissemination" target="_blank">NOAA Open Data Dissemination (NODD)</a> program.
+                                    </li>
+                                    <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/ssss/File-Name</code></a></li>
+                                    <li>NCEI's CLASS: <a href="https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS" target="_blank">https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS</a>
+                                        <br />The National Centers for Environmental Information (NCEI) via NOAA's Comprehensive Large Array-data Stewardship System (CLASS) provides <strong>original at-sampling rate RINEX data</strong> from 2004 to present (30-day delay). While large data orders may take a few days to fulfill, small data requests are nominally fulfilled within the day.
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><strong>Partial-day/Joining-day/Decimating RINEX</strong> data can be requested from NGS's User Friendly CORS (UFCORS): <a target="_blank" href="https://geodesy.noaa.gov/UFCORS/">https://geodesy.noaa.gov/UFCORS/</a></li>
+                        </ul>
+                        <table class="table table-bordered">
+                            <thead class="align-center">
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Description</th>
+                                    <th>Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span><code>ssssDDD</code>0.<code>YY</code>d.gz</span></td>
+                                    <td>GNU gzip-compressed daily Hatanaka-compression RINEX v2</td>
+                                    <td>Daily</td>
+                                </tr>
+                                <tr>
+                                    <td><span><code>ssssDDD</code>0.<code>YY</code>o.gz</span></td>
+                                    <td>GNU gzip-compressed daily RINEX v2</td>
+                                    <td>Daily</td>
+                                </tr>
+                                <tr>
+                                    <td><span><code>ssssDDDh.YY</code>d.gz</span></td>
+                                    <td>GNU gzip-compressed hourly Hatanaka-compression RINEX v2</td>
+                                    <td>Hourly</td>
+                                </tr>
+                                <tr>
+                                    <td><span><code>ssssDDDh.YY</code>o.gz</span></td>
+                                    <td>GNU gzip-compressed hourly RINEX v2</td>
+                                    <td>Hourly</td>
+                                </tr>
+                                <tr>
+                                    <td><span><code>ssssDDD</code>0.<code>YY</code>S</span></td>
+                                    <td>Daily TEQC Summary file for RINEX v2</td>
+                                    <td>Daily</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="stationlog" class="data-type" style="display:none;">
+                        <p>Station log files contain all the historical equipment (receiver/antenna) used at that station, approximate location, owner and operating agency, etc.</p>
+                        <p>We strongly recommend that the the position/coordinates listed in the log file like that in the RINEX header files should be considered <strong>APPROXIMATE</strong>. When a user downloads data, they should at the same time download the published NGS coordinate (position and velocity) file for that station.</p>
+                        <p><strong>A station log</strong> can be found at:</p>
+                        <ul>
+                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#station_log/">https://noaa-cors-pds.s3.amazonaws.com/station_log/<code>ssss</code>.log.txt</a>
+                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                            </li>
+                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/station_log/" target="_blank">https://geodesy.noaa.gov/corsdata/station_log/<code>ssss</code>.log.txt</a></li>
+                            <li>NCEI's CLASS: <a href="https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS" target="_blank">https://www.avl.class.noaa.gov/saa/products/search?datatype_family=CORS</a>
+                                <br />The National Centers for Environmental Information (NCEI) via NOAA's Comprehensive Large Array-data Stewardship System (CLASS) provides <strong>original at-sampling rate RINEX data</strong> from 2004 to present (30-day delay). While large data orders may take a few days to fulfill, small data requests are nominally fulfilled within the day.
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="publishedcoord" class="data-type" style="display:none;">
+                        <p><strong>NGS has published MYCS3 on June 10, 2025!</strong></p>
+                        <p class="text-info">Previous published coordinates and velocities of NCN stations can be found <a href="#publishedcoord_historical">here</a></p>
+                        <p>NGS completed the third reprocessing of daily RINEX data from 1996 to 2022 for all stations in the NOAA CORS Network (NCN). The reprocessed solution, called the Multi-Year CORS Solution 3, is aligned to the ITRF2020(epoch 2020) global frame.</p>
+                        <p>On October 2, 2022 (GPS week 2125), the International GNSS Service (<a href="https://igs.org/">IGS</a>) released the new coordinates and corresponding antenna calibrations in IGS20, the IGS realization of the International Terrestrial Reference Frame 2020 (<a href="https://itrf.ign.fr/en/solutions/itrf2020">ITRF2020</a>). As part of this transition, products in the IGS14 frame are no longer updated. Instead, all the updates will be in the ITRF2020 frame.</p>
+                        <p>NGS participated in the 3rd IGS reprocessing campaign, during which IGS Analysis Center reanalyzed the entire global IGS dataset using the latest models and processing methods. NGS took this opportunity to also reanalyze its GPS data holdings for the NCN. All processing conformed with the International Earth Rotation and Reference System Service (IERS) 2010 conventions (<a href="https://www.iers.org/IERS/EN/Publications/TechnicalNotes/tn36.html">Petit and Luzum</a>). The global (Repro3) and regional NCN data sets were combined to form the Multi-Year CORS Solution 3 (MYCS3), which is aligned to the ITRF2020 frame through a 14 parameter transformation relative to 97 globally distributed IGS stations. MYCS3 replaces our previous multi-year CORS solution (<a href="/CORS/mycs/mycs2.shtml">MYCS2</a>).</p>
+                        <p>For more information, please visit: <a href="/CORS/news/mycs3/mycs3.shtml" target="_blank">The Multi-Year CORS Solution 3 (MYCS3)</a></p>
+                        <p><strong>MYCS3 published coordinates of each NCN station</strong> can be found at:</p>
+                        <ul>
+                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#coord/coord_20/">https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/<code>ssss</code>_20.coord.txt</a>
+                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                            </li>
+                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/coord/coord_20" target="_blank">https://geodesy.noaa.gov/corsdata/coord/coord_20/<code>ssss</code>_20.coord.txt</a></li>
+                        </ul>
+                        <p><strong>MYCS3 published coordinates of NCN stations by reference frames</strong> can be found at:</p>
+                        <ul>
+                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#coord/coord_20/">https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/<code>File-name</code></a>
+                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                            </li>
+                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/coord/coord_20" target="_blank">https://geodesy.noaa.gov/corsdata/coord/coord_20/<code>File-name</code></a></li>
+                        </ul>
+                        <p>Coordinate files are updated as needed per the following <a href="https://geodesy.noaa.gov/INFO/Policy/CORS-coordinate-policyv4_20Dec2011.pdf" target="_blank">policy</a>.</p>
+                        <p><strong>All published coordinates and velocities are given for the Antenna Reference Point (ARP).</strong></p>
+                        <div class="alert alert-info">
+                        [2025-06-10] Modeled files are currently being generated and will be available for download as soon as they are ready.
+                        </div>
+                        <table class="table table-bordered">
+                            <thead class="bg-primary align-center">
+                                <tr>
+                                    <td>File Name</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th colspan="2">All NCN stations - <strong>ITRF20 (epoch 2020.00)</strong></th>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/itrf2020_xyz.comp.txt">itrf2020_xyz.comp.txt</a></td>
+                                    <td>Computed ITRF ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/itrf2020_geo.comp.txt">itrf2020_geo.comp.txt</a></td>
+                                    <td>Computed ITRF Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/itrf2020_xyz.htdp.txt">itrf2020_xyz.htdp.txt</a></td>
+                                    <td>HTDP Modeled ITRF ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/itrf2020_geo.htdp.txt">itrf2020_geo.htdp.txt</a></td>
+                                    <td>HTDP Modeled ITRF Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">NCN stations in CONUS, Alaska and the Caribbean - <strong>NAD83(2011)</strong></th>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_2011_xyz.comp.txt">nad83_2011_xyz.comp.txt</a></td>
+                                    <td>Computed NAD83(2011) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_2011_geo.comp.txt">nad83_2011_geo.comp.txt</a></td>
+                                    <td>Computed NAD83(2011) Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_2011_xyz.htdp.txt">nad83_2011_xyz.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(2011) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_2011_geo.htdp.txt">nad83_2011_geo.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(2011) Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">NCN stations in Hawaii, American Samoa, and the Marshall Islands - <strong>NAD83(PA11)</strong></th>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_pa11_xyz.comp.txt">nad83_pa11_xyz.comp.txt</a></td>
+                                    <td>Computed NAD83(PA11) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_pa11_geo.comp.txt">nad83_pa11_geo.comp.txt</a></td>
+                                    <td>Computed NAD83(PA11) Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a class="temp-disable" target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_pa11_xyz.htdp.txt">nad83_pa11_xyz.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(PA11) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a class="temp-disable" target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_pa11_geo.htdp.txt">nad83_pa11_geo.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(PA11) Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">NCN stations in Guam, Palau, and the Commonwealth of the Northern Mariana Islands - <strong>NAD83(MA11)</strong></th>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_ma11_xyz.comp.txt">nad83_ma11_xyz.comp.txt</a></td>
+                                    <td>Computed NAD83(MA11) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_ma11_geo.comp.txt">nad83_ma11_geo.comp.txt</a></td>
+                                    <td>Computed NAD83(MA11) Geodetic coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_ma11_xyz.htdp.txt">nad83_ma11_xyz.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(MA11) ECEF XYZ coordinates and velocities</td>
+                                </tr>
+                                <tr>
+                                    <td><a target="_blank" href="https://geodesy.noaa.gov/corsdata/coord/coord_20/nad83_ma11_geo.htdp.txt">nad83_ma11_geo.htdp.txt</a></td>
+                                    <td>HTDP Modeled NAD83(MA11) Geodetic coordinates and velocities</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p id="publishedcoord_historical"><strong>Previous published coordinates and velocities of NCN stations can be found at:</strong></p>
+                        <ul>
+                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#coord/">https://noaa-cors-pds.s3.amazonaws.com/coord/coord_<code>YY</code>/</a>
+                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                            </li>
+                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/coord/" target="_blank">https://geodesy.noaa.gov/corsdata/coord/coord_<code>YY</code>/</a></li>
+                        </ul>
+                    </div>
+                    <div id="ephorbit" class="data-type" style="display:none;">
+                        <ul>
+                            <li>
+                                <p><strong>Daily Broadcast Ephemeris</strong></p>
+                                <ul>
+                                    <li>
+                                        <p><strong>Daily GPS Broadcast Ephemeris</strong> data can be found at:</p>
+                                        <ul>
+                                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#rinex/">https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/</code>brdc<code>DDD</code>0.<code>YY</code>n.gz</a>
+                                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                                            </li>
+                                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/</code>brdc<code>DDD</code>0.<code>YY</code>n.gz</a></li>
+                                        </ul>
+                                    </li><br />
+                                    <li>
+                                        <p><strong>Daily GLONASS-only Broadcast Ephemeris</strong> data can be found at:</p>
+                                        <ul>
+                                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#rinex/">https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/</code>brdc<code>DDD</code>0.<code>YY</code>g.gz</a>
+                                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                                            </li>
+                                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/</code>brdc<code>DDD</code>0.<code>YY</code>g.gz</a></li>
+                                        </ul>
+                                    </li><br />
+                                </ul>
+                            </li>
+                            <li>
+                                <p><strong>GNSS Orbit</strong></p>
+                                <p>Since the early 1990s, NGS has contributed to enabling GPS/GNSS access to the national spatial reference system by computing high-accuracy GPS orbits. This work has been done together with and as a component of the International GNSS Service (IGS), which coordinates the collection of GNSS tracking data from a global network of reference stations.</p>
+                                <p>For more information about GNSS orbit data, please visit: <a href="https://igs.org/products/#precise_orbits" target="_blank">IGS's Precise Orbits</a> page.</p>
+                                <p class="bg-warning"><strong>Beginning November 27, 2022 </strong>we will be providing the SP3 orbit files following the new IGS v1.0 naming convention (see <a href="http://acc.igs.org/repro3/Long_Product_Filenames_v1.0.pdf" target="_blank">http://acc.igs.org/repro3/Long_Product_Filenames_v1.0.pdf</a> for more information). We will also supply .SP3 files in the existing name format for the time being.</p>
+                                <ul>
+                                    <li>
+                                        <p><strong>Daily final and rapid GNSS Orbit</strong> data can be found at:</p>
+                                        <ul>
+                                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#rinex/">https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/AAAWWWWWD</code>.sp3.gz</a>
+                                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                                            </li>
+                                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/AAAWWWWWD</code>.sp3.gz</a></li>
+                                            <li>(SP3 in long filename convention for testing purpose, available from 2022:286) NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/</code>IGS<code>VPPPTTT_YYYYDDD</code>0000_01D_15M_ORB.SP3.gz</a> </li>
+                                        </ul>
+                                    </li><br />
+                                    <li>
+                                        <p><strong>Hourly ultra-rapid GNSS Orbit</strong> data (4 files per day) can be found at:</p>
+                                        <ul>
+                                            <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/index.html#rinex/">https://noaa-cors-pds.s3.amazonaws.com/rinex/<code>YYYY/DDD/AAAWWWWWD</code>_<code>HH</code>.sp3.gz</a>
+                                                <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                                            </li>
+                                            <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/AAAWWWWWD</code>_<code>HH</code>.sp3.gz</a></li>
+                                            <li>(SP3 in long filename convention for testing purpose, available from 2022:315) NGS server: <a href="https://geodesy.noaa.gov/corsdata/rinex/" target="_blank">https://geodesy.noaa.gov/corsdata/rinex/<code>YYYY/DDD/</code>IGS<code>VPPPTTT_YYYYDDDHH</code>00_02D_15M_ORB.SP3.gz</a> </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="ncnlists" class="data-type" style="display:none;">
+                        <ul>
+                            <li><strong>Sortable list of NCN stations and most current information</strong> available at: <a href="https://geodesy.noaa.gov/CORS/sort_sites.shtml" target="_blank">https://geodesy.noaa.gov/CORS/sort_sites.shtml</a><br />This file is updated daily.</li>
+                            <!--<li><strong>Information of all NCN stations in Google Earth's .kmz format</strong> can be found at <a target="_blank" href="https://geodesy.noaa.gov/CORS_Map/corsdownload?id=kmz">https://geodesy.noaa.gov/CORS_Map/corsdownload?id=kmz</a>
+                                <br />The coordinates of NCN stations given in this file are <strong>approximate</strong> coordinates. This file is updated daily.</li>-->
+                            <li>
+                                <p><strong>Historical and current equipment information</strong> of all NCN stations, except stations that are considered IGS stations, can be downloaded from:</p>
+                                <ul>
+                                    <li>NOAA-NCN bucket: <a target="_blank" href="https://noaa-cors-pds.s3.amazonaws.com/station_log/cumulative.station.info.cors">https://noaa-cors-pds.s3.amazonaws.com/station_log/cumulative.station.info.cors</a>
+                                        <br />For more information about this service, visit <a href="https://registry.opendata.aws/noaa-ncn/" target="_blank">NCN on the Registry of Open Data on AWS</a>
+                                    </li>
+                                    <li>NGS server: <a href="https://geodesy.noaa.gov/corsdata/station_log/cumulative.station.info.cors" target="_blank">https://geodesy.noaa.gov/corsdata/station_log/cumulative.station.info.cors</a></li>
+                                </ul>
+                                <p>This file is based on the master list used by NGS to process data to compute coordinates. This file is updated daily.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>In which: </p>
+                    <table class="table table-bordered">
+                        <thead class="bg-info">
+                            <tr>
+                                <th>Code</th>
+                                <td>Description</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>YYYY</th>
+                                <td>4-digit year</td>
+                            </tr>
+                            <tr>
+                                <th>YY</th>
+                                <td>The last 2-digit of year</td>
+                            </tr>
+                            <tr>
+                                <th>DDD</th>
+                                <td>3-digit day of year [001,002,..366]</td>
+                            </tr>
+                            <tr>
+                                <th>ssss</th>
+                                <td>4-char station ID</td>
+                            </tr>
+                            <tr>
+                                <th>h</th>
+                                <td>1-char hour of day (a=00, b=01, c=02,..,x=23)</td>
+                            </tr>
+                            <tr>
+                                <th>HH</th>
+                                <td>2-digit hour of day (00,01,02,..,23)</td>
+                            </tr>
+                            <tr>
+                                <th>D</th>
+                                <td>(.sp3 short filename format) day of week [Sun=0, Mon=1,..,Fri=6]</td>
+                            </tr>
+                            <tr>
+                                <th>WWWW</th>
+                                <td>(.sp3 short filename format) 4-digit GPS week number</td>
+                            </tr>
+                            <tr>
+                                <th>AAA</th>
+                                <td>(.sp3 short filename format) 3-char analysis center name/type of solution, such as:<br />
+                                    <ul>
+                                        <li><strong>igs</strong>: IGS final combination solution</li>
+                                        <li><strong>igl</strong>: IGS (GLONASS-only) final combination solution</li>
+                                        <li><strong>igr</strong>: IGS rapid solution</li>
+                                        <li><strong>igu</strong>: IGS ultra-rapid solution</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>PPP</th>
+                                <td>3-char Campaign/Project specification, either:<br />
+                                    <ul>
+                                        <li><strong>OPS</strong>: Operational IGS product</li>
+                                        <li><strong>MGX</strong>: Multi-GNSS Project product</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>TTT</th>
+                                <td>3-char Solution type, either:<br />
+                                    <ul>
+                                        <li><strong>FIN</strong>: IGS final combination solution</li>
+                                        <li><strong>RAP</strong>: IGS rapid solution</li>
+                                        <li><strong>ULT</strong>: IGS ultra-rapid solution, every 06 hours</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2>The NCN Data&Products Term of Use</h2>
+                    <p>While every effort has been made to ensure that these data are accurate and reliable within
+                        the limits of the current state of the art, NOAA cannot accept liability for any damages
+                        caused by any errors or omissions in the data, nor for any failure in data functionalities on specific system. NOAA makes no warranty, expressed or implied, and the
+                        distribution of this data does not constitute such a warranty. Use this data at your own risk.
+                    </p>
+                </div>
+            </div>
+            <!--NCN main Menu-->
+            <div class="row" id="ncnmenu">
+                <div class="col-sm-12" style="text-align: center;">
+                    <hr>
+                    <a href="/CORS/index.shtml">
+                        <h1>NOAA CORS Network (NCN)</h1>
+                    </a>
+                </div>
+                <div class="col-sm-12" style="text-align: left;">
+                    <div class="col-sm-4" id="menu_searchbox"></div>
+                    <div class="col-sm-4" id="menu_currenttopics"></div>
+                    <div class="col-sm-4" id="menu_main"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page footer -->
+    <div id="footer">
+  <div class="container footer_color">
+    <div class="row"> 
+      
+      <!--column 1-->
+      <div class="span12">
+        <div class="pad45"></div>
+        <center>
+          <ul class="footLinks-nav">
+            <a href="https://oceanservice.noaa.gov/"> NOS Home</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="/privacy.shtml">Privacy </a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="/survey.shtml">Feedback</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="/disclaimer.html">Disclaimer</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="https://www.usa.gov/">USA.gov</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="https://www.ready.gov/">Ready.gov</a><img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="https://www.noaa.gov/organization/information-technology/policy-oversight/information-quality">Information Quality</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="/sitemap.xml">Site Map</a> <img src="https://geodesy.noaa.gov/ngsstandard/images/redbullet.gif" alt="bullet"> <a href="https://geodesy.noaa.gov/cgi-bin/redirectNOAA.prl?u=ngs.infocenter">Contact Us</a>
+          </ul>
+        </center>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!--Go to top button -->
+    <button onclick="gotoTop()" id="bttGotoTop" title="Go to top" class="btn-info">Top</button>
+    <script type="text/javascript" src="/CORS/js/ncn.js"></script>
+    <script type="text/javascript" src="/CORS/js/data.js"></script>
+</body>
+
+</html>

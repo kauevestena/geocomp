@@ -169,6 +169,12 @@ sources of a systematic height error in GNSS work.
 Precise ephemerides, clock products, ANTEX antenna models, DCB and ionosphere products as required by the
 selected mode.
 
+**Caller-supplied files in P7.** `RtklibJob.products` supplies positional orbit/clock inputs. ANTEX must
+instead be named by `file-rcvantfile` and `file-satantfile` in `RtklibConfig.extra`; the pinned engine's
+`src/postpos.c` loads antenna calibration through these configuration options, not the positional product
+list. RD-06 exercises this path with explicit antenna types and offsets consistent with ARP truth
+(`tests/test_rd06.py`, [`22`](./22-reference-data-sources.md) §5). Automatic resolution remains deferred.
+
 **Resolution order** for each session: the local cache → the configured product directory (FR-063) → download
 from a configured service. Cached products are keyed by product type, GNSS week/day, analysis centre and
 latency class (ultra-rapid / rapid / final), so that a later re-run with final products is a deliberate,

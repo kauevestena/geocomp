@@ -102,9 +102,11 @@ class RtklibJob:
             not an error RTKLIB reports, it simply ignores it, and a user who
             thought they were processing a baseline would get a PPP solution
             labelled as one.
-        products: Precise ephemeris, clock and ANTEX files. Supplied by the
+        products: Positional product inputs, such as precise ephemeris and clock files. Supplied by the
             caller; **GeoComp does not download them in this phase** -- see
-            ``specs/22`` section 5 and the P7 entry in the roadmap.
+            ``specs/22`` section 5 and the P7 entry in the roadmap. ANTEX is
+            configured through ``file-rcvantfile`` / ``file-satantfile`` in
+            ``config.extra``; rnx2rtkp does not load positional ANTEX inputs.
     """
 
     rover: GnssSession

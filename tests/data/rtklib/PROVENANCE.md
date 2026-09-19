@@ -22,7 +22,7 @@ for session discovery, the runner and the `.pos` parser.
 reachable from this project, so the pair validates the *pipeline* and not the
 *accuracy*. The reference dataset that would validate accuracy is **RD-06**, and
 [`specs/22-reference-data-sources.md`](../../../specs/22-reference-data-sources.md)
-§5 records why it is not here.
+§5 records the separate NGS dataset now in `tests/data/rd06/` and its still-unmet accuracy comparison.
 
 **No RINEX 3 observation file is committed, because none could be produced.**
 Nothing in the RTKLIB tree is RINEX 3, and `convbin`, the tool that would convert

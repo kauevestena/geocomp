@@ -23,10 +23,18 @@ on:
   push:
     paths:
       - "geocomp/engines/**"
+      - "geocomp/core/techniques/gnss/**"
+      - "geocomp/core/geodesy/**"
+      - "geocomp/core/models/**"
       - "geocomp/io/rinex.py"
       - "geocomp/io/gnss_discovery.py"
       - "tests/data/dynadjust/**"
       - "tests/data/rtklib/**"
+      - "tests/data/rd06/**"
+      - "tests/test_rd06.py"
+      - "tests/test_gnss_baselines.py"
+      - "tests/conftest.py"
+      - "pyproject.toml"
       - "tests/test_dynadjust_*.py"
       - "tests/test_dyna*.py"
       - "tests/test_dna_reader.py"
@@ -37,6 +45,8 @@ on:
       - "tests/test_gnss_discovery.py"
       - "scripts/check_dynadjust_fixtures.py"
       - "scripts/check_rtklib_fixtures.py"
+      - "scripts/check_rd06.py"
+      - ".gitattributes"
       - ".github/workflows/engine.yml"
   workflow_dispatch:
 
@@ -149,7 +159,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install tooling
-        run: python -m pip install --upgrade pip pytest numpy
+        run: python -m pip install --upgrade pip pytest numpy -r tests/data/rd06/requirements.txt
 
       - name: Cache the built engine
         id: rtklib-cache
@@ -201,3 +211,30 @@ jobs:
       # the chain from a folder of RINEX to a fixed solution runs.
       - name: The pipeline, against the real engine
         run: pytest -q tests/test_rtklib_engine.py -k AgainstTheRealEngine
+
+      # The published-coordinate criterion is still unmet. Local pytest names
+      # its known failure; --runxfail here enforces the original assertion and
+      # deliberately leaves this check red until the discrepancy is resolved.
+      # Never continue-on-error: processing/repeatability and accuracy matter.
+      - name: Acquire RD-06 processing inputs and enforce their recorded hashes
+        run: python3 scripts/check_rd06.py --fetch-inputs --verify-inputs
+
+      - name: RD-06 must reproduce the published NGS coordinates
+        env:
+          GEOCOMP_RD06_REQUIRED: "1"
+          GEOCOMP_RD06_OUTPUT: build/rd06
+        run: pytest -q tests/test_rd06.py --runxfail --junitxml=build/rd06/junit.xml
+
+      - name: Retain RD-06 configurations, solutions, logs and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rd06-validation
+          path: |
+            build/rd06/*/*.pos
+            build/rd06/*/*.conf
+            build/rd06/*/*.txt
+            build/rd06/*/*.json
+            build/rd06/metrics.json
+            build/rd06/junit.xml
+          if-no-files-found: warn

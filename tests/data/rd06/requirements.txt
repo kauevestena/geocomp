@@ -1,0 +1,2 @@
+# Test-only lossless Hatanaka decompression; never a plugin dependency.
+hatanaka==2.8.1
