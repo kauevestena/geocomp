@@ -5,6 +5,54 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### RD-06 — the 7.5 mm is two things
+
+`specs/22` §5 ended on *"the remaining millimetre discrepancy is not yet
+attributed to a specific defect."* It now is, and the answer is that there were
+two discrepancies sitting on top of each other.
+
+#### Added
+
+- **`scripts/check_rd06.py --sweep`** — solves both days at elevation masks from
+  10° to 35° and reports each result's east/north/up error. A coordinate-
+  reference error is invariant under the mask; a multipath or phase-centre error
+  is not, so the sweep separates them. `--sweep-uncalibrated` runs it without the
+  NGS ANTEX, for environments that cannot reach `geodesy.noaa.gov`.
+- `_prepare_sessions`, factored out of `run_all` so the sweep and the five cases
+  see byte-identical inputs — a sweep that prepared its data differently would
+  not be comparable with the cases it exists to explain.
+
+#### Found
+
+- **A low-elevation error of up to 11 mm in east, and it is the whole of the
+  day-to-day variation.** At a 10° mask the two days disagree by 11.4 mm in east;
+  at 25° and above they agree to **0.14 mm in north and 0.29 mm in east**. Six
+  solutions — two independent 24-hour days at three masks — converging to under a
+  fifth of a millimetre, with nothing but the low-elevation observations
+  distinguishing the cases. GODN and GODS carry different antenna types 76 m
+  apart, and NGS's own coordinate sheet warns that mixing them "can lead to
+  errors of up to 10 cm".
+- **A stable 6.7 mm underneath it, −6.3 mm of it in north**, which every
+  high-mask solution agrees on and which the mask does not touch. Still
+  unattributed, but now isolated from the noise that was hiding it.
+- Three things it is **not**, each checked rather than assumed: not the reference
+  point (the ARP and L1PC baselines differ by 2.2 mm, and L1PC is no better), not
+  the orbits (IGS20 final products move it 0.05 mm), and not internal
+  inconsistency (reversing base and rover negates the vector to 4 µm).
+
+#### Not done
+
+- **The experiment that would settle the residual cannot run here.** Applying the
+  ANTEX *at a high mask* separates leftover antenna calibration from a real
+  disagreement with the published coordinates. `geodesy.noaa.gov` is denied by
+  this environment's egress policy; `noaa-cors-pds.s3.amazonaws.com` is
+  reachable, so the sweep is the uncalibrated configuration — a sound proxy at
+  0.2 mm, but not an answer. Engine CI acquires the ANTEX, so `--sweep` there
+  closes it.
+- **No tolerance changed.** The 1 mm threshold is still a printed-source-precision
+  rule borrowed for want of a GNSS one; deriving a real one belongs with the
+  answer to the residual, not before it. The accuracy check stays red.
+
 ### P7b — baselines into an adjustment
 
 The computation half of the rest of the GNSS phase, split from the surface at
