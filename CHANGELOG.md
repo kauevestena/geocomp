@@ -13,6 +13,10 @@ two discrepancies sitting on top of each other.
 
 #### Added
 
+- **The calibrated sweep runs in engine CI**, as a `continue-on-error` diagnostic
+  step. That is the one environment where it can: `geodesy.noaa.gov` serves the
+  ANTEX and the development environment's egress policy denies it. Diagnostic and
+  never a gate — what it measures is the unmet criterion, not a regression.
 - **`scripts/check_rd06.py --sweep`** — solves both days at elevation masks from
   10° to 35° and reports each result's east/north/up error. A coordinate-
   reference error is invariant under the mask; a multipath or phase-centre error

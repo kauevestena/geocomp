@@ -225,6 +225,18 @@ jobs:
           GEOCOMP_RD06_OUTPUT: build/rd06
         run: pytest -q tests/test_rd06.py --runxfail --junitxml=build/rd06/junit.xml
 
+      # The one experiment the development environment cannot run: geodesy.noaa.gov,
+      # which serves ngs20.atx, is denied by its egress policy, so the sweep there is
+      # the uncalibrated configuration. Here the calibration is present, and a
+      # calibrated sweep at a high elevation mask is what separates residual antenna
+      # calibration from a real disagreement with the published coordinates
+      # (specs/22 section 5). Diagnostic, never a gate: it reports and cannot fail the
+      # job, because what it measures is the unmet criterion rather than a regression.
+      - name: RD-06 diagnostic — the calibrated elevation-mask sweep
+        if: always()
+        continue-on-error: true
+        run: python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
+
       - name: Retain RD-06 configurations, solutions, logs and metrics
         if: always()
         uses: actions/upload-artifact@v4
@@ -237,4 +249,5 @@ jobs:
             build/rd06/*/*.json
             build/rd06/metrics.json
             build/rd06/junit.xml
+            build/rd06-sweep/sweep.json
           if-no-files-found: warn
