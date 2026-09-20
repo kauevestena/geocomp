@@ -1,0 +1,617 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head id="j_idt2"><link type="text/css" rel="stylesheet" href="/ANTCAL/javax.faces.resource/theme.css.xhtml?ln=primefaces-aristo" /><script type="text/javascript">if(window.PrimeFaces){PrimeFaces.settings.locale='en_US';PrimeFaces.settings.projectStage='Development';}</script><script type="text/javascript" src="/ANTCAL/javax.faces.resource/jquery/jquery.js.xhtml;jsessionid=83F7E6B58103B4816D85F1DB25769B5C?ln=primefaces&amp;v=6.0"></script><script type="text/javascript" src="/ANTCAL/javax.faces.resource/jquery/jquery-plugins.js.xhtml;jsessionid=83F7E6B58103B4816D85F1DB25769B5C?ln=primefaces&amp;v=6.0"></script>
+    <link href="/ngsstandard/css/main.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="/ngsstandard/css/main-layout.css" rel="stylesheet" type="text/css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/ngsstandard/css/menus.css" media="screen" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-7PDTL9NJYZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+
+      gtag('config', 'G-7PDTL9NJYZ');
+    </script>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="DC.creator" content="US Department of Commerce, NOAA, National Geodetic Survey" />
+    <meta name="DC.language" scheme="DCTERMS.RFC1766" content="EN-US" />
+
+    <script type="text/javascript">
+      $(function () {
+        $('.dropdown').hover(
+          function () {
+            $(this)
+              .children('.dropdown-menu')
+              .stop(true, true)
+              .slideDown(200);
+          },
+          function () {
+            $(this)
+              .children('.dropdown-menu')
+              .stop(true, true)
+              .slideUp(200);
+          }
+        );
+      });
+    </script>
+        <!-- Anchor Button --> 
+            <!--link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;/ngsstandard/css/anchor.css&quot; media=&quot;screen&quot; /&gt; 
+            &lt;script type=&quot;text/javascript&quot; src=&quot;/ngsstandard/js/anchor.js&quot;&gt;&lt;/script--> 
+        <!-- / Anchor Button -->  
+
+        <title>Antenna Calibrations</title></head><body>
+        
+    <div id="layout_page_wrapper" class="layout_fluid">
+        <!-- Begin Wrapper -->
+        <div id="layout_header_wrapper" class="layout_fluid">
+            <div id="layout_app_banner">
+<div id="layout_banner_common">
+  <a class="NOAA_LINK" title="NOAA Home Page" href="http://www.noaa.gov/"></a>
+  <a class="NGS_LINK" title="National Geodetic Survey Home Page" href="http://www.ngs.noaa.gov"></a>
+</div>
+                <h1>Antenna Calibrations</h1>
+            </div>
+
+            <div id="layout_main_menu">
+
+    <nav class="ngs-navbar">
+
+      <ul class="nav-list">
+        <li class="dropdown"><a href="/">NGS Home</a></li>
+        <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">About NGS </a>
+          <ul class="dropdown-menu">
+            <li> <a href="/INFO/WhatWeDo.shtml">What We Do</a> </li>
+            <li> <a href="/web/about_ngs/info/mission-strategic-planning.shtml">Mission
+                and Strategic Plan</a> </li>
+            <li> <a href="/INFO/leadership.shtml">NGS Leadership</a> </li>
+            <li> <a href="/INFO/programs-products.shtml">Programs and Products</a> </li>
+            <li> <a href="/ADVISORS/index.shtml">Geodetic Advisors</a> </li>
+            <li> <a href="/INFO/history/">NGS History</a> </li>
+            <li> <a href="/INFO/Policy/">Policies</a> </li>
+            <li> <a href="/INFO/activities.shtml">Activities in My Area</a> </li>
+            <li> <a href="/grant-opportunities/index.shtml">Grant Opportunities</a> </li>
+            <li> <a href="/ContractingOpportunities/">Contracting Opportunities</a> </li>
+            <li> <a href="/student-opportunities/index.shtml">Student Opportunities</a>
+            </li>
+            <li> <a href="/faq.shtml">FAQ</a> </li>
+            <li> <a href="/INFO/NGSinfo.shtml">Contact Us</a> </li>
+          </ul>
+        </li>
+        <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Data &amp; Imagery</a>
+          <ul class="dropdown-menu">
+            <li> <a href="/OPUS/view.jsp">OPUS Share</a> </li>
+            <!--&lt;li&gt; &lt;a href=&quot;/NGSDataExplorer/&quot;&gt;NGS Data Explorer&lt;/a&gt; &lt;/li&gt;-->
+            <li> <a href="/datasheets/">Survey Mark Datasheets</a> </li>
+            <li> <a href="/datasheets/ngs_map/">NGS Web Map</a> </li>
+            <li> <a href="/CORS/">NOAA CORS Network (NCN)</a> </li>
+            <li> <a href="/ANTCAL/">Antenna Calibration Data</a> </li>
+            <li> <a href="/RSD/rsd_home.shtml">Remote Sensing</a></li>
+            <li> <a href="https://storms.ngs.noaa.gov/">Storm Imagery</a> </li>
+            <li> <a href="/web/APOS2/APOS.shtml">Coastal Imagery</a> </li>
+            <li> <a href="/RSD/cmp_data.shtml">Shoreline Data Explorer</a> </li>
+            <li> <a href="https://coast.noaa.gov/dataviewer/#/imagery/search/where:projectid=1020">Orthomosaics</a>
+            </li>
+            <li> <a href="https://coast.noaa.gov/dataviewer/#/lidar/search/where:projectid=24">Lidar</a> </li>
+            <li> <a href="/AERO/aero.html">Aeronautical Data</a> </li>
+            <li> <a href="/GRAV-D/data_products.shtml">Gravity Data</a> </li>
+            <!--&lt;li&gt; &lt;a href=&quot;/orbits/&quot;&gt;Orbit Data&lt;/a&gt; &lt;/li&gt;-->
+          </ul>
+        </li>
+        <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Tools</a>
+          <ul class="dropdown-menu">
+            <li> <a href="/OPUS/">Process GPS Data (OPUS)</a> </li>
+            <li> <a href="/NCAT/">Coordinate Conversion and Transformation Tool (NCAT)</a>
+            </li>
+            <li> <a href="/TOOLS/">Geodetic Tool Kit</a> </li>
+            <li> <a href="/PC_PROD/">Geodetic Software</a> </li>
+            <li> <a href="/web_services/">Web Services</a> </li>
+            <li> <a href="http://vdatum.noaa.gov">Vertical Datum Conversions (VDATUM)</a> </li>
+            <!--&lt;li&gt; &lt;a href=&quot;/PC_PROD/VERTCON/&quot;&gt;VERTCON&lt;/a&gt; &lt;/li&gt;-->
+            <li> <a href="/gps-toolbox/">GPS Toolbox</a> </li>
+            <li> <a href="/GEOID/GEOID18/computation.html">GEOID18 Computation</a> </li>
+            <li> <a href="/locus/">Adjust Leveling (LOCUS)</a> </li>
+            <li> <a href="/TOOLS/Htdp/Htdp.shtml">Horizontal Time-Dependent Positioning
+                (HTDP)</a> </li>
+          </ul>
+        </li>
+        <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Surveys</a>
+          <ul class="dropdown-menu">
+            <li> <a href="/SurveyProposal/">Survey Project Proposal Form</a> </li>
+            <li> <a href="/OPUS/about.jsp#sharing">OPUS Share</a> </li>
+            <li> <a href="/surveys/mark-recovery/index.shtml">Mark Recovery</a> </li>
+            <li> <a href="/FGCS/BlueBook/">User-submitted Survey Projects
+                (Bluebooking)</a> </li>
+            <li> <a href="/GEOID/GSVS/">Geoid Slope Validation Survey (GSVS)</a> </li>
+            <li> <a href="/CBLINES/calibration.shtml">Calibration Base Lines (CBLs)</a>
+            </li>
+            <li> <a href="/GPSonBM/">GPS on Bench Marks</a> </li>
+            <li> <a href="/GRAV-D/">GRAV-D</a> </li>
+            <li> <a href="/heightmod/">Height Modernization</a> </li>
+            <li> <a href="/leveling/">Leveling</a> </li>
+            <!--&lt;li&gt; &lt;a href=&quot;/web/surveys/NA2011/&quot;&gt;National Adjustment of 2011&lt;/a&gt; &lt;/li&gt;-->
+          </ul>
+        </li>
+        <li class="dropdown"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Science &amp;
+            Education</a>
+          <ul class="dropdown-menu multi-level">
+            <li> <a href="/datums/index.shtml">Datums and Reference Frames</a> </li>
+            <li> <a href="/datums/newdatums/index.shtml">New Datums</a> </li>
+            <li> <a href="/research/index.shtml">Research</a> </li>
+            <li> <a href="/GEOID/">Geoid Models</a> </li>
+            <li> <a href="/web/science_edu/training/">Conferences/Training</a> </li>
+            <li> <a href="/INFO/conferences.shtml">Upcoming and Recent NGS
+                Presentations</a> </li>
+            <li> <a href="/corbin/class_description/NGS_Video_Library.shtml">Educational
+                Videos</a> </li>
+            <li> <a href="/web/science_edu/online_lessons/index.shtml">Online Lessons</a>
+            </li>
+            <li> <a href="/web/science_edu/webinar_series/">Webinar Series</a></li>
+            <li> <a href="/web/science_edu/presentations_library/">Presentation
+                Library</a> </li>
+            <li> <a href="/library/">Publication Library</a> </li>
+            <li> <a href="/commemorative/index.shtml">Commemorative Marks</a> </li>
+            <li> <a href="/INFO/applications-of-geodesy.shtml">Applications of Geodesy</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <div id="menus_ngs_main_search">
+      <form method="get" action="http://search.usa.gov/search" id="myform">
+        <div>
+          <input name="affiliate" value="nationalgeodeticsurvey" type="hidden" />
+          <input size="10" name="query" class="searchbox" type="text" />
+
+          <input name="Submit" value="Search" class="searchbtn" type="submit" />
+        </div>
+      </form>
+    </div>
+            </div>
+        </div>
+        
+       <div class="layout_colmask layout_onecol">
+            <div class="layout_colmid">
+                <div class="layout_colleft">
+                    <div class="layout_col1wrap">
+                        <div class="layout_col1">
+                            <!-- Begin Content -->
+         
+        <title>ANTCAL</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
+        <!--[if lte IE 9]&gt;
+          &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js&quot;&gt;&lt;/script&gt;
+          &lt;script src=&quot;//cdnjs.cloudflare.com/ajax/libs/respond.js/1.3.0/respond.js&quot;&gt;&lt;/script&gt;
+        &lt;![endif]-->  
+        
+        <script src="resources/js/jquery-3.4.0.min.js"></script>
+        <script src="resources/js/bootstrap.min.js"></script>    
+        <script src="resources/js/main.js"></script>        
+        <link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="resources/css/antcal.css" />
+       
+        <style>           
+          
+        </style>
+        <script>
+            //alert(hash);{
+      
+        </script>
+        <script>   
+            
+
+            document.getElementsByTagName("body")[0].style = "padding-bottom: 600px;";
+
+            function Rel() {
+                document.location.href = "LoadFile?file=ant_info.003";
+            }            
+            
+            function msg(){
+                alert('Use this set of RELATIVE antenna calibrations ONLY if you are \ncomputing coordinates in ITRF00, NAD 83(CORS96,MARP00,PACP00). \nThese are only available in ANTINFO format.');
+            }          
+            
+            function loadImage(url){
+                //alert(url);
+                var win = window.open(url, '_blank');
+                win.focus();
+                //document.location.href = url;
+                return false;
+            }            
+        </script>        
+<br />
+  <div class="bs-example">
+<nav class="navbar navbar-default custom-navbar" role="navigation">
+  <div class="container">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <!-- Non-collapsing right-side icons -->
+    <ul class="nav navbar-nav navbar-right">
+      <li>
+        <a href="#" class="fa fa-cog"></a>
+      </li>
+      <li>
+        <a href="#" class="fa fa-home"></a>
+      </li>
+    </ul>
+    <!-- the collapsing menu -->
+    <div class="collapse navbar-collapse navbar-left" id="navbar-collapse-1">
+      <ul class="nav navbar-nav filters">
+            <li class="dropdown">
+                <a id="drop1" href="#" onclick="return true;" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
+                    Browse Antenna Information by Company Brand and Model
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+                        <!--f:facet name=&quot;header&quot;&gt;
+                            &lt;h:outputLink value=&quot;FAQ.xhtml#faq3&quot; target=&quot;_blank&quot;&gt;
+                                &lt;h:outputText value=&quot;Antenna Code&quot;/&gt;
+                            &lt;/h:outputLink&gt;
+                        &lt;/f:facet-->
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ALL',-1);"><a href="#">--All Manufacturers--</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=3CORETEL',-1);"><a href="#">3CO - 3CORETEL</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=3S Navigation Inc.',-1);"><a href="#">3S- - 3S Navigation Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Antcom Corporation',-1);"><a href="#">ACC - Antcom Corporation</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=AeroAntenna Technology Inc.',-1);"><a href="#">AER - AeroAntenna Technology Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Guangzhou Alpha Geo-Info Co., Ltd',-1);"><a href="#">AGO - Guangzhou Alpha Geo-Info Co., Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=AKASAKA TEC INC.',-1);"><a href="#">AKT - AKASAKA TEC INC.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=AllyNav Technology',-1);"><a href="#">ANT - AllyNav Technology</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Allen Osborne Associates',-1);"><a href="#">AOA - Allen Osborne Associates</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Allen Osborne JPL',-1);"><a href="#">AOJ - Allen Osborne JPL</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Allen Osborne NGS',-1);"><a href="#">AON - Allen Osborne NGS</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=APEKS GNSS',-1);"><a href="#">APE - APEKS GNSS</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Altus Positioning Systems',-1);"><a href="#">APS - Altus Positioning Systems</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Atlanta RF Tech LLC',-1);"><a href="#">ARF - Atlanta RF Tech LLC</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ArduSimple',-1);"><a href="#">AS- - ArduSimple</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Ascen Korea Co. Ltd.',-1);"><a href="#">ASC - Ascen Korea Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Ashtech',-1);"><a href="#">ASH - Ashtech</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Alpha Surveying',-1);"><a href="#">AST - Alpha Surveying</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Shenzhen Ayia Electronic Tech Co. Ltd.',-1);"><a href="#">AYI - Shenzhen Ayia Electronic Tech Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Beitian',-1);"><a href="#">BEI - Beitian</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Beijing METSTAR Radar Co. Ltd.',-1);"><a href="#">BMS - Beijing METSTAR Radar Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Bivocom',-1);"><a href="#">BVM - Bivocom</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Champion Instruments LLC',-1);"><a href="#">CHA - Champion Instruments LLC</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Shanghai HuaCe Navigation Technology Ltd.',-1);"><a href="#">CHC - Shanghai HuaCe Navigation Technology Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Calian Group Ltd.',-1);"><a href="#">CLN - Calian Group Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ComNav, Richmond, BC, Canada',-1);"><a href="#">CMN - ComNav, Richmond, BC, Canada</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ComNav Technology Ltd',-1);"><a href="#">CNT - ComNav Technology Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=C-Nav',-1);"><a href="#">CNV - C-Nav</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Carlson Software',-1);"><a href="#">CSW - Carlson Software</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=DataGrid Inc.',-1);"><a href="#">DGR - DataGrid Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=DREAMTNS Co., Ltd.',-1);"><a href="#">DRE - DREAMTNS Co., Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Dywell',-1);"><a href="#">DYW - Dywell</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=EFIX Geomatics Co., LTD',-1);"><a href="#">EFI - EFIX Geomatics Co., LTD</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=EMLID',-1);"><a href="#">EML - EMLID</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Eos Positioning Systems',-1);"><a href="#">EOS - Eos Positioning Systems</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=eSurvey GNSS',-1);"><a href="#">ESV - eSurvey GNSS</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=FJDynamics',-1);"><a href="#">FJD - FJDynamics</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Suzhou FOIF Co. Ltd.',-1);"><a href="#">FOI - Suzhou FOIF Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Geodetic',-1);"><a href="#">GDC - Geodetic</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=geo-Fennel GmbH',-1);"><a href="#">GFF - geo-Fennel GmbH</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Guangzhou GEOSURV Information Technology Co.,Ltd.',-1);"><a href="#">GIN - Guangzhou GEOSURV Information Technology Co.,Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=GEOMATE POSITIONING PTE. LTD.',-1);"><a href="#">GMT - GEOMATE POSITIONING PTE. LTD.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=General Microwave Company',-1);"><a href="#">GMW - General Microwave Company</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=GeoMax AG',-1);"><a href="#">GMX - GeoMax AG</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Geo Navigation Instrument Network',-1);"><a href="#">GNN - Geo Navigation Instrument Network</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Geo++ GmbH',-1);"><a href="#">GPP - Geo++ GmbH</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=GNSS7 Technology Ltd.',-1);"><a href="#">GST - GNSS7 Technology Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Gutec AB',-1);"><a href="#">GUT - Gutec AB</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=GreenValley International',-1);"><a href="#">GVI - GreenValley International</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Hemisphere GNSS',-1);"><a href="#">HEM - Hemisphere GNSS</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=HYFIX',-1);"><a href="#">HFX - HYFIX</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=HighGain Information Technology Co. Ltd.',-1);"><a href="#">HGG - HighGain Information Technology Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=HI-Target',-1);"><a href="#">HIT - HI-Target</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Horizon',-1);"><a href="#">HRZ - Horizon</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Harxon Corporation',-1);"><a href="#">HXC - Harxon Corporation</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=HZC Technology Co. Ltd',-1);"><a href="#">HZC - HZC Technology Co. Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=IGage Mapping Corporation',-1);"><a href="#">IGA - IGage Mapping Corporation</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ITT',-1);"><a href="#">ITT - ITT</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Javad GNSS Inc.',-1);"><a href="#">JAV - Javad GNSS Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ZHEJIANG JC Antenna Co.,Ltd',-1);"><a href="#">JCA - ZHEJIANG JC Antenna Co.,Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Javad Navigation Systems Inc.',-1);"><a href="#">JNS - Javad Navigation Systems Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Javad Positioning Systems Inc.',-1);"><a href="#">JPS - Javad Positioning Systems Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Juniper Systems, Inc.',-1);"><a href="#">JUN - Juniper Systems, Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Komine Musen Denki Co., Ltd.',-1);"><a href="#">KMD - Komine Musen Denki Co., Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Guangdong Kolida Instrument Co. Ltd.',-1);"><a href="#">KOL - Guangdong Kolida Instrument Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Kurloo Technology Pty Ltd',-1);"><a href="#">KRL - Kurloo Technology Pty Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Leica Geosystems AG',-1);"><a href="#">LEI - Leica Geosystems AG</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Macrometer',-1);"><a href="#">MAC - Macrometer</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Magellan Professional',-1);"><a href="#">MAG - Magellan Professional</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Meridian GNSS Co., Ltd.',-1);"><a href="#">MER - Meridian GNSS Co., Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Mettatec',-1);"><a href="#">MET - Mettatec</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=MicroPulse',-1);"><a href="#">MPL - MicroPulse</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=MVE Ltd',-1);"><a href="#">MVE - MVE Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Myzox',-1);"><a href="#">MYZ - Myzox</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=NavCom Technology Inc.',-1);"><a href="#">NAV - NavCom Technology Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=NavXperience',-1);"><a href="#">NAX - NavXperience</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=North',-1);"><a href="#">NOR - North</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=NovAtel Inc.',-1);"><a href="#">NOV - NovAtel Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Polaris GNSS',-1);"><a href="#">POL - Polaris GNSS</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=PRIN, JSC.',-1);"><a href="#">PRN - PRIN, JSC.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Qianxun Spatial Intelligence Inc.',-1);"><a href="#">QSI - Qianxun Spatial Intelligence Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=ROLAVI LLC',-1);"><a href="#">RLV - ROLAVI LLC</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Rusnavgeoset',-1);"><a href="#">RNG - Rusnavgeoset</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=RinoNav',-1);"><a href="#">RNV - RinoNav</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Ruide Surveying Instrument Co. Ltd.',-1);"><a href="#">RSI - Ruide Surveying Instrument Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Sensor Systems Inc.',-1);"><a href="#">SEN - Sensor Systems Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Septentrio Satellite Navigation N.V.',-1);"><a href="#">SEP - Septentrio Satellite Navigation N.V.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SparkFun Electronics',-1);"><a href="#">SFE - SparkFun Electronics</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SingularXYZ Intelligent Technology',-1);"><a href="#">SIT - SingularXYZ Intelligent Technology</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=San Jose Technology Inc.',-1);"><a href="#">SJT - San Jose Technology Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Skyfora Ltd',-1);"><a href="#">SKF - Skyfora Ltd</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Sikaihulian',-1);"><a href="#">SKL - Sikaihulian</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Skye Interconnection',-1);"><a href="#">SKY - Skye Interconnection</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Satlab GeoSolutions AB',-1);"><a href="#">SLG - Satlab GeoSolutions AB</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SMAJAYU',-1);"><a href="#">SMA - SMAJAYU</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SMI',-1);"><a href="#">SMI - SMI</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SKYNAV',-1);"><a href="#">SNV - SKYNAV</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SANDING Optic-electric Instrument Co',-1);"><a href="#">SOI - SANDING Optic-electric Instrument Co</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Sokkia Topcon Co. Ltd.',-1);"><a href="#">SOK - Sokkia Topcon Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SPHEREFIX',-1);"><a href="#">SPF - SPHEREFIX</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SparkPNT',-1);"><a href="#">SPN - SparkPNT</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Spectra Precision',-1);"><a href="#">SPP - Spectra Precision</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SPATIX',-1);"><a href="#">SPT - SPATIX</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Space Star Technology Co. LTD',-1);"><a href="#">SST - Space Star Technology Co. LTD</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=STAR INFORMATION TECHNOLOGY CO., LTD',-1);"><a href="#">STC - STAR INFORMATION TECHNOLOGY CO., LTD</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SOUTH',-1);"><a href="#">STH - SOUTH</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Stonex',-1);"><a href="#">STX - Stonex</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=SWEGEO',-1);"><a href="#">SWE - SWEGEO</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Thales',-1);"><a href="#">THA - Thales</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=TI Asahi',-1);"><a href="#">TIA - TI Asahi</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=TAJIMA',-1);"><a href="#">TJM - TAJIMA</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Toknav',-1);"><a href="#">TNV - Toknav</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=TIANYU Optical and Electronic Instr.',-1);"><a href="#">TOI - TIANYU Optical and Electronic Instr.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Topcon Corp.',-1);"><a href="#">TOP - Topcon Corp.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Topomap',-1);"><a href="#">TPM - Topomap</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Topcon Positioning Systems Inc.',-1);"><a href="#">TPS - Topcon Positioning Systems Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Trimble Navigation Ltd.',-1);"><a href="#">TRM - Trimble Navigation Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Tersus GNSS Inc',-1);"><a href="#">TRS - Tersus GNSS Inc</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Titan',-1);"><a href="#">TTN - Titan</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Tallysman Wireless Inc.',-1);"><a href="#">TWI - Tallysman Wireless Inc.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=UniStrong',-1);"><a href="#">UNI - UniStrong</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Unictron Technologies Corp.',-1);"><a href="#">UTC - Unictron Technologies Corp.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=VLG Wireless Technology',-1);"><a href="#">VLG - VLG Wireless Technology</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Volvo AB',-1);"><a href="#">VOL - Volvo AB</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Wieson International Co. Ltd.',-1);"><a href="#">WIE - Wieson International Co. Ltd.</a>
+                        </li>
+                        <li onclick="$('#tagline').getAntenna('includes/Antennas.xhtml?manu=Zhuhai Precise Technology',-1);"><a href="#">ZPT - Zhuhai Precise Technology</a>
+                        </li>                
+                </ul>
+            </li> 
+            <li class="dropdown">
+                <a id="drop2" href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
+                    Access Calibrations for All Antennas
+                    <span class="caret"></span>
+                </a>              
+            <ul class="dropdown-menu" role="menu" aria-labelledby="drop2">
+                <li style="background-color: deepskyblue !important; font-size: 16px;">NGS20 Absolute</li>
+                <li><a href="LoadFile?file=ngs20.atx">ANTEX (IGS format - GNSS)</a></li>
+                <li><a href="LoadFile?file=ngs20.003">ANTINFO (legacy NGS format - GPS only)</a></li>            
+                <li style="background-color: deepskyblue !important; font-size: 16px;">NGS14 Absolute</li>
+                <li><a href="LoadFile?file=ngs14.atx">ANTEX (IGS format - GNSS)</a></li>
+                <li><a href="LoadFile?file=ngs14.003">ANTINFO (legacy NGS format - GPS only)</a></li>                 
+                <li style="background-color: deepskyblue !important; font-size: 16px;">Relative</li>
+                <li><a href="javascript:Rel();">ANTINFO (legacy NGS format - GPS only)</a></li>
+            </ul>
+        </li>
+            <li class="dropdown">
+                <a id="drop3" href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
+                    Help  Links
+                    <span class="caret"></span>
+                </a>              
+            <ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+                <li><a href="index.xhtml">ANTCAL Home</a></li>
+                <li onclick="$('#tagline').getFAQ();"><a href="#">FAQ</a></li>
+                <li><a href="/INFO/Policy/Antcal_Policy.pdf">NGS Antcal Policy</a></li> 
+                <li><a href="docs/NGSantcalprocedures.pdf">NGS AntCal Procedures</a></li>                
+                <li><a href="documents/format.txt">ANTINFO Format</a></li>
+                <li><a href="https://files.igs.org/pub/data/format/antex14.txt">ANTEX Format</a></li>
+                <li><a href="/AntCalRequest/">Request Calibration</a></li>
+                <li><a href="mailto:ngs.antcal@noaa.gov?subject=Web Comments: Antenna Calibrations&amp;body=Re: https://www.ngs.noaa.gov/ANTCAL/">Contact Us</a></li>
+            </ul>
+        </li>
+      </ul>
+    </div>
+    <!--/.nav-collapse -->
+  </div>
+  <!--/.container -->
+</nav>
+  </div> <!-- /example -->
+
+        <div id="loading">
+            <p style="text-align: center; padding-top: 60px;"><img width="100px" height="100px" src="images/load.gif" /></p>
+        </div>        
+        <div id="main_body">
+This web site provides Global Navigation Satellite System (GNSS) antenna calibrations for specific antenna types (antenna code + radome code). These calibrations are used by NGS for processing GNSS data in all its products and services.
+            <br /><br />
+NGS offers complete, downloadable files of absolute antenna calibrations in both ANTEX and ANTINFO formats. These can be found under the &quot;Access Calibrations for All Antennas&quot; menu above.
+        <br /><br />
+A new reference system, IGS20, was released on 2 October 2022, replacing the previous IGS14 reference system. As a service to users, NGS will offer composite antenna calibration files in both the deprecated IGS14 and current IGS20 reference systems during a transition period. 
+        <br /><br />
+When processing data, please check that you are using the antenna calibration product for the reference frame (IGS14 or IGS20) consistent with the orbits and CORS coordinates in your software. Using products from a mix of reference frames may result in several cm of positioning error.        
+        <br /><br />   
+Click on menu item “Browse Antenna Information by Company Brand and Model” to view antenna metadata such as photographs, diagrams, height measurement points, and written descriptions. From the company brand pages, you can view and download absolute antenna calibrations in the IGS20 frame for one antenna at a time.        
+        <br /><br /> 
+If you need older products such as IGS08 calibrations, please contact ngs.antcal @ noaa.gov.        
+        <br /><br />
+            NGS also calibrates survey-grade antennas from qualified providers. See <a href="/INFO/Policy/Antcal_Policy.pdf">Policy</a> and <a href="docs/NGSantcalprocedures.pdf">Procedures</a> documents for details.
+            <br />            
+        </div>
+
+                            <!-- End Content -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="layout_footer">
+            <!-- Begin Footer -->
+            <!-- Code to retrieve NGS standard Footer -->
+            
+       
+<div id="layout_footer_notes">
+<!-- SSI will add a default e-mail u=USER and d=DOMAIN if none are provided. -->
+
+Website Owner: National Geodetic Survey  /  Last modified by 
+<a href="/cgi-bin/redirectM.prl?u=ngs.antcal&amp;d=noaa.gov&amp;s=Web%20Comments%20/ANTCAL&amp;b=Re%3A%20http%3A//www.ngs.noaa.gov%3A80/ANTCAL">ngs.antcal</a> 
+
+
+</div>
+            <!-- End Author Section -->
+
+<div> <!-- Begin Footer Links -->
+  <a href="http://oceanservice.noaa.gov/">NOS Home</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://ngsweb.ngs.noaa.gov/">NGS Employees</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.noaa.gov/privacy.html">Privacy Policy</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.ngs.noaa.gov/disclaimer.html">Disclaimer</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.usa.gov/">USA.gov</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.ready.gov/">Ready.gov</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.ngs.noaa.gov/SiteMap/simple.shtml">Site Map</a>
+  <img src="/ngsstandard/images/redbullet.gif" alt="bullet" />
+  <a href="http://www.ngs.noaa.gov/cgi-bin/redirectNOAA.prl?u=ngs.webmaster">Contact Webmaster</a>
+</div> <!-- END Footer Links -->       
+            <!-- End Footer -->
+        </div>
+        <!-- End Wrapper -->
+    </div></body>
+</html>

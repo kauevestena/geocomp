@@ -1,0 +1,114 @@
+                              ***ITRF2020***
+                GGAO NORTH DEEP D (GODN),  MARYLAND
+
+ Retrieved from NGS DataBase on 06/09/25 at 13:29:49.
+ _____________________________________________________________________________ 
+|                                                                             |
+|         Antenna Reference Point(ARP): GGAO NORTH DEEP D CORS ARP            |
+|         --------------------------------------------------------            |
+|                             PID = DR7482                                    |
+|                                                                             |
+|                                                                             |
+| ITRF2020 POSITION (EPOCH 2020.0)                                            |
+| Published by the IGS in Dec. 2023 using data through gpswk 2295.            |
+|     X =   1130760.752 m     latitude    =  39 01 16.24362 N                 |
+|     Y =  -4831298.683 m     longitude   = 076 49 37.54187 W                 |
+|     Z =   3994155.197 m     ellipsoid height =   17.853   m                 |
+|                                                                             |
+| ITRF2020 VELOCITY                                                           |
+| Published by the IGS in Dec. 2023 using data through gpswk 2295.            |
+|     VX =  -0.0152 m/yr      northward =   0.0040 m/yr                       |
+|     VY =   0.0002 m/yr      eastward  =  -0.0148 m/yr                       |
+|     VZ =   0.0022 m/yr      upward    =  -0.0015 m/yr                       |
+|                                                                             |
+|                                                                             |
+| NAD_83 (2011) POSITION (EPOCH 2010.0)                                       |
+| Transformed from ITRF2020 (epoch 2020.0) position in Apr 2025.              |
+|     X =   1130761.660 m     latitude    =  39 01 16.21207 N                 |
+|     Y =  -4831300.135 m     longitude   = 076 49 37.51888 W                 |
+|     Z =   3994155.259 m     ellipsoid height =   19.151   m                 |
+|                                                                             |
+| NAD_83 (2011) VELOCITY                                                      |
+| Transformed from ITRF2020 velocity in Apr 2025.                             |
+|     VX =   0.0014 m/yr      northward =  -0.0008 m/yr                       |
+|     VY =   0.0014 m/yr      eastward  =   0.0017 m/yr                       |
+|     VZ =  -0.0019 m/yr      upward    =  -0.0020 m/yr                       |
+|_____________________________________________________________________________|
+|                                                                             |
+| L1 Phase Center of the current GPS antenna: GGAO NORTH DEEP D CORS L1PC     |
+| --------------------------------------------------------------------------  |
+| The Topcon GPS/GLONASS/Galileo choke ring an antenna                        |
+| (Antenna Code = TPSCR.G3        SCIS) was installed on 14Jan2012.           |
+|        The L2 phase center is 0.034 m above the L1 phase center.            |
+|                             PID = DR7483                                    |
+|                                                                             |
+|                                                                             |
+| ITRF2020 POSITION (EPOCH 2020.0)                                            |
+| Published by the IGS in Dec. 2023 using data through gpswk 2295.            |
+|     X =   1130760.767 m     latitude    =  39 01 16.24361 N                 |
+|     Y =  -4831298.747 m     longitude   = 076 49 37.54184 W                 |
+|     Z =   3994155.250 m     ellipsoid height =   17.937   m                 |
+|                                                                             |
+| The ITRF2020 VELOCITY of the L1 PC is the same as that for the ARP.         |
+|                                                                             |
+|                                                                             |
+| NAD_83 (2011) POSITION (EPOCH 2010.0)                                       |
+| Transformed from ITRF2020 (epoch 2020.0) position in Apr 2025.              |
+|     X =   1130761.675 m     latitude    =  39 01 16.21206 N                 |
+|     Y =  -4831300.199 m     longitude   = 076 49 37.51885 W                 |
+|     Z =   3994155.312 m     ellipsoid height =   19.235   m                 |
+|                                                                             |
+| The NAD_83 (2011) VELOCITY of the L1 PC is the same as that for the ARP.    |
+|_____________________________________________________________________________|
+|                                                                             |
+|         Monument: GGAO NORTH DEEP D CORS GRP                                |
+|         ------------------------------------                                |
+|                             PID = DR7484                                    |
+|         Inscribed: UNKNOWN                                                  |
+|                                                                             |
+|                                                                             |
+| ITRF2020 POSITION (EPOCH 2020.0)                                            |
+| Published by the IGS in Dec. 2023 using data through gpswk 2295.            |
+|     X =   1130760.750 m     latitude    =  39 01 16.24362 N                 |
+|     Y =  -4831298.676 m     longitude   = 076 49 37.54187 W                 |
+|     Z =   3994155.192 m     ellipsoid height =   17.844   m                 |
+|                                                                             |
+| The ITRF2020 VELOCITY of the monument is the same as that for the ARP.      |
+|                                                                             |
+|                                                                             |
+| NAD_83 (2011) POSITION (EPOCH 2010.0)                                       |
+| Transformed from ITRF2020 (epoch 2020.0) position in Apr 2025.              |
+|     X =   1130761.658 m     latitude    =  39 01 16.21207 N                 |
+|     Y =  -4831300.129 m     longitude   = 076 49 37.51888 W                 |
+|     Z =   3994155.254 m     ellipsoid height =   19.143   m                 |
+|                                                                             |
+| The NAD_83 (2011) VELOCITY of the monument is the same as that for the ARP. |
+|_____________________________________________________________________________|
+
+
+ * Latitude, longitude and ellipsoid height are computed from their
+   corresponding cartesian coordinates using dimensions for the
+   GRS 80 ellipsoid: semi-major axis = 6,378,137.0 meters
+                          flattening = 1/298.257222101...
+
+
+ * WARNING: Mixing of antenna types can lead to errors of up to 10 cm.
+   in height unless antenna-phase-center variation and antenna-phase-center
+   offset are properly modeled.  See next comment.
+
+ * The coordinates shown on this page were computed using absolute antenna
+   calibrations.  CORS coordinates began using absolute antenna calibrations
+   beginning with IGS08 and NAD 83 (2011, MA11, PA11).  For additional
+   information on the derivation of these positions and velocities and
+   antenna calibrations consult:
+   https://geodesy.noaa.gov/CORS/index.shtml
+   https://geodesy.noaa.gov/ANTCAL/
+
+
+ * For more site specific information on the equipment history and
+   monumentation type consult:
+   https://geodesy.noaa.gov/corsdata/station_log/godn.log.txt
+   https://geodesy.noaa.gov/CORS/ncn_station_pages/index.html?stationID=godn
+
+
+ * The position & velocity were revised in Apr 2025.

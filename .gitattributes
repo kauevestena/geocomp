@@ -1,0 +1,4 @@
+# Preserve original newlines AND whitespace, including the upstream padding.
+# Source hashes, rather than source reformatting, guard these frozen fixtures.
+tests/data/rd06/sources/** -text -whitespace
+tests/data/rd06/*.pos -text -whitespace

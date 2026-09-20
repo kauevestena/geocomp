@@ -29,6 +29,10 @@ from geocomp.core.units import Unit
 __all__ = [
     "cartesian_to_geodetic",
     "cartesian_to_geodetic_quantities",
+    "ecef_to_enu",
+    "ecef_to_enu_covariance",
+    "enu_rotation",
+    "enu_to_ecef",
     "geodetic_to_cartesian",
     "geodetic_to_cartesian_jacobian",
     "geodetic_to_cartesian_quantities",
@@ -240,6 +244,101 @@ def cartesian_to_geodetic_quantities(
             zip((latitude, longitude, height), (Unit.RADIAN, Unit.RADIAN, Unit.METRE),
                 strict=True)
         )
+    )
+
+
+# -- the local horizon, and why it is here ---------------------------------
+#
+# A GNSS engine computes a baseline in ECEF; the in-house adjustment core works
+# in a local frame whose components are east, north and up. Until phase P7b
+# nothing in GeoComp moved between the two, and the absence was not visible:
+# ``core/adjustment/equations.py`` read a geocentric vector's three numbers as
+# east, north and up and produced an answer wrong by a rotation of the whole
+# frame, silently. Both sides now refuse the frame they cannot handle, and this
+# is the function that makes the refusal actionable rather than a dead end.
+#
+# It lives beside the geodetic conversions because it is the same geometry --
+# the rotation's rows are the local east, north and up unit vectors expressed in
+# ECEF, which are the normalised partial derivatives of
+# ``geodetic_to_cartesian`` with respect to longitude, latitude and height.
+
+
+def enu_rotation(latitude: float, longitude: float) -> np.ndarray:
+    """The 3x3 taking an ECEF difference to local east, north, up.
+
+    Args:
+        latitude: Geodetic latitude of the point the horizon is defined at, in
+            **radians**.
+        longitude: Geodetic longitude, in **radians**.
+
+    Returns:
+        ``R`` such that ``d_enu = R @ d_ecef``. Its rows are the east, north and
+        up unit vectors in ECEF; it is orthonormal with determinant ``+1``, so
+        the inverse is the transpose and ``enu_to_ecef`` uses exactly that
+        rather than a second derivation.
+
+    **This is a rotation of a difference, not of a point.** Applying it to an
+    absolute ECEF position yields a vector from the centre of the Earth
+    re-expressed in a local basis, which is not a topocentric coordinate and is
+    not what anything here wants. The callers pass baselines.
+
+    The height row is the ellipsoidal normal, so "up" is normal to the
+    ellipsoid, not along the plumb line: the deflection of the vertical is a
+    separate quantity and this function does not pretend to carry it.
+    """
+    sin_lat, cos_lat = math.sin(latitude), math.cos(latitude)
+    sin_lon, cos_lon = math.sin(longitude), math.cos(longitude)
+    return np.array(
+        [
+            [-sin_lon, cos_lon, 0.0],
+            [-sin_lat * cos_lon, -sin_lat * sin_lon, cos_lat],
+            [cos_lat * cos_lon, cos_lat * sin_lon, sin_lat],
+        ]
+    )
+
+
+def ecef_to_enu(
+    vector: tuple[float, float, float], latitude: float, longitude: float
+) -> tuple[float, float, float]:
+    """Rotate an ECEF difference into the local horizon at (*latitude*, *longitude*)."""
+    rotation = enu_rotation(latitude, longitude)
+    return tuple(  # type: ignore[return-value]
+        float(v) for v in rotation @ np.asarray(vector, dtype=float)
+    )
+
+
+def enu_to_ecef(
+    vector: tuple[float, float, float], latitude: float, longitude: float
+) -> tuple[float, float, float]:
+    """The inverse of :func:`ecef_to_enu`, by transposition.
+
+    ``R`` is orthonormal, so ``R^-1 = R^T`` exactly -- no second derivation and
+    no inversion, which is the same reasoning
+    :func:`cartesian_to_geodetic_quantities` gives for reusing the forward
+    Jacobian.
+    """
+    rotation = enu_rotation(latitude, longitude).T
+    return tuple(  # type: ignore[return-value]
+        float(v) for v in rotation @ np.asarray(vector, dtype=float)
+    )
+
+
+def ecef_to_enu_covariance(
+    covariance: Covariance,
+    latitude: float,
+    longitude: float,
+    *,
+    labels: tuple[str, str, str] = ("e", "n", "u"),
+) -> Covariance:
+    """Rotate a covariance of an ECEF difference into the local horizon.
+
+    ``R Sigma R^T`` through :meth:`Covariance.transform`, so the correlations
+    are carried rather than reduced to three standard deviations (FR-201,
+    FR-208). ``labels`` defaults to ``Frame.SPACE_3D.components``, which is what
+    the adjustment core indexes design-matrix rows by.
+    """
+    return covariance.transform(
+        enu_rotation(latitude, longitude), list(labels), [Unit.METRE] * 3
     )
 
 

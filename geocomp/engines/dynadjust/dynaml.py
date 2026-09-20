@@ -41,12 +41,14 @@ from geocomp.core.geodesy.projection import (
     inverse_transverse_mercator,
 )
 from geocomp.core.models import (
+    BaselineFrame,
     Cluster,
     ConstraintMode,
     Network,
     Observation,
     ObservationType,
     Station,
+    baseline_frame,
 )
 from geocomp.core.models.observation import OBSERVATION_TYPES
 from geocomp.core.models.position import CoordinateSystem, HeightType
@@ -576,7 +578,31 @@ def _write_gnss_components(
     baseline, and between baselines observed in the same session, is real; an
     adjustment given independent scalars instead reports an uncertainty that is
     wrong in the direction nobody checks, which is too small.
+
+    **A baseline written here must be ECEF**, and the guard says so rather than
+    trusting it. ``<GPSBaseline>``'s X, Y and Z are geocentric cartesian by
+    DynAdjust's definition, so a baseline that has been rotated into a local
+    frame -- which is what the in-house core needs, and what
+    ``rotate_baseline_to_local`` produces -- would be written into fields that
+    mean something else entirely. It is the mirror of the defect
+    ``geocomp.core.adjustment.equations`` guards against, and leaving either
+    side open would leave a way to lose a rotation silently
+    (``specs/04-data-model.md`` section 2.5.1).
     """
+    if observation.type is ObservationType.GNSS_BASELINE:
+        recorded = baseline_frame(observation)
+        if recorded is not BaselineFrame.ECEF:
+            raise ValidationError(
+                "gnss_baseline_not_geocentric",
+                observation=observation.id,
+                received=recorded.value,
+                expected=(
+                    "an ECEF baseline -- DynaML's GPSBaseline X, Y and Z are "
+                    "geocentric cartesian, so a locally rotated vector written "
+                    "here is read back as a geocentric one"
+                ),
+            )
+
     if header:
         _text(element, "ReferenceFrame", frame)
         _text(element, "Epoch", epoch)

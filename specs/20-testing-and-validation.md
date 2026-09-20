@@ -52,7 +52,7 @@ permitting redistribution, and an expected-results file.
 | **RD-03** | Network adjustments with a known truth — 1D levelling, 2D trilateration, 2D triangulateration, free and constrained | [`06-adjustment-core.md`](./06-adjustment-core.md) | **Implemented** (P2), in `tests/networks.py`. Same citation note as RD-02 |
 | **RD-04** | Levelling field books generated from known heights, all three schemes, plus a loop with an injected blunder | [`10-module-levelling.md`](./10-module-levelling.md) | **Implemented** (P4), in `tests/reference_levelling.py`. Same citation note as RD-02 and RD-03 |
 | **RD-05** | DynAdjust's own example datasets | [`07-engine-dynadjust.md`](./07-engine-dynadjust.md) | From upstream |
-| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
+| **RD-06** | GNSS reference data with published official coordinates (IBGE, NGS, Geoscience Australia) | [`08-engine-rtklib.md`](./08-engine-rtklib.md), [`11-module-gnss.md`](./11-module-gnss.md) | **In repository**, `tests/data/rd06/` and `tests/test_rd06.py`: NGS GODN–GODS, two days; **accuracy criterion unmet**, enforced by engine CI — [`22`](./22-reference-data-sources.md) §5 |
 | **RD-07** | Gravimetric network with a published solution | [`12-module-gravimetry.md`](./12-module-gravimetry.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
@@ -177,6 +177,15 @@ form that lines up against a commercial package's output.
 Bit-identical reproducibility requires: deterministic iteration order, explicit and stable observation
 ordering, no reliance on set or dictionary ordering for numeric outcomes, and pinned engine versions
 recorded in provenance.
+
+**RD-06's known discrepancy stays visible.** The frozen official sources and coordinate transcription
+are checked offline on every commit. With `rnx2rtkp` and the test-only Hatanaka decompressor available,
+`tests/test_rd06.py` runs the current development code against all five configurations and checks full-day
+coverage and byte reproducibility. The single primary accuracy assertion is a strict, exception-specific
+expected failure locally; engine CI uses `--runxfail` and **fails while the criterion remains unmet**.
+Processing errors are not expected failures. The standalone `scripts/check_rd06.py` also returns failure
+for the accuracy mismatch and retains evidence. This changes neither §6 nor the GNSS acceptance criterion;
+the 1 mm comparison is the documented conservative interpretation of the source's printed precision.
 
 ## 7. CI matrix
 

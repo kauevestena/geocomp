@@ -27,6 +27,7 @@ from geocomp.core.models.network import (
 )
 from geocomp.core.models.observation import (
     OBSERVATION_TYPES,
+    BaselineFrame,
     Cluster,
     ClusterKind,
     Observation,
@@ -34,6 +35,7 @@ from geocomp.core.models.observation import (
     ObservationType,
     ObservationTypeSpec,
     RejectionRecord,
+    baseline_frame,
     observation_type_spec,
 )
 from geocomp.core.models.position import CoordinateSystem, HeightType, Position
@@ -60,6 +62,7 @@ __all__ = [
     "OBSERVATION_TYPES",
     "AdjustedStation",
     "AdjustmentStatistics",
+    "BaselineFrame",
     "Campaign",
     "Cluster",
     "ClusterKind",
@@ -87,6 +90,7 @@ __all__ = [
     "Station",
     "StationType",
     "TestResult",
+    "baseline_frame",
     "network_from_document",
     "observation_type_spec",
     "require_epoch",

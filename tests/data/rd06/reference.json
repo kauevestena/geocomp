@@ -1,0 +1,54 @@
+{
+  "dataset_id": "RD-06-NGS-GODN-GODS-2025-001-002",
+  "rtklib_commit": "06e8644287ff07efc4c53bbf3e7f9dafb0355605",
+  "frame": "ITRF2020, with IGS20-compatible products",
+  "reference_point": "antenna reference point (ARP)",
+  "reference_epoch": "2020-01-01T00:00:00",
+  "year_days": 365.25,
+  "evaluation_epoch": "Midpoint of each 24-hour observation day, GPST calendar labels. Both stations have identical published velocities, so the expected baseline is epoch-invariant.",
+  "stations": {
+    "GODN": {
+      "arp_xyz_m_epoch_2020": [
+        1130760.752,
+        -4831298.683,
+        3994155.197
+      ],
+      "velocity_xyz_m_per_year": [
+        -0.0152,
+        0.0002,
+        0.0022
+      ],
+      "coordinate_sheet": "sources/godn_20.coord.txt",
+      "antenna_type": "TPSCR.G3        SCIS",
+      "source_url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/godn_20.coord.txt"
+    },
+    "GODS": {
+      "arp_xyz_m_epoch_2020": [
+        1130752.184,
+        -4831349.109,
+        3994098.96
+      ],
+      "velocity_xyz_m_per_year": [
+        -0.0152,
+        0.0002,
+        0.0022
+      ],
+      "coordinate_sheet": "sources/gods_20.coord.txt",
+      "antenna_type": "JAVRINGANT_DM   SCIS",
+      "source_url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gods_20.coord.txt"
+    }
+  },
+  "tolerance_m": 0.001,
+  "tolerance_status": "Conservative operational interpretation of specs/20 section 6 printed-source precision; the repository does not define a separate GNSS numerical threshold. This does not introduce a new acceptance criterion.",
+  "expected_baseline_GODN_to_GODS_m": [
+    -8.568,
+    -50.426,
+    -56.237
+  ],
+  "selection": "A nonzero short baseline between separate NASA monuments, authoritative NGS ITRF2020 ARP coordinates and velocities, and publicly reusable NOAA observations. Day 001 chosen before solving; day 002 added as a discrepancy diagnostic. No epochs or days selected to meet the threshold.",
+  "original_geocomp_commit": "bb2e2d595dab717d65bbc2c7ab1408d5f6b9ae74",
+  "recorded_solution": {
+    "path": "calibrated_001.pos.gz",
+    "sha256": "9fee8f434de1a6d967dd58785f3affc4328309aff739bda4d0d2704461dd9467"
+  }
+}

@@ -18,11 +18,17 @@ on:
   push:
     paths:
       - "tests/data/krumm/**"
+      - "tests/data/rd06/**"
+      - "scripts/check_rd06.py"
+      - ".gitattributes"
       - "scripts/check_krumm_corpus.py"
       - ".github/workflows/reference.yml"
   pull_request:
     paths:
       - "tests/data/krumm/**"
+      - "tests/data/rd06/**"
+      - "scripts/check_rd06.py"
+      - ".gitattributes"
       - "scripts/check_krumm_corpus.py"
       - ".github/workflows/reference.yml"
   # Upstream cannot change under a pinned commit, but a rewritten tag or a
@@ -51,3 +57,9 @@ jobs:
       # the network has more ways to be wrong than the thing it is checking.
       - name: Every vendored file must match the pinned upstream commit
         run: python3 scripts/check_krumm_corpus.py
+
+      # These archives and station sheets can change or disappear upstream.
+      # Check the frozen snapshot and its published-coordinate transcription;
+      # the engine workflow separately enforces the live accuracy assertion.
+      - name: RD-06 sources and official-coordinate transcription must match
+        run: python3 scripts/check_rd06.py --verify-inputs

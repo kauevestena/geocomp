@@ -1,0 +1,514 @@
+     GODN00USA Site Information Form (site log)
+     International GNSS Service
+     See Instructions at:
+       https://files.igs.org/pub/station/general/sitelog_instr_v2.0.txt
+
+0.   Form
+
+     Prepared by (full name)  : Tatevik Shakhbandaryan
+     Date Prepared            : 2026-08-20
+     Report Type              : UPDATE
+     If Update:
+      Previous Site Log       : godn00usa_20260715.log
+      Modified/Added Sections : 6.7, 6.8
+
+
+1.   Site Identification of the GNSS Monument
+
+     Site Name                : GGAO NORTH DEEP DRILL BRACED MONUMENT
+     Nine Character ID        : GODN00USA
+     Monument Inscription     : 
+     IERS DOMES Number        : 40451M127
+     CDP Number               : none
+     Monument Description     : DEEP DRILL BRACED MONUMENT
+       Height of the Monument : 1.5 m
+       Monument Foundation    : 1.25 inch SS pipe cemented into
+       Foundation Depth       : 12.192 m
+     Marker Description       : SCIGN MOUNT MARK
+     Date Installed           : 2012-01-13T00:00Z
+     Geologic Characteristic  : SAND/CLAY/CONGLOMERATE
+       Bedrock Type           : 
+       Bedrock Condition      : 
+       Fracture Spacing       : 
+       Fault zones nearby     : 
+         Distance/activity    : 
+     Additional Information   : LINE OF SIGHT TO VLBI, SLR, DORIS, AND GNSS
+
+
+2.   Site Location Information
+
+     City or Town             : Greenbelt
+     State or Province        : Maryland
+     Country or Region        : USA
+     Tectonic Plate           : NORTH AMERICAN
+     Approximate Position (ITRF)
+       X coordinate (m)       : 1130760.7208
+       Y coordinate (m)       : -4831298.6778
+       Z coordinate (m)       : 3994155.1999
+       Latitude (N is +)      : +390116.24
+       Longitude (E is +)     : -0764937.54
+       Elevation (m)          : 17.8
+     Additional Information   : 
+
+
+3.   GNSS Receiver Information
+
+3.1  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.3.5
+     Elevation Cutoff Setting : 4 deg
+     Date Installed           : 2012-01-14T00:00Z
+     Date Removed             : 2013-04-01T17:34Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.2  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.4.7
+     Elevation Cutoff Setting : 4 deg
+     Date Installed           : 2013-04-01T17:34Z
+     Date Removed             : 2013-04-17T15:29Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.3  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.3.5
+     Elevation Cutoff Setting : 4 deg
+     Date Installed           : 2013-04-17T16:00Z
+     Date Removed             : 2013-05-23T17:50Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.4  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.3.13
+     Elevation Cutoff Setting : 4 deg
+     Date Installed           : 2013-05-23T18:00Z
+     Date Removed             : 2013-10-31T21:20Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.5  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.4.12
+     Elevation Cutoff Setting : 4 deg
+     Date Installed           : 2013-10-31T21:20Z
+     Date Removed             : 2014-04-10T19:29Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.6  Receiver Type            : JAVAD TRE_G3TH DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 00579
+     Firmware Version         : 3.5.5
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2014-04-10T19:30Z
+     Date Removed             : 2015-09-14T19:59Z
+     Temperature Stabiliz.    : none
+     Additional Information   : L1 center offset to 1573
+
+3.7  Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 02128
+     Firmware Version         : 3.6.3
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2015-09-14T20:00Z
+     Date Removed             : 2016-04-04T01:42Z
+     Temperature Stabiliz.    : none
+     Additional Information   : L1 center offset to 1573
+
+3.8  Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO
+     Serial Number            : 02128
+     Firmware Version         : 3.6.4
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2016-04-04T01:49Z
+     Date Removed             : 2018-09-28T00:06Z
+     Temperature Stabiliz.    : none
+     Additional Information   : L1 center offset to 1573
+                              : SBAS and QZSS turned off
+
+3.9  Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 3.7.2
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2018-09-28T00:45Z
+     Date Removed             : 2019-05-06T17:23Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.10 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 3.7.6
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2019-05-06T17:23Z
+     Date Removed             : 2020-04-03T20:01Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.11 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS+QZSS
+     Serial Number            : 02128
+     Firmware Version         : 3.7.9
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2020-04-03T20:01Z
+     Date Removed             : 2021-01-29T01:00Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.12 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 3.7.9
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2021-01-29T01:00Z
+     Date Removed             : 2021-03-17T21:32Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.13 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 4.0.02
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2021-03-17T21:32Z
+     Date Removed             : 2021-07-22T17:21Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.14 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 4.1.01
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2021-07-22T17:21Z
+     Date Removed             : 2024-04-19T21:38Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.15 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 4.3.00
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2024-04-19T21:38Z
+     Date Removed             : 2025-08-19T14:43Z
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.16 Receiver Type            : JAVAD TRE_3 DELTA
+     Satellite System         : GPS+GLO+GAL+BDS
+     Serial Number            : 02128
+     Firmware Version         : 4.6.00
+     Elevation Cutoff Setting : 0 deg
+     Date Installed           : 2025-08-19T14:43Z
+     Date Removed             : (CCYY-MM-DDThh:mmZ)
+     Temperature Stabiliz.    : none
+     Additional Information   : 
+
+3.x  Receiver Type            : (A20, from rcvr_ant.tab; see instructions)
+     Satellite System         : (GPS+GLO+GAL+BDS+QZSS+SBAS)
+     Serial Number            : (A20, but note the first A5 is used in SINEX)
+     Firmware Version         : (A11)
+     Elevation Cutoff Setting : (deg)
+     Date Installed           : (CCYY-MM-DDThh:mmZ)
+     Date Removed             : (CCYY-MM-DDThh:mmZ)
+     Temperature Stabiliz.    : (none or tolerance in degrees C)
+     Additional Information   : (multiple lines)
+
+
+4.   GNSS Antenna Information
+
+4.1  Antenna Type             : TPSCR.G3        SCIS
+     Serial Number            : 383-0151
+     Antenna Reference Point  : BPA
+     Marker->ARP Up Ecc. (m)  : 0.0083
+     Marker->ARP North Ecc(m) : 0.0000
+     Marker->ARP East Ecc(m)  : 0.0000
+     Alignment from True N    : 0 deg
+     Antenna Radome Type      : SCIS
+     Radome Serial Number     : 1260
+     Antenna Cable Type       : LMR600
+     Antenna Cable Length     : 80 m
+     Date Installed           : 2012-01-14T00:00Z
+     Date Removed             : (CCYY-MM-DDThh:mmZ)
+     Additional Information   : Absolute calibration information available
+
+4.x  Antenna Type             : (A20, from rcvr_ant.tab; see instructions)
+     Serial Number            : (A*, but note the first A5 is used in SINEX)
+     Antenna Reference Point  : (BPA/BCR/XXX from "antenna.gra"; see instr.)
+     Marker->ARP Up Ecc. (m)  : (F8.4)
+     Marker->ARP North Ecc(m) : (F8.4)
+     Marker->ARP East Ecc(m)  : (F8.4)
+     Alignment from True N    : (deg; + is clockwise/east)
+     Antenna Radome Type      : (A4 from rcvr_ant.tab; see instructions)
+     Radome Serial Number     :
+     Antenna Cable Type       : (vendor & type number)
+     Antenna Cable Length     : (m)
+     Date Installed           : (CCYY-MM-DDThh:mmZ)
+     Date Removed             : (CCYY-MM-DDThh:mmZ)
+     Additional Information   : (multiple lines)
+
+
+5.   Surveyed Local Ties
+
+5.x  Tied Marker Name         :
+     Tied Marker Usage        : (SLR/VLBI/LOCAL CONTROL/FOOTPRINT/etc)
+     Tied Marker CDP Number   : (A4)
+     Tied Marker DOMES Number : (A9)
+     Differential Components from GNSS Marker to the tied monument (ITRS)
+       dx (m)                 : (m)
+       dy (m)                 : (m)
+       dz (m)                 : (m)
+     Accuracy (mm)            : (mm)
+     Survey method            : (GPS CAMPAIGN/TRILATERATION/TRIANGULATION/etc)
+     Date Measured            : (CCYY-MM-DDThh:mmZ)
+     Additional Information   : (multiple lines)
+
+
+6.   Frequency Standard
+
+6.1  Standard Type            : INTERNAL
+       Input Frequency        : 
+       Effective Dates        : 2012-01-14/2013-05-02
+       Notes                  : 
+
+6.2  Standard Type            : EXTERNAL
+       Input Frequency        : 5.0 MHz
+       Effective Dates        : 2013-05-02/2019-01-21
+       Notes                  : 
+
+6.3  Standard Type            : INTERNAL
+       Input Frequency        : 
+       Effective Dates        : 2019-01-22/2019-01-22
+       Notes                  : 
+
+6.4  Standard Type            : EXTERNAL H-MASER
+       Input Frequency        : 5.0 MHz
+       Effective Dates        : 2019-01-22/2023-06-03
+       Notes                  : 
+
+6.5  Standard Type            : INTERNAL
+       Input Frequency        : 
+       Effective Dates        : 2023-06-03/2023-06-28
+       Notes                  : 
+
+6.6  Standard Type            : EXTERNAL H-MASER
+       Input Frequency        : 5.0 MHz
+       Effective Dates        : 2023-06-28/2026-07-14
+       Notes                  : 
+
+6.7  Standard Type            : INTERNAL
+       Input Frequency        : 
+       Effective Dates        : 2026-07-15/2026-07-29
+       Notes                  : Due to H-MASER failure, GODN00USA has been set 
+                              : to the INTERNAL VCO on 2026-07-15.
+
+6.8  Standard Type            : EXTERNAL H-MASER
+       Input Frequency        : 5.0 MHz
+       Effective Dates        : 2026-07-29/CCYY-MM-DD
+       Notes                  : 
+
+6.x  Standard Type            : (INTERNAL or EXTERNAL H-MASER/CESIUM/etc)
+       Input Frequency        : (if external)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+
+7.   Collocation Information
+
+7.1  Instrumentation Type     : SLR/VLBI/DORIS
+       Status                 : PERMANENT
+       Effective Dates        : 2012-01-14/CCYY-MM-DD
+       Notes                  : 
+
+7.x  Instrumentation Type     : (GPS/GLONASS/DORIS/PRARE/SLR/VLBI/TIME/etc)
+       Status                 : (PERMANENT/MOBILE)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+
+8.   Meteorological Instrumentation
+
+8.1.x Humidity Sensor Model   :
+       Manufacturer           :
+       Serial Number          :
+       Data Sampling Interval : (sec)
+       Accuracy (% rel h)     : (% rel h)
+       Aspiration             : (UNASPIRATED/NATURAL/FAN/etc)
+       Height Diff to Ant     : (m)
+       Calibration date       : (CCYY-MM-DD)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+8.2.x Pressure Sensor Model   :
+       Manufacturer           :
+       Serial Number          :
+       Data Sampling Interval : (sec)
+       Accuracy               : (hPa)
+       Height Diff to Ant     : (m)
+       Calibration date       : (CCYY-MM-DD)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+8.3.x Temp. Sensor Model      :
+       Manufacturer           :
+       Serial Number          :
+       Data Sampling Interval : (sec)
+       Accuracy               : (deg C)
+       Aspiration             : (UNASPIRATED/NATURAL/FAN/etc)
+       Height Diff to Ant     : (m)
+       Calibration date       : (CCYY-MM-DD)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+8.4.x Water Vapor Radiometer  :
+       Manufacturer           :
+       Serial Number          :
+       Distance to Antenna    : (m)
+       Height Diff to Ant     : (m)
+       Calibration date       : (CCYY-MM-DD)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Notes                  : (multiple lines)
+
+8.5.x Other Instrumentation   : (multiple lines)
+
+
+9.  Local Ongoing Conditions Possibly Affecting Computed Position
+
+9.1.x Radio Interferences     : (TV/CELL PHONE ANTENNA/RADAR/etc)
+       Observed Degradations  : (SN RATIO/DATA GAPS/etc)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Additional Information : (multiple lines)
+
+9.2.x Multipath Sources       : (METAL ROOF/DOME/VLBI ANTENNA/etc)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Additional Information : (multiple lines)
+
+9.3.x Signal Obstructions     : (TREES/BUILDINGS/etc)
+       Effective Dates        : (CCYY-MM-DD/CCYY-MM-DD)
+       Additional Information : (multiple lines)
+
+
+10.  Local Episodic Effects Possibly Affecting Data Quality
+
+10.1 Date                     : 2012-09-20/2012-09-20
+     Event                    : the r/R solution was implemented around
+                              : 19:45 and testing began.
+
+10.2 Date                     : 2012-10-01/2012-10-08
+     Event                    : GODN clock steering was detected to be off
+                              : and was reset to be on/tied.
+
+10.3 Date                     : 2012-12-21/2012-12-21
+     Event                    : dropped the +C2 teqc option starting 23:00UTC.
+
+10.x Date                     : (CCYY-MM-DD/CCYY-MM-DD)
+     Event                    : (TREE CLEARING/CONSTRUCTION/etc)
+
+
+11.   On-Site, Point of Contact Agency Information
+
+     Agency                   : NASA Goddard Space Flight Center
+     Preferred Abbreviation   : GSFC
+     Mailing Address          : Space Geodesy Branch, Code 926.9
+                              : 8800 Greenbelt Road
+                              : Greenbelt, MD 20771 USA
+     Primary Contact
+       Contact Name           : Mike Perry
+       Telephone (primary)    : 301-286-5300
+       Telephone (secondary)  : 
+       Fax                    : 
+       E-mail                 : michael.a.perry@nasa.gov
+     Secondary Contact
+       Contact Name           : James Long
+       Telephone (primary)    : 301-286-9836
+       Telephone (secondary)  : 
+       Fax                    : 
+       E-mail                 : james.l.long@nasa.gov
+     Additional Information   : 
+
+
+12.  Responsible Agency (if different from 11.)
+
+     Agency                   : Jet Propulsion Laboratory
+     Preferred Abbreviation   : JPL
+     Mailing Address          : 4800 Oak Grove Drive
+                              : Pasadena, CA 91109 USA
+     Primary Contact
+       Contact Name           : JPL Point of Contact
+       Telephone (primary)    : +1 (818) 354-7055
+       Telephone (secondary)  : 
+       Fax                    : 
+       E-mail                 : ggnops@jpl.nasa.gov
+     Secondary Contact
+       Contact Name           : EarthScope Network Engineer
+       Telephone (primary)    : 
+       Telephone (secondary)  : 
+       Fax                    : 
+       E-mail                 : ggn-ops@earthscope.org
+     Additional Information   : 
+
+
+13.  More Information
+
+     Primary Data Center      : JPL
+     Secondary Data Center    : CDDIS
+     URL for More Information : 
+     Hardcopy on File
+       Site Map               : 
+       Site Diagram           : 
+       Horizon Mask           : 
+       Monument Description   : 
+       Site Pictures          : 
+     Additional Information   : 
+     Antenna Graphics with Dimensions
+
+
+
+
+TPSCR.G3
+
+                       +-------+
+                     /           \
+                    |             |
+  +-----------------+-------------+-----------------+     <--  0.1015  TCR
+  |                                                 |
+  |                                                 |
+  |                                                 |
+  |                                                 |
++-+-------------------------------------------------+-+
++-------------------+-------------+-------------------+   <--  0.0345  BCR
+                    |             |
+                    |             |
+                    +------x------+                       <--  0.0000  BPA=ARP
+
+                    <--  0.2380 -->
+<--                      0.3800                     -->
+
+Abbreviations
+-------------
+ARP: antenna reference point
+BAM: bottom of antenna mount
+BCR: bottom of chokering
+BDG: bottom of dome ground plane
+BGP: bottom of ground plane
+BPA: bottom of preamplifier
+TCR: top of chokering
+TDG: top of dome ground plane
+TGP: top of ground plane
+TOP: top of pole
+TPA: top of preamplifier
+
+Dimensions
+----------
+All dimensions are in meters.
+

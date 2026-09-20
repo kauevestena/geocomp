@@ -10,6 +10,13 @@ RTKLIB manual (2.4.x) · `manual_demo5.pdf` for the fork.
 
 > **Verification note.** Statements marked **[V]** were verified upstream during specification; **[C]** must
 > be confirmed against the RTKLIB manual when the module is implemented (roadmap P7).
+>
+> **Discharged in P7.** The one **[C]** in this document — §7's column set — has been confirmed, and against
+> something better than the manual: `src/solution.c` at commit `06e8644` (`rnx2rtkp ver.EX 2.5.1`), the code
+> that writes the file, cross-checked by running the engine in every output format and comparing what came
+> out. It is now **[V]**, with the table in §7. Two things that confirmation found are recorded there and in
+> §2 because neither is in any manual: the cross-covariance columns are *signed square roots*, and one of the
+> column headers is **wrong upstream**.
 
 ---
 
@@ -64,7 +71,46 @@ Mapping to the GNSS menu (FR-600, FR-601):
 
 **GeoComp invokes with `-k <config>` as the primary mechanism** (FR-354), because a configuration file is
 reproducible, storable in provenance, attachable to a bug report, and editable by the user in Advanced mode.
-Command-line flags are used only where they have no configuration-file equivalent.
+Command-line flags are used only where they have no configuration-file equivalent — in practice the inputs,
+the output path and the time window.
+
+### 2.1 A configuration file is not the same run as the equivalent flags [V]
+
+**`rnx2rtkp -k <config>` and `rnx2rtkp -p 3` are not equivalent, and the difference is silent.** Loading a
+configuration file rebuilds the whole processing option set from the option table, whose default base-station
+position is `ant2-postype = llh` with `ant2-pos1/2/3 = 0` — latitude 0, longitude 0, height 0. The
+command-line path instead leaves the base position to be taken from the base receiver's RINEX header.
+
+So a generated configuration that does not state `ant2-postype` puts the base station in the Gulf of Guinea.
+Measured on the sample pair in `tests/data/rtklib/`: with `ant2-postype = rinexhead`, 120 epochs and 117 of
+them ambiguity-fixed; without it, **no solution at all**.
+
+Two things make this worth a section rather than a code comment:
+
+- The whole reason §2 prefers `-k` is that it is *reproducible*. Omitting this option would have made it
+  reproducibly **wrong**, which is worse than a flag nobody recorded.
+- It failed loudly here only because the default is 9 000 km away. A base station wrong by ten metres — an
+  outdated published coordinate, a transcription slip — produces a solution that succeeds, looks ordinary,
+  and is wrong by ten metres.
+
+**Therefore: every configuration GeoComp writes states the base-station position type explicitly**, and
+explicit base coordinates given with a position type that would ignore them are refused rather than accepted
+and dropped.
+
+### 2.2 `convbin` is broken at this commit [V]
+
+Not a GeoComp deliverable, recorded so the next reader does not spend the afternoon on it. Converting
+RINEX 2 to RINEX 3 — the obvious way to produce a RINEX 3 test file — aborts:
+
+```console
+$ convbin -r rinex -v 3.04 -o base.rnx 07590920.05o
+scanning: 2005/04/02 00:59:00 G
+*** buffer overflow detected ***: terminated
+```
+
+Reproducible with those flags alone, on RTKLIB's own sample data. GeoComp's RINEX 3 header support is
+therefore tested against a fixture transcribed from the published format definition, and
+`tests/data/rtklib/PROVENANCE.md` says so rather than letting a transcript pass for a tool's output.
 
 ---
 
@@ -123,6 +169,12 @@ sources of a systematic height error in GNSS work.
 Precise ephemerides, clock products, ANTEX antenna models, DCB and ionosphere products as required by the
 selected mode.
 
+**Caller-supplied files in P7.** `RtklibJob.products` supplies positional orbit/clock inputs. ANTEX must
+instead be named by `file-rcvantfile` and `file-satantfile` in `RtklibConfig.extra`; the pinned engine's
+`src/postpos.c` loads antenna calibration through these configuration options, not the positional product
+list. RD-06 exercises this path with explicit antenna types and offsets consistent with ARP truth
+(`tests/test_rd06.py`, [`22`](./22-reference-data-sources.md) §5). Automatic resolution remains deferred.
+
 **Resolution order** for each session: the local cache → the configured product directory (FR-063) → download
 from a configured service. Cached products are keyed by product type, GNSS week/day, analysis centre and
 latency class (ultra-rapid / rapid / final), so that a later re-run with final products is a deliberate,
@@ -171,9 +223,53 @@ plugin, and it is how a researcher answers "does this setting matter for my data
 
 The `.pos` solution file carries, per epoch: time, position (in the configured representation — ECEF,
 geodetic, or ENU baseline), the quality flag Q, satellite count, the standard deviations of the position
-components, the corresponding correlation/covariance terms, age of differential, and the ambiguity ratio
-factor. The exact column set depends on the selected output format **[C]** and MUST be confirmed against the
-RTKLIB manual; the parser MUST read the file's own header rather than assuming a column order.
+components, the corresponding covariance terms, age of differential, and the ambiguity ratio factor.
+
+### 7.1 The column set, confirmed [V]
+
+Established from `src/solution.c` at commit `06e8644` — `outecef`, `outpos`, `outenu` and `outsolheads` —
+and confirmed by running the engine in each format over one dataset and comparing the output.
+`tests/data/rtklib/pos/` holds one fixture per row below, and `scripts/check_rtklib_fixtures.py` re-derives
+them from a live engine so this table cannot quietly go stale.
+
+Every format is **fourteen columns** of the same shape — two of time, three of position, Q, satellite count,
+three standard deviations, three cross terms, age, ratio — with two exceptions: `-g` splits the latitude and
+longitude into degrees, minutes and seconds (seven position columns), and the velocity option appends nine.
+
+| Format | Flag | Position | Deviations | Cross terms, **as written** | Header labels |
+|---|---|---|---|---|---|
+| Geodetic | default | lat, lon, h | n, e, u | N–E, E–U, N–U | `sdne sdeu sdun` ✔ |
+| Geodetic, sexagesimal | `-g` | lat, lon as d/m/s | n, e, u | N–E, E–U, N–U | `sdne sdeu` **`sdue`** ✘ |
+| ECEF | `-e` | x, y, z | x, y, z | X–Y, Y–Z, Z–X | `sdxy sdyz sdzx` ✔ |
+| ENU baseline | `-a` | e, n, u | e, n, u | E–N, N–U, E–U | `sden sdnu sdue` ✔ |
+
+**The deviation triple and the cross triple do not run in the same order as each other in any format**, and
+the cross triple's order differs between formats. The pairing is positional, not nominal.
+
+### 7.2 The cross columns are signed square roots [V]
+
+`sqvar(covar)` is `covar < 0 ? -sqrt(-covar) : sqrt(covar)` (`solution.c:132`). A printed `-0.6097` is
+therefore neither a covariance nor a correlation: **the covariance is `-0.6097²`, with the sign restored**.
+
+This is the whole of FR-206 for this engine, and nothing in the file says it. Getting it wrong has two
+distinct failure modes, both silent:
+
+- **Squaring without restoring the sign** turns every negative covariance positive. The north–up and east–up
+  terms are routinely negative in a levelled solution, so the resulting error ellipse leans the wrong way.
+- **Using the printed value as a covariance** is wrong by a square — at these magnitudes, by three orders.
+
+### 7.3 Reading the header is necessary and not sufficient [V]
+
+The parser MUST read the file's own header rather than assuming a column order — and MUST NOT trust the
+labels it finds there, because **one of them is wrong upstream**. With `-g`, RTKLIB labels the third cross
+column `sdue` while writing the same `sqvar(Q[5])` — the **N–U** covariance — that the default format
+correctly calls `sdun`. And `sdue` genuinely denotes E–U in the ENU format. The same label therefore means
+two different things across formats, and in one of them it is wrong.
+
+So: **the header decides the format, the format decides each column's meaning**, and the labels are compared
+against what the format says they should be and *reported* rather than obeyed. `llh.pos` and `llh-dms.pos`
+in the fixtures are the same solution written both ways, and their parsed covariances are identical to the
+bit — which is the evidence that ignoring the wrong label is right.
 
 **Covariance is preserved, not reduced** (FR-206). The per-epoch standard deviations *and* their
 cross-component terms are read and assembled into a `Covariance`
@@ -213,6 +309,73 @@ engine-side contract).
 5. **Correlations between baselines from a common session** are not invented. Where the engine does not
    provide them, they are absent and the result says so, rather than a fabricated correlation being
    supplied.
+
+### 8.1 How the vector comes out of a `.pos` **[V]**
+
+Confirmed in phase P7b by running the engine and comparing its own two output formats against each other.
+
+**Use the ECEF format, and subtract.** `rnx2rtkp -e` writes the rover's absolute geocentric position per
+epoch and the base in the `% ref pos` header; the base is held in relative mode, so the rover's covariance
+*is* the baseline's and the vector is one subtraction:
+
+```text
+d = last_epoch_position - reference_position
+```
+
+Measured on the committed fixtures: `[2022.7707, −468.6291, 2610.2891]`, length **3335.3896 m**, against
+**3335.3895 m** for the length of the independently computed ENU baseline in `enu.pos` — the same run in a
+different format. **They agree to 0.05 mm.** No rotation, no projection, and nothing to undo.
+
+The other formats are refused rather than converted (`pos_not_geocentric`): deriving a baseline from the LLH
+or ENU output means inverting a projection or a rotation the engine has already applied, losing precision to
+no purpose.
+
+**The last epoch is the answer.** A static run writes the filter's state at every epoch, so the earlier ones
+are a converging filter's guesses — `xyz.pos`'s first epoch is a float solution two metres out.
+
+### 8.2 The printed covariance is worth about one significant figure **[V]**
+
+Every deviation and cross column is written `%8.4f`, so 0.1 mm. At the sub-centimetre magnitudes a fixed
+static solution reaches, that is one or two significant figures and the covariance built from them is
+uncertain by several per cent. `covariance_from_printed` (`core/uncertainty.py`) exists for exactly this —
+**but the half-width it is given is not the printing's half-width**, and that distinction is the whole of
+this section.
+
+The file prints `v = sqvar(c) = sign(c)·√|c|` (§7.2), so `c = sign(v)·v²` and `dc/dv = 2|v|`. A printed value
+uncertain by `0.5e-4` therefore gives a covariance uncertain by `2·|v|·0.5e-4`:
+
+| Quantity | Value |
+|---|---|
+| Printed half-width | `0.5e-4` |
+| Largest `|v|` in a fixed static epoch | ≈ `0.0025` |
+| Covariance half-width | **`2.5e-7`** |
+
+Passing `0.5e-4` through unchanged would be **two hundred times too loose**, and would condition away
+matrices that are indefinite for a real reason instead of only those rounding explains.
+
+**No approximation strategy is asserted** on a baseline covariance read this way, and that is a decision
+rather than an omission. `RECORDED_PRECISION` would be the wrong label: the sigma is the engine's own, not
+one invented from how many digits were written, and its own definition forbids it "for an observation whose
+sigma becomes an adjustment weight" — which is what this becomes. `covariance_from_printed` adds
+`ROUNDING_CONDITIONED` itself, and only if it had to move the matrix.
+
+### 8.3 Antenna reduction needs both horizons **[V]**
+
+Rule 4 above, made exact. An engine determines the vector between two *antenna reference points*; the
+adjustment wants the vector between two *marks*:
+
+```text
+d_mark = d_ARP − R(rover)ᵀ·o_rover + R(base)ᵀ·o_base
+```
+
+**The two rotations are different rotations.** Over a 3 km baseline the local vertical turns by about 0.03°,
+which is 0.8 mm across a 1.5 m antenna offset — larger than the millimetre everything else here is careful
+about. Using one horizon for both ends makes two equal vertical offsets cancel exactly, which looks tidier
+and is wrong; `tests/test_gnss_baselines.py` asserts the residue is there.
+
+A **slant** height is refused rather than assumed vertical (`antenna_height_is_slant`): it is measured to the
+antenna rim and needs the antenna's dimensions to be converted, which is FR-063's antenna database and does
+not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
 
 ---
 

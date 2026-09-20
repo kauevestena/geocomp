@@ -1,0 +1,11 @@
+# Large inputs and mutable policy pages are acquired explicitly by their hashes.
+/sources/*
+!/sources/godn.log.txt
+!/sources/gods.log.txt
+!/sources/godn_20.coord.txt
+!/sources/gods_20.coord.txt
+/calibrated_001.pos
+!/sources/ncn-data.html
+!/sources/ncn-license.html
+!/sources/mycs3.html
+!/sources/ngs-antcal.html

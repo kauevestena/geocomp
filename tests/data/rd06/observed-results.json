@@ -1,0 +1,438 @@
+{
+  "dataset_id": "RD-06-NGS-GODN-GODS-2025-001-002",
+  "geocomp_commit": "bb2e2d595dab717d65bbc2c7ab1408d5f6b9ae74",
+  "rtklib_commit": "06e8644287ff07efc4c53bbf3e7f9dafb0355605",
+  "engine_binary_sha256": "aa4cdc3b1155cbff8e786998f411fc41ddb6c6ba87a622090dda655a23c023eb",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "numpy": "2.3.5",
+  "hatanaka": "2.8.1",
+  "cases": [
+    {
+      "case": "default_001",
+      "base": "GODN",
+      "rover": "GODS",
+      "day": "2025-001",
+      "epoch_for_comparison": "2025-01-01T12:00:00 GPST",
+      "elapsed_julian_years": 5.003422313483915,
+      "official_base_arp_xyz_m": [
+        1130760.675947981,
+        -4831298.6819993155,
+        3994155.2080075294
+      ],
+      "official_rover_arp_xyz_m": [
+        1130752.1079479808,
+        -4831349.1079993155,
+        3994098.971007529
+      ],
+      "computed_rover_arp_xyz_m": [
+        1130752.1149,
+        -4831349.1103,
+        3994098.9686
+      ],
+      "difference_xyz_m": [
+        0.006952019175514579,
+        -0.002300684340298176,
+        -0.002407529391348362
+      ],
+      "difference_enu_m": [
+        0.00624480053881923,
+        -0.004278308478640402,
+        0.0014554929105215807
+      ],
+      "horizontal_error_m": 0.0075697725994935475,
+      "error_3d_m": 0.007708431540892211,
+      "computed_baseline_xyz_m": [
+        -8.560999999986961,
+        -50.428299999795854,
+        -56.239400000311434
+      ],
+      "expected_baseline_xyz_m": [
+        -8.568000000203028,
+        -50.42599999997765,
+        -56.23700000019744
+      ],
+      "baseline_difference_xyz_m": [
+        0.007000000216066837,
+        -0.0022999998182058334,
+        -0.002400000113993883
+      ],
+      "covariance_xyz_m2": [
+        [
+          1.6e-07,
+          -1e-08,
+          1e-08
+        ],
+        [
+          -1e-08,
+          1.6e-07,
+          -4e-08
+        ],
+        [
+          1e-08,
+          -4e-08,
+          8.999999999999999e-08
+        ]
+      ],
+      "formal_sigma_xyz_m": [
+        0.0004,
+        0.0004,
+        0.0003
+      ],
+      "epochs": 2880,
+      "last_epoch": "2025-01-01T23:59:30+00:00",
+      "fixed_fraction": 0.9704861111111112,
+      "last_status": "FIXED",
+      "last_satellites": 7,
+      "last_ratio": 11.6,
+      "tolerance_m": 0.001,
+      "passes_strict_xyz_comparison": false,
+      "full_day_and_fixed": true,
+      "repeat_pos_bit_identical": true,
+      "pos_sha256": "852bdf11baba63d87a3d2bc5e88e2e68a0db26c0d68e13d131902c6e718efaac",
+      "solution_records_sha256": "3885bb0ec231736d86864e0eed6d7b4fa16323d61587a8c2ac1991b656912552",
+      "seconds_first_run": 1.5191645950001202
+    },
+    {
+      "case": "calibrated_001",
+      "base": "GODN",
+      "rover": "GODS",
+      "day": "2025-001",
+      "epoch_for_comparison": "2025-01-01T12:00:00 GPST",
+      "elapsed_julian_years": 5.003422313483915,
+      "official_base_arp_xyz_m": [
+        1130760.675947981,
+        -4831298.6819993155,
+        3994155.2080075294
+      ],
+      "official_rover_arp_xyz_m": [
+        1130752.1079479808,
+        -4831349.1079993155,
+        3994098.971007529
+      ],
+      "computed_rover_arp_xyz_m": [
+        1130752.1144,
+        -4831349.1104,
+        3994098.968
+      ],
+      "difference_xyz_m": [
+        0.006452019326388836,
+        -0.002400684170424938,
+        -0.003007529303431511
+      ],
+      "difference_enu_m": [
+        0.005735168223513808,
+        -0.004734025374409456,
+        0.0010648566042749824
+      ],
+      "horizontal_error_m": 0.007436608823755296,
+      "error_3d_m": 0.00751246100723479,
+      "computed_baseline_xyz_m": [
+        -8.561499999836087,
+        -50.42839999962598,
+        -56.24000000022352
+      ],
+      "expected_baseline_xyz_m": [
+        -8.568000000203028,
+        -50.42599999997765,
+        -56.23700000019744
+      ],
+      "baseline_difference_xyz_m": [
+        0.006500000366941094,
+        -0.002399999648332596,
+        -0.003000000026077032
+      ],
+      "covariance_xyz_m2": [
+        [
+          1.6e-07,
+          -1e-08,
+          1e-08
+        ],
+        [
+          -1e-08,
+          1.6e-07,
+          -4e-08
+        ],
+        [
+          1e-08,
+          -4e-08,
+          8.999999999999999e-08
+        ]
+      ],
+      "formal_sigma_xyz_m": [
+        0.0004,
+        0.0004,
+        0.0003
+      ],
+      "epochs": 2880,
+      "last_epoch": "2025-01-01T23:59:30+00:00",
+      "fixed_fraction": 0.9704861111111112,
+      "last_status": "FIXED",
+      "last_satellites": 7,
+      "last_ratio": 11.9,
+      "tolerance_m": 0.001,
+      "passes_strict_xyz_comparison": false,
+      "full_day_and_fixed": true,
+      "repeat_pos_bit_identical": true,
+      "pos_sha256": "9fee8f434de1a6d967dd58785f3affc4328309aff739bda4d0d2704461dd9467",
+      "solution_records_sha256": "e85082e42cbe6b7a778f126d9fd52b385989576b415e5778a85edb87eacd3589",
+      "seconds_first_run": 1.5256184389997998
+    },
+    {
+      "case": "calibrated_002",
+      "base": "GODN",
+      "rover": "GODS",
+      "day": "2025-002",
+      "epoch_for_comparison": "2025-01-02T12:00:00 GPST",
+      "elapsed_julian_years": 5.006160164271047,
+      "official_base_arp_xyz_m": [
+        1130760.6759063655,
+        -4831298.681998768,
+        3994155.2080135527
+      ],
+      "official_rover_arp_xyz_m": [
+        1130752.1079063653,
+        -4831349.107998768,
+        3994098.9710135525
+      ],
+      "computed_rover_arp_xyz_m": [
+        1130752.1095,
+        -4831349.1138,
+        3994098.9669
+      ],
+      "difference_xyz_m": [
+        0.001593634719029069,
+        -0.005801232531666756,
+        -0.004113552626222372
+      ],
+      "difference_enu_m": [
+        0.00022967972861733234,
+        -0.00698089742723362,
+        0.002080770060715456
+      ],
+      "horizontal_error_m": 0.00698467477176244,
+      "error_3d_m": 0.00728802344349032,
+      "computed_baseline_xyz_m": [
+        -8.566399999894202,
+        -50.43180000036955,
+        -56.24110000021756
+      ],
+      "expected_baseline_xyz_m": [
+        -8.568000000203028,
+        -50.42599999997765,
+        -56.23700000019744
+      ],
+      "baseline_difference_xyz_m": [
+        0.0016000003088265657,
+        -0.005800000391900539,
+        -0.004100000020116568
+      ],
+      "covariance_xyz_m2": [
+        [
+          1.6e-07,
+          -1e-08,
+          1e-08
+        ],
+        [
+          -1e-08,
+          1.6e-07,
+          -4e-08
+        ],
+        [
+          1e-08,
+          -4e-08,
+          8.999999999999999e-08
+        ]
+      ],
+      "formal_sigma_xyz_m": [
+        0.0004,
+        0.0004,
+        0.0003
+      ],
+      "epochs": 2880,
+      "last_epoch": "2025-01-02T23:59:30+00:00",
+      "fixed_fraction": 0.971875,
+      "last_status": "FIXED",
+      "last_satellites": 6,
+      "last_ratio": 147.8,
+      "tolerance_m": 0.001,
+      "passes_strict_xyz_comparison": false,
+      "full_day_and_fixed": true,
+      "repeat_pos_bit_identical": true,
+      "pos_sha256": "a42ac1453fb1183ddf638a82caf7141aac9fd5438bd3886b089b30d5280c041c",
+      "solution_records_sha256": "9dbdb9fc819a23a713afd22f2f3238550bbb5373c665cba84f45cef45c60b5b0",
+      "seconds_first_run": 1.4707605070000227
+    },
+    {
+      "case": "reverse_001",
+      "base": "GODS",
+      "rover": "GODN",
+      "day": "2025-001",
+      "epoch_for_comparison": "2025-01-01T12:00:00 GPST",
+      "elapsed_julian_years": 5.003422313483915,
+      "official_base_arp_xyz_m": [
+        1130752.1079479808,
+        -4831349.1079993155,
+        3994098.971007529
+      ],
+      "official_rover_arp_xyz_m": [
+        1130760.675947981,
+        -4831298.6819993155,
+        3994155.2080075294
+      ],
+      "computed_rover_arp_xyz_m": [
+        1130760.6695,
+        -4831298.6796,
+        3994155.211
+      ],
+      "difference_xyz_m": [
+        -0.0064479808788746595,
+        0.0023993151262402534,
+        0.0029924707487225533
+      ],
+      "difference_enu_m": [
+        -0.005731532811529068,
+        0.004720934178044154,
+        -0.0010725501332053923
+      ],
+      "horizontal_error_m": 0.00742547559978886,
+      "error_3d_m": 0.007502536349215419,
+      "computed_baseline_xyz_m": [
+        8.561600000131875,
+        50.42839999962598,
+        56.24000000022352
+      ],
+      "expected_baseline_xyz_m": [
+        8.568000000203028,
+        50.42599999997765,
+        56.23700000019744
+      ],
+      "baseline_difference_xyz_m": [
+        -0.006400000071153045,
+        0.002399999648332596,
+        0.003000000026077032
+      ],
+      "covariance_xyz_m2": [
+        [
+          1.6e-07,
+          -1e-08,
+          1e-08
+        ],
+        [
+          -1e-08,
+          1.6e-07,
+          -4e-08
+        ],
+        [
+          1e-08,
+          -4e-08,
+          8.999999999999999e-08
+        ]
+      ],
+      "formal_sigma_xyz_m": [
+        0.0004,
+        0.0004,
+        0.0003
+      ],
+      "epochs": 2880,
+      "last_epoch": "2025-01-01T23:59:30+00:00",
+      "fixed_fraction": 0.9704861111111112,
+      "last_status": "FIXED",
+      "last_satellites": 7,
+      "last_ratio": 11.9,
+      "tolerance_m": 0.001,
+      "passes_strict_xyz_comparison": false,
+      "full_day_and_fixed": true,
+      "repeat_pos_bit_identical": true,
+      "pos_sha256": "709a38791e0b95fc5dd1302799963e9b1922a04f1fa7e3789858afd18ff3bfb5",
+      "solution_records_sha256": "db444f7389a19d3770a33107c6090398a8431fc10f6f3c89fbfdc512fbe804d5",
+      "seconds_first_run": 1.4684584229999018
+    },
+    {
+      "case": "precise_001",
+      "base": "GODN",
+      "rover": "GODS",
+      "day": "2025-001",
+      "epoch_for_comparison": "2025-01-01T12:00:00 GPST",
+      "elapsed_julian_years": 5.003422313483915,
+      "official_base_arp_xyz_m": [
+        1130760.675947981,
+        -4831298.6819993155,
+        3994155.2080075294
+      ],
+      "official_rover_arp_xyz_m": [
+        1130752.1079479808,
+        -4831349.1079993155,
+        3994098.971007529
+      ],
+      "computed_rover_arp_xyz_m": [
+        1130752.1143,
+        -4831349.1104,
+        3994098.9679
+      ],
+      "difference_xyz_m": [
+        0.00635201926343143,
+        -0.002400684170424938,
+        -0.0031075291335582733
+      ],
+      "difference_enu_m": [
+        0.005637799392751679,
+        -0.004797369582557554,
+        0.0009841918616238538
+      ],
+      "horizontal_error_m": 0.007402670930452038,
+      "error_3d_m": 0.007467808950759672,
+      "computed_baseline_xyz_m": [
+        -8.561599999899045,
+        -50.42839999962598,
+        -56.240100000053644
+      ],
+      "expected_baseline_xyz_m": [
+        -8.568000000203028,
+        -50.42599999997765,
+        -56.23700000019744
+      ],
+      "baseline_difference_xyz_m": [
+        0.006400000303983688,
+        -0.002399999648332596,
+        -0.0030999998562037945
+      ],
+      "covariance_xyz_m2": [
+        [
+          1.6e-07,
+          -1e-08,
+          1e-08
+        ],
+        [
+          -1e-08,
+          1.6e-07,
+          -4e-08
+        ],
+        [
+          1e-08,
+          -4e-08,
+          8.999999999999999e-08
+        ]
+      ],
+      "formal_sigma_xyz_m": [
+        0.0004,
+        0.0004,
+        0.0003
+      ],
+      "epochs": 2880,
+      "last_epoch": "2025-01-01T23:59:30+00:00",
+      "fixed_fraction": 0.9708333333333333,
+      "last_status": "FIXED",
+      "last_satellites": 8,
+      "last_ratio": 12.3,
+      "tolerance_m": 0.001,
+      "passes_strict_xyz_comparison": false,
+      "full_day_and_fixed": true,
+      "repeat_pos_bit_identical": true,
+      "pos_sha256": "d961fa073a8f82300fb079dade0ea73d5582d4cb15ace106305a0de32dd8bc09",
+      "solution_records_sha256": "f9e6bf0155a33cd427c2f1c6ad0b00044e38cf5d7165a4566b40b871d29e577c",
+      "seconds_first_run": 1.5687756249999438
+    }
+  ],
+  "accuracy_criterion_met": false
+}

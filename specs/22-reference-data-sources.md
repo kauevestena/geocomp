@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 # 22 — Reference data sources
 
-**Status:** Draft. §2 is implemented (RD-11); §§3-5 remain leads.
+**Status:** Draft. §§2 and 4 are implemented (RD-11, RD-12); §5 has RD-06 data and an unmet accuracy check.
 **Requirements covered:** FR-161, FR-952; the reference datasets RD-02…RD-08 of
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §3.
 **Source:** A search for reference data, prompted by three pieces of work stalling on the same shortage.
@@ -16,8 +16,9 @@
 
 ## 1. Why this document exists
 
-[`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists nine reference datasets. Three are
-still marked *to assemble* (RD-06, RD-07, RD-08), and RD-02, RD-03 and RD-04 carry a standing note that their
+[`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists the reference datasets. Two remain
+*to assemble* (RD-07, RD-08); RD-06 now has repository fixtures but no passing accuracy check (§5).
+RD-02, RD-03 and RD-04 carry a standing note that their
 **validation is complete but their citation is not**: they are reference cases built from the operations
 GeoComp performs, not transcriptions of published worked examples, so the project cannot yet say it agrees
 with the standard references *by name*.
@@ -291,7 +292,46 @@ carry files in it: the five networks are vendored as `Network.to_dict()` JSON, p
 `scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
 and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
-## 5. RD-06, RD-07, RD-08 — the three still to assemble **[C]**
+## 5. RD-06 — data obtained, accuracy unmet **[V]**; RD-07 and RD-08 still to assemble **[C]**
+
+**RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
+environment. The reproducible evidence bundle, now integrated into `tests/data/rd06/`, contains two complete
+days (2025-001 and 2025-002) for the NASA Goddard stations **GODN and GODS**, from the
+[official NOAA archive](https://geodesy.noaa.gov/CORS/data.shtml). The independent expected results come from
+the **ITRF2020, epoch 2020.0, ARP** blocks of NGS's
+[GODN coordinate sheet](https://geodesy.noaa.gov/corsdata/coord/coord_20/godn_20.coord.txt) and
+[GODS coordinate sheet](https://geodesy.noaa.gov/corsdata/coord/coord_20/gods_20.coord.txt), not from RINEX
+approximate positions or an earlier RTKLIB result. Their published velocities are applied at the observation
+epoch. The expected GODN-to-GODS vector is **(-8.568, -50.426, -56.237) m**.
+
+The frozen data records the sources, redistribution terms, hashes, complete observations, navigation,
+station logs, NGS IGS20 antenna calibration and IGS final orbit. The original experiment used GeoComp commit
+`bb2e2d595dab717d65bbc2c7ab1408d5f6b9ae74` against the existing pinned RTKLIB-EX build. Its primary `.pos`
+and measured results are retained as history, not expected truth. `scripts/check_rd06.py` and
+`tests/test_rd06.py` now process the **current working tree**, retaining configurations, outputs and metrics.
+[`PROVENANCE.md`](../tests/data/rd06/PROVENANCE.md) documents the complete reproduction and reuse terms.
+
+**The accuracy criterion remains unmet.** Section 6 of [`20`](./20-testing-and-validation.md) defines
+printed-source precision but no separate GNSS numeric threshold. Applying the coordinate sheets' **1 mm
+printed XYZ precision** conservatively, the calibrated day-001 result fails: XYZ errors are
+**(+6.452, -2.401, -3.008) mm**, 3D error **7.512 mm**. Day 002 also fails; a reciprocal baseline reverses
+the discrepancy, and an IGS20 final orbit changes the day-001 result by only about 0.1 mm. All five
+configurations reproduced their complete `.pos` bytes on a same-path rerun. Reproducibility, ambiguity fixing
+and small formal covariance do not turn this discrepancy into a passing accuracy result. No tolerance or
+exit criterion is changed, and the remaining millimetre discrepancy is not yet attributed to a specific defect.
+
+Only the primary accuracy assertion is a strict, exception-specific expected failure during local
+development. CI runs it with `--runxfail`, so **the engine accuracy check stays red** while this criterion
+is unmet. Source-integrity, processing, complete-day coverage and reproducibility checks must pass normally;
+missing engine/decompression prerequisites fail in CI. The standalone checker exits 1 on the discrepancy.
+
+**Repository delivery.** Coordinate sheets, station logs, policy snapshots and a losslessly compressed
+primary output are vendored. Larger processing inputs are obtained explicitly with
+`python3 scripts/check_rd06.py --fetch-inputs --verify-inputs`; original source hashes are enforced before
+use. Engine CI performs this acquisition before testing, while ordinary offline checks need no download.
+Changed upstream files are refused. The original evidence bundle remains the full frozen copy.
+
+The following records the original source search and environmental blocker, retained as history.
 
 **RD-06, GNSS with published official coordinates.** [IBGE's RBMC](https://www.ibge.gov.br/geociencias/informacoes-sobre-posicionamento-geodesico/rede-geodesica/16258-rede-brasileira-de-monitoramento-continuo-dos-sistemas-gnss-rbmc.html)
 (*Rede Brasileira de Monitoramento Contínuo*) publishes RINEX for every station together with official
@@ -299,6 +339,28 @@ SIRGAS2000 coordinates; station reports come from the Banco de Dados Geodésicos
 at 1 s has been available since 2020. This is the natural choice for a Brazilian project: the coordinates are
 official, the frame is the national one, and the data is public. NGS/CORS and Geoscience Australia are the
 equivalents elsewhere. Licence terms were not checked.
+
+> **P7 could not obtain it, and the reason is not upstream's.** Every candidate archive is **denied by the
+> egress policy of the environment GeoComp is developed in** — `geoftp.ibge.gov.br`, `cddis.nasa.gov`,
+> `igs.bkg.bund.de` and `files.igs.org` all answer 403 to CONNECT. That is an organisation policy, not a
+> service outage and not a missing dataset: the data is public and reachable from an ordinary network.
+>
+> So RD-06 is **blocked rather than absent**, and P7's exit criterion that a static relative session
+> reproduces published coordinates is recorded **unmet** rather than quietly reinterpreted. What would
+> unblock it, in order of preference:
+>
+> 1. **A maintainer-supplied dataset** — RINEX for a station whose official coordinates are published, the
+>    way the *Adjust* corpus unblocked FR-161. One station over one day is enough.
+> 2. Egress for one of the four hosts above.
+> 3. A CI job that runs where those hosts are reachable, fetching at test time rather than vendoring.
+>
+> **What P7 validated instead, and what that is worth.** RTKLIB's own sample pair — two Japanese GSI marks
+> observing the same hour of 2 April 2005 — runs the whole chain and resolves its ambiguities
+> (`tests/data/rtklib/`). That shows the pipeline works: RINEX read, sessions paired, configuration written,
+> engine run, covariance recovered. It shows **nothing about accuracy**, because those stations have no
+> published coordinates reachable here. The distinction is the same one §2.2 draws for RD-11 against RD-03:
+> a reference case built from the operations a program performs is not a transcription of a published answer,
+> and only the second can settle whether the program is right.
 
 **RD-07, a gravimetric network with a published solution.**
 [IBGE's Rede Gravimétrica](https://www.ibge.gov.br/geociencias/informacoes-sobre-posicionamento-geodesico/rede-geodesica/16286-rede-gravimetrica.html),
@@ -322,6 +384,6 @@ Synthetic data with injected motion (already RD-08's second half) remains the on
    five networks published in the *Adjust* format did what the document was wanted for, and did it under a
    licence that permits redistribution. Krumm's document is still the shortest route to *published answers*
    in that format, which §4.3 records this corpus as not having.
-3. **RD-06 from RBMC**, when P7 needs it.
+3. **Resolve RD-06's measured discrepancy** against the frozen NGS data (§5); RBMC remains another candidate.
 4. **Borrow the round-robin practice** for §5 rather than inventing a comparison protocol.
 5. RD-07 and RD-08 when P8 and the monitoring phase need them.
