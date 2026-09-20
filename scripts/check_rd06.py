@@ -248,12 +248,22 @@ def sweep_elevation_mask(
     work.mkdir(parents=True, exist_ok=True)
     engine = RtklibEngine(configured=executable)
     sessions_by_day = _prepare_sessions(work, data, reference)
-    antenna_file = work / "ngs20.atx" if calibrated else None
-    if calibrated and not antenna_file.is_file():
-        raise FileNotFoundError(
-            f"{antenna_file} is required for a calibrated sweep; run --fetch-inputs, "
-            "or pass calibrated=False to sweep the uncalibrated configuration"
-        )
+
+    # Decompressed here rather than assumed present. The first version of this
+    # expected `run_all` to have left the file behind, which it does -- in *its*
+    # output directory, not the sweep's. Under `continue-on-error` that surfaced
+    # as a step which "succeeded" in two seconds having done nothing, which is
+    # the failure mode this whole script exists to refuse elsewhere.
+    antenna_file = None
+    if calibrated:
+        archive = data / "sources" / "ngs20.atx.gz"
+        if not archive.is_file():
+            raise FileNotFoundError(
+                f"{archive} is required for a calibrated sweep; run --fetch-inputs, "
+                "or use --sweep-uncalibrated where its host is unreachable"
+            )
+        antenna_file = work / "ngs20.atx"
+        antenna_file.write_bytes(gzip.decompress(archive.read_bytes()))
 
     expected = np.array(reference["expected_baseline_GODN_to_GODS_m"])
     origin = reference["stations"]["GODN"]["arp_xyz_m_epoch_2020"]

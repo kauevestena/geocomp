@@ -230,11 +230,14 @@ jobs:
       # the uncalibrated configuration. Here the calibration is present, and a
       # calibrated sweep at a high elevation mask is what separates residual antenna
       # calibration from a real disagreement with the published coordinates
-      # (specs/22 section 5). Diagnostic, never a gate: it reports and cannot fail the
-      # job, because what it measures is the unmet criterion rather than a regression.
+      # (specs/22 section 5).
+      #
+      # It exits zero whatever the numbers say -- it reports, it does not judge --
+      # so the only way it fails is a bug in the diagnostic itself, and that should
+      # be visible. It ran under `continue-on-error` exactly once, where it hid its
+      # own missing-ANTEX bug as a two-second success.
       - name: RD-06 diagnostic — the calibrated elevation-mask sweep
         if: always()
-        continue-on-error: true
         run: python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
 
       - name: Retain RD-06 configurations, solutions, logs and metrics
