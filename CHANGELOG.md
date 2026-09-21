@@ -36,9 +36,22 @@ two discrepancies sitting on top of each other.
   distinguishing the cases. GODN and GODS carry different antenna types 76 m
   apart, and NGS's own coordinate sheet warns that mixing them "can lead to
   errors of up to 10 cm".
-- **A stable 6.7 mm underneath it, −6.3 mm of it in north**, which every
-  high-mask solution agrees on and which the mask does not touch. Still
-  unattributed, but now isolated from the noise that was hiding it.
+- **A stable ~6.9 mm underneath it, −6.7 mm of it in north**, which every
+  high-mask solution agrees on and which the mask does not touch — **and which
+  full antenna calibration does not remove**. Engine CI, which can reach the NGS
+  ANTEX, now runs the calibrated sweep: at masks of 25° and above it gives
+  (+0.93, −6.74, +1.38) mm against the uncalibrated (+1.49, −6.27, +1.89), so
+  calibration moves it by about half a millimetre per component and the north
+  term grows rather than shrinking.
+
+  The residual therefore survives the elevation mask from 25° to 35°, two
+  independent days, the NGS absolute calibration of both mixed antenna types,
+  IGS20 final orbits, and reversal of base and rover. Every processing effect
+  this project can control has been varied and none of them is it. What remains
+  is the reference: the expected baseline is the *difference of two
+  independently estimated* NGS coordinates, each carrying an uncertainty the
+  coordinate sheets do not publish. That is recorded as what survives
+  elimination, not as a measurement — nothing here bounds NGS's own uncertainty.
 - Three things it is **not**, each checked rather than assumed: not the reference
   point (the ARP and L1PC baselines differ by 2.2 mm, and L1PC is no better), not
   the orbits (IGS20 final products move it 0.05 mm), and not internal
@@ -46,16 +59,15 @@ two discrepancies sitting on top of each other.
 
 #### Not done
 
-- **The experiment that would settle the residual cannot run here.** Applying the
-  ANTEX *at a high mask* separates leftover antenna calibration from a real
-  disagreement with the published coordinates. `geodesy.noaa.gov` is denied by
-  this environment's egress policy; `noaa-cors-pds.s3.amazonaws.com` is
-  reachable, so the sweep is the uncalibrated configuration — a sound proxy at
-  0.2 mm, but not an answer. Engine CI acquires the ANTEX, so `--sweep` there
-  closes it.
+- **NGS's own coordinate uncertainty is not bounded here**, so "what remains is
+  the reference" is elimination rather than measurement. Settling it needs
+  either NGS's published covariance or a third station on the same monument
+  network.
 - **No tolerance changed.** The 1 mm threshold is still a printed-source-precision
-  rule borrowed for want of a GNSS one; deriving a real one belongs with the
-  answer to the residual, not before it. The accuracy check stays red.
+  rule borrowed for want of a GNSS one. The case for deriving a real one is now
+  evidential — a criterion that survives calibration, orbits, masks, days and
+  reversal unchanged is not measuring the pipeline — but the derivation is the
+  maintainer's decision, and the accuracy check stays red until it is taken.
 
 ### P7b — baselines into an adjustment
 

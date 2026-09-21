@@ -44,6 +44,12 @@ split is what `specs/22` section 5 attributes the discrepancy with, and it is th
 first thing to re-run after any change to weighting, the antenna model or the
 baseline bridge.
 
+Engine CI runs the **calibrated** sweep on every engine run and retains
+`sweep.json`; the development environment usually cannot, because the NGS ANTEX
+host is unreachable from it. At masks of 25° and above both configurations agree
+on a residual near 6.9 mm dominated by north, which is the number to compare any
+change against.
+
 ## Smaller examples for fast development
 
 The repository also contains these complementary, independently runnable cases:

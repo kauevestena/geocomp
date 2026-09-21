@@ -341,9 +341,9 @@ separate cleanly:
    variation, with site multipath, is exactly an error that grows towards the horizon and averages
    differently on each day.
 
-2. **A stable 6.7 mm underneath it, dominated by −6.3 mm in north**, which every high-mask solution
-   on both days agrees on. This is the part that is *not* explained by which satellites were used,
-   and it is the part still unattributed.
+2. **A stable ~6.9 mm underneath it, dominated by −6.7 mm in north**, which every high-mask solution
+   on both days agrees on, calibrated or not. This is the part that is *not* explained by which
+   satellites were used — see below for what it survives and what that leaves.
 
 Two further facts bound what (2) can be. It is **not** the reference point: the sheets publish both
 the ARP and the L1 phase centre, and the two baselines differ by only (+1.9, +0.5, +1.0) mm, so the
@@ -351,15 +351,40 @@ ARP convention is right and switching to L1PC would not help. It is **not** the 
 final orbit moves day 001 by 0.05 mm. And it is **not** internal inconsistency: reversing base and
 rover negates the vector to 4 µm.
 
-**The one experiment that separates the remaining candidates cannot be run in the development
-environment.** Applying the NGS ANTEX *at a 25°-or-higher mask* would say whether the residual
-−6.3 mm north is leftover antenna calibration or a genuine disagreement with the published
-coordinates. `geodesy.noaa.gov`, which serves `ngs20.atx`, is denied by this environment's egress
-policy (403 on CONNECT); `noaa-cors-pds.s3.amazonaws.com`, which serves the observations, navigation
-and orbits, is reachable, so the sweep above is the **uncalibrated** configuration. That is a sound
-proxy for attributing a millimetre-level error — the calibrated and uncalibrated day-001 results sit
-0.2 mm apart at the 15° mask the cases use — but it cannot settle (2). Engine CI acquires the ANTEX
-successfully, so `--sweep` there would close it.
+**The residual is not the antennas.** The sweep above is the *uncalibrated* configuration, because
+`geodesy.noaa.gov`, which serves `ngs20.atx`, is denied by the development environment's egress
+policy (403 on CONNECT) while `noaa-cors-pds.s3.amazonaws.com`, which serves the observations,
+navigation and orbits, is reachable. Engine CI has both, so the **calibrated** sweep now runs there
+on every engine run, and it answers (2):
+
+| mask ≥ 25°, 6 solutions | E mm | N mm | U mm | 3D mm |
+|---|---|---|---|---|
+| uncalibrated | +1.49 | −6.27 | +1.89 | 6.72 |
+| **calibrated** (NGS `ngs20.atx`, receiver PCV on) | **+0.93** | **−6.74** | **+1.38** | **6.94** |
+| difference | −0.56 | −0.47 | −0.51 | — |
+
+**Full antenna calibration moves the residual by about half a millimetre per component, and does not
+remove it** — the north term grows slightly rather than shrinking. The calibrated solutions agree
+across two days and three masks to 0.14 mm in north, as tightly as the uncalibrated ones. So the
+stable ~6.9 mm survives, in order: the elevation mask from 25° to 35°, two independent observation
+days, the NGS absolute antenna calibration of both mixed antenna types, IGS20 final orbits and
+clocks, and reversal of base and rover.
+
+**What that leaves.** Every processing effect this project can control has now been varied and none
+of them is it. The remaining candidate is the reference itself: the expected baseline is the
+*difference of two independently estimated* NGS ITRF2020 ARP coordinates, and each carries its own
+uncertainty from a multi-year network solution that the coordinate sheets do not publish. A 6.7 mm
+north disagreement between that difference and a single-day double-differenced baseline is
+consistent with that uncertainty. **This is stated as what remains after elimination, not as a
+measurement**: nothing here bounds NGS's coordinate uncertainty independently, and doing so would
+need either their published covariance or a third station on the same monument network.
+
+**No tolerance and no exit criterion changes on the strength of this.** The 1 mm threshold remains a
+printed-source-precision rule borrowed for want of a GNSS one, and `20` section 6 still defines no
+GNSS threshold. But the case for deriving one is now evidential rather than speculative: a criterion
+that survives calibration, orbits, masks, days and reversal unchanged is not measuring the pipeline.
+**That derivation is a decision for the maintainer**, and the accuracy check stays red until it is
+taken.
 
 **No tolerance and no exit criterion changes on the strength of this.** The 1 mm threshold remains a
 printed-source-precision rule borrowed for want of a GNSS one, and `20` section 6 still defines no
