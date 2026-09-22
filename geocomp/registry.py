@@ -27,6 +27,7 @@ __all__ = [
     "ALGORITHMS",
     "CUSTOM_DIALOGS",
     "MENU_GROUPS",
+    "NESTING_MENUS",
     "PROCESSING_GROUPS",
     "PROVIDER_ID",
     "AlgorithmSpec",
@@ -34,6 +35,8 @@ __all__ = [
     "ProcessingGroup",
     "algorithms_in_group",
     "algorithms_in_menu",
+    "algorithms_in_submenu",
+    "submenus_in_menu",
 ]
 
 #: Provider id (FR-030). Stable: saved models and scripts store it.
@@ -151,6 +154,19 @@ class AlgorithmSpec:
             :data:`TOOLBOX_ONLY_JUSTIFICATIONS`.
         requirement: The requirement id this algorithm satisfies.
         menu_order: Position within its submenu.
+        submenu: A second level *inside* the menu group, or ``None`` for an
+            entry directly under it. Added in phase P7c for the one place the
+            specifications ask for one: ``specs/15`` section 1.1 and
+            ``specs/11`` section 1 both draw GNSS as Absolute (Static ·
+            Kinematic) and Relative (Static · Kinematic), because "Static" means
+            nothing without the branch above it. Flattening that to
+            "Absolute — Static" was the alternative and it reads worse in a
+            menu, where the branch is what the eye scans for.
+
+            **It stays an exception.** Every other group is one level, and a
+            second level that spread would undo what ADR-0005 bought: a menu
+            you can see the whole of. ``tests/test_registry.py`` holds the set
+            of groups allowed to nest.
     """
 
     operation: str
@@ -160,6 +176,7 @@ class AlgorithmSpec:
     requirement: str
     menu: str | None = None
     menu_order: int = 0
+    submenu: str | None = None
 
     @property
     def name(self) -> str:
@@ -473,7 +490,116 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="level",
         menu_order=60,
     ),
+# -- Phase P7c: GNSS ------------------------------------------------
+    #
+    # The four modes are the two branches `specs/11` section 1 draws; the four
+    # supporting operations sit directly under GNSS beside them, which is what
+    # `specs/15` section 1.1 lists after the parenthesised pairs.
+    AlgorithmSpec(
+        operation="scan_sessions",
+        group="gnss",
+        module="geocomp.algorithms.gnss.scan",
+        class_name="ScanSessionsAlgorithm",
+        requirement="FR-351",
+        menu="gnss",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="absolute_static",
+        group="gnss",
+        module="geocomp.algorithms.gnss.process",
+        class_name="AbsoluteStaticAlgorithm",
+        requirement="FR-600",
+        menu="gnss",
+        menu_order=20,
+        submenu="absolute",
+    ),
+    AlgorithmSpec(
+        operation="absolute_kinematic",
+        group="gnss",
+        module="geocomp.algorithms.gnss.process",
+        class_name="AbsoluteKinematicAlgorithm",
+        requirement="FR-600",
+        menu="gnss",
+        menu_order=30,
+        submenu="absolute",
+    ),
+    AlgorithmSpec(
+        operation="relative_static",
+        group="gnss",
+        module="geocomp.algorithms.gnss.process",
+        class_name="RelativeStaticAlgorithm",
+        requirement="FR-601",
+        menu="gnss",
+        menu_order=40,
+        submenu="relative",
+    ),
+    AlgorithmSpec(
+        operation="relative_kinematic",
+        group="gnss",
+        module="geocomp.algorithms.gnss.process",
+        class_name="RelativeKinematicAlgorithm",
+        requirement="FR-601",
+        menu="gnss",
+        menu_order=50,
+        submenu="relative",
+    ),
+    AlgorithmSpec(
+        operation="build_baselines",
+        group="gnss",
+        module="geocomp.algorithms.gnss.baselines",
+        class_name="BuildBaselinesAlgorithm",
+        requirement="FR-602",
+        menu="gnss",
+        menu_order=60,
+    ),
+    AlgorithmSpec(
+        operation="batch",
+        group="gnss",
+        module="geocomp.algorithms.gnss.batch_process",
+        class_name="BatchProcessAlgorithm",
+        requirement="FR-355",
+        menu="gnss",
+        menu_order=70,
+    ),
+    AlgorithmSpec(
+        operation="compare_configurations",
+        group="gnss",
+        module="geocomp.algorithms.gnss.compare",
+        class_name="CompareConfigurationsAlgorithm",
+        requirement="FR-359",
+        menu="gnss",
+        menu_order=80,
+    ),
 )
+
+#: Menu groups permitted a second level. One entry, and the reason is in
+#: :class:`AlgorithmSpec`'s ``submenu``: GNSS's four modes are two branches of
+#: two, and "Static" alone names nothing. A group absent from here may not nest,
+#: which ``tests/test_registry.py`` enforces so the exception cannot spread by
+#: imitation.
+NESTING_MENUS: frozenset[str] = frozenset({"gnss"})
+
+
+def submenus_in_menu(menu_id: str) -> tuple[str, ...]:
+    """The second-level names under *menu_id*, in the order they first appear.
+
+    Declaration order rather than alphabetical: ``specs/11`` draws Absolute
+    before Relative, and a menu that reordered the specification's own figure
+    would be a small lie about which is primary.
+    """
+    seen: list[str] = []
+    for spec in algorithms_in_menu(menu_id):
+        if spec.submenu and spec.submenu not in seen:
+            seen.append(spec.submenu)
+    return tuple(seen)
+
+
+def algorithms_in_submenu(menu_id: str, submenu: str | None) -> tuple[AlgorithmSpec, ...]:
+    """Algorithms under one second level, or directly under the group."""
+    return tuple(
+        spec for spec in algorithms_in_menu(menu_id) if spec.submenu == submenu
+    )
 
 
 def algorithms_in_menu(menu_id: str) -> tuple[AlgorithmSpec, ...]:
@@ -515,6 +641,14 @@ def _validate_module() -> None:
         if algorithms_in_menu(action_menu.id):
             raise ValueError(
                 f"menu entry {action_menu.id!r} is a leaf action and cannot hold algorithms"
+            )
+    for spec in ALGORITHMS:
+        if spec.submenu and spec.menu not in NESTING_MENUS:
+            raise ValueError(
+                f"algorithm {spec.name!r} declares submenu {spec.submenu!r} under menu "
+                f"{spec.menu!r}, which is not in NESTING_MENUS. specs/15 section 1 allows "
+                "a second level only where the first names nothing on its own; add the "
+                "menu to NESTING_MENUS with the reason, or flatten the entry"
             )
 
 

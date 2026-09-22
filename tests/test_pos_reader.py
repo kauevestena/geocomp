@@ -126,10 +126,60 @@ class TestCovariance:
         assert set(solution.components) in ({"n", "e", "u"}, {"x", "y", "z"})
 
     def test_the_deviations_match_the_diagonal(self, solution):
-        quantities = solution.last().quantities()
-        diagonal = np.sqrt(np.diag(solution.last().covariance.matrix))
-        for quantity, sigma in zip(quantities, diagonal, strict=True):
+        """Only where a component and its deviation are the same quantity.
+
+        A geodetic epoch pairs degrees with metres and refuses; see
+        ``TestQuantitiesRefuseAGeodeticEpoch``.
+        """
+        epoch = solution.last()
+        if epoch.is_geodetic:
+            pytest.skip("a geodetic epoch has no metre components to pair")
+        diagonal = np.sqrt(np.diag(epoch.covariance.matrix))
+        for quantity, sigma in zip(epoch.quantities(), diagonal, strict=True):
             assert quantity.std_dev == pytest.approx(float(sigma))
+
+
+class TestQuantitiesRefuseAGeodeticEpoch:
+    """``quantities()`` pairs each component with its own standard deviation.
+
+    For the two geodetic formats the components are degrees of latitude and
+    longitude while the deviations are metres on the ground, so the pairing
+    would produce a ``Quantity`` whose value and uncertainty are different
+    quantities under one unit: 35.16 degrees plus or minus 1.5 metres. Nothing
+    downstream could notice. It refuses instead (phase P7c).
+    """
+
+    @pytest.mark.parametrize("name", ("llh", "llh-dms"))
+    def test_a_geodetic_epoch_refuses(self, name):
+        from geocomp.core.errors import DataError
+
+        with pytest.raises(DataError) as raised:
+            read_pos(POS / f"{name}.pos").last().quantities()
+        assert raised.value.code == "data.pos_quantities_are_geodetic"
+
+    @pytest.mark.parametrize("name", ("xyz", "enu"))
+    def test_a_metric_epoch_does_not(self, name):
+        """Guards the guard: were `is_geodetic` true for everything, the test
+        above would pass while the method had simply stopped working."""
+        quantities = read_pos(POS / f"{name}.pos").last().quantities()
+        assert len(quantities) == 3
+
+    def test_the_sexagesimal_position_becomes_three_numbers(self):
+        """``-g`` writes seven columns, whose *last three* are the longitude's
+        minutes, its seconds and the height -- a triple that looks like a
+        position. ``decimal_position`` is what a caller that wants a coordinate
+        uses, and it agrees with the plain format's."""
+        plain = read_pos(POS / "llh.pos").last().decimal_position
+        sexagesimal = read_pos(POS / "llh-dms.pos").last().decimal_position
+        assert len(sexagesimal) == 3
+        assert sexagesimal == pytest.approx(plain, abs=1e-6)
+        assert sexagesimal != pytest.approx(
+            read_pos(POS / "llh-dms.pos").last().position[-3:], abs=1e-6
+        )
+
+    def test_a_three_column_position_passes_through(self):
+        epoch = read_pos(POS / "xyz.pos").last()
+        assert epoch.decimal_position == epoch.position
 
 
 class TestTheFormatsAgree:

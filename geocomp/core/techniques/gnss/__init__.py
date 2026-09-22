@@ -28,16 +28,24 @@ from geocomp.core.techniques.gnss.quality import (
     SessionQuality,
     summarise,
 )
+from geocomp.core.techniques.gnss.trajectory import (
+    LOCAL_LABELS,
+    TrajectoryPoint,
+    reorder_to_local,
+)
 
 __all__ = [
+    "LOCAL_LABELS",
     "AntennaOffset",
     "AntennaReduction",
     "Baseline",
     "EpochQuality",
     "SessionQuality",
+    "TrajectoryPoint",
     "components_from_covariance",
     "independent_subset",
     "reduce_to_marks",
+    "reorder_to_local",
     "rotate_baseline_to_local",
     "summarise",
     "to_cluster",

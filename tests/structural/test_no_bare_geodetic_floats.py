@@ -295,6 +295,25 @@ TECHNIQUE_PLAIN_FLOATS = {
         "own known coordinate, whose uncertainty belongs to that coordinate"
     ),
     ("Baseline", "rover_horizon"): "the same, at the far end",
+    # -- GNSS trajectory (phase P7c) -----------------------------------------
+    #
+    # A trajectory point's uncertainty is a *metre* uncertainty in north, east
+    # and up, and it is carried whole on `covariance`. Attaching it to the
+    # latitude instead would mean a Quantity whose value is radians and whose
+    # sigma is metres -- the same pairing `PosEpoch.quantities()` was changed to
+    # refuse in this phase, for the same reason: nothing downstream could see
+    # that the two halves are different quantities.
+    ("TrajectoryPoint", "latitude"): (
+        "geodetic latitude, radians. Its uncertainty is the north component of "
+        "`covariance`, in metres, and cannot be attached to an angle"
+    ),
+    ("TrajectoryPoint", "longitude"): "the same, east",
+    ("TrajectoryPoint", "height"): (
+        "ellipsoidal height, metres. Kept beside the latitude and longitude rather "
+        "than made a Quantity on its own, because its uncertainty is the up component "
+        "of the same 3x3 -- splitting one covariance across one Quantity and two "
+        "floats would leave the correlations with nowhere to live (FR-201)"
+    ),
     ("EpochQuality", "ratio"): (
         "RTKLIB's ambiguity ratio factor: the ratio of the second-best to the best "
         "integer candidate's residual. A test statistic about the solution, not a "
@@ -310,6 +329,32 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("SessionQuality", "interval"): (
         "the nominal seconds between epochs, a receiver setting rather than something "
         "observed"
+    ),
+    # -- GNSS, phase P7c ------------------------------------------------------
+    ("ReferenceStation", "velocity_per_year"): (
+        "a published rate of change in metres per year, transcribed from a coordinate "
+        "sheet. The position it moves *is* a Quantity; the rate is a property of the "
+        "tectonic plate, and the sheets that publish it print no uncertainty for it"
+    ),
+    ("ComparisonRow", "difference"): (
+        "the difference between two determinations of one vector, whose expected value "
+        "is zero. Its uncertainty is the adjacent covariance field, which is the whole "
+        "point of the comparison"
+    ),
+    ("ComparisonRow", "statistic"): "a chi-square test statistic, not a measured quantity",
+    ("ComparisonRow", "probability"): "a probability",
+    ("ComparisonRow", "length_difference"): (
+        "the difference of two baseline lengths; see difference above, and Baseline.length "
+        "carries the uncertainty of each"
+    ),
+    ("ConfigurationComparison", "confidence"): "a probability chosen by the user",
+    ("ConfigurationComparison", "critical_value"): (
+        "a quantile of the chi-square distribution: a property of the distribution and "
+        "the confidence, exact for its inputs"
+    ),
+    ("BatchResult", "seconds"): (
+        "wall-clock duration of one session's run, for the report. A timing, not a "
+        "geodetic value"
     ),
     ("SessionQuality", "dilution_of_precision"): (
         "a geometry factor, dimensionless and derived from satellite positions. Always "
@@ -327,6 +372,11 @@ TECHNIQUE_PLAIN_RETURNS = {
         "formula and the carrier wavelength, exact for its inputs"
     ),
     "stochastic.unit_for": "the dimension of an observation kind, not a value",
+    "batch.run_batch": (
+        "a report of which sessions ran and which failed (FR-355). The measurements are "
+        "in the payloads it carries, each already uncertainty-bearing in its own right; "
+        "the report is bookkeeping about execution"
+    ),
     "readings.empirical_reading_sigma": (
         "a pooled standard deviation and the degrees of freedom behind it -- the "
         "figure *is* an uncertainty, and the count is what says how much to trust it"

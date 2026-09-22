@@ -44,6 +44,7 @@ from geocomp.core.visualization import displacement_arrow, ellipse_ring
 from geocomp.layers.styles import apply_style
 
 __all__ = [
+    "GNSS_HORIZON_CRS",
     "LAYER_FIELDS",
     "correction_features",
     "correction_layer",
@@ -51,6 +52,11 @@ __all__ = [
     "ellipse_layer",
     "exaggeration_label",
     "fields_for",
+    "gnss_baseline_features",
+    "gnss_baseline_layer",
+    "gnss_baseline_positions",
+    "gnss_trajectory_features",
+    "gnss_trajectory_layer",
     "observation_features",
     "observation_layer",
     "residual_features",
@@ -124,6 +130,58 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("cluster", _TEXT),
         ("station_count", _INT),
     ),
+    # GNSS baselines (FR-357, phase P7c). Distinct from "observations" because a
+    # baseline carries three components and a quality record, and the
+    # observations layer records only `values[0]` -- which for a baseline is the
+    # first component alone, a number that means nothing on a map.
+    #
+    # The components are `d1/d2/d3` rather than `dx/dy/dz` because a baseline is
+    # not always geocentric: `rotate_baseline_to_local` produces one in east,
+    # north and up for the in-house adjustment, and a column headed `dx` holding
+    # an east component is the kind of label that is read rather than checked.
+    # `frame` names which three axes they are, in the same vocabulary
+    # `BaselineFrame` uses, and sits beside them in the attribute table.
+    "gnss_baselines": (
+        ("baseline", _TEXT),
+        ("base_station", _TEXT),
+        ("rover_station", _TEXT),
+        ("length", _REAL),
+        ("sigma_length", _REAL),
+        ("frame", _TEXT),
+        ("d1", _REAL),
+        ("d2", _REAL),
+        ("d3", _REAL),
+        ("sigma_d1", _REAL),
+        ("sigma_d2", _REAL),
+        ("sigma_d3", _REAL),
+        ("independent", _TEXT),
+        ("reduced", _TEXT),
+        ("solution_status", _TEXT),
+        ("fixed_fraction", _REAL),
+    ),
+    # GNSS trajectory (FR-357, FR-902, phase P7c). The other half of FR-357:
+    # one point per epoch of a processed run, which is what a kinematic session
+    # produces and what "imported as a point layer or a trajectory" in
+    # specs/11 section 3.2 asks for.
+    #
+    # The sigmas are north, east and up whatever frame the engine wrote, so a
+    # column means one thing across every file -- see
+    # `core/techniques/gnss/trajectory.py`.
+    "gnss_trajectory": (
+        ("epoch", _TEXT),
+        ("status", _TEXT),
+        ("fixed", _TEXT),
+        ("satellites", _INT),
+        ("ratio", _REAL),
+        ("age", _REAL),
+        ("latitude", _REAL),
+        ("longitude", _REAL),
+        ("height", _REAL),
+        ("sigma_n", _REAL),
+        ("sigma_e", _REAL),
+        ("sigma_u", _REAL),
+        ("drms", _REAL),
+    ),
     "corrections": (
         ("station", _TEXT),
         ("correction_e", _REAL),
@@ -140,6 +198,8 @@ LAYER_GEOMETRY: dict[str, str] = {
     "ellipses": "Polygon",
     "residuals": "LineString",
     "observations": "LineString",
+    "gnss_baselines": "LineString",
+    "gnss_trajectory": "Point",
     "corrections": "LineString",
 }
 
@@ -377,6 +437,187 @@ def observation_layer(
         crs or network.crs,
         name or _tr("Observations"),
         observation_features(network, solution),
+    )
+
+
+# -- GNSS baselines -------------------------------------------------------
+
+#: The frame the horizons a baseline carries are drawn in.
+#:
+#: :attr:`Baseline.base_horizon` is geodetic latitude and longitude on the
+#: ellipsoid the engine's positions were expressed on -- ITRF in practice, since
+#: that is what precise products are in. Calling that EPSG:4326 is wrong by the
+#: few centimetres the realisations differ by, and right to far better than any
+#: map draws; the ``.pos`` file does not state its realisation, so there is
+#: nothing more exact to use. A caller who knows better passes ``crs``.
+GNSS_HORIZON_CRS = "EPSG:4326"
+
+
+def gnss_baseline_positions(baselines) -> dict[str, tuple[float, float]]:
+    """Where to draw each end, from the baselines' own recorded horizons.
+
+    A baseline is a geocentric vector and has no position of its own, but it
+    carries the geodetic latitude and longitude of both its ends -- which is
+    exactly what the map needs, in degrees and longitude first. So this layer is
+    drawable straight out of the GNSS module, with no network, no adjustment and
+    no station list.
+
+    Where two baselines disagree about one station -- they will, by the
+    millimetres that separate two determinations of it -- the first wins. A
+    station drawn twice would double every line touching it.
+    """
+    positions: dict[str, tuple[float, float]] = {}
+    for baseline in baselines:
+        for station, horizon in (
+            (baseline.base_station, baseline.base_horizon),
+            (baseline.rover_station, baseline.rover_horizon),
+        ):
+            if station not in positions:
+                latitude, longitude = horizon
+                positions[station] = (math.degrees(longitude), math.degrees(latitude))
+    return positions
+
+
+def gnss_baseline_features(
+    baselines, positions: dict[str, tuple[float, float]] | None = None
+) -> Iterator[QgsFeature]:
+    """One line per determined baseline, with its quality (FR-357).
+
+    Args:
+        baselines: :class:`~geocomp.core.techniques.gnss.baselines.Baseline`
+            objects. Typed loosely so this module does not import the GNSS
+            technique package: ``layers`` sits above ``core`` and reaches down,
+            never the other way.
+        positions: Station id to ``(easting, northing)``, for drawing the
+            baselines somewhere other than their own horizons -- a projected
+            network, say. ``None`` uses :func:`gnss_baseline_positions`.
+
+    A baseline whose ends are not both in *positions* is skipped rather than
+    drawn at the origin, which is the rule :func:`_connecting_line` applies to
+    every other layer.
+    """
+    baselines = list(baselines)
+    if positions is None:
+        positions = gnss_baseline_positions(baselines)
+    fields = fields_for("gnss_baselines")
+    for baseline in baselines:
+        geometry = _connecting_line((baseline.base_station, baseline.rover_station), positions)
+        if geometry is None:
+            continue
+        length = baseline.length
+        components = baseline.components
+        fixed_fraction = baseline.meta.get("fixed_fraction")
+        feature = QgsFeature(fields)
+        feature.setGeometry(geometry)
+        feature.setAttributes(
+            [
+                baseline.id,
+                baseline.base_station,
+                baseline.rover_station,
+                length.value,
+                length.std_dev,
+                baseline.frame.value,
+                components[0].value,
+                components[1].value,
+                components[2].value,
+                components[0].std_dev,
+                components[1].std_dev,
+                components[2].std_dev,
+                _independence(baseline),
+                "yes" if baseline.antenna_reduction is not None else "no",
+                str(baseline.meta.get("solution_status", "")),
+                float(fixed_fraction) if fixed_fraction is not None else None,
+            ]
+        )
+        yield feature
+
+
+def gnss_baseline_layer(
+    baselines,
+    positions: dict[str, tuple[float, float]] | None = None,
+    *,
+    crs: str = "",
+    name: str = "",
+) -> QgsVectorLayer:
+    """Determined baselines, categorised by whether they are independent."""
+    return _build(
+        "gnss_baselines",
+        crs or GNSS_HORIZON_CRS,
+        name or _tr("GNSS baselines"),
+        gnss_baseline_features(baselines, positions),
+    )
+
+
+def _independence(baseline) -> str:
+    """Independent, dependent, or not yet assessed -- as three states, not two.
+
+    Text rather than a boolean because ``is_independent`` is ``None`` until
+    :func:`~geocomp.core.techniques.gnss.baselines.independent_subset` has run,
+    and a map that rendered that third state as "no" would report an
+    unassessed baseline as one carrying no new information. The style gives it
+    its own symbol for the same reason.
+    """
+    if baseline.is_independent is None:
+        return ""
+    return "yes" if baseline.is_independent else "no"
+
+
+# -- GNSS trajectory ------------------------------------------------------
+
+
+def gnss_trajectory_features(points) -> Iterator[QgsFeature]:
+    """One point per solution epoch, with its quality (FR-357, FR-603).
+
+    Args:
+        points: :class:`~geocomp.core.techniques.gnss.trajectory.TrajectoryPoint`
+            objects. Typed loosely for the same reason the baseline builder is:
+            ``layers`` reaches down into ``core`` and never the other way.
+
+    The epoch is written as an ISO-8601 string rather than a date field.
+    ``QDateTime`` round-trips through a shapefile as a date alone, losing the
+    time, and for a trajectory the time *is* the identity of the row.
+    """
+    fields = fields_for("gnss_trajectory")
+    for point in points:
+        quality = point.quality
+        north, east, up = point.sigmas
+        feature = QgsFeature(fields)
+        feature.setGeometry(
+            QgsGeometry.fromPointXY(
+                QgsPointXY(point.longitude_degrees, point.latitude_degrees)
+            )
+        )
+        feature.setAttributes(
+            [
+                quality.time.isoformat(),
+                quality.status,
+                # A separate column from `status`, because the one question
+                # asked of a trajectory more than any other is how much of it
+                # fixed, and answering it should not mean knowing which of
+                # RTKLIB's six status names count.
+                "yes" if quality.status == "FIXED" else "no",
+                quality.satellites,
+                quality.ratio,
+                quality.age,
+                point.latitude_degrees,
+                point.longitude_degrees,
+                point.height,
+                north,
+                east,
+                up,
+                point.drms,
+            ]
+        )
+        yield feature
+
+
+def gnss_trajectory_layer(points, *, crs: str = "", name: str = "") -> QgsVectorLayer:
+    """A processed run's epochs, categorised by solution status."""
+    return _build(
+        "gnss_trajectory",
+        crs or GNSS_HORIZON_CRS,
+        name or _tr("GNSS trajectory"),
+        gnss_trajectory_features(points),
     )
 
 

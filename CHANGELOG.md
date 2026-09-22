@@ -5,6 +5,80 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7c — the GNSS surface
+
+The menu `specs/11` §1 draws, the eight algorithms behind it, the two result
+layers, and the core each is a thin surface over. Two of the three defects found
+along the way were latent in P7's own parser and had not reached a result; the
+third was mine and was caught by a cross-format identity written for the purpose.
+
+#### Added
+
+- **The GNSS menu and its eight algorithms** (FR-600, FR-601, FR-604): the four
+  modes under Absolute and Relative, plus scan sessions, build baselines, batch
+  processing and compare configurations. GNSS is the only menu group with a
+  second level — its four modes are two branches of two, and "Static" alone names
+  nothing — so `registry.NESTING_MENUS` permits exactly that group, raises at
+  import for a submenu under any other, and `tests/test_registry.py` holds the set
+  to one. An exception nobody guards is one that spreads by imitation.
+- **The baseline layer** (FR-357, FR-902): one line per determined baseline,
+  categorised by whether it belongs to the independent subset, drawn from the
+  horizons the baseline already carries — so it needs no network, no adjustment
+  and no station list. It draws **every** baseline built, dependent ones
+  included: `specs/11` §3.1 requires them marked rather than discarded, and a map
+  that dropped them is how nobody notices they were there.
+- **The trajectory layer** (FR-357, FR-603): one point per solution epoch,
+  categorised by solution status, offered by all four modes. Every point is in the
+  local horizon whatever format the engine wrote, so a `sigma_n` column means one
+  thing across every file, and a point whose covariance is in another frame is
+  refused rather than mislabelled.
+- **`PosEpoch.decimal_position`**, and `write_styled_sink`, which is the whole of
+  what an algorithm does to produce a styled result layer — extracted from
+  `write_result_layers` so the six layers cannot come out styled differently or,
+  more likely, one of them unstyled.
+- The reference station database (FR-063, FR-105), configuration comparison
+  (FR-359) and batch execution (FR-355), each with its own tier-1 suite; and nine
+  `gnss.*` settings, **all nine read** rather than merely declared.
+
+#### Fixed
+
+- **`-g`'s seven position columns are not a position.** `PosEpoch.position` keeps
+  all seven — degrees, minutes and seconds of latitude and longitude, then the
+  height — because that is what the file says, so its *last three* are the
+  longitude's minutes, its seconds and the height: a plausible triple that is not
+  a coordinate. `_reference_position` handled this for the header and said so;
+  below the header nothing did. `decimal_position` is now what a caller that wants
+  a coordinate uses.
+- **A geodetic epoch's `quantities()` paired degrees with metres.** The components
+  are degrees of latitude and longitude, the deviations beside them are metres on
+  the ground, and the `Quantity` built from both read as *35.16 degrees plus or
+  minus 1.5 metres*. It raises `pos_quantities_are_geodetic` now and names what to
+  use instead. ECEF and ENU, whose components are metres like their deviations,
+  are unaffected.
+- **Rotating with the wrong labels swaps north and east.** My first ECEF
+  trajectory path passed `(n, e, u)` to `ecef_to_enu_covariance`, whose rotation
+  writes east, north and up in *that* order — so it relabelled rows 0 and 1 rather
+  than permuting them. Both sigmas stayed the right order of magnitude and the map
+  still drew. Caught by `tests/test_gnss_trajectory.py`, which requires all four
+  output formats — one solution written four ways — to give the same position and
+  the same three sigmas.
+
+#### Not done
+
+- **The FR-359 comparison dialog** `specs/15` §1.2 lists. The algorithm ships
+  first and alone, per ADR-0005: the algorithm is what makes the capability real,
+  scriptable and testable, and the dialog will hand it the same parameters.
+- **FR-832's frame transformation.** A reference station in another frame raises
+  by name rather than being guessed at; the transformations are P10's, along with
+  FR-352, FR-353 and NFR-010.
+- **DOP**, which `rnx2rtkp` writes in no output format, and **RD-06's accuracy
+  criterion**, which stays red by design.
+
+Neither of the first two parser defects had reached a result — the only
+production caller is the ECEF-only baseline path. They are recorded because "not
+reached yet" is a property of today's callers, not of the code.
+
+
 ### RD-06 — the 7.5 mm is two things
 
 `specs/22` §5 ended on *"the remaining millimetre discrepancy is not yet

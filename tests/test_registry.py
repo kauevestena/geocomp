@@ -8,12 +8,15 @@ import pytest
 from geocomp.registry import (
     ALGORITHMS,
     MENU_GROUPS,
+    NESTING_MENUS,
     PROCESSING_GROUPS,
     PROVIDER_ID,
     TOOLBOX_ONLY_JUSTIFICATIONS,
     AlgorithmSpec,
     algorithms_in_group,
     algorithms_in_menu,
+    algorithms_in_submenu,
+    submenus_in_menu,
 )
 
 
@@ -137,3 +140,75 @@ class TestPhaseP0:
     @pytest.mark.parametrize("spec", ALGORITHMS, ids=lambda spec: spec.name)
     def test_every_algorithm_cites_a_requirement(self, spec):
         assert spec.requirement.startswith(("FR-", "NFR-"))
+
+
+class TestNesting:
+    """specs/15 section 1: the GeoComp menu is one level deep, with one
+    exception.
+
+    GNSS has four processing modes that are two branches of two -- absolute and
+    relative, each static and kinematic -- and a flat menu would have to read
+    "Absolute static", "Absolute kinematic" and so on, four entries whose first
+    word is the only thing distinguishing them in pairs. The second level is
+    there because "Static" alone names nothing; it is not there because nesting
+    is tidier.
+
+    An exception nobody guards is an exception that spreads by imitation, so
+    the rule is enforced twice: :func:`geocomp.registry._validate_module` raises
+    at import, and this holds the permitted set small and justified.
+    """
+
+    def test_only_declared_menus_may_nest(self):
+        offenders = [
+            spec.name
+            for spec in ALGORITHMS
+            if spec.submenu and spec.menu not in NESTING_MENUS
+        ]
+        assert not offenders, (
+            "these algorithms nest under a menu not listed in NESTING_MENUS: "
+            f"{sorted(offenders)}"
+        )
+
+    def test_the_exception_is_one_menu(self):
+        """If this needs raising, the flat-menu rule has stopped being the
+        rule and specs/15 section 1 should say so instead."""
+        assert NESTING_MENUS == frozenset({"gnss"})
+
+    def test_a_nesting_menu_actually_nests(self):
+        """A menu declared able to nest but nesting nothing is a permission
+        granted for no reason -- and one the next algorithm would inherit."""
+        for menu_id in NESTING_MENUS:
+            assert submenus_in_menu(menu_id), f"{menu_id} nests nothing"
+
+    def test_the_gnss_submenus_are_the_two_the_specification_draws(self):
+        """specs/11 puts absolute before relative, and the menu follows its
+        figure rather than alphabetical order -- which here agree, so the
+        order this asserts is the declaration's."""
+        assert submenus_in_menu("gnss") == ("absolute", "relative")
+
+    def test_every_nested_algorithm_is_reachable_through_its_submenu(self):
+        """The two halves of the registry's nesting API have to agree: an
+        algorithm carrying a submenu name that ``algorithms_in_submenu`` does
+        not return under it would be declared and unreachable."""
+        for menu_id in NESTING_MENUS:
+            nested = {
+                spec.name for spec in algorithms_in_menu(menu_id) if spec.submenu
+            }
+            reachable = {
+                spec.name
+                for submenu in submenus_in_menu(menu_id)
+                for spec in algorithms_in_submenu(menu_id, submenu)
+            }
+            assert nested == reachable
+
+    def test_algorithms_directly_under_a_nesting_menu_are_still_reachable(self):
+        """Nesting is per algorithm, not per menu: Scan sessions, Build
+        baselines, Batch process and Compare sit at the GNSS group's own level
+        and must not disappear because four of their siblings nest."""
+        flat = {spec.name for spec in algorithms_in_submenu("gnss", None)}
+        assert flat == {
+            "gnss_scan_sessions",
+            "gnss_build_baselines",
+            "gnss_batch",
+            "gnss_compare_configurations",
+        }

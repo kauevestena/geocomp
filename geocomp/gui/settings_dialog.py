@@ -104,6 +104,16 @@ def setting_label(key: str) -> str:
         "level.max_sight_length": _tr("Longest permitted sight (m)"),
         "level.max_sight_imbalance": _tr("Largest permitted imbalance per setup (m)"),
         "level.max_accumulated_imbalance": _tr("Largest permitted imbalance per line (m)"),
+        # -- GNSS (P7c) ---------------------------------------------------
+        "gnss.product_directory": _tr("Precise product directory"),
+        "gnss.antenna_file": _tr("Antenna calibration file (ANTEX)"),
+        "gnss.reference_station_database": _tr("Reference station database"),
+        "gnss.elevation_mask": _tr("Elevation mask (degrees)"),
+        "gnss.ephemeris": _tr("Ephemeris source"),
+        "gnss.ionosphere": _tr("Ionospheric correction"),
+        "gnss.troposphere": _tr("Tropospheric correction"),
+        "gnss.ambiguity_threshold": _tr("Ambiguity ratio threshold"),
+        "gnss.independent_baselines_only": _tr("Use only the independent baseline subset"),
         "level.reciprocal_variance_inflation": _tr(
             "Variance inflation for reciprocal sights"
         ),
@@ -178,6 +188,22 @@ def choice_label(key: str, value: str) -> str:
         ("total_station.atmospheric_model", "barrell_sears"): _tr("Barrell and Sears"),
         ("total_station.atmospheric_model", "leica"): _tr("Leica"),
         ("total_station.atmospheric_model", "trimble"): _tr("Trimble"),
+        # GNSS choice values are RTKLIB's own vocabulary (IONOPT and TRPOPT in
+        # its `src/options.c`), so the stored value is what the engine reads and
+        # only the label is translated.
+        ("gnss.ephemeris", "brdc"): _tr("Broadcast"),
+        ("gnss.ephemeris", "precise"): _tr("Precise (IGS products)"),
+        ("gnss.ionosphere", "off"): _tr("None"),
+        ("gnss.ionosphere", "brdc"): _tr("Broadcast model"),
+        ("gnss.ionosphere", "sbas"): _tr("SBAS"),
+        ("gnss.ionosphere", "dual-freq"): _tr("Dual-frequency (ionosphere-free)"),
+        ("gnss.ionosphere", "est-stec"): _tr("Estimated (STEC)"),
+        ("gnss.ionosphere", "ionex-tec"): _tr("IONEX map"),
+        ("gnss.troposphere", "off"): _tr("None"),
+        ("gnss.troposphere", "saas"): _tr("Saastamoinen"),
+        ("gnss.troposphere", "sbas"): _tr("SBAS"),
+        ("gnss.troposphere", "est-ztd"): _tr("Estimated zenith delay"),
+        ("gnss.troposphere", "est-ztdgrad"): _tr("Estimated zenith delay with gradients"),
         ("total_station.traverse_adjustment", "least_squares"): _tr("Least squares"),
         ("total_station.traverse_adjustment", "compass"): _tr("Compass (Bowditch) rule"),
         ("total_station.traverse_adjustment", "transit"): _tr("Transit rule"),

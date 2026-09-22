@@ -178,16 +178,71 @@ class PosEpoch:
     def is_ambiguity_fixed(self) -> bool:
         return self.status.is_ambiguity_fixed
 
+    @property
+    def decimal_position(self) -> tuple[float, float, float]:
+        """The position as three numbers, whatever the file wrote it as.
+
+        ``-g`` splits the latitude and the longitude into degrees, minutes and
+        seconds, so :attr:`position` holds **seven** numbers rather than three
+        and its last three are ``(longitude minutes, longitude seconds,
+        height)`` -- a triple that looks like a position and is not. The raw
+        seven are kept on :attr:`position` because that is what the file says;
+        this is what a caller that wants a coordinate should use.
+
+        The same trap is handled for the ``% ref pos`` header by
+        :func:`_reference_position`, whose docstring names it. Below the header
+        it went unhandled until phase P7c, when the trajectory layer needed a
+        real coordinate per epoch.
+        """
+        if len(self.position) == 7:
+            return (
+                _sexagesimal(list(self.position[0:3])),
+                _sexagesimal(list(self.position[3:6])),
+                self.position[6],
+            )
+        return (self.position[0], self.position[1], self.position[2])
+
+    @property
+    def is_geodetic(self) -> bool:
+        """Whether the position is a latitude and longitude rather than metres.
+
+        Read from the covariance's labels, which the layout table sets per
+        format: ``(n, e, u)`` is one of the two geodetic formats, ``(e, n, u)``
+        is the ENU baseline and ``(x, y, z)`` is ECEF. The epoch does not carry
+        its format, and this is the one thing about it that changes what its
+        numbers mean.
+        """
+        return self.covariance.labels == ("n", "e", "u")
+
     def quantities(self) -> tuple[Quantity, ...]:
-        """The three components with their standard deviations.
+        """The three components with their standard deviations, in metres.
 
         The covariance is the authority; this is for callers that want a
         component at a time and accept losing the correlations in doing so.
+
+        Raises:
+            DataError: for a geodetic epoch. Its first two components are
+                **degrees** while the deviations beside them are **metres** on
+                the ground, so a :class:`Quantity` pairing them would carry a
+                value and an uncertainty in different quantities under one unit
+                -- and would read as a coordinate with a 1.5 m sigma that is
+                really 1.5 m of northing against a number of degrees. Use
+                :attr:`decimal_position` and :attr:`covariance` separately, or
+                an ECEF run, which is what a baseline wants anyway.
         """
+        if self.is_geodetic:
+            raise DataError(
+                "pos_quantities_are_geodetic",
+                received=f"components {self.covariance.labels}",
+                expected=(
+                    "an ECEF or ENU epoch, whose components are metres like "
+                    "their deviations"
+                ),
+            )
         deviations = np.sqrt(np.diag(self.covariance.matrix))
         return tuple(
             Quantity.from_std_dev(value, float(sigma), METRE)
-            for value, sigma in zip(self.position[-3:], deviations, strict=True)
+            for value, sigma in zip(self.decimal_position, deviations, strict=True)
         )
 
 
