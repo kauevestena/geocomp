@@ -101,6 +101,15 @@ def _algorithm():
 
 
 def _run(folder: Path, tmp_path: Path, **extra):
+    """Run the algorithm and return ``(results, layer, context)``.
+
+    **The context comes back for a reason.** A ``TEMPORARY_OUTPUT`` sink lives
+    in the context's temporary layer store, so the context owns the layer: let
+    it go out of scope and the C++ object is deleted under the Python wrapper,
+    and every access afterwards raises "wrapped C/C++ object has been deleted".
+    Callers bind all three, which is the same reason ``test_result_layers.py``'s
+    ``adjusted`` fixture returns its context.
+    """
     from qgis.core import (
         QgsProcessing,
         QgsProcessingContext,
@@ -123,7 +132,7 @@ def _run(folder: Path, tmp_path: Path, **extra):
     assert ok
     layer = QgsProcessingUtils.mapLayerFromString(results["OUTPUT_LAYER"], context)
     assert layer is not None, "OUTPUT_LAYER produced no layer"
-    return results, layer
+    return results, layer, context
 
 
 def _values(layer, field: str) -> list:
@@ -153,7 +162,7 @@ class TestTheLayerArrives:
         """``specs/11`` section 3.1: the dependent ones are marked rather than
         discarded, and a map that dropped them would be the reason nobody
         noticed they were there."""
-        _results, layer = _run(solution_folder, tmp_path)
+        _results, layer, _context = _run(solution_folder, tmp_path)
         assert layer.isValid()
         assert layer.featureCount() == 3
         assert sorted(_values(layer, "independent")) == ["no", "yes", "yes"]
@@ -165,7 +174,7 @@ class TestTheLayerArrives:
         forest is chosen by covariance trace with ties broken by input order,
         and all three solutions carry the same covariance here, so the third
         file is the one that closes the loop."""
-        _results, layer = _run(solution_folder, tmp_path)
+        _results, layer, _context = _run(solution_folder, tmp_path)
         dependent = [
             feature["baseline"]
             for feature in layer.getFeatures()
@@ -178,7 +187,7 @@ class TestTheLayerArrives:
     ):
         """The vector is geocentric and undrawable; what the map shows is the
         pair of marks, from the horizons the baseline itself carries."""
-        _results, layer = _run(solution_folder, tmp_path)
+        _results, layer, _context = _run(solution_folder, tmp_path)
         ends = {}
         for feature in layer.getFeatures():
             line = feature.geometry().asPolyline()
@@ -195,7 +204,7 @@ class TestTheLayerArrives:
     ):
         """``d1/d2/d3`` are only meaningful beside ``frame``: a rotated
         baseline puts east, north and up in the same three columns."""
-        _results, layer = _run(solution_folder, tmp_path)
+        _results, layer, _context = _run(solution_folder, tmp_path)
         assert set(_values(layer, "frame")) == {"ecef"}
         for feature in layer.getFeatures():
             assert feature["d1"] != 0.0
@@ -207,7 +216,7 @@ class TestTheLayerArrives:
     ):
         """FR-603. A baseline reported without its fixed fraction looks the
         same whether its ambiguities resolved or not."""
-        _results, layer = _run(solution_folder, tmp_path)
+        _results, layer, _context = _run(solution_folder, tmp_path)
         fractions = _values(layer, "fixed_fraction")
         assert len(fractions) == 3
         for fraction in fractions:
@@ -221,7 +230,7 @@ class TestTheLayerArrives:
         """The layer draws everything built; the JSON carries what was kept.
         Both must name the same dependent baseline, or one of the two is
         describing a different run."""
-        results, layer = _run(solution_folder, tmp_path)
+        results, layer, _context = _run(solution_folder, tmp_path)
         document = json.loads(Path(results["OUTPUT_JSON"]).read_text(encoding="utf-8"))
         drawn = {
             feature["baseline"]: feature["independent"] for feature in layer.getFeatures()
@@ -235,7 +244,7 @@ class TestTheLayerArrives:
     ):
         """The point of the layer: the adjustment gets two baselines, and the
         reader gets to see that a third was processed and set aside."""
-        results, layer = _run(solution_folder, tmp_path, INDEPENDENT_ONLY=True)
+        results, layer, _context = _run(solution_folder, tmp_path, INDEPENDENT_ONLY=True)
         document = json.loads(Path(results["OUTPUT_JSON"]).read_text(encoding="utf-8"))
         assert len(document["observations"]) == 2
         assert layer.featureCount() == 3
@@ -297,7 +306,12 @@ class TestTheStyleLoads:
         and says nothing."""
         from geocomp.layers.builders import gnss_baseline_layer
 
-        renderer = gnss_baseline_layer(marked_baselines).renderer()
+        # Bound, not chained: `renderer()` borrows a pointer the layer owns, so
+        # `gnss_baseline_layer(...).renderer()` collects the layer at the end of
+        # the expression and leaves the renderer dangling. sip does not track
+        # that one, so the next call is a use-after-free rather than an error.
+        layer = gnss_baseline_layer(marked_baselines)
+        renderer = layer.renderer()
         assert renderer is not None
         assert renderer.type() == "categorizedSymbol"
         assert renderer.classAttribute() == "independent"
@@ -411,7 +425,8 @@ class TestTheTrajectoryLayer:
         summarises -- that is worse than not having it."""
         from geocomp.layers.builders import gnss_trajectory_layer
 
-        for feature in gnss_trajectory_layer(trajectory).getFeatures():
+        layer = gnss_trajectory_layer(trajectory)
+        for feature in layer.getFeatures():
             assert feature["fixed"] == ("yes" if feature["status"] == "FIXED" else "no")
 
     def test_the_epoch_is_written_as_a_round_trippable_string(
@@ -448,7 +463,8 @@ class TestTheTrajectoryLayer:
         fastest way to see what a session actually achieved."""
         from geocomp.layers.builders import gnss_trajectory_layer
 
-        renderer = gnss_trajectory_layer(trajectory).renderer()
+        layer = gnss_trajectory_layer(trajectory)
+        renderer = layer.renderer()
         assert renderer.type() == "categorizedSymbol"
         assert renderer.classAttribute() == "status"
 
