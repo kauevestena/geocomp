@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS version="2.1" language="pt_BR">
     <context>
         <name>AbsoluteKinematicAlgorithm</name>
@@ -116,8 +117,8 @@
             <translation>%1 linha(s) de base: %2 independentes, %3 dependentes</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Lê cada solução &lt;code&gt;.pos&lt;/code&gt; ECEF de uma pasta e constrói a linha de base que cada uma determinou: o vetor entre os dois marcos, com sua covariância 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As alturas de antena são reduzidas uma única vez.&lt;/b&gt; O vetor determinado pelo motor é entre pontos de referência de antena; o ajustamento quer o vetor entre os marcos. Aplicar a redução duas vezes é detectado e recusado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Por padrão, apenas o subconjunto independente é mantido.&lt;/b&gt; Processar todos os pares de n estações observando simultaneamente produz n(n-1)/2 linhas de base, das quais apenas n-1 são independentes; usar todas infla a redundância aparente do ajustamento. As dependentes são marcadas na saída em vez de descartadas.&lt;/p&gt;&lt;p&gt;O resultado é um agrupamento: as observações compartilham uma matriz de covariância e chegam ao DynAdjust como uma medição G ou X com ela intacta.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lê cada solução &lt;code&gt;.pos&lt;/code&gt; ECEF de uma pasta e constrói a linha de base que cada uma determinou: o vetor entre os dois marcos, com sua covariância 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As alturas de antena são reduzidas uma única vez.&lt;/b&gt; O vetor determinado pelo motor é entre pontos de referência de antena; o ajustamento quer o vetor entre os marcos. Aplicar a redução duas vezes é detectado e recusado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Por padrão, apenas o subconjunto independente é mantido.&lt;/b&gt; Processar todos os pares de n estações observando simultaneamente produz n(n-1)/2 linhas de base, das quais apenas n-1 são independentes; usar todas infla a redundância aparente do ajustamento. As dependentes são marcadas na saída em vez de descartadas.&lt;/p&gt;&lt;p&gt;O resultado é um agrupamento: as observações compartilham uma matriz de covariância e chegam ao DynAdjust como uma medição G ou X com ela intacta.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A camada opcional desenha todas as linhas de base construídas&lt;/b&gt;, incluindo as dependentes quando não foram mantidas, porque ver quais pares não trouxeram informação nova é justamente o motivo de desenhá-las. A coluna &lt;code&gt;independent&lt;/code&gt; e o símbolo tracejado dizem qual é qual; a saída JSON carrega apenas o que foi mantido.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Base antenna height above the mark (m)</source>
@@ -128,12 +129,20 @@
             <translation>Linhas de base</translation>
         </message>
         <message>
+            <source>Baselines (layer)</source>
+            <translation>Linhas de base (camada)</translation>
+        </message>
+        <message>
             <source>Build baselines</source>
             <translation>Construir linhas de base</translation>
         </message>
         <message>
             <source>Folder of .pos solutions</source>
             <translation>Pasta com soluções .pos</translation>
+        </message>
+        <message>
+            <source>GNSS baselines</source>
+            <translation>Linhas de base GNSS</translation>
         </message>
         <message>
             <source>JSON files (*.json)</source>
@@ -1068,6 +1077,10 @@
             <translation>Pasta com observações RINEX</translation>
         </message>
         <message>
+            <source>GNSS trajectory</source>
+            <translation>Trajetória GNSS</translation>
+        </message>
+        <message>
             <source>GeoComp</source>
             <translation>GeoComp</translation>
         </message>
@@ -1114,6 +1127,10 @@
         <message>
             <source>Solution</source>
             <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Solution epochs (layer)</source>
+            <translation>Épocas da solução (camada)</translation>
         </message>
         <message>
             <source>Using %1 precise product file(s)</source>
@@ -1724,6 +1741,14 @@
         <message>
             <source>Error ellipses (layer)</source>
             <translation>Elipses de erro (camada)</translation>
+        </message>
+        <message>
+            <source>GNSS baselines</source>
+            <translation>Linhas de base GNSS</translation>
+        </message>
+        <message>
+            <source>GNSS trajectory</source>
+            <translation>Trajetória GNSS</translation>
         </message>
         <message>
             <source>Observations</source>

@@ -32,6 +32,11 @@ TIER_THREE = sorted((REPO_ROOT / "tests" / "qgis").glob("test_*.py"))
 #: station name in a fixture, not a parameter.
 KEY = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
 
+#: An algorithm id, and nothing else beginning with the provider name. The
+#: anchors matter: an assertion *message* that quotes an id -- "geocomp:x is not
+#: registered" -- starts the same way and is not one.
+ALGORITHM_ID = re.compile(r"^geocomp:[a-z0-9_]+$")
+
 #: Strings that are upper case for a reason other than being a parameter key.
 #:
 #: The net above is cast wide on purpose -- a result key is read by subscripting
@@ -77,6 +82,18 @@ FOREIGN_KEYS: dict[str, str] = {
         "asserted in tests/qgis/test_adjustment_report.py. Upper case because "
         "it is meant to be noticed, not because it is a parameter."
     ),
+    # RTKLIB's Q column, as `SolutionStatus` names it. Upper case because they
+    # are enum members, and asserted in tests/qgis/test_gnss_layers.py against
+    # the baseline layer's solution_status column and the trajectory layer's
+    # status categories. Listed one by one rather than matched by a pattern:
+    # a seventh status invented by a future engine should fail this check until
+    # someone decides it is also a status and not a parameter.
+    "FIXED": "geocomp.engines.rtklib.read_pos.SolutionStatus member (Q=1).",
+    "FLOAT": "SolutionStatus member (Q=2); see FIXED.",
+    "SBAS": "SolutionStatus member (Q=3); see FIXED.",
+    "DGPS": "SolutionStatus member (Q=4); see FIXED.",
+    "SINGLE": "SolutionStatus member (Q=5); see FIXED.",
+    "PPP": "SolutionStatus member (Q=6); see FIXED.",
 }
 
 
@@ -245,6 +262,50 @@ def test_every_key_a_qgis_test_uses_is_declared_by_an_algorithm(path, declared):
         f"{path.name}:{line}: '{name}' is not declared by any algorithm"
         for name, line in sorted(unknown.items(), key=lambda item: item[1])
     )
+
+
+@pytest.mark.parametrize("path", TIER_THREE, ids=lambda p: p.name)
+def test_every_algorithm_id_a_qgis_test_names_is_registered(path):
+    """The same argument as the keys above, one level up.
+
+    A mistyped *id* fails differently and worse than a mistyped key:
+    ``algorithmById`` returns ``None``, and what CI reports is an assertion
+    about an algorithm not being registered -- which reads as a defect in the
+    provider rather than a typo in the test. It is also invisible here, because
+    the tier-3 tests only run where QGIS does.
+
+    The registry is pure data and imports no QGIS, so the check runs anywhere.
+    """
+    from geocomp.registry import ALGORITHMS
+
+    registered = {spec.id for spec in ALGORITHMS}
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    unknown = {
+        node.value: node.lineno
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and ALGORITHM_ID.match(node.value)
+        and node.value not in registered
+    }
+    assert not unknown, "\n".join(
+        f"{path.name}:{line}: '{name}' is not a registered algorithm id"
+        for name, line in sorted(unknown.items(), key=lambda item: item[1])
+    )
+
+
+def test_some_qgis_test_names_an_algorithm_id():
+    """Guards the check above: were the tests to stop naming ids by literal,
+    it would pass over a file it never looked inside."""
+    named = sum(
+        1
+        for path in TIER_THREE
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and ALGORITHM_ID.match(node.value)
+    )
+    assert named > 10
 
 
 def test_there_are_qgis_tests_to_check():

@@ -80,10 +80,19 @@ amended to match rather than being contradicted by the code.
 
 | Item (tex, item 3) | Requirement | Phase |
 |---|---|---|
-| Absolute → Static (static PPP) | FR-600 | P7 |
-| Absolute → Kinematic (kinematic PPP) | FR-600 | P7 |
-| Relative → Static (static baselines) | FR-601 | P7 |
-| Relative → Kinematic (post-processed RTK, trajectories) | FR-601 | P7 |
+| Absolute → Static (static PPP) | FR-600 | P7c — `geocomp:gnss_absolute_static` |
+| Absolute → Kinematic (kinematic PPP) | FR-600 | P7c — `geocomp:gnss_absolute_kinematic` |
+| Relative → Static (static baselines) | FR-601 | P7c — `geocomp:gnss_relative_static` |
+| Relative → Kinematic (post-processed RTK, trajectories) | FR-601 | P7c — `geocomp:gnss_relative_kinematic` |
+| Scan sessions | FR-350, FR-351 | P7c — `geocomp:gnss_scan_sessions` |
+| Build baselines | FR-602, FR-104, FR-357 | P7c — `geocomp:gnss_build_baselines` |
+| Batch processing | FR-355 | P7c — `geocomp:gnss_batch` |
+| Compare configurations | FR-359 | P7c — `geocomp:gnss_compare_configurations`; the custom dialog of [`15`](./15-ui-menu-and-settings.md) §1.2 is still to come |
+| Download products | FR-352, FR-353 | P10 — re-planned out of P7 with the requirements themselves; the menu entry arrives with the capability rather than pointing at nothing |
+
+**The GNSS submenu is the one group with a second level** (Absolute and Relative), because its four modes are
+two branches of two and "Static" alone names nothing. `geocomp/registry.py`'s `NESTING_MENUS` permits exactly
+this group and refuses a submenu under any other at import.
 
 ### 2.5 Gravimetry submenu
 
@@ -107,7 +116,7 @@ amended to match rather than being contradicted by the code.
 |---|---|---|
 | Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3 |
 | Atmospheric parameters: correction models, default T / P / RH | FR-062 | P3 |
-| GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7 |
+| GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7c — nine `gnss.*` settings declared and read; the **servers** half belongs to FR-352 and so to P10, and credential references to FR-353/NFR-010, likewise P10 |
 | Stochastic models: default weights per type, outlier detection parameters | FR-064 | P3 |
 | Reference systems: preferred CRS, default epochs, transformation parameters | FR-065 | P5 |
 | Paths and directories: DynAdjust and RTKLIB executables, working directories, report templates | FR-066 | P6 |
@@ -128,7 +137,7 @@ amended to match rather than being contradicted by the code.
 | §Justificativa técnica — reduction of operational error, standardised workflows | FR-035, FR-134, NFR-006 | P0, P3, P5 |
 | §Justificativa aplicada — installation in a few clicks | FR-301 | P6 |
 | §Justificativa aplicada — monitoring reports, graphical and cartographic | FR-932 | P10 |
-| §Integração com o rnx2rtkp — comparative testing of processing configurations | FR-359 | P7 |
+| §Integração com o rnx2rtkp — comparative testing of processing configurations | FR-359 | P7c — the algorithm and the significance test; the side-by-side dialog is still to come ([`11`](./11-module-gnss.md) §6) |
 | §Integração com o rnx2rtkp — architecture open to other GNSS engines | FR-303 | P6 |
 | §Integração com PostGIS — transparent switching between file and database modes | FR-132 | P5, P11 |
 | §Integração com PostGIS — traceability and reprocessing | FR-134, FR-135 | P5 |

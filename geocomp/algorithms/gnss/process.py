@@ -27,14 +27,17 @@ from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    QgsCoordinateReferenceSystem,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
+    QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
+    QgsWkbTypes,
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
@@ -44,9 +47,11 @@ from geocomp.algorithms.gnss.common import (
     product_files,
     translate_error,
 )
+from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
 from geocomp.engines.rtklib import RtklibEngine, RtklibJob
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
+from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -55,6 +60,7 @@ ELEVATION_MASK = "ELEVATION_MASK"
 KEEP_WORK_DIR = "KEEP_WORK_DIR"
 OUTPUT_POS = "OUTPUT_POS"
 OUTPUT_JSON = "OUTPUT_JSON"
+OUTPUT_LAYER = "OUTPUT_LAYER"
 
 
 class _GnssProcessAlgorithm(GeoCompAlgorithm):
@@ -135,6 +141,15 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                     name, label, filter_text, optional=True, createByDefault=True
                 )
             )
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                OUTPUT_LAYER,
+                self.tr("Solution epochs (layer)"),
+                type=POINT_SOURCE_TYPE,
+                optional=True,
+                createByDefault=False,
+            )
+        )
 
     def processAlgorithm(
         self,
@@ -145,6 +160,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         import json
 
         from geocomp.engines.rtklib.baseline import quality_from_solution
+        from geocomp.engines.rtklib.trajectory import trajectory_from_solution
 
         if self.is_absolute:
             # FR-604: at the top of the log, before any result exists to be
@@ -268,6 +284,25 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 encoding="utf-8",
             )
             outputs[OUTPUT_JSON] = summary
+
+        # FR-357's other half: one point per epoch, categorised by solution
+        # status. Built for every mode, not only the kinematic pair -- a static
+        # run's epochs are its filter converging, which is worth being able to
+        # look at, and the alternative is a parameter that exists on two of four
+        # near-identical algorithms.
+        outputs[OUTPUT_LAYER] = write_styled_sink(
+            self,
+            parameters,
+            context,
+            OUTPUT_LAYER,
+            style="gnss_trajectory",
+            geometry=QgsWkbTypes.Type.Point,
+            crs=QgsCoordinateReferenceSystem(GNSS_HORIZON_CRS),
+            features=lambda: gnss_trajectory_features(
+                trajectory_from_solution(result.solution)
+            ),
+            layer_name=self.tr("GNSS trajectory"),
+        )
 
         feedback.setProgress(100)
         return outputs

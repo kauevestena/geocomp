@@ -288,6 +288,30 @@ Parsed into:
 **Solution quality is never silently discarded.** A float solution presented without its Q flag is a
 misrepresentation; Q travels with the result into every layer, report and adjustment.
 
+### 7.4 Two traps below the header, found in P7c **[V]**
+
+Both were latent in the parser from P7 and were found when the trajectory layer needed a real coordinate out
+of every format rather than only out of the ECEF one.
+
+1. **`-g` writes seven position columns, and the last three are not a position.** §7.3's format table gives
+   `llh_dms` seven columns — degrees, minutes and seconds of latitude, the same of longitude, then the
+   height — and `PosEpoch.position` keeps all seven, because that is what the file says. Its *last three* are
+   therefore the longitude's minutes, its seconds and the height: a plausible-looking triple that is not a
+   coordinate. `_reference_position` already handled this for the `% ref pos` header and said so in its own
+   docstring; below the header nothing did. `PosEpoch.decimal_position` is the accessor a caller that wants a
+   coordinate uses, and it collapses the seven to three.
+2. **A geodetic epoch pairs degrees with metres.** `PosEpoch.quantities()` put each component beside its own
+   standard deviation in one `Quantity`. For the two geodetic formats the components are **degrees** of
+   latitude and longitude while the deviations beside them are **metres** on the ground, so the result read
+   as *35.16 degrees plus or minus 1.5 metres* — a value and an uncertainty in different quantities under one
+   unit, which nothing downstream could have noticed. It now raises `pos_quantities_are_geodetic` and names
+   `decimal_position` and `covariance` as the two things to use instead. The ECEF and ENU formats, whose
+   components are metres like their deviations, are unaffected — and ECEF is what a baseline wants anyway.
+
+Neither had reached a result: the only production caller is §8.1's baseline, which is ECEF-only by
+construction and refuses any other format. They are recorded because "not reached yet" is a property of
+today's callers, not of the code.
+
 ---
 
 ## 8. Baseline construction (FR-602)

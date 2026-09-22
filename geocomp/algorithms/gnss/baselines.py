@@ -17,17 +17,21 @@ follows. Advanced mode may take the full set, and the dependent ones are
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    QgsCoordinateReferenceSystem,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
+    QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterNumber,
+    QgsWkbTypes,
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
@@ -36,6 +40,7 @@ from geocomp.algorithms.gnss.common import (
     gnss_setting,
     translate_error,
 )
+from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss import (
     AntennaOffset,
@@ -45,8 +50,9 @@ from geocomp.core.techniques.gnss import (
 )
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
-from geocomp.engines.rtklib.baseline import baseline_from_solution
+from geocomp.engines.rtklib.baseline import baseline_from_solution, quality_from_solution
 from geocomp.engines.rtklib.read_pos import read_pos
+from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_baseline_features
 
 FOLDER = "FOLDER"
 INDEPENDENT_ONLY = "INDEPENDENT_ONLY"
@@ -54,6 +60,7 @@ BASE_HEIGHT = "BASE_HEIGHT"
 ROVER_HEIGHT = "ROVER_HEIGHT"
 HEIGHT_SIGMA = "HEIGHT_SIGMA"
 OUTPUT_JSON = "OUTPUT_JSON"
+OUTPUT_LAYER = "OUTPUT_LAYER"
 
 
 class BuildBaselinesAlgorithm(GeoCompAlgorithm):
@@ -83,6 +90,12 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             "marked in the output rather than discarded.</p>"
             "<p>The result is a cluster: the observations share one covariance "
             "matrix and reach DynAdjust as a G or X measurement with it intact.</p>"
+            "<p><b>The optional layer draws every baseline that was built</b>, "
+            "including the dependent ones when they were not kept, because "
+            "seeing which pairs carried no new information is the point of "
+            "drawing them at all. The <code>independent</code> column and the "
+            "dashed symbol say which is which; the JSON output carries only "
+            "what was kept.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -142,6 +155,15 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 createByDefault=True,
             )
         )
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                OUTPUT_LAYER,
+                self.tr("Baselines (layer)"),
+                type=LINE_SOURCE_TYPE,
+                optional=True,
+                createByDefault=False,
+            )
+        )
 
     def processAlgorithm(
         self,
@@ -162,6 +184,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
 
         built = []
+        quality: dict[str, dict[str, Any]] = {}
         for index, path in enumerate(solutions):
             if feedback.isCanceled():
                 return {}
@@ -184,6 +207,17 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                             method="vertical",
                         ),
                     )
+                # FR-603: the quality is part of the answer, not a diagnostic.
+                # The fraction of epochs that fixed travels on the baseline
+                # because that is where a reader of the map or of the JSON will
+                # be looking -- a baseline reported without it looks the same
+                # whether its ambiguities resolved or not.
+                summary = quality_from_solution(solution, session_id=baseline.id)
+                baseline = replace(
+                    baseline,
+                    meta={**baseline.meta, "fixed_fraction": summary.fixed_fraction},
+                )
+                quality[baseline.id] = summary.to_dict()
             except GeoCompError as exc:
                 # One unreadable solution does not lose the rest (FR-166).
                 feedback.pushWarning(
@@ -217,7 +251,11 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 ).replace("%1", str(len(dependent)))
             )
 
-        kept = independent if independent_only else [*independent, *dependent]
+        # The marked copies, not the originals: `independent_subset` returns
+        # every baseline with `is_independent` set, and it is those the layer
+        # must draw -- an unmarked baseline renders as "not assessed".
+        marked = [*independent, *dependent]
+        kept = independent if independent_only else marked
         observations, cluster = to_cluster(kept, cluster_id="gnss")
         feedback.setProgress(90)
 
@@ -232,6 +270,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "independent": [b.id for b in independent],
                         "dependent": [b.id for b in dependent],
                         "independent_only": independent_only,
+                        "quality": quality,
                     },
                     indent=2,
                 )
@@ -239,6 +278,21 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 encoding="utf-8",
             )
             outputs[OUTPUT_JSON] = destination
+
+        # Every baseline that was built, kept or not (FR-357). The dependent
+        # ones are what the layer is most worth looking at for: the style draws
+        # them dashed, so a glance says which pairs carried no new information.
+        outputs[OUTPUT_LAYER] = write_styled_sink(
+            self,
+            parameters,
+            context,
+            OUTPUT_LAYER,
+            style="gnss_baselines",
+            geometry=QgsWkbTypes.Type.LineString,
+            crs=QgsCoordinateReferenceSystem(GNSS_HORIZON_CRS),
+            features=lambda: gnss_baseline_features(marked),
+            layer_name=self.tr("GNSS baselines"),
+        )
         feedback.setProgress(100)
         return outputs
 

@@ -27,6 +27,7 @@ __all__ = [
     "ALGORITHMS",
     "CUSTOM_DIALOGS",
     "MENU_GROUPS",
+    "NESTING_MENUS",
     "PROCESSING_GROUPS",
     "PROVIDER_ID",
     "AlgorithmSpec",
@@ -34,6 +35,8 @@ __all__ = [
     "ProcessingGroup",
     "algorithms_in_group",
     "algorithms_in_menu",
+    "algorithms_in_submenu",
+    "submenus_in_menu",
 ]
 
 #: Provider id (FR-030). Stable: saved models and scripts store it.
@@ -638,6 +641,14 @@ def _validate_module() -> None:
         if algorithms_in_menu(action_menu.id):
             raise ValueError(
                 f"menu entry {action_menu.id!r} is a leaf action and cannot hold algorithms"
+            )
+    for spec in ALGORITHMS:
+        if spec.submenu and spec.menu not in NESTING_MENUS:
+            raise ValueError(
+                f"algorithm {spec.name!r} declares submenu {spec.submenu!r} under menu "
+                f"{spec.menu!r}, which is not in NESTING_MENUS. specs/15 section 1 allows "
+                "a second level only where the first names nothing on its own; add the "
+                "menu to NESTING_MENUS with the reason, or flatten the entry"
             )
 
 

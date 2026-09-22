@@ -503,17 +503,40 @@ transposed row of the rotation.
 | **DOP reported per session** | **not met** — `rnx2rtkp` writes none in any format ([`11`](./11-module-gnss.md) §5) |
 | **A static relative session over RD-06 reproduces published coordinates** | **not met** — unchanged from P7a |
 
+### P7c — the surface
+
+**Delivered.** The GNSS menu and its eight algorithms, the two result layers, comparative configurations,
+the reference station database, batch execution, and nine `gnss.*` settings that are all read.
+
+| P7c exit criterion | State |
+|---|---|
+| The menu of [`11`](./11-module-gnss.md) §1 exists and every entry runs an algorithm | **met** — eight algorithms; *Download products* waits on FR-352 in P10, so its entry does not exist rather than pointing at nothing |
+| The four modes are reachable, and Absolute carries FR-604's notice | **met** — in the help, the short description and a warning at the top of every Absolute run |
+| GNSS results import as QGIS layers (FR-357) | **met** — baselines as lines, solution epochs as points, both styled and both carrying their quality |
+| Comparative configuration testing (FR-359) | **met as an algorithm**; the side-by-side dialog of [`15`](./15-ui-menu-and-settings.md) §1.2 is **not built** and is named below |
+| A reference station's frame and epoch are used, not assumed (FR-063, FR-105) | **met** |
+| A base in a different frame triggers transformation (FR-832) | **not met, and refused rather than guessed** — the transformations are P10's; a mismatch raises |
+| A batch with one broken session completes and reports it (FR-355) | **met** — a failure is a row, not an absence |
+| Precise ephemerides from a directory on disk (FR-358) | **met** — the download half is FR-352's and so P10's |
+
+**Not built in P7c, named so the ticks above do not imply them.** The FR-359 comparison dialog: ADR-0005
+makes the algorithm the capability, and it ships first and alone. FR-832's transformations, which are P10's
+along with FR-352, FR-353 and NFR-010. DOP, which `rnx2rtkp` writes in no format. And RD-06's accuracy
+criterion, which stays red by design — P7b attributed the 7.5 mm and left *deriving* a GNSS threshold, rather
+than choosing one, to the maintainer.
+
+**Found while building the surface, and recorded rather than quietly fixed.** Two latent traps in the `.pos`
+parser, both in code P7 wrote and neither reached by any caller at the time: `-g`'s seven position columns,
+whose last three are a longitude's minutes, its seconds and the height rather than a coordinate; and
+`PosEpoch.quantities()` pairing degrees of latitude with metres of standard deviation for the geodetic
+formats. Both are in [`08`](./08-engine-rtklib.md) §7.4. A third was mine, caught by the four-format identity
+in `tests/test_gnss_trajectory.py`: rotating an ECEF covariance with `(n, e, u)` labels relabels rather than
+permutes, and swaps the north and east sigmas while leaving every number plausible.
+
 **FR-352, FR-353 and NFR-010 move to P10.** P7a deferred them and committed that P7b would move them if the
 egress policy still held. It does: `igs.bkg.bund.de` and `geoftp.ibge.gov.br` were re-checked in the P7b
 session and both still return 403 on CONNECT. The move and its reasoning are recorded in P7's `Closes` line
 and in P10 below.
-
-### P7c — the surface
-
-Still to do, and named so this slice's green tick does not imply them: the GNSS menu and its algorithms
-(FR-600, FR-601, FR-604), result layers (FR-357), comparative configurations (FR-359), the reference station
-database (FR-063, using FR-105 and FR-832), and batch execution proper (FR-355's second half). FR-358's
-precise-ephemeris half also lands there, since it needs products supplied on disk.
 
 ---
 

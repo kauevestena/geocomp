@@ -22,6 +22,7 @@ geometry used (FR-901).
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from typing import Any, ClassVar
 
 from qgis.core import (
@@ -54,14 +55,17 @@ from geocomp.layers.styles import apply_style
 __all__ = [
     "EXAGGERATION",
     "LAYER_OUTPUTS",
+    "LINE_SOURCE_TYPE",
     "OUTPUT_CORRECTION_LAYER",
     "OUTPUT_ELLIPSE_LAYER",
     "OUTPUT_OBSERVATION_LAYER",
     "OUTPUT_RESIDUAL_LAYER",
     "OUTPUT_STATION_LAYER",
+    "POINT_SOURCE_TYPE",
     "add_result_layer_parameters",
     "resolve_exaggeration",
     "write_result_layers",
+    "write_styled_sink",
 ]
 
 _CONTEXT = "GeoCompLayers"
@@ -102,6 +106,15 @@ def _source_types() -> tuple[Any, Any, Any]:
 
 
 _POINT, _LINE, _POLYGON = _source_types()
+
+#: What a ``QgsProcessingParameterFeatureSink`` producing lines must be given
+#: as its ``type``. Exported because algorithms outside this module produce line
+#: layers too -- the GNSS baselines -- and the QGIS 3/4 spelling difference
+#: :func:`_source_types` absorbs should be absorbed once, not per algorithm.
+LINE_SOURCE_TYPE = _LINE
+
+#: The same, for a sink producing points: the GNSS trajectory.
+POINT_SOURCE_TYPE = _POINT
 
 #: Parameter name, style name, sink source type and sink geometry of each result
 #: layer, in the order they should appear in the dialog: what the adjustment
@@ -259,31 +272,65 @@ def write_result_layers(
 
     outputs: dict[str, Any] = {}
     for name, style, _source_type, geometry in LAYER_OUTPUTS:
-        # Nothing is built for a sink nobody asked for -- not even its field
-        # list. All five are optional, so the common case is that most are
-        # absent, and an adjustment that requested no layers must not be able
-        # to fail inside the layer code: the layers are a view of the result,
-        # and a view must never take the result down with it.
-        if not parameters.get(name):
-            outputs[name] = None
-            continue
-        sink, destination = algorithm.parameterAsSink(
-            parameters, name, context, fields_for(style), geometry, crs
+        outputs[name] = write_styled_sink(
+            algorithm,
+            parameters,
+            context,
+            name,
+            style=style,
+            geometry=geometry,
+            crs=crs,
+            features=producers[name],
+            layer_name=names.get(name, ""),
         )
-        outputs[name] = destination
-        if sink is None:
-            continue
-        for feature in producers[name]():
-            sink.addFeature(feature)
-
-        # Named twice, deliberately. The post-processor is what renames the
-        # layer QGIS loads into the project; it does not run for an algorithm
-        # driven from a model or a script, and FR-901's exaggeration factor has
-        # to reach the reader on every path, not only the toolbox one.
-        _name_layer(context, destination, names.get(name, ""))
-        _register_style(context, destination, style, names.get(name, ""))
 
     return outputs
+
+
+def write_styled_sink(
+    algorithm,
+    parameters: dict[str, Any],
+    context: QgsProcessingContext,
+    parameter_name: str,
+    *,
+    style: str,
+    geometry: Any,
+    crs: QgsCoordinateReferenceSystem,
+    features: Callable[[], Iterable[Any]],
+    layer_name: str = "",
+) -> str | None:
+    """Fill one optional sink with features, name it and register its style.
+
+    The whole of what an algorithm has to do to produce a GeoComp result layer,
+    in one place so that the five adjustment layers and the GNSS baseline layer
+    cannot come out styled differently -- or, more likely, one of them unstyled.
+
+    *features* is a callable rather than an iterable because **nothing is built
+    for a sink nobody asked for**, not even its field list. Every result layer
+    is optional, so the common case is that most are absent; a run that
+    requested no layers must not be able to fail inside the layer code, because
+    the layers are a view of the result and a view must never take the result
+    down with it.
+
+    Returns the destination id, or ``None`` if the sink was not requested.
+    """
+    if not parameters.get(parameter_name):
+        return None
+    sink, destination = algorithm.parameterAsSink(
+        parameters, parameter_name, context, fields_for(style), geometry, crs
+    )
+    if sink is None:
+        return destination
+    for feature in features():
+        sink.addFeature(feature)
+
+    # Named twice, deliberately. The post-processor is what renames the layer
+    # QGIS loads into the project; it does not run for an algorithm driven from
+    # a model or a script, and FR-901's exaggeration factor has to reach the
+    # reader on every path, not only the toolbox one.
+    _name_layer(context, destination, layer_name)
+    _register_style(context, destination, style, layer_name)
+    return destination
 
 
 def _any_requested(parameters: dict[str, Any]) -> bool:

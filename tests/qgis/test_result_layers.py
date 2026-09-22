@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.conftest import REPO_ROOT
 from tests.networks import trilateration
 from tests.qgis.conftest import requires_modern_field_api
 
@@ -38,6 +39,14 @@ LAYER_OUTPUT_NAMES = (
     "OUTPUT_RESIDUAL_LAYER",
     "OUTPUT_OBSERVATION_LAYER",
     "OUTPUT_CORRECTION_LAYER",
+)
+
+#: Read from the directory rather than listed, so a style added for a new layer
+#: -- the GNSS baselines were the first -- is checked against QGIS without
+#: anyone remembering to add it here. ``tests/structural/test_layer_styles.py``
+#: holds the styles and the layers one to one, so this is the same set.
+SHIPPED_STYLES = tuple(
+    sorted(p.stem for p in (REPO_ROOT / "geocomp" / "resources" / "styles").glob("*.qml"))
 )
 
 
@@ -259,9 +268,7 @@ class TestTheStylesLoad:
     arrive already styled. A style that fails to load leaves a layer QGIS draws
     in a random colour, which looks deliberate."""
 
-    @pytest.mark.parametrize(
-        "style", ("stations", "ellipses", "residuals", "observations", "corrections")
-    )
+    @pytest.mark.parametrize("style", SHIPPED_STYLES)
     def test_qgis_accepts_every_shipped_style(self, geocomp_provider, style):
         from qgis.core import QgsVectorLayer
 

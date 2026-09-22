@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """The shipped QML styles, and the rule that outranks them.
 
-Two things are checked here, neither of which needs QGIS.
+Three things are checked here, none of which needs QGIS.
 
 **The exaggeration factor cannot be dropped.** ``specs/19`` section 3 calls an
 unstated exaggeration the one thing that turns a quality visualisation into a
@@ -15,6 +15,12 @@ fail on a categorised renderer whose attribute is missing; it draws every
 feature in the fallback symbol. The map then looks styled and says nothing,
 which is a worse failure than an error. Renaming a field on either side breaks
 the pairing here instead.
+
+**A builder cannot set a different number of values than its layer has
+fields.** QGIS does not object: a short list leaves the rest null, a long one
+drops the tail, and a field inserted in the middle of ``LAYER_FIELDS`` without
+a matching value shifts every column after it. Nothing fails; the attribute
+table is simply wrong.
 """
 
 from __future__ import annotations
@@ -211,3 +217,71 @@ def test_something_actually_takes_an_exaggeration():
         if "exaggeration" in keyword
     ]
     assert len(drawing) >= 4
+
+
+# -- the attribute list and the field list ---------------------------------
+
+
+def _attribute_counts() -> dict[str, tuple[int, int]]:
+    """Per builder function: how many fields its layer declares, and how many
+    values it sets.
+
+    QGIS does not object to a mismatch. ``setAttributes`` with a short list
+    leaves the rest null and with a long one silently drops the tail, so a field
+    inserted in the middle of ``LAYER_FIELDS`` without a matching value shifts
+    every column after it -- a length into a sigma, a status into a station
+    name. Nothing would fail; the attribute table would simply be wrong.
+
+    Parsed rather than imported, like everything else here, so it runs where
+    QGIS is not installed -- which is where a field gets added.
+    """
+    tree = ast.parse(BUILDERS.read_text(encoding="utf-8"), filename=str(BUILDERS))
+    counts: dict[str, tuple[int, int]] = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.FunctionDef):
+            continue
+        style = None
+        values = None
+        for inner in ast.walk(node):
+            if (
+                isinstance(inner, ast.Call)
+                and isinstance(inner.func, ast.Name)
+                and inner.func.id == "fields_for"
+                and inner.args
+                and isinstance(inner.args[0], ast.Constant)
+            ):
+                style = inner.args[0].value
+            if (
+                isinstance(inner, ast.Call)
+                and isinstance(inner.func, ast.Attribute)
+                and inner.func.attr == "setAttributes"
+                and len(inner.args) == 1
+                and isinstance(inner.args[0], ast.List)
+            ):
+                values = len(inner.args[0].elts)
+        if style is not None and values is not None:
+            counts[node.name] = (style, values)  # type: ignore[assignment]
+    return counts
+
+
+def test_every_builder_sets_exactly_the_fields_its_layer_declares(layer_fields):
+    mismatched = []
+    for function, (style, values) in _attribute_counts().items():
+        declared = len(layer_fields[style])
+        if values != declared:
+            mismatched.append(
+                f"{function}: sets {values} values for {style}, which declares {declared}"
+            )
+    assert not mismatched, (
+        "A setAttributes list that is not the length of its field list shifts every "
+        "column after the discrepancy, and QGIS reports nothing:\n" + "\n".join(mismatched)
+    )
+
+
+def test_the_attribute_scan_found_the_builders():
+    """Guards the check above: were the builders restructured, it would pass by
+    comparing nothing."""
+    found = _attribute_counts()
+    assert len(found) >= 6
+    assert "gnss_baseline_features" in found
+    assert "gnss_trajectory_features" in found

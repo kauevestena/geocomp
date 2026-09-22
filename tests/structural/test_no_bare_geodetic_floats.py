@@ -295,6 +295,25 @@ TECHNIQUE_PLAIN_FLOATS = {
         "own known coordinate, whose uncertainty belongs to that coordinate"
     ),
     ("Baseline", "rover_horizon"): "the same, at the far end",
+    # -- GNSS trajectory (phase P7c) -----------------------------------------
+    #
+    # A trajectory point's uncertainty is a *metre* uncertainty in north, east
+    # and up, and it is carried whole on `covariance`. Attaching it to the
+    # latitude instead would mean a Quantity whose value is radians and whose
+    # sigma is metres -- the same pairing `PosEpoch.quantities()` was changed to
+    # refuse in this phase, for the same reason: nothing downstream could see
+    # that the two halves are different quantities.
+    ("TrajectoryPoint", "latitude"): (
+        "geodetic latitude, radians. Its uncertainty is the north component of "
+        "`covariance`, in metres, and cannot be attached to an angle"
+    ),
+    ("TrajectoryPoint", "longitude"): "the same, east",
+    ("TrajectoryPoint", "height"): (
+        "ellipsoidal height, metres. Kept beside the latitude and longitude rather "
+        "than made a Quantity on its own, because its uncertainty is the up component "
+        "of the same 3x3 -- splitting one covariance across one Quantity and two "
+        "floats would leave the correlations with nowhere to live (FR-201)"
+    ),
     ("EpochQuality", "ratio"): (
         "RTKLIB's ambiguity ratio factor: the ratio of the second-best to the best "
         "integer candidate's residual. A test statistic about the solution, not a "

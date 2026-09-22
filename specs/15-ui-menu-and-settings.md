@@ -79,6 +79,18 @@ map · GeoComp system report · Install tutorial dataset.
 Batch processing · Build baselines · Compare configurations.
 See [`11-module-gnss.md`](./11-module-gnss.md).
 
+> **Built in P7c, as eight of the nine.** Download products waits on FR-352, which moved to P10 when the
+> egress check found every major archive unreachable; a menu entry for it now would point at nothing, which
+> §1.2 forbids outright.
+>
+> **GNSS is the only group with a second level**, and the exception is narrow and enforced. Its four modes are
+> two branches of two, and flattening them would give four entries distinguished pairwise by their first word
+> — *Absolute static*, *Absolute kinematic*, *Relative static*, *Relative kinematic* — where the specification
+> and the proposal's own figure both draw a tree. `geocomp/registry.py` names the permitted set in
+> `NESTING_MENUS`, raises at import for a submenu declared under any other group, and `tests/test_registry.py`
+> holds that set to one entry. A one-level menu stops being one by the second exception, not the first, so the
+> guard is on the mechanism rather than on anyone's memory.
+
 **Gravimetry** → Pre-processing · Gravimetric network adjustment.
 See [`12-module-gravimetry.md`](./12-module-gravimetry.md).
 
@@ -124,7 +136,7 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 | Global Settings | Not an algorithm at all — it configures the others |
 | Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop. Arrives in P3, re-planned out of P2 — see [`ROADMAP.md`](./ROADMAP.md). The non-interactive route, `geocomp:analysis_network_preanalysis`, ships in P2 |
 | Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
-| Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison |
+| Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison. **Not built.** P7c ships `geocomp:gnss_compare_configurations` alone: ADR-0005 makes the algorithm the capability, and the dialog will hand it the same parameters |
 | Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
 | Monitoring time series (FR-838) | An interactive panel, not a one-shot run |
 
@@ -205,6 +217,22 @@ Each row below is a requirement, taken from `tex §Painel de Configuração Glob
 live in `geocomp.core.instruments.level` and travel as documents. A department owns several levels and works
 under more than one specification at once; a single "the" tolerance would be wrong for all but one job.
 | **GNSS** | Product and ephemeris directories; preferred download servers and their priority; default processing options per mode; antenna model database (ANTEX); reference station database; credential references (never the credentials) | FR-063, NFR-010 |
+
+**What P7c declared, and what it deliberately did not.** Nine settings: the product directory, the ANTEX
+file, the reference station database, and six processing defaults (elevation mask, ephemeris source,
+ionosphere and troposphere models, ambiguity ratio threshold, and whether to keep only the independent
+baseline subset). **All nine are read**, which is the point — see §2.3 for the 36 that are not, and the rule
+that a newly declared setting must have a consumer.
+
+Two of the row's items are absent and are not oversights. *Preferred download servers and their priority*
+belongs to FR-352, and *credential references* to FR-353 and NFR-010; all three moved to P10 with the
+download capability itself. A settings control for a server list that nothing downloads from would be exactly
+the defect §2.3 describes.
+
+Wiring the ANTEX file was where the distinction between naming a setting and honouring one showed up in
+practice: supplying `file-rcvantfile` without also setting `pos1-posopt2` loads a calibration model
+`rnx2rtkp` then ignores, which is the quietest possible way to believe a run is calibrated. All three keys
+are written together.
 | **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
 | **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
