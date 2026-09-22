@@ -679,6 +679,97 @@ SETTINGS: tuple[SettingDef, ...] = (
         requirement="FR-007",
         scopes=frozenset({Scope.GLOBAL}),
     ),
+    # -- GNSS (phase P7c) ---------------------------------------------------
+    #
+    # FR-063's list, with one omission stated rather than left to be noticed:
+    # **there is no credential setting here, and there will not be one.** The
+    # requirement asks for "credential references (never the credentials)"
+    # (`specs/15` section 6), and a reference is only meaningful once there is
+    # something to authenticate to -- which is FR-353, re-planned into P10 when
+    # every candidate archive turned out to be unreachable (`specs/22` §5).
+    # Declaring an empty credential field now would invite someone to type a
+    # password into a settings file, which is exactly what NFR-010 forbids.
+    SettingDef(
+        key="gnss.product_directory",
+        section="gnss",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-063",
+    ),
+    SettingDef(
+        key="gnss.antenna_file",
+        section="gnss",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-063",
+    ),
+    SettingDef(
+        key="gnss.reference_station_database",
+        section="gnss",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-063",
+    ),
+    # The four menu modes each need a default, and they are genuinely different
+    # numbers: a static baseline tolerates a high mask because it has hours of
+    # data, a kinematic trajectory cannot.
+    SettingDef(
+        key="gnss.elevation_mask",
+        section="gnss",
+        type=SettingType.FLOAT,
+        default=15.0,
+        minimum=0.0,
+        maximum=45.0,
+        requirement="FR-063",
+    ),
+    SettingDef(
+        key="gnss.ephemeris",
+        section="gnss",
+        type=SettingType.CHOICE,
+        default="brdc",
+        choices=("brdc", "precise"),
+        requirement="FR-358",
+    ),
+    SettingDef(
+        key="gnss.ionosphere",
+        section="gnss",
+        type=SettingType.CHOICE,
+        default="brdc",
+        # RTKLIB's own vocabulary, from IONOPT in `src/options.c` at the pinned
+        # commit. Spelling these differently -- "dual-frequency" for
+        # "dual-freq" -- writes a configuration the engine rejects, and the
+        # rejection would surface as a failed run rather than as a bad setting.
+        choices=("off", "brdc", "sbas", "dual-freq", "est-stec", "ionex-tec"),
+        requirement="FR-358",
+    ),
+    SettingDef(
+        key="gnss.troposphere",
+        section="gnss",
+        type=SettingType.CHOICE,
+        default="saas",
+        #: TRPOPT in `src/options.c`; see the note on the ionosphere above.
+        choices=("off", "saas", "sbas", "est-ztd", "est-ztdgrad"),
+        requirement="FR-358",
+    ),
+    SettingDef(
+        key="gnss.ambiguity_threshold",
+        section="gnss",
+        type=SettingType.FLOAT,
+        default=3.0,
+        minimum=1.0,
+        maximum=100.0,
+        requirement="FR-358",
+    ),
+    # The independent subset is the default because feeding every pair of a
+    # session to an adjustment inflates its redundancy; `specs/11` section 3.1
+    # allows the full set in Advanced mode, with the consequence stated.
+    SettingDef(
+        key="gnss.independent_baselines_only",
+        section="gnss",
+        type=SettingType.BOOL,
+        default=True,
+        requirement="FR-602",
+    ),
 )
 
 _BY_KEY = {definition.key: definition for definition in SETTINGS}

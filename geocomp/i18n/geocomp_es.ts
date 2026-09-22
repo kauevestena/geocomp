@@ -1,6 +1,177 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
+<?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="es">
+    <context>
+        <name>AbsoluteKinematicAlgorithm</name>
+        <message>
+            <source>Absolute — Kinematic</source>
+            <translation>Absoluto — Cinemático</translation>
+        </message>
+        <message>
+            <source>Kinematic PPP. RTKLIB's PPP is limited — see the notice in the help.</source>
+            <translation>PPP cinemático. El PPP de RTKLIB es limitado — vea el aviso en la ayuda.</translation>
+        </message>
+    </context>
+    <context>
+        <name>AbsoluteStaticAlgorithm</name>
+        <message>
+            <source>Absolute — Static</source>
+            <translation>Absoluto — Estático</translation>
+        </message>
+        <message>
+            <source>Static PPP. RTKLIB's PPP is limited — see the notice in the help.</source>
+            <translation>PPP estático. El PPP de RTKLIB es limitado — vea el aviso en la ayuda.</translation>
+        </message>
+    </context>
+    <context>
+        <name>BatchProcessAlgorithm</name>
+        <message>
+            <source>%1 failed: %2</source>
+            <translation>%1 falló: %2</translation>
+        </message>
+        <message>
+            <source>%1 succeeded, %2 failed, %3 rejected</source>
+            <translation>%1 con éxito, %2 con fallo, %3 rechazadas</translation>
+        </message>
+        <message>
+            <source>%1: %2 epochs</source>
+            <translation>%1: %2 épocas</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Processes every rover session in a folder against one base station, with the same configuration.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A session that fails does not stop the batch.&lt;/b&gt; Each is attempted, each failure is reported with the reason, and the summary lists what succeeded, what failed and what ran but produced no usable solution. A campaign of fifty sessions with one truncated file finishes and tells you which one it was.&lt;/p&gt;&lt;p&gt;Cancelling stops the batch promptly: the remaining sessions are not attempted, and what has already run is kept.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Procesa todas las sesiones móviles de una carpeta contra una estación base, con la misma configuración.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Una sesión que falla no detiene el lote.&lt;/b&gt; Cada una se intenta, cada fallo se informa con su motivo, y el resumen enumera lo que tuvo éxito, lo que falló y lo que se ejecutó pero no produjo una solución utilizable. Una campaña de cincuenta sesiones con un archivo truncado termina e indica cuál fue.&lt;/p&gt;&lt;p&gt;La cancelación detiene el lote de inmediato: las sesiones restantes no se intentan, y lo ya ejecutado se conserva.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
+            <translation>El procesamiento Absoluto (PPP) en RTKLIB es limitado y típicamente decimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible.</translation>
+        </message>
+        <message>
+            <source>Absolute — Kinematic</source>
+            <translation>Absoluto — Cinemático</translation>
+        </message>
+        <message>
+            <source>Absolute — Static</source>
+            <translation>Absoluto — Estático</translation>
+        </message>
+        <message>
+            <source>Base station</source>
+            <translation>Estación base</translation>
+        </message>
+        <message>
+            <source>Base: %1</source>
+            <translation>Base: %1</translation>
+        </message>
+        <message>
+            <source>Batch processing</source>
+            <translation>Procesamiento por lotes</translation>
+        </message>
+        <message>
+            <source>Batch report</source>
+            <translation>Informe del lote</translation>
+        </message>
+        <message>
+            <source>Could not read %1: %2</source>
+            <translation>No se pudo leer %1: %2</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations</source>
+            <translation>Carpeta con observaciones RINEX</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Archivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Name the base station explicitly; the folder holds: %1</source>
+            <translation>Indique la estación base explícitamente; la carpeta contiene: %1</translation>
+        </message>
+        <message>
+            <source>No RINEX observation sessions were found in %1</source>
+            <translation>No se encontraron sesiones de observación RINEX en %1</translation>
+        </message>
+        <message>
+            <source>No session for base station %1</source>
+            <translation>Ninguna sesión para la estación base %1</translation>
+        </message>
+        <message>
+            <source>Process every session in a folder; one failure does not stop the rest.</source>
+            <translation>Procesa todas las sesiones de una carpeta; un fallo no detiene las demás.</translation>
+        </message>
+        <message>
+            <source>Processing mode</source>
+            <translation>Modo de procesamiento</translation>
+        </message>
+        <message>
+            <source>Relative — Kinematic</source>
+            <translation>Relativo — Cinemático</translation>
+        </message>
+        <message>
+            <source>Relative — Static</source>
+            <translation>Relativo — Estático</translation>
+        </message>
+    </context>
+    <context>
+        <name>BuildBaselinesAlgorithm</name>
+        <message>
+            <source>%1 baseline(s): %2 independent, %3 dependent</source>
+            <translation>%1 línea(s) base: %2 independientes, %3 dependientes</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lee cada solución &lt;code&gt;.pos&lt;/code&gt; ECEF de una carpeta y construye la línea base que cada una determinó: el vector entre las dos marcas, con su covarianza 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las alturas de antena se reducen una sola vez.&lt;/b&gt; El vector que determinó el motor es entre puntos de referencia de antena; el ajuste quiere el vector entre las marcas. Aplicar la reducción dos veces se detecta y se rechaza.&lt;/p&gt;&lt;p&gt;&lt;b&gt;De forma predeterminada solo se conserva el subconjunto independiente.&lt;/b&gt; Procesar todos los pares de n estaciones observando simultáneamente produce n(n-1)/2 líneas base, de las cuales solo n-1 son independientes; usarlas todas infla la redundancia aparente del ajuste. Las dependientes se marcan en la salida en lugar de descartarse.&lt;/p&gt;&lt;p&gt;El resultado es un agrupamiento: las observaciones comparten una matriz de covarianza y llegan a DynAdjust como una medición G o X con ella intacta.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Base antenna height above the mark (m)</source>
+            <translation>Altura de la antena de la base sobre la marca (m)</translation>
+        </message>
+        <message>
+            <source>Baselines</source>
+            <translation>Líneas base</translation>
+        </message>
+        <message>
+            <source>Build baselines</source>
+            <translation>Construir líneas base</translation>
+        </message>
+        <message>
+            <source>Folder of .pos solutions</source>
+            <translation>Carpeta con soluciones .pos</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Archivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Keep only the independent subset</source>
+            <translation>Conservar solo el subconjunto independiente</translation>
+        </message>
+        <message>
+            <source>Keeping %1 dependent baseline(s). They carry no new information, and an adjustment that treats them as independent will report an uncertainty smaller than the data supports.</source>
+            <translation>Conservando %1 línea(s) base dependiente(s). No aportan información nueva, y un ajuste que las trate como independientes informará una incertidumbre menor de la que los datos sustentan.</translation>
+        </message>
+        <message>
+            <source>No .pos solutions were found in %1</source>
+            <translation>No se encontró ninguna solución .pos en %1</translation>
+        </message>
+        <message>
+            <source>No baseline could be built from the solutions in %1</source>
+            <translation>No se pudo construir ninguna línea base a partir de las soluciones en %1</translation>
+        </message>
+        <message>
+            <source>Rover antenna height above the mark (m)</source>
+            <translation>Altura de la antena del móvil sobre la marca (m)</translation>
+        </message>
+        <message>
+            <source>Skipped %1: %2</source>
+            <translation>Omitido %1: %2</translation>
+        </message>
+        <message>
+            <source>Turn processed sessions into baseline observations with covariance.</source>
+            <translation>Convierte sesiones procesadas en observaciones de línea base con covarianza.</translation>
+        </message>
+        <message>
+            <source>Uncertainty of each antenna height (m)</source>
+            <translation>Incertidumbre de cada altura de antena (m)</translation>
+        </message>
+    </context>
     <context>
         <name>ClassicalNetworkAlgorithm</name>
         <message>
@@ -254,6 +425,81 @@
         <message>
             <source>Z (m)</source>
             <translation>Z (m)</translation>
+        </message>
+    </context>
+    <context>
+        <name>CompareConfigurationsAlgorithm</name>
+        <message>
+            <source>%1 failed: %2</source>
+            <translation>%1 falló: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Processes one pair of simultaneously observing sessions at several elevation masks, and compares the baselines they determine.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The comparison is by significance, not by size.&lt;/b&gt; A 3 mm difference is large when both solutions are good to 0.5 mm and nothing at all when they are good to 5 mm, so each difference is tested against the combined covariance of the two solutions.&lt;/p&gt;&lt;p&gt;The two runs share their observations, so treating them as independent overstates the difference's uncertainty and under-reports significance. That is the conservative direction for a test whose job is to stop a parameter being called important when it is not, and the assumption is recorded on the result.&lt;/p&gt;&lt;p&gt;A difference reported as &lt;i&gt;not significant&lt;/i&gt; is the informative answer: it says the parameter changed nothing this data can resolve.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Procesa un par de sesiones observando simultáneamente bajo varias máscaras de elevación, y compara las líneas base que determinan.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La comparación es por significación, no por tamaño.&lt;/b&gt; Una diferencia de 3 mm es grande cuando ambas soluciones tienen precisión de 0,5 mm y es irrelevante cuando tienen 5 mm, así que cada diferencia se contrasta con la covarianza combinada de las dos soluciones.&lt;/p&gt;&lt;p&gt;Las dos ejecuciones comparten sus observaciones, así que tratarlas como independientes sobrestima la incertidumbre de la diferencia y subestima la significación. Esa es la dirección conservadora para una prueba cuya función es impedir que un parámetro se considere importante cuando no lo es, y la suposición queda registrada en el resultado.&lt;/p&gt;&lt;p&gt;Una diferencia informada como &lt;i&gt;no significativa&lt;/i&gt; es la respuesta informativa: dice que el parámetro no cambió nada que estos datos puedan resolver.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Base %1 → rover %2</source>
+            <translation>Base %1 → móvil %2</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Archivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Compare configurations</source>
+            <translation>Comparar configuraciones</translation>
+        </message>
+        <message>
+            <source>Comparison</source>
+            <translation>Comparación</translation>
+        </message>
+        <message>
+            <source>Comparison needs exactly one pair of simultaneously observing sessions in the folder.</source>
+            <translation>La comparación necesita exactamente un par de sesiones observando simultáneamente en la carpeta.</translation>
+        </message>
+        <message>
+            <source>Comparison table</source>
+            <translation>Tabla de comparación</translation>
+        </message>
+        <message>
+            <source>Confidence for the significance test</source>
+            <translation>Confianza para la prueba de significación</translation>
+        </message>
+        <message>
+            <source>Could not read the elevation masks from %1</source>
+            <translation>No se pudieron leer las máscaras de elevación de %1</translation>
+        </message>
+        <message>
+            <source>Elevation masks to compare (degrees)</source>
+            <translation>Máscaras de elevación a comparar (grados)</translation>
+        </message>
+        <message>
+            <source>Fewer than two configurations produced a baseline to compare.</source>
+            <translation>Menos de dos configuraciones produjeron una línea base para comparar.</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations</source>
+            <translation>Carpeta con observaciones RINEX</translation>
+        </message>
+        <message>
+            <source>Give at least two elevation masks to compare.</source>
+            <translation>Indique al menos dos máscaras de elevación para comparar.</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Archivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>No difference is significant at this confidence: over this data, the elevation mask changed nothing that can be resolved.</source>
+            <translation>Ninguna diferencia es significativa con esta confianza: sobre estos datos, la máscara de elevación no cambió nada que pueda resolverse.</translation>
+        </message>
+        <message>
+            <source>Process the same data several ways and compare, with significance.</source>
+            <translation>Procesa los mismos datos de varias formas y compara, con significación.</translation>
+        </message>
+        <message>
+            <source>mask %1°</source>
+            <translation>máscara %1°</translation>
         </message>
     </context>
     <context>
@@ -790,8 +1036,88 @@
     <context>
         <name>GeoComp</name>
         <message>
+            <source>%1 epochs, %2% with resolved ambiguities</source>
+            <translation>%1 épocas, %2% con ambigüedades resueltas</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts and the ambiguity ratio.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Procesa una carpeta de observaciones RINEX con &lt;code&gt;rnx2rtkp&lt;/code&gt;. Las sesiones se descubren a partir de las cabeceras de los archivos, no de sus nombres, y solo se procesan juntas las sesiones que realmente se solapan en el tiempo.&lt;/p&gt;&lt;p&gt;Las opciones de procesamiento provienen de Configuración Global → GNSS, salvo que un parámetro aquí las sustituya: máscara de elevación, fuente de las efemérides, modelos atmosféricos y el umbral de la razón de ambigüedades.&lt;/p&gt;&lt;p&gt;Produce la solución &lt;code&gt;.pos&lt;/code&gt; del motor y un resumen JSON de los indicadores de calidad de la ejecución: estado de la solución por época, la fracción de épocas con ambigüedades resueltas, recuento de satélites y la razón de ambigüedades.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
+            <translation>El procesamiento Absoluto (PPP) en RTKLIB es limitado y típicamente decimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible.</translation>
+        </message>
+        <message>
+            <source>Base %1 → rover %2</source>
+            <translation>Base %1 → móvil %2</translation>
+        </message>
+        <message>
+            <source>Base station</source>
+            <translation>Estación base</translation>
+        </message>
+        <message>
+            <source>Elevation mask, degrees (-1 uses Global Settings)</source>
+            <translation>Máscara de elevación, grados (-1 usa la Configuración Global)</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations</source>
+            <translation>Carpeta con observaciones RINEX</translation>
+        </message>
+        <message>
             <source>GeoComp</source>
             <translation>GeoComp</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Archivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Keep the engine's working directory</source>
+            <translation>Conservar el directorio de trabajo del motor</translation>
+        </message>
+        <message>
+            <source>Name the %1 station explicitly; the folder holds: %2</source>
+            <translation>Indique la estación %1 explícitamente; la carpeta contiene: %2</translation>
+        </message>
+        <message>
+            <source>No %1 session for station %2; found: %3</source>
+            <translation>Ninguna sesión %1 para la estación %2; encontradas: %3</translation>
+        </message>
+        <message>
+            <source>No RINEX observation sessions were found in %1</source>
+            <translation>No se encontraron sesiones de observación RINEX en %1</translation>
+        </message>
+        <message>
+            <source>Quality summary</source>
+            <translation>Resumen de calidad</translation>
+        </message>
+        <message>
+            <source>RTKLIB solution (*.pos)</source>
+            <translation>Solución RTKLIB (*.pos)</translation>
+        </message>
+        <message>
+            <source>Relative processing needs two sessions that observed at the same time; the folder's sessions do not overlap.</source>
+            <translation>El procesamiento relativo necesita dos sesiones observadas al mismo tiempo; las sesiones de la carpeta no se solapan.</translation>
+        </message>
+        <message>
+            <source>Rover station</source>
+            <translation>Estación móvil</translation>
+        </message>
+        <message>
+            <source>Skipped %1: %2</source>
+            <translation>Omitido %1: %2</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solución</translation>
+        </message>
+        <message>
+            <source>Using %1 precise product file(s)</source>
+            <translation>Usando %1 archivo(s) de productos precisos</translation>
         </message>
     </context>
     <context>
@@ -1343,6 +1669,25 @@
         </message>
     </context>
     <context>
+        <name>GeoCompGnss</name>
+        <message>
+            <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;El procesamiento Absoluto (PPP) en RTKLIB es limitado.&lt;/b&gt; Su posicionamiento puntual preciso no equivale a un servicio PPP dedicado: la convergencia es más lenta, el tratamiento de ambigüedades es más simple y el resultado es típicamente decimétrico en lugar de centimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible, y trate una solución Absoluta como indicativa a menos que la haya contrastado con una determinación independiente.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>The configured antenna file does not exist: %1</source>
+            <translation>El archivo de antena configurado no existe: %1</translation>
+        </message>
+        <message>
+            <source>The configured product directory does not exist: %1</source>
+            <translation>El directorio de productos configurado no existe: %1</translation>
+        </message>
+        <message>
+            <source>Unknown processing profile: %1</source>
+            <translation>Perfil de procesamiento desconocido: %1</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompLayers</name>
         <message>
             <source>%1% confidence, exaggerated %2x</source>
@@ -1702,6 +2047,10 @@
             <translation>&amp;GeoComp</translation>
         </message>
         <message>
+            <source>Absolute</source>
+            <translation>Absoluto</translation>
+        </message>
+        <message>
             <source>Analysis</source>
             <translation>Análisis</translation>
         </message>
@@ -1732,6 +2081,10 @@
         <message>
             <source>Project</source>
             <translation>Proyecto</translation>
+        </message>
+        <message>
+            <source>Relative</source>
+            <translation>Relativo</translation>
         </message>
         <message>
             <source>Total Station</source>
@@ -2020,6 +2373,10 @@
             <translation>Avanzado</translation>
         </message>
         <message>
+            <source>Ambiguity ratio threshold</source>
+            <translation>Umbral de la razón de ambigüedades</translation>
+        </message>
+        <message>
             <source>Angle decimal places</source>
             <translation>Decimales de los ángulos</translation>
         </message>
@@ -2030,6 +2387,10 @@
         <message>
             <source>Angular tolerance per station (rad)</source>
             <translation>Tolerancia angular por estación (rad)</translation>
+        </message>
+        <message>
+            <source>Antenna calibration file (ANTEX)</source>
+            <translation>Archivo de calibración de antena (ANTEX)</translation>
         </message>
         <message>
             <source>Apply orthometric corrections</source>
@@ -2062,6 +2423,14 @@
         <message>
             <source>Basic</source>
             <translation>Básico</translation>
+        </message>
+        <message>
+            <source>Broadcast</source>
+            <translation>Transmitidas</translation>
+        </message>
+        <message>
+            <source>Broadcast model</source>
+            <translation>Modelo de las efemérides transmitidas</translation>
         </message>
         <message>
             <source>Coefficient of refraction (k)</source>
@@ -2144,12 +2513,36 @@
             <translation>Unidad de distancia</translation>
         </message>
         <message>
+            <source>Dual-frequency (ionosphere-free)</source>
+            <translation>Doble frecuencia (libre de ionosfera)</translation>
+        </message>
+        <message>
+            <source>Elevation mask (degrees)</source>
+            <translation>Máscara de elevación (grados)</translation>
+        </message>
+        <message>
             <source>English</source>
             <translation>Inglés</translation>
         </message>
         <message>
+            <source>Ephemeris source</source>
+            <translation>Fuente de las efemérides</translation>
+        </message>
+        <message>
             <source>Español</source>
             <translation>Español</translation>
+        </message>
+        <message>
+            <source>Estimated (STEC)</source>
+            <translation>Estimado (STEC)</translation>
+        </message>
+        <message>
+            <source>Estimated zenith delay</source>
+            <translation>Retardo cenital estimado</translation>
+        </message>
+        <message>
+            <source>Estimated zenith delay with gradients</source>
+            <translation>Retardo cenital estimado con gradientes</translation>
         </message>
         <message>
             <source>Face-pair distance tolerance (m)</source>
@@ -2184,12 +2577,20 @@
             <translation>Ponderación de los desniveles</translation>
         </message>
         <message>
+            <source>IONEX map</source>
+            <translation>Mapa IONEX</translation>
+        </message>
+        <message>
             <source>Information</source>
             <translation>Información</translation>
         </message>
         <message>
             <source>Interface</source>
             <translation>Interfaz</translation>
+        </message>
+        <message>
+            <source>Ionospheric correction</source>
+            <translation>Corrección ionosférica</translation>
         </message>
         <message>
             <source>Language</source>
@@ -2232,6 +2633,10 @@
             <translation>Todavía no hay configuraciones en esta sección. Se añaden en la fase de desarrollo que implementa este tipo de equipo.</translation>
         </message>
         <message>
+            <source>None</source>
+            <translation>Ninguna</translation>
+        </message>
+        <message>
             <source>Offer a base map when adding result layers</source>
             <translation>Ofrecer un mapa base al añadir capas de resultado</translation>
         </message>
@@ -2256,6 +2661,14 @@
             <translation>Portugués (Brasil)</translation>
         </message>
         <message>
+            <source>Precise (IGS products)</source>
+            <translation>Precisas (productos IGS)</translation>
+        </message>
+        <message>
+            <source>Precise product directory</source>
+            <translation>Directorio de productos precisos</translation>
+        </message>
+        <message>
             <source>Preferred coordinate reference system</source>
             <translation>Sistema de referencia de coordenadas preferido</translation>
         </message>
@@ -2276,12 +2689,24 @@
             <translation>Radián</translation>
         </message>
         <message>
+            <source>Reference station database</source>
+            <translation>Base de datos de estaciones de referencia</translation>
+        </message>
+        <message>
             <source>Reference systems</source>
             <translation>Sistemas de referencia</translation>
         </message>
         <message>
             <source>Required relative precision (1:N)</source>
             <translation>Precisión relativa exigida (1:N)</translation>
+        </message>
+        <message>
+            <source>SBAS</source>
+            <translation>SBAS</translation>
+        </message>
+        <message>
+            <source>Saastamoinen</source>
+            <translation>Saastamoinen</translation>
         </message>
         <message>
             <source>Settings resolve in the order: this run, this project, global, default.</source>
@@ -2316,6 +2741,10 @@
             <translation>Trimble</translation>
         </message>
         <message>
+            <source>Tropospheric correction</source>
+            <translation>Corrección troposférica</translation>
+        </message>
+        <message>
             <source>US survey foot</source>
             <translation>Pie topográfico estadounidense</translation>
         </message>
@@ -2342,6 +2771,10 @@
         <message>
             <source>Use only a preferred transformation, and refuse otherwise</source>
             <translation>Usar solo una transformación preferida y rechazar en caso contrario</translation>
+        </message>
+        <message>
+            <source>Use only the independent baseline subset</source>
+            <translation>Usar solo el subconjunto independiente de líneas base</translation>
         </message>
         <message>
             <source>Use the most accurate available</source>
@@ -4504,6 +4937,28 @@
         </message>
     </context>
     <context>
+        <name>RelativeKinematicAlgorithm</name>
+        <message>
+            <source>Post-processed kinematic positioning against a base station.</source>
+            <translation>Posicionamiento cinemático pospro­cesado respecto a una estación base.</translation>
+        </message>
+        <message>
+            <source>Relative — Kinematic</source>
+            <translation>Relativo — Cinemático</translation>
+        </message>
+    </context>
+    <context>
+        <name>RelativeStaticAlgorithm</name>
+        <message>
+            <source>A static baseline between two simultaneously observing stations.</source>
+            <translation>Una línea base estática entre dos estaciones observando simultáneamente.</translation>
+        </message>
+        <message>
+            <source>Relative — Static</source>
+            <translation>Relativo — Estático</translation>
+        </message>
+    </context>
+    <context>
         <name>ResectionAlgorithm</name>
         <message>
             <source>&lt;p&gt;Computes the coordinates of the occupied station from the directions it observed to known points, by least squares over any number of them with the setup's orientation estimated as a third unknown. Three points give a unique solution; more give residuals and a covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The danger circle is detected and refused, not solved.&lt;/b&gt; When the occupied station lies on the circle through three known points, every point on that circle sees the three in the same directions, so they do not determine a position there. A number returned from that configuration looks exactly like a coordinate and is not one, so GeoComp refuses and names the three points involved. Add a fourth point off the circle, or a distance.&lt;/p&gt;&lt;p&gt;Three known points in a straight line define no circle at all, which is a different impossibility and gets its own message.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced. &lt;b&gt;Occupied station&lt;/b&gt; &amp;mdash; which setup in it to resect.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Known points&lt;/b&gt; &amp;mdash; a JSON object mapping each known station to &lt;code&gt;[easting, northing]&lt;/code&gt; in metres. Only the points the setup actually sighted are used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Approximate easting&lt;/b&gt; and &lt;b&gt;northing&lt;/b&gt; (m) &amp;mdash; a starting point for the iteration, and what the danger-circle check is evaluated at before any computation begins. Leave both at 0 to start from the centroid of the known points, which converges from anywhere inside the figure.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Position&lt;/b&gt; &amp;mdash; a JSON document in the same shape Classical network takes as approximate coordinates. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. Scalars: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SIGMA_EASTING&lt;/code&gt;, &lt;code&gt;SIGMA_NORTHING&lt;/code&gt; in metres and &lt;code&gt;ORIENTATION&lt;/code&gt; in degrees.&lt;/p&gt;</source>
@@ -4636,6 +5091,49 @@
         <message>
             <source>Value</source>
             <translation>Valor</translation>
+        </message>
+    </context>
+    <context>
+        <name>ScanSessionsAlgorithm</name>
+        <message>
+            <source>  %1: %2 to %3</source>
+            <translation>  %1: %2 hasta %3</translation>
+        </message>
+        <message>
+            <source>%1 session(s), %2 simultaneous group(s), %3 unreadable file(s)</source>
+            <translation>%1 sesión(es), %2 grupo(s) simultáneo(s), %3 archivo(s) ilegible(s)</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Reads the header of every RINEX observation file in a folder and reports the sessions it found: station, receiver, antenna, start and end, sampling interval, and the navigation files paired with each.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The header decides, not the file name.&lt;/b&gt; A file named for one station whose header names another is reported as a mismatch rather than silently resolved either way.&lt;/p&gt;&lt;p&gt;Groups sessions by simultaneity, since only sessions that actually overlap in time can form a baseline, and lists every file it could not read rather than stopping at the first.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lee la cabecera de cada archivo de observación RINEX de una carpeta e informa de las sesiones que encontró: estación, receptor, antena, inicio y fin, intervalo de muestreo, y los archivos de navegación emparejados con cada una.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La cabecera decide, no el nombre del archivo.&lt;/b&gt; Un archivo nombrado por una estación cuya cabecera nombra otra se informa como discrepancia, en lugar de resolverse en silencio a favor de una de las dos.&lt;/p&gt;&lt;p&gt;Agrupa las sesiones por simultaneidad, ya que solo las sesiones que realmente se solapan en el tiempo pueden formar una línea base, y enumera todos los archivos que no pudo leer en lugar de detenerse en el primero.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Could not read %1: %2</source>
+            <translation>No se pudo leer %1: %2</translation>
+        </message>
+        <message>
+            <source>Discover GNSS sessions in a folder, from the RINEX headers.</source>
+            <translation>Descubre sesiones GNSS en una carpeta, a partir de las cabeceras RINEX.</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations</source>
+            <translation>Carpeta con observaciones RINEX</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Archivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Scan sessions</source>
+            <translation>Explorar sesiones</translation>
+        </message>
+        <message>
+            <source>Sessions</source>
+            <translation>Sesiones</translation>
         </message>
     </context>
     <context>

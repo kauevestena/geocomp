@@ -31,10 +31,17 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
 
-from geocomp.registry import MENU_GROUPS, AlgorithmSpec, MenuGroup, algorithms_in_menu
+from geocomp.registry import (
+    MENU_GROUPS,
+    AlgorithmSpec,
+    MenuGroup,
+    algorithms_in_menu,
+    algorithms_in_submenu,
+    submenus_in_menu,
+)
 from geocomp.resources import icon_path
 
-__all__ = ["GeoCompMenu", "algorithm_label", "menu_label"]
+__all__ = ["GeoCompMenu", "algorithm_label", "menu_label", "submenu_label"]
 
 _TR_CONTEXT = "GeoCompMenu"
 
@@ -129,15 +136,21 @@ class GeoCompMenu:
         submenu.setObjectName(f"geocompMenu_{group.id}")
 
         specs = algorithms_in_menu(group.id)
-        for spec in specs:
-            action = QAction(algorithm_label(spec), self._parent)
-            action.setObjectName(f"geocompMenuAction_{spec.name}")
-            action.setData(spec.id)
-            action.triggered.connect(
-                lambda _checked=False, algorithm_id=spec.id: self._run_algorithm(algorithm_id)
-            )
-            submenu.addAction(action)
-            self._actions.append(action)
+
+        # A second level, where the group declares one. GNSS is the only group
+        # that does, and `specs/11` section 1 draws why: its four modes are two
+        # branches of two, and "Static" alone names nothing. Nested entries come
+        # first, matching the specification's own figure.
+        for nested in submenus_in_menu(group.id):
+            branch = QMenu(submenu_label(group.id, nested), submenu)
+            branch.setObjectName(f"geocompMenu_{group.id}_{nested}")
+            for spec in algorithms_in_submenu(group.id, nested):
+                branch.addAction(self._algorithm_action(spec))
+            submenu.addMenu(branch)
+            self._submenus.append(branch)
+
+        for spec in algorithms_in_submenu(group.id, None):
+            submenu.addAction(self._algorithm_action(spec))
 
         if not specs:
             submenu.setEnabled(False)
@@ -145,6 +158,22 @@ class GeoCompMenu:
 
         self._menu.addMenu(submenu)
         self._submenus.append(submenu)
+
+    def _algorithm_action(self, spec: AlgorithmSpec) -> QAction:
+        """One menu item, wired to run its algorithm.
+
+        Factored out when GNSS added a second level, so a nested item and a
+        top-level one are built by the same code and cannot drift -- the object
+        name in particular, which is what `tests/qgis/` finds items by.
+        """
+        action = QAction(algorithm_label(spec), self._parent)
+        action.setObjectName(f"geocompMenuAction_{spec.name}")
+        action.setData(spec.id)
+        action.triggered.connect(
+            lambda _checked=False, algorithm_id=spec.id: self._run_algorithm(algorithm_id)
+        )
+        self._actions.append(action)
+        return action
 
     def unload(self) -> None:
         """Remove every element this class created (FR-006).
@@ -170,6 +199,21 @@ class GeoCompMenu:
             self._menu.setParent(None)
             self._menu.deleteLater()
             self._menu = None
+
+
+
+def submenu_label(menu_id: str, submenu_id: str) -> str:
+    """Translated label for a second-level menu entry.
+
+    Only GNSS has one; see ``AlgorithmSpec.submenu`` in :mod:`geocomp.registry`
+    for why, and why it stays the exception. An unknown id falls back to its own
+    text capitalised rather than raising: a missing label is a cosmetic fault
+    and should not stop the menu being built.
+    """
+    return {
+        ("gnss", "absolute"): _tr("Absolute"),
+        ("gnss", "relative"): _tr("Relative"),
+    }.get((menu_id, submenu_id), submenu_id.replace("_", " ").capitalize())
 
 
 def algorithm_label(spec: AlgorithmSpec) -> str:

@@ -311,6 +311,32 @@ TECHNIQUE_PLAIN_FLOATS = {
         "the nominal seconds between epochs, a receiver setting rather than something "
         "observed"
     ),
+    # -- GNSS, phase P7c ------------------------------------------------------
+    ("ReferenceStation", "velocity_per_year"): (
+        "a published rate of change in metres per year, transcribed from a coordinate "
+        "sheet. The position it moves *is* a Quantity; the rate is a property of the "
+        "tectonic plate, and the sheets that publish it print no uncertainty for it"
+    ),
+    ("ComparisonRow", "difference"): (
+        "the difference between two determinations of one vector, whose expected value "
+        "is zero. Its uncertainty is the adjacent covariance field, which is the whole "
+        "point of the comparison"
+    ),
+    ("ComparisonRow", "statistic"): "a chi-square test statistic, not a measured quantity",
+    ("ComparisonRow", "probability"): "a probability",
+    ("ComparisonRow", "length_difference"): (
+        "the difference of two baseline lengths; see difference above, and Baseline.length "
+        "carries the uncertainty of each"
+    ),
+    ("ConfigurationComparison", "confidence"): "a probability chosen by the user",
+    ("ConfigurationComparison", "critical_value"): (
+        "a quantile of the chi-square distribution: a property of the distribution and "
+        "the confidence, exact for its inputs"
+    ),
+    ("BatchResult", "seconds"): (
+        "wall-clock duration of one session's run, for the report. A timing, not a "
+        "geodetic value"
+    ),
     ("SessionQuality", "dilution_of_precision"): (
         "a geometry factor, dimensionless and derived from satellite positions. Always "
         "None today: rnx2rtkp writes no DOP column in any output format, and the field "
@@ -327,6 +353,11 @@ TECHNIQUE_PLAIN_RETURNS = {
         "formula and the carrier wavelength, exact for its inputs"
     ),
     "stochastic.unit_for": "the dimension of an observation kind, not a value",
+    "batch.run_batch": (
+        "a report of which sessions ran and which failed (FR-355). The measurements are "
+        "in the payloads it carries, each already uncertainty-bearing in its own right; "
+        "the report is bookkeeping about execution"
+    ),
     "readings.empirical_reading_sigma": (
         "a pooled standard deviation and the degrees of freedom behind it -- the "
         "figure *is* an uncertainty, and the count is what says how much to trust it"

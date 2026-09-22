@@ -50,6 +50,14 @@ def test_every_algorithm_implementation_is_registered():
 
     Scans the algorithms package for ``GeoCompAlgorithm`` subclasses and requires
     each to appear in the registry.
+
+    **A class whose name begins with an underscore is exempt**, because it is a
+    shared base rather than an algorithm: the four GNSS modes differ by three
+    class attributes and are one ``_GnssProcessAlgorithm`` underneath, and
+    registering that base would put a menu entry on something with no
+    ``displayName``. The underscore is the same privacy convention the rest of
+    the codebase uses, so this is not a carve-out for one class -- but it is
+    narrow: a *public* class still has to be registered or removed.
     """
     registered = {spec.class_name for spec in ALGORITHMS}
     unregistered: list[str] = []
@@ -63,6 +71,8 @@ def test_every_algorithm_implementation_is_registered():
             if not isinstance(node, ast.ClassDef):
                 continue
             bases = {b.id for b in node.bases if isinstance(b, ast.Name)}
+            if node.name.startswith("_"):
+                continue
             if "GeoCompAlgorithm" in bases and node.name not in registered:
                 unregistered.append(f"{path.relative_to(REPO_ROOT)}: {node.name}")
 
