@@ -27,6 +27,29 @@ Exit 1 currently means the primary coordinate comparison failed. Inspect
 coordinates with these measured outputs. See [PROVENANCE.md](PROVENANCE.md)
 for frame, epoch, ARP and calibration conventions.
 
+## The elevation-mask sweep
+
+```sh
+python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
+# Without the NGS ANTEX (its host may be unreachable):
+python3 scripts/check_rd06.py --sweep-uncalibrated --output build/rd06-sweep
+```
+
+Solves **both days at 10°, 15°, 20°, 25°, 30° and 35°** and prints each result's
+east/north/up error. It exists because those two groups answer different
+questions: an error that depends on the mask lives in the low-elevation
+observations, and one that does not lives somewhere else. Below 25° the two days
+disagree by 11 mm in east; at 25° and above they agree to 0.14 mm in north. That
+split is what `specs/22` section 5 attributes the discrepancy with, and it is the
+first thing to re-run after any change to weighting, the antenna model or the
+baseline bridge.
+
+Engine CI runs the **calibrated** sweep on every engine run and retains
+`sweep.json`; the development environment usually cannot, because the NGS ANTEX
+host is unreachable from it. At masks of 25° and above both configurations agree
+on a residual near 6.9 mm dominated by north, which is the number to compare any
+change against.
+
 ## Smaller examples for fast development
 
 The repository also contains these complementary, independently runnable cases:

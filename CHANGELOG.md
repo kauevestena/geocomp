@@ -5,6 +5,70 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### RD-06 — the 7.5 mm is two things
+
+`specs/22` §5 ended on *"the remaining millimetre discrepancy is not yet
+attributed to a specific defect."* It now is, and the answer is that there were
+two discrepancies sitting on top of each other.
+
+#### Added
+
+- **The calibrated sweep runs in engine CI**, as a `continue-on-error` diagnostic
+  step. That is the one environment where it can: `geodesy.noaa.gov` serves the
+  ANTEX and the development environment's egress policy denies it. Diagnostic and
+  never a gate — what it measures is the unmet criterion, not a regression.
+- **`scripts/check_rd06.py --sweep`** — solves both days at elevation masks from
+  10° to 35° and reports each result's east/north/up error. A coordinate-
+  reference error is invariant under the mask; a multipath or phase-centre error
+  is not, so the sweep separates them. `--sweep-uncalibrated` runs it without the
+  NGS ANTEX, for environments that cannot reach `geodesy.noaa.gov`.
+- `_prepare_sessions`, factored out of `run_all` so the sweep and the five cases
+  see byte-identical inputs — a sweep that prepared its data differently would
+  not be comparable with the cases it exists to explain.
+
+#### Found
+
+- **A low-elevation error of up to 11 mm in east, and it is the whole of the
+  day-to-day variation.** At a 10° mask the two days disagree by 11.4 mm in east;
+  at 25° and above they agree to **0.14 mm in north and 0.29 mm in east**. Six
+  solutions — two independent 24-hour days at three masks — converging to under a
+  fifth of a millimetre, with nothing but the low-elevation observations
+  distinguishing the cases. GODN and GODS carry different antenna types 76 m
+  apart, and NGS's own coordinate sheet warns that mixing them "can lead to
+  errors of up to 10 cm".
+- **A stable ~6.9 mm underneath it, −6.7 mm of it in north**, which every
+  high-mask solution agrees on and which the mask does not touch — **and which
+  full antenna calibration does not remove**. Engine CI, which can reach the NGS
+  ANTEX, now runs the calibrated sweep: at masks of 25° and above it gives
+  (+0.93, −6.74, +1.38) mm against the uncalibrated (+1.49, −6.27, +1.89), so
+  calibration moves it by about half a millimetre per component and the north
+  term grows rather than shrinking.
+
+  The residual therefore survives the elevation mask from 25° to 35°, two
+  independent days, the NGS absolute calibration of both mixed antenna types,
+  IGS20 final orbits, and reversal of base and rover. Every processing effect
+  this project can control has been varied and none of them is it. What remains
+  is the reference: the expected baseline is the *difference of two
+  independently estimated* NGS coordinates, each carrying an uncertainty the
+  coordinate sheets do not publish. That is recorded as what survives
+  elimination, not as a measurement — nothing here bounds NGS's own uncertainty.
+- Three things it is **not**, each checked rather than assumed: not the reference
+  point (the ARP and L1PC baselines differ by 2.2 mm, and L1PC is no better), not
+  the orbits (IGS20 final products move it 0.05 mm), and not internal
+  inconsistency (reversing base and rover negates the vector to 4 µm).
+
+#### Not done
+
+- **NGS's own coordinate uncertainty is not bounded here**, so "what remains is
+  the reference" is elimination rather than measurement. Settling it needs
+  either NGS's published covariance or a third station on the same monument
+  network.
+- **No tolerance changed.** The 1 mm threshold is still a printed-source-precision
+  rule borrowed for want of a GNSS one. The case for deriving a real one is now
+  evidential — a criterion that survives calibration, orbits, masks, days and
+  reversal unchanged is not measuring the pipeline — but the derivation is the
+  maintainer's decision, and the accuracy check stays red until it is taken.
+
 ### P7b — baselines into an adjustment
 
 The computation half of the rest of the GNSS phase, split from the surface at

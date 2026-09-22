@@ -179,29 +179,31 @@ def require_processing(summary: dict) -> None:
                 raise RuntimeError(f"{metrics['case']}: {check} failed; see retained evidence")
 
 
-def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) -> dict:
-    verify_sources(data, include_external=True)
-    import hatanaka
-    import numpy as np
 
-    from geocomp.engines.rtklib import RtklibConfig, RtklibEngine, RtklibJob
+def _prepare_sessions(work: Path, data: Path, reference: dict) -> dict:
+    """Decompress both days into *work* and discover their sessions.
+
+    Shared by :func:`run_all` and :func:`sweep_elevation_mask` so the two see
+    exactly the same inputs: a sweep that prepared its data differently would
+    not be comparable with the cases it is meant to explain.
+    """
+    import hatanaka
+
     from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 
-    work = output.resolve()
-    work.mkdir(parents=True, exist_ok=True)
-    engine = RtklibEngine(configured=executable)
     sources = data / "sources"
-    antenna_file = work / "ngs20.atx"
-    antenna_file.write_bytes(gzip.decompress((sources / "ngs20.atx.gz").read_bytes()))
     sessions_by_day = {}
     for day in (1, 2):
         inputs = work / f"inputs_{day:03d}"
-        inputs.mkdir(exist_ok=True)
+        inputs.mkdir(parents=True, exist_ok=True)
         for station in ("godn", "gods"):
             name = f"{station}{day:03d}0.25"
-            (inputs / f"{name}o").write_bytes(hatanaka.decompress((sources / f"{name}d.gz").read_bytes()))
+            target = inputs / f"{name}o"
+            if not target.is_file():
+                target.write_bytes(hatanaka.decompress((sources / f"{name}d.gz").read_bytes()))
         nav = f"brdc{day:03d}0.25n"
-        (inputs / nav).write_bytes(gzip.decompress((sources / f"{nav}.gz").read_bytes()))
+        if not (inputs / nav).is_file():
+            (inputs / nav).write_bytes(gzip.decompress((sources / f"{nav}.gz").read_bytes()))
         scan = scan_folder(inputs)
         if scan.skipped or scan.warnings or len(scan.sessions) != 2:
             raise ValueError(f"Session discovery was not clean: {scan}")
@@ -211,6 +213,123 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         for station, session in sessions_by_day[day].items():
             if session.antenna != reference["stations"][station]["antenna_type"]:
                 raise ValueError(f"Unexpected antenna: {station}: {session.antenna}")
+    return sessions_by_day
+
+#: Elevation masks the diagnostic sweep uses. Chosen to straddle the point where
+#: the two days stop disagreeing: below 25 degrees they differ by up to 11 mm in
+#: east, at and above it they agree to a fifth of a millimetre.
+SWEEP_MASKS = (10.0, 15.0, 20.0, 25.0, 30.0, 35.0)
+
+
+def sweep_elevation_mask(
+    output: Path, executable: Path, reference: dict, data: Path = DATA,
+    *, calibrated: bool = True, masks: tuple[float, ...] = SWEEP_MASKS,
+) -> dict:
+    """Separate the low-elevation error from whatever is under it.
+
+    A coordinate-reference error is invariant under the elevation mask; a
+    multipath or antenna phase-centre error is not, because raising the mask
+    discards exactly the observations that carry it. Running both days across a
+    range of masks therefore splits the discrepancy into a part that depends on
+    which satellites were used and a part that does not -- which is what
+    ``specs/22`` section 5 needs in order to attribute it.
+
+    Returns a summary with one row per (day, mask), each carrying the local
+    east/north/up error so the two components are readable directly.
+    """
+    import numpy as np
+
+    from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, ecef_to_enu
+    from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
+    from geocomp.engines.rtklib import RtklibConfig, RtklibEngine, RtklibJob
+    from geocomp.engines.rtklib.baseline import baseline_from_solution
+
+    work = output.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    engine = RtklibEngine(configured=executable)
+    sessions_by_day = _prepare_sessions(work, data, reference)
+
+    # Decompressed here rather than assumed present. The first version of this
+    # expected `run_all` to have left the file behind, which it does -- in *its*
+    # output directory, not the sweep's. Under `continue-on-error` that surfaced
+    # as a step which "succeeded" in two seconds having done nothing, which is
+    # the failure mode this whole script exists to refuse elsewhere.
+    antenna_file = None
+    if calibrated:
+        archive = data / "sources" / "ngs20.atx.gz"
+        if not archive.is_file():
+            raise FileNotFoundError(
+                f"{archive} is required for a calibrated sweep; run --fetch-inputs, "
+                "or use --sweep-uncalibrated where its host is unreachable"
+            )
+        antenna_file = work / "ngs20.atx"
+        antenna_file.write_bytes(gzip.decompress(archive.read_bytes()))
+
+    expected = np.array(reference["expected_baseline_GODN_to_GODS_m"])
+    origin = reference["stations"]["GODN"]["arp_xyz_m_epoch_2020"]
+    latitude, longitude, _ = cartesian_to_geodetic(*origin, ELLIPSOIDS["GRS80"])
+
+    rows = []
+    for day in (1, 2):
+        for mask in masks:
+            extra = {
+                "ant1-antdele": "0", "ant1-antdeln": "0", "ant1-antdelu": "0",
+                "ant2-antdele": "0", "ant2-antdeln": "0", "ant2-antdelu": "0",
+                "pos1-tidecorr": "1", "pos1-dynamics": "off",
+            }
+            if calibrated:
+                extra |= {
+                    "ant1-anttype": reference["stations"]["GODS"]["antenna_type"],
+                    "ant2-anttype": reference["stations"]["GODN"]["antenna_type"],
+                    "file-rcvantfile": str(antenna_file),
+                    "file-satantfile": str(antenna_file),
+                    "pos1-posopt2": "on",
+                }
+            config = RtklibConfig(
+                name=f"sweep_{day:03d}_{mask:g}", output_format="xyz",
+                base_position_type="xyz", elevation_mask=mask,
+                base_position=tuple(official_position(reference, "GODN", day)),
+                extra=extra,
+            )
+            job = RtklibJob(rover=sessions_by_day[day]["GODS"],
+                            base=sessions_by_day[day]["GODN"],
+                            config=config, timeout=600)
+            result = engine.run(job, work_dir=work / config.name)
+            baseline = baseline_from_solution(
+                result.solution, base_station="GODN", rover_station="GODS"
+            )
+            error = np.array([q.value for q in baseline.components]) - expected
+            east, north, up = (v * 1000 for v in ecef_to_enu(tuple(error), latitude, longitude))
+            rows.append({
+                "day": day, "elevation_mask_deg": mask, "calibrated": calibrated,
+                "error_enu_mm": [east, north, up],
+                "horizontal_mm": math.hypot(east, north),
+                "error_3d_mm": math.sqrt(east * east + north * north + up * up),
+                "fixed_fraction": result.solution.fixed_fraction,
+            })
+            print(f"day {day:03d} mask {mask:4g} deg: "
+                  f"E {east:7.3f}  N {north:7.3f}  U {up:7.3f}  "
+                  f"3D {rows[-1]['error_3d_mm']:6.3f} mm", flush=True)
+
+    summary = {"dataset_id": reference["dataset_id"], "calibrated": calibrated, "rows": rows}
+    (work / "sweep.json").write_text(json.dumps(summary, indent=2) + "\n")
+    return summary
+
+
+def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) -> dict:
+    verify_sources(data, include_external=True)
+    import hatanaka
+    import numpy as np
+
+    from geocomp.engines.rtklib import RtklibConfig, RtklibEngine, RtklibJob
+
+    work = output.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    engine = RtklibEngine(configured=executable)
+    sources = data / "sources"
+    antenna_file = work / "ngs20.atx"
+    antenna_file.write_bytes(gzip.decompress((sources / "ngs20.atx.gz").read_bytes()))
+    sessions_by_day = _prepare_sessions(work, data, reference)
     orbit_name = "IGS0OPSFIN_20250010000_01D_15M_ORB.SP3"
     orbit = work / orbit_name
     orbit.write_bytes(gzip.decompress((sources / f"{orbit_name}.gz").read_bytes()))
@@ -295,6 +414,17 @@ def main() -> int:
     parser.add_argument(
         "--verify-inputs", action="store_true", help="Verify frozen sources without an engine"
     )
+    parser.add_argument(
+        "--sweep", action="store_true",
+        help="Diagnostic: solve both days across a range of elevation masks and report "
+             "the east/north/up error of each, instead of running the five cases",
+    )
+    parser.add_argument(
+        "--sweep-uncalibrated", action="store_true",
+        help="Sweep without the antenna calibration. The only sweep available where the "
+             "NGS ANTEX host is unreachable; the uncalibrated day-001 result sits 0.2 mm "
+             "from the calibrated one, so it still attributes a millimetre-level error",
+    )
     args = parser.parse_args()
     if args.fetch_inputs:
         fetch_sources()
@@ -307,6 +437,11 @@ def main() -> int:
     from geocomp.engines.rtklib import RtklibEngine
 
     version = require(RtklibEngine(configured=args.engine).version(), engine="rnx2rtkp", operation="RD-06")
+    if args.sweep or args.sweep_uncalibrated:
+        sweep_elevation_mask(
+            args.output, version.path, reference, calibrated=not args.sweep_uncalibrated
+        )
+        return 0
     summary = run_all(args.output, version.path, reference)
     try:
         require_accuracy(summary["cases"][1], reference)
