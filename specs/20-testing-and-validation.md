@@ -178,14 +178,26 @@ Bit-identical reproducibility requires: deterministic iteration order, explicit 
 ordering, no reliance on set or dictionary ordering for numeric outcomes, and pinned engine versions
 recorded in provenance.
 
-**RD-06's known discrepancy stays visible.** The frozen official sources and coordinate transcription
-are checked offline on every commit. With `rnx2rtkp` and the test-only Hatanaka decompressor available,
-`tests/test_rd06.py` runs the current development code against all five configurations and checks full-day
-coverage and byte reproducibility. The single primary accuracy assertion is a strict, exception-specific
-expected failure locally; engine CI uses `--runxfail` and **fails while the criterion remains unmet**.
-Processing errors are not expected failures. The standalone `scripts/check_rd06.py` also returns failure
-for the accuracy mismatch and retains evidence. This changes neither §6 nor the GNSS acceptance criterion;
-the 1 mm comparison is the documented conservative interpretation of the source's printed precision.
+**RD-06's known discrepancy stays visible.** The frozen official sources, the coordinate transcription,
+the antenna-epoch guard and the sheets' own phase-centre self-consistency are checked offline on every
+commit. With `rnx2rtkp` and the test-only Hatanaka decompressor available, `tests/test_rd06.py` runs the
+current development code against every configuration and checks full-day coverage and byte
+reproducibility. The single primary accuracy assertion is a strict, exception-specific expected failure
+locally; engine CI uses `--runxfail` and **fails while the criterion remains unmet**. Processing errors
+are not expected failures. The standalone `scripts/check_rd06.py` also returns failure for the accuracy
+mismatch and retains evidence.
+
+**There is still no GNSS numerical threshold in this section, and that is a decision rather than an
+omission** (23 September 2026). One was derived and not adopted. The measured repeatability of the
+estimator — 62 solutions per baseline across two days at session lengths from one hour to a full day — is
+**0.38 / 0.54 / 1.47 mm** per component in east, north and up, and the scatter barely improves with
+session length. A threshold derived from that is about 1 mm horizontally, which is the number the borrowed
+printed-precision rule already gives: the rule was the right order of magnitude for the wrong reason, and
+no value derived from *this* side of the comparison changes the outcome. The quantity that would decide it
+is the reference's own uncertainty, and the NGS coordinate sheets publish none.
+[`22`](./22-reference-data-sources.md) §5.2 records the derivation, the decision and what would close it.
+Until then the 1 mm comparison stands as the documented conservative interpretation of the source's
+printed precision, and the check stays red.
 
 ## 7. CI matrix
 

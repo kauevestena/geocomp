@@ -112,6 +112,34 @@ Reproducible with those flags alone, on RTKLIB's own sample data. GeoComp's RINE
 therefore tested against a fixture transcribed from the published format definition, and
 `tests/data/rtklib/PROVENANCE.md` says so rather than letting a transcript pass for a tool's output.
 
+### 2.3 The time window is the one option with no configuration key [V]
+
+`RtklibJob.window` writes `-ts` and `-te`. It is a flag because RTKLIB's option table has no equivalent
+key, which means a window is recorded in provenance **only** through the command line — so the command
+line is stored whole rather than summarised. It is what lets a session be solved in parts: the RD-06
+repeatability measurement in [`22`](./22-reference-data-sources.md) §5.1 splits two full days into hours
+and takes the scatter of the results.
+
+Two traps, both silent:
+
+- **The date separator is a slash.** `rnx2rtkp` reads the bound with `sscanf("%lf/%lf/%lf")`, so an ISO
+  `2025-01-01` parses as the year alone and the window becomes "2025, from January the first" — every
+  epoch selected, no error, no warning.
+- **Both bounds are GPST calendar labels, not UTC.** The engine compares them against observation times,
+  which are GPST; so is `TIME OF FIRST OBS` in a GPS RINEX header and so are the labels the `.pos` reader
+  returns. All four carry `tzinfo=UTC` for arithmetic and none of them is UTC. Converting one moves it by
+  the leap seconds and selects a different interval, with nothing in the output to say so.
+
+**Both bounds are inclusive.** `-te` selects the epoch that lands on it, so 06:00:00 to 07:00:00 at a
+30 s interval returns 121 epochs, not 120, and two consecutive windows written from the same instant
+share one. Measured, not read: the manual says nothing about it. A caller splitting a session into
+disjoint parts ends each window one interval short.
+
+A window that selects nothing is **refused rather than run**, because the engine's report of it is
+indistinguishable from unusable observations: exit zero, a header, no records. So is a bound without
+`tzinfo`, which would otherwise fail as a `TypeError` from comparing it against the session's own
+times — an error that says nothing about which of the caller's two numbers is wrong.
+
 ---
 
 ## 3. Risk: PPP capability (FR-604)

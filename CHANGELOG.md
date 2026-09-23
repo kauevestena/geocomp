@@ -5,6 +5,92 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7d — RD-06, attributed
+
+The 7.5 mm had been narrowed to "two errors, one of them bounded" and left
+there. It is now attributed to two named causes, one of which was a bad reading
+of the earlier evidence, and the reference case is rebuilt so the attribution is
+a test rather than a paragraph. The accuracy criterion is still unmet, and what
+it is failing on is now written down.
+
+#### Added
+
+- **A processing time window on the RTKLIB adapter** (FR-354, FR-355):
+  `RtklibJob.window` writes `-ts`/`-te`. `specs/08` §2 had listed those flags as
+  verified since P7a and the adapter never had them, so a session could not be
+  solved in parts — which is exactly what the attribution needed. Two traps are
+  recorded in `specs/08` §2.3 because both are silent: the date separator is a
+  slash, since `rnx2rtkp` parses it with `sscanf("%lf/%lf/%lf")` and reads an ISO
+  `2025-01-01` as the year alone; and both bounds are **GPST calendar labels**,
+  not UTC, so converting one moves it by the leap seconds and selects a different
+  interval. A window that selects nothing is refused rather than run, because the
+  engine reports that identically to unusable observations.
+- **The sub-session repeatability measurement**
+  (`scripts/check_rd06.py --repeatability`): 62 solutions per baseline, each day
+  whole and in halves, quarters and hours. Sub-daily because **GPS geometry
+  repeats every sidereal day** — two consecutive days see nearly the same sky, so
+  their agreement bounds the day-to-day *change* in a geometry-driven error
+  rather than the error itself. Engine CI runs it calibrated on every engine run
+  and retains `repeatability.json`.
+- **An antenna-epoch guard on the reference data**: a comparison against a
+  station whose current antenna postdates the epoch of its published coordinate
+  is refused, checked offline on every commit from the vendored site log. GODS is
+  retained and explicitly exempted as the counter-case, and the guard verifies
+  the exemption is still *earned*, so it cannot outlive the defect it names.
+- **GODE in the RD-06 bundle**, 65.163 m from GODN, with the sheets, site log and
+  two days of observations pinned by hash from the reachable NODD mirror.
+
+#### Changed
+
+- **The RD-06 accuracy criterion is judged on GODN–GODE, not GODN–GODS**, and
+  GODS is kept as the counter-case. One base, two rovers, one day, one
+  configuration: only GODS's antenna changed after its coordinate's epoch, and
+  only GODS is several millimetres out in north. `specs/22` §5.1 has the numbers
+  and `tests/test_rd06.py` fails if the counter-case ever stops showing it.
+- **`specs/22` §5's attribution is corrected.** The "low-elevation error of up to
+  11 mm in east" is not a gradient: it is **one hour**, 11:00–12:00 on 2025-001,
+  whose unvalidated ambiguity fix the 24-hour static filter carries to the end of
+  the day. The ≥25° mask removed it by dropping the satellite that caused it,
+  which is why the mask sweep could not tell the two readings apart. The
+  superseded reading is marked rather than deleted.
+- **`specs/20` §6 still defines no GNSS threshold, now as a decision.** One was
+  derived from the measured repeatability — 0.38 / 0.54 / 1.47 mm per component,
+  and the scatter barely improves with session length — and it lands on the 1 mm
+  the borrowed printed-precision rule already gives. Nothing on GeoComp's side
+  decides the criterion; the reference's unpublished uncertainty does.
+
+#### Found, and recorded rather than worked around
+
+- **A wrong integer fix does not enlarge RTKLIB's formal covariance.** A 22 mm
+  error reports a 1.08 mm 3D standard deviation; an 872 mm error reports 7.6 mm.
+  The ambiguity validation ratio is the only indicator that moves, and
+  `fixed_fraction` alone is not enough — the 89 mm solution has a fixed fraction
+  of 0.936, which looks ordinary. This is why FR-603 carries the ratio.
+- **`rnx2rtkp`'s `-te` is inclusive**: 06:00 to 07:00 at 30 s returns 121 epochs,
+  not 120, so disjoint windows end one interval short. Measured, not read — the
+  manual says nothing about it.
+- **NGS's own sheets contradict themselves**, measurably and from published bytes
+  alone: an L1 phase-centre offset is vertical by construction, yet GODS's two
+  published positions differ horizontally by 1.97 mm where GODN's differ by
+  0.21 mm. It is a lower bound on the reference's uncertainty, and the only one
+  available, because the sheets print no covariance at all.
+- **Baseline length dominates at this processing configuration.** Screening all
+  2886 CORS site logs found 1263 stations with one antenna spanning the
+  coordinate epoch and 692 of those with both days available; every same-antenna
+  pair longer than 4 km errs by 13 to 47 mm. GGAO's 65 m baseline is the shortest
+  clean one in the network, which is why the site did not change.
+
+#### Still not met
+
+- **RD-06's accuracy criterion.** On the clean pair the best day is 2.02 mm in 3D
+  uncalibrated, against 7.04 mm for the counter-case, and still over the 1 mm
+  per-component comparison. The residual is vertical and the two antennas are
+  different types, which is where a differential phase-centre offset sits — so
+  the calibrated number decides it, and only engine CI can produce it.
+  `geodesy.noaa.gov`, which serves `ngs20.atx`, answers 403 to CONNECT from the
+  development environment, as do `files.igs.org`, `igs.bkg.bund.de`,
+  `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+
 ### P7c — the GNSS surface
 
 The menu `specs/11` §1 draws, the eight algorithms behind it, the two result

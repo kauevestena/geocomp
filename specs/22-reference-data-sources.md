@@ -295,111 +295,162 @@ and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 ## 5. RD-06 — data obtained, accuracy unmet **[V]**; RD-07 and RD-08 still to assemble **[C]**
 
 **RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
-environment. The reproducible evidence bundle, now integrated into `tests/data/rd06/`, contains two complete
-days (2025-001 and 2025-002) for the NASA Goddard stations **GODN and GODS**, from the
-[official NOAA archive](https://geodesy.noaa.gov/CORS/data.shtml). The independent expected results come from
-the **ITRF2020, epoch 2020.0, ARP** blocks of NGS's
-[GODN coordinate sheet](https://geodesy.noaa.gov/corsdata/coord/coord_20/godn_20.coord.txt) and
-[GODS coordinate sheet](https://geodesy.noaa.gov/corsdata/coord/coord_20/gods_20.coord.txt), not from RINEX
-approximate positions or an earlier RTKLIB result. Their published velocities are applied at the observation
-epoch. The expected GODN-to-GODS vector is **(-8.568, -50.426, -56.237) m**.
+environment. The reproducible evidence bundle, integrated into `tests/data/rd06/`, contains two complete
+days (2025-001 and 2025-002) for the NASA Goddard stations **GODN, GODE and GODS**, from the
+[official NOAA archive](https://geodesy.noaa.gov/CORS/data.shtml). The independent expected results come
+from the **ITRF2020, epoch 2020.0, ARP** blocks of NGS's coordinate sheets for
+[GODN](https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/godn_20.coord.txt),
+[GODE](https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gode_20.coord.txt) and
+[GODS](https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gods_20.coord.txt), not from RINEX
+approximate positions or an earlier RTKLIB result. All three stations carry **identical published
+velocities**, so the five-year propagation to the observation epoch contributes exactly nothing to either
+baseline and cannot be a source of error in it.
 
 The frozen data records the sources, redistribution terms, hashes, complete observations, navigation,
-station logs, NGS IGS20 antenna calibration and IGS final orbit. The original experiment used GeoComp commit
-`bb2e2d595dab717d65bbc2c7ab1408d5f6b9ae74` against the existing pinned RTKLIB-EX build. Its primary `.pos`
-and measured results are retained as history, not expected truth. `scripts/check_rd06.py` and
-`tests/test_rd06.py` now process the **current working tree**, retaining configurations, outputs and metrics.
+station logs, NGS IGS20 antenna calibration and IGS final orbit. `scripts/check_rd06.py` and
+`tests/test_rd06.py` process the **current working tree**, retaining configurations, outputs and metrics.
 [`PROVENANCE.md`](../tests/data/rd06/PROVENANCE.md) documents the complete reproduction and reuse terms.
+Everything except `ngs20.atx` is served by `noaa-cors-pds.s3.amazonaws.com`, which is reachable from the
+development environment and serves bytes identical to `geodesy.noaa.gov`'s, checked by hash.
 
-**The accuracy criterion remains unmet.** Section 6 of [`20`](./20-testing-and-validation.md) defines
-printed-source precision but no separate GNSS numeric threshold. Applying the coordinate sheets' **1 mm
-printed XYZ precision** conservatively, the calibrated day-001 result fails: XYZ errors are
-**(+6.452, -2.401, -3.008) mm**, 3D error **7.512 mm**. Day 002 also fails; a reciprocal baseline reverses
-the discrepancy, and an IGS20 final orbit changes the day-001 result by only about 0.1 mm. All five
-configurations reproduced their complete `.pos` bytes on a same-path rerun. Reproducibility, ambiguity fixing
-and small formal covariance do not turn this discrepancy into a passing accuracy result. No tolerance or
-exit criterion is changed, and the remaining millimetre discrepancy is not yet attributed to a specific defect.
+### 5.1 The discrepancy, attributed [V]
 
-**The discrepancy is now attributed, and it is two things, not one** (phase P7b follow-up,
-20 September 2026). `scripts/check_rd06.py --sweep` solves both days across elevation masks from 10°
-to 35°. A coordinate-reference error is invariant under the mask; a multipath or antenna
-phase-centre error is not, because raising the mask discards the observations that carry it. The two
-separate cleanly:
+**Superseded reading.** Until 23 September 2026 this section attributed the discrepancy to two things: "a
+low-elevation error of up to 11 mm in east" and "a stable ~6.9 mm underneath it". The elevation-mask sweep
+that produced that reading is sound and its numbers stand, but **the first half of the conclusion drawn
+from it was wrong**, and the second half was attributed to the reference without naming a mechanism. Both
+are corrected below. The sweep could not distinguish "raising the mask removes low-elevation multipath"
+from "raising the mask removes the one satellite that caused a bad ambiguity fix in one hour"; splitting
+the days into sub-sessions can, and does.
 
-| Elevation mask | E mm | N mm | U mm | 3D mm | spread across the 6 solutions |
+#### The east term is one bad hour, not a gradient
+
+`scripts/check_rd06.py --repeatability` solves each day whole and in halves, quarters and hours — 62
+solutions per baseline. It exists because **GPS geometry repeats every sidereal day**, so two consecutive
+days see nearly the same sky and any geometry-driven error repeats with them: their agreement bounds the
+day-to-day *change* in that error, not the error. Sub-daily solutions break the repetition.
+
+They show that on 2025-001 a single hour, **11:00–12:00 GPST**, fails ambiguity resolution outright, and
+that the 24-hour static filter carries its wrong fix to the end of the day:
+
+| Solution (GODN–GODS, mask 15°, uncalibrated) | E mm | N mm | U mm | ratio | status |
 |---|---|---|---|---|---|
-| **below 25°** (6 solutions) | +4.13 | −5.43 | +1.49 | 7.98 | **11.4 mm in east** |
-| **25° and above** (6 solutions) | +1.49 | −6.27 | +1.89 | **6.72** | **0.29 mm in east, 0.14 mm in north** |
+| 2025-001, 11:00–12:00 (1 h) | +871.8 | +452.7 | −569.2 | **1.0** | FLOAT |
+| 2025-001, 06:00–12:00 (6 h) | +88.6 | +12.5 | −16.2 | **1.6** | FLOAT |
+| 2025-001, 00:00–12:00 (12 h) | +22.1 | −1.5 | +0.1 | **2.1** | FLOAT |
+| 2025-001, 12:00–24:00 (12 h) | +1.6 | −6.4 | +3.2 | 102.8 | FIXED |
+| 2025-001, whole day | **+6.3** | −4.3 | +1.5 | 11.6 | FIXED |
+| 2025-002, whole day | +0.8 | −6.5 | +2.5 | 120.1 | FIXED |
 
-1. **A low-elevation error of up to 11 mm in east.** This is the whole of the day-to-day variation.
-   At a 10° mask the two days disagree by 11.4 mm in east; at 25° and above they agree to **0.14 mm
-   in north and 0.29 mm in east**. Two independent 24-hour days at three masks converging on one
-   answer to under a fifth of a millimetre is not a coincidence, and nothing but the low-elevation
-   observations distinguishes the cases. GODN and GODS carry **different antenna types**
-   (`TPSCR.G3` and `JAVRINGANT_DM`) 76 m apart, and the NGS coordinate sheet itself warns that
-   *"mixing of antenna types can lead to errors of up to 10 cm"* — an uncorrected phase-centre
-   variation, with site multipath, is exactly an error that grows towards the horizon and averages
-   differently on each day.
+Excluding that hour, day 001 gives **E +1.58 (00:00–11:00) and +1.55 (12:00–24:00)** — the same answer as
+day 002 and as the ≥25° mask sweep. **The "11.4 mm spread in east" is that hour, and the high mask removed
+it by dropping the satellite that caused it.** Raising the mask is therefore not the fix; detecting the
+interval is.
 
-2. **A stable ~6.9 mm underneath it, dominated by −6.7 mm in north**, which every high-mask solution
-   on both days agrees on, calibrated or not. This is the part that is *not* explained by which
-   satellites were used — see below for what it survives and what that leaves.
+**The engine's own covariance does not see any of this.** The 22 mm solution reports a **1.08 mm** formal
+3D standard deviation, and the 872 mm one reports 7.6 mm. A wrong integer fix is not a large residual — it
+is a different answer, held confidently. The **ambiguity validation ratio is the only indicator that
+moves**, and this is why `Baseline` carries it (FR-603) and why `PosSolution.fixed_fraction` alone is not
+enough: the 89 mm solution has a fixed fraction of 0.936, which looks ordinary.
 
-Two further facts bound what (2) can be. It is **not** the reference point: the sheets publish both
-the ARP and the L1 phase centre, and the two baselines differ by only (+1.9, +0.5, +1.0) mm, so the
-ARP convention is right and switching to L1PC would not help. It is **not** the orbits: an IGS20
-final orbit moves day 001 by 0.05 mm. And it is **not** internal inconsistency: reversing base and
-rover negates the vector to 4 µm.
+#### The north term is the reference, and the mechanism is an antenna change
 
-**The residual is not the antennas.** The sweep above is the *uncalibrated* configuration, because
-`geodesy.noaa.gov`, which serves `ngs20.atx`, is denied by the development environment's egress
-policy (403 on CONNECT) while `noaa-cors-pds.s3.amazonaws.com`, which serves the observations,
-navigation and orbits, is reachable. Engine CI has both, so the **calibrated** sweep now runs there
-on every engine run, and it answers (2):
+Of the 62 GODN–GODS solutions, the **56 that are ambiguity-fixed with a validation ratio ≥ 20** give:
 
-| mask ≥ 25°, 6 solutions | E mm | N mm | U mm | 3D mm |
+| | E mm | N mm | U mm |
+|---|---|---|---|
+| mean error | +1.35 | **−6.37** | +1.87 |
+| standard deviation | 0.38 | 0.54 | 1.47 |
+
+The scatter barely improves with session length — the robust scaling exponent is ≈ 0 where averaging white
+noise would give 0.5 — so **a one-hour baseline over 76 m is as repeatable as a twenty-four-hour one**, and
+the −6.4 mm north is a floor, not noise. It is 12σ. No processing choice removes it: not the mask from 25°
+to 35°, not two independent days, not the NGS absolute calibration of both antennas, not IGS20 final orbits
+and clocks, not reversing base and rover.
+
+**GODS's antenna changed on 2020-09-03** — eight months *after* the 2020.0 epoch of the coordinate it is
+compared against, and inside the data span (through GPS week 2295) the coordinate was computed from. NGS's
+own [MYCS3 page](https://geodesy.noaa.gov/CORS/news/mycs3/mycs3.shtml) states that *"antenna changes cause
+noticeable jumps in the coordinate time series creating discontinuities ranging from a few mm to several
+centimeters."* So the published position describes an instrument these observations are not of.
+
+Two further facts from the published sheets alone, with nothing assumed:
+
+- **GODS's sheet contradicts itself by 1.97 mm in east.** Each sheet publishes the same monument twice, at
+  the ARP and at the L1 phase centre. An L1 offset is vertical by construction: two verticals 76 m apart
+  diverge by 1.2e-5 radians, so 85 mm of offset projects to under a micrometre sideways. GODN's two
+  positions differ horizontally by **0.21 mm**; GODS's by **1.99 mm**. It is a *lower* bound — an error
+  common to both of a station's coordinates cancels in this difference — and it is the only bound on the
+  reference's uncertainty available, because the sheets print no covariance at all.
+- **It is not the reference point convention.** Comparing the solution against the published L1PC baseline
+  instead of the ARP one is worse, 6.8 mm against 1.8 mm on the best day. ARP is right.
+
+#### The controlled experiment
+
+The reading above is testable rather than arguable, and `tests/test_rd06.py` tests it. **One base, two
+rovers, one day, one configuration.** GODE sits 65.163 m from GODN; its antenna was installed 2013-01-30
+and has never been removed, so its published coordinate and these observations describe the same
+instrument. GODS sits 76.018 m away and changed antenna after its coordinate's epoch. Only one of them
+should be several millimetres out in north:
+
+| Day (mask 15°, uncalibrated) | GODN→GODE N mm | GODN→GODS N mm | GODE 3D mm | GODS 3D mm |
 |---|---|---|---|---|
-| uncalibrated | +1.49 | −6.27 | +1.89 | 6.72 |
-| **calibrated** (NGS `ngs20.atx`, receiver PCV on) | **+0.93** | **−6.74** | **+1.38** | **6.94** |
-| difference | −0.56 | −0.47 | −0.51 | — |
+| 2025-001 | +2.48 | −4.28 | 5.76 | 7.75 |
+| 2025-002 | **+0.65** | **−6.53** | **2.02** | 7.04 |
+| 2025-003 | +3.09 | −4.08 | 6.91 | 7.75 |
+| 2025-004 | +1.09 | −6.67 | 2.20 | 7.14 |
 
-**Full antenna calibration moves the residual by about half a millimetre per component, and does not
-remove it** — the north term grows slightly rather than shrinking. The calibrated solutions agree
-across two days and three masks to 0.14 mm in north, as tightly as the uncalibrated ones. So the
-stable ~6.9 mm survives, in order: the elevation mask from 25° to 35°, two independent observation
-days, the NGS absolute antenna calibration of both mixed antenna types, IGS20 final orbits and
-clocks, and reversal of base and rover.
+GODS is 4 to 6.7 mm out in north on **every** day; GODE never is. Days 001 and 003 are the days whose
+validation ratios are low (7.9 and 20.2 against 97.2 and 1.7/FLOAT), consistent with the contaminated
+interval above. **The station whose reference describes a different antenna is the station that misses its
+published baseline.**
 
-**What that leaves.** Every processing effect this project can control has now been varied and none
-of them is it. The remaining candidate is the reference itself: the expected baseline is the
-*difference of two independently estimated* NGS ITRF2020 ARP coordinates, and each carries its own
-uncertainty from a multi-year network solution that the coordinate sheets do not publish. A 6.7 mm
-north disagreement between that difference and a single-day double-differenced baseline is
-consistent with that uncertainty. **This is stated as what remains after elimination, not as a
-measurement**: nothing here bounds NGS's coordinate uncertainty independently, and doing so would
-need either their published covariance or a third station on the same monument network.
+`scripts/check_rd06.py` now **refuses** a comparison against a station whose current antenna postdates its
+coordinate epoch, checked offline on every commit from the vendored site log. GODS is retained and
+explicitly exempted as the counter-case, and the guard verifies that the exemption is still earned, so it
+cannot outlive the defect it was written for.
 
-**No tolerance and no exit criterion changes on the strength of this.** The 1 mm threshold remains a
-printed-source-precision rule borrowed for want of a GNSS one, and `20` section 6 still defines no
-GNSS threshold. But the case for deriving one is now evidential rather than speculative: a criterion
-that survives calibration, orbits, masks, days and reversal unchanged is not measuring the pipeline.
-**That derivation is a decision for the maintainer**, and the accuracy check stays red until it is
-taken.
+### 5.2 The accuracy criterion, and why a threshold was not derived [V]
 
-**No tolerance and no exit criterion changes on the strength of this.** The 1 mm threshold remains a
-printed-source-precision rule borrowed for want of a GNSS one, and `20` section 6 still defines no
-GNSS threshold; deriving one belongs with the answer to (2), not before it.
+**The criterion remains unmet, and the bundle now says what it is failing on.** With the clean pair, the
+best day's error against the published baseline is **XYZ (−0.6, +1.8, −0.7) mm, 2.02 mm in 3D**,
+uncalibrated — against 7.04 mm for the counter-case on the same day. It still exceeds the 1 mm
+per-component comparison, and the residual is **vertical**, which is where an uncorrected differential
+antenna phase-centre offset lives: GODN and GODE carry different antenna types. Only the calibrated run
+settles that number, and only engine CI can produce it — `geodesy.noaa.gov`, which serves `ngs20.atx`, is
+denied by the development environment's egress policy (403 on CONNECT), as are `files.igs.org`,
+`igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+
+**A GNSS numerical threshold was derived and then deliberately not adopted**, at the maintainer's decision
+of 23 September 2026. The derivation is recorded because its outcome is the point: the estimator's measured
+repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from *this side* of the
+comparison is about 1 mm horizontally — **the number already in use**. The borrowed printed-precision rule
+was the right order of magnitude for the wrong reason, and tightening or loosening it settles nothing,
+because the quantity that would decide the comparison is the reference's own uncertainty and the sheets
+publish none. [`20`](./20-testing-and-validation.md) §6 therefore still defines no GNSS threshold, and the
+accuracy check stays red.
+
+**What would close it.** A reference whose uncertainty is published — the IGS cumulative SINEX carries the
+covariance behind these very coordinates — or a station pair short enough for everything to cancel whose
+sheets do not contradict themselves. All 2886 CORS site logs were screened for the second: 1263 stations
+carry one antenna installed before the 2020.0 epoch and never removed, 692 of those have both days on the
+reachable bucket, and **every same-antenna-type pair longer than 4 km errs by 13 to 47 mm** under this
+processing configuration, which is why the site did not change. GGAO's 65 m baseline is the shortest clean
+one available anywhere in the network.
+
+### 5.3 What the check enforces [V]
 
 Only the primary accuracy assertion is a strict, exception-specific expected failure during local
 development. CI runs it with `--runxfail`, so **the engine accuracy check stays red** while this criterion
-is unmet. Source-integrity, processing, complete-day coverage and reproducibility checks must pass normally;
-missing engine/decompression prerequisites fail in CI. The standalone checker exits 1 on the discrepancy.
+is unmet. Source integrity, the antenna-epoch guard, the phase-centre self-consistency measurement,
+processing, complete-day coverage and reproducibility must pass normally; missing engine or decompression
+prerequisites fail in CI. The standalone checker exits 1 on the discrepancy.
 
 **Repository delivery.** Coordinate sheets, station logs, policy snapshots and a losslessly compressed
 primary output are vendored. Larger processing inputs are obtained explicitly with
 `python3 scripts/check_rd06.py --fetch-inputs --verify-inputs`; original source hashes are enforced before
 use. Engine CI performs this acquisition before testing, while ordinary offline checks need no download.
-Changed upstream files are refused. The original evidence bundle remains the full frozen copy.
+Changed upstream files are refused.
 
 The following records the original source search and environmental blocker, retained as history.
 

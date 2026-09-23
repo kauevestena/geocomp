@@ -230,7 +230,8 @@ jobs:
       # the uncalibrated configuration. Here the calibration is present, and a
       # calibrated sweep at a high elevation mask is what separates residual antenna
       # calibration from a real disagreement with the published coordinates
-      # (specs/22 section 5).
+      # (specs/22 section 5). It sweeps GODN-GODS, the counter-case it was
+      # written to explain, not the baseline the criterion is judged on.
       #
       # It exits zero whatever the numbers say -- it reports, it does not judge --
       # so the only way it fails is a bug in the diagnostic itself, and that should
@@ -239,6 +240,16 @@ jobs:
       - name: RD-06 diagnostic — the calibrated elevation-mask sweep
         if: always()
         run: python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
+
+      # The measurement the tolerance question rests on, and the one the
+      # development environment can only run uncalibrated. It splits both days
+      # into halves, quarters and hours: GPS geometry repeats every sidereal
+      # day, so two whole days conceal exactly the error this exposes, and it
+      # is how the contaminated hour of 2025-001 was found. Reports, does not
+      # judge -- so a failure here is a bug in the diagnostic.
+      - name: RD-06 diagnostic — the calibrated sub-session repeatability
+        if: always()
+        run: python3 scripts/check_rd06.py --repeatability --output build/rd06-repeatability
 
       - name: Retain RD-06 configurations, solutions, logs and metrics
         if: always()
@@ -253,4 +264,5 @@ jobs:
             build/rd06/metrics.json
             build/rd06/junit.xml
             build/rd06-sweep/sweep.json
+            build/rd06-repeatability/repeatability.json
           if-no-files-found: warn

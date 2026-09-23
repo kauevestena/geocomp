@@ -399,6 +399,10 @@ is correctly identified. Antenna height reduction applied twice is prevented. A 
 completes and reports it. No credential appears in any log, config, provenance record or export. PPP modes
 show the FR-604 notice.
 
+**Status: one criterion open.** Everything above is met except the first, and P7d attributes what it is
+failing on rather than leaving it unexplained — see the P7d table below. The remaining gap is in the
+reference, not the pipeline.
+
 ### P7a — the foundation: RINEX in, a real baseline out
 
 **Delivered.** The phase was split after its first slice, at the maintainer's decision: P7 closes seventeen
@@ -537,6 +541,60 @@ permutes, and swaps the north and east sigmas while leaving every number plausib
 egress policy still held. It does: `igs.bkg.bund.de` and `geoftp.ibge.gov.br` were re-checked in the P7b
 session and both still return 403 on CONNECT. The move and its reasoning are recorded in P7's `Closes` line
 and in P10 below.
+
+### P7d — RD-06, attributed
+
+**Delivered.** The sub-session capability the attribution needed, the attribution itself, and the rebuilt
+reference case. `specs/08` §2 had declared `-ts`/`-te` verified since P7a and the adapter never had them;
+`RtklibJob.window` closes that gap, and with it a session can be solved in parts.
+
+| Delivered | Where |
+|---|---|
+| A processing time window, with the GPST and `sscanf` traps recorded ([`08`](./08-engine-rtklib.md) §2.3) | `engines/rtklib/engine.py` |
+| Sub-session repeatability: 62 solutions per baseline, 24 h down to 1 h | `scripts/check_rd06.py --repeatability` |
+| The antenna-epoch guard, offline on every commit | `scripts/check_rd06.py`, `tests/test_rd06.py` |
+| RD-06 rebuilt on GODN–GODE, with GODN–GODS kept as the counter-case | `tests/data/rd06/` |
+
+**The previous attribution was half wrong, and the correction is in
+[`22`](./22-reference-data-sources.md) §5.1.** The "low-elevation error of up to 11 mm in east" is not a
+gradient — it is **one hour**, 11:00–12:00 on 2025-001, whose unvalidated ambiguity fix the 24-hour static
+filter carries to the end of the day. The ≥25° mask removed it by dropping the satellite that caused it,
+which is why the mask sweep could not tell the two readings apart. Excluding that hour, day 001 agrees with
+day 002 to 0.1 mm in east.
+
+**The −6.4 mm north is GODS's reference, and the mechanism is now named.** GODS changed antenna on
+2020-09-03, after the 2020.0 epoch of the coordinate it is compared against; NGS states such a change moves
+a coordinate by a few mm to several cm; GODS's own sheet contradicts itself by 1.97 mm in east where GODN's
+agrees with itself to 0.21 mm. GODE, whose antenna predates the epoch, misses its published baseline by
+**0.65 mm in north on the clean day where GODS misses by 6.53 mm** — one base, two rovers, one day, one
+configuration, four days tried.
+
+**Three things this turned up that the product keeps.** A wrong integer fix does **not** enlarge RTKLIB's
+formal covariance — a 22 mm error reports a 1.08 mm sigma — so the validation ratio is the only indicator
+that moves, and `fixed_fraction` alone is not enough (FR-603). `rnx2rtkp`'s `-te` is inclusive, so disjoint
+windows end one interval short. And a same-antenna-type pair longer than 4 km errs by 13 to 47 mm under
+this configuration, which is why the 65 m GGAO baseline is the case and not a "more realistic" one.
+
+| P7d exit criterion | State |
+|---|---|
+| The 7.5 mm is attributed to specific, named causes | **met** — one contaminated hour, and one station's post-epoch antenna change |
+| The attribution is a test, not a paragraph | **met** — `tests/test_rd06.py` fails if the counter-case stops showing it |
+| A defect of this class cannot recur silently | **met** — the antenna-epoch guard refuses it offline, and an exemption must stay earned |
+| A GNSS numerical threshold is derived | **met, and deliberately not adopted** — see below |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met** — 2.02 mm 3D uncalibrated on the clean pair against 7.04 mm on the counter-case, still over the 1 mm per-component comparison |
+
+**The threshold was derived and the maintainer chose not to adopt it.** The estimator's measured
+repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from this side of the
+comparison is ~1 mm horizontally — the number already in use. Nothing on GeoComp's side decides the
+criterion; the reference's unpublished uncertainty does. [`20`](./20-testing-and-validation.md) §6 records
+the decision and [`22`](./22-reference-data-sources.md) §5.2 the derivation.
+
+**Not settled here, and named so the ticks above do not imply it.** The calibrated GODE number.
+`geodesy.noaa.gov`, which serves `ngs20.atx`, is 403 from the development environment, as are
+`files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br` — all re-checked on
+23 September 2026. The residual on the clean pair is vertical and the two antennas are different types,
+which is exactly where a differential phase-centre offset sits, so **engine CI decides whether the criterion
+is met, not this slice.** Until it reports, the check stays red by design.
 
 ---
 
