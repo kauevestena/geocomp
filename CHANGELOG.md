@@ -93,18 +93,21 @@ it is failing on is now written down.
 
 #### Still not met
 
-- **RD-06's accuracy criterion — but it is down to one component.** Calibrated,
-  the clean pair agrees with its published baseline to **+0.68 mm east and
-  +0.09 mm north**, inside the 1 mm limit, and fails on a constant **−6.47 mm**
-  vertical that every session length from one hour to a full day reproduces.
-  Whether that is the reference or a silently skipped calibration is open:
-  GODN's published ARP-to-L1-phase-centre height is 84.44 mm and GODE's is
-  91.37 mm, a 6.93 mm difference that is the size of the residual and points the
-  same way, and GODE carries the `AOAD/M_T JPLA` radome variant. The new
-  antenna check is what will answer it, in engine CI — `geodesy.noaa.gov`, which
-  serves `ngs20.atx`, answers 403 to CONNECT from the development environment,
-  as do `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
-  `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+- **RD-06's accuracy criterion, and the judged case is also unjudgeable.** The
+  antenna check above found a defect in this phase's own reference case on its
+  first real run: **`ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`**, so
+  `searchpcv` matched `AOAD/M_T NONE` — the same antenna under a different dome,
+  which NGS keys and uses separately. The calibrated GODE numbers are withdrawn
+  as evidence of accuracy and kept labelled as what they are: the substitution
+  moved the vertical by 4.6 mm, so whether GODE's true calibration leaves a
+  vertical residual at all is unknown. The counter-case resolved exactly in the
+  same run, so the §5.1 attribution is untouched — a dome substitution is
+  vertical and the term it attributes is north. The site now has two
+  independent defects and no clean reference, and closing the criterion needs a
+  station whose antenna *and radome* are both calibrated. That membership cannot
+  be tested from the development environment — `geodesy.noaa.gov`, which serves
+  `ngs20.atx`, answers 403 to CONNECT, as do `files.igs.org`, `igs.bkg.bund.de`,
+  `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
 
 ### P7c — the GNSS surface
 

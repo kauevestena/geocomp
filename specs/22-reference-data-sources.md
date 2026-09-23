@@ -412,54 +412,49 @@ cannot outlive the defect it was written for.
 
 ### 5.2 The accuracy criterion, and why a threshold was not derived [V]
 
-**The criterion remains unmet, and the bundle now says what it is failing on — and it is one component,
-not three.** Calibrated with NGS `ngs20.atx`, on the clean day (2025-002) the GODN–GODE baseline agrees
-with its published value to:
+**The criterion remains unmet, and as of 23 September 2026 the judged case is also *unjudgeable*.**
+Engine CI produced a calibrated GODN–GODE result and the check added alongside it reported why the
+number cannot be used: **`ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`**, so `searchpcv` matched
+`AOAD/M_T        NONE` — the same antenna under a different dome. NGS states its calibrations are keyed
+by *antenna code plus radome code* and are used in all its products, including the solution this
+comparison is against, so the substitution is a confound rather than a formality.
 
-| | E mm | N mm | U mm |
+**The numbers it produced are therefore withdrawn as evidence of accuracy**, and recorded only as what
+they are — a run whose rover carried another dome's pattern:
+
+| GODN→GODE, day 002, `AOAD/M_T NONE` substituted | E mm | N mm | U mm |
 |---|---|---|---|
-| **GODN→GODE, calibrated, whole day 002** | **+0.68** | **+0.09** | **−6.47** |
-| GODN→GODS, calibrated, whole day 002, mask 15° | +0.24 | −6.97 | +2.09 |
+| calibrated (substituted dome) | +0.68 | +0.09 | **−6.47** |
+| uncalibrated | −0.17 | +0.65 | −1.91 |
 
-**The horizontal agreement is 0.68 mm east and 0.09 mm north — inside the 1 mm per-component
-comparison.** The criterion fails on the vertical alone, and the vertical is constant: every session
-length from one hour to a full day gives −6 to −7 mm, and it is unchanged between the two days.
+The horizontal is sub-millimetre either way, which is what makes the vertical worth chasing rather than
+accepting: the substitution *moved* it by 4.6 mm, which is the size of a dome. **Whether GODE's true
+calibration would leave a vertical residual at all is unknown**, and the specification says so rather
+than reporting −6.47 mm as the answer.
 
-**A specific hypothesis, not a shrug.** GODN's published ARP-to-L1-phase-centre height is 84.44 mm and
-GODE's is 91.37 mm, a difference of **6.93 mm** — the size of the residual, and pointing the same way.
-That is what an unapplied or mismatched receiver phase-centre offset at GODE produces, and section 7.5
-of [`08`](./08-engine-rtklib.md) records why such a thing is invisible: `rnx2rtkp` clears the antenna
-name and processes on uncalibrated when the ANTEX has no entry for it, and `searchpcv` falls back to the
-antenna without its radome, which is a different calibration. GODE carries `AOAD/M_T JPLA`, a radome
-variant that is not in every calibration set.
+**What this does not touch.** The counter-case resolved **exactly** in the same run
+(`JAVRINGANT_DM   SCIS` and `TPSCR.G3        SCIS`), so every GODS number section 5.1 rests on is a
+genuinely calibrated number, and the attribution there stands. A dome substitution is vertical; the
+term it attributes is north.
 
-So the run now **reads back the antennas the engine actually matched** and refuses a calibrated case
-whose calibration did not resolve to what it was given, as a processing error rather than an accuracy
-one. Until that check has run, whether the −6.5 mm is the reference or a silently skipped calibration is
-open, and the spec says so rather than choosing.
+**Two independent defects, one site.** GODS's published coordinate describes an antenna it no longer
+carries; GODE's antenna carries a dome nobody publishes a calibration for. Neither is a clean accuracy
+case and they fail for unrelated reasons — which is why the pair remains the right controlled
+experiment and neither is the right *reference*. Closing the criterion needs a station whose antenna
+**and radome** are both in the calibration set, and the site-log screen of section 5.2 cannot test that
+from the development environment: `geodesy.noaa.gov`, which serves `ngs20.atx`, answers 403 to CONNECT,
+as do `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on
+23 September 2026. The membership test belongs in engine CI, where the file exists.
 
-The development environment cannot settle it: `geodesy.noaa.gov`, which serves `ngs20.atx`, is denied by
-its egress policy (403 on CONNECT), as are `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
-`geoftp.ibge.gov.br`, all re-checked on 23 September 2026. Uncalibrated, the same baseline is
-**(−0.17, +0.65, −1.91) mm**, 2.02 mm in 3D, against 7.04 mm for the counter-case — so the calibration
-*improves* the horizontal and *worsens* the vertical, which is itself consistent with the hypothesis.
-
-**A GNSS numerical threshold was derived and then deliberately not adopted**, at the maintainer's decision
-of 23 September 2026. The derivation is recorded because its outcome is the point: the estimator's measured
-repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from *this side* of the
-comparison is about 1 mm horizontally — **the number already in use**. The borrowed printed-precision rule
-was the right order of magnitude for the wrong reason, and tightening or loosening it settles nothing,
-because the quantity that would decide the comparison is the reference's own uncertainty and the sheets
-publish none. [`20`](./20-testing-and-validation.md) §6 therefore still defines no GNSS threshold, and the
-accuracy check stays red.
-
-**What would close it.** A reference whose uncertainty is published — the IGS cumulative SINEX carries the
-covariance behind these very coordinates — or a station pair short enough for everything to cancel whose
-sheets do not contradict themselves. All 2886 CORS site logs were screened for the second: 1263 stations
-carry one antenna installed before the 2020.0 epoch and never removed, 692 of those have both days on the
-reachable bucket, and **every same-antenna-type pair longer than 4 km errs by 13 to 47 mm** under this
-processing configuration, which is why the site did not change. GGAO's 65 m baseline is the shortest clean
-one available anywhere in the network.
+**A GNSS numerical threshold was derived and then deliberately not adopted**, at the maintainer's
+decision of 23 September 2026. The derivation is recorded because its outcome is the point: the
+estimator's measured repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from
+*this side* of the comparison is about 1 mm horizontally — **the number already in use**. The borrowed
+printed-precision rule was the right order of magnitude for the wrong reason, and tightening or
+loosening it settles nothing, because the quantities that would decide the comparison are the
+reference's own uncertainty, which the sheets do not publish, and a calibration that matches the
+station, which this pair does not have. [`20`](./20-testing-and-validation.md) §6 therefore still
+defines no GNSS threshold, and the accuracy check stays red.
 
 ### 5.3 What the check enforces [V]
 

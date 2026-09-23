@@ -52,6 +52,15 @@ class AccuracyMismatchError(AssertionError):
     """Only the independent-coordinate discrepancy, never an engine failure."""
 
 
+class UnjudgeableCaseError(AssertionError):
+    """The comparison cannot be made, which is not the same as failing it.
+
+    Raised when the case the criterion is judged on was processed with a
+    calibration that is not its own antenna's. Reporting that as an accuracy
+    result would put a number on a configuration nobody chose.
+    """
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -338,35 +347,55 @@ def measure_solution(solution, reference: dict, case: tuple) -> dict:
         "passes_strict_xyz_comparison": bool(np.all(np.abs(delta) <= reference["tolerance_m"])),
         "full_day_and_fixed": complete and last.is_ambiguity_fixed,
         "resolved_antennas": {str(k): v for k, v in solution.antennas.items()},
-        "antenna_calibration_applied": _calibration_applied(solution, reference, case),
+        "antenna_calibration": _calibration_status(solution, reference, case),
     }
 
 
-def _calibration_applied(solution, reference: dict, case: tuple) -> bool | None:
-    """Did the engine actually calibrate the two antennas it was told to?
+#: What the engine's ANTEX lookup actually did, worst case across the two
+#: receivers. ``None`` for an uncalibrated run, where the question does not
+#: arise. The three outcomes are genuinely different and were collapsed into a
+#: bool until engine CI produced the third one on real data.
+EXACT = "exact"
+RADOME_SUBSTITUTED = "radome_substituted"
+UNCALIBRATED = "none"
 
-    ``None`` for an uncalibrated case, where the question does not arise.
 
-    **This exists because the failure is silent.** ``rnx2rtkp`` looks the
-    configured antenna up in the ANTEX and, on a miss, clears the name and
-    processes on with no calibration for that receiver; the warning goes to a
-    trace file that is off by default. The run then succeeds, the solution looks
-    ordinary, and it is wrong by that antenna's phase-centre offset -- which for
-    the RD-06 pair is about 7 mm of height. ``specs/08`` section 7.5.
+def _calibration_status(solution, reference: dict, case: tuple) -> str | None:
+    """What the engine's antenna lookup did, per ``specs/08`` section 7.5.
 
-    The engine's own header is the evidence: it writes back the entry it
-    *matched*, not the one it was given. A mismatch means ``searchpcv`` fell
-    through to the antenna without its radome, which is a different calibration.
+    ``rnx2rtkp`` looks the configured antenna up in the ANTEX and, on a miss,
+    **clears the name and processes on with no calibration for that receiver**;
+    the warning goes to a trace file that is off by default. Before that, it
+    retries the match **without the radome**, which succeeds against a different
+    calibration. The engine's own header is the only evidence either happened,
+    because it writes back the entry it *matched* rather than the one it was
+    given.
+
+    The two outcomes are not equally bad and must not be reported as one:
+
+    * ``none`` -- no calibration at all. The case is meaningless and refused.
+    * ``radome_substituted`` -- a real calibration of the same antenna under a
+      different dome. NGS states its calibrations are keyed by *antenna code
+      plus radome code*, so this is a genuine confound rather than a formality,
+      and a case carrying it cannot be judged for accuracy. It is recorded and
+      the run continues, because the evidence is worth more than the abort.
     """
     _, _, base, rover, calibrated, _ = case
     if not calibrated:
         return None
-    resolved = solution.antennas
+    status = EXACT
     for index, station in ((1, rover), (2, base)):
         wanted = reference["stations"][station]["antenna_type"].split()
-        if resolved.get(index, "").split() != wanted:
-            return False
-    return True
+        got = solution.antennas.get(index, "").split()
+        if not got:
+            return UNCALIBRATED
+        if got != wanted:
+            # Same antenna, different dome: `searchpcv`'s second pass matches on
+            # the antenna code alone.
+            if got[:1] != wanted[:1]:
+                return UNCALIBRATED
+            status = RADOME_SUBSTITUTED
+    return status
 
 
 def accuracy_case(results: list[dict], reference: dict) -> dict:
@@ -380,6 +409,18 @@ def accuracy_case(results: list[dict], reference: dict) -> dict:
         if metrics["case"] == reference["accuracy_case"]:
             return metrics
     raise ValueError(f"{reference['accuracy_case']} is not among the cases that ran")
+
+
+def require_exact_calibration(metrics: dict) -> None:
+    """The judged case must carry its own antennas' calibration, not a near one."""
+    if metrics["antenna_calibration"] == RADOME_SUBSTITUTED:
+        raise UnjudgeableCaseError(
+            f"{metrics['case']}: the ANTEX has no entry for this station's antenna *and "
+            f"radome*, so the engine calibrated it with another dome's pattern. It resolved "
+            f"{metrics['resolved_antennas']}. NGS keys its calibrations by antenna code plus "
+            "radome code and uses them in the products this comparison is against, so the "
+            "substitution is a confound, not a formality. See specs/22 section 5.2"
+        )
 
 
 def require_accuracy(metrics: dict, reference: dict) -> None:
@@ -399,15 +440,15 @@ def require_processing(summary: dict) -> None:
         for check in ("full_day_and_fixed", "repeat_pos_bit_identical"):
             if not metrics[check]:
                 raise RuntimeError(f"{metrics['case']}: {check} failed; see retained evidence")
-        # A calibrated case whose calibration was silently skipped is not a
-        # calibrated case, and judging accuracy on it would judge a mislabelled
-        # run. This is a processing error, not an accuracy one.
-        if metrics["antenna_calibration_applied"] is False:
+        # No calibration at all is a processing error: the case is labelled
+        # calibrated and is not. A substituted radome is a real calibration of
+        # the same antenna and is recorded instead, because it disqualifies the
+        # case from being *judged* rather than from being evidence.
+        if metrics["antenna_calibration"] == UNCALIBRATED:
             raise RuntimeError(
-                f"{metrics['case']}: the engine did not calibrate the antennas it was given. "
-                f"It resolved {metrics['resolved_antennas']}; an empty name means the ANTEX "
-                "had no entry and no calibration was applied, and a different name means it "
-                "fell back to the antenna without its radome. See specs/08 section 7.5"
+                f"{metrics['case']}: the ANTEX had no entry for an antenna it was given, so "
+                f"the engine applied no calibration and said nothing. It resolved "
+                f"{metrics['resolved_antennas']}. See specs/08 section 7.5"
             )
 
 

@@ -581,7 +581,7 @@ this configuration, which is why the 65 m GGAO baseline is the case and not a "m
 | The attribution is a test, not a paragraph | **met** — `tests/test_rd06.py` fails if the counter-case stops showing it |
 | A defect of this class cannot recur silently | **met** — the antenna-epoch guard refuses it offline, and an exemption must stay earned |
 | A GNSS numerical threshold is derived | **met, and deliberately not adopted** — see below |
-| **A static relative session over RD-06 reproduces published coordinates** | **not met, and down to one component** — calibrated, the clean pair agrees to **+0.68 mm east and +0.09 mm north**, inside the limit, and fails on a constant **−6.47 mm** vertical |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met, and the judged case is unjudgeable** — `ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`, so the run carries another dome's calibration ([`22`](./22-reference-data-sources.md) §5.2) |
 
 **The threshold was derived and the maintainer chose not to adopt it.** The estimator's measured
 repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from this side of the
@@ -589,16 +589,21 @@ comparison is ~1 mm horizontally — the number already in use. Nothing on GeoCo
 criterion; the reference's unpublished uncertainty does. [`20`](./20-testing-and-validation.md) §6 records
 the decision and [`22`](./22-reference-data-sources.md) §5.2 the derivation.
 
-**Not settled here, and named so the ticks above do not imply it.** Whether the remaining −6.47 mm is the
-reference or a silently skipped calibration. GODN's published ARP-to-L1-phase-centre height is 84.44 mm
-and GODE's is 91.37 mm — a **6.93 mm** difference, the size of the residual and pointing the same way.
-[`08`](./08-engine-rtklib.md) §7.5 records why that is invisible: `rnx2rtkp` clears the antenna name and
-processes on uncalibrated when the ANTEX has no entry, and falls back to the antenna without its radome
-otherwise. RD-06 now reads the matched antennas back out of the engine's own header and refuses a
-calibrated case that did not resolve, but the answer comes from engine CI: `geodesy.noaa.gov`, which
-serves `ngs20.atx`, is 403 from the development environment, as are `files.igs.org`, `igs.bkg.bund.de`,
-`cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026. Until then the check
-stays red and the cause stays open.
+**The check found a defect in this slice's own reference case, and that is recorded rather than tidied
+away.** Engine CI reported that `ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`, so `searchpcv`
+matched `AOAD/M_T        NONE` — the same antenna under a different dome, which NGS keys and uses
+separately. The calibrated GODE numbers are therefore withdrawn as evidence of accuracy;
+[`22`](./22-reference-data-sources.md) §5.2 keeps them labelled as what they are. The counter-case
+resolved exactly in the same run, so the attribution in §5.1 is untouched — a dome substitution is
+vertical and the term it attributes is north.
+
+**So the site now has two independent defects and no clean reference.** GODS's published coordinate
+describes an antenna it no longer carries; GODE's dome has no published calibration. Closing the
+criterion needs a station whose antenna **and radome** are both in the calibration set, and that
+membership cannot be tested from the development environment — `geodesy.noaa.gov`, which serves
+`ngs20.atx`, is 403, as are `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
+`geoftp.ibge.gov.br`, all re-checked on 23 September 2026. The test belongs in engine CI, where the
+file exists, and that is the next step rather than a claim made here.
 
 ---
 

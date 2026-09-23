@@ -29,7 +29,11 @@ from geocomp.engines.rtklib import read_pos
 from scripts.check_rd06 import (
     CASES,
     DATA,
+    EXACT,
+    RADOME_SUBSTITUTED,
+    UNCALIBRATED,
     AccuracyMismatchError,
+    UnjudgeableCaseError,
     accuracy_case,
     antenna_history,
     load_reference,
@@ -37,6 +41,7 @@ from scripts.check_rd06 import (
     official_position,
     phase_centre_offsets,
     require_accuracy,
+    require_exact_calibration,
     require_processing,
     require_reference_configuration,
     run_all,
@@ -136,6 +141,34 @@ class TestTheSheetContradictsItself:
             assert "std dev" not in text.lower()
 
 
+class TestACaseCarryingAnotherDomesCalibration:
+    """``searchpcv`` retries without the radome, so a station whose dome is not
+    in the ANTEX is calibrated with a different one and nothing says so."""
+
+    def test_a_substituted_radome_cannot_be_judged(self):
+        with pytest.raises(UnjudgeableCaseError, match="antenna \\*and radome\\*"):
+            require_exact_calibration({
+                "case": "calibrated_gode_001",
+                "antenna_calibration": RADOME_SUBSTITUTED,
+                "resolved_antennas": {"1": "AOAD/M_T        NONE"},
+            })
+
+    def test_an_exact_match_is_judgeable(self):
+        require_exact_calibration({
+            "case": "calibrated_gods_001", "antenna_calibration": EXACT, "resolved_antennas": {},
+        })
+
+    def test_no_calibration_at_all_is_a_processing_error_instead(self):
+        """A different refusal, because it is a different thing: one is a real
+        calibration of the wrong dome, the other is no calibration."""
+        with pytest.raises(RuntimeError, match="applied no calibration"):
+            require_processing({"cases": [{
+                "case": "calibrated_gode_001", "full_day_and_fixed": True,
+                "repeat_pos_bit_identical": True, "antenna_calibration": UNCALIBRATED,
+                "resolved_antennas": {"1": ""},
+            }]})
+
+
 def test_recorded_solution_remains_a_negative_accuracy_example(reference, tmp_path):
     path = tmp_path / "recorded.pos"
     path.write_bytes(gzip.decompress((DATA / reference["recorded_solution"]["path"]).read_bytes()))
@@ -191,13 +224,37 @@ def test_complete_fixed_runs_are_reproducible(live_results, case):
 
 
 @pytest.mark.engines
+def test_the_judged_case_carries_its_own_antennas_calibration(live_results, reference):
+    """Before the accuracy number means anything, the run has to be the run it
+    says it is.
+
+    ``ngs20.atx`` has no entry for GODE's ``AOAD/M_T JPLA``, so ``searchpcv``
+    matched ``AOAD/M_T NONE`` -- the same antenna under a different dome, which
+    NGS keys separately and uses separately in the products this comparison is
+    against. This is not xfailed: it is a defect in the reference case, found
+    by the check that ``cd8b3a8`` added, and it is fixed by choosing a station
+    whose dome is calibrated, not by relaxing anything.
+    """
+    require_exact_calibration(accuracy_case(live_results["cases"], reference))
+
+
+@pytest.mark.engines
+def test_the_counter_case_was_calibrated_exactly(live_results):
+    """The attribution in ``specs/22`` §5.1 rests on the GODS numbers, so they
+    have to be the calibrated numbers they are reported as."""
+    rows = {row["case"]: row for row in live_results["cases"]}
+    assert rows["calibrated_gods_001"]["antenna_calibration"] == EXACT
+    assert rows["calibrated_gods_002"]["antenna_calibration"] == EXACT
+
+
+@pytest.mark.engines
 @pytest.mark.xfail(
     strict=True, raises=AccuracyMismatchError,
     reason=(
-        "RD-06 accuracy unmet; specs/22 section 5.2. Rebuilt on GODN-GODE, whose antenna "
-        "predates its coordinate epoch. Calibrated, the horizontal agrees to +0.68 mm east "
-        "and +0.09 mm north -- inside the limit -- and the criterion fails on a constant "
-        "-6.47 mm vertical. CI enforces the original assertion with --runxfail."
+        "RD-06 accuracy unmet; specs/22 section 5.2. The number this produces is "
+        "currently also unjudgeable -- GODE's radome is not in ngs20.atx, so the run "
+        "carries another dome's calibration; see the test above. CI enforces the original "
+        "assertion with --runxfail."
     ),
 )
 def test_published_coordinate_accuracy(live_results, reference):
@@ -215,6 +272,8 @@ def test_the_counter_case_carries_the_discrepancy_and_the_judged_one_does_not(li
     which is why it is a test and not a paragraph.
     """
     rows = {row["case"]: row for row in live_results["cases"]}
+    # North, where the counter-case's antenna change shows and a vertical
+    # calibration substitution does not.
     gode = rows["calibrated_gode_001"]["difference_enu_m"][1] * 1000
     gods = rows["calibrated_gods_001"]["difference_enu_m"][1] * 1000
     assert gods < -3.0, f"the counter-case no longer shows its north discrepancy: {gods:.3f} mm"
