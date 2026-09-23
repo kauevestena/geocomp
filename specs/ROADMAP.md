@@ -581,7 +581,7 @@ this configuration, which is why the 65 m GGAO baseline is the case and not a "m
 | The attribution is a test, not a paragraph | **met** — `tests/test_rd06.py` fails if the counter-case stops showing it |
 | A defect of this class cannot recur silently | **met** — the antenna-epoch guard refuses it offline, and an exemption must stay earned |
 | A GNSS numerical threshold is derived | **met, and deliberately not adopted** — see below |
-| **A static relative session over RD-06 reproduces published coordinates** | **not met** — 2.02 mm 3D uncalibrated on the clean pair against 7.04 mm on the counter-case, still over the 1 mm per-component comparison |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met, and down to one component** — calibrated, the clean pair agrees to **+0.68 mm east and +0.09 mm north**, inside the limit, and fails on a constant **−6.47 mm** vertical |
 
 **The threshold was derived and the maintainer chose not to adopt it.** The estimator's measured
 repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from this side of the
@@ -589,12 +589,16 @@ comparison is ~1 mm horizontally — the number already in use. Nothing on GeoCo
 criterion; the reference's unpublished uncertainty does. [`20`](./20-testing-and-validation.md) §6 records
 the decision and [`22`](./22-reference-data-sources.md) §5.2 the derivation.
 
-**Not settled here, and named so the ticks above do not imply it.** The calibrated GODE number.
-`geodesy.noaa.gov`, which serves `ngs20.atx`, is 403 from the development environment, as are
-`files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br` — all re-checked on
-23 September 2026. The residual on the clean pair is vertical and the two antennas are different types,
-which is exactly where a differential phase-centre offset sits, so **engine CI decides whether the criterion
-is met, not this slice.** Until it reports, the check stays red by design.
+**Not settled here, and named so the ticks above do not imply it.** Whether the remaining −6.47 mm is the
+reference or a silently skipped calibration. GODN's published ARP-to-L1-phase-centre height is 84.44 mm
+and GODE's is 91.37 mm — a **6.93 mm** difference, the size of the residual and pointing the same way.
+[`08`](./08-engine-rtklib.md) §7.5 records why that is invisible: `rnx2rtkp` clears the antenna name and
+processes on uncalibrated when the ANTEX has no entry, and falls back to the antenna without its radome
+otherwise. RD-06 now reads the matched antennas back out of the engine's own header and refuses a
+calibrated case that did not resolve, but the answer comes from engine CI: `geodesy.noaa.gov`, which
+serves `ngs20.atx`, is 403 from the development environment, as are `files.igs.org`, `igs.bkg.bund.de`,
+`cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026. Until then the check
+stays red and the cause stays open.
 
 ---
 

@@ -337,7 +337,36 @@ def measure_solution(solution, reference: dict, case: tuple) -> dict:
         "tolerance_m": reference["tolerance_m"],
         "passes_strict_xyz_comparison": bool(np.all(np.abs(delta) <= reference["tolerance_m"])),
         "full_day_and_fixed": complete and last.is_ambiguity_fixed,
+        "resolved_antennas": {str(k): v for k, v in solution.antennas.items()},
+        "antenna_calibration_applied": _calibration_applied(solution, reference, case),
     }
+
+
+def _calibration_applied(solution, reference: dict, case: tuple) -> bool | None:
+    """Did the engine actually calibrate the two antennas it was told to?
+
+    ``None`` for an uncalibrated case, where the question does not arise.
+
+    **This exists because the failure is silent.** ``rnx2rtkp`` looks the
+    configured antenna up in the ANTEX and, on a miss, clears the name and
+    processes on with no calibration for that receiver; the warning goes to a
+    trace file that is off by default. The run then succeeds, the solution looks
+    ordinary, and it is wrong by that antenna's phase-centre offset -- which for
+    the RD-06 pair is about 7 mm of height. ``specs/08`` section 7.5.
+
+    The engine's own header is the evidence: it writes back the entry it
+    *matched*, not the one it was given. A mismatch means ``searchpcv`` fell
+    through to the antenna without its radome, which is a different calibration.
+    """
+    _, _, base, rover, calibrated, _ = case
+    if not calibrated:
+        return None
+    resolved = solution.antennas
+    for index, station in ((1, rover), (2, base)):
+        wanted = reference["stations"][station]["antenna_type"].split()
+        if resolved.get(index, "").split() != wanted:
+            return False
+    return True
 
 
 def accuracy_case(results: list[dict], reference: dict) -> dict:
@@ -370,6 +399,16 @@ def require_processing(summary: dict) -> None:
         for check in ("full_day_and_fixed", "repeat_pos_bit_identical"):
             if not metrics[check]:
                 raise RuntimeError(f"{metrics['case']}: {check} failed; see retained evidence")
+        # A calibrated case whose calibration was silently skipped is not a
+        # calibrated case, and judging accuracy on it would judge a mislabelled
+        # run. This is a processing error, not an accuracy one.
+        if metrics["antenna_calibration_applied"] is False:
+            raise RuntimeError(
+                f"{metrics['case']}: the engine did not calibrate the antennas it was given. "
+                f"It resolved {metrics['resolved_antennas']}; an empty name means the ANTEX "
+                "had no entry and no calibration was applied, and a different name means it "
+                "fell back to the antenna without its radome. See specs/08 section 7.5"
+            )
 
 
 

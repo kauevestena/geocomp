@@ -80,16 +80,31 @@ it is failing on is now written down.
   pair longer than 4 km errs by 13 to 47 mm. GGAO's 65 m baseline is the shortest
   clean one in the network, which is why the site did not change.
 
+- **A missing antenna calibration is silent, and now it is not.**
+  `rnx2rtkp` clears the antenna name and processes on uncalibrated when the
+  ANTEX has no entry for it, warning only to a trace file that is off by
+  default; and `searchpcv` otherwise falls back to the antenna *without* its
+  radome, which is a different calibration. The run exits zero with the usual
+  epoch count, ambiguity fixing and formal covariance, and is wrong by that
+  antenna's phase-centre offset. `PosSolution.antennas` reads back the entries
+  the engine actually matched — it writes them into its own header — and RD-06
+  refuses a calibrated case that did not resolve to what it was given, as a
+  *processing* error rather than an accuracy one. `specs/08` §7.5.
+
 #### Still not met
 
-- **RD-06's accuracy criterion.** On the clean pair the best day is 2.02 mm in 3D
-  uncalibrated, against 7.04 mm for the counter-case, and still over the 1 mm
-  per-component comparison. The residual is vertical and the two antennas are
-  different types, which is where a differential phase-centre offset sits — so
-  the calibrated number decides it, and only engine CI can produce it.
-  `geodesy.noaa.gov`, which serves `ngs20.atx`, answers 403 to CONNECT from the
-  development environment, as do `files.igs.org`, `igs.bkg.bund.de`,
-  `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+- **RD-06's accuracy criterion — but it is down to one component.** Calibrated,
+  the clean pair agrees with its published baseline to **+0.68 mm east and
+  +0.09 mm north**, inside the 1 mm limit, and fails on a constant **−6.47 mm**
+  vertical that every session length from one hour to a full day reproduces.
+  Whether that is the reference or a silently skipped calibration is open:
+  GODN's published ARP-to-L1-phase-centre height is 84.44 mm and GODE's is
+  91.37 mm, a 6.93 mm difference that is the size of the residual and points the
+  same way, and GODE carries the `AOAD/M_T JPLA` radome variant. The new
+  antenna check is what will answer it, in engine CI — `geodesy.noaa.gov`, which
+  serves `ngs20.atx`, answers 403 to CONNECT from the development environment,
+  as do `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
+  `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
 
 ### P7c — the GNSS surface
 

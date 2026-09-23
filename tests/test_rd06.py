@@ -194,10 +194,10 @@ def test_complete_fixed_runs_are_reproducible(live_results, case):
 @pytest.mark.xfail(
     strict=True, raises=AccuracyMismatchError,
     reason=(
-        "RD-06 accuracy unmet; specs/22 section 5. Rebuilt on GODN-GODE, whose antenna "
-        "predates its coordinate epoch: uncalibrated that is 2.0 mm 3D against 7.0 mm for "
-        "the counter-case, but still over the 1 mm per-component comparison. CI enforces "
-        "the original assertion with --runxfail."
+        "RD-06 accuracy unmet; specs/22 section 5.2. Rebuilt on GODN-GODE, whose antenna "
+        "predates its coordinate epoch. Calibrated, the horizontal agrees to +0.68 mm east "
+        "and +0.09 mm north -- inside the limit -- and the criterion fails on a constant "
+        "-6.47 mm vertical. CI enforces the original assertion with --runxfail."
     ),
 )
 def test_published_coordinate_accuracy(live_results, reference):

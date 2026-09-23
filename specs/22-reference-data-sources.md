@@ -412,14 +412,37 @@ cannot outlive the defect it was written for.
 
 ### 5.2 The accuracy criterion, and why a threshold was not derived [V]
 
-**The criterion remains unmet, and the bundle now says what it is failing on.** With the clean pair, the
-best day's error against the published baseline is **XYZ (−0.6, +1.8, −0.7) mm, 2.02 mm in 3D**,
-uncalibrated — against 7.04 mm for the counter-case on the same day. It still exceeds the 1 mm
-per-component comparison, and the residual is **vertical**, which is where an uncorrected differential
-antenna phase-centre offset lives: GODN and GODE carry different antenna types. Only the calibrated run
-settles that number, and only engine CI can produce it — `geodesy.noaa.gov`, which serves `ngs20.atx`, is
-denied by the development environment's egress policy (403 on CONNECT), as are `files.igs.org`,
-`igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+**The criterion remains unmet, and the bundle now says what it is failing on — and it is one component,
+not three.** Calibrated with NGS `ngs20.atx`, on the clean day (2025-002) the GODN–GODE baseline agrees
+with its published value to:
+
+| | E mm | N mm | U mm |
+|---|---|---|---|
+| **GODN→GODE, calibrated, whole day 002** | **+0.68** | **+0.09** | **−6.47** |
+| GODN→GODS, calibrated, whole day 002, mask 15° | +0.24 | −6.97 | +2.09 |
+
+**The horizontal agreement is 0.68 mm east and 0.09 mm north — inside the 1 mm per-component
+comparison.** The criterion fails on the vertical alone, and the vertical is constant: every session
+length from one hour to a full day gives −6 to −7 mm, and it is unchanged between the two days.
+
+**A specific hypothesis, not a shrug.** GODN's published ARP-to-L1-phase-centre height is 84.44 mm and
+GODE's is 91.37 mm, a difference of **6.93 mm** — the size of the residual, and pointing the same way.
+That is what an unapplied or mismatched receiver phase-centre offset at GODE produces, and section 7.5
+of [`08`](./08-engine-rtklib.md) records why such a thing is invisible: `rnx2rtkp` clears the antenna
+name and processes on uncalibrated when the ANTEX has no entry for it, and `searchpcv` falls back to the
+antenna without its radome, which is a different calibration. GODE carries `AOAD/M_T JPLA`, a radome
+variant that is not in every calibration set.
+
+So the run now **reads back the antennas the engine actually matched** and refuses a calibrated case
+whose calibration did not resolve to what it was given, as a processing error rather than an accuracy
+one. Until that check has run, whether the −6.5 mm is the reference or a silently skipped calibration is
+open, and the spec says so rather than choosing.
+
+The development environment cannot settle it: `geodesy.noaa.gov`, which serves `ngs20.atx`, is denied by
+its egress policy (403 on CONNECT), as are `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
+`geoftp.ibge.gov.br`, all re-checked on 23 September 2026. Uncalibrated, the same baseline is
+**(−0.17, +0.65, −1.91) mm**, 2.02 mm in 3D, against 7.04 mm for the counter-case — so the calibration
+*improves* the horizontal and *worsens* the vertical, which is itself consistent with the hypothesis.
 
 **A GNSS numerical threshold was derived and then deliberately not adopted**, at the maintainer's decision
 of 23 September 2026. The derivation is recorded because its outcome is the point: the estimator's measured

@@ -382,3 +382,53 @@ class TestSerialisation:
         assert payload["epochs"] == 120
         assert payload["fixed_epochs"] == 117
         assert payload["header_anomalies"] == []
+
+
+class TestTheResolvedAntennas:
+    """``specs/08`` §7.5. The engine writes back the ANTEX entry it *matched*,
+    not the one it was told to use, and on a miss it writes nothing at all and
+    processes on uncalibrated. That makes this header line the only evidence
+    that a calibrated run was calibrated."""
+
+    def _with_header(self, tmp_path, *lines):
+        source = (POS / "xyz.pos").read_text().splitlines()
+        body = [line for line in source if not line.startswith("%")]
+        comments = [line for line in source if line.startswith("%")]
+        path = tmp_path / "antennas.pos"
+        path.write_text("\n".join([comments[0], *lines, *comments[1:], *body]) + "\n")
+        return read_pos(path)
+
+    def test_a_matched_entry_is_reported_per_position(self, tmp_path):
+        solution = self._with_header(
+            tmp_path,
+            "% antenna1  : AOAD/M_T        JPLA  ( 0.0000  0.0000  0.0000)",
+            "% antenna2  : TPSCR.G3        SCIS  ( 0.0000  0.0000  0.0000)",
+        )
+        assert solution.antennas == {1: "AOAD/M_T        JPLA", 2: "TPSCR.G3        SCIS"}
+
+    def test_a_radome_is_kept_because_it_is_the_whole_distinction(self, tmp_path):
+        """``searchpcv`` falls back to the antenna *without* its radome, which is
+        a different calibration. Splitting the name on whitespace would turn
+        ``AOAD/M_T JPLA`` into ``AOAD/M_T`` and hide exactly that."""
+        solution = self._with_header(
+            tmp_path, "% antenna1  : AOAD/M_T        NONE  ( 0.0000  0.0000  0.0000)"
+        )
+        assert solution.antennas[1] == "AOAD/M_T        NONE"
+
+    def test_an_empty_name_means_no_calibration_was_applied(self, tmp_path):
+        """The engine clears the name on an ANTEX miss and carries on. Nothing
+        else in the output says so: the run succeeds and the solution is wrong
+        by that antenna's phase-centre offset."""
+        solution = self._with_header(
+            tmp_path, "% antenna1  :                       ( 0.0000  0.0000  0.0000)"
+        )
+        assert solution.antennas == {1: ""}
+
+    def test_a_run_without_antenna_lines_reports_nothing_rather_than_guessing(self):
+        assert read_pos(POS / "xyz.pos").antennas == {}
+
+    def test_it_reaches_the_provenance_record(self, tmp_path):
+        solution = self._with_header(
+            tmp_path, "% antenna1  : TPSCR.G3        SCIS  ( 0.0000  0.0000  0.0000)"
+        )
+        assert solution.to_dict()["antennas"] == {"1": "TPSCR.G3        SCIS"}

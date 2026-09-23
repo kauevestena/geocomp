@@ -342,6 +342,43 @@ today's callers, not of the code.
 
 ---
 
+### 7.5 A missing antenna calibration is silent **[V]**
+
+With `pos1-posopt2 = on`, `rnx2rtkp` looks each configured antenna up in the ANTEX. On a miss it
+**clears the antenna name and carries on with no calibration for that receiver** — `postpos.c`:
+
+```c
+if (!(pcv=searchpcv(0,popt->anttype[i],time,pcvr))) {
+    trace(2,"no receiver antenna pcv: %s\n",popt->anttype[i]);
+    *popt->anttype[i]='\0';
+    continue;
+}
+strcpy(popt->anttype[i],pcv->type);
+```
+
+The warning goes to `trace`, which writes nothing unless `-x` enabled a trace file. So the run exits
+zero, the solution has the usual epoch count and ambiguity fixing, the formal covariance is unchanged,
+and the answer is wrong by that antenna's phase-centre offset — centimetres for some antennas, and about
+7 mm of height for the RD-06 pair.
+
+Two further points the code above makes:
+
+- **The lookup is not exact.** `searchpcv` requires every whitespace-separated token of the configured
+  name to appear in the entry, then retries with the radome dropped. `AOAD/M_T        JPLA` therefore
+  matches `AOAD/M_T        NONE` when the JPLA variant is absent — a real calibration, but a different
+  one.
+- **The header reports what was matched, not what was asked for**, because the matched entry's name is
+  copied over the configured one. That makes `% antenna1` / `% antenna2` the only evidence available
+  from an ordinary run.
+
+**Therefore `PosSolution.antennas` reads those lines back**, by position (1 is the rover), keeping the
+radome — splitting the name on whitespace would erase the distinction the line exists to show. An empty
+name means no calibration was applied. RD-06 refuses a calibrated case whose antennas did not resolve
+to the ones configured, as a *processing* error rather than an accuracy one: a calibrated case whose
+calibration was skipped is not a calibrated case, and judging accuracy on it judges a mislabelled run.
+
+---
+
 ## 8. Baseline construction (FR-602)
 
 Turning GNSS solutions into observations the adjustment can use
