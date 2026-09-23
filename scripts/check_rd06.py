@@ -123,27 +123,76 @@ def official_station(reference: dict, station: str, data: Path = DATA) -> tuple[
 #: and its removal date. "4.x" is the blank template at the end of every log and
 #: is skipped by requiring digits.
 _ANTENNA_BLOCK = re.compile(
-    r"^4\.\d+\s+Antenna Type\s*:\s*(?P<type>.+?)\s*$.*?"
-    r"^\s*Date Installed\s*:\s*(?P<installed>\S+).*?$.*?"
-    r"^\s*Date Removed\s*:\s*(?P<removed>\S+).*?$",
+    # ``[^\S\n]*`` and not ``\s*``: under ``re.S`` a plain ``\s*`` crosses the
+    # newline, so a log with an *empty* date field lets the match run on and
+    # pair this antenna with a later block's dates -- reporting a real antenna
+    # against times it was never installed for. Keeping the run-up whitespace
+    # on one line makes an empty field read as empty, which
+    # :func:`antennas_spanning` then rejects.
+    r"^4\.\d+[^\S\n]+Antenna Type[^\S\n]*:[^\S\n]*(?P<type>.+?)[^\S\n]*$.*?"
+    r"^[^\S\n]*Date Installed[^\S\n]*:[^\S\n]*(?P<installed>\S*).*?$.*?"
+    r"^[^\S\n]*Date Removed[^\S\n]*:[^\S\n]*(?P<removed>\S*).*?$",
     re.S | re.M,
 )
+
+#: A site log's dates carry a time ("2020-09-03T00:00Z"); only the day is used,
+#: and anything that is not one is not a date at all.
+_LOG_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _antenna_blocks(text: str) -> list[dict]:
+    """Parse section 4 of a site log, in the order the log records it."""
+    return [
+        {
+            "type": match["type"].strip(),
+            "installed": match["installed"][:10],
+            # The unfilled template reads "(CCYY-MM-DDThh:mmZ)", which is how a
+            # log says "still installed".
+            "removed": (
+                None if not match["removed"] or match["removed"].startswith("(") else match["removed"][:10]
+            ),
+        }
+        for match in _ANTENNA_BLOCK.finditer(text)
+    ]
+
+
+def antennas_spanning(text: str, epoch: str, observed: str) -> set[str]:
+    """The antenna types a site log says were on the monument for *both* dates.
+
+    A published coordinate describes the antenna carried while the data behind
+    it was collected, so a comparison only means anything when the observations
+    are of that same instrument. An antenna spans the interval when it was
+    installed on or before *epoch* and was not removed before *observed*.
+
+    The size of the result is the whole diagnosis. **One** type is a station
+    worth comparing. **None** means no antenna spans the interval at all --
+    GODS read against a 2025 day is exactly this, and it is why that station is
+    the counter-case. **More than one** means the hardware changed in between.
+
+    A block whose installation date is missing or malformed is skipped rather
+    than guessed at, so the answer errs towards refusing a station.
+
+    Note what is *not* fixed here: *observed* is a free parameter. Reading a
+    station against a day adjacent to its coordinate epoch is a different, and
+    usually easier, question than reading it against a day five years later --
+    see ``specs/22`` section 5.2.
+    """
+    spanning = set()
+    for block in _antenna_blocks(text):
+        installed, removed = block["installed"], block["removed"]
+        if not _LOG_DATE.fullmatch(installed) or installed > epoch:
+            continue
+        if removed is not None and removed < observed:
+            continue
+        spanning.add(block["type"])
+    return spanning
 
 
 def antenna_history(reference: dict, station: str, data: Path = DATA) -> list[dict]:
     """Every antenna the site log records, in the order it records them."""
     entry = reference["stations"][station]
     text = (data / entry["station_log"]).read_text(encoding="utf-8", errors="replace")
-    history = [
-        {
-            "type": match["type"].strip(),
-            "installed": match["installed"][:10],
-            # The unfilled template reads "(CCYY-MM-DDThh:mmZ)", which is how a
-            # log says "still installed".
-            "removed": None if match["removed"].startswith("(") else match["removed"][:10],
-        }
-        for match in _ANTENNA_BLOCK.finditer(text)
-    ]
+    history = _antenna_blocks(text)
     if not history:
         raise ValueError(f"No antenna blocks in the site log for {station}")
     return history
@@ -253,16 +302,14 @@ def phase_centre_offsets(reference: dict, data: Path = DATA) -> dict:
             block = chunk.split("NAD_83", 1)[0]
             if "ITRF2020 POSITION (EPOCH 2020.0)" not in block:
                 raise ValueError(f"Unexpected coordinate frame or epoch for {station}")
-            positions.append([
-                float(re.search(r"\|\s+" + axis + r" =\s*([-\d.]+)", block)[1])
-                for axis in "XYZ"
-            ])
+            positions.append(
+                [float(re.search(r"\|\s+" + axis + r" =\s*([-\d.]+)", block)[1]) for axis in "XYZ"]
+            )
         if positions[0] != entry["arp_xyz_m_epoch_2020"]:
             raise ValueError(f"Reference transcription differs from official sheet: {station}")
         east, north, up = (
-            v * 1000 for v in ecef_to_enu(
-                tuple(np.array(positions[1]) - np.array(positions[0])), latitude, longitude
-            )
+            v * 1000
+            for v in ecef_to_enu(tuple(np.array(positions[1]) - np.array(positions[0])), latitude, longitude)
         )
         offsets[station] = {
             "arp_to_l1pc_enu_mm": [east, north, up],
@@ -286,8 +333,7 @@ def load_reference(data: Path = DATA) -> dict:
         expected = reference[f"expected_baseline_GODN_to_{rover}_m"]
         vector = [
             round(b - a, 4)
-            for a, b in zip(base, reference["stations"][rover]["arp_xyz_m_epoch_2020"],
-                            strict=True)
+            for a, b in zip(base, reference["stations"][rover]["arp_xyz_m_epoch_2020"], strict=True)
         ]
         if [round(v, 4) for v in expected] != vector:
             raise ValueError(f"expected_baseline_GODN_to_{rover}_m is not the published difference")
@@ -305,9 +351,10 @@ def official_position(reference: dict, station: str, day: int) -> list[float]:
     entry = reference["stations"][station]
     epoch = date(2025, 1, 1) + timedelta(days=day - 1)
     years = ((epoch - date(2020, 1, 1)).days + 0.5) / reference["year_days"]
-    return [x + years * v for x, v in zip(
-        entry["arp_xyz_m_epoch_2020"], entry["velocity_xyz_m_per_year"], strict=True
-    )]
+    return [
+        x + years * v
+        for x, v in zip(entry["arp_xyz_m_epoch_2020"], entry["velocity_xyz_m_per_year"], strict=True)
+    ]
 
 
 def measure_solution(solution, reference: dict, case: tuple) -> dict:
@@ -332,17 +379,26 @@ def measure_solution(solution, reference: dict, case: tuple) -> dict:
         epoch.time == start + timedelta(seconds=30 * i) for i, epoch in enumerate(solution.epochs)
     )
     return {
-        "case": name, "base": base, "rover": rover, "day": f"2025-{day:03d}",
-        "official_base_arp_xyz_m": base_xyz.tolist(), "official_rover_arp_xyz_m": expected.tolist(),
-        "computed_rover_arp_xyz_m": list(last.position), "difference_xyz_m": delta.tolist(),
-        "difference_enu_m": enu.tolist(), "error_3d_m": float(np.linalg.norm(delta)),
+        "case": name,
+        "base": base,
+        "rover": rover,
+        "day": f"2025-{day:03d}",
+        "official_base_arp_xyz_m": base_xyz.tolist(),
+        "official_rover_arp_xyz_m": expected.tolist(),
+        "computed_rover_arp_xyz_m": list(last.position),
+        "difference_xyz_m": delta.tolist(),
+        "difference_enu_m": enu.tolist(),
+        "error_3d_m": float(np.linalg.norm(delta)),
         "computed_baseline_xyz_m": [q.value for q in baseline.components],
         "expected_baseline_xyz_m": (expected - base_xyz).tolist(),
         "covariance_xyz_m2": baseline.covariance.matrix.tolist(),
         "formal_sigma_xyz_m": np.sqrt(np.diag(baseline.covariance.matrix)).tolist(),
-        "epochs": len(solution.epochs), "last_epoch": last.time.isoformat(),
-        "fixed_fraction": solution.fixed_fraction, "last_status": last.status.name,
-        "last_satellites": last.satellites, "last_ratio": last.ratio,
+        "epochs": len(solution.epochs),
+        "last_epoch": last.time.isoformat(),
+        "fixed_fraction": solution.fixed_fraction,
+        "last_status": last.status.name,
+        "last_satellites": last.satellites,
+        "last_ratio": last.ratio,
         "tolerance_m": reference["tolerance_m"],
         "passes_strict_xyz_comparison": bool(np.all(np.abs(delta) <= reference["tolerance_m"])),
         "full_day_and_fixed": complete and last.is_ambiguity_fixed,
@@ -452,15 +508,12 @@ def require_processing(summary: dict) -> None:
             )
 
 
-
 #: The days the frozen bundle carries. Both are processed by every diagnostic,
 #: because a single day cannot tell a constant error from a varying one.
 DAYS = (1, 2)
 
 
-def _prepare_sessions(
-    work: Path, data: Path, reference: dict, *, days: tuple[int, ...] = DAYS
-) -> dict:
+def _prepare_sessions(work: Path, data: Path, reference: dict, *, days: tuple[int, ...] = DAYS) -> dict:
     """Decompress each day into *work* and discover its sessions.
 
     Shared by :func:`run_all`, :func:`sweep_elevation_mask` and
@@ -498,6 +551,7 @@ def _prepare_sessions(
             if session.antenna != reference["stations"][station]["antenna_type"]:
                 raise ValueError(f"Unexpected antenna: {station}: {session.antenna}")
     return sessions_by_day
+
 
 #: Elevation masks the diagnostic sweep uses. Chosen to straddle the point where
 #: the two days stop disagreeing: below 25 degrees they differ by up to 11 mm in
@@ -547,9 +601,14 @@ def _processing_options(
     which is a few millimetres and looks like an ordinary result.
     """
     extra = {
-        "ant1-antdele": "0", "ant1-antdeln": "0", "ant1-antdelu": "0",
-        "ant2-antdele": "0", "ant2-antdeln": "0", "ant2-antdelu": "0",
-        "pos1-tidecorr": "1", "pos1-dynamics": "off",
+        "ant1-antdele": "0",
+        "ant1-antdeln": "0",
+        "ant1-antdelu": "0",
+        "ant2-antdele": "0",
+        "ant2-antdeln": "0",
+        "ant2-antdelu": "0",
+        "pos1-tidecorr": "1",
+        "pos1-dynamics": "off",
     }
     if calibrated:
         if antenna_file is None:
@@ -565,9 +624,15 @@ def _processing_options(
 
 
 def sweep_elevation_mask(
-    output: Path, executable: Path, reference: dict, data: Path = DATA,
-    *, calibrated: bool = True, masks: tuple[float, ...] = SWEEP_MASKS,
-    base: str = "GODN", rover: str = "GODS",
+    output: Path,
+    executable: Path,
+    reference: dict,
+    data: Path = DATA,
+    *,
+    calibrated: bool = True,
+    masks: tuple[float, ...] = SWEEP_MASKS,
+    base: str = "GODN",
+    rover: str = "GODS",
 ) -> dict:
     """Separate the low-elevation error from whatever is under it.
 
@@ -604,49 +669,67 @@ def sweep_elevation_mask(
     origin = reference["stations"][base]["arp_xyz_m_epoch_2020"]
     latitude, longitude, _ = cartesian_to_geodetic(*origin, ELLIPSOIDS["GRS80"])
 
-    extra = _processing_options(reference, base=base, rover=rover,
-                                calibrated=calibrated, antenna_file=antenna_file)
+    extra = _processing_options(
+        reference, base=base, rover=rover, calibrated=calibrated, antenna_file=antenna_file
+    )
     rows = []
     for day in DAYS:
         for mask in masks:
             config = RtklibConfig(
-                name=f"sweep_{rover.lower()}_{day:03d}_{mask:g}", output_format="xyz",
-                base_position_type="xyz", elevation_mask=mask,
+                name=f"sweep_{rover.lower()}_{day:03d}_{mask:g}",
+                output_format="xyz",
+                base_position_type="xyz",
+                elevation_mask=mask,
                 base_position=tuple(official_position(reference, base, day)),
                 extra=extra,
             )
-            job = RtklibJob(rover=sessions_by_day[day][rover],
-                            base=sessions_by_day[day][base],
-                            config=config, timeout=600)
-            result = engine.run(job, work_dir=work / config.name)
-            baseline = baseline_from_solution(
-                result.solution, base_station=base, rover_station=rover
+            job = RtklibJob(
+                rover=sessions_by_day[day][rover], base=sessions_by_day[day][base], config=config, timeout=600
             )
+            result = engine.run(job, work_dir=work / config.name)
+            baseline = baseline_from_solution(result.solution, base_station=base, rover_station=rover)
             error = np.array([q.value for q in baseline.components]) - expected
             east, north, up = (v * 1000 for v in ecef_to_enu(tuple(error), latitude, longitude))
-            rows.append({
-                "day": day, "baseline": f"{base}-{rover}",
-                "elevation_mask_deg": mask, "calibrated": calibrated,
-                "error_enu_mm": [east, north, up],
-                "horizontal_mm": math.hypot(east, north),
-                "error_3d_mm": math.sqrt(east * east + north * north + up * up),
-                "fixed_fraction": result.solution.fixed_fraction,
-            })
-            print(f"day {day:03d} mask {mask:4g} deg: "
-                  f"E {east:7.3f}  N {north:7.3f}  U {up:7.3f}  "
-                  f"3D {rows[-1]['error_3d_mm']:6.3f} mm", flush=True)
+            rows.append(
+                {
+                    "day": day,
+                    "baseline": f"{base}-{rover}",
+                    "elevation_mask_deg": mask,
+                    "calibrated": calibrated,
+                    "error_enu_mm": [east, north, up],
+                    "horizontal_mm": math.hypot(east, north),
+                    "error_3d_mm": math.sqrt(east * east + north * north + up * up),
+                    "fixed_fraction": result.solution.fixed_fraction,
+                }
+            )
+            print(
+                f"day {day:03d} mask {mask:4g} deg: "
+                f"E {east:7.3f}  N {north:7.3f}  U {up:7.3f}  "
+                f"3D {rows[-1]['error_3d_mm']:6.3f} mm",
+                flush=True,
+            )
 
-    summary = {"dataset_id": reference["dataset_id"], "baseline": f"{base}-{rover}",
-               "calibrated": calibrated, "rows": rows}
+    summary = {
+        "dataset_id": reference["dataset_id"],
+        "baseline": f"{base}-{rover}",
+        "calibrated": calibrated,
+        "rows": rows,
+    }
     (work / "sweep.json").write_text(json.dumps(summary, indent=2) + "\n")
     return summary
 
 
 def measure_repeatability(
-    output: Path, executable: Path, reference: dict, data: Path = DATA,
-    *, calibrated: bool = True, mask: float = 15.0,
+    output: Path,
+    executable: Path,
+    reference: dict,
+    data: Path = DATA,
+    *,
+    calibrated: bool = True,
+    mask: float = 15.0,
     spans: tuple[int, ...] = REPEATABILITY_SPANS,
-    base: str = "GODN", rover: str = "GODE",
+    base: str = "GODN",
+    rover: str = "GODE",
 ) -> dict:
     """Solve the same baseline from sub-sessions, and report how much it moves.
 
@@ -681,8 +764,9 @@ def measure_repeatability(
     engine = RtklibEngine(configured=executable)
     sessions_by_day = _prepare_sessions(work, data, reference)
     antenna_file = _antenna_file(work, data) if calibrated else None
-    extra = _processing_options(reference, base=base, rover=rover,
-                                calibrated=calibrated, antenna_file=antenna_file)
+    extra = _processing_options(
+        reference, base=base, rover=rover, calibrated=calibrated, antenna_file=antenna_file
+    )
 
     expected = np.array(reference[f"expected_baseline_{base}_to_{rover}_m"])
     origin = reference["stations"][base]["arp_xyz_m_epoch_2020"]
@@ -702,13 +786,17 @@ def measure_repeatability(
                 config = RtklibConfig(
                     name=f"rep_{rover.lower()}_{day:03d}_{span:02d}h_{index:02d}",
                     output_format="xyz",
-                    base_position_type="xyz", elevation_mask=mask,
+                    base_position_type="xyz",
+                    elevation_mask=mask,
                     base_position=tuple(official_position(reference, base, day)),
                     extra=extra,
                 )
                 job = RtklibJob(
-                    rover=sessions_by_day[day][rover], base=sessions_by_day[day][base],
-                    config=config, window=(start, end), timeout=600,
+                    rover=sessions_by_day[day][rover],
+                    base=sessions_by_day[day][base],
+                    config=config,
+                    window=(start, end),
+                    timeout=600,
                 )
                 result = engine.run(job, work_dir=work / config.name)
                 solution = result.solution
@@ -717,9 +805,7 @@ def measure_repeatability(
                         f"{config.name}: {len(solution.epochs)} epochs, expected {span * 120}; "
                         "a short sub-session would bias the scatter rather than show itself"
                     )
-                baseline = baseline_from_solution(
-                    solution, base_station=base, rover_station=rover
-                )
+                baseline = baseline_from_solution(solution, base_station=base, rover_station=rover)
                 error = np.array([q.value for q in baseline.components]) - expected
                 east, north, up = (v * 1000 for v in ecef_to_enu(tuple(error), latitude, longitude))
                 # The formal uncertainty is recorded beside the error so the two
@@ -731,34 +817,47 @@ def measure_repeatability(
                 # Rotate the covariance, not the standard deviations. Three
                 # sigmas are not a vector; ``R`` applied to them would produce
                 # three plausible numbers that are not anyone's uncertainty.
-                formal_enu = (np.sqrt(np.diag(ecef_to_enu_covariance(
-                    baseline.covariance, latitude, longitude
-                ).matrix)) * 1000).tolist()
+                formal_enu = (
+                    np.sqrt(np.diag(ecef_to_enu_covariance(baseline.covariance, latitude, longitude).matrix))
+                    * 1000
+                ).tolist()
                 last = solution.last()
-                rows.append({
-                    "day": day, "baseline": f"{base}-{rover}",
-                    "span_hours": span, "index": index,
-                    "start": start.isoformat(), "end": end.isoformat(),
-                    "elevation_mask_deg": mask, "calibrated": calibrated,
-                    "error_enu_mm": [east, north, up],
-                    "error_3d_mm": math.sqrt(east * east + north * north + up * up),
-                    "formal_sigma_enu_mm": formal_enu,
-                    "epochs": len(solution.epochs),
-                    "fixed_fraction": solution.fixed_fraction,
-                    "last_status": last.status.name,
-                    "last_ratio": last.ratio,
-                    "ambiguity_fixed": last.is_ambiguity_fixed,
-                })
-                print(f"day {day:03d} {span:2d} h #{index:02d} "
-                      f"{start:%H:%M}: E {east:8.3f}  N {north:8.3f}  U {up:8.3f}  "
-                      f"fixed {solution.fixed_fraction:5.3f}  ratio {last.ratio:5.1f}  "
-                      f"sigma3D {math.sqrt(sum(v * v for v in formal_enu)):6.3f} mm", flush=True)
+                rows.append(
+                    {
+                        "day": day,
+                        "baseline": f"{base}-{rover}",
+                        "span_hours": span,
+                        "index": index,
+                        "start": start.isoformat(),
+                        "end": end.isoformat(),
+                        "elevation_mask_deg": mask,
+                        "calibrated": calibrated,
+                        "error_enu_mm": [east, north, up],
+                        "error_3d_mm": math.sqrt(east * east + north * north + up * up),
+                        "formal_sigma_enu_mm": formal_enu,
+                        "epochs": len(solution.epochs),
+                        "fixed_fraction": solution.fixed_fraction,
+                        "last_status": last.status.name,
+                        "last_ratio": last.ratio,
+                        "ambiguity_fixed": last.is_ambiguity_fixed,
+                    }
+                )
+                print(
+                    f"day {day:03d} {span:2d} h #{index:02d} "
+                    f"{start:%H:%M}: E {east:8.3f}  N {north:8.3f}  U {up:8.3f}  "
+                    f"fixed {solution.fixed_fraction:5.3f}  ratio {last.ratio:5.1f}  "
+                    f"sigma3D {math.sqrt(sum(v * v for v in formal_enu)):6.3f} mm",
+                    flush=True,
+                )
 
     summary = {
-        "dataset_id": reference["dataset_id"], "baseline": f"{base}-{rover}",
+        "dataset_id": reference["dataset_id"],
+        "baseline": f"{base}-{rover}",
         "calibrated": calibrated,
-        "elevation_mask_deg": mask, "spans_hours": list(spans),
-        "rows": rows, "statistics": _repeatability_statistics(rows, spans),
+        "elevation_mask_deg": mask,
+        "spans_hours": list(spans),
+        "rows": rows,
+        "statistics": _repeatability_statistics(rows, spans),
     }
     (work / "repeatability.json").write_text(json.dumps(summary, indent=2) + "\n")
     _print_repeatability(summary)
@@ -800,9 +899,7 @@ def _repeatability_statistics(rows: list[dict], spans: tuple[int, ...]) -> dict:
             per_day[day] = {
                 "solutions": len(day_errors),
                 "mean_enu_mm": day_errors.mean(axis=0).tolist(),
-                "sigma_enu_mm": (
-                    day_errors.std(axis=0, ddof=1).tolist() if len(day_errors) > 1 else None
-                ),
+                "sigma_enu_mm": (day_errors.std(axis=0, ddof=1).tolist() if len(day_errors) > 1 else None),
             }
         entry: dict[str, Any] = {
             "solutions": len(selected),
@@ -810,24 +907,24 @@ def _repeatability_statistics(rows: list[dict], spans: tuple[int, ...]) -> dict:
             "median_enu_mm": np.median(errors, axis=0).tolist(),
             "worst_error_3d_mm": float(np.linalg.norm(errors, axis=1).max()),
             "min_fixed_fraction": min(row["fixed_fraction"] for row in selected),
-            "mean_formal_sigma_enu_mm": np.array(
-                [row["formal_sigma_enu_mm"] for row in selected]
-            ).mean(axis=0).tolist(),
+            "mean_formal_sigma_enu_mm": np.array([row["formal_sigma_enu_mm"] for row in selected])
+            .mean(axis=0)
+            .tolist(),
             "per_day": per_day,
         }
-        entry["sigma_enu_mm"] = (
-            errors.std(axis=0, ddof=1).tolist() if len(selected) > 1 else None
-        )
+        entry["sigma_enu_mm"] = errors.std(axis=0, ddof=1).tolist() if len(selected) > 1 else None
         # Scatter about each day's own mean: a day-to-day offset is a different
         # quantity from within-day repeatability and must not inflate it.
         degrees = len(selected) - len(per_day)
         if degrees > 0:
-            residuals = np.vstack([
-                np.array([row["error_enu_mm"] for row in selected if row["day"] == day])
-                - per_day[day]["mean_enu_mm"]
-                for day in per_day
-            ])
-            within = np.sqrt((residuals ** 2).sum(axis=0) / degrees)
+            residuals = np.vstack(
+                [
+                    np.array([row["error_enu_mm"] for row in selected if row["day"] == day])
+                    - per_day[day]["mean_enu_mm"]
+                    for day in per_day
+                ]
+            )
+            within = np.sqrt((residuals**2).sum(axis=0) / degrees)
             entry["sigma_within_day_enu_mm"] = within.tolist()
             entry["sigma_within_day_3d_mm"] = float(np.linalg.norm(within))
         else:
@@ -842,8 +939,10 @@ def _repeatability_statistics(rows: list[dict], spans: tuple[int, ...]) -> dict:
         scale = np.where(robust > 0, robust, np.inf)
         entry["outliers"] = [
             {
-                "start": row["start"], "error_enu_mm": row["error_enu_mm"],
-                "fixed_fraction": row["fixed_fraction"], "last_ratio": row["last_ratio"],
+                "start": row["start"],
+                "error_enu_mm": row["error_enu_mm"],
+                "fixed_fraction": row["fixed_fraction"],
+                "last_ratio": row["last_ratio"],
                 "formal_sigma_enu_mm": row["formal_sigma_enu_mm"],
             }
             for row, deviation in zip(selected, deviations, strict=True)
@@ -852,20 +951,17 @@ def _repeatability_statistics(rows: list[dict], spans: tuple[int, ...]) -> dict:
         statistics["per_span"][span] = entry
 
     fitted = [
-        span for span in sorted(statistics["per_span"])
+        span
+        for span in sorted(statistics["per_span"])
         if statistics["per_span"][span]["sigma_within_day_enu_mm"] is not None
     ]
     if len(fitted) >= 2:
         statistics["scaling"] = _scaling(statistics["per_span"], fitted)
-        statistics["robust_scaling"] = _scaling(
-            statistics["per_span"], fitted, key="robust_sigma_enu_mm"
-        )
+        statistics["robust_scaling"] = _scaling(statistics["per_span"], fitted, key="robust_sigma_enu_mm")
     return statistics
 
 
-def _scaling(
-    per_span: dict, spans: list[int], *, key: str = "sigma_within_day_enu_mm"
-) -> dict:
+def _scaling(per_span: dict, spans: list[int], *, key: str = "sigma_within_day_enu_mm") -> dict:
     """Fit ``sigma(T) = a * T ** -p`` through the session lengths, in log-log.
 
     ``p = 0.5`` is what averaging white noise gives. A smaller exponent means
@@ -887,41 +983,49 @@ def _scaling(
         intercepts.append(intercept)
         residuals.append(float(np.abs(sigmas[:, component] - (slope * lengths + intercept)).max()))
     predicted = [
-        float(10 ** (intercepts[component] - exponents[component] * np.log10(24.0)))
-        for component in range(3)
+        float(10 ** (intercepts[component] - exponents[component] * np.log10(24.0))) for component in range(3)
     ]
     return {
-        "from": key, "spans_hours": spans, "exponent_enu": exponents,
-        "white_noise_exponent": 0.5, "residual_log10": residuals,
+        "from": key,
+        "spans_hours": spans,
+        "exponent_enu": exponents,
+        "white_noise_exponent": 0.5,
+        "residual_log10": residuals,
         "extrapolated_24h_sigma_enu_mm": predicted,
         "points": len(spans),
     }
 
 
 def _print_repeatability(summary: dict) -> None:
-    print(f"\n--- RD-06 sub-session repeatability, {summary['baseline']} "
-          f"(mask {summary['elevation_mask_deg']:g} deg, "
-          f"{'calibrated' if summary['calibrated'] else 'uncalibrated'}) ---")
+    print(
+        f"\n--- RD-06 sub-session repeatability, {summary['baseline']} "
+        f"(mask {summary['elevation_mask_deg']:g} deg, "
+        f"{'calibrated' if summary['calibrated'] else 'uncalibrated'}) ---"
+    )
     for span, values in sorted(summary["statistics"]["per_span"].items(), reverse=True):
         mean = values["mean_enu_mm"]
         robust = values["robust_sigma_enu_mm"]
         within = values["sigma_within_day_enu_mm"]
-        shown = "  ---  ---  ---" if within is None else (
-            f"{within[0]:6.3f} {within[1]:6.3f} {within[2]:6.3f}"
+        shown = (
+            "  ---  ---  ---" if within is None else (f"{within[0]:6.3f} {within[1]:6.3f} {within[2]:6.3f}")
         )
-        print(f"{span:2} h x {values['solutions']:2}: "
-              f"mean E {mean[0]:7.3f} N {mean[1]:7.3f} U {mean[2]:7.3f} | "
-              f"sigma {shown} | robust {robust[0]:6.3f} {robust[1]:6.3f} {robust[2]:6.3f} | "
-              f"{len(values['outliers'])} outlier(s)")
+        print(
+            f"{span:2} h x {values['solutions']:2}: "
+            f"mean E {mean[0]:7.3f} N {mean[1]:7.3f} U {mean[2]:7.3f} | "
+            f"sigma {shown} | robust {robust[0]:6.3f} {robust[1]:6.3f} {robust[2]:6.3f} | "
+            f"{len(values['outliers'])} outlier(s)"
+        )
     for name in ("scaling", "robust_scaling"):
         scaling = summary["statistics"].get(name)
         if not scaling:
             continue
         exponent = scaling["exponent_enu"]
         extrapolated = scaling["extrapolated_24h_sigma_enu_mm"]
-        print(f"{name}: exponent E {exponent[0]:.3f} N {exponent[1]:.3f} U {exponent[2]:.3f} "
-              f"(white noise 0.5); 24 h sigma E {extrapolated[0]:.3f} "
-              f"N {extrapolated[1]:.3f} U {extrapolated[2]:.3f} mm")
+        print(
+            f"{name}: exponent E {exponent[0]:.3f} N {exponent[1]:.3f} U {exponent[2]:.3f} "
+            f"(white noise 0.5); 24 h sigma E {extrapolated[0]:.3f} "
+            f"N {extrapolated[1]:.3f} U {extrapolated[2]:.3f} mm"
+        )
 
 
 def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) -> dict:
@@ -947,15 +1051,29 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         name, day, base, rover, calibrated, precise = case
         # The same options the two diagnostics use, so a case and the sweep or
         # repeatability run that explains it are the same configuration.
-        extra = _processing_options(
-            reference, base=base, rover=rover,
-            calibrated=calibrated, antenna_file=antenna_file,
-        ) if calibrated else _processing_options(
-            reference, base=base, rover=rover, calibrated=False, antenna_file=None,
+        extra = (
+            _processing_options(
+                reference,
+                base=base,
+                rover=rover,
+                calibrated=calibrated,
+                antenna_file=antenna_file,
+            )
+            if calibrated
+            else _processing_options(
+                reference,
+                base=base,
+                rover=rover,
+                calibrated=False,
+                antenna_file=None,
+            )
         )
         config = RtklibConfig(
-            name=name, output_format="xyz", base_position_type="xyz",
-            base_position=tuple(official_position(reference, base, day)), extra=extra,
+            name=name,
+            output_format="xyz",
+            base_position_type="xyz",
+            base_position=tuple(official_position(reference, base, day)),
+            extra=extra,
             ephemeris="precise" if precise else "brdc",
         )
         # ARP truth: no second mark-to-ARP reduction. Rover truth is never input.
@@ -963,8 +1081,11 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         if settings["ant1-postype"] != "single" or any(f"ant1-pos{i}" in settings for i in (1, 2, 3)):
             raise ValueError("The reference rover coordinates must not enter the estimator")
         job = RtklibJob(
-            rover=sessions_by_day[day][rover], base=sessions_by_day[day][base],
-            config=config, products=(str(orbit),) if precise else (), timeout=300,
+            rover=sessions_by_day[day][rover],
+            base=sessions_by_day[day][base],
+            config=config,
+            products=(str(orbit),) if precise else (),
+            timeout=300,
         )
         directory = work / name
         result = engine.run(job, work_dir=directory)
@@ -976,36 +1097,51 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         (directory / "stderr.txt").write_text(result.run.stderr, encoding="utf-8")
         (directory / "command.json").write_text(json.dumps(list(result.run.command), indent=2) + "\n")
         repeat = engine.run(job, work_dir=directory)
-        records = [line for line in (directory / "first.pos").read_text().splitlines()
-                   if line.strip() and not line.startswith("%")]
-        metrics.update({
-            "repeat_pos_bit_identical": first_hash == sha256(repeat.output_file),
-            "pos_sha256": first_hash,
-            "solution_records_sha256": hashlib.sha256(("\n".join(records) + "\n").encode()).hexdigest(),
-            "seconds_first_run": result.run.seconds,
-        })
+        records = [
+            line
+            for line in (directory / "first.pos").read_text().splitlines()
+            if line.strip() and not line.startswith("%")
+        ]
+        metrics.update(
+            {
+                "repeat_pos_bit_identical": first_hash == sha256(repeat.output_file),
+                "pos_sha256": first_hash,
+                "solution_records_sha256": hashlib.sha256(("\n".join(records) + "\n").encode()).hexdigest(),
+                "seconds_first_run": result.run.seconds,
+            }
+        )
         (directory / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
         results.append(metrics)
-        print(f"{name}: XYZ error (mm) {[round(x * 1000, 4) for x in metrics['difference_xyz_m']]}, "
-              f"strict pass={metrics['passes_strict_xyz_comparison']}, "
-              f"repeat={metrics['repeat_pos_bit_identical']}", flush=True)
+        print(
+            f"{name}: XYZ error (mm) {[round(x * 1000, 4) for x in metrics['difference_xyz_m']]}, "
+            f"strict pass={metrics['passes_strict_xyz_comparison']}, "
+            f"repeat={metrics['repeat_pos_bit_identical']}",
+            flush=True,
+        )
     version = engine.version()
     summary = {
         "dataset_id": reference["dataset_id"],
-        "geocomp_commit": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"],
-                                                   text=True).strip(),
+        "geocomp_commit": subprocess.check_output(
+            ["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True
+        ).strip(),
         "geocomp_worktree_status": subprocess.check_output(
-            ["git", "-C", str(ROOT), "status", "--porcelain"], text=True),
+            ["git", "-C", str(ROOT), "status", "--porcelain"], text=True
+        ),
         "expected_rtklib_commit": reference["rtklib_commit"],
         "build_declared_rtklib_commit": os.environ.get("RTKLIB_COMMIT"),
-        "engine_version": version.raw, "engine_binary_sha256": sha256(executable),
-        "python": sys.version, "platform": platform.platform(), "numpy": np.__version__,
-        "hatanaka": hatanaka.__version__, "cases": results,
+        "engine_version": version.raw,
+        "engine_binary_sha256": sha256(executable),
+        "python": sys.version,
+        "platform": platform.platform(),
+        "numpy": np.__version__,
+        "hatanaka": hatanaka.__version__,
+        "cases": results,
         "accuracy_case": reference["accuracy_case"],
         "counter_case": reference["counter_case"],
         "accuracy_criterion_met": all(
-            accuracy_case(results, reference)[key] for key in (
-                "passes_strict_xyz_comparison", "full_day_and_fixed", "repeat_pos_bit_identical")),
+            accuracy_case(results, reference)[key]
+            for key in ("passes_strict_xyz_comparison", "full_day_and_fixed", "repeat_pos_bit_identical")
+        ),
     }
     (work / "metrics.json").write_text(json.dumps(summary, indent=2) + "\n")
     require_processing(summary)
@@ -1023,37 +1159,44 @@ def main() -> int:
         "--verify-inputs", action="store_true", help="Verify frozen sources without an engine"
     )
     parser.add_argument(
-        "--sweep", action="store_true",
+        "--sweep",
+        action="store_true",
         help="Diagnostic: solve both days across a range of elevation masks and report "
-             "the east/north/up error of each, instead of running the cases",
+        "the east/north/up error of each, instead of running the cases",
     )
     parser.add_argument(
-        "--sweep-uncalibrated", action="store_true",
+        "--sweep-uncalibrated",
+        action="store_true",
         help="Sweep without the antenna calibration. The only sweep available where the "
-             "NGS ANTEX host is unreachable; the uncalibrated day-001 result sits 0.2 mm "
-             "from the calibrated one, so it still attributes a millimetre-level error",
+        "NGS ANTEX host is unreachable; the uncalibrated day-001 result sits 0.2 mm "
+        "from the calibrated one, so it still attributes a millimetre-level error",
     )
     parser.add_argument(
-        "--repeatability", action="store_true",
+        "--repeatability",
+        action="store_true",
         help="Diagnostic: solve both days whole and from 12 h, 6 h and 1 h sub-sessions, "
-             "reporting how far the answer moves. Sub-daily because GPS geometry repeats "
-             "every sidereal day, so two whole days conceal exactly the error this exposes",
+        "reporting how far the answer moves. Sub-daily because GPS geometry repeats "
+        "every sidereal day, so two whole days conceal exactly the error this exposes",
     )
     parser.add_argument(
-        "--repeatability-uncalibrated", action="store_true",
+        "--repeatability-uncalibrated",
+        action="store_true",
         help="The repeatability measurement without the antenna calibration, for the "
-             "environments where the NGS ANTEX host is unreachable",
+        "environments where the NGS ANTEX host is unreachable",
     )
     parser.add_argument(
-        "--mask", type=float, default=15.0,
+        "--mask",
+        type=float,
+        default=15.0,
         help="Elevation mask for --repeatability, in degrees. The default is the one "
-             "GeoComp ships, so the scatter describes the configuration a user runs",
+        "GeoComp ships, so the scatter describes the configuration a user runs",
     )
     parser.add_argument(
-        "--rover", choices=("GODE", "GODS"),
+        "--rover",
+        choices=("GODE", "GODS"),
         help="Which rover the diagnostics solve against GODN. The defaults differ on "
-             "purpose: --repeatability measures GODE, the baseline the criterion is judged "
-             "on, and --sweep explains GODS, the counter-case it was written for",
+        "purpose: --repeatability measures GODE, the baseline the criterion is judged "
+        "on, and --sweep explains GODS, the counter-case it was written for",
     )
     args = parser.parse_args()
     if args.fetch_inputs:
@@ -1069,15 +1212,20 @@ def main() -> int:
     version = require(RtklibEngine(configured=args.engine).version(), engine="rnx2rtkp", operation="RD-06")
     if args.sweep or args.sweep_uncalibrated:
         sweep_elevation_mask(
-            args.output, version.path, reference,
+            args.output,
+            version.path,
+            reference,
             calibrated=not args.sweep_uncalibrated,
             **({"rover": args.rover} if args.rover else {}),
         )
         return 0
     if args.repeatability or args.repeatability_uncalibrated:
         measure_repeatability(
-            args.output, version.path, reference,
-            calibrated=not args.repeatability_uncalibrated, mask=args.mask,
+            args.output,
+            version.path,
+            reference,
+            calibrated=not args.repeatability_uncalibrated,
+            mask=args.mask,
             **({"rover": args.rover} if args.rover else {}),
         )
         return 0

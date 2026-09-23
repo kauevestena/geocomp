@@ -465,6 +465,34 @@ from the development environment: `geodesy.noaa.gov`, which serves `ngs20.atx`, 
 as do `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on
 23 September 2026. The membership test belongs in engine CI, where the file exists.
 
+**Correction: "the shortest clean baseline in the network" was a property of the day, not the
+network.** That screen fixed the observation day at 2025 day 001 and asked which stations had carried
+one antenna since the 2020.0 coordinate epoch. The observation day is a free parameter, and nobody had
+varied it. Re-run against a day beside the epoch, the same screen gives a different answer:
+
+| Day screened | Stations with data | One antenna spanning 2020.0 → that day | Same-antenna pairs within 5 km |
+|---|---|---|---|
+| 2025-01-01 | 1723 | 794 | **1** — P281–P282 at 4.014 km, the pair already ruled out above |
+| 2020-01-15 | 1698 | 1685 | **17**, of which 15 are shorter than 46 m |
+
+The fifteen short ones are `TRM41249USCG SCIT` at both ends, 22 to 46 m apart — the same geometry that
+makes GGAO workable, with the same antenna on both monuments instead of two different ones. So the
+earlier conclusion held for the days that were processed and did not hold for the network. Reading a
+station against a day adjacent to its coordinate epoch is also the weaker claim in its own right: it
+extrapolates the published velocity by weeks rather than by five years.
+
+`scripts/screen_cors_pairs.py` is that screen, so the table above is reproducible rather than
+remembered, and `antennas_spanning` in `scripts/check_rd06.py` is the query under it — tested offline
+against the three vendored logs, including the boundary that GODS's antenna came off on 2020-09-02 and
+its replacement went on the 3rd. GODS is unjudgeable **against a 2025 day**; against 2020-06-01 the
+instrument its published coordinate describes was still on the monument.
+
+**This does not by itself close the criterion, and two things are still unknown.** Whether
+`TRM41249USCG SCIT` is in the pinned `ngs20.atx` cannot be tested here — the file is 403 from the
+development environment, and the ANTEX used for the table above could not be authenticated, so its
+membership column is excluded from the claim. And a pair that is *judgeable* may still miss by more
+than a millimetre; making the comparison decidable and passing it are different results.
+
 **A GNSS numerical threshold was derived and then deliberately not adopted**, at the maintainer's
 decision of 23 September 2026. The derivation is recorded because its outcome is the point: the
 estimator's measured repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from

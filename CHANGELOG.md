@@ -15,6 +15,13 @@ it is failing on is now written down.
 
 #### Added
 
+- **`scripts/screen_cors_pairs.py`**, the station screen behind `specs/22` §5.2,
+  as a script rather than a remembered result: site logs in, candidate pairs out,
+  no engine and no network beyond an optional directory listing. `antennas_spanning`
+  in `scripts/check_rd06.py` is the query under it — the antenna types a log says
+  were on the monument for both the coordinate epoch and the day observed. None
+  means the comparison cannot be made, which is GODS against a 2025 day; more
+  than one means the hardware changed in between.
 - **A processing time window on the RTKLIB adapter** (FR-354, FR-355):
   `RtklibJob.window` writes `-ts`/`-te`. `specs/08` §2 had listed those flags as
   verified since P7a and the adapter never had them, so a session could not be
@@ -77,8 +84,27 @@ it is failing on is now written down.
 - **Baseline length dominates at this processing configuration.** Screening all
   2886 CORS site logs found 1263 stations with one antenna spanning the
   coordinate epoch and 692 of those with both days available; every same-antenna
-  pair longer than 4 km errs by 13 to 47 mm. GGAO's 65 m baseline is the shortest
-  clean one in the network, which is why the site did not change.
+  pair longer than 4 km errs by 13 to 47 mm, and on the days processed — 2025
+  001 and 002 — GGAO's 65 m was the shortest clean baseline available, which is
+  why the site did not change.
+- **That last clause was first written as a property of the network, and it is
+  a property of the day.** The screen fixed the observation day at 2025 day 001;
+  the observation day is a free parameter and nobody had varied it. Against 2020
+  day 015, beside the coordinate epoch, 1685 of 1698 stations carry one spanning
+  antenna and there are **17** same-antenna pairs within 5 km, fifteen of them
+  `TRM41249USCG SCIT` at 22 to 46 m — against **one** on 2025 day 001, which is
+  the 4 km pair already ruled out. Reading a station beside its coordinate epoch
+  also extrapolates the published velocity by weeks instead of five years.
+  `scripts/screen_cors_pairs.py` makes the table reproducible. It does not close
+  the criterion: whether those antennas are in the pinned `ngs20.atx` is still
+  untestable here, and a judgeable pair may still miss by more than a millimetre.
+- **An empty date field in a site log could pair an antenna with another
+  block's dates.** Under `re.S` the pattern's `\s*` run-up crossed the newline,
+  so a blank `Date Installed` let the match run into the following antenna and
+  report a real antenna against times it was never installed for. None of the
+  three vendored logs has a blank field, so nothing published changes; the
+  pattern is now line-bounded and a block with no usable installation date is
+  skipped rather than guessed at.
 
 - **A missing antenna calibration is silent, and now it is not.**
   `rnx2rtkp` clears the antenna name and processes on uncalibrated when the

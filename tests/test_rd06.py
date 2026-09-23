@@ -36,6 +36,7 @@ from scripts.check_rd06 import (
     UnjudgeableCaseError,
     accuracy_case,
     antenna_history,
+    antennas_spanning,
     load_reference,
     measure_solution,
     official_position,
@@ -58,8 +59,9 @@ def test_sources_and_transcription_match_the_official_bytes(reference, rover):
     # Independent truth is an epoch-propagated ITRF2020 ARP baseline, not the
     # RINEX approximate positions, NAD83, L1 phase centres or RTKLIB output.
     for day in (1, 2):
-        vector = np.subtract(official_position(reference, rover, day),
-                             official_position(reference, "GODN", day))
+        vector = np.subtract(
+            official_position(reference, rover, day), official_position(reference, "GODN", day)
+        )
         np.testing.assert_allclose(
             vector, reference[f"expected_baseline_GODN_to_{rover}_m"], atol=1e-9, rtol=0
         )
@@ -108,6 +110,63 @@ class TestTheReferenceDescribesTheseObservations:
             assert current[0]["installed"] == entry["antenna_installed"]
 
 
+class TestTheDayTheComparisonIsReadAgainst:
+    """The observation day is part of the question, not a detail.
+
+    A published coordinate describes the antenna carried while the data behind
+    it was collected. The first station screen fixed the observation day at 2025
+    day 001 and concluded that GGAO's 65 m baseline was the shortest clean one
+    in the network. That was a property of the day: on a day beside the 2020.0
+    epoch the same screen finds seventeen same-antenna pairs within 5 km,
+    fifteen of them under 46 m. ``specs/22`` section 5.2 carries the correction;
+    these fix the behaviour it rests on, offline, from the vendored logs.
+    """
+
+    @staticmethod
+    def log(station: str) -> str:
+        return (DATA / "sources" / f"{station}.log.txt").read_text(errors="replace")
+
+    def test_the_judged_stations_carry_one_antenna_across_the_span(self):
+        assert antennas_spanning(self.log("godn"), "2020-01-01", "2025-01-01") == {"TPSCR.G3        SCIS"}
+        assert antennas_spanning(self.log("gode"), "2020-01-01", "2025-01-01") == {"AOAD/M_T        JPLA"}
+
+    def test_nothing_spans_the_counter_case_against_the_day_it_is_processed_on(self):
+        """GODS's defect stated as a set size: no antenna it carried at the
+        2020.0 epoch was still there in 2025, and the one that is arrived
+        after. This is the same refusal ``require_reference_configuration``
+        makes, reached from the log text alone."""
+        assert antennas_spanning(self.log("gods"), "2020-01-01", "2025-01-01") == set()
+
+    def test_the_counter_case_is_judgeable_against_a_day_beside_the_epoch(self):
+        """The correction, as a test. GODS is only unjudgeable *because of the
+        day chosen*: its pre-epoch antenna was on the monument until
+        2020-09-02, so a day before that reads against the instrument the
+        published coordinate is actually of."""
+        assert antennas_spanning(self.log("gods"), "2020-01-01", "2020-06-01") == {"TPSCR.G3        SCIS"}
+
+    def test_removal_is_exclusive_of_the_day_observed(self):
+        """GODS's antenna came off on 2020-09-02 and its replacement went on
+        the 3rd, so the 3rd spans nothing -- the boundary, not an estimate."""
+        assert antennas_spanning(self.log("gods"), "2020-01-01", "2020-09-02") == {"TPSCR.G3        SCIS"}
+        assert antennas_spanning(self.log("gods"), "2020-01-01", "2020-09-03") == set()
+
+    def test_a_block_with_no_installation_date_is_skipped_not_guessed_at(self):
+        """An empty date field used to let the pattern run on and pair this
+        antenna with the *next* block's dates, which reports a real antenna
+        against times it was not installed for. Skipping errs towards refusing
+        a station, which is the safe direction for a screen."""
+        log = (
+            "4.1  Antenna Type             : TPSCR.G3        SCIS\n"
+            "     Date Installed           : \n"
+            "     Date Removed             : (CCYY-MM-DDThh:mmZ)\n"
+            "\n"
+            "4.2  Antenna Type             : AOAD/M_T        NONE\n"
+            "     Date Installed           : 2015-01-01T00:00Z\n"
+            "     Date Removed             : (CCYY-MM-DDThh:mmZ)\n"
+        )
+        assert antennas_spanning(log, "2020-01-01", "2025-01-01") == {"AOAD/M_T        NONE"}
+
+
 class TestTheSheetContradictsItself:
     """An L1 phase-centre offset is vertical by construction: two verticals
     76 m apart diverge by 1.2e-5 radians, so 85 mm of offset projects to under
@@ -147,26 +206,40 @@ class TestACaseCarryingAnotherDomesCalibration:
 
     def test_a_substituted_radome_cannot_be_judged(self):
         with pytest.raises(UnjudgeableCaseError, match="antenna \\*and radome\\*"):
-            require_exact_calibration({
-                "case": "calibrated_gode_001",
-                "antenna_calibration": RADOME_SUBSTITUTED,
-                "resolved_antennas": {"1": "AOAD/M_T        NONE"},
-            })
+            require_exact_calibration(
+                {
+                    "case": "calibrated_gode_001",
+                    "antenna_calibration": RADOME_SUBSTITUTED,
+                    "resolved_antennas": {"1": "AOAD/M_T        NONE"},
+                }
+            )
 
     def test_an_exact_match_is_judgeable(self):
-        require_exact_calibration({
-            "case": "calibrated_gods_001", "antenna_calibration": EXACT, "resolved_antennas": {},
-        })
+        require_exact_calibration(
+            {
+                "case": "calibrated_gods_001",
+                "antenna_calibration": EXACT,
+                "resolved_antennas": {},
+            }
+        )
 
     def test_no_calibration_at_all_is_a_processing_error_instead(self):
         """A different refusal, because it is a different thing: one is a real
         calibration of the wrong dome, the other is no calibration."""
         with pytest.raises(RuntimeError, match="applied no calibration"):
-            require_processing({"cases": [{
-                "case": "calibrated_gode_001", "full_day_and_fixed": True,
-                "repeat_pos_bit_identical": True, "antenna_calibration": UNCALIBRATED,
-                "resolved_antennas": {"1": ""},
-            }]})
+            require_processing(
+                {
+                    "cases": [
+                        {
+                            "case": "calibrated_gode_001",
+                            "full_day_and_fixed": True,
+                            "repeat_pos_bit_identical": True,
+                            "antenna_calibration": UNCALIBRATED,
+                            "resolved_antennas": {"1": ""},
+                        }
+                    ]
+                }
+            )
 
 
 def test_recorded_solution_remains_a_negative_accuracy_example(reference, tmp_path):
@@ -177,8 +250,11 @@ def test_recorded_solution_remains_a_negative_accuracy_example(reference, tmp_pa
     # case that produced them is recorded beside them rather than indexed for.
     case = tuple(reference["recorded_solution"]["case"])
     metrics = measure_solution(solution, reference, case)
-    recorded = next(row for row in json.loads(
-        (DATA / "observed-results.json").read_text())["cases"] if row["case"] == case[0])
+    recorded = next(
+        row
+        for row in json.loads((DATA / "observed-results.json").read_text())["cases"]
+        if row["case"] == case[0]
+    )
     np.testing.assert_allclose(metrics["difference_xyz_m"], recorded["difference_xyz_m"], atol=1e-9, rtol=0)
     assert metrics["full_day_and_fixed"]
     # Formal precision and fixed ambiguities cannot substitute for accuracy.
@@ -196,8 +272,10 @@ def live_results(reference, tmp_path_factory):
     if importlib.util.find_spec("hatanaka") is None:
         missing.append("hatanaka (pip install -r tests/data/rd06/requirements.txt)")
     entries = json.loads((DATA / "source_manifest.json").read_text())
-    if any(entry["required_for_processing"] and not (DATA / entry["packaged_path"]).is_file()
-           for entry in entries):
+    if any(
+        entry["required_for_processing"] and not (DATA / entry["packaged_path"]).is_file()
+        for entry in entries
+    ):
         missing.append("reference inputs (python3 scripts/check_rd06.py --fetch-inputs --verify-inputs)")
     if missing:
         message = "RD-06 requires " + " and ".join(missing)
@@ -249,7 +327,8 @@ def test_the_counter_case_was_calibrated_exactly(live_results):
 
 @pytest.mark.engines
 @pytest.mark.xfail(
-    strict=True, raises=AccuracyMismatchError,
+    strict=True,
+    raises=AccuracyMismatchError,
     reason=(
         "RD-06 accuracy unmet; specs/22 section 5.2. The number this produces is "
         "currently also unjudgeable -- GODE's radome is not in ngs20.atx, so the run "
@@ -277,6 +356,4 @@ def test_the_counter_case_carries_the_discrepancy_and_the_judged_one_does_not(li
     gode = rows["calibrated_gode_001"]["difference_enu_m"][1] * 1000
     gods = rows["calibrated_gods_001"]["difference_enu_m"][1] * 1000
     assert gods < -3.0, f"the counter-case no longer shows its north discrepancy: {gods:.3f} mm"
-    assert abs(gode) < abs(gods), (
-        f"GODE {gode:.3f} mm is not better than GODS {gods:.3f} mm in north"
-    )
+    assert abs(gode) < abs(gods), f"GODE {gode:.3f} mm is not better than GODS {gods:.3f} mm in north"

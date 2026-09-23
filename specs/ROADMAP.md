@@ -581,6 +581,13 @@ that moves, and `fixed_fraction` alone is not enough (FR-603). `rnx2rtkp`'s `-te
 windows end one interval short. And a same-antenna-type pair longer than 4 km errs by 13 to 47 mm under
 this configuration, which is why the 65 m GGAO baseline is the case and not a "more realistic" one.
 
+**One conclusion from that screen has been narrowed.** "GGAO's 65 m is the shortest clean baseline in
+the network" was measured with the observation day fixed at 2025 day 001, and the observation day is a
+free parameter. Against 2020 day 015 the same screen finds **17** same-antenna pairs within 5 km,
+fifteen of them at 22 to 46 m, where 2025 day 001 gives one — the 4 km pair already ruled out. The
+claim held for the days processed, not for the network. `scripts/screen_cors_pairs.py` is that screen;
+[`22`](./22-reference-data-sources.md) §5.2 carries the table and what it still does not settle.
+
 | P7d exit criterion | State |
 |---|---|
 | The 7.5 mm is attributed to specific, named causes | **met** — one contaminated hour, and one station's post-epoch antenna change |
@@ -609,7 +616,9 @@ criterion needs a station whose antenna **and radome** are both in the calibrati
 membership cannot be tested from the development environment — `geodesy.noaa.gov`, which serves
 `ngs20.atx`, is 403, as are `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and
 `geoftp.ibge.gov.br`, all re-checked on 23 September 2026. The test belongs in engine CI, where the
-file exists, and that is the next step rather than a claim made here.
+file exists, and that is the next step rather than a claim made here. It is now a narrower question
+than it was: the screen above supplies fifteen same-antenna candidate pairs to test membership for,
+instead of an open search.
 
 ---
 
