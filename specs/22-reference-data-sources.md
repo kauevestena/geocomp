@@ -440,7 +440,26 @@ term it attributes is north.
 **Two independent defects, one site.** GODS's published coordinate describes an antenna it no longer
 carries; GODE's antenna carries a dome nobody publishes a calibration for. Neither is a clean accuracy
 case and they fail for unrelated reasons — which is why the pair remains the right controlled
-experiment and neither is the right *reference*. Closing the criterion needs a station whose antenna
+experiment and neither is the right *reference*.
+
+**And the obvious escape does not work.** The natural objection is to leave the site for a longer
+same-antenna pair, and section 5.2 already recorded that every such pair beyond 4 km errs by 13 to
+47 mm. That measurement used the broadcast ionosphere model, which is the wrong choice over kilometres,
+so the ionosphere-free combination was tried on P281–P282 (4.014 km, `TRM29659.00 SCIT` at both ends,
+both installed in 2004):
+
+| 2025-002, P281→P282 | E mm | N mm | U mm | fixed | ratio |
+|---|---|---|---|---|---|
+| broadcast ionosphere | −4.39 | +4.94 | −11.76 | 0.999 | 34.3 |
+| ionosphere-free L1/L2 | **+0.15** | **+0.50** | **−14.67** | **0.000** | **1.0** |
+
+It fixes the horizontal, as expected — the horizontal error at 4 km *was* the ionosphere. But the
+ionosphere-free combination has no integer wavelength, so `rnx2rtkp` resolves no ambiguities in this
+mode at all: every run comes back FLOAT at a ratio of about 1, and the height degrades with it. A
+kilometres-long baseline would need wide-lane/narrow-lane resolution, which this engine does not do
+here. **The short baseline is not a convenience; it is what makes the comparison possible with this
+engine**, and that is why the answer is a better pair of stations at a short baseline rather than a
+longer one. Closing the criterion needs a station whose antenna
 **and radome** are both in the calibration set, and the site-log screen of section 5.2 cannot test that
 from the development environment: `geodesy.noaa.gov`, which serves `ngs20.atx`, answers 403 to CONNECT,
 as do `files.igs.org`, `igs.bkg.bund.de`, `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on

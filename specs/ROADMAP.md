@@ -569,6 +569,12 @@ agrees with itself to 0.21 mm. GODE, whose antenna predates the epoch, misses it
 **0.65 mm in north on the clean day where GODS misses by 6.53 mm** — one base, two rovers, one day, one
 configuration, four days tried.
 
+**The obvious escape was tried and measured.** Leaving the site for a longer same-antenna pair fails
+for a second reason: at 4 km the ionosphere-free combination fixes the horizontal (P281–P282 goes from
+−4.4/+4.9 mm to +0.15/+0.50 mm) but resolves **no ambiguities at all** — it has no integer wavelength,
+so every run is FLOAT at a ratio near 1 and the height degrades to −14.7 mm. The short baseline is what
+makes the comparison possible with this engine, not a convenience.
+
 **Three things this turned up that the product keeps.** A wrong integer fix does **not** enlarge RTKLIB's
 formal covariance — a 22 mm error reports a 1.08 mm sigma — so the validation ratio is the only indicator
 that moves, and `fixed_fraction` alone is not enough (FR-603). `rnx2rtkp`'s `-te` is inclusive, so disjoint
