@@ -102,7 +102,15 @@ def published_arp(text: str) -> list[float] | None:
     return [float(re.search(rf"\|\s+{axis} =\s*([-\d.]+)", block)[1]) for axis in "XYZ"]
 
 
-def run(into: Path, executable: Path, antex: Path) -> dict:
+def run(into: Path, executable: Path | None, antex: Path) -> dict:
+    """Solve every pair on every day.
+
+    *executable* is ``None`` when no ``--engine`` was given, and that is passed
+    straight through: ``RtklibEngine`` treats a configured path as a path it
+    must find and refuses to fall back to a different program, so turning
+    "not configured" into ``Path("rnx2rtkp")`` makes the PATH lookup fail
+    instead of happening. Engine CI relies on the lookup.
+    """
     import hatanaka
     import numpy as np
 
@@ -237,7 +245,7 @@ def main() -> int:
         return 0
     if args.antex is None:
         parser.error("--run needs --antex")
-    measured = run(args.work, args.engine or Path("rnx2rtkp"), args.antex)
+    measured = run(args.work, args.engine, args.antex)
     return compare(measured, args.max_departure_mm)
 
 
