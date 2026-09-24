@@ -119,6 +119,14 @@ def run(into: Path, executable: Path | None, antex: Path) -> dict:
     from geocomp.engines.rtklib import RtklibConfig, RtklibEngine, RtklibJob
     from geocomp.io.gnss_discovery import scan_folder
 
+    # The engine runs rnx2rtkp with its cwd set to each pair's work directory,
+    # and these paths go into the config file verbatim. A relative --antex would
+    # therefore be resolved against that directory rather than against the
+    # caller's, and RTKLIB reports the miss as "no sat ant pcv in <path>" --
+    # which reads like a defective ANTEX rather than a path it never opened.
+    # Resolving here protects every caller, not just the CLI.
+    into, antex = into.resolve(), antex.resolve()
+
     if ANTENNA not in {
         line[:20].rstrip()
         for line in antex.read_text(errors="replace").splitlines()
