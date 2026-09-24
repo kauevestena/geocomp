@@ -15,6 +15,14 @@ it is failing on is now written down.
 
 #### Added
 
+- **`scripts/check_published_coordinates.py` and its recorded answer**, which
+  settles what RD-06 had been unable to ask. With the `igs20.atx` the maintainer
+  supplied on 24 September 2026, `TRM41249USCG SCIT` is confirmed calibrated, so
+  the candidate pairs are judgeable; `AOAD/M_T JPLA` is absent there too, so
+  GODE's unjudgeability is confirmed against a second calibration set rather
+  than being an artefact of one file. All fourteen eligible pairs are then run
+  on three days each, every result reported and none selected after solving,
+  with 117 sources pinned by digest and eleven offline tests over the recording.
 - **`scripts/screen_cors_pairs.py`**, the station screen behind `specs/22` §5.2,
   as a script rather than a remembered result: site logs in, candidate pairs out,
   no engine and no network beyond an optional directory listing. `antennas_spanning`
@@ -98,6 +106,23 @@ it is failing on is now written down.
   `scripts/screen_cors_pairs.py` makes the table reproducible. It does not close
   the criterion: whether those antennas are in the pinned `ngs20.atx` is still
   untestable here, and a judgeable pair may still miss by more than a millimetre.
+- **The RD-06 accuracy criterion is unreachable against this reference, and it
+  is no longer the reference case's defects that make it so.** Fourteen
+  independent same-antenna CORS pairs of 22 to 46 m, every one resolving its own
+  antenna *and* radome exactly and every one ambiguity-fixed, miss their
+  published ITRF2020 coordinates: median worst component 5.1 mm, best 1.9 mm,
+  worst 18.0 mm, **none within 1 mm**. Three discriminators put the miss on the
+  reference rather than the estimator — each pair holds its own offset to
+  0.43 mm across three days, pairs differ from each other by 2.7 to 6.6 mm, and
+  the offsets do not move between a 10° and a 30° elevation mask (AIS5-AIS6 is
+  +21.33 mm north at 10° and +21.08 at 30°). So GGAO was never an outlier:
+  GODN-GODE's [3.852, 7.799, -2.808] mm sits near the middle of that
+  distribution. The two defects P7d attributed are real and were worth finding;
+  they were simply never what kept the check red. The estimator repeats to
+  0.500 / 0.297 / 0.080 mm, so the comparison has been measuring the reference's
+  uncertainty all along — now measured rather than merely called unpublished.
+  What to do about the threshold is a decision, put to the maintainer in
+  `specs/20` §6 rather than taken; the check stays red until they take it.
 - **An empty date field in a site log could pair an antenna with another
   block's dates.** Under `re.S` the pattern's `\s*` run-up crossed the newline,
   so a blank `Date Installed` let the match run into the following antenna and

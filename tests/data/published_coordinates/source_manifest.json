@@ -1,0 +1,704 @@
+[
+ {
+  "file": "acu50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/acu5/acu50150.20d.gz",
+  "bytes": 366207,
+  "sha256": "1105e99d490865985106166e7333628d19f0b37ffed6eeb83a3a3f3f4ef930bf"
+ },
+ {
+  "file": "acu50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/acu5/acu50160.20d.gz",
+  "bytes": 359039,
+  "sha256": "6014dc2c90f687b30ed118af7f944c62cc4b1d7c086815874f24abc0dd2f118b"
+ },
+ {
+  "file": "acu50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/acu5/acu50170.20d.gz",
+  "bytes": 374555,
+  "sha256": "36c7efce17ab33a142e9a0e7d43af20a0b5ecad8fd553049fa769e9ef80a78e4"
+ },
+ {
+  "file": "acu5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/acu5_20.coord.txt",
+  "bytes": 6049,
+  "sha256": "e77ab9629d0bb7ef457ab1f06267228ec6bb8b540264adbbf23f5556debe1874"
+ },
+ {
+  "file": "acu60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/acu6/acu60150.20d.gz",
+  "bytes": 384462,
+  "sha256": "4335c798907d7a0e34be84c42541bf71c5a04009c7c42c9f96a0a44ad00fa347"
+ },
+ {
+  "file": "acu60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/acu6/acu60160.20d.gz",
+  "bytes": 374803,
+  "sha256": "c8f534ae96ebd7db8d79ddbf2a9e7a102b657d9404e8069fbf70fab5f26b1b8e"
+ },
+ {
+  "file": "acu60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/acu6/acu60170.20d.gz",
+  "bytes": 386095,
+  "sha256": "2a0bc1089e22be00e07208c692ffd64299cc74e7140aa3a09c847bf7c5439fa1"
+ },
+ {
+  "file": "acu6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/acu6_20.coord.txt",
+  "bytes": 6108,
+  "sha256": "8abe03efcd703bbc3c4b4d213e9f919bffa525679985c01db7e6aef9b00cefd4"
+ },
+ {
+  "file": "ais50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/ais5/ais50150.20d.gz",
+  "bytes": 418649,
+  "sha256": "794ac9d77c140801291a8154205ec6ad6a57034e5a5939d81e6893768e190f82"
+ },
+ {
+  "file": "ais50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/ais5/ais50160.20d.gz",
+  "bytes": 401604,
+  "sha256": "664ee08cf73f7809a204ae6f8e2eb3ee7494aeba5bdba0f5f6201a68e837adb8"
+ },
+ {
+  "file": "ais50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/ais5/ais50170.20d.gz",
+  "bytes": 414461,
+  "sha256": "262c5eef7af83e97abf47206c84929fa10234144aa11ec48c7a44518099d0be0"
+ },
+ {
+  "file": "ais5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/ais5_20.coord.txt",
+  "bytes": 6101,
+  "sha256": "7bb980a148bba6c12069e4fd50e425727135bcb06176622ad942c6bd86ff8567"
+ },
+ {
+  "file": "ais60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/ais6/ais60150.20d.gz",
+  "bytes": 419540,
+  "sha256": "57b724a6acf4e3aaaadeea99c314d7455255683776a29d07802e41164231ed9f"
+ },
+ {
+  "file": "ais60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/ais6/ais60160.20d.gz",
+  "bytes": 351328,
+  "sha256": "17e199a9089f800118facf73b60819ed896bc25666f081be86c6b363e7ec1358"
+ },
+ {
+  "file": "ais60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/ais6/ais60170.20d.gz",
+  "bytes": 74740,
+  "sha256": "915967893d06890f089c1bd24bb7775b37a91d4049f869e319dd232b5ce4a4ea"
+ },
+ {
+  "file": "ais6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/ais6_20.coord.txt",
+  "bytes": 6101,
+  "sha256": "7b2319d828c21ce3f97a95cbcbb244e63b5271d01f1e337dc23d18ab8df7802a"
+ },
+ {
+  "file": "bis50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/bis5/bis50150.20d.gz",
+  "bytes": 428294,
+  "sha256": "68b3ed7e5862984da9bcbf1fc02648b90aad8604d4c9c283ab69d34d92dc4c2e"
+ },
+ {
+  "file": "bis50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/bis5/bis50160.20d.gz",
+  "bytes": 413912,
+  "sha256": "615919eebab4f4392039014767eb2146f7c1de57711fddecef3f811d044f3262"
+ },
+ {
+  "file": "bis50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/bis5/bis50170.20d.gz",
+  "bytes": 426297,
+  "sha256": "2ae93e7025b07cefb7e1e250772312be81090566603ffb339838877539f7ebf1"
+ },
+ {
+  "file": "bis5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/bis5_20.coord.txt",
+  "bytes": 6100,
+  "sha256": "177a46086335da568d077f99d10bd500ea0b3ddb5631f818f2ac15b4cb701e33"
+ },
+ {
+  "file": "bis60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/bis6/bis60150.20d.gz",
+  "bytes": 431322,
+  "sha256": "546166f1e246ad66e45d687833bdfecb9a9a766243db69dcb12f79a860dca232"
+ },
+ {
+  "file": "bis60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/bis6/bis60160.20d.gz",
+  "bytes": 415855,
+  "sha256": "b5774aaca62701bdb4353d7e42fd13b37144f1bde25508e25659b8488f46ba43"
+ },
+ {
+  "file": "bis60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/bis6/bis60170.20d.gz",
+  "bytes": 426412,
+  "sha256": "3bc079953f405d54ec003ce3b38922960894500d98125042c82fe2fb05db7f25"
+ },
+ {
+  "file": "bis6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/bis6_20.coord.txt",
+  "bytes": 6100,
+  "sha256": "5ea6115c6c230c77952683b6ce98257432fcbba6167f89c229af2fec20f15f3c"
+ },
+ {
+  "file": "brdc0150.20n.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/brdc0150.20n.gz",
+  "bytes": 69940,
+  "sha256": "b3c8f832674b0c8b8cf69c10cbadfe82e890bd6ee6169e271d9bbe9af4d32b7c"
+ },
+ {
+  "file": "brdc0160.20n.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/brdc0160.20n.gz",
+  "bytes": 69835,
+  "sha256": "f2fc2bed0a3bc32e85a5905f776898439a7057baa00fefe0b245aa2bb701bd91"
+ },
+ {
+  "file": "brdc0170.20n.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/brdc0170.20n.gz",
+  "bytes": 69366,
+  "sha256": "b108a2a52303b5b3ab3d1b24af8ab6635b80b63722fd05c1b9ad061968396d30"
+ },
+ {
+  "file": "chb50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/chb5/chb50150.20d.gz",
+  "bytes": 407554,
+  "sha256": "824ff3ed2306de33f295215b86b1a2e9abc9efa1678d2cd8e3610627b039f74b"
+ },
+ {
+  "file": "chb50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/chb5/chb50160.20d.gz",
+  "bytes": 405448,
+  "sha256": "a79d09666d207581ab1959672deb7984dd7437c70bedd8b3f3628a452d852242"
+ },
+ {
+  "file": "chb50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/chb5/chb50170.20d.gz",
+  "bytes": 405279,
+  "sha256": "aed2bd8b2a38183a9b5e747e02cdf24b1a5cc007a829a7eddc6a4145ee36fc52"
+ },
+ {
+  "file": "chb5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/chb5_20.coord.txt",
+  "bytes": 6045,
+  "sha256": "ff94fbfb4e65b03a971a4a09138835f8ade533474e3942cdb995bb56acc3acb4"
+ },
+ {
+  "file": "chb60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/chb6/chb60150.20d.gz",
+  "bytes": 409378,
+  "sha256": "c71ab7811983f50fe34caaa5ecfce0f501247ceb4eb7839ecb36279e10a40f05"
+ },
+ {
+  "file": "chb60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/chb6/chb60160.20d.gz",
+  "bytes": 407331,
+  "sha256": "d5d00c10e9c7d7eedaf1dff44115e6ec3ce1f9b9cf727524780c51b52455d6ed"
+ },
+ {
+  "file": "chb60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/chb6/chb60170.20d.gz",
+  "bytes": 406070,
+  "sha256": "5ebc14c1cfff42dc5a9b8fb56d0b146eab6848c92a2a64bb2f2035bebd0eb2d7"
+ },
+ {
+  "file": "chb6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/chb6_20.coord.txt",
+  "bytes": 6045,
+  "sha256": "b89a46d80d7384998effa187ae98b9ba7f52fbc12cc18001c5148a3b8886c4f7"
+ },
+ {
+  "file": "det50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/det5/det50150.20d.gz",
+  "bytes": 400192,
+  "sha256": "18fb8ecc76808e3639d06eb29b6c06a70dc9cd2b40fb29d22ff242f8b31b15d7"
+ },
+ {
+  "file": "det50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/det5/det50160.20d.gz",
+  "bytes": 402144,
+  "sha256": "6fdc78e094704bfa20f506facf4c11607c9823b7348479ecdfb661886e29fc6d"
+ },
+ {
+  "file": "det50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/det5/det50170.20d.gz",
+  "bytes": 358095,
+  "sha256": "52125bbc7b420997e44d318f1aec5d6697501a66565cf69f198382c49d8dd3c1"
+ },
+ {
+  "file": "det5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/det5_20.coord.txt",
+  "bytes": 6043,
+  "sha256": "1f011aeb9cdb63aec30b0395fd3fab392531bbc24fae18c35dcbf584da3dd3b2"
+ },
+ {
+  "file": "det60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/det6/det60150.20d.gz",
+  "bytes": 394544,
+  "sha256": "8ff810fb77ba750eda674a2016d7552c01d17a1c459c30ddd7e529b180e2a1b1"
+ },
+ {
+  "file": "det60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/det6/det60160.20d.gz",
+  "bytes": 398200,
+  "sha256": "12f24d3980ce4a84aa7dedfed1ff8a5abd474a1b86f4dc01ad1e730c5b943a9b"
+ },
+ {
+  "file": "det60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/det6/det60170.20d.gz",
+  "bytes": 368185,
+  "sha256": "a733b11b18b6c35a823c39bc552e5d68847d52ad3166f9488603ddccb3cbecf1"
+ },
+ {
+  "file": "det6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/det6_20.coord.txt",
+  "bytes": 6043,
+  "sha256": "d73112a3e6dcaffe6eb48cd8bf2d1f086d35989a4a21bd17dfb62a7dcbcc052b"
+ },
+ {
+  "file": "eng50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/eng5/eng50150.20d.gz",
+  "bytes": 404095,
+  "sha256": "100707e28abc561bced6bdd8d5134cce7c6cc042170c6e7a5a796e23197bf40d"
+ },
+ {
+  "file": "eng50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/eng5/eng50160.20d.gz",
+  "bytes": 380186,
+  "sha256": "d20e6707cdbc2c6af2c8bdaf7fd7b1aea4816df89d8895e680cf2f8c852dfb41"
+ },
+ {
+  "file": "eng50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/eng5/eng50170.20d.gz",
+  "bytes": 399933,
+  "sha256": "6d173aede17d3559728b524b286a6d0142743e7af830e85020ee406906883523"
+ },
+ {
+  "file": "eng5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/eng5_20.coord.txt",
+  "bytes": 6049,
+  "sha256": "e2f0221cdfd2b65b8c2bf342bde3f6ba66d8f03d087d64e121f702f3c571bb05"
+ },
+ {
+  "file": "eng60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/eng6/eng60150.20d.gz",
+  "bytes": 408338,
+  "sha256": "1b08437c8107254b7120456bc1cf73b65490838aba4be8c7c03a1c706e87e445"
+ },
+ {
+  "file": "eng60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/eng6/eng60160.20d.gz",
+  "bytes": 383453,
+  "sha256": "ebd6c7c41dd2353259e3b19387ba8ac24a7a382e0b3561d5759a80a1ac1c0e72"
+ },
+ {
+  "file": "eng60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/eng6/eng60170.20d.gz",
+  "bytes": 403846,
+  "sha256": "9595ee0a7f01b96b716396b60f8bbe855f373b6ef4c0cfc00c19a69ae320946e"
+ },
+ {
+  "file": "eng6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/eng6_20.coord.txt",
+  "bytes": 6049,
+  "sha256": "16f8d1d67d0112aaf648975a89081163f9e978916561ee6cfcfa3aa1805dd17f"
+ },
+ {
+  "file": "gus50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/gus5/gus50150.20d.gz",
+  "bytes": 433773,
+  "sha256": "39b943e465c01fbcf92d2ea53f467ce6131f2eab3dda4fa5fa57d9fc759d03e3"
+ },
+ {
+  "file": "gus50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/gus5/gus50160.20d.gz",
+  "bytes": 435635,
+  "sha256": "70ae8227feb3c90c08ab2dbf375f674a52ddb93238b0171f8ee93d49f523db61"
+ },
+ {
+  "file": "gus50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/gus5/gus50170.20d.gz",
+  "bytes": 431861,
+  "sha256": "bf0affb86b27278b0c48746677a2694828f635e44c3c47f9e480ad4906052675"
+ },
+ {
+  "file": "gus5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gus5_20.coord.txt",
+  "bytes": 6042,
+  "sha256": "6cc1bba7921eb1b91ebb298224d8fb1200e4dd7e1835f0780ca53b1e71e3edec"
+ },
+ {
+  "file": "gus60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/gus6/gus60150.20d.gz",
+  "bytes": 434019,
+  "sha256": "8bf327d7ba69a7d09bad38979d1409d26e4934b0c8a48192f36d123f2d542490"
+ },
+ {
+  "file": "gus60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/gus6/gus60160.20d.gz",
+  "bytes": 435083,
+  "sha256": "1290a17830460538389c54e205856914182d3db3feaaa062a1cf342cd21cd224"
+ },
+ {
+  "file": "gus60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/gus6/gus60170.20d.gz",
+  "bytes": 430986,
+  "sha256": "bcfbc405fed5c0354293b9e2bbbb98523c8a3b7dfbfcdd7835aef8dd9f483207"
+ },
+ {
+  "file": "gus6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gus6_20.coord.txt",
+  "bytes": 6042,
+  "sha256": "ab0c7ddf5795016294b76385e43422aba1c6c2e0a526889c103d25999b83de10"
+ },
+ {
+  "file": "hdf50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/hdf5/hdf50150.20d.gz",
+  "bytes": 460780,
+  "sha256": "3c4e09088f6c970c86c145021bad4d18995964046db62ff50d9c900c0a6305f4"
+ },
+ {
+  "file": "hdf50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/hdf5/hdf50160.20d.gz",
+  "bytes": 461103,
+  "sha256": "079fed885eebd3597c98c8cc01df429a27c0cab77e1569c4e87a5b5641e72efb"
+ },
+ {
+  "file": "hdf50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/hdf5/hdf50170.20d.gz",
+  "bytes": 459298,
+  "sha256": "d3cb4efb121fda401c1e431d38e671def3aec229453892a3513b5191008cd103"
+ },
+ {
+  "file": "hdf5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/hdf5_20.coord.txt",
+  "bytes": 6048,
+  "sha256": "66c7f97b67707de76b5320ec6c636b80db89e1bd70e53a4dc33cfaab2a8a2a91"
+ },
+ {
+  "file": "hdf60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/hdf6/hdf60150.20d.gz",
+  "bytes": 341365,
+  "sha256": "f3a173a7fcd18239297a244a07ef55f5c364c58cea7bcdc48d70ccd4287ae86e"
+ },
+ {
+  "file": "hdf60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/hdf6/hdf60160.20d.gz",
+  "bytes": 343308,
+  "sha256": "b39ff8dffc0bdd23a69ce521c43b86c498d519b4bebe64228f71a1b20332c0f4"
+ },
+ {
+  "file": "hdf60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/hdf6/hdf60170.20d.gz",
+  "bytes": 340956,
+  "sha256": "298e70f3d68d9c429c0aa6cea017c49ed686dc5b30f46739ca27ca8794e609e9"
+ },
+ {
+  "file": "hdf6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/hdf6_20.coord.txt",
+  "bytes": 6048,
+  "sha256": "bde67b296cec7c463fe04ef9e96729dfee105fb4f39710215d40c4f16f42c648"
+ },
+ {
+  "file": "ken50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/ken5/ken50150.20d.gz",
+  "bytes": 443284,
+  "sha256": "e9b608003a51e79c949dad43daf4fa5e9b9f48191dc288c9a141760cf3795193"
+ },
+ {
+  "file": "ken5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/ken5_20.coord.txt",
+  "bytes": 6039,
+  "sha256": "bfdeee4bc6f3c11182b663c75ea65a2f844e05c3329a5261910bcede44433707"
+ },
+ {
+  "file": "kew50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/kew5/kew50150.20d.gz",
+  "bytes": 380581,
+  "sha256": "8d9b12c0b085856cf897af971b36b642c2f8d42a8f47b61b4674426dbec6a56d"
+ },
+ {
+  "file": "kew50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/kew5/kew50160.20d.gz",
+  "bytes": 387598,
+  "sha256": "86d90aa6882ebb308e642221850cf2e545bd69bd099343bf2ea80a0d879ff73c"
+ },
+ {
+  "file": "kew50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/kew5/kew50170.20d.gz",
+  "bytes": 385656,
+  "sha256": "84b4c0a33b4a27071f02641ffe71376de13f5d5c3b5fe00ac9f67bddf636e574"
+ },
+ {
+  "file": "kew5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/kew5_20.coord.txt",
+  "bytes": 6050,
+  "sha256": "90787f3b38f6aed903de2031897a655c4dc13b28846ff096d52862dcf0901bae"
+ },
+ {
+  "file": "kew60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/kew6/kew60150.20d.gz",
+  "bytes": 378370,
+  "sha256": "ceed45b958827bdbc1dbebdca1dbda16dfcf12a1f998c779211c7a623bf95b02"
+ },
+ {
+  "file": "kew60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/kew6/kew60160.20d.gz",
+  "bytes": 384771,
+  "sha256": "257ab96c51bc3a2ebb968e7e834ca71672a5f2e8b8685be1188059234bf4bd63"
+ },
+ {
+  "file": "kew60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/kew6/kew60170.20d.gz",
+  "bytes": 384095,
+  "sha256": "6dd047a802801b96f4da0b82784b98bf1aa8c335dacf324eebe7788937a52177"
+ },
+ {
+  "file": "kew6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/kew6_20.coord.txt",
+  "bytes": 6050,
+  "sha256": "763bf53773532f21c7fb82893506a8327c1275f0e29b1ec233cfe6ea1b5d4565"
+ },
+ {
+  "file": "lev50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/lev5/lev50150.20d.gz",
+  "bytes": 428109,
+  "sha256": "0c106107140518d86ccf29d6285a502a99991d33aa7db49bd1f47c3a9db1bd4a"
+ },
+ {
+  "file": "lev50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/lev5/lev50160.20d.gz",
+  "bytes": 430616,
+  "sha256": "e076f239fd456ffc1bd3fb9ec35296032219aefd753dd446aeea2836c6b2e2ac"
+ },
+ {
+  "file": "lev50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/lev5/lev50170.20d.gz",
+  "bytes": 428732,
+  "sha256": "c3541e04faf8192120c157cd21e4b4e625ff1c5f1117eac9e8acdf9a5eee8374"
+ },
+ {
+  "file": "lev5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/lev5_20.coord.txt",
+  "bytes": 6099,
+  "sha256": "07747c528cfedc2c46d72c43792b2abdcd334367f5eba26a1aa3ea53e290a82d"
+ },
+ {
+  "file": "lev60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/lev6/lev60150.20d.gz",
+  "bytes": 418551,
+  "sha256": "a947025581c9397e037885408257cf07f8ad679d845292b88fca8206b5620975"
+ },
+ {
+  "file": "lev60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/lev6/lev60160.20d.gz",
+  "bytes": 420270,
+  "sha256": "00b1d7a4f87a4d2966ad93e429241714eff5647e8423ef0922fb9dd674823cdd"
+ },
+ {
+  "file": "lev60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/lev6/lev60170.20d.gz",
+  "bytes": 416332,
+  "sha256": "86e1c490b23ba2a0eb8b251e6d305ea957179e8c5dd51da3992b840beb3e56e8"
+ },
+ {
+  "file": "lev6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/lev6_20.coord.txt",
+  "bytes": 6099,
+  "sha256": "d50f71ea88814ea52df3c948435fb1eadce2ea6dbfcf45e0c90a8adf04280ec1"
+ },
+ {
+  "file": "mor50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/mor5/mor50150.20d.gz",
+  "bytes": 404304,
+  "sha256": "dfc3f7bdfc392a5ead702523c3601f3cae6c65609a94c9ca15f8c5df0879865c"
+ },
+ {
+  "file": "mor50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/mor5/mor50160.20d.gz",
+  "bytes": 405579,
+  "sha256": "9af25cdd76f6c7fb7f7ce7269a54794b54eb1d9b885b9bc1363e353eeb413d15"
+ },
+ {
+  "file": "mor50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/mor5/mor50170.20d.gz",
+  "bytes": 402123,
+  "sha256": "a35ced5bc06ff4aa6d9a2a9d5727d3f8079893006c61f3d74d3b8fb0a442714b"
+ },
+ {
+  "file": "mor5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/mor5_20.coord.txt",
+  "bytes": 6044,
+  "sha256": "8299a9734badd0a936bd19fe7376ec045076df2af3d51af1d84a7addfca2fa41"
+ },
+ {
+  "file": "mor60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/mor6/mor60150.20d.gz",
+  "bytes": 399718,
+  "sha256": "b114040958a4118629c6f3a1106f445777033698d027e574cfd14f59bef55ff9"
+ },
+ {
+  "file": "mor60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/mor6/mor60160.20d.gz",
+  "bytes": 401680,
+  "sha256": "d7080830b4763fa87533fae5d4b10293ccf3a649827ba3281f6f97d125176fad"
+ },
+ {
+  "file": "mor60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/mor6/mor60170.20d.gz",
+  "bytes": 397583,
+  "sha256": "96d32a29f4aed908514545d807d3f7ce7f5bbdfd7bc86a3c83456dc29d0b4148"
+ },
+ {
+  "file": "mor6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/mor6_20.coord.txt",
+  "bytes": 6044,
+  "sha256": "c2be025b2312116bb814d69c32054a4f0440b36048b2766cccd740bc36c6c655"
+ },
+ {
+  "file": "pnb50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/pnb5/pnb50150.20d.gz",
+  "bytes": 398047,
+  "sha256": "999615c06532cc29137b38e670e1f95f6a93eaa2cc8cdd4cb16ae0ce5f29d2dd"
+ },
+ {
+  "file": "pnb50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/pnb5/pnb50160.20d.gz",
+  "bytes": 398620,
+  "sha256": "845510de02e2276e37c0df27c0c9275327e462ecbd2c178377585f2592ae5c40"
+ },
+ {
+  "file": "pnb50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/pnb5/pnb50170.20d.gz",
+  "bytes": 393217,
+  "sha256": "5ab302ecaba35daea661a216e9b0b4aa25e3c0b407944e9087674fed862513b9"
+ },
+ {
+  "file": "pnb5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/pnb5_20.coord.txt",
+  "bytes": 6042,
+  "sha256": "740db1452d3a04e05d365e71883778d3abaee5cf4cd92312e229fa31ae4ce5d7"
+ },
+ {
+  "file": "pnb60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/pnb6/pnb60150.20d.gz",
+  "bytes": 396764,
+  "sha256": "9ed3f2e3b0332fec68377b763ba52866bcc804c7d79e8e58817070fa43f7d48a"
+ },
+ {
+  "file": "pnb60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/pnb6/pnb60160.20d.gz",
+  "bytes": 396327,
+  "sha256": "4d4be8b71dce9e5e913d52c9cba93d59ccdc5b3e2dc4a73bf6b742a6cc4ac473"
+ },
+ {
+  "file": "pnb60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/pnb6/pnb60170.20d.gz",
+  "bytes": 393089,
+  "sha256": "4d5c5779115e5bb8992f16f77b03402c031f3a7c8ac800cb2384392c3a6444b7"
+ },
+ {
+  "file": "pnb6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/pnb6_20.coord.txt",
+  "bytes": 6042,
+  "sha256": "eadfec785b0de26f2755931e87a875545c739922959138de617204d9173dd495"
+ },
+ {
+  "file": "shk50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/shk5/shk50150.20d.gz",
+  "bytes": 399139,
+  "sha256": "4d5d23e942647d787c541847c40dfeeca40d689fa4874fab4094395e4f15faf8"
+ },
+ {
+  "file": "shk50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/shk5/shk50160.20d.gz",
+  "bytes": 402218,
+  "sha256": "db9ba4deafe487018f2bf1d897c16c5349d033efb79e4b0cc57f9e9c53811c43"
+ },
+ {
+  "file": "shk50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/shk5/shk50170.20d.gz",
+  "bytes": 396299,
+  "sha256": "ce4b262af967c7720dc47b372dd4b5f64537e71a2c4d6953e614d69ea017fe0c"
+ },
+ {
+  "file": "shk5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/shk5_20.coord.txt",
+  "bytes": 6048,
+  "sha256": "a1b21f65a2af466953ab5e74e62db36961c26ba7b908a09cd25a647aa33e1b0c"
+ },
+ {
+  "file": "shk60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/shk6/shk60150.20d.gz",
+  "bytes": 399228,
+  "sha256": "3dd1d8eebece6e2f89e36fa0d7e808522f57246d60f1c9845def950ca4f08929"
+ },
+ {
+  "file": "shk60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/shk6/shk60160.20d.gz",
+  "bytes": 401540,
+  "sha256": "68f22e725965b94e19266a9464aa5d9938b9e53cb1e585dc1bfd333b2da4ae0b"
+ },
+ {
+  "file": "shk60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/shk6/shk60170.20d.gz",
+  "bytes": 390282,
+  "sha256": "9629aa71d49ad18cfc1703ac5ea9334552b98b49fd9de4338d2f3b51b02a7047"
+ },
+ {
+  "file": "shk6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/shk6_20.coord.txt",
+  "bytes": 6048,
+  "sha256": "c37f8e79fad2e0ffd04e15737097f2b7051fa56cd87c16344fbcb8f0e1cfd3be"
+ },
+ {
+  "file": "you50150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/you5/you50150.20d.gz",
+  "bytes": 374677,
+  "sha256": "bb76c8ecdb6c7ff3d94924700c38ad43362d313d931f9efee58a0f10c0a98a56"
+ },
+ {
+  "file": "you50160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/you5/you50160.20d.gz",
+  "bytes": 390990,
+  "sha256": "3ad127213fe4fe335233177a9eec024ba0c32c17581dc20e681082d085e765f9"
+ },
+ {
+  "file": "you50170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/you5/you50170.20d.gz",
+  "bytes": 391892,
+  "sha256": "ed6d04796926241de5cb6fa0aa97d9f95ae96462c9b0105b0d23b6eb3524471a"
+ },
+ {
+  "file": "you5_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/you5_20.coord.txt",
+  "bytes": 6046,
+  "sha256": "f32c235085ec40e2aba2fb17d3d47b89ca94c06b1f5087c6cd3f879fd0db853a"
+ },
+ {
+  "file": "you60150.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/015/you6/you60150.20d.gz",
+  "bytes": 354482,
+  "sha256": "071b4620f6832dcb80096db34c5151be17e91b3d531d444a51f0f95d08408b25"
+ },
+ {
+  "file": "you60160.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/016/you6/you60160.20d.gz",
+  "bytes": 391788,
+  "sha256": "14e7d922c8da4c81f63ed0d00a15a10ed2cbdef1e89968376071f3ab41394dc9"
+ },
+ {
+  "file": "you60170.20d.gz",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2020/017/you6/you60170.20d.gz",
+  "bytes": 390960,
+  "sha256": "ce0887cae313eb8582fbdf311abd6c09ba31a462776d7595a95ea6a8a6313290"
+ },
+ {
+  "file": "you6_20.coord.txt",
+  "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/you6_20.coord.txt",
+  "bytes": 6046,
+  "sha256": "52ad29a14e970414d1a66404e0a0655e314c487ab7175997f53291ccdcb0d6f1"
+ }
+]

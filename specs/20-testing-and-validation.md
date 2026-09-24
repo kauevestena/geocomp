@@ -199,6 +199,26 @@ is the reference's own uncertainty, and the NGS coordinate sheets publish none.
 Until then the 1 mm comparison stands as the documented conservative interpretation of the source's
 printed precision, and the check stays red.
 
+**The quantity that was missing has since been measured** (24 September 2026), which changes the basis
+of that decision without yet changing the decision. The sheets still publish no uncertainty, but the
+reference's uncertainty no longer has to be taken from what they print: fourteen independent
+same-antenna CORS pairs of 22 to 46 m, every one exactly calibrated, solved on three consecutive days
+each, miss their published coordinates by a median worst component of **5.1 mm** — and not one of the
+fourteen reaches 1 mm. The disagreement is fixed per pair to 0.43 mm across days, differs between pairs
+by 2.7 to 6.6 mm, and does not move when the elevation mask goes from 10° to 30°, so it is neither this
+estimator's noise nor low-elevation multipath.
+[`22`](./22-reference-data-sources.md) §5.4 has the measurement and its limits.
+
+So the honest reading of the 1 mm rule is now available: **it is not a tolerance this comparison can
+meet against NGS published CORS coordinates**, whatever GeoComp does, because the reference itself
+scatters by several millimetres at this scale while the estimator repeats to 0.5 / 0.3 / 0.08 mm. Three
+responses are open — adopt a GNSS threshold derived from the *reference* side (about 5 mm per
+component, or 8 mm at roughly twice the observed spread), keep 1 mm and accept that RD-06's accuracy
+check is permanently red as a standing statement about the reference, or stop comparing against
+published coordinates and judge GNSS against a closure or a repeatability criterion instead, which
+measures what this project controls. **Choosing between them is the maintainer's**, and this section
+still defines no GNSS threshold until they do.
+
 ## 7. CI matrix
 
 | Axis | Values |

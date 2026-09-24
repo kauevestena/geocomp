@@ -563,6 +563,57 @@ analysis: the Caspary approach*, Geodetski vestnik 64(1), 2020, which works one 
 through the Caspary method and reports agreement with the other named methods; JAG3D implements one of them.
 Synthetic data with injected motion (already RD-08's second half) remains the only source of exact truth.
 
+### 5.4 What a clean pair does — the criterion is unreachable against this reference [V]
+
+**The maintainer supplied `igs20.atx` on 24 September 2026**, which is the one thing this environment
+could not fetch, and it settles the question §5.2 left open. Two facts came out of it at once:
+`AOAD/M_T JPLA` is **absent from `igs20.atx` as well**, so GODE's radome is uncalibrated in both
+calibration sets and its unjudgeability is confirmed rather than an artefact of one file; and
+`TRM41249USCG SCIT` **is** present, so the fifteen candidate pairs of §5.2 are exactly calibrated and
+the comparison finally becomes decidable.
+
+`scripts/check_published_coordinates.py` then asks the question the other way round — not *"is this
+pair clean?"* but *"what does a clean pair do?"*. Every eligible pair is processed and every result
+reported; nothing is selected after solving. KEN5/KEN6 drops out because KEN6 publishes no ITRF2020
+sheet, leaving **fourteen** pairs of 22 to 46 m, each solved on three consecutive days under RD-06's
+own configuration.
+
+**Not one of the fourteen reaches 1 mm per component.** The median worst component is 5.1 mm, the best
+pair is 1.9 mm and the worst 18.0 mm; in 3D the errors run from 2.8 to 22.2 mm. Every run resolved
+both antennas exactly, fixed its ambiguities, and covered a near-complete day.
+
+The miss belongs to the reference, not to the estimator, and three independent discriminators say so:
+
+| Discriminator | Measured | What it rules out |
+|---|---|---|
+| Same pair, three days | scatter **0.43 / 0.43 / 0.25 mm** E/N/U | random solution error |
+| Between pairs | spread **2.66 / 6.64 / 6.44 mm** E/N/U | a common bias in our processing |
+| Elevation mask 10° → 30° | AIS5–AIS6 is +21.33 mm north at 10° and +21.08 at 30°, spread 0.25 mm | low-elevation multipath |
+
+An error that is fixed per pair to a few tenths of a millimetre across days, differs between pairs by
+millimetres, and does not move when two thirds of the sky is discarded is a property of the site or of
+its published coordinate — not of the software being tested. Which of the two it is, this cannot say:
+a wrong published value and a wrong monument eccentricity or antenna orientation look identical from
+here. For the criterion it does not matter, because neither is something GeoComp can fix.
+
+**So GGAO was never an outlier.** GODN–GODE's `[3.852, 7.799, −2.808] mm` sits inside this
+distribution, close to its median. The two defects §5.1 and §5.2 attribute are real and worth having
+found, but they were never what kept the criterion red: **a pair with no defects at all misses by the
+same order.** The estimator's own repeatability is 0.500 / 0.297 / 0.080 mm, so the comparison has
+been measuring the reference's uncertainty all along, and that uncertainty is now measured rather than
+merely described as unpublished: about 5 mm typical, up to 20 mm, on baselines short enough that the
+atmosphere cannot account for it.
+
+**What this does not establish.** The calibration used is IGS's type mean; if NGS's own `ngs20.atx`
+carries an individual calibration for one of these antennas the two differ, though by well under a
+millimetre and not by 20. `geodesy.noaa.gov` was re-checked on 24 September 2026 and still answers 403
+to CONNECT, so that comparison remains unmade. And the fourteen pairs are all the same antenna type at
+one kind of site, which is what makes them comparable with each other and also what limits how far the
+number generalises.
+
+**The consequence for the threshold is a decision, not a finding**, and it is recorded in
+[`20`](./20-testing-and-validation.md) §6 rather than taken here.
+
 ## 6. Recommended order
 
 1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 34 networks reproduced to 0.05 mm.

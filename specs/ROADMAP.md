@@ -594,7 +594,7 @@ claim held for the days processed, not for the network. `scripts/screen_cors_pai
 | The attribution is a test, not a paragraph | **met** — `tests/test_rd06.py` fails if the counter-case stops showing it |
 | A defect of this class cannot recur silently | **met** — the antenna-epoch guard refuses it offline, and an exemption must stay earned |
 | A GNSS numerical threshold is derived | **met, and deliberately not adopted** — see below |
-| **A static relative session over RD-06 reproduces published coordinates** | **not met, and the judged case is unjudgeable** — `ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`, so the run carries another dome's calibration ([`22`](./22-reference-data-sources.md) §5.2) |
+| **A static relative session over RD-06 reproduces published coordinates** | **not met, and now measured to be unreachable** — fourteen clean, exactly calibrated pairs all miss 1 mm; the reference scatters by ~5 mm where the estimator repeats to 0.5 mm ([`22`](./22-reference-data-sources.md) §5.4) |
 
 **The threshold was derived and the maintainer chose not to adopt it.** The estimator's measured
 repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from this side of the
@@ -619,6 +619,19 @@ membership cannot be tested from the development environment — `geodesy.noaa.g
 file exists, and that is the next step rather than a claim made here. It is now a narrower question
 than it was: the screen above supplies fifteen same-antenna candidate pairs to test membership for,
 instead of an open search.
+
+**That step is done, and it answered more than it was asked.** The maintainer supplied `igs20.atx` on
+24 September 2026. `AOAD/M_T JPLA` is absent from it too, so GODE's unjudgeability is confirmed against
+a second calibration set rather than being an artefact of one file; `TRM41249USCG SCIT` is present, so
+the candidate pairs are exactly calibrated and the comparison is finally decidable. Running **all
+fourteen** eligible pairs on three days each — `scripts/check_published_coordinates.py`, every result
+reported, none selected after solving — **not one reaches 1 mm per component**, the median worst
+component being 5.1 mm. Each pair holds its own offset to 0.43 mm across days, pairs differ from each
+other by 2.7 to 6.6 mm, and the offsets do not move between a 10° and a 30° elevation mask: not our
+noise, not multipath. GGAO was never an outlier — GODN–GODE's 7.8 mm sits near the middle of that
+distribution. The two defects P7d attributed are real; they were simply never what kept the criterion
+red. What remains is a decision about the threshold, put to the maintainer in
+[`20`](./20-testing-and-validation.md) §6, not further measurement.
 
 ---
 

@@ -1,0 +1,562 @@
+{
+ "what": "Fourteen independent same-antenna CORS pairs, 22-46 m, all exactly calibrated, each solved on three consecutive days against its own published ITRF2020 ARP.",
+ "frame": "ITRF2020 epoch 2020.0; observations 2020 days 015-017, so velocity extrapolation is two weeks",
+ "antenna_file": "igs20.atx (IGS type means), sha256 fdd9cac36186d0a8c23f3fdbac9f3e42e2fc7a1b79e68c7981c3913f39b45f2f; supplied by the maintainer because files.igs.org and geodesy.noaa.gov are 403 here",
+ "configuration": "RD-06's calibrated case: 15 deg mask, broadcast ephemeris, tide correction on, static, ARP deltas zeroed, ant1=rover ant2=base",
+ "pairs": 14,
+ "pairs_passing_1mm_per_component": 0,
+ "median_max_abs_xyz_mm": 5.1,
+ "between_pair_sd_of_mean_error_enu_mm": [
+  2.657,
+  6.635,
+  6.436
+ ],
+ "median_day_to_day_sd_enu_mm": [
+  0.429,
+  0.434,
+  0.248
+ ],
+ "mask_invariance_mm": {
+  "AIS5-AIS6": {
+   "north_at_10deg": 21.33,
+   "north_at_30deg": 21.08,
+   "spread_over_10_to_30deg": 0.25
+  },
+  "MOR5-MOR6": {
+   "north_at_10deg": 11.71,
+   "north_at_30deg": 11.53,
+   "spread_over_10_to_30deg": 0.18
+  },
+  "CHB5-CHB6": {
+   "up_at_10deg": 11.44,
+   "up_at_30deg": 10.58,
+   "spread_over_10_to_30deg": 0.86
+  },
+  "DET5-DET6": {
+   "up_at_10deg": 0.59,
+   "up_at_30deg": 1.21,
+   "spread_over_10_to_30deg": 1.12
+  }
+ },
+ "reading": "The disagreement is fixed per pair and differs between pairs, repeats across days to 0.43 mm and does not move with the elevation mask. That is not this estimator's noise and not low-elevation multipath; it is a property of the reference or the site.",
+ "results": [
+  {
+   "pair": "ACU5-ACU6",
+   "length_m": 45.899,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -2.083,
+     -2.757,
+     0.686
+    ],
+    "016": [
+     -1.705,
+     -2.62,
+     0.984
+    ],
+    "017": [
+     -2.051,
+     -2.544,
+     0.749
+    ]
+   },
+   "mean_enu_mm": [
+    -1.946,
+    -2.64,
+    0.806
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.21,
+    0.108,
+    0.157
+   ],
+   "max_abs_xyz_mm": 2.9,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "AIS5-AIS6",
+   "length_m": 29.57,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -5.594,
+     21.273,
+     -2.904
+    ],
+    "016": [
+     -4.241,
+     20.108,
+     -2.7
+    ],
+    "017": [
+     -4.1,
+     19.815,
+     -3.105
+    ]
+   },
+   "mean_enu_mm": [
+    -4.645,
+    20.399,
+    -2.903
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.825,
+    0.771,
+    0.203
+   ],
+   "max_abs_xyz_mm": 18.0,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "BIS5-BIS6",
+   "length_m": 26.186,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     1.188,
+     -0.169,
+     -2.995
+    ],
+    "016": [
+     2.025,
+     0.958,
+     -3.612
+    ],
+    "017": [
+     2.096,
+     1.173,
+     -3.155
+    ]
+   },
+   "mean_enu_mm": [
+    1.77,
+    0.654,
+    -3.254
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.505,
+    0.721,
+    0.32
+   ],
+   "max_abs_xyz_mm": 3.4,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "CHB5-CHB6",
+   "length_m": 27.461,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     2.561,
+     0.236,
+     11.376
+    ],
+    "016": [
+     2.353,
+     0.178,
+     11.432
+    ],
+    "017": [
+     2.253,
+     0.115,
+     11.354
+    ]
+   },
+   "mean_enu_mm": [
+    2.389,
+    0.176,
+    11.387
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.157,
+    0.061,
+    0.04
+   ],
+   "max_abs_xyz_mm": 8.3,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "DET5-DET6",
+   "length_m": 23.203,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -1.817,
+     -2.028,
+     0.445
+    ],
+    "016": [
+     -1.42,
+     -2.06,
+     0.481
+    ],
+    "017": [
+     -0.935,
+     -2.019,
+     0.733
+    ]
+   },
+   "mean_enu_mm": [
+    -1.391,
+    -2.036,
+    0.553
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.442,
+    0.022,
+    0.157
+   ],
+   "max_abs_xyz_mm": 2.0,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "ENG5-ENG6",
+   "length_m": 42.378,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -3.895,
+     -0.332,
+     -5.846
+    ],
+    "016": [
+     -3.496,
+     -0.581,
+     -5.412
+    ],
+    "017": [
+     -3.896,
+     -0.669,
+     -4.656
+    ]
+   },
+   "mean_enu_mm": [
+    -3.762,
+    -0.527,
+    -5.305
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.231,
+    0.175,
+    0.602
+   ],
+   "max_abs_xyz_mm": 4.9,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "GUS5-GUS6",
+   "length_m": 34.673,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     0.911,
+     -0.967,
+     -2.81
+    ],
+    "016": [
+     0.278,
+     -1.626,
+     -3.461
+    ],
+    "017": [
+     0.128,
+     -0.554,
+     -3.064
+    ]
+   },
+   "mean_enu_mm": [
+    0.439,
+    -1.049,
+    -3.112
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.416,
+    0.541,
+    0.328
+   ],
+   "max_abs_xyz_mm": 3.8,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "HDF5-HDF6",
+   "length_m": 27.288,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     4.492,
+     2.509,
+     -3.978
+    ],
+    "016": [
+     4.906,
+     4.367,
+     -4.639
+    ],
+    "017": [
+     5.708,
+     6.087,
+     -3.84
+    ]
+   },
+   "mean_enu_mm": [
+    5.035,
+    4.321,
+    -4.152
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.618,
+    1.789,
+    0.427
+   ],
+   "max_abs_xyz_mm": 8.3,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "KEW5-KEW6",
+   "length_m": 30.594,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     0.525,
+     -3.875,
+     6.582
+    ],
+    "016": [
+     -0.261,
+     -3.489,
+     6.088
+    ],
+    "017": [
+     -0.87,
+     -3.976,
+     6.13
+    ]
+   },
+   "mean_enu_mm": [
+    -0.202,
+    -3.78,
+    6.267
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.699,
+    0.257,
+    0.274
+   ],
+   "max_abs_xyz_mm": 7.3,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "LEV5-LEV6",
+   "length_m": 24.479,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -4.32,
+     -4.81,
+     -10.848
+    ],
+    "016": [
+     -3.769,
+     -4.903,
+     -10.187
+    ],
+    "017": [
+     -3.628,
+     -4.576,
+     -9.684
+    ]
+   },
+   "mean_enu_mm": [
+    -3.906,
+    -4.763,
+    -10.24
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.366,
+    0.168,
+    0.584
+   ],
+   "max_abs_xyz_mm": 11.7,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "MOR5-MOR6",
+   "length_m": 31.76,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     1.318,
+     11.665,
+     -12.906
+    ],
+    "016": [
+     1.229,
+     11.023,
+     -13.081
+    ],
+    "017": [
+     1.14,
+     10.76,
+     -12.93
+    ]
+   },
+   "mean_enu_mm": [
+    1.229,
+    11.149,
+    -12.972
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.089,
+    0.466,
+    0.095
+   ],
+   "max_abs_xyz_mm": 17.0,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "PNB5-PNB6",
+   "length_m": 33.327,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -0.683,
+     1.167,
+     4.38
+    ],
+    "016": [
+     -1.423,
+     0.493,
+     4.067
+    ],
+    "017": [
+     -0.372,
+     2.033,
+     4.497
+    ]
+   },
+   "mean_enu_mm": [
+    -0.826,
+    1.231,
+    4.315
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.54,
+    0.772,
+    0.222
+   ],
+   "max_abs_xyz_mm": 4.6,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "SHK5-SHK6",
+   "length_m": 22.404,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     0.265,
+     2.887,
+     -4.0
+    ],
+    "016": [
+     0.512,
+     2.824,
+     -4.235
+    ],
+    "017": [
+     1.254,
+     2.162,
+     -4.383
+    ]
+   },
+   "mean_enu_mm": [
+    0.677,
+    2.624,
+    -4.206
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.515,
+    0.402,
+    0.193
+   ],
+   "max_abs_xyz_mm": 5.0,
+   "passes_1mm_per_component": false
+  },
+  {
+   "pair": "YOU5-YOU6",
+   "length_m": 29.975,
+   "antennas": {
+    "1": "TRM41249USCG    SCIT",
+    "2": "TRM41249USCG    SCIT"
+   },
+   "enu_mm_by_day": {
+    "015": [
+     -0.276,
+     -0.821,
+     -6.719
+    ],
+    "016": [
+     -0.08,
+     -0.847,
+     -6.691
+    ],
+    "017": [
+     -0.87,
+     0.029,
+     -7.477
+    ]
+   },
+   "mean_enu_mm": [
+    -0.409,
+    -0.546,
+    -6.962
+   ],
+   "day_to_day_sd_enu_mm": [
+    0.411,
+    0.498,
+    0.446
+   ],
+   "max_abs_xyz_mm": 5.2,
+   "passes_1mm_per_component": false
+  }
+ ]
+}
