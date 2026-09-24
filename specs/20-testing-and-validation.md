@@ -219,6 +219,18 @@ published coordinates and judge GNSS against a closure or a repeatability criter
 measures what this project controls. **Choosing between them is the maintainer's**, and this section
 still defines no GNSS threshold until they do.
 
+**The maintainer's decision of 24 September 2026 was to take none of the three yet, and to close the
+remaining caveat first.** §5.4's numbers were measured with `igs20.atx`, the IGS type means, because
+that is the file this environment could be given; NGS computes its published coordinates with its own
+`ngs20.atx`, which `geodesy.noaa.gov` will not serve here. Engine CI now re-runs all fourteen pairs
+against `ngs20.atx` on every engine build and fails if any component moves by more than 1 mm — the
+size at which the conclusion would change, since the finding is that no pair comes within 1 mm and the
+median worst component is 5.1 mm. A sub-millimetre agreement closes the caveat and the choice above can
+then be made on the numbers as they stand; a larger departure means the two calibration sets genuinely
+disagree and [`22`](./22-reference-data-sources.md) §5.4 has to be revisited before anything is decided.
+Until that confirmation has run, this section still defines no GNSS threshold and the accuracy check
+stays red.
+
 ## 7. CI matrix
 
 | Axis | Values |

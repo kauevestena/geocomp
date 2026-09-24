@@ -123,6 +123,18 @@ it is failing on is now written down.
   uncertainty all along — now measured rather than merely called unpublished.
   What to do about the threshold is a decision, put to the maintainer in
   `specs/20` §6 rather than taken; the check stays red until they take it.
+- **Engine CI now confirms that measurement against NGS's own calibration**,
+  which was the maintainer's condition for deciding the threshold at all
+  (24 September 2026). The fourteen pairs were measured with `igs20.atx`, the
+  IGS type means, because that is the file the development environment could be
+  given; NGS computes the published coordinates with `ngs20.atx`, which
+  `geodesy.noaa.gov` will not serve there but the engine job already fetches for
+  RD-06. The job re-runs all fourteen against it and fails if any component
+  moves by more than 1 mm — not the 0.05 mm a same-ANTEX rerun meets, because a
+  different calibration set is expected to move the answer slightly and that is
+  not a regression, but the size at which the conclusion would change, since the
+  finding is that nothing comes within 1 mm and the median worst component is
+  5.1 mm.
 - **An empty date field in a site log could pair an antenna with another
   block's dates.** Under `re.S` the pattern's `\s*` run-up crossed the newline,
   so a blank `Date Installed` let the match run into the following antenna and

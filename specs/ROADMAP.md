@@ -633,6 +633,13 @@ distribution. The two defects P7d attributed are real; they were simply never wh
 red. What remains is a decision about the threshold, put to the maintainer in
 [`20`](./20-testing-and-validation.md) §6, not further measurement.
 
+**The maintainer's answer, on 24 September 2026, was to close the last caveat before deciding.** Those
+fourteen results were measured with `igs20.atx`; NGS computes the coordinates they are compared against
+with its own `ngs20.atx`, which this environment cannot fetch but engine CI already does. The engine job
+now re-runs all fourteen pairs against it and fails if any component moves by more than 1 mm, the size
+at which the conclusion would change. Until that has run, §6 still defines no GNSS threshold and the
+accuracy check stays red.
+
 ---
 
 ## P8 — Gravimetry

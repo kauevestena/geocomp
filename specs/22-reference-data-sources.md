@@ -607,7 +607,12 @@ atmosphere cannot account for it.
 **What this does not establish.** The calibration used is IGS's type mean; if NGS's own `ngs20.atx`
 carries an individual calibration for one of these antennas the two differ, though by well under a
 millimetre and not by 20. `geodesy.noaa.gov` was re-checked on 24 September 2026 and still answers 403
-to CONNECT, so that comparison remains unmade. And the fourteen pairs are all the same antenna type at
+to CONNECT, so that comparison cannot be made *here* — but it is now made in engine CI, which fetches
+`ngs20.atx` for RD-06 anyway. That step re-runs all fourteen pairs against NGS's own calibration and
+fails if any component moves by more than 1 mm, which is the size at which this section's conclusion
+would change. It was the maintainer's condition, on 24 September 2026, for deciding the threshold at
+all: [`20`](./20-testing-and-validation.md) §6 records that decision and stays empty until the
+confirmation has run. And the fourteen pairs are all the same antenna type at
 one kind of site, which is what makes them comparable with each other and also what limits how far the
 number generalises.
 
