@@ -606,13 +606,28 @@ atmosphere cannot account for it.
 
 **What this does not establish.** The calibration used is IGS's type mean; if NGS's own `ngs20.atx`
 carries an individual calibration for one of these antennas the two differ, though by well under a
-millimetre and not by 20. `geodesy.noaa.gov` was re-checked on 24 September 2026 and still answers 403
-to CONNECT, so that comparison cannot be made *here* — but it is now made in engine CI, which fetches
-`ngs20.atx` for RD-06 anyway. That step re-runs all fourteen pairs against NGS's own calibration and
-fails if any component moves by more than 1 mm, which is the size at which this section's conclusion
-would change. It was the maintainer's condition, on 24 September 2026, for deciding the threshold at
-all: [`20`](./20-testing-and-validation.md) §6 records that decision and stays empty until the
-confirmation has run. And the fourteen pairs are all the same antenna type at
+millimetre and not by 20. That was the maintainer's condition, on 24 September 2026, for deciding the
+threshold at all, and **it has since been checked and the caveat is closed**.
+
+`geodesy.noaa.gov` still answers 403 to CONNECT here, so the maintainer supplied `ngs20.atx` directly.
+Its SHA-256 is `bc653727…1661c931` at 68,109,210 bytes, which is **byte-identical to the digest this
+bundle already pins** and therefore to the file engine CI fetches — so what was measured against it is
+what CI measures. Three results:
+
+- **NGS calibrates `TRM41249USCG SCIT`**, so the fourteen pairs are judgeable under NGS's own set and
+  not only under IGS type means.
+- **The two calibrations are the same numbers.** The entries differ in one line out of sixteen, the
+  SINEX provenance code (`IGS20_2434` against `IGS20_2233`); every phase-centre offset and variation
+  line is identical. Re-running all fourteen pairs on all three days against `ngs20.atx` moves the
+  largest component by **0.0005 mm**, which is the rounding of the recorded values, not a measurement.
+  Section 5.4's numbers therefore stand exactly as recorded, whichever calibration set is used.
+- **`AOAD/M_T JPLA` is absent from `ngs20.atx` too** — and not as an oversight for one antenna: NGS
+  publishes **no JPLA radome at all**, zero entries among 1565. GODE's dome has no published
+  calibration in any of the three sets now examined, which settles its unjudgeability rather than
+  leaving it a property of whichever file happened to be at hand.
+
+Engine CI keeps the comparison as a standing check anyway, because an upstream ANTEX can change and
+this conclusion should not outlive its evidence. And the fourteen pairs are all the same antenna type at
 one kind of site, which is what makes them comparable with each other and also what limits how far the
 number generalises.
 

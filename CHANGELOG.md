@@ -135,6 +135,19 @@ it is failing on is now written down.
   not a regression, but the size at which the conclusion would change, since the
   finding is that nothing comes within 1 mm and the median worst component is
   5.1 mm.
+- **That confirmation has been made, and it changes nothing.** The maintainer
+  supplied `ngs20.atx`; its SHA-256 is byte-identical to the digest this
+  repository already pins, so it is the same file engine CI fetches. NGS does
+  calibrate `TRM41249USCG SCIT`, and its entry differs from the IGS one in one
+  line out of sixteen — the SINEX provenance code — with every phase-centre
+  offset and variation identical. Re-running all fourteen pairs on all three
+  days against it moves the largest component by 0.0005 mm, which is the
+  rounding of the recorded values. The fourteen-pair finding stands whichever
+  calibration set is used, and the threshold decision is unblocked.
+- **`AOAD/M_T JPLA` is absent from `ngs20.atx` as well, and NGS publishes no
+  JPLA radome at all** — zero entries among 1565. GODE's dome has no published
+  calibration in any of the three sets examined, so its unjudgeability is a fact
+  about the radome rather than about whichever file was at hand.
 - **An empty date field in a site log could pair an antenna with another
   block's dates.** Under `re.S` the pattern's `\s*` run-up crossed the newline,
   so a blank `Date Installed` let the match run into the following antenna and

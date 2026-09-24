@@ -222,14 +222,20 @@ still defines no GNSS threshold until they do.
 **The maintainer's decision of 24 September 2026 was to take none of the three yet, and to close the
 remaining caveat first.** §5.4's numbers were measured with `igs20.atx`, the IGS type means, because
 that is the file this environment could be given; NGS computes its published coordinates with its own
-`ngs20.atx`, which `geodesy.noaa.gov` will not serve here. Engine CI now re-runs all fourteen pairs
+`ngs20.atx`, which `geodesy.noaa.gov` will not serve here. Engine CI re-runs all fourteen pairs
 against `ngs20.atx` on every engine build and fails if any component moves by more than 1 mm — the
 size at which the conclusion would change, since the finding is that no pair comes within 1 mm and the
-median worst component is 5.1 mm. A sub-millimetre agreement closes the caveat and the choice above can
-then be made on the numbers as they stand; a larger departure means the two calibration sets genuinely
-disagree and [`22`](./22-reference-data-sources.md) §5.4 has to be revisited before anything is decided.
-Until that confirmation has run, this section still defines no GNSS threshold and the accuracy check
-stays red.
+median worst component is 5.1 mm.
+
+**That confirmation has now been made, and it changes nothing.** The maintainer supplied `ngs20.atx`
+on 24 September 2026; it matches the digest this repository already pins, NGS calibrates the antenna
+in question, and its entry differs from the IGS one only in a SINEX provenance code — every
+phase-centre number is identical, and re-running all fourteen pairs against it moves the largest
+component by 0.0005 mm. [`22`](./22-reference-data-sources.md) §5.4 records it.
+
+So the caveat is closed and **the choice among the three responses above is now live and unblocked**.
+It is still the maintainer's, and until it is made this section defines no GNSS threshold and the
+accuracy check stays red.
 
 ## 7. CI matrix
 

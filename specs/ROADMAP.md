@@ -637,8 +637,15 @@ red. What remains is a decision about the threshold, put to the maintainer in
 fourteen results were measured with `igs20.atx`; NGS computes the coordinates they are compared against
 with its own `ngs20.atx`, which this environment cannot fetch but engine CI already does. The engine job
 now re-runs all fourteen pairs against it and fails if any component moves by more than 1 mm, the size
-at which the conclusion would change. Until that has run, §6 still defines no GNSS threshold and the
-accuracy check stays red.
+at which the conclusion would change.
+
+**It has been made, and it changes nothing.** The supplied `ngs20.atx` matches the digest this
+repository already pins; NGS calibrates the antenna; its entry differs from the IGS one only in a
+SINEX provenance code, every phase-centre number being identical; and re-running all fourteen pairs
+moves the largest component by 0.0005 mm. `AOAD/M_T JPLA` is absent there too — NGS publishes no JPLA
+radome at all — so GODE's unjudgeability is a fact about the radome, not about the file. The caveat is
+closed and the threshold choice in §6 is unblocked; until the maintainer makes it, §6 defines no GNSS
+threshold and the accuracy check stays red.
 
 ---
 
