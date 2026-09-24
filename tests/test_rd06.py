@@ -42,6 +42,7 @@ from scripts.check_rd06 import (
     official_position,
     phase_centre_offsets,
     require_accuracy,
+    require_closure,
     require_exact_calibration,
     require_processing,
     require_reference_configuration,
@@ -302,18 +303,28 @@ def test_complete_fixed_runs_are_reproducible(live_results, case):
 
 
 @pytest.mark.engines
-def test_the_judged_case_carries_its_own_antennas_calibration(live_results, reference):
-    """Before the accuracy number means anything, the run has to be the run it
-    says it is.
+def test_gode_still_carries_another_domes_calibration(live_results, reference):
+    """A recorded fact, no longer a failure -- because nothing rests on it now.
 
-    ``ngs20.atx`` has no entry for GODE's ``AOAD/M_T JPLA``, so ``searchpcv``
-    matched ``AOAD/M_T NONE`` -- the same antenna under a different dome, which
-    NGS keys separately and uses separately in the products this comparison is
-    against. This is not xfailed: it is a defect in the reference case, found
-    by the check that ``cd8b3a8`` added, and it is fixed by choosing a station
-    whose dome is calibrated, not by relaxing anything.
+    ``ngs20.atx`` has no entry for GODE's ``AOAD/M_T JPLA``; neither has
+    ``igs20.atx``, and NGS publishes no JPLA radome at all. ``searchpcv``
+    therefore matches ``AOAD/M_T NONE``, the same antenna under a different
+    dome. That used to fail the build, because the criterion was GODE's
+    absolute agreement with a published coordinate and putting a number on a
+    mislabelled run is worse than reporting that the comparison cannot be made.
+
+    The criterion is now loop closure, where a dome substitution at GODE enters
+    two legs with opposite signs and cancels, so the substitution no longer
+    corrupts anything that is judged. The check stays as an assertion rather
+    than a comment so that the day an ANTEX starts carrying JPLA, this says so.
     """
-    require_exact_calibration(accuracy_case(live_results["cases"], reference))
+    metrics = accuracy_case(live_results["cases"], reference)
+    assert metrics["antenna_calibration"] == RADOME_SUBSTITUTED, (
+        f"GODE's calibration state changed to {metrics['antenna_calibration']!r}; "
+        "specs/22 section 5.2 and 5.4 need revisiting"
+    )
+    with pytest.raises(UnjudgeableCaseError):
+        require_exact_calibration(metrics)
 
 
 @pytest.mark.engines
@@ -326,18 +337,87 @@ def test_the_counter_case_was_calibrated_exactly(live_results):
 
 
 @pytest.mark.engines
-@pytest.mark.xfail(
-    strict=True,
-    raises=AccuracyMismatchError,
-    reason=(
-        "RD-06 accuracy unmet; specs/22 section 5.2. The number this produces is "
-        "currently also unjudgeable -- GODE's radome is not in ngs20.atx, so the run "
-        "carries another dome's calibration; see the test above. CI enforces the original "
-        "assertion with --runxfail."
-    ),
-)
-def test_published_coordinate_accuracy(live_results, reference):
-    require_accuracy(accuracy_case(live_results["cases"], reference), reference)
+def test_the_published_coordinate_comparison_is_reported_not_judged(live_results, reference):
+    """The criterion RD-06 used to have, kept as a measurement.
+
+    It is no longer a pass/fail test, at the maintainer's decision of
+    24 September 2026. Fourteen independent same-antenna pairs, every one
+    exactly calibrated, miss their published coordinates by a median worst
+    component of 5.1 mm and none reaches 1 mm, while the same estimator repeats
+    to well under a millimetre -- so the comparison was measuring the
+    reference's uncertainty rather than this software's. ``specs/22`` §5.4 has
+    the measurement, ``specs/20`` §6 the decision.
+
+    What is asserted here is that the discrepancy is still the size §5 says it
+    is. If it ever collapses to nothing, or grows by an order of magnitude,
+    something changed that the specs do not describe.
+    """
+    metrics = accuracy_case(live_results["cases"], reference)
+    worst = max(abs(component) for component in metrics["difference_xyz_m"]) * 1000
+    assert 1.0 < worst < 50.0, (
+        f"the published-coordinate discrepancy is {worst:.3f} mm, outside the range "
+        "specs/22 section 5 describes"
+    )
+
+
+@pytest.mark.engines
+class TestTheTriangleCloses:
+    """RD-06's criterion since 24 September 2026.
+
+    A closed circuit of measured vectors must return where it began, so the
+    sum is zero but for the errors in the legs. That needs **no published
+    coordinate at all**: it asks whether the measurements agree with each
+    other rather than with somebody else's position, which is what this
+    project controls. ``specs/20`` section 6 states it and says why the
+    published comparison stopped being a criterion.
+    """
+
+    def test_the_circuit_closes_within_the_criterion(self, live_results, reference):
+        require_closure(live_results, reference)
+
+    def test_both_days_were_closed(self, live_results):
+        assert sorted(live_results["closure"]) == ["2025-001", "2025-002"]
+
+    def test_the_third_leg_was_measured_and_not_differenced(self, live_results):
+        """Differencing two legs to get the third closes identically and checks
+        nothing, so a misclosure of exactly zero would mean the test had
+        stopped testing. Every leg here is processed independently."""
+        for day, entry in live_results["closure"].items():
+            assert entry["cases"] == [
+                f"calibrated_gode_{day[-3:]}",
+                f"calibrated_gods_{day[-3:]}",
+                f"calibrated_gode_gods_{day[-3:]}",
+            ]
+            # Traversal order round GODN->GODE->GODS->GODN, not the order the
+            # cases were supplied in: the last leg is GODN-GODS walked backwards.
+            assert entry["legs"] == ["GODN-GODE", "GODE-GODS", "GODN-GODS"]
+            assert entry["magnitude_mm"] > 0.0, f"{day} closed exactly, which no measurement does"
+
+    def test_the_closure_says_its_uncertainty_is_approximate(self, live_results):
+        """Legs from one session share satellites and atmosphere, so summing
+        their covariances as independent understates the truth."""
+        for entry in live_results["closure"].values():
+            assert entry["covariance_is_approximate"]
+
+    def test_a_contaminated_day_still_closes_which_is_the_blind_spot(self, live_results):
+        """The limitation, asserted rather than described.
+
+        2025-001 carries the bad ambiguity fix ``specs/22`` section 5.1
+        attributes, and it closes anyway -- because an error common to a
+        station enters the loop twice with opposite signs. Closure cannot see
+        it. That is exactly why the criterion also requires repeatability, and
+        the day this assertion fails is the day that argument needs rewriting.
+        """
+        assert live_results["closure"]["2025-001"]["magnitude_mm"] < 2.0
+
+    def test_the_two_baselines_from_the_shared_station_move_together(self, live_results):
+        """The same blind spot seen from the other side: between the two days
+        the baselines from GODN shift by millimetres while GODE-GODS barely
+        moves, which is the signature of the common station rather than of
+        random error -- and is invisible to the closure above."""
+        between = live_results["repeatability_between_days"]
+        from_godn = [between["GODN-GODE"]["magnitude_mm"], between["GODN-GODS"]["magnitude_mm"]]
+        assert min(from_godn) > 2.0 * between["GODE-GODS"]["magnitude_mm"]
 
 
 @pytest.mark.engines

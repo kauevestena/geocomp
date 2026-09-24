@@ -292,7 +292,7 @@ carry files in it: the five networks are vendored as `Network.to_dict()` JSON, p
 `scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
 and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
-## 5. RD-06 — data obtained, accuracy unmet **[V]**; RD-07 and RD-08 still to assemble **[C]**
+## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 and RD-08 still to assemble **[C]**
 
 **RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
 environment. The reproducible evidence bundle, integrated into `tests/data/rd06/`, contains two complete
@@ -505,11 +505,18 @@ defines no GNSS threshold, and the accuracy check stays red.
 
 ### 5.3 What the check enforces [V]
 
-Only the primary accuracy assertion is a strict, exception-specific expected failure during local
-development. CI runs it with `--runxfail`, so **the engine accuracy check stays red** while this criterion
-is unmet. Source integrity, the antenna-epoch guard, the phase-centre self-consistency measurement,
-processing, complete-day coverage and reproducibility must pass normally; missing engine or decompression
-prerequisites fail in CI. The standalone checker exits 1 on the discrepancy.
+**Two criteria, both judged, both at 2 mm per component.** The GODN–GODE–GODS triangle must close, and
+the six-hour sub-sessions of the judged baseline must repeat; `scripts/check_rd06.py` exits 1 on either
+and `tests/test_rd06.py` asserts both against a real engine. Source integrity, the antenna-epoch guard,
+the phase-centre self-consistency measurement, processing, complete-day coverage and byte
+reproducibility must pass as before, and missing engine or decompression prerequisites fail in CI.
+
+The published-coordinate comparison is **reported and not judged** (§5.4, and
+[`20`](./20-testing-and-validation.md) §6). It still runs, its number is still written to
+`metrics.json` and the artifact, and a test asserts it stays the size §5 describes — so a change in it
+is still visible, it simply no longer decides the build. There is no longer an expected failure here:
+the `--runxfail` arrangement that kept the old criterion honest has nothing left to run, because
+nothing is xfailed.
 
 **Repository delivery.** Coordinate sheets, station logs, policy snapshots and a losslessly compressed
 primary output are vendored. Larger processing inputs are obtained explicitly with
@@ -631,8 +638,13 @@ this conclusion should not outlive its evidence. And the fourteen pairs are all 
 one kind of site, which is what makes them comparable with each other and also what limits how far the
 number generalises.
 
-**The consequence for the threshold is a decision, not a finding**, and it is recorded in
-[`20`](./20-testing-and-validation.md) §6 rather than taken here.
+**The consequence for the threshold was a decision, not a finding, and it has been taken.** On
+24 September 2026 the maintainer chose to stop judging GNSS on somebody else's coordinates and to
+judge it on what this project controls: loop closure and repeatability.
+[`20`](./20-testing-and-validation.md) §6 states the criterion and the numbers; §5.5 below says what
+the check now enforces. The comparison in this section is still run and reported on every engine
+build — it is evidence, and evidence does not stop being interesting because it stopped being a
+gate.
 
 ## 6. Recommended order
 

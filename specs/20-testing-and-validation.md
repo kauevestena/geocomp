@@ -187,55 +187,39 @@ locally; engine CI uses `--runxfail` and **fails while the criterion remains unm
 are not expected failures. The standalone `scripts/check_rd06.py` also returns failure for the accuracy
 mismatch and retains evidence.
 
-**There is still no GNSS numerical threshold in this section, and that is a decision rather than an
-omission** (23 September 2026). One was derived and not adopted. The measured repeatability of the
-estimator — 62 solutions per baseline across two days at session lengths from one hour to a full day — is
-**0.38 / 0.54 / 1.47 mm** per component in east, north and up, and the scatter barely improves with
-session length. A threshold derived from that is about 1 mm horizontally, which is the number the borrowed
-printed-precision rule already gives: the rule was the right order of magnitude for the wrong reason, and
-no value derived from *this* side of the comparison changes the outcome. The quantity that would decide it
-is the reference's own uncertainty, and the NGS coordinate sheets publish none.
-[`22`](./22-reference-data-sources.md) §5.2 records the derivation, the decision and what would close it.
-Until then the 1 mm comparison stands as the documented conservative interpretation of the source's
-printed precision, and the check stays red.
+**The GNSS criterion is loop closure and repeatability, not agreement with a published coordinate**
+(maintainer's decision, 24 September 2026). RD-06 is met when both of these hold, each at **2 mm per
+component**:
 
-**The quantity that was missing has since been measured** (24 September 2026), which changes the basis
-of that decision without yet changing the decision. The sheets still publish no uncertainty, but the
-reference's uncertainty no longer has to be taken from what they print: fourteen independent
-same-antenna CORS pairs of 22 to 46 m, every one exactly calibrated, solved on three consecutive days
-each, miss their published coordinates by a median worst component of **5.1 mm** — and not one of the
-fourteen reaches 1 mm. The disagreement is fixed per pair to 0.43 mm across days, differs between pairs
-by 2.7 to 6.6 mm, and does not move when the elevation mask goes from 10° to 30°, so it is neither this
-estimator's noise nor low-elevation multipath.
-[`22`](./22-reference-data-sources.md) §5.4 has the measurement and its limits.
+| Criterion | What it is | Measured |
+|---|---|---|
+| **Loop closure** | The GODN–GODE–GODS triangle, every leg processed independently, summed round the circuit | **0.245 mm** on 2025-001 and **0.787 mm** on 2025-002 over a 282 m perimeter; worst single component 0.6 mm |
+| **Repeatability** | Robust scatter of the six-hour sub-sessions of the judged baseline | **0.613 / 0.318 / 0.992 mm** in east, north and up |
 
-So the honest reading of the 1 mm rule is now available: **it is not a tolerance this comparison can
-meet against NGS published CORS coordinates**, whatever GeoComp does, because the reference itself
-scatters by several millimetres at this scale while the estimator repeats to 0.5 / 0.3 / 0.08 mm. Three
-responses are open — adopt a GNSS threshold derived from the *reference* side (about 5 mm per
-component, or 8 mm at roughly twice the observed spread), keep 1 mm and accept that RD-06's accuracy
-check is permanently red as a standing statement about the reference, or stop comparing against
-published coordinates and judge GNSS against a closure or a repeatability criterion instead, which
-measures what this project controls. **Choosing between them is the maintainer's**, and this section
-still defines no GNSS threshold until they do.
+**Why the published comparison stopped being a criterion.** It was never measuring this software.
+Fourteen independent same-antenna CORS pairs of 22 to 46 m, every one resolving its own antenna *and*
+radome exactly, miss their published ITRF2020 coordinates by a median worst component of 5.1 mm and
+**none reaches 1 mm**, while the same estimator repeats to well under a millimetre. The disagreement is
+fixed per pair across days, differs between pairs, and does not move with the elevation mask, so it
+belongs to the reference or the site rather than to the processing — [`22`](./22-reference-data-sources.md)
+§5.4 has the measurement and its limits. A tolerance that no clean pair can meet is a statement about
+NGS, and a green check ought to be a statement about GeoComp. The comparison is still **run and
+reported** on every engine build, and a test asserts the discrepancy stays the size §5 describes, so
+the evidence does not quietly disappear; it simply no longer decides anything.
 
-**The maintainer's decision of 24 September 2026 was to take none of the three yet, and to close the
-remaining caveat first.** §5.4's numbers were measured with `igs20.atx`, the IGS type means, because
-that is the file this environment could be given; NGS computes its published coordinates with its own
-`ngs20.atx`, which `geodesy.noaa.gov` will not serve here. Engine CI re-runs all fourteen pairs
-against `ngs20.atx` on every engine build and fails if any component moves by more than 1 mm — the
-size at which the conclusion would change, since the finding is that no pair comes within 1 mm and the
-median worst component is 5.1 mm.
+**Why both, and not closure alone.** An error common to every baseline at one station enters a loop
+twice with opposite signs and cancels, so a triangle can close perfectly while the whole site is
+displaced. 2025-001 demonstrates it: that day carries the contaminated hour §5.1 attributes and still
+closes to a quarter of a millimetre. Repeated independent sub-sessions do see what closure cannot, so
+the criterion requires both and `tests/test_rd06.py` asserts the blind spot rather than describing it.
 
-**That confirmation has now been made, and it changes nothing.** The maintainer supplied `ngs20.atx`
-on 24 September 2026; it matches the digest this repository already pins, NGS calibrates the antenna
-in question, and its entry differs from the IGS one only in a SINEX provenance code — every
-phase-centre number is identical, and re-running all fourteen pairs against it moves the largest
-component by 0.0005 mm. [`22`](./22-reference-data-sources.md) §5.4 records it.
-
-So the caveat is closed and **the choice among the three responses above is now live and unblocked**.
-It is still the maintainer's, and until it is made this section defines no GNSS threshold and the
-accuracy check stays red.
+**Why these numbers.** 2 mm is about three times the worst component either measurement produces,
+which leaves room for a different site or receiver without leaving room for a defect. The closure
+limit is per component rather than on the magnitude, because a magnitude hides one bad axis behind two
+good ones and the axis is what a reader needs in order to act. Repeatability is judged on the
+**six-hour** spans because that is the shortest length with enough solutions per day for the statistic
+to mean anything and enough time for the ambiguities to resolve, and on the **robust** scatter because
+a criterion a single known-bad hour can fail is measuring that hour rather than the estimator.
 
 ## 7. CI matrix
 

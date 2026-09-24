@@ -140,6 +140,35 @@ error, because there is no baseline between the groups to be dependent on.
 allows the full set in Advanced mode with the consequence stated, and that needs the dependent ones to still
 exist and to know what they are.
 
+### 4.1.1 Loop closure **[V]**
+
+Delivered in phase P7e as `core/techniques/gnss/baselines.py::loop_closure`.
+
+The dependent baselines §4.1 marks are exactly the ones that can be *checked*: a closed circuit of
+measured vectors must return where it began, so the sum is zero but for the errors in the legs. That
+makes closure the one check on a set of baselines needing **no external coordinate at all** — it asks
+whether the measurements agree with each other rather than with somebody's published position.
+[`20`](./20-testing-and-validation.md) §6 rests RD-06's GNSS criterion on that distinction.
+
+**The sum is taken in ECEF and a local-frame leg is refused.** East, north and up at one station are
+not east, north and up at another, so adding local vectors round a circuit adds three different frames
+and returns a misclosure that is mostly rotation. Over a 65 m triangle the two horizons differ by about
+2e-6 rad and the error hides under a millimetre; over a 50 km loop it does not, and a check that is
+silently wrong only at the scale where it matters is worse than no check. Mixing legs reduced to the
+marks with legs still at the antenna reference points is refused for the same reason: such a loop
+closes by the difference of the antenna heights, which looks exactly like a measurement error.
+
+**The covariance is always approximate**, and says so. Legs of one session share satellites, clocks and
+atmosphere, so adding their covariances as though independent understates the truth; that is recorded
+as `Strategy.INDEPENDENCE_ASSUMED` rather than left to be inferred, because a misclosure judged against
+an over-optimistic sigma looks significant when it is not.
+
+**What closure cannot see.** An error common to every baseline at one station enters the loop twice
+with opposite signs and cancels, so a perfect closure does not mean the station is right. RD-06
+demonstrates it: 2025-001 carries a contaminated hour and still closes to a quarter of a millimetre.
+Closure is therefore necessary and not sufficient, and [`20`](./20-testing-and-validation.md) §6 pairs
+it with a repeatability criterion for exactly that reason.
+
 ### 4.2 Antenna height reduction happens once **[V]**
 
 The reduction is recorded **on the baseline it produced**, not beside it: `Baseline.antenna_reduction` is

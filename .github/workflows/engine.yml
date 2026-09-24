@@ -215,10 +215,16 @@ jobs:
       - name: The pipeline, against the real engine
         run: pytest -q tests/test_rtklib_engine.py -k AgainstTheRealEngine
 
-      # The published-coordinate criterion is still unmet. Local pytest names
-      # its known failure; --runxfail here enforces the original assertion and
-      # deliberately leaves this check red until the discrepancy is resolved.
-      # Never continue-on-error: processing/repeatability and accuracy matter.
+      # RD-06 is judged on loop closure and repeatability since 24 September
+      # 2026 (specs/20 section 6), and both are met, so this step is expected
+      # to pass. The published-coordinate comparison still runs and is still
+      # reported -- evidence does not stop being interesting because it stopped
+      # being a gate -- but it no longer decides anything.
+      #
+      # --runxfail stays although nothing is xfailed any more: it costs nothing
+      # now and it means that if anyone reintroduces an expected failure here,
+      # CI enforces the original assertion instead of accepting the excuse.
+      # Never continue-on-error: processing, closure and repeatability matter.
       - name: Acquire RD-06 processing inputs and enforce their recorded hashes
         run: python3 scripts/check_rd06.py --fetch-inputs --verify-inputs
 
@@ -244,13 +250,20 @@ jobs:
         if: always()
         run: python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
 
-      # The measurement the tolerance question rests on, and the one the
-      # development environment can only run uncalibrated. It splits both days
-      # into halves, quarters and hours: GPS geometry repeats every sidereal
-      # day, so two whole days conceal exactly the error this exposes, and it
-      # is how the contaminated hour of 2025-001 was found. Reports, does not
-      # judge -- so a failure here is a bug in the diagnostic.
-      - name: RD-06 diagnostic — the calibrated sub-session repeatability
+      # One of RD-06's two criteria since 24 September 2026, so this judges
+      # where it used only to report: it exits 1 if the six-hour sub-sessions
+      # scatter by more than 2 mm in any component. Measured 0.613 / 0.318 /
+      # 0.992 mm.
+      #
+      # It is the criterion closure cannot supply. An error common to every
+      # baseline at one station enters a loop twice with opposite signs and
+      # cancels, so the triangle can close perfectly while the whole site is
+      # displaced -- 2025-001 closes to a quarter of a millimetre while
+      # carrying the contaminated hour. Splitting both days into halves,
+      # quarters and hours is what sees that: GPS geometry repeats every
+      # sidereal day, so two whole days conceal exactly the error this exposes,
+      # and it is how the contaminated hour was found in the first place.
+      - name: RD-06 criterion — the calibrated sub-session repeatability
         if: always()
         run: python3 scripts/check_rd06.py --repeatability --output build/rd06-repeatability
 

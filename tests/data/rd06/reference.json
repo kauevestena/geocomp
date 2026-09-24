@@ -62,7 +62,7 @@
     }
   },
   "tolerance_m": 0.001,
-  "tolerance_status": "Conservative operational interpretation of specs/20 section 6 printed-source precision; the repository still defines no separate GNSS numerical threshold, and the maintainer's decision of 23 September 2026 was to derive none until the comparison is decidable. This does not introduce a new acceptance criterion.",
+  "tolerance_status": "tolerance_m is the REPORTED published-coordinate comparison, not a criterion. It stays at the 1 mm conservative reading of specs/20 section 6 printed-source precision so the number keeps its meaning across the change, but nothing fails on it: specs/22 section 5.4 measured the reference's own uncertainty at roughly 5 mm per component on fourteen clean pairs.",
   "accuracy_case": "calibrated_gode_001",
   "counter_case": "calibrated_gods_001",
   "expected_baseline_GODN_to_GODE_m": [
@@ -89,5 +89,9 @@
       false
     ],
     "note": "The frozen GODN-GODS day-001 solution from the original experiment. It is history, not expected truth, and it is retained because it is the counter-case's evidence: it shows the 6 to 7 mm north that GODS's post-epoch antenna change accounts for. Its case name predates the GODE/GODS naming and is kept so the bytes and observed-results.json stay in step."
-  }
+  },
+  "closure_tolerance_m": 0.002,
+  "repeatability_tolerance_m": 0.002,
+  "repeatability_span_hours": 6,
+  "criterion": "Loop closure over the GODN-GODE-GODS triangle and robust six-hour sub-session repeatability, both at 2 mm per component. Maintainer's decision of 24 September 2026: GNSS is judged on what this project controls. The published-coordinate comparison is reported and no longer judged, because fourteen independent clean pairs put the reference's own spread at about 5 mm while this estimator repeats to well under one -- see specs/22 section 5.4 and specs/20 section 6."
 }

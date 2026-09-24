@@ -5,6 +5,69 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7e — RD-06 met, on a criterion that measures this project
+
+The maintainer's decision of 24 September 2026: stop judging GNSS on agreement
+with somebody else's published coordinate, and judge it on loop closure and
+repeatability. A tolerance no clean pair can meet is a statement about NGS; a
+green check ought to be a statement about GeoComp. Both new criteria are met.
+
+#### Added
+
+- **`loop_closure` and `LoopClosure`** in `core/techniques/gnss/baselines.py`
+  (FR-602), specified in `specs/11` §4.1.1. A closed circuit of measured
+  vectors must return where it began, so closure is the one check on a set of
+  baselines that needs **no external coordinate at all**. Refused outside ECEF,
+  because east, north and up at one station are not east, north and up at
+  another and a circuit of local vectors sums three different frames — over
+  65 m that error hides under a millimetre, over 50 km it does not, and a check
+  silently wrong only at the scale where it matters is worse than none. Refused
+  across mixed antenna reduction, because such a loop closes by the antenna
+  heights. Its covariance is always approximate and records
+  `INDEPENDENCE_ASSUMED`, since legs of one session share satellites and
+  atmosphere and a misclosure judged against an over-optimistic sigma looks
+  significant when it is not.
+- **The GGAO triangle's third leg, GODE–GODS**, processed independently on both
+  days. Differencing the other two would close by construction and check
+  nothing.
+
+#### Changed
+
+- **RD-06's criterion is loop closure and repeatability, each at 2 mm per
+  component**, and both are met: the triangle closes to **0.245 mm** on
+  2025-001 and **0.787 mm** on 2025-002 over a 282 m perimeter, and the
+  six-hour sub-sessions repeat to **0.613 / 0.318 / 0.992 mm**. 2 mm is about
+  three times the worst component either measurement produces. Closure is
+  judged per component, because a magnitude hides one bad axis behind two good
+  ones. Repeatability is judged on the six-hour spans, the shortest with enough
+  solutions per day to mean anything and enough length for the ambiguities to
+  resolve, and on the robust scatter, because a criterion a single known-bad
+  hour can fail is measuring that hour rather than the estimator.
+- **The published-coordinate comparison is reported, not judged.** It still
+  runs on every engine build, its number still reaches `metrics.json` and the
+  artifact, and a test asserts it stays the size `specs/22` §5 describes.
+  Evidence does not stop being interesting because it stopped being a gate.
+  There is no longer an expected failure in RD-06: `--runxfail` has nothing to
+  run.
+- **`test_the_judged_case_carries_its_own_antennas_calibration` became
+  `test_gode_still_carries_another_domes_calibration`** — a recorded fact
+  rather than a failure. Nothing judged rests on GODE's absolute agreement any
+  more, and a dome substitution at GODE enters the loop twice with opposite
+  signs and cancels. The assertion stays so that the day an ANTEX starts
+  carrying JPLA, it says so.
+
+#### Found, and recorded rather than worked around
+
+- **Closure cannot see an error common to one station's baselines**, because it
+  enters the loop twice with opposite signs. 2025-001 proves it: that day
+  carries the contaminated hour P7d attributed and still closes to a quarter of
+  a millimetre. That is why the criterion requires repeatability as well, and
+  `tests/test_rd06.py` asserts the blind spot instead of describing it.
+- **Between the two days the baselines from GODN shift by 5 to 6 mm while
+  GODE–GODS moves by 0.4 mm.** Two baselines sharing a station moving together
+  while the third stays put is the signature of something at that station, not
+  of random error — and it is exactly what the loop cannot see.
+
 ### P7d — RD-06, attributed
 
 The 7.5 mm had been narrowed to "two errors, one of them bounded" and left

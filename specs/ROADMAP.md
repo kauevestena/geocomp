@@ -594,7 +594,7 @@ claim held for the days processed, not for the network. `scripts/screen_cors_pai
 | The attribution is a test, not a paragraph | **met** — `tests/test_rd06.py` fails if the counter-case stops showing it |
 | A defect of this class cannot recur silently | **met** — the antenna-epoch guard refuses it offline, and an exemption must stay earned |
 | A GNSS numerical threshold is derived | **met, and deliberately not adopted** — see below |
-| **A static relative session over RD-06 reproduces published coordinates** | **not met, and now measured to be unreachable** — fourteen clean, exactly calibrated pairs all miss 1 mm; the reference scatters by ~5 mm where the estimator repeats to 0.5 mm ([`22`](./22-reference-data-sources.md) §5.4) |
+| **A static relative session over RD-06 meets its accuracy criterion** | **met** — the criterion is now loop closure and repeatability, not agreement with a published coordinate. The GODN–GODE–GODS triangle closes to **0.245 / 0.787 mm** and the six-hour sub-sessions repeat to **0.613 / 0.318 / 0.992 mm**, against 2 mm per component ([`20`](./20-testing-and-validation.md) §6) |
 
 **The threshold was derived and the maintainer chose not to adopt it.** The estimator's measured
 repeatability is 0.38 / 0.54 / 1.47 mm per component, so a threshold derived from this side of the
@@ -643,9 +643,33 @@ at which the conclusion would change.
 repository already pins; NGS calibrates the antenna; its entry differs from the IGS one only in a
 SINEX provenance code, every phase-centre number being identical; and re-running all fourteen pairs
 moves the largest component by 0.0005 mm. `AOAD/M_T JPLA` is absent there too — NGS publishes no JPLA
-radome at all — so GODE's unjudgeability is a fact about the radome, not about the file. The caveat is
-closed and the threshold choice in §6 is unblocked; until the maintainer makes it, §6 defines no GNSS
-threshold and the accuracy check stays red.
+radome at all — so GODE's unjudgeability is a fact about the radome, not about the file.
+
+## P7e — the criterion GNSS is actually judged on
+
+**The maintainer's decision of 24 September 2026: stop judging GNSS on somebody else's coordinates.**
+A tolerance no clean pair can meet is a statement about NGS, and a green check ought to be a statement
+about GeoComp. RD-06 is now met on two criteria, each at 2 mm per component, and both are.
+
+**Loop closure**, delivered as `core/techniques/gnss/baselines.py::loop_closure` and specified in
+[`11`](./11-module-gnss.md) §4.1.1. A closed circuit of measured vectors must return where it began,
+which needs no external coordinate at all. The GGAO triangle's third leg, GODE–GODS, is now processed
+independently rather than differenced from the other two — differencing would close by construction
+and check nothing — and the circuit closes to **0.245 mm** on 2025-001 and **0.787 mm** on 2025-002
+over a 282 m perimeter. The sum is refused outside ECEF, because east, north and up at one station are
+not east, north and up at another, and refused across mixed antenna reduction, because such a loop
+closes by the antenna heights.
+
+**Repeatability**, because closure alone is not enough: an error common to every baseline at one
+station enters the loop twice with opposite signs and cancels. 2025-001 proves the blind spot — it
+carries the contaminated hour P7d attributed and closes to a quarter of a millimetre anyway. The
+six-hour sub-sessions repeat to **0.613 / 0.318 / 0.992 mm**, and `tests/test_rd06.py` asserts the
+blind spot rather than describing it.
+
+**The published comparison is kept and reported**, never deleted. It still runs on every engine build,
+its number still reaches `metrics.json` and the artifact, and a test asserts it stays the size
+[`22`](./22-reference-data-sources.md) §5 describes. Evidence does not stop being interesting because
+it stopped being a gate.
 
 ---
 

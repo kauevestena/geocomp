@@ -45,6 +45,13 @@ CASES = (
     ("precise_gode_001", 1, "GODN", "GODE", True, True),
     ("calibrated_gods_001", 1, "GODN", "GODS", True, False),
     ("calibrated_gods_002", 2, "GODN", "GODS", True, False),
+    # The third side of the triangle, measured rather than differenced. With
+    # GODN-GODE and GODN-GODS it closes a circuit, and a circuit is the one
+    # check on a set of baselines that needs no published coordinate at all:
+    # it asks whether the measurements agree with each other. Differencing the
+    # other two would close identically by construction and check nothing.
+    ("calibrated_gode_gods_001", 1, "GODE", "GODS", True, False),
+    ("calibrated_gode_gods_002", 2, "GODE", "GODS", True, False),
 )
 
 
@@ -488,6 +495,67 @@ def require_accuracy(metrics: dict, reference: dict) -> None:
             f"{metrics['case']}: RD-06 published-coordinate criterion UNMET; "
             f"XYZ error (mm) = {[round(x * 1000, 4) for x in delta]}; "
             f"limit = {reference['tolerance_m'] * 1000:g} mm per component"
+        )
+
+
+class ClosureError(AssertionError):
+    """The circuit of independently processed baselines did not close."""
+
+
+class RepeatabilityError(AssertionError):
+    """Independent sub-sessions of the same baseline did not agree."""
+
+
+def require_closure(summary: dict, reference: dict) -> None:
+    """RD-06's primary criterion: the triangle must close.
+
+    Judged per component rather than on the magnitude alone, because a
+    magnitude can hide a single bad axis behind two good ones, and the axis is
+    what a reader needs in order to act.
+    """
+    limit = reference["closure_tolerance_m"] * 1000
+    closures = summary.get("closure") or {}
+    if not closures:
+        raise ClosureError("No closure was measured; the triangle's three legs did not all run")
+    for day, entry in sorted(closures.items()):
+        worst = max(abs(component) for component in entry["misclosure_xyz_mm"])
+        if worst > limit:
+            raise ClosureError(
+                f"{day}: GGAO triangle {'-'.join(entry['loop'])} misclosed by "
+                f"{[round(c, 4) for c in entry['misclosure_xyz_mm']]} mm "
+                f"({entry['magnitude_mm']:.3f} mm over {entry['perimeter_m']:.1f} m, "
+                f"{entry['parts_per_million']:.2f} ppm); limit {limit:g} mm per component. "
+                "This needs no published coordinate: the legs disagree with each other."
+            )
+
+
+def require_repeatability(summary: dict, reference: dict) -> None:
+    """RD-06's second criterion, and the one closure cannot supply.
+
+    An error common to every baseline at a station cancels around a loop, so a
+    triangle can close perfectly while the whole site is displaced. Repeated
+    independent sub-sessions of the same baseline do see that.
+
+    Judged on the **six-hour** sub-sessions and on the **robust** scatter. Six
+    hours because it is the shortest span with enough solutions per day for the
+    statistic to mean anything and enough length for the ambiguities to resolve;
+    robust because 2025-001 carries the contaminated hour section 5.1
+    attributes, and a criterion that a single known-bad hour can fail is
+    measuring that hour rather than the estimator.
+    """
+    limit = reference["repeatability_tolerance_m"] * 1000
+    span = reference["repeatability_span_hours"]
+    # The statistics live one level down, and the span keys are integers in
+    # memory but strings once the summary has been through JSON.
+    available = (summary.get("statistics") or summary).get("per_span") or {}
+    per_span = available.get(span) or available.get(str(span))
+    if per_span is None or per_span.get("robust_sigma_enu_mm") is None:
+        raise RepeatabilityError(f"No {span} h repeatability statistics were produced")
+    scatter = per_span["robust_sigma_enu_mm"]
+    if max(scatter) > limit:
+        raise RepeatabilityError(
+            f"{span} h sub-sessions scatter by {[round(v, 4) for v in scatter]} mm in east, north "
+            f"and up (robust); limit {limit:g} mm per component"
         )
 
 
@@ -1028,6 +1096,92 @@ def _print_repeatability(summary: dict) -> None:
         )
 
 
+#: The circuit RD-06's primary criterion closes. Each leg is processed
+#: independently; differencing two of them to get the third would close by
+#: construction and check nothing.
+TRIANGLE = ("GODN", "GODE", "GODS")
+TRIANGLE_LEGS = (
+    ("calibrated_gode_{day}", "GODN", "GODE"),
+    ("calibrated_gods_{day}", "GODN", "GODS"),
+    ("calibrated_gode_gods_{day}", "GODE", "GODS"),
+)
+
+
+def measure_closure(solutions: dict, reference: dict) -> dict:
+    """Close the GGAO triangle on each day, from independently processed legs.
+
+    **This is what RD-06 is judged on**, because it needs no published
+    coordinate: it asks whether the measurements agree with each other rather
+    than with somebody else's position, and so it measures what this project
+    controls. ``specs/20`` section 6 states the criterion and why the published
+    comparison stopped being one.
+
+    What it cannot see is recorded with it: an error common to every baseline
+    at one station cancels around the loop, so a closure of zero does not mean
+    the station is right. That is precisely why the criterion also requires
+    repeatability, and why day 2025-001 closes to a quarter of a millimetre
+    despite carrying the contaminated hour section 5.1 attributes.
+    """
+    import numpy as np
+
+    from geocomp.core.techniques.gnss import loop_closure
+    from geocomp.engines.rtklib.baseline import baseline_from_solution
+
+    by_day = {}
+    for day in DAYS:
+        legs, cases = [], []
+        for template, base, rover in TRIANGLE_LEGS:
+            name = template.format(day=f"{day:03d}")
+            if name not in solutions:
+                break
+            legs.append(baseline_from_solution(solutions[name], base_station=base, rover_station=rover))
+            cases.append(name)
+        if len(legs) != len(TRIANGLE_LEGS):
+            continue
+        closure = loop_closure(legs, list(TRIANGLE))
+        by_day[f"2025-{day:03d}"] = {
+            "loop": list(closure.loop),
+            "legs": list(closure.legs),
+            # The case each leg came from, so the record shows all three were
+            # processed rather than two processed and one differenced.
+            "cases": cases,
+            "misclosure_xyz_mm": [q.value * 1000 for q in closure.misclosure],
+            "magnitude_mm": closure.magnitude_m * 1000,
+            "perimeter_m": closure.perimeter_m,
+            "parts_per_million": closure.parts_per_million,
+            "propagated_sigma_xyz_mm": (np.sqrt(np.diag(closure.covariance.matrix)) * 1000).tolist(),
+            "covariance_is_approximate": closure.covariance.mode.name == "APPROXIMATE",
+        }
+    return by_day
+
+
+def measure_between_day_repeatability(results: list[dict]) -> dict:
+    """How far the same baseline moves between two independent days.
+
+    Reported per leg rather than pooled, because the interesting structure is
+    which legs move together: the two baselines *from* GODN shift by about the
+    same vector between the days while GODE-GODS barely moves, which is the
+    signature of something at the common station rather than of random error.
+    """
+    import numpy as np
+
+    by_case = {row["case"]: row for row in results}
+    out = {}
+    for template, base, rover in TRIANGLE_LEGS:
+        first, second = (template.format(day=f"{d:03d}") for d in DAYS[:2])
+        if first not in by_case or second not in by_case:
+            continue
+        delta = (
+            np.array(by_case[second]["computed_baseline_xyz_m"])
+            - np.array(by_case[first]["computed_baseline_xyz_m"])
+        ) * 1000
+        out[f"{base}-{rover}"] = {
+            "difference_xyz_mm": delta.tolist(),
+            "magnitude_mm": float(np.linalg.norm(delta)),
+        }
+    return out
+
+
 def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) -> dict:
     verify_sources(data, include_external=True)
     import hatanaka
@@ -1047,6 +1201,7 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
     if "IGS20" not in orbit.read_text(encoding="ascii").splitlines()[0]:
         raise ValueError("Precise orbit frame differs from IGS20")
     results = []
+    solutions = {}
     for case in CASES:
         name, day, base, rover, calibrated, precise = case
         # The same options the two diagnostics use, so a case and the sweep or
@@ -1112,6 +1267,7 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         )
         (directory / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
         results.append(metrics)
+        solutions[name] = result.solution
         print(
             f"{name}: XYZ error (mm) {[round(x * 1000, 4) for x in metrics['difference_xyz_m']]}, "
             f"strict pass={metrics['passes_strict_xyz_comparison']}, "
@@ -1138,6 +1294,8 @@ def run_all(output: Path, executable: Path, reference: dict, data: Path = DATA) 
         "cases": results,
         "accuracy_case": reference["accuracy_case"],
         "counter_case": reference["counter_case"],
+        "closure": measure_closure(solutions, reference),
+        "repeatability_between_days": measure_between_day_repeatability(results),
         "accuracy_criterion_met": all(
             accuracy_case(results, reference)[key]
             for key in ("passes_strict_xyz_comparison", "full_day_and_fixed", "repeat_pos_bit_identical")
@@ -1220,7 +1378,7 @@ def main() -> int:
         )
         return 0
     if args.repeatability or args.repeatability_uncalibrated:
-        measure_repeatability(
+        statistics = measure_repeatability(
             args.output,
             version.path,
             reference,
@@ -1228,13 +1386,30 @@ def main() -> int:
             mask=args.mask,
             **({"rover": args.rover} if args.rover else {}),
         )
+        # One of RD-06's two criteria since 24 September 2026, so this judges
+        # where it used only to report -- but only in the configuration the
+        # criterion is stated for. An uncalibrated run, or one at a swept mask,
+        # is a diagnostic and has no verdict to give.
+        if args.repeatability and args.mask is None and not args.rover:
+            try:
+                require_repeatability(statistics, reference)
+            except RepeatabilityError as error:
+                print(str(error), file=sys.stderr)
+                return 1
         return 0
     summary = run_all(args.output, version.path, reference)
     try:
-        require_accuracy(accuracy_case(summary["cases"], reference), reference)
-    except AccuracyMismatchError as error:
+        require_closure(summary, reference)
+    except ClosureError as error:
         print(str(error), file=sys.stderr)
         return 1
+    # Reported, not judged: specs/20 section 6 stopped judging GNSS on somebody
+    # else's coordinates once the reference's own spread was measured at about
+    # 5 mm against this estimator's sub-millimetre repeatability.
+    try:
+        require_accuracy(accuracy_case(summary["cases"], reference), reference)
+    except AccuracyMismatchError as error:
+        print(f"REPORTED, NOT A CRITERION: {error}", file=sys.stderr)
     return 0
 
 

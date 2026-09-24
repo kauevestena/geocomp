@@ -40,11 +40,12 @@ from geocomp.core.techniques.gnss import (
     Baseline,
     components_from_covariance,
     independent_subset,
+    loop_closure,
     reduce_to_marks,
     rotate_baseline_to_local,
     to_cluster,
 )
-from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import Unit
 from geocomp.engines.rtklib.baseline import (
     baseline_from_solution,
@@ -64,9 +65,7 @@ ENU_DEVIATIONS = (0.0007, 0.0009, 0.0025)
 @pytest.fixture
 def ecef_baseline():
     solution = read_pos(POS / "xyz.pos")
-    return baseline_from_solution(
-        solution, base_station="3040", rover_station="0759", baseline_id="b1"
-    )
+    return baseline_from_solution(solution, base_station="3040", rover_station="0759", baseline_id="b1")
 
 
 def _space_3d_layout(stations=("a", "b"), cartesian_frame=None):
@@ -128,13 +127,9 @@ class TestTheRotationAgreesWithTheEngine:
         assert found == pytest.approx(ENU_DEVIATIONS, abs=5e-5)
 
     def test_the_length_is_the_one_the_enu_file_implies(self, ecef_baseline):
-        assert ecef_baseline.length.value == pytest.approx(
-            math.hypot(*ENU_BASELINE), abs=1e-3
-        )
+        assert ecef_baseline.length.value == pytest.approx(math.hypot(*ENU_BASELINE), abs=1e-3)
 
-    def test_a_rotation_changes_the_representation_and_not_the_vector(
-        self, ecef_baseline
-    ):
+    def test_a_rotation_changes_the_representation_and_not_the_vector(self, ecef_baseline):
         rotated = rotate_baseline_to_local(ecef_baseline)
         assert rotated.length.value == pytest.approx(ecef_baseline.length.value, abs=1e-9)
         assert np.trace(rotated.covariance.matrix) == pytest.approx(
@@ -246,14 +241,10 @@ class TestAntennaHeightIsRemovedOnce:
             AntennaOffset(up=Quantity.from_std_dev(1.200, 0.002, Unit.METRE), method="vertical"),
         )
 
-    def test_the_height_difference_moves_by_the_difference_of_the_offsets(
-        self, ecef_baseline
-    ):
+    def test_the_height_difference_moves_by_the_difference_of_the_offsets(self, ecef_baseline):
         base, rover = self._offsets()
         before = rotate_baseline_to_local(ecef_baseline).components[2].value
-        after = rotate_baseline_to_local(
-            reduce_to_marks(ecef_baseline, base, rover)
-        ).components[2].value
+        after = rotate_baseline_to_local(reduce_to_marks(ecef_baseline, base, rover)).components[2].value
         # Mark-to-mark is 0.3 m higher than antenna-to-antenna: the base's
         # antenna stood 0.3 m further above its mark than the rover's did.
         assert after - before == pytest.approx(0.300, abs=1e-3)
@@ -261,9 +252,7 @@ class TestAntennaHeightIsRemovedOnce:
     def test_both_offsets_uncertainties_reach_the_result(self, ecef_baseline):
         base, rover = self._offsets()
         before = rotate_baseline_to_local(ecef_baseline).components[2]
-        after = rotate_baseline_to_local(
-            reduce_to_marks(ecef_baseline, base, rover)
-        ).components[2]
+        after = rotate_baseline_to_local(reduce_to_marks(ecef_baseline, base, rover)).components[2]
         expected = math.sqrt(before.std_dev**2 + 0.002**2 + 0.002**2)
         assert after.std_dev == pytest.approx(expected, rel=1e-6)
         assert after.std_dev > before.std_dev
@@ -382,9 +371,7 @@ class TestTheClusterReachesAnAdjustment:
         network.add_cluster(cluster)
         network.require_valid()
 
-    def test_the_off_diagonal_blocks_are_zero_because_nothing_measured_them(
-        self, ecef_baseline
-    ):
+    def test_the_off_diagonal_blocks_are_zero_because_nothing_measured_them(self, ecef_baseline):
         """``specs/08`` §8.5: a correlation the engine did not supply is absent,
         not invented. ``rnx2rtkp`` runs one baseline at a time."""
         second = _synthetic("b2", "3040", "9999")
@@ -434,9 +421,7 @@ class TestTheEngineBridgeRefusesWhatItCannotUse:
         are a converging filter's guesses, and ``xyz.pos``'s first is a float
         solution two metres out."""
         solution = read_pos(POS / "xyz.pos")
-        first = np.asarray(solution.epochs[0].position) - np.asarray(
-            solution.reference_position
-        )
+        first = np.asarray(solution.epochs[0].position) - np.asarray(solution.reference_position)
         found = np.array([q.value for q in ecef_baseline.components])
         assert np.linalg.norm(found - first) > 0.1
 
@@ -458,3 +443,114 @@ class TestTheEngineBridgeRefusesWhatItCannotUse:
         from geocomp.engines.rtklib.baseline import quality_from_solution
 
         assert quality_from_solution(read_pos(POS / "xyz.pos")).dilution_of_precision is None
+
+
+def _leg(identifier, base, rover, vector, *, variance=1e-6, frame=None):
+    """A baseline with a chosen vector, for the closure tests."""
+    covariance = Covariance(
+        matrix=np.eye(3) * variance,
+        labels=("e", "n", "u") if frame is BaselineFrame.LOCAL else ("x", "y", "z"),
+        units=(Unit.METRE,) * 3,
+    )
+    return Baseline(
+        id=identifier,
+        base_station=base,
+        rover_station=rover,
+        components=components_from_covariance(tuple(vector), covariance),
+        covariance=covariance,
+        base_horizon=(0.6, 2.4),
+        rover_horizon=(0.6, 2.4),
+        frame=frame or BaselineFrame.ECEF,
+    )
+
+
+def _triangle(error=(0.0, 0.0, 0.0)):
+    """A-B-C-A, with *error* added to the last leg so the loop fails to close."""
+    ab = np.array([100.0, 0.0, 0.0])
+    bc = np.array([0.0, 200.0, 50.0])
+    ca = -(ab + bc) + np.array(error)
+    return [
+        _leg("ab", "A", "B", ab),
+        _leg("bc", "B", "C", bc),
+        _leg("ca", "C", "A", ca),
+    ]
+
+
+class TestALoopClosesOnItself:
+    """Closure is the one check on a set of baselines that needs no external
+    coordinate: it asks whether the measurements agree with each other."""
+
+    def test_a_perfect_triangle_closes_to_zero(self):
+        closure = loop_closure(_triangle(), ["A", "B", "C"])
+        assert closure.magnitude_m == pytest.approx(0.0, abs=1e-12)
+        assert closure.legs == ("ab", "bc", "ca")
+
+    def test_an_error_in_one_leg_is_the_misclosure(self):
+        closure = loop_closure(_triangle(error=(0.003, -0.004, 0.012)), ["A", "B", "C"])
+        assert [q.value for q in closure.misclosure] == pytest.approx([0.003, -0.004, 0.012])
+        assert closure.magnitude_m == pytest.approx(0.013, abs=1e-9)
+
+    def test_a_leg_stored_the_other_way_round_is_negated_not_refused(self):
+        """Traversing a baseline against its sense is a negation, not a
+        different measurement, so the same physical set must close either way."""
+        legs = _triangle()
+        legs[1] = _leg("cb", "C", "B", -np.array([0.0, 200.0, 50.0]))
+        closure = loop_closure(legs, ["A", "B", "C"])
+        assert closure.magnitude_m == pytest.approx(0.0, abs=1e-12)
+        assert closure.legs == ("ab", "cb", "ca")
+
+    def test_the_perimeter_gives_a_proportional_figure(self):
+        closure = loop_closure(_triangle(error=(0.0, 0.0, 0.01)), ["A", "B", "C"])
+        assert closure.perimeter_m == pytest.approx(2 * np.linalg.norm([100.0, 200.0, 50.0]) + 0.0, rel=0.2)
+        assert closure.parts_per_million == pytest.approx(1e6 * closure.magnitude_m / closure.perimeter_m)
+
+
+class TestTheClosureSaysHowWellItKnowsItself:
+    def test_the_covariance_is_approximate_and_says_why(self):
+        """Legs of one session share satellites and atmosphere, so summing
+        their covariances as independent understates the truth. A misclosure
+        judged against an over-optimistic sigma looks significant when it is
+        not, so the assumption is recorded rather than left to be inferred."""
+        closure = loop_closure(_triangle(), ["A", "B", "C"])
+        assert closure.covariance.mode is UncertaintyMode.APPROXIMATE
+        assert Strategy.INDEPENDENCE_ASSUMED in closure.covariance.strategies
+
+    def test_the_variance_is_the_sum_over_the_legs(self):
+        closure = loop_closure(_triangle(), ["A", "B", "C"])
+        assert closure.covariance.matrix[0, 0] == pytest.approx(3e-6)
+
+
+class TestAClosureThatWouldBeMeaninglessIsRefused:
+    def test_a_local_frame_leg_is_refused(self):
+        """East, north and up at one station are not east, north and up at
+        another, so a circuit of local vectors sums three different frames."""
+        legs = _triangle()
+        legs[0] = _leg("ab", "A", "B", [100.0, 0.0, 0.0], frame=BaselineFrame.LOCAL)
+        with pytest.raises(DataError, match="gnss_loop_leg_not_ecef"):
+            loop_closure(legs, ["A", "B", "C"])
+
+    def test_a_two_station_circuit_is_refused(self):
+        """It retraces one baseline and closes by construction, so it would
+        report a perfect closure while checking nothing."""
+        with pytest.raises(ValidationError, match="gnss_loop_too_short"):
+            loop_closure(_triangle(), ["A", "B"])
+
+    def test_a_repeated_station_is_refused(self):
+        with pytest.raises(ValidationError, match="gnss_loop_repeats_a_station"):
+            loop_closure(_triangle(), ["A", "B", "A", "C"])
+
+    def test_a_missing_leg_is_refused(self):
+        with pytest.raises(ValidationError, match="gnss_loop_leg_missing"):
+            loop_closure(_triangle()[:2], ["A", "B", "C"])
+
+    def test_mixing_reduced_and_unreduced_legs_is_refused(self):
+        """Such a loop closes by the difference of the antenna heights, which
+        looks exactly like a measurement error and is not one."""
+        legs = _triangle()
+        legs[0] = reduce_to_marks(
+            legs[0],
+            AntennaOffset(up=Quantity.from_std_dev(1.500, 0.002, Unit.METRE), method="vertical"),
+            AntennaOffset(up=Quantity.from_std_dev(1.200, 0.002, Unit.METRE), method="vertical"),
+        )
+        with pytest.raises(DataError, match="gnss_loop_mixed_antenna_reduction"):
+            loop_closure(legs, ["A", "B", "C"])
