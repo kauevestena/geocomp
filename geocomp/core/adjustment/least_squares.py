@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from geocomp.core.adjustment.datum import DatumDefect, constraint_matrix, detect_defect
+from geocomp.core.adjustment.difference_network import approximate_values
 from geocomp.core.adjustment.normal_equations import LinearisedSystem, assemble, solve
 from geocomp.core.adjustment.parameters import (
     Frame,
@@ -322,8 +323,17 @@ def starting_values(
     *,
     auxiliary: dict[str, tuple[str, ...]] | None = None,
 ) -> dict[str, dict[str, float]]:
-    """Assemble the starting parameter values, including fixed components."""
+    """Assemble the starting parameter values, including fixed components.
+
+    A gravity network takes its starting values from the observations when the
+    caller supplies none, because there is nowhere else they could come from: a
+    station's position says where it is, not what gravity is there. Deriving
+    them is exact rather than a guess -- the network is linear, and
+    :func:`~geocomp.core.adjustment.difference_network.approximate_values` is the
+    arithmetic a surveyor would otherwise do by hand.
+    """
     values: dict[str, dict[str, float]] = {}
+    derived: dict[str, dict[str, float]] | None = None
 
     for station_id, station in network.stations.items():
         supplied = (approximate or {}).get(station_id, {})
@@ -333,6 +343,10 @@ def starting_values(
                 entry[component] = layout.fixed_values[(station_id, component)]
             elif component in supplied:
                 entry[component] = float(supplied[component])
+            elif options.frame is Frame.GRAVITY_1D:
+                if derived is None:
+                    derived = approximate_values(network, Frame.GRAVITY_1D).values
+                entry[component] = derived.get(station_id, {}).get(component, 0.0)
             elif station.approx_position is not None:
                 entry[component] = _from_position(station, component, options.frame)
             else:
@@ -374,6 +388,44 @@ def _from_position(station, component: str, frame: Frame) -> float:
     if position.system is CoordinateSystem.PROJECTED:
         return position.component(name).value
     return position.values[frame.position_indices[index]].value
+
+
+def _adjusted_gravity(
+    network: Network, run: AdjustmentRun, station_id: str, column: int, units: list[Unit]
+) -> AdjustedStation:
+    """One station of a gravity solution: its adjusted gravity at its location.
+
+    The location is the station's own, carried through unadjusted -- a gravity
+    network estimates gravity, not where the gravimeter stood -- and a station
+    without one is refused rather than placed at an invented point, since the
+    result is meant to be mapped and a tidal correction already needed it.
+    """
+    station = network.stations[station_id]
+    if station.approx_position is None:
+        raise ValidationError(
+            "gravity_station_without_location",
+            station=station_id,
+            expected=(
+                "an approximate position on the station: where it is. A gravity "
+                "solution reports gravity at a place, and has no place to report it at"
+            ),
+        )
+    covariance = run.parameter_covariance
+    gravity = Quantity(
+        value=float(run.parameters[column]),
+        variance=float(covariance[column, column]),
+        unit=units[column],
+    )
+    return AdjustedStation(
+        station_id=station_id,
+        position=station.approx_position,
+        covariance=Covariance(
+            matrix=covariance[np.ix_([column], [column])],
+            labels=(f"{station_id}.g",),
+            units=(units[column],),
+        ),
+        gravity=gravity,
+    )
 
 
 def _constraints_for(
@@ -494,6 +546,10 @@ def to_solution(
     for station_id in run.layout.station_ids():
         columns = run.layout.station_columns(station_id)
         if not columns:
+            continue
+
+        if run.layout.frame is Frame.GRAVITY_1D:
+            adjusted.append(_adjusted_gravity(network, run, station_id, columns["g"], units))
             continue
 
         # Each frame component goes into *its own* slot of the position triple,

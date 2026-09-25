@@ -23,15 +23,18 @@ from enum import Enum
 import numpy as np
 
 from geocomp.core.errors import DataError, ValidationError
-from geocomp.core.models import BaselineFrame, ConstraintMode, Network, Station
+from geocomp.core.models import GRAVITY_COMPONENT, BaselineFrame, ConstraintMode, Network, Station
 from geocomp.core.uncertainty import Covariance
 from geocomp.core.units import Unit
 
 __all__ = [
+    "DRIFT_PREFIX",
     "Frame",
     "ParameterLayout",
     "ParameterSlot",
     "WeightedConstraint",
+    "drift_component",
+    "is_drift_component",
     "weighted_constraints",
 ]
 
@@ -88,16 +91,22 @@ class Frame(Enum):
         while approximate heights were read from the *up* slot, so every
         levelling result reported a height of zero.
 
-        Gravity maps to ``up`` for want of anywhere better. That is a recorded
-        wart, not a claim: a gravity value in a metre-typed slot is
-        dimensionally wrong and phase P8 fixes it (``specs/12`` and
-        ``tests/test_gravimetry_is_levelling.py``).
+        **Gravity lives in no position slot.** Until phase P8 it was mapped to
+        ``up`` for want of anywhere better, which put an acceleration in a field
+        that enforces metres; a gravity solution could not even be written,
+        because :class:`~geocomp.core.models.position.Position` refused it. A
+        station's known gravity is now
+        :attr:`~geocomp.core.models.station.ConstraintSpec.gravity` and its
+        adjusted gravity
+        :attr:`~geocomp.core.models.solution.AdjustedStation.gravity`, so this
+        mapping is empty for ``GRAVITY_1D`` and the callers that read or write a
+        position branch on the frame instead.
         """
         return {
             Frame.HEIGHT_1D: ("up",),
             Frame.PLANE_2D: ("easting", "northing"),
             Frame.SPACE_3D: ("easting", "northing", "up"),
-            Frame.GRAVITY_1D: ("up",),
+            Frame.GRAVITY_1D: (),
         }[self]
 
     @property
@@ -239,11 +248,37 @@ class ParameterLayout:
             if slot.kind == "station":
                 index = self.frame.components.index(slot.component)
                 units.append(self.frame.component_units[index])
+            elif slot.component == "orientation":
+                units.append(Unit.RADIAN)
+            elif is_drift_component(slot.component):
+                # A drift coefficient multiplies a *dimensionless* elapsed time
+                # (hours over a declared scale, specs/12 section 4.3), so each
+                # one is an acceleration: the drift accumulated per unit of it.
+                units.append(Unit.ACCELERATION)
             else:
-                # Orientation unknowns are angles; drift is an acceleration rate,
-                # carried as dimensionless here and reported with its own unit.
-                units.append(Unit.RADIAN if slot.component == "orientation" else Unit.DIMENSIONLESS)
+                units.append(Unit.DIMENSIONLESS)
         return units
+
+
+#: Drift coefficients are auxiliary unknowns named ``drift_1``, ``drift_2``, ...
+#: by polynomial degree (``specs/12`` section 4.3).
+DRIFT_PREFIX = "drift_"
+
+
+def drift_component(degree: int) -> str:
+    """The auxiliary parameter name of the degree-*degree* drift coefficient."""
+    if degree < 1:
+        raise ValidationError(
+            "drift_degree_invalid",
+            received=degree,
+            expected="a polynomial degree of 1 or more; degree 0 is an offset, and a "
+            "difference observation cannot see one",
+        )
+    return f"{DRIFT_PREFIX}{degree}"
+
+
+def is_drift_component(component: str) -> bool:
+    return component.startswith(DRIFT_PREFIX) and component[len(DRIFT_PREFIX):].isdigit()
 
 
 def _is_fixed(station: Station, component: str, frame: Frame) -> bool:
@@ -254,6 +289,11 @@ def _is_fixed(station: Station, component: str, frame: Frame) -> bool:
 
 
 def _fixed_value(station: Station, component: str, frame: Frame) -> float:
+    if frame is Frame.GRAVITY_1D:
+        gravity = station.constraint.gravity
+        if gravity is None:  # pragma: no cover - ConstraintSpec guarantees this
+            raise ValidationError("fixed_station_without_gravity", station=station.id)
+        return gravity.value
     position = station.constraint.position
     if position is None:  # pragma: no cover - ConstraintSpec guarantees this
         raise ValidationError("fixed_station_without_position", station=station.id)
@@ -269,7 +309,7 @@ def _constraint_name(component: str, frame: Frame) -> str:
     each other.
     """
     if frame is Frame.GRAVITY_1D:
-        return "up"
+        return GRAVITY_COMPONENT
     return {"e": "easting", "n": "northing", "u": "up", "h": "up"}[component]
 
 
@@ -334,8 +374,13 @@ def weighted_constraints(
         constraint = station.constraint
         if constraint.mode is not ConstraintMode.WEIGHTED:
             continue
+        if frame is Frame.GRAVITY_1D:
+            gravity = _weighted_gravity(station, layout)
+            if gravity is not None:
+                found.append(gravity)
+            continue
         if constraint.position is None or constraint.covariance is None:
-            continue  # pragma: no cover - ConstraintSpec guarantees both
+            continue
 
         columns = layout.station_columns(station.id)
         components: list[str] = []
@@ -363,6 +408,21 @@ def weighted_constraints(
             )
         )
     return found
+
+
+def _weighted_gravity(station: Station, layout: ParameterLayout) -> WeightedConstraint | None:
+    """A station of known gravity, held with that value's own variance."""
+    constraint = station.constraint
+    column = layout.column(station.id, "g")
+    if GRAVITY_COMPONENT not in constraint.components or constraint.gravity is None or column is None:
+        return None
+    return WeightedConstraint(
+        station_id=station.id,
+        components=(GRAVITY_COMPONENT,),
+        columns=(column,),
+        values=(constraint.gravity.value,),
+        covariance=np.array([[constraint.gravity.variance]]),
+    )
 
 
 def _covariance_block(covariance: Covariance, components: list[str], station: str) -> np.ndarray:

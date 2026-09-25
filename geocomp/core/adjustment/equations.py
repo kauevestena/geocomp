@@ -37,7 +37,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from geocomp.core.adjustment.parameters import Frame, ParameterLayout
+from geocomp.core.adjustment.parameters import Frame, ParameterLayout, drift_component
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import (
     Observation,
@@ -144,28 +144,80 @@ def _gravity(observation, layout, x):
 
 
 def _gravity_difference(observation, layout, x):
-    """Gravity difference, plus the drift term when a drift unknown exists.
+    """Gravity difference, plus the drift term when drift unknowns exist.
 
     ``specs/12-module-gravimetry.md`` section 4.3: drift and gravity differences
-    are not separable by pre-correction alone, so the drift rate is estimated
-    jointly. The elapsed time since the session datum is carried on the
-    observation as ``meta["drift_hours"]``, and the drift owner as
-    ``meta["drift_owner"]``.
+    are not separable by pre-correction alone, so the drift is estimated jointly.
+    It is a polynomial in a dimensionless elapsed time ``tau = t / T``, one set
+    of coefficients per drift owner (an instrument's session), and a difference
+    between readings taken at ``t_from`` and ``t_to`` sees it as::
+
+        sum_k  c_k * (tau_to**k - tau_from**k)
+
+    which is the difference of the drift at the two readings -- not the drift
+    over the elapsed time raised to a power, ``(tau_to - tau_from)**k``. The two
+    agree at degree 1 and part company above it; the second is what MCGravi
+    implements, and it makes a quadratic drift depend on *when* a pair was
+    observed only through how far apart it was.
+
+    What the observation carries, in ``meta``:
+
+    * ``drift_owner`` -- whose coefficients these are.
+    * ``drift_elapsed_s`` -- ``(t_from, t_to)``, seconds since the owner's
+      reference epoch. SI, like every stored value.
+    * ``drift_scale_s`` -- ``T``, seconds. Declared rather than assumed, because
+      it defines what a coefficient *means*: with ``T = 3600`` the degree-1
+      coefficient is the drift per hour, in m/s^2.
+
+    The degree is whatever the layout holds for the owner: ``drift_1`` up to the
+    first missing ``drift_k``. An observation naming an owner with no drift
+    unknowns is an ordinary difference -- the drift is then not being estimated,
+    which is exactly what a pre-corrected network means.
     """
     rows = _difference_1d(observation, layout, x, "g")
     owner = observation.meta.get("drift_owner")
     if owner is None:
         return rows
 
-    column = layout.column(owner, "drift")
-    if column is None:
+    columns: list[int] = []
+    degree = 1
+    while (column := layout.column(owner, drift_component(degree))) is not None:
+        columns.append(column)
+        degree += 1
+    if not columns:
         return rows
 
-    hours = float(observation.meta.get("drift_hours", 0.0))
+    try:
+        t_from, t_to = (float(value) for value in observation.meta["drift_elapsed_s"])
+        scale = float(observation.meta["drift_scale_s"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValidationError(
+            "gravity_drift_times_missing",
+            observation=observation.id,
+            owner=owner,
+            expected=(
+                "meta['drift_elapsed_s'] = (t_from, t_to) in seconds and "
+                "meta['drift_scale_s'] > 0; a drift term without the times it is a "
+                "function of cannot be evaluated"
+            ),
+        ) from error
+    if not scale > 0.0:
+        raise ValidationError(
+            "gravity_drift_scale_invalid",
+            observation=observation.id,
+            received=scale,
+            expected="a positive time scale in seconds",
+        )
+
+    tau_from, tau_to = t_from / scale, t_to / scale
     row = rows[0]
     partials = dict(row.partials)
-    partials[column] = partials.get(column, 0.0) + hours
-    return [EquationRow(row.computed + hours * float(x[column]), partials)]
+    computed = row.computed
+    for power, column in enumerate(columns, start=1):
+        derivative = tau_to**power - tau_from**power
+        partials[column] = partials.get(column, 0.0) + derivative
+        computed += derivative * float(x[column])
+    return [EquationRow(computed, partials)]
 
 
 # -- 2D and 3D geometry --------------------------------------------------

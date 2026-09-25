@@ -61,7 +61,7 @@ __all__ = [
 #: with a migration added in :mod:`geocomp.io.store.migrations`. A monitoring
 #: project accumulates epochs over years and outlives several plugin releases,
 #: so this is load-bearing rather than ceremonial.
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 class ColumnKind(Enum):
@@ -428,6 +428,9 @@ SCHEMA: tuple[Table, ...] = (
             _json("ellipse"),
             _real("positional_uncertainty"),
             _json("correction"),
+            # A gravity solution's adjusted value (specs/12 section 5). The
+            # position of such a station is where it is, not what was adjusted.
+            _json("gravity"),
         ),
         geometry=GeometryKind.POINT,
     ),

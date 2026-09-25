@@ -17,9 +17,11 @@ from typing import Any
 
 from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.position import Position
-from geocomp.core.uncertainty import Covariance
+from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.units import Unit
 
 __all__ = [
+    "GRAVITY_COMPONENT",
     "ConstraintMode",
     "ConstraintSpec",
     "MonitoringRole",
@@ -52,6 +54,13 @@ class MonitoringRole(Enum):
     OBJECT = "object"
 
 
+#: The component name a gravity constraint is given under. Not one of any
+#: coordinate system's names, deliberately: a station's gravity is not a
+#: coordinate, and carrying it in a position's ``up`` slot -- which phases P2 to
+#: P7 did -- put an acceleration in a field that enforces metres.
+GRAVITY_COMPONENT = "gravity"
+
+
 class ConstraintMode(Enum):
     FREE = "free"
     FIXED = "fixed"
@@ -69,22 +78,36 @@ class ConstraintSpec:
         position: The constraining coordinates, with their epoch.
         covariance: Required when ``mode`` is ``WEIGHTED`` -- a weighted
             constraint without an uncertainty is not a weighted constraint.
+        gravity: The station's known gravity, in m/s^2, when ``"gravity"`` is
+            among the components (``specs/12`` section 5). Its own variance is
+            the weight of a ``WEIGHTED`` gravity constraint, so it needs no
+            separate covariance -- and a zero variance there is refused, for the
+            same reason a weighted constraint without a covariance is.
+
+    A gravity constraint needs no *position*: a station of known gravity is
+    held in gravity, and where it is on the map is a separate fact carried by
+    :attr:`Station.approx_position`.
     """
 
     mode: ConstraintMode = ConstraintMode.FREE
     components: frozenset[str] = field(default_factory=frozenset)
     position: Position | None = None
     covariance: Covariance | None = None
+    gravity: Quantity | None = None
 
     def __post_init__(self) -> None:
         if self.mode is ConstraintMode.FREE:
-            if self.components or self.position is not None:
+            if self.components or self.position is not None or self.gravity is not None:
                 raise ValidationError(
                     "free_constraint_with_detail",
                     expected="a free station carries no constraining position or components",
                 )
             return
 
+        self._check_gravity()
+        positional = set(self.components) - {GRAVITY_COMPONENT}
+        if self.components and not positional:
+            return
         if self.position is None:
             raise ValidationError(
                 "constraint_without_position",
@@ -98,12 +121,12 @@ class ConstraintSpec:
                 expected="the components the constraint applies to, e.g. {'height'}",
             )
         valid = set(self.position.system.component_names)
-        unknown = sorted(set(self.components) - valid)
+        unknown = sorted(positional - valid)
         if unknown:
             raise ValidationError(
                 "constraint_unknown_components",
                 received=unknown,
-                expected=sorted(valid),
+                expected=sorted(valid | {GRAVITY_COMPONENT}),
             )
         if self.mode is ConstraintMode.WEIGHTED and self.covariance is None:
             raise ValidationError(
@@ -111,6 +134,38 @@ class ConstraintSpec:
                 expected=(
                     "a covariance; a weighted constraint with no uncertainty is "
                     "a fixed constraint under another name"
+                ),
+            )
+
+    def _check_gravity(self) -> None:
+        if GRAVITY_COMPONENT not in self.components:
+            if self.gravity is not None:
+                raise ValidationError(
+                    "gravity_value_without_gravity_component",
+                    expected=(
+                        "'gravity' among the components when a gravity value is given; "
+                        "a value that constrains nothing is a value silently ignored"
+                    ),
+                )
+            return
+        if self.gravity is None:
+            raise ValidationError(
+                "gravity_constraint_without_value",
+                mode=self.mode.value,
+                expected="the station's known gravity, as a Quantity in m/s^2",
+            )
+        if self.gravity.unit is not Unit.ACCELERATION:
+            raise ValidationError(
+                "gravity_constraint_unit",
+                received=self.gravity.unit.name,
+                expected=Unit.ACCELERATION.name,
+            )
+        if self.mode is ConstraintMode.WEIGHTED and self.gravity.variance <= 0.0:
+            raise ValidationError(
+                "weighted_gravity_constraint_without_uncertainty",
+                expected=(
+                    "a gravity value with a variance; a weighted constraint with no "
+                    "uncertainty is a fixed constraint under another name"
                 ),
             )
 
@@ -129,17 +184,21 @@ class ConstraintSpec:
             payload["position"] = self.position.to_dict()
         if self.covariance is not None:
             payload["covariance"] = self.covariance.to_dict()
+        if self.gravity is not None:
+            payload["gravity"] = self.gravity.to_dict()
         return payload
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ConstraintSpec:
         position = payload.get("position")
         covariance = payload.get("covariance")
+        gravity = payload.get("gravity")
         return cls(
             mode=ConstraintMode[payload["mode"]],
             components=frozenset(payload.get("components", ())),
             position=Position.from_dict(position) if position else None,
             covariance=Covariance.from_dict(covariance) if covariance else None,
+            gravity=Quantity.from_dict(gravity) if gravity else None,
         )
 
 
@@ -164,8 +223,10 @@ class Station:
     def __post_init__(self) -> None:
         if not self.id or not self.id.strip():
             raise DataError("station_without_id")
-        if self.station_type is not StationType.PLANNED and self.constraint.mode is not ConstraintMode.FREE:
-            if self.constraint.position is None:  # pragma: no cover - ConstraintSpec enforces this
+        constraint = self.constraint
+        positional = set(constraint.components) - {GRAVITY_COMPONENT}
+        if self.station_type is not StationType.PLANNED and constraint.mode is not ConstraintMode.FREE:
+            if positional and constraint.position is None:  # pragma: no cover - ConstraintSpec enforces this
                 raise DataError("constrained_station_without_position", station=self.id)
 
     @property
