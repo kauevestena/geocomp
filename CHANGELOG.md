@@ -5,6 +5,249 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P7e — RD-06 met, on a criterion that measures this project
+
+The maintainer's decision of 24 September 2026: stop judging GNSS on agreement
+with somebody else's published coordinate, and judge it on loop closure and
+repeatability. A tolerance no clean pair can meet is a statement about NGS; a
+green check ought to be a statement about GeoComp. Both new criteria are met.
+
+#### Added
+
+- **`loop_closure` and `LoopClosure`** in `core/techniques/gnss/baselines.py`
+  (FR-602), specified in `specs/11` §4.1.1. A closed circuit of measured
+  vectors must return where it began, so closure is the one check on a set of
+  baselines that needs **no external coordinate at all**. Refused outside ECEF,
+  because east, north and up at one station are not east, north and up at
+  another and a circuit of local vectors sums three different frames — over
+  65 m that error hides under a millimetre, over 50 km it does not, and a check
+  silently wrong only at the scale where it matters is worse than none. Refused
+  across mixed antenna reduction, because such a loop closes by the antenna
+  heights. Its covariance is always approximate and records
+  `INDEPENDENCE_ASSUMED`, since legs of one session share satellites and
+  atmosphere and a misclosure judged against an over-optimistic sigma looks
+  significant when it is not.
+- **The GGAO triangle's third leg, GODE–GODS**, processed independently on both
+  days. Differencing the other two would close by construction and check
+  nothing.
+
+#### Changed
+
+- **RD-06's criterion is loop closure and repeatability, each at 2 mm per
+  component**, and both are met: the triangle closes to **0.245 mm** on
+  2025-001 and **0.787 mm** on 2025-002 over a 282 m perimeter, and the
+  six-hour sub-sessions repeat to **0.613 / 0.318 / 0.992 mm**. 2 mm is about
+  three times the worst component either measurement produces. Closure is
+  judged per component, because a magnitude hides one bad axis behind two good
+  ones. Repeatability is judged on the six-hour spans, the shortest with enough
+  solutions per day to mean anything and enough length for the ambiguities to
+  resolve, and on the robust scatter, because a criterion a single known-bad
+  hour can fail is measuring that hour rather than the estimator.
+- **The published-coordinate comparison is reported, not judged.** It still
+  runs on every engine build, its number still reaches `metrics.json` and the
+  artifact, and a test asserts it stays the size `specs/22` §5 describes.
+  Evidence does not stop being interesting because it stopped being a gate.
+  There is no longer an expected failure in RD-06: `--runxfail` has nothing to
+  run.
+- **`test_the_judged_case_carries_its_own_antennas_calibration` became
+  `test_gode_still_carries_another_domes_calibration`** — a recorded fact
+  rather than a failure. Nothing judged rests on GODE's absolute agreement any
+  more, and a dome substitution at GODE enters the loop twice with opposite
+  signs and cancels. The assertion stays so that the day an ANTEX starts
+  carrying JPLA, it says so.
+
+#### Found, and recorded rather than worked around
+
+- **Closure cannot see an error common to one station's baselines**, because it
+  enters the loop twice with opposite signs. 2025-001 proves it: that day
+  carries the contaminated hour P7d attributed and still closes to a quarter of
+  a millimetre. That is why the criterion requires repeatability as well, and
+  `tests/test_rd06.py` asserts the blind spot instead of describing it.
+- **Between the two days the baselines from GODN shift by 5 to 6 mm while
+  GODE–GODS moves by 0.4 mm.** Two baselines sharing a station moving together
+  while the third stays put is the signature of something at that station, not
+  of random error — and it is exactly what the loop cannot see.
+
+### P7d — RD-06, attributed
+
+The 7.5 mm had been narrowed to "two errors, one of them bounded" and left
+there. It is now attributed to two named causes, one of which was a bad reading
+of the earlier evidence, and the reference case is rebuilt so the attribution is
+a test rather than a paragraph. The accuracy criterion is still unmet, and what
+it is failing on is now written down.
+
+#### Added
+
+- **`scripts/check_published_coordinates.py` and its recorded answer**, which
+  settles what RD-06 had been unable to ask. With the `igs20.atx` the maintainer
+  supplied on 24 September 2026, `TRM41249USCG SCIT` is confirmed calibrated, so
+  the candidate pairs are judgeable; `AOAD/M_T JPLA` is absent there too, so
+  GODE's unjudgeability is confirmed against a second calibration set rather
+  than being an artefact of one file. All fourteen eligible pairs are then run
+  on three days each, every result reported and none selected after solving,
+  with 117 sources pinned by digest and eleven offline tests over the recording.
+- **`scripts/screen_cors_pairs.py`**, the station screen behind `specs/22` §5.2,
+  as a script rather than a remembered result: site logs in, candidate pairs out,
+  no engine and no network beyond an optional directory listing. `antennas_spanning`
+  in `scripts/check_rd06.py` is the query under it — the antenna types a log says
+  were on the monument for both the coordinate epoch and the day observed. None
+  means the comparison cannot be made, which is GODS against a 2025 day; more
+  than one means the hardware changed in between.
+- **A processing time window on the RTKLIB adapter** (FR-354, FR-355):
+  `RtklibJob.window` writes `-ts`/`-te`. `specs/08` §2 had listed those flags as
+  verified since P7a and the adapter never had them, so a session could not be
+  solved in parts — which is exactly what the attribution needed. Two traps are
+  recorded in `specs/08` §2.3 because both are silent: the date separator is a
+  slash, since `rnx2rtkp` parses it with `sscanf("%lf/%lf/%lf")` and reads an ISO
+  `2025-01-01` as the year alone; and both bounds are **GPST calendar labels**,
+  not UTC, so converting one moves it by the leap seconds and selects a different
+  interval. A window that selects nothing is refused rather than run, because the
+  engine reports that identically to unusable observations.
+- **The sub-session repeatability measurement**
+  (`scripts/check_rd06.py --repeatability`): 62 solutions per baseline, each day
+  whole and in halves, quarters and hours. Sub-daily because **GPS geometry
+  repeats every sidereal day** — two consecutive days see nearly the same sky, so
+  their agreement bounds the day-to-day *change* in a geometry-driven error
+  rather than the error itself. Engine CI runs it calibrated on every engine run
+  and retains `repeatability.json`.
+- **An antenna-epoch guard on the reference data**: a comparison against a
+  station whose current antenna postdates the epoch of its published coordinate
+  is refused, checked offline on every commit from the vendored site log. GODS is
+  retained and explicitly exempted as the counter-case, and the guard verifies
+  the exemption is still *earned*, so it cannot outlive the defect it names.
+- **GODE in the RD-06 bundle**, 65.163 m from GODN, with the sheets, site log and
+  two days of observations pinned by hash from the reachable NODD mirror.
+
+#### Changed
+
+- **The RD-06 accuracy criterion is judged on GODN–GODE, not GODN–GODS**, and
+  GODS is kept as the counter-case. One base, two rovers, one day, one
+  configuration: only GODS's antenna changed after its coordinate's epoch, and
+  only GODS is several millimetres out in north. `specs/22` §5.1 has the numbers
+  and `tests/test_rd06.py` fails if the counter-case ever stops showing it.
+- **`specs/22` §5's attribution is corrected.** The "low-elevation error of up to
+  11 mm in east" is not a gradient: it is **one hour**, 11:00–12:00 on 2025-001,
+  whose unvalidated ambiguity fix the 24-hour static filter carries to the end of
+  the day. The ≥25° mask removed it by dropping the satellite that caused it,
+  which is why the mask sweep could not tell the two readings apart. The
+  superseded reading is marked rather than deleted.
+- **`specs/20` §6 still defines no GNSS threshold, now as a decision.** One was
+  derived from the measured repeatability — 0.38 / 0.54 / 1.47 mm per component,
+  and the scatter barely improves with session length — and it lands on the 1 mm
+  the borrowed printed-precision rule already gives. Nothing on GeoComp's side
+  decides the criterion; the reference's unpublished uncertainty does.
+
+#### Found, and recorded rather than worked around
+
+- **A wrong integer fix does not enlarge RTKLIB's formal covariance.** A 22 mm
+  error reports a 1.08 mm 3D standard deviation; an 872 mm error reports 7.6 mm.
+  The ambiguity validation ratio is the only indicator that moves, and
+  `fixed_fraction` alone is not enough — the 89 mm solution has a fixed fraction
+  of 0.936, which looks ordinary. This is why FR-603 carries the ratio.
+- **`rnx2rtkp`'s `-te` is inclusive**: 06:00 to 07:00 at 30 s returns 121 epochs,
+  not 120, so disjoint windows end one interval short. Measured, not read — the
+  manual says nothing about it.
+- **NGS's own sheets contradict themselves**, measurably and from published bytes
+  alone: an L1 phase-centre offset is vertical by construction, yet GODS's two
+  published positions differ horizontally by 1.97 mm where GODN's differ by
+  0.21 mm. It is a lower bound on the reference's uncertainty, and the only one
+  available, because the sheets print no covariance at all.
+- **Baseline length dominates at this processing configuration.** Screening all
+  2886 CORS site logs found 1263 stations with one antenna spanning the
+  coordinate epoch and 692 of those with both days available; every same-antenna
+  pair longer than 4 km errs by 13 to 47 mm, and on the days processed — 2025
+  001 and 002 — GGAO's 65 m was the shortest clean baseline available, which is
+  why the site did not change.
+- **That last clause was first written as a property of the network, and it is
+  a property of the day.** The screen fixed the observation day at 2025 day 001;
+  the observation day is a free parameter and nobody had varied it. Against 2020
+  day 015, beside the coordinate epoch, 1685 of 1698 stations carry one spanning
+  antenna and there are **17** same-antenna pairs within 5 km, fifteen of them
+  `TRM41249USCG SCIT` at 22 to 46 m — against **one** on 2025 day 001, which is
+  the 4 km pair already ruled out. Reading a station beside its coordinate epoch
+  also extrapolates the published velocity by weeks instead of five years.
+  `scripts/screen_cors_pairs.py` makes the table reproducible. It does not close
+  the criterion: whether those antennas are in the pinned `ngs20.atx` is still
+  untestable here, and a judgeable pair may still miss by more than a millimetre.
+- **The RD-06 accuracy criterion is unreachable against this reference, and it
+  is no longer the reference case's defects that make it so.** Fourteen
+  independent same-antenna CORS pairs of 22 to 46 m, every one resolving its own
+  antenna *and* radome exactly and every one ambiguity-fixed, miss their
+  published ITRF2020 coordinates: median worst component 5.1 mm, best 1.9 mm,
+  worst 18.0 mm, **none within 1 mm**. Three discriminators put the miss on the
+  reference rather than the estimator — each pair holds its own offset to
+  0.43 mm across three days, pairs differ from each other by 2.7 to 6.6 mm, and
+  the offsets do not move between a 10° and a 30° elevation mask (AIS5-AIS6 is
+  +21.33 mm north at 10° and +21.08 at 30°). So GGAO was never an outlier:
+  GODN-GODE's [3.852, 7.799, -2.808] mm sits near the middle of that
+  distribution. The two defects P7d attributed are real and were worth finding;
+  they were simply never what kept the check red. The estimator repeats to
+  0.500 / 0.297 / 0.080 mm, so the comparison has been measuring the reference's
+  uncertainty all along — now measured rather than merely called unpublished.
+  What to do about the threshold is a decision, put to the maintainer in
+  `specs/20` §6 rather than taken; the check stays red until they take it.
+- **Engine CI now confirms that measurement against NGS's own calibration**,
+  which was the maintainer's condition for deciding the threshold at all
+  (24 September 2026). The fourteen pairs were measured with `igs20.atx`, the
+  IGS type means, because that is the file the development environment could be
+  given; NGS computes the published coordinates with `ngs20.atx`, which
+  `geodesy.noaa.gov` will not serve there but the engine job already fetches for
+  RD-06. The job re-runs all fourteen against it and fails if any component
+  moves by more than 1 mm — not the 0.05 mm a same-ANTEX rerun meets, because a
+  different calibration set is expected to move the answer slightly and that is
+  not a regression, but the size at which the conclusion would change, since the
+  finding is that nothing comes within 1 mm and the median worst component is
+  5.1 mm.
+- **That confirmation has been made, and it changes nothing.** The maintainer
+  supplied `ngs20.atx`; its SHA-256 is byte-identical to the digest this
+  repository already pins, so it is the same file engine CI fetches. NGS does
+  calibrate `TRM41249USCG SCIT`, and its entry differs from the IGS one in one
+  line out of sixteen — the SINEX provenance code — with every phase-centre
+  offset and variation identical. Re-running all fourteen pairs on all three
+  days against it moves the largest component by 0.0005 mm, which is the
+  rounding of the recorded values. The fourteen-pair finding stands whichever
+  calibration set is used, and the threshold decision is unblocked.
+- **`AOAD/M_T JPLA` is absent from `ngs20.atx` as well, and NGS publishes no
+  JPLA radome at all** — zero entries among 1565. GODE's dome has no published
+  calibration in any of the three sets examined, so its unjudgeability is a fact
+  about the radome rather than about whichever file was at hand.
+- **An empty date field in a site log could pair an antenna with another
+  block's dates.** Under `re.S` the pattern's `\s*` run-up crossed the newline,
+  so a blank `Date Installed` let the match run into the following antenna and
+  report a real antenna against times it was never installed for. None of the
+  three vendored logs has a blank field, so nothing published changes; the
+  pattern is now line-bounded and a block with no usable installation date is
+  skipped rather than guessed at.
+
+- **A missing antenna calibration is silent, and now it is not.**
+  `rnx2rtkp` clears the antenna name and processes on uncalibrated when the
+  ANTEX has no entry for it, warning only to a trace file that is off by
+  default; and `searchpcv` otherwise falls back to the antenna *without* its
+  radome, which is a different calibration. The run exits zero with the usual
+  epoch count, ambiguity fixing and formal covariance, and is wrong by that
+  antenna's phase-centre offset. `PosSolution.antennas` reads back the entries
+  the engine actually matched — it writes them into its own header — and RD-06
+  refuses a calibrated case that did not resolve to what it was given, as a
+  *processing* error rather than an accuracy one. `specs/08` §7.5.
+
+#### Still not met
+
+- **RD-06's accuracy criterion, and the judged case is also unjudgeable.** The
+  antenna check above found a defect in this phase's own reference case on its
+  first real run: **`ngs20.atx` has no entry for GODE's `AOAD/M_T JPLA`**, so
+  `searchpcv` matched `AOAD/M_T NONE` — the same antenna under a different dome,
+  which NGS keys and uses separately. The calibrated GODE numbers are withdrawn
+  as evidence of accuracy and kept labelled as what they are: the substitution
+  moved the vertical by 4.6 mm, so whether GODE's true calibration leaves a
+  vertical residual at all is unknown. The counter-case resolved exactly in the
+  same run, so the §5.1 attribution is untouched — a dome substitution is
+  vertical and the term it attributes is north. The site now has two
+  independent defects and no clean reference, and closing the criterion needs a
+  station whose antenna *and radome* are both calibrated. That membership cannot
+  be tested from the development environment — `geodesy.noaa.gov`, which serves
+  `ngs20.atx`, answers 403 to CONNECT, as do `files.igs.org`, `igs.bkg.bund.de`,
+  `cddis.nasa.gov` and `geoftp.ibge.gov.br`, all re-checked on 23 September 2026.
+
 ### P7c — the GNSS surface
 
 The menu `specs/11` §1 draws, the eight algorithms behind it, the two result

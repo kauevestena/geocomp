@@ -34,6 +34,7 @@ the full set in Advanced mode, with the consequence stated.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
@@ -53,15 +54,17 @@ from geocomp.core.models import (
     ObservationType,
 )
 from geocomp.core.models.observation import BASELINE_FRAME_KEY
-from geocomp.core.uncertainty import Covariance, Quantity, UncertaintyMode
+from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import Unit
 
 __all__ = [
     "AntennaOffset",
     "AntennaReduction",
     "Baseline",
+    "LoopClosure",
     "components_from_covariance",
     "independent_subset",
+    "loop_closure",
     "reduce_to_marks",
     "rotate_baseline_to_local",
     "to_cluster",
@@ -112,8 +115,7 @@ class AntennaOffset:
     @property
     def is_eccentric(self) -> bool:
         return bool(
-            (self.east is not None and self.east.value)
-            or (self.north is not None and self.north.value)
+            (self.east is not None and self.east.value) or (self.north is not None and self.north.value)
         )
 
     def vector(self) -> tuple[Quantity, Quantity, Quantity]:
@@ -276,9 +278,7 @@ def rotate_baseline_to_local(baseline: Baseline) -> Baseline:
     )
 
 
-def reduce_to_marks(
-    baseline: Baseline, base: AntennaOffset, rover: AntennaOffset
-) -> Baseline:
+def reduce_to_marks(baseline: Baseline, base: AntennaOffset, rover: AntennaOffset) -> Baseline:
     """Reduce an antenna-to-antenna baseline to mark-to-mark (FR-602, FR-204).
 
     An engine determines the vector between two *antenna reference points*. The
@@ -431,9 +431,174 @@ def independent_subset(
     return independent, dependent
 
 
-def to_cluster(
-    baselines: list[Baseline], *, cluster_id: str
-) -> tuple[list[Observation], Cluster]:
+@dataclass(frozen=True)
+class LoopClosure:
+    """By how much a circuit of baselines fails to return where it started.
+
+    Attributes:
+        loop: The stations in circuit order. The circuit closes back onto the
+            first, which is not repeated here.
+        legs: The baseline ids traversed, in the order :attr:`loop` gives.
+        misclosure: The sum of the traversed vectors, which a perfect set of
+            baselines would leave at zero.
+        covariance: The full 3x3 over the misclosure. **Always approximate.**
+            The legs of a loop normally come from one session and share
+            satellites, clocks and atmosphere, so adding their covariances as
+            though they were independent understates the truth. That is
+            recorded as :data:`Strategy.INDEPENDENCE_ASSUMED` rather than left
+            for the reader to infer, because a misclosure judged against an
+            over-optimistic sigma looks significant when it is not.
+        perimeter_m: The summed leg lengths, so the misclosure can also be
+            expressed against the distance travelled.
+    """
+
+    loop: tuple[str, ...]
+    legs: tuple[str, ...]
+    misclosure: tuple[Quantity, Quantity, Quantity]
+    covariance: Covariance
+    perimeter_m: float
+
+    @property
+    def magnitude_m(self) -> float:
+        """The length of the misclosure vector."""
+        return float(np.linalg.norm([component.value for component in self.misclosure]))
+
+    @property
+    def parts_per_million(self) -> float:
+        """Misclosure against distance travelled, the conventional form.
+
+        Zero for a degenerate perimeter rather than an infinity, because a
+        quality figure that can be ``inf`` propagates into reports that cannot
+        print it.
+        """
+        if self.perimeter_m <= 0.0:
+            return 0.0
+        return 1.0e6 * self.magnitude_m / self.perimeter_m
+
+
+def loop_closure(baselines: list[Baseline], loop: Sequence[str]) -> LoopClosure:
+    """Sum the baselines around *loop* and report what fails to cancel.
+
+    A closed circuit of measured vectors must come back to where it began, so
+    the sum is zero but for the errors in the legs. That makes closure the one
+    check on a set of baselines needing **no external coordinate at all**: it
+    asks whether the measurements agree with each other rather than with
+    somebody's published position, and so it measures what the processing
+    controls instead of what the reference does. ``specs/20`` section 6 rests
+    RD-06's GNSS criterion on exactly that distinction.
+
+    **The sum is taken in ECEF, and a local-frame baseline is refused.** East,
+    north and up at one station are not east, north and up at another, so
+    adding local vectors around a circuit adds three different frames and
+    returns a misclosure that is mostly rotation. Over the 65 m GGAO triangle
+    the two horizons differ by about 2e-6 radians and the error would hide
+    under a millimetre; over a 50 km loop it would not, and a check that is
+    silently wrong only at the scale where it matters is worse than none.
+
+    Antenna reduction has to match too. A loop mixing baselines reduced to the
+    marks with baselines still at the antenna reference points closes by the
+    difference of the antenna heights, which looks exactly like a measurement
+    error and is not one.
+
+    Args:
+        baselines: The available baselines; only those the loop names are used.
+        loop: Three or more distinct stations in circuit order.
+
+    Returns:
+        The :class:`LoopClosure`, whose misclosure is zero for a perfect set.
+
+    Raises:
+        ValidationError: The loop is too short, repeats a station, or names a
+            leg no baseline covers.
+        DataError: A leg is not ECEF, or the legs disagree about whether the
+            antenna reduction has been applied.
+    """
+    stations = tuple(loop)
+    if len(stations) < 3:
+        raise ValidationError(
+            "gnss_loop_too_short",
+            received=len(stations),
+            expected=(
+                "at least three stations; a two-station circuit retraces one "
+                "baseline and closes by construction"
+            ),
+        )
+    if len(set(stations)) != len(stations):
+        raise ValidationError(
+            "gnss_loop_repeats_a_station",
+            loop=stations,
+            expected="distinct stations; a repeated one splits the circuit into two loops",
+        )
+
+    available = {(line.base_station, line.rover_station): line for line in baselines}
+    legs: list[str] = []
+    total = np.zeros(3)
+    matrix = np.zeros((3, 3))
+    perimeter = 0.0
+    strategies: set[Strategy] = {Strategy.INDEPENDENCE_ASSUMED}
+    reductions: set[bool] = set()
+
+    for index, start in enumerate(stations):
+        end = stations[(index + 1) % len(stations)]
+        # Either orientation carries the same information; traversing a
+        # baseline against its sense is a negation, not a different measurement.
+        if (start, end) in available:
+            line, sign = available[(start, end)], 1.0
+        elif (end, start) in available:
+            line, sign = available[(end, start)], -1.0
+        else:
+            raise ValidationError(
+                "gnss_loop_leg_missing",
+                base=start,
+                rover=end,
+                expected="a baseline between these two stations, in either orientation",
+            )
+        if line.frame is not BaselineFrame.ECEF:
+            raise DataError(
+                "gnss_loop_leg_not_ecef",
+                baseline=line.id,
+                frame=line.frame.value,
+                expected=(
+                    "ECEF; local east/north/up differs from station to station, so a "
+                    "circuit of local vectors sums three different frames"
+                ),
+            )
+        reductions.add(line.antenna_reduction is not None)
+        values = np.array([component.value for component in line.components])
+        total += sign * values
+        # Negating a vector leaves its covariance unchanged, so the sign does
+        # not appear here.
+        matrix += line.covariance.matrix
+        perimeter += float(np.linalg.norm(values))
+        strategies |= set(line.covariance.strategies)
+        legs.append(line.id)
+
+    if len(reductions) > 1:
+        raise DataError(
+            "gnss_loop_mixed_antenna_reduction",
+            loop=stations,
+            expected=(
+                "every leg reduced to the marks, or none of them; a mixed loop closes by the antenna heights"
+            ),
+        )
+
+    covariance = Covariance(
+        matrix=matrix,
+        labels=_COMPONENTS[BaselineFrame.ECEF],
+        units=(Unit.METRE,) * 3,
+        mode=UncertaintyMode.APPROXIMATE,
+        strategies=frozenset(strategies),
+    )
+    return LoopClosure(
+        loop=stations,
+        legs=tuple(legs),
+        misclosure=components_from_covariance(tuple(total), covariance),
+        covariance=covariance,
+        perimeter_m=perimeter,
+    )
+
+
+def to_cluster(baselines: list[Baseline], *, cluster_id: str) -> tuple[list[Observation], Cluster]:
     """Build the correlated observation cluster an adjustment takes (FR-104).
 
     Every baseline becomes a three-component ``GNSS_BASELINE`` observation, and
@@ -478,9 +643,7 @@ def to_cluster(
     observations: list[Observation] = []
     strategies: set[Any] = set()
     for index, baseline in enumerate(baselines):
-        matrix[3 * index : 3 * index + 3, 3 * index : 3 * index + 3] = (
-            baseline.covariance.matrix
-        )
+        matrix[3 * index : 3 * index + 3, 3 * index : 3 * index + 3] = baseline.covariance.matrix
         strategies |= set(baseline.covariance.strategies)
         observations.append(
             Observation(

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -107,6 +108,21 @@ class RtklibJob:
             ``specs/22`` section 5 and the P7 entry in the roadmap. ANTEX is
             configured through ``file-rcvantfile`` / ``file-satantfile`` in
             ``config.extra``; rnx2rtkp does not load positional ANTEX inputs.
+        window: Process only the epochs inside ``(start, end)``, **inclusive at
+            both ends** -- ``-te`` selects the epoch landing on the bound, so
+            two consecutive windows written from the same instant share it.
+            ``None`` processes everything the files hold, which is the ordinary
+            case: a window is for solving part of a session, as the RD-06
+            repeatability experiment does when it splits a day into hours.
+
+            **These are GPST calendar labels, not UTC ones.** ``rnx2rtkp``
+            builds its comparison time with ``epoch2time`` and compares it
+            against observation times, which are GPST; so is ``TIME OF FIRST
+            OBS`` in a GPS RINEX header, and so are the labels
+            :class:`~geocomp.engines.rtklib.read_pos.PosSolution` reads back.
+            All four carry ``tzinfo=UTC`` for arithmetic and ordering and none
+            of them is UTC -- converting one would move it by the leap seconds
+            and silently select the wrong epochs.
     """
 
     rover: GnssSession
@@ -114,6 +130,7 @@ class RtklibJob:
     config: RtklibConfig = field(default_factory=lambda: profile("relative-static"))
     products: tuple[str, ...] = ()
     timeout: float = DEFAULT_TIMEOUT
+    window: tuple[datetime, datetime] | None = None
 
     def __post_init__(self) -> None:
         if self.config.mode.is_relative and self.base is None:
@@ -140,6 +157,50 @@ class RtklibJob:
                 base=self.base.id,
                 expected="two sessions observing simultaneously; they share no epoch",
             )
+        self._check_window()
+
+    def _check_window(self) -> None:
+        """Refuse a window that selects nothing, rather than solving nothing.
+
+        Both failures reach the user identically otherwise: ``rnx2rtkp`` exits
+        zero, writes a header and no records, and the adapter reports "the
+        engine produced no solution" -- which sends the reader to the
+        observations when the fault is in the two numbers they passed.
+        """
+        if self.window is None:
+            return
+        start, end = self.window
+        if start.tzinfo is None or end.tzinfo is None:
+            raise ComputationError(
+                "rtklib_window_is_not_timezone_aware",
+                window=f"{start.isoformat()}/{end.isoformat()}",
+                expected=(
+                    "both bounds carrying tzinfo=UTC, the convention every time in this "
+                    "project uses -- a naive bound cannot be compared against the session's "
+                    "own times, and Python raises a TypeError rather than saying so"
+                ),
+            )
+        if end <= start:
+            raise ComputationError(
+                "rtklib_window_ends_before_it_starts",
+                start=start.isoformat(),
+                end=end.isoformat(),
+                expected="a window whose end is after its start",
+            )
+        for session in (self.rover, self.base):
+            if session is None or session.start is None or session.end is None:
+                continue
+            if start >= session.end or end <= session.start:
+                raise ComputationError(
+                    "rtklib_window_outside_the_session",
+                    session=session.id,
+                    window=f"{start.isoformat()}/{end.isoformat()}",
+                    observed=f"{session.start.isoformat()}/{session.end.isoformat()}",
+                    expected=(
+                        "a window overlapping the observations; these are GPST "
+                        "labels on both sides, so do not convert either to UTC"
+                    ),
+                )
 
     def input_files(self) -> tuple[str, ...]:
         """Inputs in the order ``rnx2rtkp`` reads them.
@@ -181,14 +242,33 @@ class RtklibResult:
         }
 
 
+def _window_flags(window: tuple[datetime, datetime] | None) -> tuple[str, ...]:
+    """``-ts`` and ``-te``, which have no configuration-file equivalent.
+
+    ``rnx2rtkp`` reads each as two arguments -- ``y/m/d`` then ``h:m:s`` -- and
+    parses them with ``sscanf("%lf/%lf/%lf")``, so an ISO ``2025-01-01`` is
+    read as the year alone and the window silently becomes the year 2025 from
+    January the first: not an error, just every epoch selected.
+    """
+    if window is None:
+        return ()
+    flags: list[str] = []
+    for flag, moment in zip(("-ts", "-te"), window, strict=True):
+        flags += [flag, moment.strftime("%Y/%m/%d"), moment.strftime("%H:%M:%S.%f")[:-3]]
+    return tuple(flags)
+
+
 def command_line(
     executable: Path, job: RtklibJob, *, config_file: Path, output_file: Path
 ) -> tuple[str, ...]:
     """The command for *job*.
 
-    Only four flags: ``-k`` for the configuration, ``-o`` for the output, and
-    the inputs. Everything else is in the file, per ``specs/08`` section 2 --
-    which is what makes a run reproducible from something the user can read.
+    Only four flags, plus the time window where the job sets one: ``-k`` for
+    the configuration, ``-o`` for the output, ``-ts``/``-te`` for the window,
+    and the inputs. Everything else is in the file, per ``specs/08`` section 2
+    -- which is what makes a run reproducible from something the user can read.
+    The window is a flag because it has no configuration-file key; it is
+    recorded in provenance through the command line, which is stored whole.
 
     **Every input path is made absolute here.** The process runs in the working
     directory, not in the caller's, so a relative path that was correct when the
@@ -201,6 +281,7 @@ def command_line(
         str(executable),
         "-k", str(Path(config_file).resolve()),
         "-o", str(Path(output_file).resolve()),
+        *_window_flags(job.window),
         *(str(Path(name).resolve()) for name in job.input_files()),
     )
 

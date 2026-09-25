@@ -2,8 +2,10 @@
 /sources/*
 !/sources/godn.log.txt
 !/sources/gods.log.txt
+!/sources/gode.log.txt
 !/sources/godn_20.coord.txt
 !/sources/gods_20.coord.txt
+!/sources/gode_20.coord.txt
 /calibrated_001.pos
 !/sources/ncn-data.html
 !/sources/ncn-license.html

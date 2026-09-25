@@ -2,8 +2,8 @@
 
 NOAA Continuously Operating Reference Stations (CORS) Network (NCN), operated by
 NOAA's National Geodetic Survey (NGS), accessed 17 September 2026 through the
-official NOAA Open Data Dissemination (NODD) archive. Observations for GODN and
-GODS were supplied by NASA Goddard Space Flight Center.
+official NOAA Open Data Dissemination (NODD) archive. Observations for GODN, GODE
+and GODS were supplied by NASA Goddard Space Flight Center.
 
 The [NODD NCN terms](https://registry.opendata.aws/noaa-ncn/) permit public use
 and dissemination with attribution. The evidence bundle preserves the original compressed observation and navigation

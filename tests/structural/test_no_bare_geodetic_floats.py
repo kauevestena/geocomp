@@ -185,6 +185,11 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("InstrumentProfile", "sigma_instrument_height"): "is itself a standard deviation",
     ("InstrumentProfile", "sigma_target_height"): "is itself a standard deviation",
     ("StochasticDefaults", "values"): "a mapping of standard deviations",
+    ("LoopClosure", "perimeter_m"): (
+        "the distance travelled round the circuit, a scale for the parts-per-million "
+        "figure rather than a determined quantity; the misclosure it scales is the "
+        "measurement and carries the covariance"
+    ),
     ("LevelProfile", "sigma_per_km"): (
         "the constant of proportionality of a precision model, in metres per sqrt(km)"
     ),
@@ -233,8 +238,7 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("ClosureCheck", "standardised"): "already normalised by its own sigma",
     ("ClosureCheck", "length_km"): "a route length; see LineReduction",
     ("SetupShare", "correction"): (
-        "a share of a misclosure, distributed proportionally; a correction, not an "
-        "observation"
+        "a share of a misclosure, distributed proportionally; a correction, not an observation"
     ),
     ("SetupShare", "weight"): "a dimensionless share, summing to one",
     ("SetupShare", "standardised"): "already normalised by its own sigma",
@@ -271,12 +275,10 @@ TECHNIQUE_PLAIN_FLOATS = {
     ),
     ("TraverseResult", "linear_misclosure"): "a misclosure; see angular_misclosure",
     ("TraverseResult", "relative_precision"): (
-        "the quality ratio surveyors quote as 1:N; dimensionless and derived from the two "
-        "quantities above"
+        "the quality ratio surveyors quote as 1:N; dimensionless and derived from the two quantities above"
     ),
     ("ResectionResult", "residuals"): (
-        "adjustment residuals, whose quality is the solution covariance rather than a "
-        "sigma of their own"
+        "adjustment residuals, whose quality is the solution covariance rather than a sigma of their own"
     ),
     ("IntersectionResult", "residuals"): "adjustment residuals; see ResectionResult",
     ("LeapFrogResult", "sight_imbalance"): (
@@ -327,8 +329,7 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("SessionQuality", "ratio_best"): "an ambiguity ratio; see EpochQuality.ratio",
     ("SessionQuality", "ratio_median"): "an ambiguity ratio; see EpochQuality.ratio",
     ("SessionQuality", "interval"): (
-        "the nominal seconds between epochs, a receiver setting rather than something "
-        "observed"
+        "the nominal seconds between epochs, a receiver setting rather than something observed"
     ),
     # -- GNSS, phase P7c ------------------------------------------------------
     ("ReferenceStation", "velocity_per_year"): (
@@ -353,8 +354,7 @@ TECHNIQUE_PLAIN_FLOATS = {
         "the confidence, exact for its inputs"
     ),
     ("BatchResult", "seconds"): (
-        "wall-clock duration of one session's run, for the report. A timing, not a "
-        "geodetic value"
+        "wall-clock duration of one session's run, for the report. A timing, not a geodetic value"
     ),
     ("SessionQuality", "dilution_of_precision"): (
         "a geometry factor, dimensionless and derived from satellite positions. Always "
@@ -548,9 +548,7 @@ class TestTechniqueModuleReturns:
                     continue
                 hints = typing.get_type_hints(getattr(module, node.name))
                 if not self._is_acceptable(hints.get("return"), bearing):
-                    offenders.append(
-                        f"{path.name}:{node.lineno} {node.name} -> {ast.unparse(node.returns)}"
-                    )
+                    offenders.append(f"{path.name}:{node.lineno} {node.name} -> {ast.unparse(node.returns)}")
 
         assert checked > 5, "the scan found almost no public functions; it is probably broken"
         assert not offenders, (

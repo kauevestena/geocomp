@@ -46,6 +46,9 @@ on:
       - "scripts/check_dynadjust_fixtures.py"
       - "scripts/check_rtklib_fixtures.py"
       - "scripts/check_rd06.py"
+      - "scripts/check_published_coordinates.py"
+      - "tests/test_published_coordinates.py"
+      - "tests/data/published_coordinates/**"
       - ".gitattributes"
       - ".github/workflows/engine.yml"
   workflow_dispatch:
@@ -212,10 +215,16 @@ jobs:
       - name: The pipeline, against the real engine
         run: pytest -q tests/test_rtklib_engine.py -k AgainstTheRealEngine
 
-      # The published-coordinate criterion is still unmet. Local pytest names
-      # its known failure; --runxfail here enforces the original assertion and
-      # deliberately leaves this check red until the discrepancy is resolved.
-      # Never continue-on-error: processing/repeatability and accuracy matter.
+      # RD-06 is judged on loop closure and repeatability since 24 September
+      # 2026 (specs/20 section 6), and both are met, so this step is expected
+      # to pass. The published-coordinate comparison still runs and is still
+      # reported -- evidence does not stop being interesting because it stopped
+      # being a gate -- but it no longer decides anything.
+      #
+      # --runxfail stays although nothing is xfailed any more: it costs nothing
+      # now and it means that if anyone reintroduces an expected failure here,
+      # CI enforces the original assertion instead of accepting the excuse.
+      # Never continue-on-error: processing, closure and repeatability matter.
       - name: Acquire RD-06 processing inputs and enforce their recorded hashes
         run: python3 scripts/check_rd06.py --fetch-inputs --verify-inputs
 
@@ -230,7 +239,8 @@ jobs:
       # the uncalibrated configuration. Here the calibration is present, and a
       # calibrated sweep at a high elevation mask is what separates residual antenna
       # calibration from a real disagreement with the published coordinates
-      # (specs/22 section 5).
+      # (specs/22 section 5). It sweeps GODN-GODS, the counter-case it was
+      # written to explain, not the baseline the criterion is judged on.
       #
       # It exits zero whatever the numbers say -- it reports, it does not judge --
       # so the only way it fails is a bug in the diagnostic itself, and that should
@@ -239,6 +249,54 @@ jobs:
       - name: RD-06 diagnostic — the calibrated elevation-mask sweep
         if: always()
         run: python3 scripts/check_rd06.py --sweep --output build/rd06-sweep
+
+      # One of RD-06's two criteria since 24 September 2026, so this judges
+      # where it used only to report: it exits 1 if the six-hour sub-sessions
+      # scatter by more than 2 mm in any component. Measured 0.613 / 0.318 /
+      # 0.992 mm.
+      #
+      # It is the criterion closure cannot supply. An error common to every
+      # baseline at one station enters a loop twice with opposite signs and
+      # cancels, so the triangle can close perfectly while the whole site is
+      # displaced -- 2025-001 closes to a quarter of a millimetre while
+      # carrying the contaminated hour. Splitting both days into halves,
+      # quarters and hours is what sees that: GPS geometry repeats every
+      # sidereal day, so two whole days conceal exactly the error this exposes,
+      # and it is how the contaminated hour was found in the first place.
+      - name: RD-06 criterion — the calibrated sub-session repeatability
+        if: always()
+        run: python3 scripts/check_rd06.py --repeatability --output build/rd06-repeatability
+
+      # The maintainer's decision of 24 September 2026: before anything is decided
+      # about the 1 mm GNSS threshold, confirm the fourteen-pair measurement against
+      # NGS's *own* calibration rather than IGS's type means. `specs/22` section 5.4
+      # was recorded with igs20.atx, which is what the development environment could
+      # be given; geodesy.noaa.gov is 403 there, so this is the only place ngs20.atx
+      # can be put to it. If the two calibration sets agree, the caveat in section
+      # 5.4 closes and the threshold decision can be taken on the numbers as they
+      # stand.
+      #
+      # The limit is 1 mm rather than the 0.05 mm a same-ANTEX rerun meets, because
+      # a different calibration set is *expected* to move the answer slightly and
+      # that is not a regression. It is set at 1 mm because that is the size at
+      # which the conclusion would change: the finding is that no pair comes within
+      # 1 mm and the median worst component is 5.1 mm, so a sub-millimetre shift
+      # leaves it standing and anything larger means the two sets genuinely disagree
+      # and section 5.4 has to be revisited.
+      #
+      # This judges, so it must not be continue-on-error: a departure this large, or
+      # an ngs20.atx with no entry for TRM41249USCG SCIT, is a finding and has to be
+      # visible rather than buried in a log.
+      - name: Confirm the published-coordinate spread against NGS's own calibration
+        if: always()
+        run: |
+          mkdir -p build
+          gunzip -c tests/data/rd06/sources/ngs20.atx.gz > build/ngs20.atx
+          python3 scripts/check_published_coordinates.py \
+            --fetch-inputs --verify-inputs --run \
+            --antex build/ngs20.atx \
+            --max-departure-mm 1.0 \
+            --work build/published-coordinates
 
       - name: Retain RD-06 configurations, solutions, logs and metrics
         if: always()
@@ -253,4 +311,7 @@ jobs:
             build/rd06/metrics.json
             build/rd06/junit.xml
             build/rd06-sweep/sweep.json
+            build/rd06-repeatability/repeatability.json
+            build/published-coordinates/runs*/*/*.pos
+            build/published-coordinates/runs*/*/*.conf
           if-no-files-found: warn

@@ -178,14 +178,48 @@ Bit-identical reproducibility requires: deterministic iteration order, explicit 
 ordering, no reliance on set or dictionary ordering for numeric outcomes, and pinned engine versions
 recorded in provenance.
 
-**RD-06's known discrepancy stays visible.** The frozen official sources and coordinate transcription
-are checked offline on every commit. With `rnx2rtkp` and the test-only Hatanaka decompressor available,
-`tests/test_rd06.py` runs the current development code against all five configurations and checks full-day
-coverage and byte reproducibility. The single primary accuracy assertion is a strict, exception-specific
-expected failure locally; engine CI uses `--runxfail` and **fails while the criterion remains unmet**.
-Processing errors are not expected failures. The standalone `scripts/check_rd06.py` also returns failure
-for the accuracy mismatch and retains evidence. This changes neither §6 nor the GNSS acceptance criterion;
-the 1 mm comparison is the documented conservative interpretation of the source's printed precision.
+**RD-06's known discrepancy stays visible.** The frozen official sources, the coordinate transcription,
+the antenna-epoch guard and the sheets' own phase-centre self-consistency are checked offline on every
+commit. With `rnx2rtkp` and the test-only Hatanaka decompressor available, `tests/test_rd06.py` runs the
+current development code against every configuration and checks full-day coverage and byte
+reproducibility. The single primary accuracy assertion is a strict, exception-specific expected failure
+locally; engine CI uses `--runxfail` and **fails while the criterion remains unmet**. Processing errors
+are not expected failures. The standalone `scripts/check_rd06.py` also returns failure for the accuracy
+mismatch and retains evidence.
+
+**The GNSS criterion is loop closure and repeatability, not agreement with a published coordinate**
+(maintainer's decision, 24 September 2026). RD-06 is met when both of these hold, each at **2 mm per
+component**:
+
+| Criterion | What it is | Measured |
+|---|---|---|
+| **Loop closure** | The GODN–GODE–GODS triangle, every leg processed independently, summed round the circuit | **0.245 mm** on 2025-001 and **0.787 mm** on 2025-002 over a 282 m perimeter; worst single component 0.6 mm |
+| **Repeatability** | Robust scatter of the six-hour sub-sessions of the judged baseline | **0.613 / 0.318 / 0.992 mm** in east, north and up |
+
+**Why the published comparison stopped being a criterion.** It was never measuring this software.
+Fourteen independent same-antenna CORS pairs of 22 to 46 m, every one resolving its own antenna *and*
+radome exactly, miss their published ITRF2020 coordinates by a median worst component of 5.1 mm and
+**none reaches 1 mm**, while the same estimator repeats to well under a millimetre. The disagreement is
+fixed per pair across days, differs between pairs, and does not move with the elevation mask, so it
+belongs to the reference or the site rather than to the processing — [`22`](./22-reference-data-sources.md)
+§5.4 has the measurement and its limits. A tolerance that no clean pair can meet is a statement about
+NGS, and a green check ought to be a statement about GeoComp. The comparison is still **run and
+reported** on every engine build, and a test asserts the discrepancy stays the size §5 describes, so
+the evidence does not quietly disappear; it simply no longer decides anything.
+
+**Why both, and not closure alone.** An error common to every baseline at one station enters a loop
+twice with opposite signs and cancels, so a triangle can close perfectly while the whole site is
+displaced. 2025-001 demonstrates it: that day carries the contaminated hour §5.1 attributes and still
+closes to a quarter of a millimetre. Repeated independent sub-sessions do see what closure cannot, so
+the criterion requires both and `tests/test_rd06.py` asserts the blind spot rather than describing it.
+
+**Why these numbers.** 2 mm is about three times the worst component either measurement produces,
+which leaves room for a different site or receiver without leaving room for a defect. The closure
+limit is per component rather than on the magnitude, because a magnitude hides one bad axis behind two
+good ones and the axis is what a reader needs in order to act. Repeatability is judged on the
+**six-hour** spans because that is the shortest length with enough solutions per day for the statistic
+to mean anything and enough time for the ambiguities to resolve, and on the **robust** scatter because
+a criterion a single known-bad hour can fail is measuring that hour rather than the estimator.
 
 ## 7. CI matrix
 

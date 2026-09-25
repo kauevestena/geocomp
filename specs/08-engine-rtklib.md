@@ -112,6 +112,34 @@ Reproducible with those flags alone, on RTKLIB's own sample data. GeoComp's RINE
 therefore tested against a fixture transcribed from the published format definition, and
 `tests/data/rtklib/PROVENANCE.md` says so rather than letting a transcript pass for a tool's output.
 
+### 2.3 The time window is the one option with no configuration key [V]
+
+`RtklibJob.window` writes `-ts` and `-te`. It is a flag because RTKLIB's option table has no equivalent
+key, which means a window is recorded in provenance **only** through the command line — so the command
+line is stored whole rather than summarised. It is what lets a session be solved in parts: the RD-06
+repeatability measurement in [`22`](./22-reference-data-sources.md) §5.1 splits two full days into hours
+and takes the scatter of the results.
+
+Two traps, both silent:
+
+- **The date separator is a slash.** `rnx2rtkp` reads the bound with `sscanf("%lf/%lf/%lf")`, so an ISO
+  `2025-01-01` parses as the year alone and the window becomes "2025, from January the first" — every
+  epoch selected, no error, no warning.
+- **Both bounds are GPST calendar labels, not UTC.** The engine compares them against observation times,
+  which are GPST; so is `TIME OF FIRST OBS` in a GPS RINEX header and so are the labels the `.pos` reader
+  returns. All four carry `tzinfo=UTC` for arithmetic and none of them is UTC. Converting one moves it by
+  the leap seconds and selects a different interval, with nothing in the output to say so.
+
+**Both bounds are inclusive.** `-te` selects the epoch that lands on it, so 06:00:00 to 07:00:00 at a
+30 s interval returns 121 epochs, not 120, and two consecutive windows written from the same instant
+share one. Measured, not read: the manual says nothing about it. A caller splitting a session into
+disjoint parts ends each window one interval short.
+
+A window that selects nothing is **refused rather than run**, because the engine's report of it is
+indistinguishable from unusable observations: exit zero, a header, no records. So is a bound without
+`tzinfo`, which would otherwise fail as a `TypeError` from comparing it against the session's own
+times — an error that says nothing about which of the caller's two numbers is wrong.
+
 ---
 
 ## 3. Risk: PPP capability (FR-604)
@@ -311,6 +339,43 @@ of every format rather than only out of the ECEF one.
 Neither had reached a result: the only production caller is §8.1's baseline, which is ECEF-only by
 construction and refuses any other format. They are recorded because "not reached yet" is a property of
 today's callers, not of the code.
+
+---
+
+### 7.5 A missing antenna calibration is silent **[V]**
+
+With `pos1-posopt2 = on`, `rnx2rtkp` looks each configured antenna up in the ANTEX. On a miss it
+**clears the antenna name and carries on with no calibration for that receiver** — `postpos.c`:
+
+```c
+if (!(pcv=searchpcv(0,popt->anttype[i],time,pcvr))) {
+    trace(2,"no receiver antenna pcv: %s\n",popt->anttype[i]);
+    *popt->anttype[i]='\0';
+    continue;
+}
+strcpy(popt->anttype[i],pcv->type);
+```
+
+The warning goes to `trace`, which writes nothing unless `-x` enabled a trace file. So the run exits
+zero, the solution has the usual epoch count and ambiguity fixing, the formal covariance is unchanged,
+and the answer is wrong by that antenna's phase-centre offset — centimetres for some antennas, and about
+7 mm of height for the RD-06 pair.
+
+Two further points the code above makes:
+
+- **The lookup is not exact.** `searchpcv` requires every whitespace-separated token of the configured
+  name to appear in the entry, then retries with the radome dropped. `AOAD/M_T        JPLA` therefore
+  matches `AOAD/M_T        NONE` when the JPLA variant is absent — a real calibration, but a different
+  one.
+- **The header reports what was matched, not what was asked for**, because the matched entry's name is
+  copied over the configured one. That makes `% antenna1` / `% antenna2` the only evidence available
+  from an ordinary run.
+
+**Therefore `PosSolution.antennas` reads those lines back**, by position (1 is the rover), keeping the
+radome — splitting the name on whitespace would erase the distinction the line exists to show. An empty
+name means no calibration was applied. RD-06 refuses a calibrated case whose antennas did not resolve
+to the ones configured, as a *processing* error rather than an accuracy one: a calibrated case whose
+calibration was skipped is not a calibrated case, and judging accuracy on it judges a mislabelled run.
 
 ---
 

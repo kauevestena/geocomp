@@ -48,6 +48,30 @@
     "required_for_processing": false
   },
   {
+    "file": "gode_20.coord.txt",
+    "url": "https://noaa-cors-pds.s3.amazonaws.com/coord/coord_20/gode_20.coord.txt",
+    "bytes": 8085,
+    "sha256": "357ae9841725b5227280992e35f8722c58fa09c5f811bdbf5e58866c6afd472d",
+    "retrieved_utc": "2026-09-23T17:23:17.413033+00:00",
+    "packaged_path": "sources/gode_20.coord.txt",
+    "packaged_bytes": 8085,
+    "packaged_sha256": "357ae9841725b5227280992e35f8722c58fa09c5f811bdbf5e58866c6afd472d",
+    "vendored": true,
+    "required_for_processing": false
+  },
+  {
+    "file": "gode.log.txt",
+    "url": "https://noaa-cors-pds.s3.amazonaws.com/station_log/gode.log.txt",
+    "bytes": 29949,
+    "sha256": "b7b6fe9eb98cb6124faf6dcc940ca6fa6e65010ce30caa631463f221b7841c87",
+    "retrieved_utc": "2026-09-23T17:23:17.413033+00:00",
+    "packaged_path": "sources/gode.log.txt",
+    "packaged_bytes": 29949,
+    "packaged_sha256": "b7b6fe9eb98cb6124faf6dcc940ca6fa6e65010ce30caa631463f221b7841c87",
+    "vendored": true,
+    "required_for_processing": false
+  },
+  {
     "file": "ncn-data.html",
     "url": "https://geodesy.noaa.gov/CORS/data.shtml",
     "bytes": 55268,
@@ -215,5 +239,29 @@
     "retrieved_date_utc": "2026-09-17",
     "vendored": true,
     "required_for_processing": false
+  },
+  {
+    "file": "gode0010.25d.gz",
+    "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2025/001/gode/gode0010.25d.gz",
+    "bytes": 2041808,
+    "sha256": "8f788f354f999539096bc9c3165aaa06d0372ef2897525231a4d4f32a3db5816",
+    "retrieved_utc": "2026-09-23T17:23:17.413033+00:00",
+    "packaged_path": "sources/gode0010.25d.gz",
+    "packaged_bytes": 2041808,
+    "packaged_sha256": "8f788f354f999539096bc9c3165aaa06d0372ef2897525231a4d4f32a3db5816",
+    "vendored": false,
+    "required_for_processing": true
+  },
+  {
+    "file": "gode0020.25d.gz",
+    "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2025/002/gode/gode0020.25d.gz",
+    "bytes": 2069782,
+    "sha256": "bd65a98f8bc9a0ad9cd215239cf076d6b46d468472126930792c52c0d0c1ca85",
+    "retrieved_utc": "2026-09-23T17:23:17.413033+00:00",
+    "packaged_path": "sources/gode0020.25d.gz",
+    "packaged_bytes": 2069782,
+    "packaged_sha256": "bd65a98f8bc9a0ad9cd215239cf076d6b46d468472126930792c52c0d0c1ca85",
+    "vendored": false,
+    "required_for_processing": true
   }
 ]

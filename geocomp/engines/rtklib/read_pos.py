@@ -49,6 +49,7 @@ should be, and a disagreement is reported in
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
@@ -152,6 +153,13 @@ _LAYOUTS = {
         expected_cross_labels=("sden", "sdnu", "sdue"),
     ),
 }
+
+#: ``% antenna1  : <type>              ( 0.0000  0.0000  0.0000)``. The type is
+#: left-padded to 21 characters and followed by the antenna delta in brackets,
+#: so the bracket is what ends it -- an antenna name can contain spaces, and
+#: splitting on whitespace would truncate ``AOAD/M_T JPLA`` to ``AOAD/M_T``,
+#: which is the very distinction this line exists to show.
+_ANTENNA = re.compile(r"^%\s*antenna(?P<index>[12])\s*:\s*(?P<type>.*?)\s*\(")
 
 #: How the column header names the first position column, per format.
 _FORMAT_BY_HEADER = (
@@ -296,6 +304,34 @@ class PosSolution:
             )
         return self.epochs[-1]
 
+    @property
+    def antennas(self) -> dict[int, str]:
+        """Which receiver antenna the engine **resolved**, by position (1 = rover).
+
+        ``specs/08`` §7.5. This is not the antenna that was *configured*: when
+        ``pos1-posopt2`` is on, ``rnx2rtkp`` looks the configured name up in the
+        ANTEX and, on a miss, **clears the name and carries on with no
+        calibration for that receiver**. The warning goes to a trace file that
+        is off by default, so the run succeeds, the solution looks ordinary, and
+        it is wrong by that antenna's phase-centre offset -- centimetres for
+        some antennas.
+
+        What the engine writes here is the entry it matched, because it copies
+        the matched entry's own name over the configured one. So an empty string
+        means no calibration was applied, and a name that differs from the one
+        configured means it matched something else -- ``searchpcv`` falls back
+        to the antenna without its radome, which is a different calibration.
+
+        Absent for a run whose header was not written, or a single-point mode
+        where the engine writes no antenna lines at all.
+        """
+        resolved: dict[int, str] = {}
+        for line in self.comments:
+            match = _ANTENNA.match(line)
+            if match is not None:
+                resolved[int(match["index"])] = match["type"].strip()
+        return resolved
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "format": self.format.value,
@@ -303,6 +339,7 @@ class PosSolution:
             "epochs": len(self.epochs),
             "fixed_epochs": len(self.fixed_epochs()),
             "inputs": list(self.inputs),
+            "antennas": {str(index): name for index, name in self.antennas.items()},
             "header_anomalies": list(self.header_anomalies),
         }
 

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import tempfile
 from dataclasses import replace
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -299,6 +300,133 @@ class TestCommandLine:
                 assert Path(part).is_absolute(), part
 
 
+class TestTheTimeWindow:
+    """``-ts``/``-te``: the one thing ``specs/08`` §2 does by flag and not by file.
+
+    It has no configuration-file key, so the window can only be recorded
+    through the command line -- which is why the command line is stored whole
+    in provenance rather than summarised.
+    """
+
+    def test_no_window_adds_no_flags(self, sessions, tmp_path):
+        base, rover = sessions
+        command = command_line(
+            Path("/usr/bin/rnx2rtkp"),
+            RtklibJob(rover=rover, base=base),
+            config_file=tmp_path / "c.conf",
+            output_file=tmp_path / "out.pos",
+        )
+        assert "-ts" not in command and "-te" not in command
+
+    def test_the_date_is_slashed_because_sscanf_reads_it_that_way(self, sessions, tmp_path):
+        """``rnx2rtkp`` parses the date with ``sscanf("%lf/%lf/%lf")``. An ISO
+        ``2025-01-01`` therefore reads as the year alone -- and a window of
+        "the year 2025 from January the first" is not an error, it is every
+        epoch selected. The separator is the whole test."""
+        base, rover = sessions
+        start = rover.start + timedelta(minutes=10)
+        command = command_line(
+            Path("/usr/bin/rnx2rtkp"),
+            RtklibJob(rover=rover, base=base, window=(start, start + timedelta(minutes=20))),
+            config_file=tmp_path / "c.conf",
+            output_file=tmp_path / "out.pos",
+        )
+        index = command.index("-ts")
+        assert command[index + 1] == start.strftime("%Y/%m/%d")
+        assert "-" not in command[index + 1]
+        assert command[index + 2] == start.strftime("%H:%M:%S") + ".000"
+
+    def test_both_bounds_are_written(self, sessions, tmp_path):
+        base, rover = sessions
+        start = rover.start + timedelta(minutes=10)
+        end = start + timedelta(minutes=20)
+        command = command_line(
+            Path("/usr/bin/rnx2rtkp"),
+            RtklibJob(rover=rover, base=base, window=(start, end)),
+            config_file=tmp_path / "c.conf",
+            output_file=tmp_path / "out.pos",
+        )
+        assert command[command.index("-te") + 1] == end.strftime("%Y/%m/%d")
+        assert command[command.index("-te") + 2] == end.strftime("%H:%M:%S") + ".000"
+
+    def test_the_label_passes_through_unconverted(self, sessions, tmp_path):
+        """A GPST calendar label carrying ``tzinfo=UTC`` must reach the engine
+        as the numbers it was given. Converting it to UTC would move it by the
+        leap seconds and select a different set of epochs, with nothing in the
+        output to say so."""
+        base, rover = sessions
+        start = rover.start + timedelta(minutes=10)
+        command = command_line(
+            Path("/usr/bin/rnx2rtkp"),
+            RtklibJob(rover=rover, base=base, window=(start, start + timedelta(minutes=20))),
+            config_file=tmp_path / "c.conf",
+            output_file=tmp_path / "out.pos",
+        )
+        index = command.index("-ts")
+        assert command[index + 2].startswith(f"{start.hour:02d}:{start.minute:02d}")
+
+    def test_a_window_that_ends_before_it_starts_is_refused(self, sessions):
+        base, rover = sessions
+        with pytest.raises(ComputationError) as error:
+            RtklibJob(rover=rover, base=base, window=(rover.end, rover.start))
+        assert error.value.code == "computation.rtklib_window_ends_before_it_starts"
+
+    def test_an_empty_window_is_refused(self, sessions):
+        """Equal bounds select nothing, which the engine reports the same way
+        it reports unusable observations."""
+        base, rover = sessions
+        with pytest.raises(ComputationError):
+            RtklibJob(rover=rover, base=base, window=(rover.start, rover.start))
+
+    def test_a_naive_bound_is_refused_with_a_message(self, sessions):
+        """Comparing it against the session's aware times raises a TypeError,
+        which says nothing about which of the caller's two numbers is wrong."""
+        base, rover = sessions
+        with pytest.raises(ComputationError) as error:
+            RtklibJob(
+                rover=rover, base=base,
+                window=(rover.start.replace(tzinfo=None),
+                        rover.start.replace(tzinfo=None) + timedelta(minutes=5)),
+            )
+        assert error.value.code == "computation.rtklib_window_is_not_timezone_aware"
+
+    def test_a_window_outside_the_observations_is_refused(self, sessions):
+        """Otherwise this and a genuinely empty overlap are the same message:
+        ``rnx2rtkp`` exits zero with a header and no records, and the adapter
+        says the engine produced no solution -- sending the reader to the
+        observations when the fault is in the two numbers they passed."""
+        base, rover = sessions
+        later = rover.end + timedelta(days=1)
+        with pytest.raises(ComputationError) as error:
+            RtklibJob(rover=rover, base=base, window=(later, later + timedelta(hours=1)))
+        assert error.value.code == "computation.rtklib_window_outside_the_session"
+        assert error.value.context["session"] in {rover.id, base.id}
+
+    def test_a_window_wider_than_the_data_is_accepted(self, sessions):
+        """Clamping is the engine's job. A caller splitting a nominal day into
+        hours should not have to know the receiver started two minutes late."""
+        base, rover = sessions
+        job = RtklibJob(
+            rover=rover, base=base,
+            window=(rover.start - timedelta(hours=1), rover.end + timedelta(hours=1)),
+        )
+        assert job.window is not None
+
+    def test_a_session_without_bounds_is_not_second_guessed(self, sessions):
+        """A session whose header gave no times cannot contradict a window, and
+        refusing one on that basis would block the case the window exists for.
+
+        Absolute mode, because a relative job needs two sessions that overlap
+        and a session with no bounds overlaps nothing."""
+        _, rover = sessions
+        job = RtklibJob(
+            rover=replace(rover, start=None, end=None),
+            config=profile("absolute-static"),
+            window=(rover.start, rover.start + timedelta(minutes=5)),
+        )
+        assert job.window is not None
+
+
 @requires_rtklib
 class TestAgainstTheRealEngine:
     """Tier 4: the chain from a folder of RINEX to a fixed solution.
@@ -328,6 +456,34 @@ class TestAgainstTheRealEngine:
             assert len(solution.epochs) == 120
             assert solution.fixed_fraction > 0.9
             assert solution.last().is_ambiguity_fixed
+
+    def test_a_window_selects_the_epochs_it_names(self, sessions):
+        """The flag is only a claim until an engine acts on it.
+
+        Two things are checked together because either alone would pass a
+        broken implementation: that fewer epochs come back than the full run's
+        120, and that every one of them lies inside the window. A flag the
+        engine ignored gives 120; a flag written in the wrong time system gives
+        the right *count* from the wrong *interval*.
+        """
+        base, rover = sessions
+        start = rover.start + timedelta(minutes=10)
+        end = start + timedelta(minutes=20)
+        with tempfile.TemporaryDirectory() as work:
+            result = RtklibEngine().run(
+                RtklibJob(rover=rover, base=base, window=(start, end)), work_dir=work
+            )
+            assert result.ok
+            times = [epoch.time for epoch in result.solution.epochs]
+            assert 0 < len(times) < 120
+            assert start <= min(times) and max(times) <= end
+            # Both bounds are inclusive: 20 minutes at 30 s is 40 intervals and
+            # 41 epochs, and the epoch landing on ``end`` is one of them. A
+            # caller splitting a session into disjoint parts has to end each
+            # window one interval short, which is what the RD-06 repeatability
+            # experiment does.
+            assert len(times) == 41
+            assert min(times) == start and max(times) == end
 
     def test_the_covariance_survives_the_whole_chain(self, sessions):
         """FR-206 end to end: the cross-component terms reach a ``Covariance``
