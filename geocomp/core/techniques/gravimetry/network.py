@@ -466,13 +466,16 @@ def _precorrected(
         )
 
     covariance = mapping @ np.diag([v.gravity.variance for v, _ in base_visits]) @ mapping.T
+    mode, inherited = combine_modes(*(v.gravity for v, _ in base_visits))
+    if strategies:
+        mode = UncertaintyMode.APPROXIMATE
     coefficients = tuple(
         Quantity(
             value=float(mapping[k] @ values),
             variance=float(covariance[k, k]),
             unit=Unit.ACCELERATION,
-            mode=UncertaintyMode.APPROXIMATE if not verified else UncertaintyMode.RIGOROUS,
-            strategies=strategies,
+            mode=mode,
+            strategies=inherited | strategies,
         )
         for k in range(1, degree + 1)
     )
@@ -803,6 +806,9 @@ def _joint_drift(
 ) -> DriftEstimate:
     columns = [run.layout.column(report.session, name) for name in names]
     covariance = run.parameter_covariance[np.ix_(columns, columns)]
+    # A jointly estimated drift is as approximate as the observations it came
+    # from -- a modelled tide in every reading makes it so.
+    mode, strategies = combine_modes(*(v for o in run.observations for v in o.values))
     return DriftEstimate(
         session=report.session,
         treatment=DriftTreatment.JOINT,
@@ -811,6 +817,8 @@ def _joint_drift(
                 value=float(run.parameters[c]),
                 variance=float(run.parameter_covariance[c, c]),
                 unit=Unit.ACCELERATION,
+                mode=mode,
+                strategies=strategies,
             )
             for c in columns
         ),
@@ -818,6 +826,8 @@ def _joint_drift(
             matrix=covariance,
             labels=tuple(f"{report.session}.{name}" for name in names),
             units=tuple(Unit.ACCELERATION for _ in names),
+            mode=mode,
+            strategies=strategies,
         ),
         time_scale=time_scale,
         reference=report.reference,

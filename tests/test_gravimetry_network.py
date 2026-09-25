@@ -393,6 +393,11 @@ class TestEveryOutputCarriesItsUncertainty:
         _held_at_truth(built)
         result = adjust_gravity_network(built)
         assert result.solution.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        # Everything downstream of the tide is labelled, the drift included.
+        for station in result.solution.adjusted_stations:
+            assert Strategy.NOMINAL_PRECISION in station.gravity.strategies
+        for estimate in result.drift.values():
+            assert all(c.mode is UncertaintyMode.APPROXIMATE for c in estimate.coefficients)
 
 
 def _survey_network(case: str):
