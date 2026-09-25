@@ -48,7 +48,7 @@ chaves e relacionamentos necessários para rastreabilidade e reprocessamento"), 
 | `gc_gnss_session` | GNSS sessions and their file and product references | Point |
 | `gc_network` / `gc_network_member` | Network definitions | — |
 | `gc_solution` | Solutions with CRS, epoch, datum definition, uncertainty mode | — |
-| `gc_adjusted_station` | Adjusted coordinates with covariance and ellipse parameters | Point |
+| `gc_adjusted_station` | Adjusted coordinates with covariance and ellipse parameters; for a gravity solution, the adjusted gravity (schema 3) at the station's location | Point |
 | `gc_observation_result` | Residuals, standardised residuals, redundancy, w-test, MDB | — |
 | `gc_statistics` | Global statistics per solution | — |
 | `gc_run` | Engine and algorithm runs: command line, exit code, timings, versions (FR-036) | — |
@@ -88,7 +88,9 @@ enforced and restricting — that is FR-135, and it is the set where enforcement
 
 ## 3. Versioning and migration (FR-133)
 
-`gc_project.schema_version` is an integer, incremented on every schema change.
+`gc_project.schema_version` is an integer, incremented on every schema change. Schema 2 added a sight's
+instrument and target heights to `gc_observation`; schema 3 (phase P8) added `gravity` to
+`gc_adjusted_station`, empty in a migrated store because no earlier version could write a gravity solution.
 
 - Opening a store with a **newer** version: refuse, with a message naming the versions and directing the user
   to update the plugin. Reading a schema you do not understand silently corrupts it.

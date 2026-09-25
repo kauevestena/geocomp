@@ -194,6 +194,41 @@ TECHNIQUE_PLAIN_FLOATS = {
         "the constant of proportionality of a precision model, in metres per sqrt(km)"
     ),
     ("LevelProfile", "sigma_per_setup"): "the same, per setup",
+    ("GravimeterProfile", "sigma_reading"): "is itself a standard deviation",
+    ("GravityReading", "latitude"): (
+        "where the tide is evaluated. A kilometre of error moves the correction by "
+        "under 0.01 microgal, so its uncertainty is immaterial and not propagated"
+    ),
+    ("GravityReading", "longitude"): "the same, east positive",
+    ("GravityReading", "height"): "the same; the tide changes by parts per million per km",
+    ("ReducedReading", "instrument_gravity"): (
+        "the reading before the calibration factor: the derivative of the reduced value "
+        "with respect to that factor, used to propagate the factor's variance. The "
+        "reading's own uncertainty is on `gravity`"
+    ),
+    ("Occupation", "instrument_gravity"): "the same, averaged over a visit",
+    ("ReductionOptions", "amplification"): "the gravimetric factor, a model constant",
+    ("ReductionOptions", "tide_uncertainty"): "is itself a standard deviation",
+    ("ReductionOptions", "vertical_gradient"): (
+        "a model constant, the normal free-air gradient by default; its uncertainty is "
+        "the separate vertical_gradient_sigma and does propagate"
+    ),
+    ("ReductionOptions", "vertical_gradient_sigma"): "is itself a standard deviation",
+    ("ReductionOptions", "station_gradients"): "per-station gradients and their standard deviations",
+    ("DriftOptions", "time_scale"): (
+        "the unit of the drift polynomial's time, a declared convention that gives a "
+        "coefficient its meaning; not a measurement"
+    ),
+    ("DriftEstimate", "time_scale"): "the same convention, carried with the coefficients",
+    ("_Row", "weights"): (
+        "the coefficients of one observation as a linear combination of occupations -- a "
+        "row of the propagation matrix A in C = A S A^T, exact by construction"
+    ),
+    ("CalibrationTable", "rows"): (
+        "the manufacturer's conversion from counter units to gravity: a published "
+        "function, exact by definition. Its uncertainty is the calibration factor's, "
+        "which is a Quantity and propagates"
+    ),
     ("LevelProfile", "sigma_reading"): "is itself a standard deviation",
     ("LevelProfile", "sigma_stadia_reading"): "is itself a standard deviation",
     ("LevelProfile", "stadia_factor"): (

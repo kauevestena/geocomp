@@ -51,6 +51,7 @@ from geocomp.core.models.solution import (
     TestResult,
 )
 from geocomp.core.models.station import (
+    GRAVITY_COMPONENT,
     ConstraintMode,
     ConstraintSpec,
     MonitoringRole,
@@ -59,6 +60,7 @@ from geocomp.core.models.station import (
 )
 
 __all__ = [
+    "GRAVITY_COMPONENT",
     "OBSERVATION_TYPES",
     "AdjustedStation",
     "AdjustmentStatistics",

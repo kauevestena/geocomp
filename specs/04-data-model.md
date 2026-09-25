@@ -88,9 +88,17 @@ plan (a benchmark used in a 3D network) or the reverse.
 | Field | Type | Notes |
 |---|---|---|
 | `mode` | enum | `FREE`, `FIXED`, `WEIGHTED` |
-| `components` | set | Any of `X`, `Y`, `Z` / `E`, `N`, `U` / `LAT`, `LON`, `H` |
-| `position` | `Position` \| None | The constraining coordinates, with their epoch |
-| `covariance` | `Covariance` \| None | Required when `mode == WEIGHTED` |
+| `components` | set | Any of `X`, `Y`, `Z` / `E`, `N`, `U` / `LAT`, `LON`, `H`, and `gravity` |
+| `position` | `Position` \| None | The constraining coordinates, with their epoch. Not needed when `gravity` is the only component |
+| `covariance` | `Covariance` \| None | Required when `mode == WEIGHTED` over positional components |
+| `gravity` | `Quantity` \| None | The station's known gravity, m·s⁻², when `gravity` is a component. Its own variance is the weight of a `WEIGHTED` gravity constraint; a zero variance there is refused |
+
+**Gravity is not a coordinate, and has its own carrier (phase P8).** Until P8 a station's gravity travelled in
+the `up` slot of a `Position`, which enforces metres; a gravity solution could not even be written, because
+`Position` refused the value. A known gravity is now `ConstraintSpec.gravity` and an adjusted one
+`AdjustedStation.gravity`, both in m·s⁻², and no gravity value reaches a position in either direction. A
+station's position still says *where* it is — a tidal correction and the map both need that — but never what
+gravity is there.
 
 ### 2.5 `Observation` (FR-102, FR-103)
 
@@ -193,7 +201,10 @@ This is what makes everything downstream engine-agnostic (see [`03-architecture.
 | `superseded_by` | str \| None | Solutions are never overwritten (FR-135) |
 
 `AdjustedStation`: station id, `Position`, its covariance block, error ellipse/ellipsoid parameters,
-positional uncertainty, and the correction applied to the approximate coordinates.
+positional uncertainty, and the correction applied to the approximate coordinates. In a gravity solution it
+also carries `gravity`, the adjusted value in m·s⁻², and its `Position` is the station's own location carried
+through unadjusted: a gravity network estimates gravity, not where the gravimeter stood. A gravity station
+without a location is refused when the solution is written, rather than placed at an invented point.
 
 `ObservationResult`: observation id, adjusted value, residual, standardised residual, redundancy number,
 w-test statistic and decision, MDB, external reliability contribution (FR-225, FR-251, FR-252, FR-253).

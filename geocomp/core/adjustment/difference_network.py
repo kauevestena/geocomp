@@ -168,7 +168,16 @@ def approximate_values(
 
     for station in network.stations.values():
         constraint = station.constraint
-        if constraint.mode is ConstraintMode.FREE or constraint.position is None:
+        if constraint.mode is ConstraintMode.FREE:
+            continue
+        # A station's gravity is never read out of its position. Before phase P8
+        # it was, from the "up" slot -- so a station held in *height* in a
+        # gravity network seeded its gravity with a height in metres.
+        if frame is Frame.GRAVITY_1D:
+            if constraint.gravity is not None:
+                seeds[station.id] = constraint.gravity.value
+            continue
+        if constraint.position is None:
             continue
         # A 1D constraint names the frame's component under the *position's*
         # naming, which is "up" for a projected position and "height" for a

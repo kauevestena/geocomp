@@ -30,6 +30,7 @@ from enum import Enum
 from typing import Any
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.instruments.gravimeter import GravimeterProfile
 from geocomp.core.instruments.level import LevellingClass, LevelProfile
 from geocomp.core.uncertainty import Quantity, Strategy
 from geocomp.core.units import Unit
@@ -427,11 +428,14 @@ class ProfileLibrary:
     #: specification the same way it distributes a calibrated instrument, and a
     #: project routinely runs more than one class of levelling at once.
     levelling_classes: dict[str, LevellingClass] = field(default_factory=dict)
+    #: Relative gravimeters, with their calibration (phase P8).
+    gravimeters: dict[str, GravimeterProfile] = field(default_factory=dict)
     #: Which profile is used when an observation names none.
     default_instrument: str = ""
     default_reflector: str = ""
     default_level: str = ""
     default_levelling_class: str = ""
+    default_gravimeter: str = ""
 
     def add_instrument(self, profile: InstrumentProfile) -> None:
         if profile.id in self.instruments:
@@ -572,6 +576,47 @@ class ProfileLibrary:
         """Overwrite a level profile in place -- what a re-calibration produces."""
         self.levels[profile.id] = profile
 
+    # -- gravimeters (phase P8) --------------------------------------------
+
+    def add_gravimeter(self, profile: GravimeterProfile) -> None:
+        if profile.id in self.gravimeters:
+            raise ValidationError(
+                "duplicate_gravimeter_profile",
+                gravimeter=profile.id,
+                expected="a unique profile id; rename or replace the existing one",
+            )
+        self.gravimeters[profile.id] = profile
+        if not self.default_gravimeter:
+            self.default_gravimeter = profile.id
+
+    def gravimeter(self, gravimeter_id: str | None) -> GravimeterProfile:
+        """Resolve a gravimeter reference, falling back to the default.
+
+        Raises rather than inventing one: a calibration factor made up is a
+        scale error in every difference the instrument observed.
+        """
+        wanted = gravimeter_id or self.default_gravimeter
+        if not wanted:
+            raise ValidationError(
+                "no_gravimeter_profile",
+                expected=(
+                    "a gravimeter profile, either named on the reading or set as the library "
+                    "default. GeoComp does not invent a calibration"
+                ),
+            )
+        try:
+            return self.gravimeters[wanted]
+        except KeyError:
+            raise ValidationError(
+                "unknown_gravimeter_profile",
+                gravimeter=wanted,
+                expected=f"one of: {', '.join(sorted(self.gravimeters)) or '(none defined)'}",
+            ) from None
+
+    def replace_gravimeter(self, profile: GravimeterProfile) -> None:
+        """Overwrite a gravimeter profile in place -- what a re-calibration produces."""
+        self.gravimeters[profile.id] = profile
+
     def replace_instrument(self, profile: InstrumentProfile) -> None:
         """Overwrite a profile in place -- what a re-calibration produces."""
         self.instruments[profile.id] = profile
@@ -594,12 +639,14 @@ class ProfileLibrary:
             "reflectors": [p.to_dict() for p in self.reflectors.values()],
             "levels": [p.to_dict() for p in self.levels.values()],
             "levelling_classes": [c.to_dict() for c in self.levelling_classes.values()],
+            "gravimeters": [g.to_dict() for g in self.gravimeters.values()],
         }
         for key, value in (
             ("default_instrument", self.default_instrument),
             ("default_reflector", self.default_reflector),
             ("default_level", self.default_level),
             ("default_levelling_class", self.default_levelling_class),
+            ("default_gravimeter", self.default_gravimeter),
         ):
             if value:
                 payload[key] = value
@@ -622,7 +669,11 @@ class ProfileLibrary:
             default_instrument=payload.get("default_instrument", ""),
             default_reflector=payload.get("default_reflector", ""),
             default_level=payload.get("default_level", ""),
+            gravimeters={
+                g["id"]: GravimeterProfile.from_dict(g) for g in payload.get("gravimeters", ())
+            },
             default_levelling_class=payload.get("default_levelling_class", ""),
+            default_gravimeter=payload.get("default_gravimeter", ""),
         )
 
 

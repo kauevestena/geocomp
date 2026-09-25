@@ -2,3 +2,6 @@
 # Source hashes, rather than source reformatting, guard these frozen fixtures.
 tests/data/rd06/sources/** -text -whitespace
 tests/data/rd06/*.pos -text -whitespace
+
+# RD-07: USGS's synthetic surveys, byte for byte (tests/data/rd07/PROVENANCE.md).
+tests/data/rd07/gsadjust/** -text -whitespace

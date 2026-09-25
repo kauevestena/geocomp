@@ -41,6 +41,7 @@ from geocomp.core.models import (
     ConstraintSpec,
     CoordinateSystem,
     DatumDefinition,
+    Epoch,
     HeightType,
     Network,
     Observation,
@@ -72,31 +73,60 @@ def _position(value: float, unit: Unit, *, exact: bool) -> Position:
     )
 
 
+#: Where each station is. A gravity station has a location -- its tide needs
+#: one, and so does the map -- but its gravity is not part of it.
+LOCATIONS = {"A": (0.0, 0.0), "B": (100.0, 0.0), "C": (100.0, 100.0), "D": (0.0, 100.0)}
+
+
+def _location(name: str) -> Position:
+    easting, northing = LOCATIONS[name]
+    return Position(
+        values=(
+            Quantity.exact(easting, Unit.METRE),
+            Quantity.exact(northing, Unit.METRE),
+            Quantity.exact(0.0, Unit.METRE),
+        ),
+        system=CoordinateSystem.PROJECTED,
+        crs="EPSG:31982",
+        height_type=HeightType.ORTHOMETRIC,
+    )
+
+
 def _network(observation_type: ObservationType, unit: Unit, network_id: str) -> Network:
     """The same network twice, differing only in observation type and unit.
 
-    The *positions* are metre-typed in both, because that is how the model
-    stores a gravity station's value: ``ParameterLayout`` maps ``GRAVITY_1D``
-    onto the position's ``up`` component, and ``Position`` enforces metres on
-    it. See ``test_the_unit_of_a_gravity_parameter_is_a_known_wart`` below.
+    A benchmark is held in its height, which lives in its position. A gravity
+    station is held in its *gravity*, which does not: ``ConstraintSpec.gravity``
+    carries it in m/s^2, and the position says only where the station is. Until
+    phase P8 both went through the position's ``up`` slot -- see
+    ``test_gravity_has_a_carrier_of_its_own`` below.
     """
+    gravity = observation_type is ObservationType.GRAVITY_DIFFERENCE
     network = Network(id=network_id, crs="EPSG:31982")
-    network.add_station(
-        Station(
-            id="A",
-            approx_position=_position(STATIONS["A"], Unit.METRE, exact=True),
-            constraint=ConstraintSpec(
-                mode=ConstraintMode.FIXED,
-                components=frozenset({"up"}),
-                position=_position(STATIONS["A"], Unit.METRE, exact=True),
-            ),
+    if gravity:
+        constraint = ConstraintSpec(
+            mode=ConstraintMode.FIXED,
+            components=frozenset({"gravity"}),
+            gravity=Quantity.exact(STATIONS["A"], Unit.ACCELERATION),
         )
-    )
+        position = _location("A")
+    else:
+        constraint = ConstraintSpec(
+            mode=ConstraintMode.FIXED,
+            components=frozenset({"up"}),
+            position=_position(STATIONS["A"], Unit.METRE, exact=True),
+        )
+        position = _position(STATIONS["A"], Unit.METRE, exact=True)
+    network.add_station(Station(id="A", approx_position=position, constraint=constraint))
     for name in ("B", "C", "D"):
         network.add_station(
             Station(
                 id=name,
-                approx_position=_position(STATIONS[name] + 0.05, Unit.METRE, exact=False),
+                approx_position=(
+                    _location(name)
+                    if gravity
+                    else _position(STATIONS[name] + 0.05, Unit.METRE, exact=False)
+                ),
             )
         )
     for index, (origin, target) in enumerate(LINES):
@@ -123,12 +153,11 @@ def gravimetry() -> Network:
 
 
 def _design(network: Network, frame: Frame) -> np.ndarray:
-    """The design matrix of a network, evaluated at its approximate values."""
+    """The design matrix of a network, evaluated at the same starting values."""
     layout = ParameterLayout.build(network, frame)
     x = np.zeros(len(layout.slots))
     for index, slot in enumerate(layout.slots):
-        station = network.stations[slot.owner]
-        x[index] = station.approx_position.values[2].value
+        x[index] = STATIONS[slot.owner] + 0.05
 
     rows = []
     for observation in network.observations.values():
@@ -222,23 +251,38 @@ class TestWhatIsActuallyDifferent:
         with pytest.raises(GeoCompError):
             adjust(network, AdjustmentOptions(frame=Frame.GRAVITY_1D))
 
-    def test_a_gravity_parameter_is_carried_in_a_metre_typed_slot(self):
-        """The frame knows a gravity parameter is an acceleration. Its *value*
-        is nonetheless carried in the ``up`` component of a ``Position``, which
-        enforces metres -- so the number arrives through a field that describes
-        it wrongly.
+    def test_gravity_has_a_carrier_of_its_own(self, gravimetry):
+        """Until phase P8 a gravity value travelled in the ``up`` slot of a
+        ``Position``, which enforces metres. This test used to assert that wart
+        so that fixing it would fail here and point at itself; it did.
 
-        The arithmetic is unaffected: the frame never mixes the two, and the
-        equivalence above holds exactly. But it is a place the model says
-        something untrue, and giving gravity its own parameter carrier is P8's
-        work. Asserted rather than fixed, so the day it *is* fixed this fails
-        and points at itself."""
+        What replaced it: a known gravity is ``ConstraintSpec.gravity``, an
+        adjusted one is ``AdjustedStation.gravity``, both in m/s^2, and no
+        gravity value reaches a position in either direction. The proof that
+        mattered is the last assertion -- before the fix a gravity solution
+        could not be *written* at all, because ``Position`` refused the value."""
+        from geocomp.core.adjustment.least_squares import to_solution
         from geocomp.core.adjustment.parameters import _constraint_name
-        from geocomp.core.models import CoordinateSystem
 
         assert Frame.GRAVITY_1D.component_units == (Unit.ACCELERATION,)
-        assert _constraint_name("g", Frame.GRAVITY_1D) == "up"
-        assert CoordinateSystem.PROJECTED.component_units[2] is Unit.METRE
+        assert Frame.GRAVITY_1D.position_components == ()
+        assert _constraint_name("g", Frame.GRAVITY_1D) == "gravity"
+
+        run = adjust(
+            gravimetry, AdjustmentOptions(frame=Frame.GRAVITY_1D, datum=DatumDefinition.FIXED)
+        )
+        solution = to_solution(
+            run,
+            gravimetry,
+            solution_id="g",
+            crs="EPSG:31982",
+            epoch=Epoch.from_decimal_year(2026.0),
+            datum=DatumDefinition.FIXED,
+        )
+        for station in solution.adjusted_stations:
+            assert station.gravity is not None
+            assert station.gravity.unit is Unit.ACCELERATION
+            assert station.position == gravimetry.stations[station.station_id].approx_position
 
     def test_drift_is_the_part_a_levelling_engine_cannot_do(self):
         """A gravity difference may carry a jointly estimated drift term, which
@@ -307,3 +351,52 @@ class TestP8InheritsP4sMachinery:
         with pytest.raises(ValidationError) as caught:
             connected_components(network, Frame.PLANE_2D)
         assert caught.value.code == "validation.not_a_difference_frame"
+
+
+class TestTheSolutionSaysWhatItRestsOn:
+    """FR-203, for every technique: found in phase P8, where FR-703 depends on it.
+
+    ``Solution.uncertainty_mode`` was set by nothing, so every solution claimed
+    to be rigorous -- a levelling network weighted by a level's brochure
+    precision included -- and a report of it could name no strategy. The fix is
+    in ``to_solution`` and so reaches every technique; levelling is the case
+    tested here because it is the one this file already builds both ways.
+    """
+
+    @staticmethod
+    def _solution(network, frame):
+        from geocomp.core.adjustment.least_squares import to_solution
+
+        run = adjust(network, AdjustmentOptions(frame=frame, datum=DatumDefinition.FIXED))
+        return to_solution(
+            run,
+            network,
+            solution_id="s",
+            crs="EPSG:31982",
+            epoch=Epoch.from_decimal_year(2026.0),
+            datum=DatumDefinition.FIXED,
+        )
+
+    def test_rigorous_observations_give_a_rigorous_solution(self, levelling):
+        from geocomp.core.uncertainty import UncertaintyMode
+
+        solution = self._solution(levelling, Frame.HEIGHT_1D)
+        assert solution.uncertainty_mode is UncertaintyMode.RIGOROUS
+
+    def test_a_nominal_precision_makes_it_approximate_and_is_named(self):
+        import dataclasses
+
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+
+        network = _network(ObservationType.HEIGHT_DIFFERENCE, Unit.METRE, "nominal")
+        for oid, observation in list(network.observations.items()):
+            (value,) = observation.values
+            network.observations[oid] = dataclasses.replace(
+                observation, values=(value.with_strategy(Strategy.NOMINAL_PRECISION),)
+            )
+        solution = self._solution(network, Frame.HEIGHT_1D)
+        assert solution.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        for station in solution.adjusted_stations:
+            assert Strategy.NOMINAL_PRECISION in station.covariance.strategies
+            assert station.position.values[2].mode is UncertaintyMode.APPROXIMATE
+        assert Strategy.NOMINAL_PRECISION in solution.parameter_covariance.strategies

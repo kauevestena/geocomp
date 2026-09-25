@@ -5,6 +5,85 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P8a — gravimetry: the computation
+
+The corrections and the drift that no external engine supplies, on the
+adjustment the in-house core has had since P2. P8 was split at the
+maintainer's decision of 25 September 2026: the computation here, the menu,
+settings and layers in P8b. Ocean loading moved to P12 at the same decision.
+
+#### Added
+
+- **Gravimeter profiles** (`core/instruments/gravimeter.py`, FR-061, FR-069):
+  a manufacturer's calibration table, refused with the row named when its
+  values disagree with their own interval factors by more than printing
+  explains; a calibration factor with its uncertainty; a nominal reading
+  precision; and an applied-once flag for an instrument that removes its own
+  tide.
+- **The solid-Earth tide by Longman (1959)** (`tides.py`, FR-701). Against a
+  Scintrex CG-5's own firmware, over 2,096 readings of a real survey that record
+  the correction applied: **0.60 µGal rms, 1.51 at worst**, printed to 1 µGal.
+  Against ETERNA with the Hartmann–Wenzel catalogue: **0.76–1.21 µGal rms**. The
+  stated model uncertainty, 1.5 µGal, is derived from that series and a test
+  fails if the two part. Values are tide-free, and say so.
+- **Reduction of a reading** (`readings.py`): scale, tide, and the sensor's
+  height above the mark, every term's uncertainty carried (FR-204). The last is
+  new to `specs/12` (§4.4): combining relative readings with an absolute value
+  quoted at the mark is otherwise tens of microgal wrong.
+- **Drift jointly estimated** as a polynomial per session in declared time,
+  its coefficients accelerations with a stated meaning (FR-702), or
+  **pre-corrected** from a base station, with the fit's linearity tested when
+  there is redundancy to test it and labelled `MODEL_ASSUMED` when there is not.
+- **The gravity network** (`network.py`, FR-700, FR-703): occupations rather
+  than readings, differences whose covariance is exact — `A Σ Aᵀ` for the
+  shared occupations, plus the calibration factor's `σ_k² (A g)(A g)ᵀ`,
+  correlated across every observation of the instrument — absolute values
+  weighted, and a result that states its datum defect and what removed it, each
+  session's drift, and every uncheckable observation by name.
+- **RD-07** (`tests/data/rd07/`, `scripts/check_rd07.py`): pyGrav's published
+  solution for four days of the CG-5 survey is reproduced — GeoComp matches
+  pyGrav's model to 10⁻⁹ µGal, and the model matches the published values within
+  what their printed rounding allows once pyGrav's datum-free `S Sᵀ` term is
+  accounted for. USGS's synthetic surveys, published with their truth, are
+  recovered within 3σ at every station. pyGrav states no licence, so its files
+  and the survey are fetched at pinned digests in the `reference` workflow and
+  never committed.
+- **`Strategy.MODEL_ASSUMED`**, for a functional model imposed on data that
+  could not test it.
+
+#### Changed
+
+- **A station's gravity has its own carrier.** `ConstraintSpec.gravity` and
+  `AdjustedStation.gravity`, in m/s², replace the `up` slot of a `Position`,
+  which enforces metres. **No gravity solution could be written before this**:
+  `Position` refused the value `to_solution` handed it, and the test asserting
+  the old wart only ever called `adjust()`.
+- **Store schema 3**: `gc_adjusted_station` gains `gravity`, added empty by
+  migration because no earlier store could hold a gravity solution.
+- **A solution's `uncertainty_mode` follows its observations** (FR-203).
+  Nothing set it before, so every solution of every technique claimed to be
+  rigorous, including one weighted entirely by a brochure's precision.
+
+#### Found, and recorded
+
+- **Pre-correction with its covariance carried in full is the joint
+  estimate**, to 3×10⁻¹⁰ µGal. What makes field pre-correction worse is
+  discarding that covariance; `specs/12` §4.3 now says which version
+  criterion 3 is about, and both findings are tests.
+- **No scheme allows pre-correction and forbids joint estimation**, so the
+  "automatic" choice between them was removed rather than kept as dead code.
+- **A station held in height seeded its gravity with a height in metres.**
+- **MCGravi and pyGrav form a degree-k drift as `(Δt)^k`**, right only at
+  degree 1; pyGrav prints the drift's variance under "SD".
+
+#### Not done
+
+- The Gravimetry menu, its settings, profile management and result layers —
+  P8b. The CSV and XLSX exports would drop a gravity solution's gravity today.
+- A published calibration-table example: none was reachable, so the table is
+  checked against a constructed one and that part of criterion 1 is not met.
+- Scale estimated as a parameter; ocean loading (P12); zero-tide conversion.
+
 ### P7e — RD-06 met, on a criterion that measures this project
 
 The maintainer's decision of 24 September 2026: stop judging GNSS on agreement

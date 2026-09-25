@@ -115,6 +115,11 @@ class Strategy(Enum):
     #: that explains it; past that the matrix is indefinite for some other
     #: reason and is still refused.
     ROUNDING_CONDITIONED = "rounding_conditioned"
+    #: A functional model imposed on data that could not test it. Added in
+    #: phase P8 for gravimeter drift: a straight line through exactly two base
+    #: readings fits them perfectly whatever the drift did between them, so the
+    #: linearity is an assumption, not a finding (specs/12 section 4.3).
+    MODEL_ASSUMED = "model_assumed"
 
 
 def combine_modes(*quantities: Quantity) -> tuple[UncertaintyMode, frozenset[Strategy]]:

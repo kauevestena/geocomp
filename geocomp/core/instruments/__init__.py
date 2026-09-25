@@ -12,6 +12,7 @@ calibration correction can be traced to exactly the observations it affects.
 
 from __future__ import annotations
 
+from geocomp.core.instruments.gravimeter import CalibrationTable, GravimeterProfile, ReadingUnit
 from geocomp.core.instruments.level import LevellingClass, LevelProfile
 from geocomp.core.instruments.profiles import (
     AtmosphericModel,
@@ -29,11 +30,14 @@ from geocomp.core.instruments.stochastic import (
 
 __all__ = [
     "AtmosphericModel",
+    "CalibrationTable",
     "EdmSpecification",
+    "GravimeterProfile",
     "InstrumentProfile",
     "LevelProfile",
     "LevellingClass",
     "ProfileLibrary",
+    "ReadingUnit",
     "ReflectorProfile",
     "SigmaSource",
     "StochasticDefaults",

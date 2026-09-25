@@ -553,6 +553,7 @@ class TestVersioning:
         with connection:
             for column in ("instrument_height", "target_height"):
                 connection.execute(f'ALTER TABLE "gc_observation" DROP COLUMN "{column}"')
+            connection.execute('ALTER TABLE "gc_adjusted_station" DROP COLUMN "gravity"')
             connection.execute('UPDATE "gc_project" SET schema_version = 1')
         connection.close()
 
@@ -580,6 +581,31 @@ class TestVersioning:
             for observation in network.observations.values()
         )
 
+    def test_a_schema_two_store_gains_the_gravity_column(self, stored):
+        """Phase P8's migration. A schema 2 store cannot hold a gravity solution
+        -- none could be written before P8 -- so the column arrives empty and
+        every existing adjusted station reads back with no gravity."""
+        path, *_ = stored
+        connection = sqlite3.connect(path)
+        with connection:
+            connection.execute('ALTER TABLE "gc_adjusted_station" DROP COLUMN "gravity"')
+            connection.execute('UPDATE "gc_project" SET schema_version = 2')
+        connection.close()
+
+        connection = sqlite3.connect(path)
+        report = migrate(connection, path, found=2)
+        columns = {
+            row[1] for row in connection.execute('PRAGMA table_info("gc_adjusted_station")')
+        }
+        connection.close()
+
+        assert report.steps == ["3: gc_adjusted_station gains gravity"]
+        assert "gravity" in columns
+        with open_store(path) as store:
+            solutions = store.read_solutions()
+        stations = [station for solution in solutions for station in solution.adjusted_stations]
+        assert stations and all(station.gravity is None for station in stations)
+
     def test_the_machinery_runs_a_registered_migration(self, stored, monkeypatch):
         """The chain is empty today, so the machinery is exercised with a
         migration registered for the test. Dead code that has never run is not
@@ -605,7 +631,7 @@ class TestVersioning:
 
     def test_a_gap_in_the_chain_is_refused(self, stored, monkeypatch):
         path, *_ = stored
-        monkeypatch.setattr("geocomp.io.store.migrations.SCHEMA_VERSION", 3)
+        monkeypatch.setattr("geocomp.io.store.migrations.SCHEMA_VERSION", SCHEMA_VERSION + 1)
         connection = sqlite3.connect(path)
         with pytest.raises(ValidationError) as caught:
             migrate(connection, path, found=1)

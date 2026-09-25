@@ -20,7 +20,8 @@ from typing import Any
 from geocomp.core.errors import ValidationError
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.position import Position
-from geocomp.core.uncertainty import Covariance, UncertaintyMode
+from geocomp.core.uncertainty import Covariance, Quantity, UncertaintyMode
+from geocomp.core.units import Unit
 from geocomp.core.version import __version__
 
 __all__ = [
@@ -169,7 +170,16 @@ class TestResult:
 
 @dataclass(frozen=True)
 class AdjustedStation:
-    """One station's estimated coordinates and their quality."""
+    """One station's estimated coordinates and their quality.
+
+    **A gravity solution estimates gravity, not coordinates** (``specs/12``
+    section 5). Its stations carry the adjusted value in :attr:`gravity`, in
+    m/s^2, and their :attr:`position` is the location the station was surveyed
+    at, carried through *unadjusted* so the result can be mapped. Putting the
+    gravity value in the position instead -- in its ``up`` slot, which is what
+    every phase before P8 would have done -- is refused by :class:`Position`
+    itself, since that slot is in metres.
+    """
 
     station_id: str
     position: Position
@@ -177,6 +187,16 @@ class AdjustedStation:
     ellipse: ErrorEllipse | None = None
     positional_uncertainty: float | None = None
     correction: tuple[float, float, float] | None = None
+    gravity: Quantity | None = None
+
+    def __post_init__(self) -> None:
+        if self.gravity is not None and self.gravity.unit is not Unit.ACCELERATION:
+            raise ValidationError(
+                "adjusted_gravity_unit",
+                station=self.station_id,
+                received=self.gravity.unit.name,
+                expected=Unit.ACCELERATION.name,
+            )
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -184,6 +204,7 @@ class AdjustedStation:
             "position": self.position.to_dict(),
         }
         for key, value in (
+            ("gravity", self.gravity.to_dict() if self.gravity else None),
             ("covariance", self.covariance.to_dict() if self.covariance else None),
             ("ellipse", self.ellipse.to_dict() if self.ellipse else None),
             ("positional_uncertainty", self.positional_uncertainty),
@@ -205,6 +226,7 @@ class AdjustedStation:
             ellipse=ErrorEllipse.from_dict(ellipse) if ellipse else None,
             positional_uncertainty=payload.get("positional_uncertainty"),
             correction=tuple(correction) if correction else None,  # type: ignore[arg-type]
+            gravity=Quantity.from_dict(payload["gravity"]) if payload.get("gravity") else None,
         )
 
 

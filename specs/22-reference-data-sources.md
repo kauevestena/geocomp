@@ -1,7 +1,8 @@
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 # 22 — Reference data sources
 
-**Status:** Draft. §§2 and 4 are implemented (RD-11, RD-12); §5 has RD-06 data and an unmet accuracy check.
+**Status:** Draft. §§2 and 4 are implemented (RD-11, RD-12); §5 has RD-06, met on closure and repeatability,
+and RD-07, assembled and reproduced (§5.6).
 **Requirements covered:** FR-161, FR-952; the reference datasets RD-02…RD-08 of
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §3.
 **Source:** A search for reference data, prompted by three pieces of work stalling on the same shortage.
@@ -16,8 +17,8 @@
 
 ## 1. Why this document exists
 
-[`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists the reference datasets. Two remain
-*to assemble* (RD-07, RD-08); RD-06 now has repository fixtures but no passing accuracy check (§5).
+[`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists the reference datasets. One remains
+*to assemble* (RD-08); RD-06 is met (§5) and RD-07 is assembled and reproduced (§5.6).
 RD-02, RD-03 and RD-04 carry a standing note that their
 **validation is complete but their citation is not**: they are reference cases built from the operations
 GeoComp performs, not transcriptions of published worked examples, so the project cannot yet say it agrees
@@ -292,7 +293,7 @@ carry files in it: the five networks are vendored as `Network.to_dict()` JSON, p
 `scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
 and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
-## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 and RD-08 still to assemble **[C]**
+## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 assembled **[V]**; RD-08 still to assemble **[C]**
 
 **RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
 environment. The reproducible evidence bundle, integrated into `tests/data/rd06/`, contains two complete
@@ -555,7 +556,8 @@ equivalents elsewhere. Licence terms were not checked.
 > a reference case built from the operations a program performs is not a transcription of a published answer,
 > and only the second can settle whether the program is right.
 
-**RD-07, a gravimetric network with a published solution.**
+**RD-07, a gravimetric network with a published solution.** *Assembled in phase P8a from other sources —
+see §5.6. The candidates below remain unreachable and are kept as leads.*
 [IBGE's Rede Gravimétrica](https://www.ibge.gov.br/geociencias/informacoes-sobre-posicionamento-geodesico/rede-geodesica/16286-rede-gravimetrica.html),
 and **RENEGA**, the national absolute-gravity network (stations at Brasília, Valinhos, Curitiba, Lages, Santa
 Maria, Monte Carmelo). Absolute stations are the useful ones: their values are published with uncertainties
@@ -646,6 +648,54 @@ the check now enforces. The comparison in this section is still run and reported
 build — it is evidence, and evidence does not stop being interesting because it stopped being a
 gate.
 
+### 5.6 RD-07, assembled from what could be reached [V]
+
+**No archive that publishes a gravimetric network was reachable** — IBGE, the BGI, USGS publications, the
+Onsala loading service, Zenodo and NGS all return 403 on CONNECT, re-checked on 25 September 2026. What was
+reachable was `git` to GitHub and PyPI, and through them four references, two of which cannot be committed:
+
+| Reference | What it checks | Where it lives | Result |
+|---|---|---|---|
+| A Scintrex **CG-5 survey** (Djougou, September 2013; Hector & Hinderer 2016, doi:10.1016/j.cageo.2016.03.010), whose file records the firmware's own tide correction for every reading | The Longman transcription | Fetched from GSadjust at `17bb3ca`, digest pinned | **0.60 µGal rms, 1.51 worst** over 2,096 readings printed to 1 µGal |
+| **ETERNA PREDICT 3.4**, Hartmann–Wenzel (1995) catalogue, through pygtide 0.9.1 | Longman's own accuracy, from which the stated model uncertainty is derived | `tests/data/rd07/eterna_hw95.json`, regenerated in CI | **0.76–1.21 µGal rms, 2.0–4.2 worst** |
+| **pyGrav's published least-squares solution** for four days of the CG-5 survey — station values, drifts, a posteriori SD | The network adjustment with jointly estimated drift | Fetched from pyGrav at `fc39609`, digests pinned | Reproduced; see below |
+| **USGS's synthetic surveys** for GSadjust, published with their truth, drift and calibrations | Recovery of a known truth; the two drift treatments; calibration factors of 3, 5 and 10 % | `tests/data/rd07/gsadjust/`, public domain, verbatim | Every station within 3σ; the drift within 2σ |
+
+**Why two are fetched rather than committed.** pyGrav states no licence, and GSadjust's own readme says the
+CG-5 file came from pyGrav, so GSadjust's CC0 dedication cannot cover it. `scripts/check_rd07.py --fetch`
+clones both at the pinned commits and refuses any file whose SHA-256 differs, the way engine CI treats
+`ngs20.atx`; the `reference` workflow runs it. [`tests/data/rd07/PROVENANCE.md`](../tests/data/rd07/PROVENANCE.md)
+records the chain.
+
+**What reproducing pyGrav means.** Its source, read rather than guessed at, solves `(N + S Sᵀ)⁻¹ Aᵀ P l`
+with `S` one on every station — Hwang's datum-free term, added on top of an absolute observation that already
+fixes the datum. It is a unit-weight pseudo-observation that the station values sum to zero, and it moves
+every value slightly: station 1, held at 0 ± 0.001 mGal, is published at −0.0003. GeoComp does not add it.
+So the check has two steps, and both hold on all four days:
+
+| Day | pyGrav's model, transcribed, against the published values | What the printing allows | GeoComp against that model without `S Sᵀ` | GeoComp against published | of which `S Sᵀ` |
+|---|---|---|---|---|---|
+| 2013-09-15 | 0.133 µGal | 0.312 | 4×10⁻¹⁰ | 0.832 | 0.723 |
+| 2013-09-19 | 0.369 | 1.681 | 1×10⁻⁹ | 0.998 | 0.735 |
+| 2013-09-21 | 0.141 | 0.230 | 3×10⁻¹⁰ | 0.895 | 0.826 |
+| 2013-09-23 | 0.176 | 0.390 | 4×10⁻¹⁰ | 0.734 | 0.726 |
+
+"What the printing allows" is computed, not chosen: the published inputs are printed with times to 0.01 day
+— 14.4 minutes — and values and SDs to 0.1 µGal, so they are perturbed within that rounding 400 times and the
+95th percentile of the change is the envelope. The transcription landing inside it is what shows the published
+numbers are understood; GeoComp matching the transcription to 10⁻⁹ µGal is what shows GeoComp computes them.
+
+**Found in the reference, recorded rather than corrected.** pyGrav prints the drift's *variance* in the
+column headed SD. MCGravi and pyGrav both form a degree-*k* drift term as `(t_to − t_from)^k`, which is right
+only at degree 1 ([`12`](./12-module-gravimetry.md) §4.3); the published days use degree 1, so it does not
+touch the comparison.
+
+**What RD-07 still lacks.** A published *calibration-table* example: none was reachable, so the table
+arithmetic is checked against a constructed one and the scale criterion of
+[`12`](./12-module-gravimetry.md) §8 is recorded as not met against a published example. And a network adjusted
+onto *published absolute stations* — IBGE's RENEGA was the candidate — which would check the combination of
+absolute and relative values against someone else's answer rather than against USGS's synthetic truth.
+
 ## 6. Recommended order
 
 1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 34 networks reproduced to 0.05 mm.
@@ -655,4 +705,4 @@ gate.
    in that format, which §4.3 records this corpus as not having.
 3. **Resolve RD-06's measured discrepancy** against the frozen NGS data (§5); RBMC remains another candidate.
 4. **Borrow the round-robin practice** for §5 rather than inventing a comparison protocol.
-5. RD-07 and RD-08 when P8 and the monitoring phase need them.
+5. ~~RD-07 when P8 needs it.~~ **Assembled** — see §5.6. RD-08 when the monitoring phase needs it.

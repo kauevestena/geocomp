@@ -199,3 +199,15 @@ def _setup_heights(connection: sqlite3.Connection) -> None:
     """
     for column in ("instrument_height", "target_height"):
         connection.execute(f'ALTER TABLE "gc_observation" ADD COLUMN "{column}" TEXT')
+
+
+@register(3, "gc_adjusted_station gains gravity")
+def _adjusted_gravity(connection: sqlite3.Connection) -> None:
+    """Carry a gravity solution's adjusted value (specs/12 section 5).
+
+    Before phase P8 a gravity solution could not be written at all -- its value
+    had nowhere to go but a position's ``up`` slot, which refuses an
+    acceleration -- so no schema 2 store holds one, and the column is added
+    empty. As with the setup heights, nothing is back-filled.
+    """
+    connection.execute('ALTER TABLE "gc_adjusted_station" ADD COLUMN "gravity" TEXT')

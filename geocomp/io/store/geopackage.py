@@ -62,7 +62,7 @@ from geocomp.core.models.solution import (
     SolutionKind,
     TestResult,
 )
-from geocomp.core.uncertainty import Covariance, Strategy, UncertaintyMode
+from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import Unit
 from geocomp.core.version import __version__
 from geocomp.io.store.migrations import MigrationReport, check_version, migrate
@@ -574,6 +574,7 @@ class GeoPackageStore:
                     "correction": _dumps(
                         list(station.correction) if station.correction else None
                     ),
+                    "gravity": _dumps(station.gravity.to_dict() if station.gravity else None),
                     "geom": _point_blob(plan[0], plan[1], srs_id) if plan else None,
                 },
             )
@@ -950,6 +951,9 @@ class GeoPackageStore:
                 positional_uncertainty=entry["positional_uncertainty"],
                 correction=tuple(_loads(entry["correction"]))
                 if entry["correction"]
+                else None,
+                gravity=Quantity.from_dict(_loads(entry["gravity"]))
+                if entry["gravity"]
                 else None,
             )
             for entry in self._rows(

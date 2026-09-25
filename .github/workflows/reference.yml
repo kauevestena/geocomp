@@ -22,6 +22,12 @@ on:
       - "scripts/check_rd06.py"
       - ".gitattributes"
       - "scripts/check_krumm_corpus.py"
+      - "tests/data/rd07/**"
+      - "scripts/check_rd07.py"
+      - "scripts/check_tide_reference.py"
+      - "tests/test_rd07.py"
+      - "geocomp/core/techniques/gravimetry/**"
+      - "geocomp/core/instruments/gravimeter.py"
       - ".github/workflows/reference.yml"
   pull_request:
     paths:
@@ -30,6 +36,12 @@ on:
       - "scripts/check_rd06.py"
       - ".gitattributes"
       - "scripts/check_krumm_corpus.py"
+      - "tests/data/rd07/**"
+      - "scripts/check_rd07.py"
+      - "scripts/check_tide_reference.py"
+      - "tests/test_rd07.py"
+      - "geocomp/core/techniques/gravimetry/**"
+      - "geocomp/core/instruments/gravimeter.py"
       - ".github/workflows/reference.yml"
   # Upstream cannot change under a pinned commit, but a rewritten tag or a
   # vanished repository can, and finding that out at release time is worse.
@@ -63,3 +75,28 @@ jobs:
       # the engine workflow separately enforces the live accuracy assertion.
       - name: RD-06 sources and official-coordinate transcription must match
         run: python3 scripts/check_rd06.py --verify-inputs
+
+  # RD-07 (specs/22 section 5.6). Two of its references cannot be committed --
+  # pyGrav states no licence, and the CG-5 survey came from it -- so they are
+  # fetched here, at pinned commits, and refused if a digest differs. The
+  # third is GeoComp's own ETERNA series, regenerated to prove it still is.
+  rd07:
+    name: gravimetry reproduces RD-07
+    runs-on: ubuntu-latest
+    env:
+      PYGTIDE_VERSION: "0.9.1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the tide reference and the test tooling
+        run: python -m pip install --upgrade pip pytest numpy openpyxl "pygtide==$PYGTIDE_VERSION"
+      - name: The committed ETERNA series is still ETERNA's
+        run: python scripts/check_tide_reference.py
+      - name: Fetch the CG-5 survey and pyGrav's solution, and compare
+        run: python scripts/check_rd07.py --fetch "$RUNNER_TEMP/rd07"
+      - name: RD-07 tests against the fetched references
+        env:
+          GEOCOMP_RD07_DATA: ${{ runner.temp }}/rd07
+        run: python -m pytest -q -rs tests/test_rd07.py tests/test_gravimetry_tides.py tests/test_gravimetry_network.py
