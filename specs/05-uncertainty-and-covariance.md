@@ -95,6 +95,7 @@ fins práticos". GeoComp provides these strategies, each named and recorded:
 | `NUMERIC_DERIVATIVE` | Obtains a derivative by finite differences rather than analytically | No closed-form Jacobian is available |
 | `RECORDED_PRECISION` | Takes σ from how many digits were written: a value recorded as `32.4` lies in `[32.35, 32.45)`, so σ = `0.05 / √3` | Nothing better exists **and** the quantity is not load-bearing |
 | `ROUNDING_CONDITIONED` | Moves a covariance *read from printed text* to the nearest positive semi-definite matrix, by less than its printed digits can resolve | A matrix with a near-zero eigenvalue came back marginally indefinite because the file could not carry the digits that kept it non-negative |
+| `MODEL_ASSUMED` | Applies a functional model the data could not test — a drift line through exactly as many base readings as it has parameters fits them perfectly whatever the drift did | Added in phase P8; a gravimeter drift pre-corrected without redundancy ([`12`](./12-module-gravimetry.md) §4.3) |
 
 **`RECORDED_PRECISION` is deliberately narrow** (added in phase P4). It is not an exception to *GeoComp does
 not invent a sigma*: the information is genuinely in the file, in the number of digits the observer chose to
@@ -131,6 +132,12 @@ the result approximate.
 The reason is not pedantry. A professional deliverable that presents a heuristic figure as a rigorously
 propagated one misrepresents the quality of the survey — and monitoring decisions are made on exactly these
 numbers.
+
+**A solution's mode is derived, not defaulted** (phase P8). `to_solution` combines the modes and strategies of
+every observation adjusted, and writes them onto the solution, each adjusted value and every covariance block
+it produces. Until then nothing set it: every solution of every technique defaulted to `RIGOROUS`, including
+one weighted entirely by a nominal precision, and a report of it could name no strategy. Found while building
+FR-703, which depends on it; `tests/test_gravimetry_is_levelling.py` asserts it on a levelling network.
 
 ---
 

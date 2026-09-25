@@ -696,6 +696,76 @@ original plan assumed impossible.
 with the true station gravity values. The datum defect of a difference-only network is detected as 1.
 Uncheckable observations are flagged. Absolute values enter weighted, not fixed.
 
+**Split, at the maintainer's decision of 25 September 2026**, as P7 was: **P8a** the computation, **P8b** the
+surface, so the correctness work is reviewable apart from the menu wiring. **Ocean loading moves to P12** at
+the same decision (below).
+
+### P8a — the computation
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| Gravity's own carrier: `ConstraintSpec.gravity`, `AdjustedStation.gravity`, store schema 3 | `core/models/`, `io/store/` |
+| Gravimeter profiles: calibration table, factor with uncertainty, nominal precision, applied-once tide (FR-061, FR-069) | `core/instruments/gravimeter.py` |
+| The solid-Earth tide, Longman (1959), accuracy measured against ETERNA and a CG-5's firmware (FR-701) | `core/techniques/gravimetry/tides.py` |
+| Reduction of a reading: scale, tide, and to the mark (FR-701, FR-204) | `core/techniques/gravimetry/readings.py` |
+| Drift jointly estimated as a per-session polynomial, or pre-corrected from a base (FR-701, FR-702) | `core/techniques/gravimetry/drift.py`, `core/adjustment/equations.py` |
+| Occupations, differences with their exact covariance, absolute values weighted, the result (FR-700, FR-703) | `core/techniques/gravimetry/network.py` |
+| RD-07, assembled | `tests/data/rd07/`, `scripts/check_rd07.py`, `scripts/check_tide_reference.py` |
+
+**The wart P2 recorded was worse than recorded.** A station's gravity travelled in the `up` slot of a
+`Position`, which enforces metres; `tests/test_gravimetry_is_levelling.py` asserted it "so the day it is fixed
+this fails". What it did not say, because it only ever called `adjust()`, is that **no gravity solution could be
+written at all** — `to_solution` handed `Position` an acceleration and `Position` refused it.
+
+| P8a exit criterion (`specs/12` §8) | State |
+|---|---|
+| Corrections reproduce RD-07 | **Tide: met** — Longman against a CG-5's firmware, 0.60 µGal rms and 1.51 at worst over 2,096 readings printed to 1 µGal. **Drift and adjustment: met** — pyGrav's published solution reproduced on four days, within the rounding of its printed inputs once its datum-free `S Sᵀ` term is accounted for. **Scale table: not met against a published example** — none was reachable ([`22`](./22-reference-data-sources.md) §5.6) |
+| A synthetic linear drift is recovered within its uncertainty, with the true station values | **met** — USGS's surveys with published truth: every station within 3σ, the drift within 2σ, calibrations of 3, 5 and 10 % |
+| Pre-corrected and joint drift agree where the drift is linear and part where it is not | **met** — under 1 µGal against 3.7, and up to 245 µGal at every station; see the finding below |
+| The datum defect of a difference-only network is detected as 1 | **met**, and reported with what removed it |
+| Absolute values enter weighted, not fixed | **met** — two conflicting absolute values both move and both carry a residual |
+| Uncheckable observations are flagged | **met in the result, by name**; showing them prominently is P8b's |
+| Values stored in SI | **met** — a GeoPackage round trip returns the adjusted gravity bit for bit |
+| Every output carries an uncertainty and a mode (FR-703) | **met** |
+
+**Found, and kept.**
+
+- **Pre-correction with its drift estimate's covariance carried in full *is* the joint estimate**, to
+  3×10⁻¹⁰ µGal: the base readings' residuals carry no information about the station values. What makes field
+  pre-correction worse is discarding that covariance. The two findings are asserted, and `specs/12` §4.3 now
+  says which pre-correction criterion 3 is about.
+- **There is no scheme where pre-correction works and joint estimation does not** — the base readings a
+  pre-correction needs already make the joint design full rank. The "automatic" choice between them was
+  removed rather than kept as dead code, and a property test over every visiting order asserts the
+  implication.
+- **No solution had ever been labelled approximate.** `Solution.uncertainty_mode` was set by nothing, so every
+  solution of every technique claimed to be rigorous, including one weighted entirely by a brochure's
+  precision — against FR-203. `to_solution` now derives it from the observations; nothing else changed.
+- **A station held in height seeded its gravity with a height in metres** — `approximate_values` read any
+  constraint's `up` for a gravity network too.
+- **MCGravi and pyGrav form a degree-*k* drift as `(Δt)^k`**, right only at degree 1, and pyGrav prints the
+  drift's variance under "SD". Neither touches the degree-1 comparison.
+
+**Not built in P8a, named so the ticks above do not imply them.** The two algorithms, the Gravimeter settings
+section, profile management and the result layers — P8b. Scale estimated as a parameter
+([`12`](./12-module-gravimetry.md) §5). Ocean loading — P12. A zero-tide conversion: the result notes a
+mismatch and does not convert.
+
+### P8b — the surface
+
+**Delivers.** The Gravimetry menu of [`12`](./12-module-gravimetry.md) §2 — *Pre-processing (scale, tide,
+drift)* and *Gravimetric network adjustment* — as Processing algorithms; a reader for Scintrex CG-5 and CG-6
+files, whose header states the location, GMT offset and tide option the reduction needs; the Gravimeter
+section of Global Settings (tidal model and factor, drift model and degree, default weighting, display unit);
+gravimeter profile management; gravity stations and differences as result layers, uncheckable observations
+shown prominently; the report; gravity in the CSV and XLSX exports, which today would drop it.
+
+**Exit.** Both algorithms run from the menu and the toolbox on a CG-5 file and produce the P8a result as
+layers and a report. Values display in the configured unit and are stored in SI. Every `gravimeter.*`
+setting is read by the computation.
+
 ---
 
 ## P9 — Integration
@@ -784,6 +854,12 @@ and change no result, because every algorithm declares hard-coded Processing par
 display settings beside it need `core/units.py`'s formatting half, which until the review had no caller
 anywhere and two defects in it. `tests/structural/test_settings_are_honoured.py` holds the list and fails
 on any new setting added without a consumer.
+
+**Also delivers, moved from P8 at the maintainer's decision of 25 September 2026: ocean loading on gravity**
+([`12`](./12-module-gravimetry.md) §4.2). It needs per-station coefficients from the Onsala loading service,
+unreachable from the development environment, and nothing reachable could check an implementation; written
+and unverified it would be a claim rather than a feature. If the service is still unreachable when P12 runs,
+the same rule applies again — it moves, and the move is recorded.
 
 **Closes.** FR-902, FR-931
 

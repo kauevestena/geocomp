@@ -351,3 +351,52 @@ class TestP8InheritsP4sMachinery:
         with pytest.raises(ValidationError) as caught:
             connected_components(network, Frame.PLANE_2D)
         assert caught.value.code == "validation.not_a_difference_frame"
+
+
+class TestTheSolutionSaysWhatItRestsOn:
+    """FR-203, for every technique: found in phase P8, where FR-703 depends on it.
+
+    ``Solution.uncertainty_mode`` was set by nothing, so every solution claimed
+    to be rigorous -- a levelling network weighted by a level's brochure
+    precision included -- and a report of it could name no strategy. The fix is
+    in ``to_solution`` and so reaches every technique; levelling is the case
+    tested here because it is the one this file already builds both ways.
+    """
+
+    @staticmethod
+    def _solution(network, frame):
+        from geocomp.core.adjustment.least_squares import to_solution
+
+        run = adjust(network, AdjustmentOptions(frame=frame, datum=DatumDefinition.FIXED))
+        return to_solution(
+            run,
+            network,
+            solution_id="s",
+            crs="EPSG:31982",
+            epoch=Epoch.from_decimal_year(2026.0),
+            datum=DatumDefinition.FIXED,
+        )
+
+    def test_rigorous_observations_give_a_rigorous_solution(self, levelling):
+        from geocomp.core.uncertainty import UncertaintyMode
+
+        solution = self._solution(levelling, Frame.HEIGHT_1D)
+        assert solution.uncertainty_mode is UncertaintyMode.RIGOROUS
+
+    def test_a_nominal_precision_makes_it_approximate_and_is_named(self):
+        import dataclasses
+
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+
+        network = _network(ObservationType.HEIGHT_DIFFERENCE, Unit.METRE, "nominal")
+        for oid, observation in list(network.observations.items()):
+            (value,) = observation.values
+            network.observations[oid] = dataclasses.replace(
+                observation, values=(value.with_strategy(Strategy.NOMINAL_PRECISION),)
+            )
+        solution = self._solution(network, Frame.HEIGHT_1D)
+        assert solution.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        for station in solution.adjusted_stations:
+            assert Strategy.NOMINAL_PRECISION in station.covariance.strategies
+            assert station.position.values[2].mode is UncertaintyMode.APPROXIMATE
+        assert Strategy.NOMINAL_PRECISION in solution.parameter_covariance.strategies

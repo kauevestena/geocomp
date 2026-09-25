@@ -43,7 +43,7 @@ from geocomp.core.models import (
     SolutionKind,
 )
 from geocomp.core.statistics.ellipses import error_ellipse
-from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode, combine_modes
 from geocomp.core.units import Unit, circular_mean
 
 __all__ = [
@@ -391,7 +391,13 @@ def _from_position(station, component: str, frame: Frame) -> float:
 
 
 def _adjusted_gravity(
-    network: Network, run: AdjustmentRun, station_id: str, column: int, units: list[Unit]
+    network: Network,
+    run: AdjustmentRun,
+    station_id: str,
+    column: int,
+    units: list[Unit],
+    mode: UncertaintyMode,
+    strategies: frozenset[Strategy],
 ) -> AdjustedStation:
     """One station of a gravity solution: its adjusted gravity at its location.
 
@@ -415,6 +421,8 @@ def _adjusted_gravity(
         value=float(run.parameters[column]),
         variance=float(covariance[column, column]),
         unit=units[column],
+        mode=mode,
+        strategies=strategies,
     )
     return AdjustedStation(
         station_id=station_id,
@@ -423,6 +431,8 @@ def _adjusted_gravity(
             matrix=covariance[np.ix_([column], [column])],
             labels=(f"{station_id}.g",),
             units=(units[column],),
+            mode=mode,
+            strategies=strategies,
         ),
         gravity=gravity,
     )
@@ -542,6 +552,13 @@ def to_solution(
     covariance = run.parameter_covariance
     units = run.layout.component_units()
     adjusted: list[AdjustedStation] = []
+    # FR-203: a result computed from any approximate input is approximate, and
+    # says which approximations it rests on. Until phase P8 nothing set this, so
+    # every solution claimed to be rigorous -- including one weighted entirely
+    # by a brochure's precision -- and a report of it could name no strategy.
+    mode, strategies = combine_modes(
+        *(value for observation in run.observations for value in observation.values)
+    )
 
     for station_id in run.layout.station_ids():
         columns = run.layout.station_columns(station_id)
@@ -549,7 +566,9 @@ def to_solution(
             continue
 
         if run.layout.frame is Frame.GRAVITY_1D:
-            adjusted.append(_adjusted_gravity(network, run, station_id, columns["g"], units))
+            adjusted.append(
+                _adjusted_gravity(network, run, station_id, columns["g"], units, mode, strategies)
+            )
             continue
 
         # Each frame component goes into *its own* slot of the position triple,
@@ -570,6 +589,8 @@ def to_solution(
                     value=float(run.parameters[column]),
                     variance=float(covariance[column, column]),
                     unit=units[column],
+                    mode=mode,
+                    strategies=strategies,
                 )
 
         indices = [columns[c] for c in run.layout.frame.components if c in columns]
@@ -579,6 +600,8 @@ def to_solution(
                 f"{station_id}.{c}" for c in run.layout.frame.components if c in columns
             ),
             units=tuple(units[i] for i in indices),
+            mode=mode,
+            strategies=strategies,
         )
 
         # The ellipse is part of the answer, not an optional extra: FR-254 asks
@@ -633,11 +656,14 @@ def to_solution(
         crs=crs,
         epoch=epoch,
         datum_definition=datum,
+        uncertainty_mode=mode,
         adjusted_stations=tuple(adjusted),
         parameter_covariance=Covariance(
             matrix=covariance,
             labels=tuple(run.layout.labels()),
             units=tuple(units),
+            mode=mode,
+            strategies=strategies,
         ),
         observation_results=tuple(observation_results or ()),
         statistics=statistics,
