@@ -726,7 +726,7 @@ written at all** — `to_solution` handed `Position` an acceleration and `Positi
 | Pre-corrected and joint drift agree where the drift is linear and part where it is not | **met** — under 1 µGal against 3.7, and up to 245 µGal at every station; see the finding below |
 | The datum defect of a difference-only network is detected as 1 | **met**, and reported with what removed it |
 | Absolute values enter weighted, not fixed | **met** — two conflicting absolute values both move and both carry a residual |
-| Uncheckable observations are flagged | **met in the result, by name**; showing them prominently is P8b's |
+| Uncheckable observations are flagged | **met in the result, by name**; shown prominently in P8b |
 | Values stored in SI | **met** — a GeoPackage round trip returns the adjusted gravity bit for bit |
 | Every output carries an uncertainty and a mode (FR-703) | **met** |
 
@@ -765,6 +765,54 @@ shown prominently; the report; gravity in the CSV and XLSX exports, which today 
 **Exit.** Both algorithms run from the menu and the toolbox on a CG-5 file and produce the P8a result as
 layers and a report. Values display in the configured unit and are stored in SI. Every `gravimeter.*`
 setting is read by the computation.
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| *Pre-processing (scale, tide, drift)* and *Gravimetric network adjustment*, in the Gravimetry menu (FR-700…FR-702) | `algorithms/gravimetry/` |
+| Readers for Scintrex CG-5 and ZLS Burris exports and a plain CSV; a CG-5's clock settled by its own tide column (FR-160, FR-701) | `io/gravimeter_files.py` |
+| The Gravimeter settings: tide model and factor, drift treatment and degree, a precision floor as the default weighting, the display unit — all six read | `core/settings_def.py`, [`12`](./12-module-gravimetry.md) §6 |
+| Gravity stations and gravity differences as styled layers, uncheckable ones as prominent as blunder candidates (FR-900, FR-904) | `layers/builders.py`, `resources/styles/gravity_*.qml` |
+| The report, in the network algorithm and in the shared adjustment report, in the display unit | `algorithms/gravimetry/network_adjust.py`, `reports/adjustment.py` |
+| Gravity in the CSV and XLSX exports | `io/tabular.py` |
+| Stations held by name: a known gravity without a sigma | `core/techniques/gravimetry/network.py` |
+
+| P8b exit criterion | State |
+|---|---|
+| Both algorithms run from the menu and the toolbox on a CG-5 file | **met** — registered in the Gravimetry menu in order; tier 3 runs the chain on a CG-5 export built from the format, and the `reference` workflow runs the production reader, the reduction and the network on RD-07's real survey (2,096 readings, four days) |
+| …and produce the P8a result as layers and a report | **met** — USGS's Test 2 through both algorithms recovers every station within 3σ of its published truth and the 0.01 mGal/h drift (0.0101 ± 0.0014 from the base, 0.0092 ± 0.0011 joint) |
+| Values display in the configured unit and are stored in SI | **met** — every table, CSV, layer and report names its unit; the documents, the solution and the layers' `gravity_si` are m·s⁻² |
+| Every `gravimeter.*` setting is read by the computation | **met** — `tests/structural/test_settings_are_honoured.py` finds all six, and a tier-3 test changes two and sees the algorithm's defaults follow |
+
+**Found.**
+
+- **The residual layer drew every passing observation as *not testable*** — in every adjustment since the
+  layers were built. The core recorded a w-test only for blunder candidates and uncheckable rows, and the
+  layer read "no test recorded" as "uncheckable"; its tier-3 test checked that the decisions were *among*
+  the three categories, which a layer of one category satisfies. The core now records every test it ran, and
+  the test asserts a passing observation appears ([`19`](./19-visualization.md) §1).
+- **The provenance beside an approximate solution still said `RIGOROUS`** — the one place P8a's fix of the
+  solution's mode had not reached ([`05`](./05-uncertainty-and-covariance.md) §2).
+- **36 of the 61 settings cannot be edited in the Settings window** — every number, path, string and CRS
+  shows *(not editable in this version)*. Two of the six gravimeter settings are among them. Not fixed here;
+  recorded in [`15`](./15-ui-menu-and-settings.md) §2.3.
+- **The message-template check read only `core`**, so the readers' templates in `io` looked stale; and the
+  return-type check judged `tuple[X, ...]` by its ellipsis. Both checks were widened rather than worked around.
+- A hand-written profile library missing a field ended in a `KeyError` traceback; it now names the field.
+
+**Not built in P8b, named so the ticks above do not imply them.**
+
+- **A CG-6 reader.** No CG-6 export was reachable to write one against; a CG-6 survey reads through the CSV
+  ([`12`](./12-module-gravimetry.md) §3.1).
+- **A profile editor** — for gravimeters as for every other instrument, profiles are library documents
+  (FR-069 import and export are the document itself); an editor is P12's settings work.
+- **Real-survey precision.** RD-07's survey through the algorithms' path lands within 6 µGal of pyGrav's
+  published stations, but on one linear drift a day against pyGrav's eight hand-split loops, and the global
+  test fails on three of the four days: one drift a day is too simple for that instrument. Sessions come from
+  the file's dates; splitting them by loop is not offered yet.
+- Carried from P8a: the scale table against a published example, scale as a parameter, ocean loading (P12),
+  a zero-tide conversion.
 
 ---
 

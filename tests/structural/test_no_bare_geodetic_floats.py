@@ -537,7 +537,11 @@ class TestTechniqueModuleReturns:
 
         origin = typing.get_origin(annotation)
         if origin is not None:
-            arguments = [a for a in typing.get_args(annotation) if a is not type(None)]
+            # `tuple[X, ...]` is judged by X: the ellipsis is the tuple's length,
+            # not a member type (first returned in phase P8b, by drift_previews).
+            arguments = [
+                a for a in typing.get_args(annotation) if a is not type(None) and a is not Ellipsis
+            ]
             if not arguments:
                 return True
             return all(cls._is_acceptable(argument, bearing) for argument in arguments)

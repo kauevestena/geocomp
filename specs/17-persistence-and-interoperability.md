@@ -147,7 +147,9 @@ constant values applied to all rows; and rows to skip.
 Import reports per-record errors without aborting (FR-166), presents them in a table with row numbers, and
 leaves the target unchanged if the user cancels.
 
-Export to CSV and `.xlsx` covers stations, observations, adjusted results, residuals and statistics.
+Export to CSV and `.xlsx` covers stations, observations, adjusted results, residuals and statistics. The
+adjusted-results sheet carries a gravity solution's `gravity` and `gravity_std_dev`, in m·s⁻² (phase P8b);
+before that it wrote a station's position alone, so a gravity solution's gravity was dropped on export.
 `.xlsx` requires `openpyxl`; where it is unavailable, the feature degrades to CSV with a clear message
 ([`03-architecture.md`](./03-architecture.md) §3.7).
 

@@ -20,12 +20,21 @@ the standard this module is held to.
 | Residual vectors | Line | Residual, standardised residual, w-test decision, redundancy number |
 | Observations | Line | Type, value, uncertainty, status, residual |
 | GNSS baselines | Line | Components, covariance, solution status, quality indicators |
+| Gravity stations | Point | Gravity and its sigma in the display unit and in SI, how it was determined (held, absolute, relative), the w-test's decision on its absolute value |
+| Gravity differences | Line | Difference, sigma, residual, standardised residual, redundancy, MDB, w-test decision; uncheckable drawn as prominently as a blunder candidate |
 | Displacement vectors | Line | Displacement, covariance, significance decision, epochs compared |
 | Reliability | Point / Line | MDB, external reliability, uncheckable flag |
 | Planned network (pre-analysis) | Point / Line | Expected ellipses, expected reliability |
 
 All arrive **styled and immediately interpretable** (FR-905). A user who runs an adjustment sees the result;
 they do not then style eight layers by hand.
+
+**A passing observation carries its w-test (phase P8b).** Until then the adjustment recorded a w-test only for
+blunder candidates and uncheckable rows, so a row that passed looked exactly like one never tested — and the
+residual layer drew **every passing observation as *not testable***. The categories the style promised were
+there; the one most observations belong to never appeared. The core now records the test for every row it
+tested, and a result that records none — an engine's, which GeoComp did not test — says so with an empty
+decision rather than claiming a redundancy nobody computed.
 
 ## 2. Styling (FR-904)
 
@@ -108,7 +117,9 @@ quality map — as QGIS layout templates the user can adapt.
 
 Sections: identification and provenance; input summary (stations, observations by type, constraints);
 parameters and their effective values *with the scope each came from* (FR-068); results (adjusted
-coordinates with uncertainties); statistics (variance factors, degrees of freedom, global test with its
+coordinates with uncertainties — or, for a gravity solution, adjusted gravity in the display unit, with its
+residuals, MDB and external effect in that unit too, since six decimals of m·s⁻² print them all as zero);
+statistics (variance factors, degrees of freedom, global test with its
 critical values and decision); per-observation results (residuals, standardised residuals, redundancy,
 w-test, MDB); reliability summary including uncheckable observations; error ellipses; maps; and a software
 and version record.

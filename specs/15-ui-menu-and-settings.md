@@ -234,6 +234,13 @@ practice: supplying `file-rcvantfile` without also setting `pos1-posopt2` loads 
 `rnx2rtkp` then ignores, which is the quietest possible way to believe a run is calibrated. All three keys
 are written together.
 | **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
+
+**What P8b declared.** Six settings — tide model, gravimetric factor, drift treatment, drift degree, a reading
+precision floor (the section's default weighting) and the display unit — **all six read by the computation**,
+each as the default of the algorithm parameter of the same meaning
+([`12-module-gravimetry.md`](./12-module-gravimetry.md) §6 has the table). Gravimeter profiles are library
+documents, like level profiles, not settings. Two of the six are numbers, which the window cannot yet edit:
+see §2.3.
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
 | **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
 | **Paths & engines** | DynAdjust and RTKLIB executable locations, engine installation and update, working directories, report templates | FR-066, FR-300 |
@@ -310,6 +317,17 @@ nothing reads and holds the current 36 as an explicit list with the phase that o
 **The wiring is assigned to P12**, whose deliverables already cover this document. It is not a small change:
 each algorithm must resolve its parameter defaults through the settings service rather than declaring
 literals, and `specs/16` §5's Basic/Advanced identity check has to keep holding across the change.
+
+#### Found in P8b: the window edits choices, switches and whole numbers only
+
+`gui/settings_dialog.py` builds an editor for three types — a list, a check box, an integer — and shows every
+other setting as *(not editable in this version)*. That is **36 of the 61 declared settings**: every
+floating-point one (26), every path (4), string (3) and directory (2), and the CRS. They resolve correctly and
+a run can override each through its algorithm parameter, but none can be set globally, or per project, from
+the window that exists to set them — the gravimetric factor and the precision floor among them, and GNSS's
+antenna file and product directory. It predates P8b, affects every section, and is not fixed there: the
+editors belong with P12's settings work, and the GNSS paths need a file picker that is its own piece of
+interface. It is recorded here so the settings tables above are not read as editable.
 
 ---
 

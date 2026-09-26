@@ -62,6 +62,7 @@ from geocomp.core.models import (
     Cluster,
     ClusterKind,
     ConstraintMode,
+    ConstraintSpec,
     CoordinateSystem,
     DatumDefinition,
     Epoch,
@@ -70,6 +71,7 @@ from geocomp.core.models import (
     Observation,
     ObservationType,
     Position,
+    Provenance,
     Solution,
     Station,
 )
@@ -97,6 +99,7 @@ from geocomp.core.units import Unit
 __all__ = [
     "AbsoluteGravity",
     "DatumReport",
+    "DriftPreview",
     "GravityNetwork",
     "GravityNetworkResult",
     "Occupation",
@@ -105,6 +108,7 @@ __all__ = [
     "adjust_gravity_network",
     "build_gravity_network",
     "compare_treatments",
+    "drift_previews",
     "group_occupations",
 ]
 
@@ -259,6 +263,7 @@ def build_gravity_network(
     profiles: ProfileLibrary,
     *,
     absolutes: tuple[AbsoluteGravity, ...] | list[AbsoluteGravity] = (),
+    held: dict[str, Quantity] | None = None,
     drift: DriftOptions | None = None,
     stations: dict[str, Station] | None = None,
     network_id: str = "gravity",
@@ -271,6 +276,9 @@ def build_gravity_network(
         reduced: From :func:`~geocomp.core.techniques.gravimetry.readings.reduce_readings`.
         profiles: For each instrument's calibration factor.
         absolutes: Absolute determinations, entering weighted.
+        held: Stations whose gravity is held exactly, m/s^2 -- a datum
+            chosen, not measured, so the result's uncertainties are relative
+            to it. The station keeps the location its readings give it.
         drift: See :class:`~geocomp.core.techniques.gravimetry.drift.DriftOptions`.
         stations: Stations to use, with their locations and any gravity
             constraints. Stations not given are created at the location their
@@ -291,7 +299,7 @@ def build_gravity_network(
         sessions.setdefault(occupation.session, []).append(occupation)
 
     network = Network(id=network_id, crs=crs)
-    for station in _stations(reduced, occupations, absolutes, stations, crs):
+    for station in _stations(reduced, occupations, absolutes, stations, crs, held or {}):
         network.add_station(station)
 
     reports: dict[str, SessionReport] = {}
@@ -460,7 +468,11 @@ def _precorrected(
                 origin=base,
                 target=visit.station,
                 weights=weights,
-                meta={"drift_treatment": DriftTreatment.PRE_CORRECTED.value, "occupations": (visit.id,)},
+                meta={
+                    "drift_treatment": DriftTreatment.PRE_CORRECTED.value,
+                    "session": session,
+                    "occupations": (visit.id,),
+                },
                 strategies=strategies,
             )
         )
@@ -581,15 +593,23 @@ def _stations(
     absolutes,
     given: dict[str, Station] | None,
     crs: str,
+    held: dict[str, Quantity],
 ) -> list[Station]:
     names = {o.station for o in occupations} | {a.station for a in absolutes}
     given = given or {}
-    unknown = sorted(set(given) - names)
+    unknown = sorted((set(given) | set(held)) - names)
     if unknown:
         raise ValidationError(
             "gravity_station_not_observed",
             received=unknown,
             expected="stations that at least one reading or absolute value refers to",
+        )
+    both = sorted(set(given) & set(held))
+    if both:
+        raise ValidationError(
+            "gravity_station_held_twice",
+            received=both,
+            expected="each station either given with its own constraint or held here, not both",
         )
     located: dict[str, Position] = {}
     for item in reduced:
@@ -606,7 +626,22 @@ def _stations(
             crs=crs,
             height_type=HeightType.ELLIPSOIDAL,
         )
-    return [given.get(name) or Station(id=name, approx_position=located.get(name)) for name in sorted(names)]
+    built = []
+    for name in sorted(names):
+        if name in given:
+            built.append(given[name])
+            continue
+        constraint = (
+            ConstraintSpec(
+                mode=ConstraintMode.FIXED,
+                components=frozenset({GRAVITY_COMPONENT}),
+                gravity=held[name],
+            )
+            if name in held
+            else ConstraintSpec()
+        )
+        built.append(Station(id=name, approx_position=located.get(name), constraint=constraint))
+    return built
 
 
 def _notes(absolutes, reduced: list[ReducedReading]) -> list[str]:
@@ -626,6 +661,70 @@ def _notes(absolutes, reduced: list[ReducedReading]) -> list[str]:
             "to refer to the mark"
         )
     return notes
+
+
+@dataclass(frozen=True)
+class DriftPreview:
+    """What one session can say about its drift before any adjustment.
+
+    Attributes:
+        estimable: Whether the session's occupations determine its drift
+            jointly -- something re-occupied at enough distinct times.
+        base_station: The station a pre-correction would fit to: the most
+            occupied, the earliest breaking a tie, unless one was named.
+        base_occupations: How often that station was read.
+        estimate: The drift fitted to the base's readings, when there are
+            enough of them; ``None`` otherwise. A preview, not the answer: the
+            joint estimate uses every re-occupation, not only the base's.
+    """
+
+    session: str
+    instrument: str
+    occupations: int
+    estimable: bool
+    base_station: str
+    base_occupations: int
+    estimate: DriftEstimate | None
+
+
+def drift_previews(
+    reduced: list[ReducedReading], options: DriftOptions | None = None, *, confidence: float = 0.95
+) -> tuple[DriftPreview, ...]:
+    """Each session's drift as its base readings show it (``specs/12`` section 4.3).
+
+    What *Pre-processing* reports under "drift": whether each session can be
+    estimated jointly, and the drift a base-station fit gives it. The network
+    adjustment then treats the drift as the options say; nothing here is
+    applied to the readings.
+    """
+    options = options or DriftOptions()
+    sessions: dict[str, list[Occupation]] = {}
+    for occupation in group_occupations(reduced):
+        sessions.setdefault(occupation.session, []).append(occupation)
+    previews = []
+    for session in sorted(sessions):
+        visits = sessions[session]
+        reference = visits[0].instant
+        elapsed = [(v.instant - reference).total_seconds() for v in visits]
+        stations = [v.station for v in visits]
+        base = _base_station(session, stations, options)
+        count = stations.count(base)
+        estimate = None
+        if count >= options.degree + 1:
+            report, _ = _precorrected(session, visits, elapsed, base, options, confidence)
+            estimate = report.precorrection
+        previews.append(
+            DriftPreview(
+                session=session,
+                instrument=visits[0].instrument,
+                occupations=len(visits),
+                estimable=drift_is_estimable(stations, elapsed, options.degree, options.time_scale),
+                base_station=base,
+                base_occupations=count,
+                estimate=estimate,
+            )
+        )
+    return tuple(previews)
 
 
 @dataclass(frozen=True)
@@ -693,6 +792,7 @@ def adjust_gravity_network(
     beta: float = DEFAULT_BETA,
     variance_factor_apriori: float = 1.0,
     solution_id: str = "gravity-adjustment",
+    provenance: Provenance | None = None,
 ) -> GravityNetworkResult:
     """Adjust, test and report a gravity network (FR-700, FR-702, FR-250..FR-253)."""
     network = built.network
@@ -748,6 +848,7 @@ def adjust_gravity_network(
         observation_results=results,
         global_test=test,
         confidence=confidence,
+        provenance=provenance,
     )
 
     drift = {

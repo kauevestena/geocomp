@@ -28,6 +28,7 @@ on:
       - "tests/test_rd07.py"
       - "geocomp/core/techniques/gravimetry/**"
       - "geocomp/core/instruments/gravimeter.py"
+      - "geocomp/io/gravimeter_files.py"
       - ".github/workflows/reference.yml"
   pull_request:
     paths:
@@ -42,6 +43,7 @@ on:
       - "tests/test_rd07.py"
       - "geocomp/core/techniques/gravimetry/**"
       - "geocomp/core/instruments/gravimeter.py"
+      - "geocomp/io/gravimeter_files.py"
       - ".github/workflows/reference.yml"
   # Upstream cannot change under a pinned commit, but a rewritten tag or a
   # vanished repository can, and finding that out at release time is worse.

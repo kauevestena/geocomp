@@ -1191,6 +1191,10 @@
             <translation>Coordenadas ajustadas</translation>
         </message>
         <message>
+            <source>Adjusted gravity</source>
+            <translation>Gravidade ajustada</translation>
+        </message>
+        <message>
             <source>Adjusted stations</source>
             <translation>Estações ajustadas</translation>
         </message>
@@ -1323,6 +1327,10 @@
             <translation>Efeito externo</translation>
         </message>
         <message>
+            <source>External effect (%1)</source>
+            <translation>Efeito externo (%1)</translation>
+        </message>
+        <message>
             <source>FAILED</source>
             <translation>REPROVOU</translation>
         </message>
@@ -1345,6 +1353,10 @@
         <message>
             <source>Global test</source>
             <translation>Teste global</translation>
+        </message>
+        <message>
+            <source>Gravity (%1)</source>
+            <translation>Gravidade (%1)</translation>
         </message>
         <message>
             <source>Identification</source>
@@ -1381,6 +1393,10 @@
         <message>
             <source>MDB</source>
             <translation>MDB</translation>
+        </message>
+        <message>
+            <source>MDB (%1)</source>
+            <translation>MDB (%1)</translation>
         </message>
         <message>
             <source>NO</source>
@@ -1471,6 +1487,10 @@
             <translation>Resíduo</translation>
         </message>
         <message>
+            <source>Residual (%1)</source>
+            <translation>Resíduo (%1)</translation>
+        </message>
+        <message>
             <source>Results</source>
             <translation>Resultados</translation>
         </message>
@@ -1489,6 +1509,10 @@
         <message>
             <source>Setting</source>
             <translation>Configuração</translation>
+        </message>
+        <message>
+            <source>Shown in %1, as the Gravimeter settings ask; the solution stores m/s². A station held fixed has no uncertainty of its own and is not listed.</source>
+            <translation>Mostrado em %1, como pedem as configurações do Gravímetro; a solução armazena m/s². Uma estação mantida fixa não tem incerteza própria e não é listada.</translation>
         </message>
         <message>
             <source>Software</source>
@@ -1571,6 +1595,10 @@
             <translation>Observações não verificáveis</translation>
         </message>
         <message>
+            <source>Units</source>
+            <translation>Unidades</translation>
+        </message>
+        <message>
             <source>Upper critical</source>
             <translation>Crítico superior</translation>
         </message>
@@ -1603,6 +1631,10 @@
             <translation>aceite</translation>
         </message>
         <message>
+            <source>not testable</source>
+            <translation>não testável</translation>
+        </message>
+        <message>
             <source>passed</source>
             <translation>aprovou</translation>
         </message>
@@ -1613,6 +1645,10 @@
         <message>
             <source>sigma %1 (mm)</source>
             <translation>sigma %1 (mm)</translation>
+        </message>
+        <message>
+            <source>sigma (%1)</source>
+            <translation>sigma (%1)</translation>
         </message>
         <message>
             <source>w-test</source>
@@ -1705,6 +1741,37 @@
         </message>
     </context>
     <context>
+        <name>GeoCompGravimetry</name>
+        <message>
+            <source>'%1' could not be read as a gravimeter profile library: %2 is missing or invalid.</source>
+            <translation>Não foi possível ler '%1' como uma biblioteca de perfis de gravímetro: %2 está ausente ou é inválido.</translation>
+        </message>
+        <message>
+            <source>'%1' could not be read as reduced gravity readings: %2</source>
+            <translation>Não foi possível ler '%1' como leituras gravimétricas reduzidas: %2</translation>
+        </message>
+        <message>
+            <source>'%1' holds no readings.</source>
+            <translation>'%1' não contém leituras.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a reduced gravity readings document. Run 'Pre-processing (scale, tide, drift)' on the gravimeter file first.</source>
+            <translation>'%1' não é um documento de leituras gravimétricas reduzidas. Execute primeiro 'Pré-processamento (escala, maré, deriva)' sobre o arquivo do gravímetro.</translation>
+        </message>
+        <message>
+            <source>'%1' was written by a newer GeoComp (document version %2). Update GeoComp to read it.</source>
+            <translation>'%1' foi escrito por um GeoComp mais recente (versão de documento %2). Atualize o GeoComp para lê-lo.</translation>
+        </message>
+        <message>
+            <source>No gravimeter profile was given, so each instrument's own scale was used with a calibration factor of one whose uncertainty is unknown and not propagated. The result is labelled approximate for it. Give a profile library with each instrument's calibration to remove the assumption.</source>
+            <translation>Nenhum perfil de gravímetro foi fornecido, então foi usada a escala própria de cada instrumento, com um fator de calibração igual a um cuja incerteza é desconhecida e não é propagada. Por isso o resultado é marcado como aproximado. Forneça uma biblioteca de perfis com a calibração de cada instrumento para eliminar essa suposição.</translation>
+        </message>
+        <message>
+            <source>assumed: no gravimeter profile was given</source>
+            <translation>suposto: nenhum perfil de gravímetro foi fornecido</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompLayers</name>
         <message>
             <source>%1% confidence, exaggerated %2x</source>
@@ -1749,6 +1816,14 @@
         <message>
             <source>GNSS trajectory</source>
             <translation>Trajetória GNSS</translation>
+        </message>
+        <message>
+            <source>Gravity differences</source>
+            <translation>Diferenças de gravidade</translation>
+        </message>
+        <message>
+            <source>Gravity stations</source>
+            <translation>Estações gravimétricas</translation>
         </message>
         <message>
             <source>Observations</source>
@@ -2119,8 +2194,16 @@
     <context>
         <name>GeoCompMessages</name>
         <message>
+            <source>'%1' holds no readings: expected %2.</source>
+            <translation>'%1' não contém leituras: esperava-se %2.</translation>
+        </message>
+        <message>
             <source>(not set)</source>
             <translation>(não definido)</translation>
+        </message>
+        <message>
+            <source>A counter reading of %1 is outside the gravimeter's calibration table: expected %2.</source>
+            <translation>Uma leitura de contador de %1 está fora da tabela de calibração do gravímetro: esperava-se %2.</translation>
         </message>
         <message>
             <source>Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The two must agree, in the same order.</source>
@@ -2131,12 +2214,32 @@
             <translation>Todas as estações desta rede estão fixas, portanto não há nada a estimar. %1</translation>
         </message>
         <message>
+            <source>GeoComp cannot tell which way this file's GMT difference runs, and computing the tide needs UTC. Give the offset of the file's times from UTC explicitly, or keep the instrument's own tide correction.</source>
+            <translation>O GeoComp não consegue determinar o sentido da diferença GMT deste arquivo, e o cálculo da maré precisa de UTC. Informe explicitamente o deslocamento dos horários do arquivo em relação ao UTC, ou mantenha a correção de maré do próprio instrumento.</translation>
+        </message>
+        <message>
             <source>GeoComp could not complete the operation (%1). See the GeoComp tab of the Log Messages panel for details.</source>
             <translation>O GeoComp não conseguiu concluir a operação (%1). Consulte a aba GeoComp do painel Mensagens de Log para mais detalhes.</translation>
         </message>
         <message>
+            <source>Line %1 of '%2' could not be read: %3. Correct or remove the line and run again.</source>
+            <translation>Não foi possível ler a linha %1 de '%2': %3. Corrija ou remova a linha e execute novamente.</translation>
+        </message>
+        <message>
+            <source>Line %1 of '%2' gives the time '%3' without its offset from UTC. The tide depends on the time to the minute, so a time without a zone is a guess; write it as, for example, 2013-09-15T05:57:01Z or 2013-09-15T02:57:01-03:00.</source>
+            <translation>A linha %1 de '%2' informa o horário '%3' sem seu deslocamento em relação ao UTC. A maré depende do horário ao minuto, então um horário sem fuso é um palpite; escreva-o, por exemplo, como 2013-09-15T05:57:01Z ou 2013-09-15T02:57:01-03:00.</translation>
+        </message>
+        <message>
+            <source>No gravimeter profile was named and the profile library sets no default. Add one to the library, or run without a library to use the file's own instrument names.</source>
+            <translation>Nenhum perfil de gravímetro foi indicado e a biblioteca de perfis não define um padrão. Adicione um à biblioteca, ou execute sem biblioteca para usar os nomes de instrumento do próprio arquivo.</translation>
+        </message>
+        <message>
             <source>No observations were supplied. %1</source>
             <translation>Nenhuma observação foi fornecida. %1</translation>
+        </message>
+        <message>
+            <source>No reading or absolute value refers to %1, so its gravity cannot be held or adjusted. Check the station names against the readings.</source>
+            <translation>Nenhuma leitura ou valor absoluto se refere a %1, então sua gravidade não pode ser fixada nem ajustada. Confira os nomes das estações com as leituras.</translation>
         </message>
         <message>
             <source>No stations were given to define the datum on. %1</source>
@@ -2167,8 +2270,28 @@
             <translation>A observação '%1', do tipo %2, não pode contribuir para um ajustamento %3. Escolha um referencial de coordenadas que a observação possa injuncionar, ou exclua-a.</translation>
         </message>
         <message>
+            <source>Reading '%1' has had no tide removed, and the tide model is set to none. Leaving the tide in costs a few hundred microgal that change by the hour; choose Longman's model, or confirm that the instrument applied its own.</source>
+            <translation>A leitura '%1' não teve a maré removida, e o modelo de maré está definido como nenhum. Deixar a maré custa algumas centenas de microgal que mudam a cada hora; escolha o modelo de Longman, ou confirme que o instrumento aplicou o seu próprio.</translation>
+        </message>
+        <message>
+            <source>Reading '%1' needs a tide correction and has no latitude and longitude to compute it for. Add the location to the file, or keep an instrument-applied tide.</source>
+            <translation>A leitura '%1' precisa de uma correção de maré e não tem latitude e longitude para calculá-la. Adicione a localização ao arquivo, ou mantenha a maré aplicada pelo instrumento.</translation>
+        </message>
+        <message>
+            <source>Session '%1' cannot be pre-corrected: its base station %2 was read %3 time(s), and a degree-%4 drift needs one more reading than its degree. Estimate the drift with the station values instead, or lower the degree.</source>
+            <translation>A sessão '%1' não pode ser pré-corrigida: sua estação base %2 foi lida %3 vez(es), e uma deriva de grau %4 precisa de uma leitura a mais que seu grau. Estime a deriva junto com os valores das estações, ou reduza o grau.</translation>
+        </message>
+        <message>
+            <source>Session '%1' holds readings from several instruments (%2). Drift belongs to an instrument, so each needs its own session.</source>
+            <translation>A sessão '%1' contém leituras de vários instrumentos (%2). A deriva pertence a um instrumento, então cada um precisa de sua própria sessão.</translation>
+        </message>
+        <message>
             <source>Station '%1' has no approximate %2, and the linearised adjustment needs a point to linearise about. Supply approximate coordinates, or generate them from the observations.</source>
             <translation>A estação '%1' não possui %2 aproximada, e o ajustamento linearizado precisa de um ponto em torno do qual linearizar. Forneça coordenadas aproximadas, ou gere-as a partir das observações.</translation>
+        </message>
+        <message>
+            <source>Station '%1' has no location, so its adjusted gravity has nowhere to be reported. Give its readings a latitude and longitude.</source>
+            <translation>A estação '%1' não tem localização, então sua gravidade ajustada não tem onde ser informada. Dê às suas leituras uma latitude e uma longitude.</translation>
         </message>
         <message>
             <source>Station '%1' is held fixed but carries no position, so there is no value to hold it at. Give it coordinates, or release the constraint.</source>
@@ -2177,6 +2300,14 @@
         <message>
             <source>The '%1' engine is required for this operation but is not installed. Install it from Global Settings, under Paths and engines.</source>
             <translation>O motor '%1' é necessário para esta operação, mas não está instalado. Instale-o em Configurações Globais, na seção Caminhos e motores.</translation>
+        </message>
+        <message>
+            <source>The CG-5 header field %1 of '%2' reads '%3', which is not a latitude or longitude with its hemisphere. The tide needs the survey's location.</source>
+            <translation>O campo de cabeçalho CG-5 %1 de '%2' contém '%3', que não é uma latitude ou longitude com seu hemisfério. A maré precisa da localização do levantamento.</translation>
+        </message>
+        <message>
+            <source>The CSV '%1' lacks required columns: it has %2, and needs %3.</source>
+            <translation>O CSV '%1' não tem as colunas obrigatórias: tem %2 e precisa de %3.</translation>
         </message>
         <message>
             <source>The adjustment of '%1' did not converge: after %2 iteration(s) the largest correction was still %3, against a threshold of %4. Approximate coordinates that are far from the truth are the usual cause; a blunder large enough to drag the solution is the other. No coordinates are returned, because iterate %2 of a diverging sequence is not a result.</source>
@@ -2189,6 +2320,10 @@
         <message>
             <source>The datum constraints do not remove the network's remaining freedom (%1 constraint(s) applied). Check that the stations defining the datum are enough to fix it.</source>
             <translation>As injunções de datum não removem a liberdade remanescente da rede (%1 injunção(ões) aplicada(s)). Verifique se as estações que definem o datum bastam para fixá-lo.</translation>
+        </message>
+        <message>
+            <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
+            <translation>A deriva da sessão '%1' não pode ser estimada junto com os valores das estações: nenhuma estação foi lida novamente em instantes distintos suficientes para uma deriva de grau %2. Reocupe uma estação nessa sessão, reduza o grau ou divida a sessão.</translation>
         </message>
         <message>
             <source>The network '%1' has no active observations, so there is nothing to adjust. Observations marked as rejected do not take part; re-activate the ones you want to use.</source>
@@ -2205,6 +2340,18 @@
         <message>
             <source>The planned network '%1' contains no observations, so there is no design to evaluate. Add the observations you intend to make, with their assumed precisions.</source>
             <translation>A rede planejada '%1' não contém observações, portanto não há projeto a avaliar. Acrescente as observações que pretende realizar, com suas precisões supostas.</translation>
+        </message>
+        <message>
+            <source>The reading '%1' appears twice. Remove the duplicate line and run again.</source>
+            <translation>A leitura '%1' aparece duas vezes. Remova a linha duplicada e execute novamente.</translation>
+        </message>
+        <message>
+            <source>The readings name the gravimeter '%1', which the profile library does not hold: expected %2. Add a profile with that id, carrying the instrument's calibration.</source>
+            <translation>As leituras indicam o gravímetro '%1', que a biblioteca de perfis não contém: esperava-se %2. Adicione um perfil com esse identificador, com a calibração do instrumento.</translation>
+        </message>
+        <message>
+            <source>The readings of '%1' state no precision and its profile gives none. GeoComp does not invent a weight: set a reading precision floor, or a nominal precision in the gravimeter profile.</source>
+            <translation>As leituras de '%1' não informam precisão e seu perfil não fornece nenhuma. O GeoComp não inventa um peso: defina um piso de precisão das leituras, ou uma precisão nominal no perfil do gravímetro.</translation>
         </message>
         <message>
             <source>The setting '%1' cannot be greater than %2 (received %3).</source>
@@ -2229,6 +2376,10 @@
         <message>
             <source>This file does not hold a GeoComp network: its top level is %1, and a network document is a JSON object. Check that you chose the right file.</source>
             <translation>Este arquivo não contém uma rede do GeoComp: seu nível superior é %1, e um documento de rede é um objeto JSON. Verifique se escolheu o arquivo certo.</translation>
+        </message>
+        <message>
+            <source>This file is not a gravimeter export GeoComp can read. Expected %1.</source>
+            <translation>Este arquivo não é uma exportação de gravímetro que o GeoComp consiga ler. Esperava-se %1.</translation>
         </message>
         <message>
             <source>This network document could not be read: %1. It may have been written by a different version of GeoComp, or edited by hand.</source>
@@ -2538,6 +2689,14 @@
             <translation>Unidade de distância</translation>
         </message>
         <message>
+            <source>Drift polynomial degree</source>
+            <translation>Grau do polinômio de deriva</translation>
+        </message>
+        <message>
+            <source>Drift treatment</source>
+            <translation>Tratamento da deriva</translation>
+        </message>
+        <message>
             <source>Dual-frequency (ionosphere-free)</source>
             <translation>Dupla frequência (livre de ionosfera)</translation>
         </message>
@@ -2562,6 +2721,10 @@
             <translation>Estimado (STEC)</translation>
         </message>
         <message>
+            <source>Estimated with the station values</source>
+            <translation>Estimada junto com os valores das estações</translation>
+        </message>
+        <message>
             <source>Estimated zenith delay</source>
             <translation>Atraso zenital estimado</translation>
         </message>
@@ -2572,6 +2735,10 @@
         <message>
             <source>Face-pair distance tolerance (m)</source>
             <translation>Tolerância de distância entre as duas posições da luneta (m)</translation>
+        </message>
+        <message>
+            <source>Fitted to base readings first</source>
+            <translation>Ajustada antes às leituras da base</translation>
         </message>
         <message>
             <source>Follow QGIS</source>
@@ -2596,6 +2763,14 @@
         <message>
             <source>Gravimeter</source>
             <translation>Gravímetro</translation>
+        </message>
+        <message>
+            <source>Gravimetric factor (tide amplification)</source>
+            <translation>Fator gravimétrico (amplificação da maré)</translation>
+        </message>
+        <message>
+            <source>Gravity display unit</source>
+            <translation>Unidade de exibição da gravidade</translation>
         </message>
         <message>
             <source>Height-difference weighting</source>
@@ -2650,6 +2825,10 @@
             <translation>Visada mais longa permitida (m)</translation>
         </message>
         <message>
+            <source>Longman (1959)</source>
+            <translation>Longman (1959)</translation>
+        </message>
+        <message>
             <source>Metre</source>
             <translation>Metro</translation>
         </message>
@@ -2660,6 +2839,10 @@
         <message>
             <source>None</source>
             <translation>Nenhuma</translation>
+        </message>
+        <message>
+            <source>None (every instrument applies its own)</source>
+            <translation>Nenhum (cada instrumento aplica o seu)</translation>
         </message>
         <message>
             <source>Offer a base map when adding result layers</source>
@@ -2714,6 +2897,10 @@
             <translation>Radiano</translation>
         </message>
         <message>
+            <source>Reading precision floor, added in quadrature (m/s²)</source>
+            <translation>Piso de precisão das leituras, somado em quadratura (m/s²)</translation>
+        </message>
+        <message>
             <source>Reference station database</source>
             <translation>Banco de dados de estações de referência</translation>
         </message>
@@ -2740,6 +2927,10 @@
         <message>
             <source>Show the GeoComp toolbar</source>
             <translation>Exibir a barra de ferramentas do GeoComp</translation>
+        </message>
+        <message>
+            <source>Solid-Earth tide model</source>
+            <translation>Modelo de maré terrestre</translation>
         </message>
         <message>
             <source>Stated accuracy of the geoid model (m)</source>
@@ -2830,12 +3021,20 @@
             <translation>global</translation>
         </message>
         <message>
+            <source>mGal</source>
+            <translation>mGal</translation>
+        </message>
+        <message>
             <source>this project</source>
             <translation>este projeto</translation>
         </message>
         <message>
             <source>this run</source>
             <translation>esta execução</translation>
+        </message>
+        <message>
+            <source>µGal</source>
+            <translation>µGal</translation>
         </message>
     </context>
     <context>
@@ -2911,6 +3110,448 @@
         <message>
             <source>Warning</source>
             <translation>Aviso</translation>
+        </message>
+    </context>
+    <context>
+        <name>GravimetryNetworkAlgorithm</name>
+        <message>
+            <source>'%1' does not hold a number.</source>
+            <translation>'%1' não contém um número.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a known gravity. Write it as station=value in mGal, for example RG26=979197.5759, and add ±sigma to weight it as an absolute determination rather than hold it.</source>
+            <translation>'%1' não é uma gravidade conhecida. Escreva-a como estação=valor em mGal, por exemplo RG26=979197.5759, e acrescente ±sigma para ponderá-la como uma determinação absoluta em vez de fixá-la.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Adjusts the readings &lt;i&gt;Pre-processing (scale, tide, drift)&lt;/i&gt; reduced: each session's occupations become gravity differences, absolute values enter weighted, and the result goes through the same global test, data snooping and reliability analysis as any other GeoComp adjustment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Drift.&lt;/b&gt; Estimated with the station values by default, one polynomial per session: every re-occupation informs it, not only a base station's. &lt;i&gt;Fitted to base readings first&lt;/i&gt; is the classical field method, kept for comparison and for sessions that re-occupy nothing but their base. The differences carry their exact covariance either way: successive differences share an occupation and are correlated, and the calibration factor's uncertainty is common to every reading of an instrument.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Known gravity&lt;/b&gt; is entered as &lt;code&gt;station=value&lt;/code&gt; pairs in mGal, separated by commas or semicolons. With &lt;code&gt;±sigma&lt;/code&gt; the value is an absolute determination and is weighted by its uncertainty, for example &lt;code&gt;RG26=979197.5759±0.0106&lt;/code&gt;; without it the station is held exactly, which makes it the datum and every uncertainty relative to it. With none, the network is adjusted with an inner constraint and every value is relative to their mean; the report says which.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A value must refer to the mark.&lt;/b&gt; Give the pre-processing a sensor height, or readings taken 20 cm above the mark will differ from an absolute value quoted at it by about 60 µGal.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Uncheckable observations are listed by name.&lt;/b&gt; A gravity network is small and weakly redundant, and a difference with a redundancy near zero can hide a blunder no test will find. A lone absolute value is always one. The report lists them and the layers draw them in a colour of their own.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced readings&lt;/b&gt; &amp;mdash; the document pre-processing wrote. &lt;b&gt;Known gravity&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;Drift treatment&lt;/b&gt; and &lt;b&gt;drift degree&lt;/b&gt; default to the Gravimeter settings.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Carry the correlation between differences&lt;/b&gt; (advanced) &amp;mdash; on by default. Off reproduces MCGravi and pyGrav, which treat the differences as independent, and the result records the assumption. &lt;b&gt;Confidence&lt;/b&gt;, &lt;b&gt;alpha&lt;/b&gt; and &lt;b&gt;beta&lt;/b&gt; &amp;mdash; for the tests.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON, in m/s². &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Gravity&lt;/b&gt; &amp;mdash; CSV. &lt;b&gt;Gravity stations&lt;/b&gt; and &lt;b&gt;Gravity differences&lt;/b&gt; &amp;mdash; layers, located where the readings were taken; values in the display unit of the Gravimeter settings, which a column names. Scalars: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt; and &lt;code&gt;DATUM_DEFECT&lt;/code&gt; (of the relative observations alone).&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta as leituras que o &lt;i&gt;Pré-processamento (escala, maré, deriva)&lt;/i&gt; reduziu: as ocupações de cada sessão tornam-se diferenças de gravidade, os valores absolutos entram ponderados, e o resultado passa pelo mesmo teste global, detecção de erros grosseiros e análise de confiabilidade que qualquer outro ajustamento do GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Deriva.&lt;/b&gt; Estimada junto com os valores das estações por padrão, um polinômio por sessão: toda reocupação contribui, não apenas as de uma estação base. &lt;i&gt;Ajustada antes às leituras da base&lt;/i&gt; é o método clássico de campo, mantido para comparação e para sessões que não reocupam nada além da base. As diferenças levam sua covariância exata em ambos os casos: diferenças sucessivas compartilham uma ocupação e são correlacionadas, e a incerteza do fator de calibração é comum a todas as leituras de um instrumento.&lt;/p&gt;&lt;p&gt;A &lt;b&gt;gravidade conhecida&lt;/b&gt; é informada como pares &lt;code&gt;estação=valor&lt;/code&gt; em mGal, separados por vírgulas ou pontos e vírgulas. Com &lt;code&gt;±sigma&lt;/code&gt; o valor é uma determinação absoluta e é ponderado por sua incerteza, por exemplo &lt;code&gt;RG26=979197.5759±0.0106&lt;/code&gt;; sem ele a estação é mantida fixa exatamente, o que a torna o datum e toda incerteza relativa a ela. Sem nenhuma, a rede é ajustada com uma injunção interna e todo valor é relativo à média deles; o relatório diz qual foi o caso.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Um valor deve referir-se ao marco.&lt;/b&gt; Informe ao pré-processamento uma altura do sensor, ou leituras feitas 20 cm acima do marco diferirão de um valor absoluto informado nele em cerca de 60 µGal.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As observações não verificáveis são listadas pelo nome.&lt;/b&gt; Uma rede gravimétrica é pequena e pouco redundante, e uma diferença com redundância próxima de zero pode esconder um erro grosseiro que nenhum teste encontrará. Um valor absoluto isolado sempre é uma delas. O relatório as lista e as camadas as desenham com uma cor própria.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Leituras reduzidas&lt;/b&gt; &amp;mdash; o documento que o pré-processamento escreveu. &lt;b&gt;Gravidade conhecida&lt;/b&gt; &amp;mdash; como acima. &lt;b&gt;Tratamento da deriva&lt;/b&gt; e &lt;b&gt;grau da deriva&lt;/b&gt; têm como padrão as configurações do Gravímetro.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Considerar a correlação entre diferenças&lt;/b&gt; (avançado) &amp;mdash; ativado por padrão. Desativado reproduz o MCGravi e o pyGrav, que tratam as diferenças como independentes, e o resultado registra essa suposição. &lt;b&gt;Confiança&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; e &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para os testes.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; JSON, em m/s². &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Gravidade&lt;/b&gt; &amp;mdash; CSV. &lt;b&gt;Estações gravimétricas&lt;/b&gt; e &lt;b&gt;Diferenças de gravidade&lt;/b&gt; &amp;mdash; camadas, localizadas onde as leituras foram feitas; valores na unidade de exibição das configurações do Gravímetro, indicada em uma coluna. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt; e &lt;code&gt;DATUM_DEFECT&lt;/code&gt; (apenas das observações relativas).&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Adjust relative and absolute gravity as a network, with each session's drift.</source>
+            <translation>Ajusta gravidade relativa e absoluta como uma rede, com a deriva de cada sessão.</translation>
+        </message>
+        <message>
+            <source>Adjusted gravity</source>
+            <translation>Gravidade ajustada</translation>
+        </message>
+        <message>
+            <source>Adjusting…</source>
+            <translation>Ajustando…</translation>
+        </message>
+        <message>
+            <source>Base residuals</source>
+            <translation>Resíduos da base</translation>
+        </message>
+        <message>
+            <source>CANDIDATE</source>
+            <translation>CANDIDATA</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Arquivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the change being measured is exactly what an automatic outlier remover would delete.</source>
+            <translation>Candidatas, não rejeições. O GeoComp nunca remove uma observação por conta própria: em uma rede de monitoramento, a variação que se está medindo é exatamente o que um removedor automático de erros grosseiros apagaria.</translation>
+        </message>
+        <message>
+            <source>Carry the correlation between differences</source>
+            <translation>Considerar a correlação entre diferenças</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Data snooping</source>
+            <translation>Data snooping</translation>
+        </message>
+        <message>
+            <source>Data snooping significance (alpha)</source>
+            <translation>Significância do data snooping (alfa)</translation>
+        </message>
+        <message>
+            <source>Data snooping type II error rate (beta)</source>
+            <translation>Taxa de erro tipo II do data snooping (beta)</translation>
+        </message>
+        <message>
+            <source>Datum</source>
+            <translation>Datum</translation>
+        </message>
+        <message>
+            <source>Datum defect of the differences</source>
+            <translation>Defeito de datum das diferenças</translation>
+        </message>
+        <message>
+            <source>Datum: %1.</source>
+            <translation>Datum: %1.</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Graus de liberdade</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom %1; variance factor %2.</source>
+            <translation>Graus de liberdade %1; fator de variância %2.</translation>
+        </message>
+        <message>
+            <source>Determined by</source>
+            <translation>Determinada por</translation>
+        </message>
+        <message>
+            <source>Drift</source>
+            <translation>Deriva</translation>
+        </message>
+        <message>
+            <source>Drift of %1: %2 ± %3 %4 per hour.</source>
+            <translation>Deriva de %1: %2 ± %3 %4 por hora.</translation>
+        </message>
+        <message>
+            <source>Drift per hour, then per hour², … (%1)</source>
+            <translation>Deriva por hora, depois por hora², … (%1)</translation>
+        </message>
+        <message>
+            <source>Drift polynomial degree</source>
+            <translation>Grau do polinômio de deriva</translation>
+        </message>
+        <message>
+            <source>Drift treatment</source>
+            <translation>Tratamento da deriva</translation>
+        </message>
+        <message>
+            <source>Estimated with the station values</source>
+            <translation>Estimada junto com os valores das estações</translation>
+        </message>
+        <message>
+            <source>FAILED</source>
+            <translation>REPROVOU</translation>
+        </message>
+        <message>
+            <source>Fitted to base readings first</source>
+            <translation>Ajustada antes às leituras da base</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solução GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Teste global</translation>
+        </message>
+        <message>
+            <source>Gravimetric network adjustment</source>
+            <translation>Ajustamento de rede gravimétrica</translation>
+        </message>
+        <message>
+            <source>Gravity</source>
+            <translation>Gravidade</translation>
+        </message>
+        <message>
+            <source>Gravity differences</source>
+            <translation>Diferenças de gravidade</translation>
+        </message>
+        <message>
+            <source>Gravity differences (%1)</source>
+            <translation>Diferenças de gravidade (%1)</translation>
+        </message>
+        <message>
+            <source>Gravity stations</source>
+            <translation>Estações gravimétricas</translation>
+        </message>
+        <message>
+            <source>Gravity stations (%1)</source>
+            <translation>Estações gravimétricas (%1)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Instrument</source>
+            <translation>Instrumento</translation>
+        </message>
+        <message>
+            <source>Known gravity (mGal)</source>
+            <translation>Gravidade conhecida (mGal)</translation>
+        </message>
+        <message>
+            <source>MDB</source>
+            <translation>MDB</translation>
+        </message>
+        <message>
+            <source>No blunder in these could be detected, whatever the tests below say: %1. A lone absolute value and a station reached by one difference are the usual cases. Re-observe or add a connection to make them checkable.</source>
+            <translation>Nenhum erro grosseiro nestas poderia ser detectado, digam o que disserem os testes abaixo: %1. Um valor absoluto isolado e uma estação alcançada por uma única diferença são os casos habituais. Observe novamente ou acrescente uma ligação para torná-las verificáveis.</translation>
+        </message>
+        <message>
+            <source>Not testable</source>
+            <translation>Não testável</translation>
+        </message>
+        <message>
+            <source>Notes</source>
+            <translation>Notas</translation>
+        </message>
+        <message>
+            <source>Observation</source>
+            <translation>Observação</translation>
+        </message>
+        <message>
+            <source>Observations</source>
+            <translation>Observações</translation>
+        </message>
+        <message>
+            <source>Occupations</source>
+            <translation>Ocupações</translation>
+        </message>
+        <message>
+            <source>Outlier candidate: %1 (w = %2).</source>
+            <translation>Candidato a erro grosseiro: %1 (w = %2).</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Grandeza</translation>
+        </message>
+        <message>
+            <source>Readings</source>
+            <translation>Leituras</translation>
+        </message>
+        <message>
+            <source>Reduced readings</source>
+            <translation>Leituras reduzidas</translation>
+        </message>
+        <message>
+            <source>Redundancy</source>
+            <translation>Redundância</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Relatório</translation>
+        </message>
+        <message>
+            <source>Residual</source>
+            <translation>Resíduo</translation>
+        </message>
+        <message>
+            <source>Row</source>
+            <translation>Linha</translation>
+        </message>
+        <message>
+            <source>Session</source>
+            <translation>Sessão</translation>
+        </message>
+        <message>
+            <source>Sessions</source>
+            <translation>Sessões</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estações</translation>
+        </message>
+        <message>
+            <source>Summary</source>
+            <translation>Resumo</translation>
+        </message>
+        <message>
+            <source>The global test failed. Either the observations disagree more than their weights allow, or the weights are wrong — the test cannot distinguish the two. A reading's own standard error knows nothing of tilt, temperature or transport; a precision floor in pre-processing is the usual remedy, and the report of the run that used one says so.</source>
+            <translation>O teste global falhou. Ou as observações discordam mais do que seus pesos permitem, ou os pesos estão errados — o teste não consegue distinguir os dois casos. O erro padrão de uma leitura nada sabe de inclinação, temperatura ou transporte; um piso de precisão no pré-processamento é o remédio habitual, e o relatório da execução que o usou diz isso.</translation>
+        </message>
+        <message>
+            <source>The global test failed. Either the observations disagree with each other more than their weights allow, or the weights are wrong — the test cannot tell you which.</source>
+            <translation>O teste global falhou. Ou as observações divergem entre si mais do que os seus pesos permitem, ou os pesos estão errados — o teste não distingue os dois casos.</translation>
+        </message>
+        <message>
+            <source>The station '%1' is given a known gravity twice.</source>
+            <translation>A estação '%1' recebeu uma gravidade conhecida duas vezes.</translation>
+        </message>
+        <message>
+            <source>Tide system</source>
+            <translation>Sistema de maré</translation>
+        </message>
+        <message>
+            <source>Treatment</source>
+            <translation>Tratamento</translation>
+        </message>
+        <message>
+            <source>Uncertainty</source>
+            <translation>Incerteza</translation>
+        </message>
+        <message>
+            <source>Uncheckable observations</source>
+            <translation>Observações não verificáveis</translation>
+        </message>
+        <message>
+            <source>Uncheckable: %1. No blunder in it could be detected.</source>
+            <translation>Não verificável: %1. Nenhum erro grosseiro nela poderia ser detectado.</translation>
+        </message>
+        <message>
+            <source>Units</source>
+            <translation>Unidades</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Values are shown in %1, as the Gravimeter settings ask. The solution stores m/s².</source>
+            <translation>Os valores são mostrados em %1, como pedem as configurações do Gravímetro. A solução armazena m/s².</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Fator de variância</translation>
+        </message>
+        <message>
+            <source>absolute value and differences</source>
+            <translation>valor absoluto e diferenças</translation>
+        </message>
+        <message>
+            <source>accepted</source>
+            <translation>aceite</translation>
+        </message>
+        <message>
+            <source>approximate: %1</source>
+            <translation>aproximada: %1</translation>
+        </message>
+        <message>
+            <source>differences</source>
+            <translation>diferenças</translation>
+        </message>
+        <message>
+            <source>estimated with the station values</source>
+            <translation>estimada junto com os valores das estações</translation>
+        </message>
+        <message>
+            <source>fitted to base %1 first</source>
+            <translation>ajustada antes à base %1</translation>
+        </message>
+        <message>
+            <source>held</source>
+            <translation>fixada</translation>
+        </message>
+        <message>
+            <source>not computed</source>
+            <translation>não calculado</translation>
+        </message>
+        <message>
+            <source>not testable</source>
+            <translation>não testável</translation>
+        </message>
+        <message>
+            <source>passed</source>
+            <translation>aprovou</translation>
+        </message>
+        <message>
+            <source>rigorous</source>
+            <translation>rigorosa</translation>
+        </message>
+        <message>
+            <source>sigma</source>
+            <translation>sigma</translation>
+        </message>
+        <message>
+            <source>w</source>
+            <translation>w</translation>
+        </message>
+        <message>
+            <source>w-test</source>
+            <translation>teste w</translation>
+        </message>
+    </context>
+    <context>
+        <name>GravimetryPreprocessAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Reads a relative gravimeter file and reduces every reading: through the instrument's &lt;b&gt;calibration&lt;/b&gt;, with the &lt;b&gt;solid-Earth tide&lt;/b&gt; removed, and to the &lt;b&gt;mark&lt;/b&gt;. The result is a document the network adjustment reads.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Formats.&lt;/b&gt; A Scintrex CG-5 text export, whose header gives the location, the clock's GMT difference and whether the instrument removed the tide itself; a ZLS Burris export; or a CSV with the columns &lt;code&gt;station&lt;/code&gt;, &lt;code&gt;time&lt;/code&gt; (ISO 8601 with its UTC offset) and &lt;code&gt;reading_mgal&lt;/code&gt;, and optionally &lt;code&gt;sd_mgal&lt;/code&gt;, &lt;code&gt;instrument&lt;/code&gt;, &lt;code&gt;session&lt;/code&gt;, &lt;code&gt;latitude_deg&lt;/code&gt;, &lt;code&gt;longitude_deg&lt;/code&gt;, &lt;code&gt;height_m&lt;/code&gt;, &lt;code&gt;sensor_height_m&lt;/code&gt; and &lt;code&gt;tide_applied&lt;/code&gt;. The format is recognised from the content.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The tide is removed once.&lt;/b&gt; An instrument that applied its own correction keeps it. Ask for GeoComp's instead and the instrument's is added back first; that needs the file's times in UTC, and GeoComp settles which way a CG-5's GMT difference runs by comparing the instrument's tide with its own under both readings. Longman's model agrees with ETERNA to about 1.5 µGal, and that figure is carried as the tide's uncertainty.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Drift is shown here and estimated in the network.&lt;/b&gt; For each session the log and the drift table give the drift its base readings show, and whether the session's re-occupations let the network estimate it jointly with the station values. Nothing is subtracted from the readings.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Gravimeter file&lt;/b&gt;. &lt;b&gt;Gravimeter profiles&lt;/b&gt; &amp;mdash; a profile library whose gravimeters carry each instrument's calibration table and factor, keyed by the instrument name the file uses (for a CG-5, &lt;code&gt;CG-5&lt;/code&gt; and its serial number, e.g. &lt;code&gt;CG-5 40236&lt;/code&gt;). Without one, each instrument's own scale is used, and the result is labelled approximate for it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Precision floor&lt;/b&gt; (mGal) &amp;mdash; added in quadrature to each reading's own precision, for what that figure knows nothing of: tilt, temperature, transport. A CG-5's precision is &lt;code&gt;SD / &amp;radic;DUR&lt;/code&gt;; a Burris states none and takes the floor alone. Zero adds nothing.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sensor height&lt;/b&gt; (m) &amp;mdash; above the mark, for readings that do not carry their own. Left empty, readings are taken to refer to the mark, and the notes say so: an absolute value quoted at the mark and readings taken 20 cm above it differ by about 60 µGal.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Replace the instrument's tide&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;UTC offset&lt;/b&gt; (hours, advanced) &amp;mdash; the file's local time minus UTC, when it should not be inferred.&lt;/p&gt;&lt;p&gt;The tide model, the gravimetric factor and the drift degree default to the Gravimeter settings.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced readings&lt;/b&gt; &amp;mdash; JSON, in SI, with the profiles the readings were reduced with. &lt;b&gt;Corrections&lt;/b&gt; &amp;mdash; CSV, one row per reading, in the display unit. &lt;b&gt;Drift&lt;/b&gt; &amp;mdash; CSV, one row per session; the coefficients are per hour to the power of the degree. Scalars: &lt;code&gt;READING_COUNT&lt;/code&gt;, &lt;code&gt;OCCUPATION_COUNT&lt;/code&gt;, &lt;code&gt;SESSION_COUNT&lt;/code&gt;, &lt;code&gt;UNESTIMABLE_SESSIONS&lt;/code&gt; (sessions whose drift the network cannot estimate jointly) and &lt;code&gt;LARGEST_TIDE&lt;/code&gt; in m/s².&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lê um arquivo de gravímetro relativo e reduz cada leitura: pela &lt;b&gt;calibração&lt;/b&gt; do instrumento, com a &lt;b&gt;maré terrestre&lt;/b&gt; removida, e ao &lt;b&gt;marco&lt;/b&gt;. O resultado é um documento que o ajustamento da rede lê.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Formatos.&lt;/b&gt; Uma exportação de texto do Scintrex CG-5, cujo cabeçalho informa a localização, a diferença GMT do relógio e se o instrumento removeu a maré por conta própria; uma exportação do ZLS Burris; ou um CSV com as colunas &lt;code&gt;station&lt;/code&gt;, &lt;code&gt;time&lt;/code&gt; (ISO 8601 com seu deslocamento em relação ao UTC) e &lt;code&gt;reading_mgal&lt;/code&gt;, e opcionalmente &lt;code&gt;sd_mgal&lt;/code&gt;, &lt;code&gt;instrument&lt;/code&gt;, &lt;code&gt;session&lt;/code&gt;, &lt;code&gt;latitude_deg&lt;/code&gt;, &lt;code&gt;longitude_deg&lt;/code&gt;, &lt;code&gt;height_m&lt;/code&gt;, &lt;code&gt;sensor_height_m&lt;/code&gt; e &lt;code&gt;tide_applied&lt;/code&gt;. O formato é reconhecido pelo conteúdo.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A maré é removida uma vez.&lt;/b&gt; Um instrumento que aplicou sua própria correção a mantém. Peça a do GeoComp em vez dela e a do instrumento é somada de volta primeiro; isso exige os horários do arquivo em UTC, e o GeoComp determina o sentido da diferença GMT de um CG-5 comparando a maré do instrumento com a sua própria sob as duas interpretações. O modelo de Longman concorda com o ETERNA em cerca de 1,5 µGal, e esse valor é levado como a incerteza da maré.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A deriva é mostrada aqui e estimada na rede.&lt;/b&gt; Para cada sessão, o log e a tabela de deriva informam a deriva que as leituras da base mostram, e se as reocupações da sessão permitem que a rede a estime junto com os valores das estações. Nada é subtraído das leituras.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Arquivo do gravímetro&lt;/b&gt;. &lt;b&gt;Perfis de gravímetro&lt;/b&gt; &amp;mdash; uma biblioteca de perfis cujos gravímetros trazem a tabela e o fator de calibração de cada instrumento, identificados pelo nome de instrumento que o arquivo usa (para um CG-5, &lt;code&gt;CG-5&lt;/code&gt; e seu número de série, p. ex. &lt;code&gt;CG-5 40236&lt;/code&gt;). Sem ela, é usada a escala própria de cada instrumento, e o resultado é marcado como aproximado por isso.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Piso de precisão&lt;/b&gt; (mGal) &amp;mdash; somado em quadratura à precisão própria de cada leitura, pelo que esse valor ignora: inclinação, temperatura, transporte. A precisão de um CG-5 é &lt;code&gt;SD / &amp;radic;DUR&lt;/code&gt;; um Burris não informa nenhuma e usa apenas o piso. Zero não soma nada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Altura do sensor&lt;/b&gt; (m) &amp;mdash; acima do marco, para leituras que não trazem a sua. Deixada vazia, considera-se que as leituras se referem ao marco, e as notas dizem isso: um valor absoluto informado no marco e leituras feitas 20 cm acima dele diferem em cerca de 60 µGal.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Substituir a maré do instrumento&lt;/b&gt; &amp;mdash; como acima. &lt;b&gt;Deslocamento UTC&lt;/b&gt; (horas, avançado) &amp;mdash; a hora local do arquivo menos UTC, quando não deve ser inferida.&lt;/p&gt;&lt;p&gt;O modelo de maré, o fator gravimétrico e o grau da deriva têm como padrão as configurações do Gravímetro.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Leituras reduzidas&lt;/b&gt; &amp;mdash; JSON, em SI, com os perfis com que as leituras foram reduzidas. &lt;b&gt;Correções&lt;/b&gt; &amp;mdash; CSV, uma linha por leitura, na unidade de exibição. &lt;b&gt;Deriva&lt;/b&gt; &amp;mdash; CSV, uma linha por sessão; os coeficientes são por hora elevada ao grau. Escalares: &lt;code&gt;READING_COUNT&lt;/code&gt;, &lt;code&gt;OCCUPATION_COUNT&lt;/code&gt;, &lt;code&gt;SESSION_COUNT&lt;/code&gt;, &lt;code&gt;UNESTIMABLE_SESSIONS&lt;/code&gt; (sessões cuja deriva a rede não consegue estimar junto) e &lt;code&gt;LARGEST_TIDE&lt;/code&gt; em m/s².&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Arquivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Corrections</source>
+            <translation>Correções</translation>
+        </message>
+        <message>
+            <source>Drift</source>
+            <translation>Deriva</translation>
+        </message>
+        <message>
+            <source>Drift polynomial degree</source>
+            <translation>Grau do polinômio de deriva</translation>
+        </message>
+        <message>
+            <source>GeoComp gravity readings (*.json)</source>
+            <translation>Leituras gravimétricas do GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Gravimeter file</source>
+            <translation>Arquivo do gravímetro</translation>
+        </message>
+        <message>
+            <source>Gravimeter profiles</source>
+            <translation>Perfis de gravímetro</translation>
+        </message>
+        <message>
+            <source>Gravimetric factor (tide amplification)</source>
+            <translation>Fator gravimétrico (amplificação da maré)</translation>
+        </message>
+        <message>
+            <source>Local time minus UTC (hours)</source>
+            <translation>Hora local menos UTC (horas)</translation>
+        </message>
+        <message>
+            <source>Longman (1959)</source>
+            <translation>Longman (1959)</translation>
+        </message>
+        <message>
+            <source>None (every instrument applies its own)</source>
+            <translation>Nenhum (cada instrumento aplica o seu)</translation>
+        </message>
+        <message>
+            <source>Pre-processing (scale, tide, drift)</source>
+            <translation>Pré-processamento (escala, maré, deriva)</translation>
+        </message>
+        <message>
+            <source>Precision floor (mGal)</source>
+            <translation>Piso de precisão (mGal)</translation>
+        </message>
+        <message>
+            <source>Read a gravimeter file, apply its calibration, remove the tide, and show each session's drift.</source>
+            <translation>Lê um arquivo de gravímetro, aplica sua calibração, remove a maré e mostra a deriva de cada sessão.</translation>
+        </message>
+        <message>
+            <source>Reduced readings</source>
+            <translation>Leituras reduzidas</translation>
+        </message>
+        <message>
+            <source>Replace the instrument's tide correction with GeoComp's</source>
+            <translation>Substituir a correção de maré do instrumento pela do GeoComp</translation>
+        </message>
+        <message>
+            <source>Sensor height above the mark (m)</source>
+            <translation>Altura do sensor sobre o marco (m)</translation>
+        </message>
+        <message>
+            <source>Sensor height standard deviation (m)</source>
+            <translation>Desvio padrão da altura do sensor (m)</translation>
+        </message>
+        <message>
+            <source>Session %1 re-occupies no station at enough different times: the network cannot estimate its drift with the station values. Pre-correct it from a base, or re-occupy a station.</source>
+            <translation>A sessão %1 não reocupa nenhuma estação em instantes distintos suficientes: a rede não consegue estimar sua deriva junto com os valores das estações. Pré-corrija-a a partir de uma base, ou reocupe uma estação.</translation>
+        </message>
+        <message>
+            <source>Session %1: %2 ± %3 %4 per hour from %5 readings of %6.</source>
+            <translation>Sessão %1: %2 ± %3 %4 por hora a partir de %5 leituras de %6.</translation>
+        </message>
+        <message>
+            <source>Tide model</source>
+            <translation>Modelo de maré</translation>
         </message>
     </context>
     <context>
