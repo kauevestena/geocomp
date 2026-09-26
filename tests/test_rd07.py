@@ -101,6 +101,68 @@ class TestAgainstTheFetchedReferences:
         assert comparison.rms_ugal <= CG5_RMS_UGAL
         assert abs(comparison.mean_ugal) < 0.1
 
+    def test_the_production_reader_reads_it_and_settles_its_clock(self, data):
+        """Phase P8b's CG-5 reader, on the real survey the script's parser was
+        checked against: the same readings, and the clock's reading stated in
+        the notes with how well the firmware's tide agrees under it. The file's
+        GMT difference is zero, so UTC is an assumption, and the note says so."""
+        from geocomp.io.gravimeter_files import read_cg5 as read_production
+
+        path = data / "cg5" / "CG-5_TestData.txt"
+        script = read_cg5(path)
+        read = read_production(path.read_text(encoding="latin-1"), replace_tide=True)
+        assert len(read.readings) == len(script.readings) == 2096
+        for mine, theirs in zip(read.readings, script.readings, strict=True):
+            assert mine.station == theirs.station
+            assert mine.instant == theirs.instant
+            assert mine.tide_applied is False
+            assert mine.value.value == pytest.approx(
+                (theirs.gravity_mgal - theirs.tide_mgal) * 1e-5, abs=1e-12
+            )
+        (clock,) = [note for note in read.notes if "GMT difference" in note]
+        assert "taken as UTC" in clock and "agrees with Longman's" in clock
+
+    @pytest.mark.parametrize("day", sorted(PYGRAV_DAYS))
+    def test_the_survey_runs_through_the_algorithms_path(self, data, day):
+        """Phase P8b's exit, on the real file: reader, reduction and network --
+        the path both algorithms take -- adjust each day of the survey, and
+        land near pyGrav's published stations.
+
+        Near, not on: GeoComp gives each day one linear drift, where pyGrav
+        split each day by hand into eight loops with a drift apiece and
+        rejected readings, so this is a check that the chain works on a real
+        CG-5 file and not a precision claim. Observed with a 5 microgal floor:
+        3.0, 5.9, 3.7 and 4.3 microgal at worst, 1.5 to 3.3 of GeoComp's own
+        sigmas; and the global test fails on three of the four days, because
+        one drift a day is too simple a model for this instrument.
+        """
+        from geocomp.core.instruments import ProfileLibrary
+        from geocomp.core.instruments.gravimeter import GravimeterProfile
+        from geocomp.core.techniques.gravimetry import (
+            adjust_gravity_network,
+            build_gravity_network,
+            reduce_readings,
+        )
+        from geocomp.core.uncertainty import Quantity
+        from geocomp.core.units import Unit
+        from geocomp.io.gravimeter_files import read_cg5 as read_production
+
+        text = (data / "cg5" / "CG-5_TestData.txt").read_text(encoding="latin-1")
+        survey = read_production(text, additive_sigma=5e-8)
+        library = ProfileLibrary()
+        library.add_gravimeter(GravimeterProfile(id=survey.instruments[0]))
+        reduced = [
+            r for r in reduce_readings(list(survey.readings), library) if r.reading.session.endswith(day)
+        ]
+        result = adjust_gravity_network(
+            build_gravity_network(reduced, library, held={"1": Quantity.exact(0.0, Unit.ACCELERATION)})
+        )
+        published = read_pygrav(day, data / "pygrav" / day / "LSresults_tot.dat").stations
+        adjusted = {s.station_id: s.gravity.value / 1e-5 for s in result.solution.adjusted_stations}
+        assert set(adjusted) == set(published) - {"1"}
+        worst = max(abs(adjusted[station] - published[station]) for station in adjusted)
+        assert worst * 1000.0 < 10.0
+
     @pytest.mark.parametrize("day", sorted(PYGRAV_DAYS))
     def test_pygravs_published_solution_is_reproduced(self, data, day):
         comparison = compare_pygrav(read_pygrav(day, data / "pygrav" / day / "LSresults_tot.dat"))

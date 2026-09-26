@@ -39,12 +39,14 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QCoreApplication, QMetaType
 
-from geocomp.core.models import Network, Solution
+from geocomp.core.models import ConstraintMode, CoordinateSystem, Network, Solution
+from geocomp.core.units import convert
 from geocomp.core.visualization import displacement_arrow, ellipse_ring
 from geocomp.layers.styles import apply_style
 
 __all__ = [
     "GNSS_HORIZON_CRS",
+    "GRAVITY_ROLES",
     "LAYER_FIELDS",
     "correction_features",
     "correction_layer",
@@ -57,6 +59,10 @@ __all__ = [
     "gnss_baseline_positions",
     "gnss_trajectory_features",
     "gnss_trajectory_layer",
+    "gravity_difference_features",
+    "gravity_difference_layer",
+    "gravity_station_features",
+    "gravity_station_layer",
     "observation_features",
     "observation_layer",
     "residual_features",
@@ -190,6 +196,38 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("magnitude", _REAL),
         ("exaggeration", _REAL),
     ),
+    # Gravity (phase P8b, specs/12 section 5). Layers of their own rather than
+    # "stations" and "residuals": a gravity station has a value and no ellipse
+    # to size by, and a residual in m/s^2 in the same column as a distance's in
+    # metres would be read as one or the other. `gravity`, `sigma`,
+    # `difference`, `residual` and `mdb` are in the display unit that `unit`
+    # names (FR-067); `gravity_si` and `sigma_si` are what was stored, for
+    # anything that computes from the layer.
+    "gravity_stations": (
+        ("station", _TEXT),
+        ("gravity", _REAL),
+        ("sigma", _REAL),
+        ("unit", _TEXT),
+        ("gravity_si", _REAL),
+        ("sigma_si", _REAL),
+        ("role", _TEXT),
+        ("absolute_decision", _TEXT),
+        ("uncertainty", _TEXT),
+    ),
+    "gravity_differences": (
+        ("observation", _TEXT),
+        ("from_station", _TEXT),
+        ("to_station", _TEXT),
+        ("session", _TEXT),
+        ("difference", _REAL),
+        ("sigma", _REAL),
+        ("residual", _REAL),
+        ("standardised", _REAL),
+        ("redundancy", _REAL),
+        ("mdb", _REAL),
+        ("unit", _TEXT),
+        ("decision", _TEXT),
+    ),
 }
 
 #: The geometry each layer carries, in the spelling a memory-layer URI uses.
@@ -201,6 +239,8 @@ LAYER_GEOMETRY: dict[str, str] = {
     "gnss_baselines": "LineString",
     "gnss_trajectory": "Point",
     "corrections": "LineString",
+    "gravity_stations": "Point",
+    "gravity_differences": "LineString",
 }
 
 
@@ -674,6 +714,193 @@ def correction_layer_name(*, exaggeration: float) -> str:
     return _tr("Coordinate corrections (%1)").replace("%1", exaggeration_label(exaggeration))
 
 
+# -- gravity ----------------------------------------------------------------
+
+#: How a station's gravity was determined, as the style's categories name them.
+GRAVITY_ROLES = ("held", "absolute", "relative")
+
+_DECISION_RANK = {"rejected": 2, "uncheckable": 1, "accepted": 0}
+
+
+def gravity_station_features(
+    solution: Solution, network: Network, *, unit: str
+) -> Iterator[QgsFeature]:
+    """Every station of a gravity network, adjusted or held, at its location.
+
+    **A held station is drawn too**, with its held value and no uncertainty:
+    it has no column, so the solution alone would leave the datum off the map.
+    A station that carries an absolute value says what the w-test made of it
+    in ``absolute_decision`` -- a lone absolute value cannot be checked by the
+    rest of the network, which is the common case ``specs/12`` section 5 asks
+    to be shown.
+    """
+    fields = fields_for("gravity_stations")
+    decisions = _absolute_decisions(solution, network)
+    symbol = _GRAVITY_SYMBOLS[unit]
+    rows: list[tuple[str, Any, float, float, str]] = []
+    for station in solution.adjusted_stations:
+        if station.gravity is None:
+            continue
+        rows.append(
+            (
+                station.station_id,
+                station.position,
+                station.gravity.value,
+                station.gravity.std_dev,
+                station.gravity.mode.value,
+            )
+        )
+    adjusted = {row[0] for row in rows}
+    for station in network.stations.values():
+        gravity = station.constraint.gravity
+        if station.id in adjusted or gravity is None:
+            continue
+        rows.append((station.id, station.approx_position, gravity.value, 0.0, gravity.mode.value))
+
+    for name, position, value, sigma, mode in sorted(rows, key=lambda row: row[0]):
+        point = _gravity_point(position)
+        if point is None:
+            continue
+        feature = QgsFeature(fields)
+        feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(*point)))
+        feature.setAttributes(
+            [
+                name,
+                convert(value, "m/s^2", unit),
+                convert(sigma, "m/s^2", unit),
+                symbol,
+                value,
+                sigma,
+                _gravity_role(network.stations.get(name), name in decisions),
+                decisions.get(name, ""),
+                mode,
+            ]
+        )
+        yield feature
+
+
+def gravity_difference_features(
+    solution: Solution, network: Network, *, unit: str
+) -> Iterator[QgsFeature]:
+    """One line per gravity difference, carrying what the w-test decided.
+
+    The decision is categorical for the reason :func:`residual_features` gives;
+    the style draws an uncheckable difference as prominently as a rejected one,
+    because in a weakly redundant gravity network it is the more common
+    warning and the easier one to miss.
+    """
+    fields = fields_for("gravity_differences")
+    positions = {
+        name: point
+        for name, point in (
+            (station.station_id, _gravity_point(station.position))
+            for station in solution.adjusted_stations
+        )
+        if point is not None
+    }
+    for station in network.stations.values():
+        if station.id not in positions and station.approx_position is not None:
+            point = _gravity_point(station.approx_position)
+            if point is not None:
+                positions[station.id] = point
+    symbol = _GRAVITY_SYMBOLS[unit]
+    for result in solution.observation_results:
+        observation = network.observations.get(result.observation_id)
+        if observation is None or observation.type.name != "GRAVITY_DIFFERENCE":
+            continue
+        geometry = _connecting_line(observation.stations, positions)
+        if geometry is None:
+            continue
+        value = observation.values[0]
+        meta = observation.meta or {}
+        feature = QgsFeature(fields)
+        feature.setGeometry(geometry)
+        feature.setAttributes(
+            [
+                result.observation_id,
+                observation.stations[0],
+                observation.stations[-1],
+                str(meta.get("drift_owner") or meta.get("session") or ""),
+                convert(value.value, "m/s^2", unit),
+                convert(value.std_dev, "m/s^2", unit),
+                _converted(result.residual, unit),
+                result.standardised_residual,
+                result.redundancy,
+                _converted(result.minimal_detectable_bias, unit),
+                symbol,
+                _decision(result),
+            ]
+        )
+        yield feature
+
+
+def gravity_station_layer(
+    solution: Solution, network: Network, *, unit: str, crs: str = "", name: str = ""
+) -> QgsVectorLayer:
+    """Gravity stations, by how their value was determined."""
+    return _build(
+        "gravity_stations",
+        crs or solution.crs,
+        name or _tr("Gravity stations"),
+        gravity_station_features(solution, network, unit=unit),
+    )
+
+
+def gravity_difference_layer(
+    solution: Solution, network: Network, *, unit: str, crs: str = "", name: str = ""
+) -> QgsVectorLayer:
+    """Gravity differences, categorised by what the w-test decided about them."""
+    return _build(
+        "gravity_differences",
+        crs or solution.crs,
+        name or _tr("Gravity differences"),
+        gravity_difference_features(solution, network, unit=unit),
+    )
+
+
+_GRAVITY_SYMBOLS = {"mgal": "mGal", "ugal": "µGal"}
+
+
+def _converted(value: float | None, unit: str) -> float | None:
+    return None if value is None else convert(value, "m/s^2", unit)
+
+
+def _gravity_point(position) -> tuple[float, float] | None:
+    """Where to draw a gravity station: longitude and latitude, in degrees.
+
+    A gravity network's stations are located by the readings, geodetically;
+    one given with projected coordinates is drawn in them.
+    """
+    if position is None:
+        return None
+    first, second, _third = position.values
+    if position.system is CoordinateSystem.GEODETIC:
+        return math.degrees(second.value), math.degrees(first.value)
+    return first.value, second.value
+
+
+def _gravity_role(station, has_absolute: bool) -> str:
+    if station is not None and station.constraint.gravity is not None:
+        if station.constraint.mode is ConstraintMode.FIXED:
+            return "held"
+        return "absolute"
+    return "absolute" if has_absolute else "relative"
+
+
+def _absolute_decisions(solution: Solution, network: Network) -> dict[str, str]:
+    """The w-test's decision on each station's absolute value; the worst, if several."""
+    decisions: dict[str, str] = {}
+    for result in solution.observation_results:
+        observation = network.observations.get(result.observation_id)
+        if observation is None or observation.type.name != "GRAVITY":
+            continue
+        station = observation.stations[0]
+        decision = _decision(result)
+        if _DECISION_RANK.get(decision, -1) >= _DECISION_RANK.get(decisions.get(station, ""), -1):
+            decisions[station] = decision
+    return decisions
+
+
 # -- helpers --------------------------------------------------------------
 
 
@@ -745,10 +972,14 @@ def _decision(result) -> str:
 
     An uncheckable observation is not a passing one: nothing was tested. The
     style gives it its own symbol for that reason, so the string has to
-    distinguish it here.
+    distinguish it here. A result that records no test at all -- an engine's,
+    which GeoComp did not test -- is none of the three and says so with an
+    empty string, rather than claiming a redundancy nobody computed.
     """
-    if result.is_uncheckable or result.w_test is None:
+    if result.is_uncheckable:
         return "uncheckable"
+    if result.w_test is None:
+        return ""
     return "accepted" if result.w_test.passed else "rejected"
 
 

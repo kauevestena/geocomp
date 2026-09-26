@@ -496,3 +496,137 @@ def test_the_truth_above_is_the_workbooks():
         assert stated["Station standard deviation, mGal"] == SIGMA_MGAL
         if CASES[case]["drift_mgal_h"] is not None:
             assert stated["Drift rate, mGal/hr"] == CASES[case]["drift_mgal_h"], case
+
+
+# -- phase P8b: what the algorithms need from the core ---------------------
+
+
+class TestHoldingAStationByName:
+    """The network algorithm's "known gravity" without a sigma: held exactly."""
+
+    @staticmethod
+    def _held(**extra):
+        library = _library("Test2")
+        return build_gravity_network(
+            reduce_readings(_readings("Test2"), library),
+            library,
+            held={"sta1": Quantity.exact(TRUTH["sta1"] * MGAL, Unit.ACCELERATION)},
+            **extra,
+        )
+
+    def test_it_is_the_same_as_the_constraint_written_by_hand(self):
+        by_name = adjust_gravity_network(self._held())
+        by_hand = _survey("Test2")
+        for station in set(TRUTH) - {"sta1"}:
+            assert by_name.gravity(station).value == pytest.approx(
+                by_hand.gravity(station).value, abs=1e-15
+            )
+            assert by_name.gravity(station).std_dev == pytest.approx(
+                by_hand.gravity(station).std_dev, rel=1e-12
+            )
+        assert by_name.datum.removed_by == "gravity held fixed at sta1"
+
+    def test_the_held_station_keeps_its_location(self):
+        """It is drawn on the map with the others; the layer needs somewhere to put it."""
+        assert self._held().network.stations["sta1"].approx_position is not None
+
+    def test_holding_a_station_nothing_observed_is_refused(self):
+        from geocomp.core.errors import ValidationError
+
+        library = _library("Test2")
+        with pytest.raises(ValidationError) as caught:
+            build_gravity_network(
+                reduce_readings(_readings("Test2"), library),
+                library,
+                held={"sta9": Quantity.exact(0.0, Unit.ACCELERATION)},
+            )
+        assert caught.value.code == "validation.gravity_station_not_observed"
+
+    def test_a_station_both_given_and_held_is_refused(self):
+        from geocomp.core.errors import ValidationError
+
+        with pytest.raises(ValidationError) as caught:
+            self._held(stations={"sta1": Station(id="sta1")})
+        assert caught.value.code == "validation.gravity_station_held_twice"
+
+
+class TestDriftPreviews:
+    """What pre-processing shows about each session before any adjustment."""
+
+    def test_the_preview_is_the_base_fit_the_pre_correction_uses(self):
+        from geocomp.core.techniques.gravimetry import drift_previews
+
+        library = _library("Test2")
+        (preview,) = drift_previews(reduce_readings(_readings("Test2"), library))
+        assert preview.estimable
+        assert (preview.base_station, preview.base_occupations) == ("sta1", 3)
+        rate = preview.estimate.coefficients[0]
+        assert abs(rate.value / MGAL - 0.01) <= 2.0 * rate.std_dev / MGAL
+        (precorrected,) = _survey("Test2", mode=DriftMode.PRE_CORRECTED).drift.values()
+        assert precorrected.coefficients[0].value == pytest.approx(rate.value, rel=1e-12)
+
+    def test_a_session_that_visits_each_station_once_is_not_estimable(self):
+        from geocomp.core.techniques.gravimetry import drift_previews
+
+        library = _library("Test2")
+        first_visits, seen = [], set()
+        for reading in _readings("Test2"):
+            if reading.station not in seen:
+                seen.add(reading.station)
+                first_visits.append(reading)
+        (preview,) = drift_previews(reduce_readings(first_visits, library))
+        assert not preview.estimable
+        assert preview.estimate is None
+
+
+class TestTheDocumentsBetweenTheAlgorithms:
+    def test_a_reduced_reading_round_trips_through_json(self):
+        """Pre-processing writes them, the network reads them back: nothing may
+        change on the way, the tide and the height reduction included."""
+        import dataclasses
+        import json
+
+        from geocomp.core.techniques.gravimetry import ReducedReading
+
+        library = _library("Test2")
+        raw = _readings("Test2")[:3]
+        raw[1] = dataclasses.replace(
+            raw[1],
+            tide_applied=False,
+            sensor_height=Quantity.from_std_dev(0.211, 0.002, Unit.METRE),
+        )
+        reduced = reduce_readings(raw, library)
+        assert reduced[1].tide is not None and reduced[1].to_mark is not None
+        for item in reduced:
+            assert ReducedReading.from_dict(json.loads(json.dumps(item.to_dict()))) == item
+
+    def test_every_difference_names_its_session(self):
+        """The differences layer shows it, whichever way the drift was treated."""
+        from geocomp.core.models import ObservationType
+
+        library = _library("Test2")
+        reduced = reduce_readings(_readings("Test2"), library)
+        for mode in (DriftMode.JOINT, DriftMode.PRE_CORRECTED):
+            built = build_gravity_network(reduced, library, drift=DriftOptions(mode=mode))
+            sessions = {
+                observation.meta.get("drift_owner") or observation.meta.get("session")
+                for observation in built.network.observations.values()
+                if observation.type is ObservationType.GRAVITY_DIFFERENCE
+            }
+            assert sessions == {"B44 2010/01/01"}, mode
+
+
+class TestTheExportsCarryGravity:
+    def test_the_adjusted_sheet_has_the_gravity_in_si(self):
+        """Found in phase P8a and fixed in P8b: the CSV and XLSX exports wrote a
+        station's position and nothing else, so a gravity solution's gravity was
+        dropped on the way out."""
+        from geocomp.io.tabular import sheet_rows
+
+        result = _survey("Test2")
+        headers, rows = sheet_rows("adjusted", None, result.solution)
+        gravity, sigma = headers.index("gravity"), headers.index("gravity_std_dev")
+        by_station = {row[0]: row for row in rows}
+        for station in set(TRUTH) - {"sta1"}:
+            assert by_station[station][gravity] == result.gravity(station).value
+            assert by_station[station][sigma] == result.gravity(station).std_dev

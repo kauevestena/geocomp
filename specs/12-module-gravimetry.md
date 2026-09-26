@@ -38,10 +38,18 @@ unknown observed the same way.
 
 Per `tex §Painel de Configuração Global`, item 4:
 
-| Menu item | Requirement |
-|---|---|
-| Pre-processing (scale, tide, drift) | FR-701 |
-| Gravimetric network adjustment | FR-700, FR-702 |
+| Menu item | Algorithm | Requirement |
+|---|---|---|
+| Pre-processing (scale, tide, drift) | `geocomp:gravimetry_preprocess` | FR-701 |
+| Gravimetric network adjustment | `geocomp:gravimetry_network` | FR-700, FR-702 |
+
+**Built in phase P8b.** *Pre-processing* reads a gravimeter file (§3.1), reduces every reading (§4) and writes
+a **reduced readings** document — the readings in SI with the gravimeter profiles they were reduced with, so
+the network propagates the calibration the reduction applied and not whatever the library says by then. It
+also writes the corrections per reading, and each session's drift as its base readings show it, with whether
+the session lets the network estimate it jointly; **nothing is subtracted for drift there**, because a drift
+estimated with the station values uses every re-occupation (§4.3). *Gravimetric network adjustment* reads that
+document and writes the solution, a report, a CSV and two layers (§5).
 
 ---
 
@@ -73,6 +81,39 @@ Consecutive readings at one station within a session are one **occupation**: a C
 minute for as long as it stands on a mark, and those are one visit, not sixty. Their weighted mean, at their
 weighted mean time, is what differences are formed from; treating the readings of one visit as independent is
 recorded as `INDEPENDENCE_ASSUMED`.
+
+### 3.1 Reading a gravimeter file (phase P8b)
+
+`geocomp/io/gravimeter_files.py` reads three formats, recognised from the content rather than the name, into
+readings with every value in SI:
+
+- **Scintrex CG-5** text exports. The header gives the location, the clock's `GMT DIFF.` and whether the
+  instrument removed the tide; a reading's precision is `SD / √DUR`, the standard error of the samples it
+  averaged (Hector and Hinderer, 2016).
+- **ZLS Burris** exports, in the layout USGS's GSadjust reads. They state no precision.
+- **A plain CSV** with named columns — `station`, `time` and `reading_mgal`, and optionally `sd_mgal`,
+  `instrument`, `session`, `latitude_deg`, `longitude_deg`, `height_m`, `sensor_height_m`, `tide_applied`. A
+  time without its UTC offset is refused: the tide depends on the time to the minute.
+
+**What the instrument already did is kept, not repeated.** A CG-5 with *Tide Correction: YES* and a Burris
+with a non-zero tide column have removed the tide; *replace* adds it back before GeoComp removes its own. A
+Burris tide column of zero says only that the meter applied none — its correction was off, or the file is
+synthetic and tide-free — so the gravimeter profile decides (`applies_tide`), and without a profile GeoComp
+removes the tide.
+
+**The clock.** Which way a CG-5's GMT difference runs is settled by the file, not assumed: when GeoComp needs
+UTC, the instrument's tide column is compared with Longman's under both readings, and the one that agrees to
+3 µGal is used — or the file is refused unless the offset is given. A difference of **zero** is taken as UTC
+and the notes say so, with how well the instrument's tide agrees under that reading (1.2 µGal on RD-07's
+survey). When the instrument's tide is kept, only elapsed time matters and the offset cancels.
+
+**A precision floor** is added in quadrature to each reading's own precision, for what the instrument's
+statistic knows nothing of — tilt, temperature, transport. It is a nominal figure, so a precision that
+includes one is labelled approximate with `NOMINAL_PRECISION` (FR-203).
+
+**Not built: a CG-6 reader.** The roadmap named one. No CG-6 export was reachable to write it against —
+GSadjust's test data has CG-5 and Burris files only — and a reader written from memory of a format is a
+reader of a guess. A CG-6 survey can be read today through the CSV.
 
 ---
 
@@ -234,6 +275,18 @@ and a lone absolute value are the common cases; and a solution `uncertainty_mode
 any input was. That last one was set by nothing before phase P8: every solution of every technique claimed to
 be rigorous, including one weighted entirely by a brochure's precision (FR-203). `to_solution` now derives it.
 
+**Known gravity, as the network algorithm takes it (phase P8b).** `station=value` in mGal: with `±sigma` it is
+an absolute determination and enters weighted, as above; without one the station is **held**, which makes it
+the datum and every uncertainty relative to it — a choice, not a measurement, and the report says which. With
+neither, the network is adjusted with an inner constraint and every value is relative to the stations' mean.
+
+**The result as layers (phase P8b).** *Gravity stations* — every station, held ones included, with its value
+and sigma in the display unit and in SI, how it was determined, and the w-test's decision on its absolute
+value if it has one; *Gravity differences* — one line per difference with its residual, redundancy, MDB and
+decision. An uncheckable difference is drawn as prominently as a blunder candidate, in a colour of its own,
+and a lone absolute value gets the same colour as an outline: in a weakly redundant network it is the more
+common warning and the easier one to miss. The report lists them by name before anything else.
+
 **Not built in P8a: scale estimated as a parameter.** A calibration factor enters known, with its uncertainty
 propagated. Estimating it needs at least two absolute values far enough apart in gravity to define a scale,
 adds one to the defect, and makes the model bilinear; it is named here so the parameter list above does not
@@ -246,6 +299,32 @@ imply it.
 In Global Settings, under a Gravimeter section (FR-060, FR-061): gravimeter profiles with calibration tables
 and factors, nominal precision, and drift characteristics; tidal model selection; default weighting;
 and display units.
+
+**What phase P8b declared — six settings, every one read by the computation:**
+
+| Setting | Default | Read by |
+|---|---|---|
+| `gravimeter.tide_model` — Longman (1959) or none | Longman | *Pre-processing*: the tide model |
+| `gravimeter.tide_amplification` — the gravimetric factor | 1.16 | *Pre-processing*: the tide's amplification |
+| `gravimeter.drift_mode` — joint or pre-corrected | joint | *Network adjustment*: the drift treatment |
+| `gravimeter.drift_degree` | 1 | both: the preview, and the network's polynomial |
+| `gravimeter.precision_floor` — the default weighting, m·s⁻² | 0 | *Pre-processing*: added in quadrature to each reading |
+| `gravimeter.display_unit` — mGal or µGal | mGal | every table, CSV, layer and report that shows gravity |
+
+Each is the default of the algorithm parameter of the same meaning, so a run can override it (FR-068).
+**Stored in SI, shown in the display unit** (§3): the reduced readings document, the solution and the layers'
+`gravity_si` column are m·s⁻²; what a person reads is converted and names its unit.
+
+**Gravimeter profiles are not settings**, for the reason level profiles are not
+([`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §2.1): they are named records with their own
+uncertainties, and they travel as a profile library document, which *Pre-processing* takes. A library that
+lacks an instrument the file names is refused rather than completed silently. **With no library**, each
+instrument's own scale is used with a calibration factor of one labelled `MODEL_ASSUMED`: its uncertainty
+cannot be stated, so none is propagated, and the label carries through to the solution, which then does not
+call itself rigorous.
+
+*Drift characteristics* per profile are not modelled: drift is estimated per session from the data (§4.3),
+which is what FR-702 asks for, and a profile's typical rate would inform nothing the adjustment uses.
 
 ---
 
@@ -262,7 +341,7 @@ available alongside coordinates, are exported together, and are visualised on th
 
 ## 8. Acceptance criteria
 
-Status after phase P8a, with the evidence for each in [`ROADMAP.md`](./ROADMAP.md) P8a:
+Status after phase P8b, with the evidence for each in [`ROADMAP.md`](./ROADMAP.md) P8a and P8b:
 
 1. Scale, tidal and drift corrections each reproduce a worked example to published precision. — **Tide and
    drift: met** (the CG-5 firmware to its printed microgal; pyGrav's published solution). **Scale: not met
@@ -281,10 +360,12 @@ Status after phase P8a, with the evidence for each in [`ROADMAP.md`](./ROADMAP.m
    reported with what removed it.
 5. Absolute and relative observations combine correctly, with absolute values weighted rather than fixed.
    — **Met**: two absolute values in conflict both move and both carry a residual.
-6. Uncheckable observations (redundancy number ≈ 0) are flagged prominently. — **Met in the result**, by
-   name; *prominently* in a report or on the map is P8b's.
+6. Uncheckable observations (redundancy number ≈ 0) are flagged prominently. — **Met**: by name in the
+   result; first in the report, before the adjusted values; in the log as warnings; and on the map in a colour
+   of their own, as prominent as a blunder candidate (§5).
 7. All values are stored in SI and displayed in the configured unit; a test asserts no unit conversion
    reaches storage. — **Storage met** (a GeoPackage round trip returns the adjusted gravity bit for bit, in
-   m·s⁻²); **display is P8b's**, with the setting that chooses the unit.
+   m·s⁻²). **Display met** (P8b): `gravimeter.display_unit` chooses mGal or µGal for every table, CSV, layer
+   and report, each naming its unit, and a tier-3 test runs the chain in both.
 8. Every output carries an uncertainty and an `uncertainty_mode` (FR-703). — **Met**, including the
    solution's own mode, which no solution carried correctly before (§5).

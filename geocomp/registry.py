@@ -571,6 +571,27 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="gnss",
         menu_order=80,
     ),
+    # -- Phase P8b: Gravimetry --------------------------------------------
+    #
+    # The two entries of `specs/12` section 2, in the order they are run.
+    AlgorithmSpec(
+        operation="preprocess",
+        group="gravimetry",
+        module="geocomp.algorithms.gravimetry.preprocess",
+        class_name="GravimetryPreprocessAlgorithm",
+        requirement="FR-701",
+        menu="gravimetry",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="network",
+        group="gravimetry",
+        module="geocomp.algorithms.gravimetry.network_adjust",
+        class_name="GravimetryNetworkAlgorithm",
+        requirement="FR-700",
+        menu="gravimetry",
+        menu_order=20,
+    ),
 )
 
 #: Menu groups permitted a second level. One entry, and the reason is in

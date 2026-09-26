@@ -32,6 +32,7 @@ from geocomp.core.techniques.gravimetry.drift import (
 from geocomp.core.techniques.gravimetry.network import (
     AbsoluteGravity,
     DatumReport,
+    DriftPreview,
     GravityNetwork,
     GravityNetworkResult,
     Occupation,
@@ -40,6 +41,7 @@ from geocomp.core.techniques.gravimetry.network import (
     adjust_gravity_network,
     build_gravity_network,
     compare_treatments,
+    drift_previews,
     group_occupations,
 )
 from geocomp.core.techniques.gravimetry.readings import (
@@ -68,6 +70,7 @@ __all__ = [
     "DriftEstimate",
     "DriftMode",
     "DriftOptions",
+    "DriftPreview",
     "DriftTreatment",
     "GravityNetwork",
     "GravityNetworkResult",
@@ -82,6 +85,7 @@ __all__ = [
     "build_gravity_network",
     "compare_treatments",
     "drift_is_estimable",
+    "drift_previews",
     "group_occupations",
     "reduce_readings",
     "tidal_correction",

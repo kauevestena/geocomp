@@ -695,6 +695,16 @@ arithmetic is checked against a constructed one and the scale criterion of
 [`12`](./12-module-gravimetry.md) §8 is recorded as not met against a published example. And a network adjusted
 onto *published absolute stations* — IBGE's RENEGA was the candidate — which would check the combination of
 absolute and relative values against someone else's answer rather than against USGS's synthetic truth.
+**A nearer candidate was found in phase P8b**: GSadjust's repository, at the pinned commit, also holds USGS's
+*field* data — two real Burris surveys (December 2017 and February 2018, meters B44 and B108, coordinates
+shifted by about 0.15°) with Micro-g A-10 absolute values at four of the stations, public domain. The A-10
+reports give each value at a 100 cm transfer height with the gradient used, so comparing them needs the Burris
+sensor height, which the files do not state. Not used yet; named so it is not rediscovered.
+
+**Phase P8b** runs the production reader, the reduction and the network on the fetched CG-5 survey as well:
+the reader matches the reference script's parser on all 2,096 readings, and each day adjusts to within 6 µGal
+of pyGrav's published stations under a different drift model (one line a day, not eight loops) — evidence
+that the chain works on a real file, not a precision claim ([`12`](./12-module-gravimetry.md) §3.1).
 
 ## 6. Recommended order
 

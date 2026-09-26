@@ -13,7 +13,7 @@ a diverging sequence is worse than no result, because nothing about it says so.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
@@ -41,6 +41,7 @@ from geocomp.core.models import (
     Provenance,
     Solution,
     SolutionKind,
+    TestResult,
 )
 from geocomp.core.statistics.ellipses import error_ellipse
 from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode, combine_modes
@@ -495,6 +496,18 @@ def to_observation_results(
         w_test = None
         if candidate is not None and snooping is not None:
             w_test = candidate.to_test_result(snooping.confidence, snooping.distribution)
+        elif snooping is not None and row in statistics:
+            # A row that passed was tested too, and says so. Recording only the
+            # failures left a passing row indistinguishable from one never
+            # tested, and the residual layer drew every passing observation as
+            # "not testable" (found in phase P8b).
+            w_test = TestResult(
+                name=f"w-test ({snooping.distribution})",
+                statistic=statistics[row],
+                critical_high=snooping.critical_value,
+                confidence=snooping.confidence,
+                passed=statistics[row] <= snooping.critical_value,
+            )
 
         results.append(
             ObservationResult(
@@ -667,5 +680,8 @@ def to_solution(
         ),
         observation_results=tuple(observation_results or ()),
         statistics=statistics,
-        provenance=provenance,
+        # The provenance states the result's mode too, and a caller building it
+        # before the adjustment cannot know it: left alone it would say RIGOROUS
+        # beside a solution that is not.
+        provenance=replace(provenance, uncertainty_mode=mode) if provenance is not None else None,
     )

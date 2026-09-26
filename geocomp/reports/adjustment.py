@@ -48,6 +48,7 @@ from geocomp.algorithms.reporting import (
 )
 from geocomp.core.models import Network, Solution
 from geocomp.core.uncertainty import UncertaintyMode
+from geocomp.core.units import convert
 from geocomp.core.version import __version__
 from geocomp.reports.templates import Template, load_template, render, unused_sections
 
@@ -70,6 +71,9 @@ class ReportContext:
             matters: "confidence 0.99" and "confidence 0.99, from this project"
             are different statements to somebody reproducing the run.
         qgis_version: Recorded for the software section.
+        gravity_unit: ``"mgal"`` or ``"ugal"``: how a gravity solution's values
+            and residuals are shown (FR-067). Display only; the solution is in
+            m/s^2 and says so.
     """
 
     network: Network | None = None
@@ -77,6 +81,7 @@ class ReportContext:
     qgis_version: str = ""
     template_directory: str = ""
     template_name: str = "adjustment.html"
+    gravity_unit: str = "mgal"
 
 
 def _heading(text: str) -> str:
@@ -225,11 +230,62 @@ def _parameters(context: ReportContext) -> str:
     )
 
 
-def _results(solution: Solution) -> str:
+def _is_gravity(solution: Solution) -> bool:
+    """A gravity solution: its stations carry gravity, and so do its residuals.
+
+    Gravity is not adjusted jointly with coordinates in v1.0 (``specs/12``
+    section 7), so a solution with any gravity is a gravity solution throughout.
+    """
+    return any(station.gravity is not None for station in solution.adjusted_stations)
+
+
+_GRAVITY_UNITS = {"mgal": ("mGal", 4), "ugal": ("µGal", 1)}
+
+
+def _gravity(value: float | None, unit: str, extra: int = 0) -> str:
+    """A gravity in the display unit, to a tenth of a microgal (plus *extra* digits)."""
+    _symbol, decimals = _GRAVITY_UNITS[unit]
+    return format_number(None if value is None else convert(value, "m/s^2", unit), decimals + extra)
+
+
+def _gravity_results(solution: Solution, unit: str) -> str:
+    symbol, _decimals = _GRAVITY_UNITS[unit]
+    rows = [
+        [
+            escape(station.station_id),
+            _gravity(station.gravity.value, unit),
+            _gravity(station.gravity.std_dev, unit, 1),
+        ]
+        for station in sorted(solution.adjusted_stations, key=lambda s: s.station_id)
+        if station.gravity is not None
+    ]
+    return (
+        _heading(_tr("Adjusted gravity"))
+        + render_table(
+            [
+                escape(_tr("Station")),
+                escape(_tr("Gravity (%1)").replace("%1", symbol)),
+                escape(_tr("sigma (%1)").replace("%1", symbol)),
+            ],
+            rows,
+        )
+        + render_note(
+            _tr(
+                "Shown in %1, as the Gravimeter settings ask; the solution stores m/s². "
+                "A station held fixed has no uncertainty of its own and is not listed."
+            ).replace("%1", symbol),
+            label=_tr("Units"),
+        )
+    )
+
+
+def _results(solution: Solution, gravity_unit: str = "mgal") -> str:
     if not solution.adjusted_stations:
         return _heading(_tr("Results")) + render_note(
             _tr("This solution adjusted no station."), label=_tr("Results")
         )
+    if _is_gravity(solution):
+        return _gravity_results(solution, gravity_unit)
     rows = []
     for station in sorted(solution.adjusted_stations, key=lambda s: s.station_id):
         values = station.position.values
@@ -329,12 +385,14 @@ def _statistics(solution: Solution) -> str:
     return body
 
 
-def _observation_results(solution: Solution) -> str:
+def _observation_results(solution: Solution, gravity_unit: str = "mgal") -> str:
     if not solution.observation_results:
         return _heading(_tr("Observation results")) + render_note(
             _tr("This solution recorded no per-observation results."),
             label=_tr("Observation results"),
         )
+    if _is_gravity(solution):
+        return _gravity_observation_results(solution, gravity_unit)
     rows = []
     for index, result in enumerate(solution.observation_results):
         test = result.w_test
@@ -364,6 +422,49 @@ def _observation_results(solution: Solution) -> str:
             escape(_tr("Redundancy")),
             escape(_tr("MDB")),
             escape(_tr("External effect")),
+            escape(_tr("w-test")),
+        ],
+        rows,
+    )
+
+
+def _gravity_observation_results(solution: Solution, unit: str) -> str:
+    """As :func:`_observation_results`, with residuals in the gravity display unit.
+
+    Six decimals of m/s^2 would print every gravity residual as zero.
+    """
+    symbol, _decimals = _GRAVITY_UNITS[unit]
+    rows = []
+    for index, result in enumerate(solution.observation_results):
+        test = result.w_test
+        decision = ""
+        if result.is_uncheckable:
+            decision = f'<span class="fail">{escape(_tr("not testable"))}</span>'
+        elif test is not None:
+            marker = "pass" if test.passed else "fail"
+            label = _tr("accepted") if test.passed else _tr("CANDIDATE")
+            decision = f'<span class="{marker}">{escape(label)}</span>'
+        rows.append(
+            [
+                str(index),
+                escape(result.observation_id),
+                _gravity(result.residual, unit, 1),
+                format_number(result.standardised_residual, 3),
+                format_number(result.redundancy, 4),
+                _gravity(result.minimal_detectable_bias, unit, 1),
+                _gravity(result.external_reliability, unit, 1),
+                decision or "—",
+            ]
+        )
+    return _heading(_tr("Observation results")) + render_table(
+        [
+            escape(_tr("Row")),
+            escape(_tr("Observation")),
+            escape(_tr("Residual (%1)").replace("%1", symbol)),
+            escape(_tr("Standardised")),
+            escape(_tr("Redundancy")),
+            escape(_tr("MDB (%1)").replace("%1", symbol)),
+            escape(_tr("External effect (%1)").replace("%1", symbol)),
             escape(_tr("w-test")),
         ],
         rows,
@@ -548,9 +649,9 @@ def build_sections(
         "uncertainty_notice": _uncertainty_notice(solution),
         "inputs": _inputs(solution, context.network),
         "parameters": _parameters(context),
-        "results": _results(solution),
+        "results": _results(solution, context.gravity_unit),
         "statistics": _statistics(solution),
-        "observation_results": _observation_results(solution),
+        "observation_results": _observation_results(solution, context.gravity_unit),
         "reliability": _reliability(solution),
         "ellipses": _ellipses(solution),
         "provenance": _provenance(solution),

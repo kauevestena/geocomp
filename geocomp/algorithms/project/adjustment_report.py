@@ -125,6 +125,7 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
     ) -> dict[str, Any]:
         from pathlib import Path
 
+        from geocomp.algorithms.gravimetry.common import display_unit
         from geocomp.reports import ReportContext, render_adjustment_report
 
         try:
@@ -141,6 +142,7 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
             parameter_scopes=self._scopes(feedback),
             template_directory=str(Path(template).parent) if template else "",
             template_name=Path(template).name if template else "adjustment.html",
+            gravity_unit=display_unit(),
         )
 
         try:

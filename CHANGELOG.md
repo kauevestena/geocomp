@@ -5,6 +5,64 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P8b — gravimetry: the surface
+
+The two algorithms of the Gravimetry menu, the readers they start from, the
+Gravimeter settings, and the result as layers, a report and exports. P8a's
+computation is unchanged underneath.
+
+#### Added
+
+- **Pre-processing (scale, tide, drift)** (`geocomp:gravimetry_preprocess`,
+  FR-701): reads a gravimeter file, reduces every reading through its
+  instrument's calibration, removes the tide once, reduces to the mark, and
+  writes a reduced-readings document carrying the profiles it used. Each
+  session's drift is shown as its base readings give it, with whether the
+  network can estimate it jointly; nothing is subtracted.
+- **Gravimetric network adjustment** (`geocomp:gravimetry_network`, FR-700,
+  FR-702): known gravity as `station=value` in mGal — weighted with `±sigma`,
+  held without — joint or pre-corrected drift, and the solution, a report that
+  lists uncheckable observations first, a CSV and two layers.
+- **Gravimeter file readers** (`io/gravimeter_files.py`): Scintrex CG-5, ZLS
+  Burris and a named-column CSV, recognised from the content. A CG-5's GMT
+  difference is settled by comparing its tide column with Longman's under both
+  readings; a zero difference is taken as UTC and the note says how well the
+  instrument's tide agrees under it (1.2 µGal on RD-07's survey). A precision
+  floor is labelled a nominal precision. On RD-07's real survey the reader
+  matches the reference script's parser on all 2,096 readings.
+- **The Gravimeter settings**: tide model, gravimetric factor, drift treatment
+  and degree, a reading precision floor as the default weighting, and the
+  display unit — all six read, each the default of its algorithm parameter.
+- **Gravity stations and gravity differences layers**, styled: held, absolute
+  and relative stations by shape; differences by the w-test's decision, with
+  uncheckable ones as prominent as blunder candidates.
+- **Gravity in the shared adjustment report** (in the display unit, residuals
+  included) **and in the CSV and XLSX exports** (in m/s²).
+- **Stations held by name** in `build_gravity_network(held=...)`.
+
+#### Fixed
+
+- **The residual layer drew every passing observation as "not testable".**
+  Only failed and uncheckable rows carried a w-test, and the layer read a
+  missing one as uncheckable. Every tested row now carries its test.
+- **Provenance said `RIGOROUS` beside an approximate solution**; `to_solution`
+  now stamps the derived mode on it too.
+- A Burris file's zero tide column no longer overrides the gravimeter profile:
+  it means the meter applied none, which the profile decides.
+- A hand-written profile library missing a field is reported by name instead of
+  as a `KeyError`.
+- The message-template check now reads `io` as well as `core`; the return-type
+  check judges `tuple[X, ...]` by `X`.
+
+#### Not done
+
+- A CG-6 reader: no export was reachable to write it against.
+- 36 of the 61 settings — every number, path, string and CRS — cannot be edited
+  in the Settings window; two gravimeter settings are among them. Recorded in
+  `specs/15` §2.3.
+- On RD-07's real survey, one linear drift per day fails the global test on
+  three days of four; sessions cannot yet be split by loop.
+
 ### P8a — gravimetry: the computation
 
 The corrections and the drift that no external engine supplies, on the
