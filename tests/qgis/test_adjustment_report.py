@@ -290,3 +290,59 @@ class TestOneDimensionIsNotAnOmission:
         _network, solution = adjusted
         html, _omitted = _render(solution, context)
         assert "A one-dimensional adjustment has" in html
+
+
+class TestAGravitySolution:
+    """Phase P8b: the report shows gravity in the unit the settings ask for.
+
+    Before it, a gravity solution's results table printed the station's
+    location, and its residuals printed six decimals of m/s^2 -- zero, for
+    every one of them.
+    """
+
+    @pytest.fixture(scope="class")
+    def gravity(self):
+        from tests.test_gravimetry_network import _survey
+
+        return _survey("Test2")
+
+    def test_the_results_are_gravity_in_the_display_unit(self, gravity):
+        from geocomp.reports import ReportContext
+
+        html, _omitted = _render(gravity.solution, ReportContext(gravity_unit="ugal"))
+        assert "Adjusted gravity" in html
+        assert "Gravity (µGal)" in html
+        assert "Adjusted coordinates" not in html
+        value = gravity.gravity("sta2").value / 1e-8
+        assert f"{value:.1f}" in html
+
+    def test_the_residuals_are_readable(self, gravity):
+        from geocomp.reports import ReportContext
+
+        html, _omitted = _render(gravity.solution, ReportContext(gravity_unit="ugal"))
+        assert "Residual (µGal)" in html
+        residual = gravity.solution.observation_results[0].residual / 1e-8
+        assert f"{residual:.2f}" in html
+
+
+class TestTheGeoidModelIsNamed:
+    """``specs/13`` criterion 2: with a geoid model, the model used appears in
+    the solution *and in the report*. P5 recorded it on every adjusted
+    position; nothing printed it until P9a."""
+
+    def test_the_identification_names_it(self, adjusted, context):
+        from dataclasses import replace
+
+        _network, solution = adjusted
+        stations = tuple(
+            replace(s, position=replace(s.position, geoid_model="mapgeo2015"))
+            for s in solution.adjusted_stations
+        )
+        html, _omitted = _render(replace(solution, adjusted_stations=stations), context)
+        assert "Geoid model" in html
+        assert "mapgeo2015" in html
+
+    def test_a_solution_without_one_says_nothing_about_it(self, adjusted, context):
+        _network, solution = adjusted
+        html, _omitted = _render(solution, context)
+        assert "Geoid model" not in html

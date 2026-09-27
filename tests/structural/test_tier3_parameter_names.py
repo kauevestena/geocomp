@@ -77,6 +77,10 @@ FOREIGN_KEYS: dict[str, str] = {
     "BM2": "RD-04 benchmark; see BM1.",
     "BM3": "RD-04 benchmark; see BM1.",
     "BM4": "RD-04 benchmark; see BM1.",
+    "B44": (
+        "USGS's ZLS Burris meter in the GSadjust test surveys: an instrument id in "
+        "tests/data/rd07/gsadjust, named in a profile the gravimetry test writes."
+    ),
     "FAILED": (
         "A word the adjustment report prints when the global test fails, "
         "asserted in tests/qgis/test_adjustment_report.py. Upper case because "

@@ -13,19 +13,27 @@ a diverging sequence is worse than no result, because nothing about it says so.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
 from geocomp.core.adjustment.datum import DatumDefect, constraint_matrix, detect_defect
 from geocomp.core.adjustment.difference_network import approximate_values
+from geocomp.core.adjustment.geocentric import UNDULATION
 from geocomp.core.adjustment.normal_equations import LinearisedSystem, assemble, solve
 from geocomp.core.adjustment.parameters import (
     Frame,
     ParameterLayout,
+    orientation_owner,
     weighted_constraints,
 )
+from geocomp.core.adjustment.undulations import (
+    model_undulations,
+    orthometric_stations,
+    undulation_priors,
+)
 from geocomp.core.errors import ComputationError, ValidationError
+from geocomp.core.geoid import GeoidModel
 from geocomp.core.models import (
     AdjustedStation,
     AdjustmentStatistics,
@@ -41,6 +49,7 @@ from geocomp.core.models import (
     Provenance,
     Solution,
     SolutionKind,
+    TestResult,
 )
 from geocomp.core.statistics.ellipses import error_ellipse
 from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode, combine_modes
@@ -73,6 +82,11 @@ class AdjustmentOptions:
             frame's linear unit. 0.1 mm by default, per ``specs/06`` section 2.2.
         max_iterations: After which non-convergence is reported as a failure.
         confidence: For the global test and the error ellipses.
+        geoid: Relates orthometric observations to the ellipsoidal heights of
+            ``Frame.GEOCENTRIC_3D`` (FR-802, FR-804). Each station an
+            orthometric observation touches gets an undulation parameter with
+            the model's value as its prior (``undulations.py``). Without one,
+            such an observation is refused.
     """
 
     frame: Frame = Frame.PLANE_2D
@@ -83,6 +97,7 @@ class AdjustmentOptions:
     max_iterations: int = 20
     confidence: float = 0.95
     auxiliary: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    geoid: GeoidModel | None = None
 
 
 @dataclass
@@ -113,6 +128,11 @@ class AdjustmentRun:
     defect: DatumDefect
     method: str
     observations: list[Observation]
+    #: The geoid model's undulation at each station it was needed at -- the
+    #: priors, with their uncertainty and approximations (FR-203).
+    undulations: dict[str, Quantity] = field(default_factory=dict)
+    #: Which geoid model related the height systems, if one did (FR-804).
+    geoid_model: str | None = None
 
     @property
     def parameter_covariance(self) -> np.ndarray:
@@ -155,8 +175,13 @@ def adjust(
     # declare them removes a footgun that produces a diverging adjustment and no
     # explanation -- which is exactly how this was found, in phase P3.
     auxiliary = _with_orientation_unknowns(observations, options.auxiliary)
+    undulations = _undulations_needed(network, observations, options)
+    for station_id in undulations:
+        auxiliary[station_id] = (*auxiliary.get(station_id, ()), UNDULATION)
     layout = ParameterLayout.build(network, options.frame, auxiliary=auxiliary)
     values = starting_values(network, layout, options, approximate, auxiliary=auxiliary)
+    for station_id, undulation in undulations.items():
+        values[station_id][UNDULATION] = undulation.value
     x = np.array([values[slot.owner][slot.component] for slot in layout.slots])
 
     defect = detect_defect(observations, options.frame)
@@ -166,6 +191,7 @@ def adjust(
     # datum-removal step -- see WeightedConstraint for what happened while these
     # rows were missing.
     weighted = weighted_constraints(network, layout, options.frame)
+    weighted += undulation_priors(layout, undulations)
 
     converged = False
     correction = float("inf")
@@ -240,7 +266,37 @@ def adjust(
         defect=defect,
         method=result.method,
         observations=observations,
+        undulations=undulations,
+        geoid_model=options.geoid.id if undulations and options.geoid is not None else None,
     )
+
+
+def _undulations_needed(
+    network: Network, observations: list[Observation], options: AdjustmentOptions
+) -> dict[str, Quantity]:
+    """The geoid undulations the orthometric observations need, or a refusal.
+
+    Only the geocentric frame computes ellipsoidal heights; in the others a
+    height is whatever the network says it is, and P5's levelling harmonises
+    its types before it gets here (``specs/13`` section 3.1).
+    """
+    if options.frame is not Frame.GEOCENTRIC_3D:
+        return {}
+    stations = orthometric_stations(observations)
+    if not stations:
+        return {}
+    if options.geoid is None:
+        raise ValidationError(
+            "mixed_height_types",
+            stations=stations[:10],
+            expected=(
+                "a geoid model (AdjustmentOptions.geoid) relating the orthometric "
+                "observations to the ellipsoidal heights the geocentric frame "
+                "computes; without one they differ by the undulation, tens of "
+                "metres in much of Brazil"
+            ),
+        )
+    return model_undulations(network, stations, options.geoid)
 
 
 def _residual_cofactor(system: LinearisedSystem, cofactor_parameters: np.ndarray) -> np.ndarray:
@@ -266,9 +322,7 @@ def _with_orientation_unknowns(
     for observation in observations:
         if observation.type is not ObservationType.DIRECTION:
             continue
-        owner = observation.setup_id or observation.meta.get("orientation_owner")
-        if owner is None:
-            continue
+        owner = orientation_owner(observation)
         names = auxiliary.get(owner, ())
         if "orientation" not in names:
             auxiliary[owner] = (*names, "orientation")
@@ -299,20 +353,35 @@ def _initial_orientations(
     for observation in observations:
         if observation.type is not ObservationType.DIRECTION:
             continue
-        owner = observation.setup_id or observation.meta.get("orientation_owner")
-        if owner is None or "orientation" not in auxiliary.get(owner, ()):
+        owner = orientation_owner(observation)
+        if "orientation" not in auxiliary.get(owner, ()):
             continue
         origin_id, target_id = observation.stations
         origin = coordinates.get(origin_id)
         target = coordinates.get(target_id)
         if origin is None or target is None:
             continue
-        azimuth = math.atan2(target["e"] - origin["e"], target["n"] - origin["n"])
+        if frame is Frame.GEOCENTRIC_3D:
+            azimuth = _geocentric_azimuth(origin, target)
+        else:
+            azimuth = math.atan2(target["e"] - origin["e"], target["n"] - origin["n"])
         per_owner.setdefault(owner, []).append(azimuth - observation.values[0].value)
 
     return {
         owner: circular_mean(differences) for owner, differences in per_owner.items()
     }
+
+
+def _geocentric_azimuth(origin: dict[str, float], target: dict[str, float]) -> float:
+    """The azimuth of a sight in the origin's own horizon, for a starting orientation."""
+    from geocomp.core.adjustment.geocentric import ELLIPSOID
+    from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation
+
+    start = np.array([origin["x"], origin["y"], origin["z"]])
+    end = np.array([target["x"], target["y"], target["z"]])
+    latitude, longitude, _height = cartesian_to_geodetic(*start, ELLIPSOID)
+    east, north, _up = enu_rotation(latitude, longitude) @ (end - start)
+    return math.atan2(east, north)
 
 
 def starting_values(
@@ -375,6 +444,16 @@ def starting_values(
     return values
 
 
+def _horizontal_block(position: list[float], covariance: np.ndarray) -> np.ndarray:
+    """The east-north 2x2 of an ECEF covariance, at the station it belongs to."""
+    from geocomp.core.adjustment.geocentric import ELLIPSOID
+    from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation
+
+    latitude, longitude, _height = cartesian_to_geodetic(*position, ELLIPSOID)
+    rotation = enu_rotation(latitude, longitude)
+    return (rotation @ covariance @ rotation.T)[:2, :2]
+
+
 def _from_position(station, component: str, frame: Frame) -> float:
     """Read one frame component out of a station's approximate position.
 
@@ -383,6 +462,10 @@ def _from_position(station, component: str, frame: Frame) -> float:
     mapping so they cannot drift apart again.
     """
     position = station.approx_position
+    if frame is Frame.GEOCENTRIC_3D:
+        from geocomp.core.adjustment.parameters import geocentric_component
+
+        return geocentric_component(position, component, station.id)
     index = frame.components.index(component)
     name = frame.position_components[index]
     if position.system is CoordinateSystem.PROJECTED:
@@ -495,6 +578,18 @@ def to_observation_results(
         w_test = None
         if candidate is not None and snooping is not None:
             w_test = candidate.to_test_result(snooping.confidence, snooping.distribution)
+        elif snooping is not None and row in statistics:
+            # A row that passed was tested too, and says so. Recording only the
+            # failures left a passing row indistinguishable from one never
+            # tested, and the residual layer drew every passing observation as
+            # "not testable" (found in phase P8b).
+            w_test = TestResult(
+                name=f"w-test ({snooping.distribution})",
+                statistic=statistics[row],
+                critical_high=snooping.critical_value,
+                confidence=snooping.confidence,
+                passed=statistics[row] <= snooping.critical_value,
+            )
 
         results.append(
             ObservationResult(
@@ -552,13 +647,17 @@ def to_solution(
     covariance = run.parameter_covariance
     units = run.layout.component_units()
     adjusted: list[AdjustedStation] = []
+    if run.layout.frame is Frame.GEOCENTRIC_3D:
+        system = CoordinateSystem.CARTESIAN
     # FR-203: a result computed from any approximate input is approximate, and
     # says which approximations it rests on. Until phase P8 nothing set this, so
     # every solution claimed to be rigorous -- including one weighted entirely
     # by a brochure's precision -- and a report of it could name no strategy.
     mode, strategies = combine_modes(
-        *(value for observation in run.observations for value in observation.values)
+        *(value for observation in run.observations for value in observation.values),
+        *run.undulations.values(),
     )
+    geoid_model = geoid_model or run.geoid_model
 
     for station_id in run.layout.station_ids():
         columns = run.layout.station_columns(station_id)
@@ -608,7 +707,17 @@ def to_solution(
         # for it wherever a station is reported, and computing it here means a
         # DynAdjust solution carries one on the same terms.
         ellipse = None
-        if len(indices) >= 2:
+        if run.layout.frame is Frame.GEOCENTRIC_3D and len(indices) == 3:
+            # X-Y is not a horizontal plane: the ellipse is the east-north
+            # block of the covariance turned into the station's own horizon.
+            ellipse = error_ellipse(
+                _horizontal_block(
+                    [q.value for q in quantities], covariance[np.ix_(indices, indices)]
+                ),
+                confidence=confidence,
+                degrees_of_freedom=run.degrees_of_freedom,
+            )
+        elif len(indices) >= 2:
             ellipse = error_ellipse(
                 covariance[np.ix_(indices[:2], indices[:2])],
                 confidence=confidence,
@@ -667,5 +776,8 @@ def to_solution(
         ),
         observation_results=tuple(observation_results or ()),
         statistics=statistics,
-        provenance=provenance,
+        # The provenance states the result's mode too, and a caller building it
+        # before the adjustment cannot know it: left alone it would say RIGOROUS
+        # beside a solution that is not.
+        provenance=replace(provenance, uncertainty_mode=mode) if provenance is not None else None,
     )

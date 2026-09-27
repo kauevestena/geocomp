@@ -138,6 +138,9 @@ every observation adjusted, and writes them onto the solution, each adjusted val
 it produces. Until then nothing set it: every solution of every technique defaulted to `RIGOROUS`, including
 one weighted entirely by a nominal precision, and a report of it could name no strategy. Found while building
 FR-703, which depends on it; `tests/test_gravimetry_is_levelling.py` asserts it on a levelling network.
+**Phase P8b finished it:** the provenance attached to the solution kept its own `uncertainty_mode`, built by
+the algorithm before the adjustment and so still `RIGOROUS` beside an approximate solution — the one place in
+the list above the fix had not reached. `to_solution` now stamps the derived mode on the provenance too.
 
 ---
 

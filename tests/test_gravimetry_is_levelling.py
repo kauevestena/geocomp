@@ -364,7 +364,7 @@ class TestTheSolutionSaysWhatItRestsOn:
     """
 
     @staticmethod
-    def _solution(network, frame):
+    def _solution(network, frame, provenance=None):
         from geocomp.core.adjustment.least_squares import to_solution
 
         run = adjust(network, AdjustmentOptions(frame=frame, datum=DatumDefinition.FIXED))
@@ -375,6 +375,7 @@ class TestTheSolutionSaysWhatItRestsOn:
             crs="EPSG:31982",
             epoch=Epoch.from_decimal_year(2026.0),
             datum=DatumDefinition.FIXED,
+            provenance=provenance,
         )
 
     def test_rigorous_observations_give_a_rigorous_solution(self, levelling):
@@ -400,3 +401,23 @@ class TestTheSolutionSaysWhatItRestsOn:
             assert Strategy.NOMINAL_PRECISION in station.covariance.strategies
             assert station.position.values[2].mode is UncertaintyMode.APPROXIMATE
         assert Strategy.NOMINAL_PRECISION in solution.parameter_covariance.strategies
+
+    def test_the_provenance_says_the_same(self):
+        """Found in phase P8b: the solution said APPROXIMATE and its provenance,
+        built by the algorithm before the adjustment, still said RIGOROUS."""
+        import dataclasses
+
+        from geocomp.core.models import Provenance
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+
+        network = _network(ObservationType.HEIGHT_DIFFERENCE, Unit.METRE, "nominal")
+        for oid, observation in list(network.observations.items()):
+            (value,) = observation.values
+            network.observations[oid] = dataclasses.replace(
+                observation, values=(value.with_strategy(Strategy.NOMINAL_PRECISION),)
+            )
+        solution = self._solution(
+            network, Frame.HEIGHT_1D, provenance=Provenance.now(algorithm_id="test")
+        )
+        assert solution.provenance.uncertainty_mode is UncertaintyMode.APPROXIMATE
+        assert solution.provenance.algorithm_id == "test"

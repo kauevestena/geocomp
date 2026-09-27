@@ -149,6 +149,36 @@ CASES = (
         ),
         outputs=("adj", "apu", "cor", "xyz"),
     ),
+    # A combined GNSS and total-station survey, written by GeoComp's own DynaML
+    # writer from tests/combined_network.py and adjusted with the flags the
+    # engine passes. The cross-validation of the geocentric frame (specs/13
+    # section 3) reads it, and it is the first fixture with a direction set in
+    # an adjustment: the rows DynAdjust prints for one are derived angles, which
+    # the reader had been attributing to single directions.
+    Case(
+        name="combined",
+        station_file="output/combined-stn.xml",
+        measurement_file="output/combined-msr.xml",
+        options=(
+            "--simultaneous-adjustment",
+            "--iteration-threshold",
+            "1e-06",
+            "--max-iterations",
+            "20",
+            "--output-adj-msr",
+            "--output-pos-uncertainty",
+            "--output-all-covariances",
+            "--angular-stn-type",
+            "0",
+            "--angular-msr-type",
+            "0",
+            "--dms-msr-format",
+            "0",
+            "--output-apu-vcv-units",
+            "0",
+        ),
+        outputs=("adj", "apu", "xyz"),
+    ),
     # Not an adjustment: `dnaimport --export-dna-files` writing the DNA station
     # and measurement files themselves. Their fixed-column layout is what
     # `engines/dynadjust/read_dna.py` reads by absolute position, and the

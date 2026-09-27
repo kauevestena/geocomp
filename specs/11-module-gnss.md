@@ -315,10 +315,12 @@ deferred:
   "today" is wrong by the plate motion since it was published, which in Brazil is about 15 mm a year.
 - Propagating to another epoch is a multiplication by the velocity and the elapsed years, exact, and recorded
   on the result.
-- **Changing frame raises.** FR-832's transformations belong to P10, and until they exist an ITRF2020
-  coordinate read as SIRGAS2000 would be wrong by decimetres and internally consistent —
-  `reference_station_frame_mismatch` names the requirement and the phase rather than guessing. So acceptance
-  criterion 7 below is half met: the mismatch is detected and processing refused; the transformation is P10's.
+- **Changing frame raises.** An ITRF2020 coordinate read as SIRGAS2000 would be wrong by decimetres and
+  internally consistent — `reference_station_frame_mismatch` names the requirement rather than guessing. The
+  transformation itself exists since P9a (`core/geodesy/frames.py`,
+  [`13`](./13-module-integration.md) §5.1) and the refusal now points to it; **the base-station path does not
+  call it yet**, so acceptance criterion 7 below is still half met: the mismatch is detected and processing
+  refused, and applying the transformation there with its record is the wiring left.
 
 ---
 
@@ -348,8 +350,8 @@ deferred:
 | 4 | **Met** | `tests/test_gnss_to_dynadjust.py`; the cluster reaches `<GPSBaseline>` with its 3×3 intact |
 | 5 | **Met** | `tests/test_gnss_baselines.py`; the record lives on the reduced baseline, so a second call raises rather than relying on a caller to check a flag |
 | 6 | **Met** | `tests/test_gnss_comparison.py`; two configurations over one session, with the difference judged against the summed covariances |
-| 7 | **Half met** | The mismatch is detected and refused (§7). The transformation is FR-832's and belongs to P10; until it exists, refusing is the honest half |
+| 7 | **Half met** | The mismatch is detected and refused (§7). The transformation exists since P9a ([`13`](./13-module-integration.md) §5.1); the base-station path does not apply it yet |
 | 8 | **Met** | The notice is in the help, the short description and a warning pushed at the top of every Absolute run |
 
 Criteria 2 and 7 are the two that are not closed, and neither closes inside P7c: one waits on a threshold to
-be *derived* rather than chosen, the other on P10's transformations.
+be *derived* rather than chosen, the other on applying P9a's transformation in the base-station path.

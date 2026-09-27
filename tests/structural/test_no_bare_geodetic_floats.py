@@ -396,6 +396,24 @@ TECHNIQUE_PLAIN_FLOATS = {
         "None today: rnx2rtkp writes no DOP column in any output format, and the field "
         "exists so the gap is visible rather than silently absent (specs/11 section 5)"
     ),
+    ("TechniqueSummary", "redundancy"): (
+        "a sum of redundancy numbers: a property of the design, dimensionless and exact "
+        "for the adjustment it came from"
+    ),
+    ("TechniqueSummary", "redundancy_share"): "the same, as a fraction of the degrees of freedom",
+    ("TechniqueSummary", "weighted_squares"): (
+        "a technique's part of v^T P v, a test statistic's numerator rather than a "
+        "measured value"
+    ),
+    ("TechniqueSummary", "variance_factor"): (
+        "the quick reading v^T P v / r, a ratio of the above; the estimated factor with "
+        "its uncertainty is VarianceComponent's"
+    ),
+    ("TechniqueSummary", "largest_standardised"): "a test statistic, dimensionless",
+    ("Velocity", "value"): (
+        "a published rate whose uncertainty is the separate covariance field, a 3x3 over "
+        "the three components; three Quantities would lose their correlation"
+    ),
 }
 
 #: Public functions in the technique and instrument modules that return a plain
@@ -537,7 +555,11 @@ class TestTechniqueModuleReturns:
 
         origin = typing.get_origin(annotation)
         if origin is not None:
-            arguments = [a for a in typing.get_args(annotation) if a is not type(None)]
+            # `tuple[X, ...]` is judged by X: the ellipsis is the tuple's length,
+            # not a member type (first returned in phase P8b, by drift_previews).
+            arguments = [
+                a for a in typing.get_args(annotation) if a is not type(None) and a is not Ellipsis
+            ]
             if not arguments:
                 return True
             return all(cls._is_acceptable(argument, bearing) for argument in arguments)

@@ -91,17 +91,17 @@ network, which is the same *kind* of network as RD-03's, from the book RD-03's n
 ### 2.2 The reader, and what it reproduces **[V]**
 
 `geocomp/io/krumm.py` reads the format; `tests/test_krumm_corpus.py` runs every one of the 61 files.
-**34 networks reproduce their published coordinates**, the largest disagreement over all of them being
+**36 networks reproduce their published coordinates**, the largest disagreement over all of them being
 **0.05 mm** — which is the rounding of a value printed to four decimals, not a residual difference.
 
 | | files | reproduced | refused, by name | read, no comparable answer |
 |---|---|---|---|---|
 | 1D | 14 | 5 | 3 | 6 |
 | 2D | 39 | 24 | 11 | 4 |
-| 3D | 8 | 5 | 3 | 0 |
-| **total** | **61** | **34** | **17** | **10** |
+| 3D | 8 | 7 | 1 | 0 |
+| **total** | **61** | **36** | **15** | **10** |
 
-Of the 45 files carrying a published answer: **34** are reproduced, 9 belong to files GeoComp refuses, and 2
+Of the 45 files carrying a published answer: **36** are reproduced, 7 belong to files GeoComp refuses, and 2
 cannot be compared — `Hoepke_Distance_fix.adj` is gama-local XML rather than the printed table, and
 `Ghilani21_1_DistanceAngle_fix.adj` has its station names truncated in the corpus (`102`, `103`, `201`,
 `202`, `203` printed as `10`, `01`, `20`, `02`, `03`).
@@ -109,9 +109,18 @@ cannot be compared — `Hoepke_Distance_fix.adj` is gama-local XML rather than t
 Every refusal is stated by error code, and every one is a thing GeoComp cannot yet represent rather than a
 thing it reads badly: a **dynamic (weighted) datum** (5 files), an **azimuth to a point with no
 coordinates** combined with an angle turned from it (3 — GNU Gama excludes the same three, for the same
-reason), an **ellipsoidal network** (4), **conditions between parameters** (2), a **GNSS baseline** with a
-covariance this format states differently (2), **correlated distances** (1), and **position angles** (1 — GNU
-Gama's converter leaves them out too).
+reason), an **ellipsoidal network** (4), **conditions between parameters** (2), **correlated distances** (1),
+and **position angles** (1 — GNU Gama's converter leaves them out too).
+
+**The two GNSS-baseline files were refusals until P9a**, which reads `[3DBaseline]` (a full covariance per
+vector) and `[3DBasislinie]` (standard deviations) and reproduces both. `Caspary` is GNSS baselines, slope
+distances and a zenith angle adjusted together — the **published combined GNSS and total-station example**
+[`13`](./13-module-integration.md) §7 criterion 1 asks for — and `Ghilani_GNSS_Baselines` is GNSS alone with
+full covariances. For both, the a-posteriori **standard deviations** are compared as well as the
+coordinates, to the file's printed 0.01 mm: a covariance read as its diagonal moves the coordinates by less
+than the printing and every sigma by more, so the coordinates alone would not show the stochastic model was
+read right. A baseline between *antennas* (heights after the covariance) is refused
+(`krumm_baseline_antenna_heights`) rather than read as one between marks.
 
 `Baumann23_3_4_fix` used to be a tenth refusal: a **slope distance measured instrument-to-reflector**, whose
 two setup heights belonged in the observation equation and had nowhere to live on `Observation`. They live
@@ -695,10 +704,20 @@ arithmetic is checked against a constructed one and the scale criterion of
 [`12`](./12-module-gravimetry.md) §8 is recorded as not met against a published example. And a network adjusted
 onto *published absolute stations* — IBGE's RENEGA was the candidate — which would check the combination of
 absolute and relative values against someone else's answer rather than against USGS's synthetic truth.
+**A nearer candidate was found in phase P8b**: GSadjust's repository, at the pinned commit, also holds USGS's
+*field* data — two real Burris surveys (December 2017 and February 2018, meters B44 and B108, coordinates
+shifted by about 0.15°) with Micro-g A-10 absolute values at four of the stations, public domain. The A-10
+reports give each value at a 100 cm transfer height with the gradient used, so comparing them needs the Burris
+sensor height, which the files do not state. Not used yet; named so it is not rediscovered.
+
+**Phase P8b** runs the production reader, the reduction and the network on the fetched CG-5 survey as well:
+the reader matches the reference script's parser on all 2,096 readings, and each day adjusts to within 6 µGal
+of pyGrav's published stations under a different drift model (one line a day, not eight loops) — evidence
+that the chain works on a real file, not a precision claim ([`12`](./12-module-gravimetry.md) §3.1).
 
 ## 6. Recommended order
 
-1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 34 networks reproduced to 0.05 mm.
+1. ~~**The Krumm/GNU Gama examples.**~~ **Done** — see §2.2. 36 networks reproduced to 0.05 mm.
 2. ~~**Fetch Krumm's document** and settle FR-161.~~ **Settled another way** — see §4. A public dataset of
    five networks published in the *Adjust* format did what the document was wanted for, and did it under a
    licence that permits redistribution. Krumm's document is still the shortest route to *published answers*

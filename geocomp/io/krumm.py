@@ -41,6 +41,7 @@ import numpy as np
 
 from geocomp.core.errors import DataError
 from geocomp.core.models import (
+    BaselineFrame,
     Cluster,
     ClusterKind,
     ConstraintMode,
@@ -53,6 +54,7 @@ from geocomp.core.models import (
     Position,
     Station,
 )
+from geocomp.core.models.observation import BASELINE_FRAME_KEY
 from geocomp.core.uncertainty import Covariance, Quantity
 from geocomp.core.units import Unit
 
@@ -103,6 +105,11 @@ SECTIONS: dict[str, tuple[str, str]] = {
     "[VerticalAngles]": ("vertical_angle", "gon"),
     "[LevelledHeightDifferences]": ("levelled_height", "m"),
     "[TrigonometricHeightDifferences]": ("trigonometric_height", "m"),
+    # GNSS baselines in the network's own axes (phase P9a). ``3DBaseline``
+    # states a covariance, upper triangle row by row; ``3DBasislinie`` three
+    # standard deviations.
+    "[3DBaseline]": ("baseline_covariance", "m"),
+    "[3DBasislinie]": ("baseline_sigmas", "m"),
     # Starting values, not observations. GNU Gama seeds a direction set's
     # orientation from ``[ApproximateOrientation]``; GeoComp estimates the same
     # quantity from the approximate coordinates
@@ -120,8 +127,6 @@ SECTIONS: dict[str, tuple[str, str]] = {
 UNSUPPORTED = {
     "[Ellipsoid,dms]": "an ellipsoidal network; GeoComp has no geodetic reductions yet",
     "[Coordinates,Bdms,Ldms]": "geodetic coordinates; GeoComp has no geodetic reductions yet",
-    "[3DBaseline]": "a GNSS baseline with a covariance this format states differently",
-    "[3DBasislinie]": "a GNSS baseline with a covariance this format states differently",
     "[CorrelatedDistances]": "distances with a full covariance matrix",
     "[Restrictions]": "constraints between parameters, which the adjustment core does not take",
     "[PositionAngles]": "position angles, which GNU Gama's own converter also leaves out",
@@ -534,6 +539,8 @@ def _observation(
         _add(network, state, ObservationType.HEIGHT_DIFFERENCE, tokens[:2],
              metres(tokens[2]), per_kilometre * math.sqrt(length / 1000.0),
              Unit.METRE, "h")
+    elif handler in {"baseline_covariance", "baseline_sigmas"}:
+        _baseline(network, state, handler, tokens, line)
     elif handler == "trigonometric_height":
         _require(tokens, 3, handler, line)
         sigma = _sticky(state, handler, tokens, 3, DEFAULT_HEIGHT_SIGMA, metres)
@@ -541,6 +548,71 @@ def _observation(
              metres(tokens[2]), sigma, Unit.METRE, "t")
     else:  # pragma: no cover - SECTIONS and this dispatch are written together
         raise DataError("krumm_handler_unimplemented", handler=handler)
+
+
+def _baseline(
+    network: Network, state: _State, handler: str, tokens: list[str], line: str
+) -> None:
+    """One GNSS baseline, ``from to dx dy dz`` and its stochastic model.
+
+    **The components are in the network's own axes**, not geocentric: every file
+    that carries one states its coordinates in the same x, y, z the baseline is
+    differenced in -- a local frame for Caspary's, and the geocentric one for
+    Ghilani's, whose station coordinates are themselves geocentric. So the
+    baseline is marked ``LOCAL`` (differences in the adjustment frame's own
+    components, :class:`~geocomp.core.models.BaselineFrame`), which is exactly
+    what the core's equation differences, whatever those axes are called.
+
+    ``3DBaseline`` follows with the covariance's upper triangle row by row,
+    ``xx xy xz yy yz zz`` in m^2; ``3DBasislinie`` with three standard
+    deviations. Each baseline is a cluster of its own, because the format states
+    no correlation between two of them and inventing one would be worse than
+    saying so. Antenna heights, which the format allows after the covariance,
+    are refused rather than dropped: a baseline between antennas is not one
+    between marks.
+    """
+    size = 6 if handler == "baseline_covariance" else 3
+    _require(tokens, 5 + size, handler, line)
+    if len(tokens) > 5 + size:
+        raise DataError(
+            "krumm_baseline_antenna_heights",
+            line=line[:120],
+            received=tokens[5 + size :],
+            expected=(
+                "a baseline between marks; this one states antenna heights, and "
+                "reducing it to the marks needs each mark's vertical"
+            ),
+        )
+    values = [_number(token, line=line) for token in tokens[2 : 5 + size]]
+    components, stochastic = values[:3], values[3:]
+    if size == 6:
+        xx, xy, xz, yy, yz, zz = stochastic
+        matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
+    else:
+        matrix = [[stochastic[0] ** 2, 0.0, 0.0], [0.0, stochastic[1] ** 2, 0.0],
+                  [0.0, 0.0, stochastic[2] ** 2]]
+    identifier = state.identifier("g")
+    cluster = f"baseline:{identifier}"
+    network.observations[identifier] = Observation(
+        id=identifier,
+        type=ObservationType.GNSS_BASELINE,
+        stations=(tokens[0], tokens[1]),
+        values=tuple(
+            Quantity(value, matrix[k][k], Unit.METRE) for k, value in enumerate(components)
+        ),
+        cluster_id=cluster,
+        meta={BASELINE_FRAME_KEY: BaselineFrame.LOCAL.value},
+    )
+    network.clusters[cluster] = Cluster(
+        id=cluster,
+        kind=ClusterKind.GNSS_BASELINE,
+        observation_ids=(identifier,),
+        covariance=Covariance(
+            matrix=matrix,
+            labels=("m0.x", "m0.y", "m0.z"),
+            units=(Unit.METRE,) * 3,
+        ),
+    )
 
 
 def _setup_heights(

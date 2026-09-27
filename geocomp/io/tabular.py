@@ -125,6 +125,8 @@ def _adjusted_rows(network: Network | None, solution: Solution | None) -> list[l
                 ellipse.semi_minor if ellipse else None,
                 ellipse.orientation if ellipse else None,
                 ellipse.confidence if ellipse else None,
+                station.gravity.value if station.gravity is not None else None,
+                station.gravity.std_dev if station.gravity is not None else None,
             ]
         )
     return rows
@@ -244,8 +246,15 @@ SHEETS: tuple[Sheet, ...] = (
             "ellipse_semi_minor",
             "ellipse_orientation",
             "ellipse_confidence",
+            "gravity",
+            "gravity_std_dev",
         ),
         _adjusted_rows,
+        note=(
+            "value_1..3 are the station's position in its own coordinate system. "
+            "gravity and gravity_std_dev are in m/s^2, and empty for a station "
+            "whose solution adjusted no gravity."
+        ),
     ),
     Sheet(
         "residuals",

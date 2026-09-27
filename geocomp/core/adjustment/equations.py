@@ -37,7 +37,12 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from geocomp.core.adjustment.parameters import Frame, ParameterLayout, drift_component
+from geocomp.core.adjustment.parameters import (
+    Frame,
+    ParameterLayout,
+    drift_component,
+    orientation_owner,
+)
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import (
     Observation,
@@ -292,12 +297,10 @@ def _direction(observation, layout, x):
     _accumulate(partials, layout, target_id, at_target)
 
     orientation = 0.0
-    owner = observation.setup_id or observation.meta.get("orientation_owner")
-    if owner is not None:
-        column = layout.column(owner, "orientation")
-        if column is not None:
-            orientation = float(x[column])
-            partials[column] = partials.get(column, 0.0) - 1.0
+    column = layout.column(orientation_owner(observation), "orientation")
+    if column is not None:
+        orientation = float(x[column])
+        partials[column] = partials.get(column, 0.0) - 1.0
 
     return [EquationRow(azimuth - orientation, partials)]
 
@@ -519,6 +522,11 @@ def evaluate(
             to this frame's dimensionality -- rejected here rather than silently
             ignored (FR-227).
     """
+    if layout.frame is Frame.GEOCENTRIC_3D:
+        from geocomp.core.adjustment.geocentric import evaluate_geocentric
+
+        return evaluate_geocentric(observation, layout, x)
+
     equation = _EQUATIONS.get(observation.type)
     if equation is None:
         raise ValidationError(

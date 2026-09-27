@@ -31,6 +31,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 from geocomp.core.errors import ValidationError
 from geocomp.core.instruments.profiles import ProfileLibrary
@@ -118,6 +119,39 @@ class GravityReading:
                 expected=Unit.METRE.name,
             )
 
+    def to_dict(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "id": self.id,
+            "station": self.station,
+            "instant": self.instant.isoformat(),
+            "value": self.value.to_dict(),
+            "instrument": self.instrument,
+            "session": self.session,
+        }
+        for key in ("latitude", "longitude", "height", "tide_applied"):
+            if getattr(self, key) is not None:
+                payload[key] = getattr(self, key)
+        if self.sensor_height is not None:
+            payload["sensor_height"] = self.sensor_height.to_dict()
+        return payload
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> GravityReading:
+        height = payload.get("sensor_height")
+        return cls(
+            id=payload["id"],
+            station=payload["station"],
+            instant=datetime.fromisoformat(payload["instant"]),
+            value=Quantity.from_dict(payload["value"]),
+            instrument=payload["instrument"],
+            session=payload["session"],
+            latitude=payload.get("latitude"),
+            longitude=payload.get("longitude"),
+            height=payload.get("height"),
+            sensor_height=Quantity.from_dict(height) if height else None,
+            tide_applied=payload.get("tide_applied"),
+        )
+
 
 @dataclass(frozen=True)
 class ReductionOptions:
@@ -174,6 +208,30 @@ class ReducedReading:
     @property
     def tide_system(self) -> str:
         return TIDE_SYSTEM
+
+    def to_dict(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "reading": self.reading.to_dict(),
+            "gravity": self.gravity.to_dict(),
+            "instrument_gravity": self.instrument_gravity,
+        }
+        if self.tide is not None:
+            payload["tide"] = self.tide.to_dict()
+        if self.to_mark is not None:
+            payload["to_mark"] = self.to_mark.to_dict()
+        return payload
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> ReducedReading:
+        tide = payload.get("tide")
+        to_mark = payload.get("to_mark")
+        return cls(
+            reading=GravityReading.from_dict(payload["reading"]),
+            gravity=Quantity.from_dict(payload["gravity"]),
+            instrument_gravity=float(payload["instrument_gravity"]),
+            tide=Quantity.from_dict(tide) if tide else None,
+            to_mark=Quantity.from_dict(to_mark) if to_mark else None,
+        )
 
 
 def reduce_readings(

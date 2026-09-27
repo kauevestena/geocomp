@@ -296,4 +296,6 @@ class TestTheStylesLoad:
         _results, layers, _context = adjusted
         produced = set(_values(layers["OUTPUT_RESIDUAL_LAYER"], "decision"))
         assert produced <= {"accepted", "rejected", "uncheckable"}
-        assert produced
+        # Until phase P8b a passing row carried no w-test, and every one of
+        # them was drawn as "not testable"; this network's rows mostly pass.
+        assert "accepted" in produced

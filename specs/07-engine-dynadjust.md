@@ -311,6 +311,16 @@ contains one is reported, not silently reinterpreted (§4.4).
    inferred rather than knew is refused.
 6. Generated files are retained in the run's working directory and referenced from provenance, so a user can
    reproduce the run by hand or attach the files to an upstream bug report (FR-955).
+7. **A held component is written at its held value** **[V]**. DynAdjust holds a constrained component at the
+   coordinate written beside it — a station file has nowhere else for the held value to go — so the writer
+   takes held components from the constraint's position and free ones from the approximate position
+   (`dynaml.written_position`). Until P9a it wrote the approximate position whole: a control mark whose
+   approximate coordinates were 0.3 m from its held ones was held by DynAdjust 0.3 m from where GeoComp held
+   it, and the adjustment converged to coordinates wrong by that much with σ̂₀² ≈ 900. P6's cross-validation
+   could not see it, because its networks were read *from* DynaML, where the two positions coincide.
+8. **Coordinates, baselines and distances are written to 0.1 mm**, and angles to 10⁻⁵″. That is below any
+   survey's precision, but it means DynAdjust adjusts the network *rounded*: a comparison with the in-house
+   core must give the core the same written files (§6.3), not the network they were written from.
 
 ---
 
@@ -591,6 +601,16 @@ the engine:
   `code` collided with `GeoCompError`'s first positional argument, so a guard written to prevent a
   factor-of-3600 misread failed with a `TypeError` instead of its own message.
 
+**A row's numbers are not the direction's** **[V]**, and GeoComp attributed them to it until P9a. `dnaadjust`
+reduces a set to *derived angles*, each from the previous target to this one, and adjusts those; the row
+printed against a target carries the direction *as read* in "Measured" and the derived angle's correction in
+"Correction" (`PrintMeasurementValue`, case `'D'`) — a difference of two directions' residuals, not either's
+own. DynAdjust never computes a direction's residual. `match_observations` still checks each row's type and
+stations against the set it belongs to, so a set out of order still fails, but it produces **no**
+`ObservationResult` for it: a comparison then reports the directions as not compared, which is true, rather
+than comparing the wrong quantity. The first adjusted fixture with a direction set, `combined.adj`, is what
+showed it.
+
 **A direction set of one has no equivalent at all.** `dnaimport` refuses the file: *"Direction set declares
 total of 0 but there aren't any non-ignored directions in the set."* Nothing is lost by leaving it out — one
 direction with its own orientation unknown is one observation and one parameter, contributing exactly zero —
@@ -625,6 +645,15 @@ Parsing rules:
 
 ---
 
+### 5.8 Stations and measurements are two angular formats [V]
+
+`--angular-stn-type` sets how latitude and longitude are printed (HP by default); `--angular-msr-type` and
+`--dms-msr-format` set how angular *measurements* are (separated degrees, minutes and seconds by default).
+The engine states all three and reads each table in its own (`engine.ANGULAR_FORMAT`,
+`engine.MEASUREMENT_FORMAT`; `read_adj(angular_format=, measurement_format=)`). It used to pass the station
+format for both, so every GeoComp-driven run containing an angle failed to parse on its first
+`1 21 44.7275` — unnoticed because every engine run until P9a carried GNSS baselines only.
+
 ## 6. Cross-validation with the in-house core
 
 The exit criterion for roadmap phase P6: a network adjusted by both engines MUST agree within the tolerances
@@ -658,8 +687,8 @@ the two engines solve the identical problem and any difference is arithmetic rat
 lets the core hold the network in geocentric metres directly — `Frame.SPACE_3D` is three orthogonal metres
 whatever they are called — so no frame conversion stands between the two answers to be blamed for a
 difference. Networks whose observation equations are non-linear (distances, angles, zenith angles) exercise
-the Jacobians as well, and are the natural next case; they need the core's local frame and DynAdjust's
-geodetic one to be related, which is a conversion GeoComp does not yet have.
+the Jacobians as well; they needed the core to model each station's own vertical, which P9a's geocentric
+frame does, and §6.3 is that comparison.
 
 ### 6.2 What is compared, and what is refused [V]
 
@@ -673,6 +702,47 @@ assumed. Differencing a geocentric X against a projected easting produces a numb
 nothing, so a frame mismatch is reported as *not compared*, naming both frames. A quantity that could not be
 compared does **not** count as a disagreement: absence of evidence is not evidence, and treating it as such
 would make an unconvertible frame look like a defect in an engine.
+
+### 6.3 A combined survey in the geocentric frame [V]
+
+P9a ([`13-module-integration.md`](./13-module-integration.md) §3) gave the core `Frame.GEOCENTRIC_3D`, where
+angles are evaluated in each station's own horizon. It is cross-validated on `tests/combined_network.py`: six
+stations over 3 km near Curitiba, three correlated ECEF baselines, an ellipsoidal height, four direction sets
+(14 directions), 14 slope distances and 14 zenith angles with instrument heights, a horizontal angle and a
+geodetic azimuth. GeoComp's writer produced `combined-{stn,msr}.xml`; DynAdjust 1.4.0 (`5cdb897`) adjusted
+them with the flags the engine passes; and the core adjusts **the same two files read back**, started 5 m
+from the written coordinates (`tests/test_dynadjust_geocentric.py`).
+
+| Quantity | In-house | DynAdjust | Agreement |
+|---|---|---|---|
+| Degrees of freedom | 38 | 38 | exact |
+| Observations / parameters | 54 / 16 | 50 / 12 | differ by the four sets, as they must (§5.6) |
+| Adjusted coordinates | — | — | within half the printed 0.1 mm (0.049 mm at most) |
+| Residuals, 40 rows | — | — | 0.049 mm linear, 0.00008″ angular |
+| σ̂₀² | 1.1112 | 1.080 | **differ**, and why is below |
+
+**DynAdjust's σ̂₀ for a direction set drops the angles' correlation.** It weights the derived angles with
+their full banded covariance (`LoadVarianceMatrix_D`: σ²ᵢ + σ²ᵢ₊₁ on the diagonal, −σ²ᵢ₊₁ beside it) —
+which is why the coordinates agree — but `ComputeChiSquare_D` sums `v²/σ²` over the angles alone. Its σ̂₀
+is therefore not `vᵀPv/r` of its own weights, and the chi-square test it prints is of a different statistic.
+The test reproduces DynAdjust's figure from the in-house residuals by making exactly that omission, which
+locates the difference; it is a property of DynAdjust, reported here rather than tuned away (§6), and it
+means `compare()`'s variance-factor agreement is expected to fail on a network with direction sets.
+
+**For a slope distance, DynAdjust carries the target height along the instrument's vertical**, not the
+target's own: `UpdateDesignNormalMeasMatrices_S` computes both height offsets from station 1's latitude and
+longitude. Its zenith distances and vertical angles do not — `ZenithDistance` and `VerticalAngle`
+(`dnatemplategeodesyfuncs.hpp`) take each end's own — so the approximation is confined to `S`. Over a sight
+of length *d* the two verticals differ by *d/R*, so the reflector moves by *t·d/R* along the line: 0.8 mm
+for a 1.7 m reflector at 2.9 km, a sizeable fraction of a 2 mm distance's σ. The in-house frame uses the
+target's own vertical for every type. The cross-validation network therefore has zero target heights,
+where the two coincide, and keeps its instrument heights, which both carry the same way.
+
+**Reading the files back found a defect in the core.** The DynaML reader names a set's cluster and not its
+setup, and a direction with no setup id was given no orientation unknown — so it was adjusted as an
+absolute azimuth, 38° from its own readings, with nothing to say why. The orientation's owner is now the
+setup, else an explicit owner, else the direction's set (`parameters.orientation_owner`); a direction outside
+a set cannot be constructed.
 
 ---
 

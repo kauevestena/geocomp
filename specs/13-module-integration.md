@@ -1,6 +1,7 @@
 # 13 — Module: Integration
 
-**Status:** Draft
+**Status:** Draft — the computation is implemented (P9a, §3.2, §4.1, §5.1, §6.1); the menu, report
+section and layers are P9b's.
 **Requirements covered:** FR-800…FR-805; uses FR-165, FR-804.
 **Source:** tex §Painel de Configuração Global, item 5 (Integração); O4.
 
@@ -91,6 +92,43 @@ it could not: `ConstraintMode.WEIGHTED` was declared, validated, and then ignore
 read only `FIXED`. A geoid-derived height is exactly the kind that should be held weighted rather than
 fixed, so item 4 of §3 was unreachable. See [`06-adjustment-core.md`](./06-adjustment-core.md) §3.
 
+### 3.2 In the combined model (P9a)
+
+The combination is adjusted in `Frame.GEOCENTRIC_3D` ([`06`](./06-adjustment-core.md) §2.3), which
+estimates X, Y, Z and so **ellipsoidal** heights. An orthometric observation — a levelled difference whose
+`meta["height_type"]` says `ORTHOMETRIC`, or an `ORTHOMETRIC_HEIGHT` — needs the geoid, and gets it as
+follows (`core/adjustment/undulations.py`).
+
+**Each undulation is a parameter with the model's value as a weighted prior.** At every station an
+orthometric observation touches, *N* is estimated, and the model (`AdjustmentOptions.geoid`) contributes one
+observation of it: the interpolated value with the model's stated accuracy. An orthometric observation reads
+`h − N` with *N* the parameter. The two shortcuts are both wrong: subtracting the model's *N* as an exact
+number discards its uncertainty (item 4), and adding its variance to each observation double-counts it —
+every difference at a station shares that station's *N*, so the errors are correlated across observations,
+and with a 0.1 m geoid and 2 mm levelling the levelling would become worthless when in fact, between GNSS
+stations, it measures the *change* in undulation. As parameters, the geoid's uncertainty propagates through
+the normal equations (item 4), and **each prior's residual is the empirical test of the model** (item 5):
+`geoid_residuals(run)` gives, per station, the model's value, the adjusted one, their difference, its
+redundancy and its w-statistic. A model 20 cm wrong against its stated 5 cm is found at every station with
+|w| > 1.96; an exact one leaves residuals under a micrometre.
+
+**The priors are independent between stations**, and the solution says so (`INDEPENDENCE_ASSUMED`). A geoid
+model's errors are spatially correlated — its relative accuracy over a few kilometres is far better than its
+absolute one — and a model stating only an absolute sigma gives nothing to build the correlation from.
+Independence trusts the model *less* for a difference than it deserves, so a height that depends only on the
+geoid comes out pessimistic rather than optimistic.
+
+| Situation | Code |
+|---|---|
+| Orthometric observations and no geoid model | `mixed_height_types`, naming the stations |
+| A levelled difference that does not state its height type | `height_difference_type_unstated` — not guessed |
+| A station **held** at a geodetic position with an orthometric height | `geocentric_frame_orthometric_constraint` — hold the benchmark as an `ORTHOMETRIC_HEIGHT` observation instead |
+| A station held in latitude, longitude or height alone | `geocentric_frame_partial_geodetic_constraint` — no subset of X, Y, Z expresses it |
+| A station outside the model's coverage | `geoid_outside_coverage` |
+
+**Item 3's report half was missing.** P5 recorded the model on every adjusted position, and nothing printed
+it: the shared report's identification section now names every geoid model on the solution's positions.
+
 ---
 
 ## 4. Variance component estimation (FR-805)
@@ -107,6 +145,25 @@ is an assumption, and usually a wrong one. GeoComp:
 Without this, the classic failure is silent: the global test fails, the user has no way to see which
 technique caused it, and the usual response is to inflate everything until the test passes.
 
+### 4.1 As implemented (P9a)
+
+`core/adjustment/variance_components.py`: **least-squares variance component estimation** (Teunissen and
+Amiri-Simkooei, 2008) — `N θ = l` with `N_kl = ½ tr(M Q_k M Q_l)`, `l_k = ½ (Pv)ᵀ Q_k (Pv)` and
+`M = P Q_vv P`, iterated by rescaling each group until every estimate is one. It is exact for correlated
+clusters, which `vᵀPv/r` per group is not, and `D(θ) = N⁻¹` is the factors' own covariance. Groups are
+techniques by default (`technique_of`: an observation's recorded `meta["technique"]`, else its type's).
+
+Rows that are no group's — a weighted benchmark, a geoid prior — are the **known part** `Q₀`: they keep their
+stated covariance and their expected contribution comes off the right-hand side,
+`l_k −= ½ tr(M Q_k M Q₀)`. (The first version looked every row up as an observation and would have failed on
+the first network with a weighted benchmark.) Refused, by name: a cluster split across groups
+(`variance_component_cluster_split`), a group with a redundancy below one (`variance_component_unestimable`),
+a negative estimate, a singular system, and no convergence.
+
+Criterion 3 is met on a 12-station synthetic survey: GNSS declared at half its true sigma is recovered as a
+factor of 4 within two of its standard deviations, the total station as 1, and over 40 repeated surveys the
+estimates scatter by what `D(θ)` says, within the 30 % a sample of 40 resolves.
+
 ---
 
 ## 5. Frames and epochs (FR-832)
@@ -122,6 +179,42 @@ implementation is shared.
 A combination whose frames GeoComp cannot reconcile is **refused**, with a message naming the incompatible
 inputs. The alternative — proceeding and absorbing a datum shift into the residuals — produces a plausible
 adjustment of the wrong thing.
+
+### 5.1 As implemented (P9a)
+
+**The transformations are GeoComp's own arithmetic on EPSG's parameters** (`core/geodesy/frames.py`), at the
+maintainer's decision of 26 September 2026, and P10 reuses them. PROJ holds the same parameters, but the
+combination needs each transformation's Jacobian for the covariances, needs velocities carried across it,
+and needs a record provenance can hold — none of which a PROJ pipeline returns.
+
+Held: every non-deprecated EPSG (v11.004) transformation between ITRF2000, 2005, 2008, 2014 and 2020 — a
+direct one for every pair (9991–9994, 7790, 8078, 8079, 6300, 6302, 6389), so none is ever a composition —
+and ITRF2000 to SIRGAS 2000 (9052). The ITRF ones are 14-parameter, time-dependent (method 1053, position
+vector convention: `X' = T + (1 + D)(I + R) X`, every parameter at the coordinates' epoch); the inverse is
+solved exactly, not by flipping signs. SIRGAS 2000 is ITRF2000 at 2000.4 (method 1065, time-specific): valid
+only there, so reaching it from another epoch moves the point along its velocity, and **without a velocity
+the move is refused** (`epoch_change_without_velocity`) — zero is a decimetre a decade in most of Brazil. A
+velocity crosses each transformation with its rates (`V' = M V + Ṫ + Ṁ X`: the scale rate alone changes a
+Brazilian velocity by 0.3 mm/year). The covariance goes through each step's Jacobian, and a change of epoch
+adds the velocity's covariance times the interval squared.
+
+**The transformation's own accuracy is recorded, not added** to each station's covariance. It is common to
+every point transformed — a shift of the network, not scatter between its stations — so adding it per
+station would falsify every relative position. `TransformationRecord.accuracy` carries it, and a comparison of
+absolute positions ([`14`](./14-multi-epoch-monitoring.md) §3) is where it belongs.
+
+**Validation.** `scripts/check_frames.py` transforms 303 point, epoch and frame-pair cases with pyproj and
+compares: GeoComp agrees with PROJ 9.4 **to under a nanometre** in every one, and PROJ used the same EPSG
+operation in each. The PROJ answers are committed (`tests/data/frames/proj_reference.json`) so the tier-1
+test compares against them everywhere; the `reference` workflow regenerates them with a pinned pyproj and
+fails if either side moves. **SIRGAS 2000 is the exception PROJ makes**: PROJ lists EPSG:9052 as unavailable
+(method 1065 is not implemented) and substitutes a no-op, which agrees only because 9052 is the identity —
+so those cases check consistency, and the SIRGAS behaviour that matters (the epoch refusal, the velocity
+path) is tested in tier 1 against the definitions.
+
+WGS 84 is refused (`frame_unknown`): its realisations differ by decimetres and the name does not say which.
+Frame names are canonical over one datum's CRSs only (ITRF2020 is EPSG:9988, 9989 and 9990), never across
+datums. No velocity *model* (VEMOS) is held; a station's velocity is supplied or the move is refused.
 
 ---
 
@@ -142,6 +235,50 @@ in-house core and GeoComp says so rather than silently dropping the gravity obse
 redundancy contributions broken down by technique. "The adjustment passed" is much less useful than "the
 adjustment passed, and the levelling is carrying almost none of the redundancy."
 
+### 6.1 As implemented (P9a)
+
+`core/techniques/integration/`:
+
+* **`combine(inputs, frame=, epoch=, velocities=)`** merges the networks each technique produced. Station ids
+  are never renamed — the same id in two inputs *is* the same mark, which is how the techniques tie together.
+  An observation, cluster or **setup** id that collides with an earlier input's is prefixed with its input's
+  id and recorded (`Combination.renamed`); a shared setup id would otherwise give two instrument setups one
+  orientation unknown. Every observation is tagged with its technique. Every cluster survives whole, its
+  covariance carried through the transformation (criterion 5).
+* **Only frame-dependent content is transformed.** A held coordinate and a GNSS point take the full
+  transformation and move to the target epoch along their station's velocity; a GNSS vector takes scale and
+  rotation only (the translation cancels) and changes epoch by the difference of its ends' velocities; a GNSS
+  ellipsoidal height moves by the vertical component of its station's displacement. Distances, angles,
+  levelled differences and gravity belong to no frame and are untouched; terrestrial work is taken as made at
+  the target epoch, which holds for a project's weeks and not for years in a deforming region. Approximate
+  coordinates are carried across a frame change so they stay close, never along a velocity, and not recorded.
+  Every transformation applied is recorded with its input and subject, and the solution's provenance carries
+  them all (criterion 4).
+* **Refused, naming the input:** a frame GeoComp cannot transform from (`combination_frame_irreconcilable`);
+  a position — held, or GNSS — in an input with no frame (`combination_input_without_frame`) or no epoch
+  (`combination_input_without_epoch`: never taken to be the combination's, FR-105, even where the frames
+  already agree); a position that must change epoch with no velocity (`combination_epoch_without_velocity`);
+  one station held by two inputs more than a millimetre apart (`combination_station_held_differently`).
+* **`route(network, requested)`**: a combination with gravity goes to the in-house core whatever was asked,
+  and the reason says why (criterion 6). So does one with any type DynAdjust has no letter for — a
+  horizontal distance, say ([`07`](./07-engine-dynadjust.md) §4.2) — because sending the rest would adjust a
+  different network. **Gravity is adjusted beside the geometry, not inside it**: nothing
+  in the combination relates gravity to position, so the normal equations are block-diagonal and adjusting
+  together gives exactly what adjusting apart does. `adjust_combination(gravity=)` takes the gravity network
+  with its drift model and adjusts it in-house next to the geometric solution; gravity merged into the
+  geometry as bare observations is refused (`combination_gravity_without_its_network`), because without its
+  drift unknowns it would be adjusted as drift-free.
+* **`technique_breakdown(run, network)`**: per technique, rows, redundancy and its share of the degrees of
+  freedom, the technique's part of `vᵀPv`, `vᵀPv/r`, the largest |w| and the uncheckable observations — with
+  weighted constraints and geoid priors as their own groups, so the parts add up to the whole exactly.
+* **`adjust_combination(combination, geoid=, estimate_components=)`** runs the combination in the geocentric
+  frame and returns the solution, the routing, the breakdown, the geoid residuals and, when asked, the
+  variance components.
+
+The combined frame was cross-validated against DynAdjust on a six-station GNSS and total-station survey:
+coordinates within half the printed 0.1 mm and residuals within 0.05 mm and 0.0001″, with two modelling
+differences in DynAdjust recorded in [`07`](./07-engine-dynadjust.md) §6.3.
+
 ---
 
 ## 7. Acceptance criteria
@@ -157,3 +294,16 @@ adjustment passed, and the levelling is carrying almost none of the redundancy."
 6. A combination including gravity observations is routed to the in-house core, with the reason reported.
 7. Per-technique residual and redundancy breakdowns appear in the report.
 8. A three-technique combination (FR-803) runs end to end and produces a single solution.
+
+### 7.1 State after P9a
+
+| Criterion | State |
+|---|---|
+| 1. A published combined example | **met** — Krumm's `Caspary` (GNSS baselines, slope distances, a zenith angle) reproduces its coordinates to 0.05 mm and its a-posteriori standard deviations to the printed 0.01 mm ([`22`](./22-reference-data-sources.md) §2.2) |
+| 2. No geoid refuses; with one, the model is in the solution and the report | **met** — §3.2 |
+| 3. A mis-scaled technique's factor recovered | **met** — §4.1 |
+| 4. Two frames transform with a record; irreconcilable refused by input | **met** — §5.1, §6.1: GNSS in ITRF2014 and control in SIRGAS 2000 (2000.4, with velocities) combined in ITRF2020 at 2020.0 return the held marks to their truth to a micrometre; WGS 84 is refused naming the input |
+| 5. Clusters survive intact | **met** — a 12 × 12 baseline covariance through a frame change, four direction sets |
+| 6. Gravity routed in-house with the reason | **met** — including when DynAdjust was asked for, and the gravity network is adjusted, not dropped |
+| 7. Per-technique breakdowns in the report | **computed, not yet rendered** — `technique_breakdown` is exact and tested; the report section is P9b |
+| 8. Three techniques end to end, one solution | **met** — GNSS, total station and levelling with a geoid, in `tests/test_integration.py`; every station within 2 cm of the truth, the geoid residuals and variance components by technique on the same run |

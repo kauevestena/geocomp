@@ -770,6 +770,69 @@ SETTINGS: tuple[SettingDef, ...] = (
         default=True,
         requirement="FR-602",
     ),
+    # -- Gravimeter (P8b) -------------------------------------------------
+    #
+    # Instrument constants live in gravimeter profiles, which travel between
+    # organisations as files (specs/15 section 2.2); what is here is how the
+    # corrections and the drift are computed, and how gravity is shown.
+    # "none" removes no tide, and is honoured only where every reading's
+    # instrument already did -- the reduction refuses it otherwise.
+    SettingDef(
+        key="gravimeter.tide_model",
+        section="gravimeter",
+        type=SettingType.CHOICE,
+        default="longman_1959",
+        choices=("longman_1959", "none"),
+        requirement="FR-701",
+    ),
+    SettingDef(
+        key="gravimeter.tide_amplification",
+        section="gravimeter",
+        type=SettingType.FLOAT,
+        default=1.16,
+        minimum=1.0,
+        maximum=1.3,
+        requirement="FR-701",
+    ),
+    SettingDef(
+        key="gravimeter.drift_mode",
+        section="gravimeter",
+        type=SettingType.CHOICE,
+        default="joint",
+        choices=("joint", "pre_corrected"),
+        requirement="FR-702",
+    ),
+    SettingDef(
+        key="gravimeter.drift_degree",
+        section="gravimeter",
+        type=SettingType.INT,
+        default=1,
+        minimum=1,
+        maximum=3,
+        requirement="FR-702",
+    ),
+    # The default weighting (specs/12 section 5): added in quadrature to every
+    # reading's own precision, for what the instrument's statistic knows nothing
+    # of -- tilt, temperature, transport. m/s^2; zero adds none, and a reading
+    # that brings no precision then takes its profile's nominal one or is refused.
+    SettingDef(
+        key="gravimeter.precision_floor",
+        section="gravimeter",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=1.0e-5,
+        requirement="FR-061",
+    ),
+    # Display only (specs/12 section 3): every stored gravity is m/s^2.
+    SettingDef(
+        key="gravimeter.display_unit",
+        section="gravimeter",
+        type=SettingType.CHOICE,
+        default="mgal",
+        choices=("mgal", "ugal"),
+        requirement="FR-067",
+    ),
 )
 
 _BY_KEY = {definition.key: definition for definition in SETTINGS}

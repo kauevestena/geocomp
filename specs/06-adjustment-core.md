@@ -68,8 +68,41 @@ reports which stations got theirs from where.
 ### 2.3 Parameters
 
 Beyond station coordinates, the adjustment estimates: direction-set orientation parameters (one per set),
-scale and refraction coefficients when the user enables them, gravimeter drift parameters (FR-702), and
-transformation parameters where a solution is being related to another frame.
+scale and refraction coefficients when the user enables them, gravimeter drift parameters (FR-702), geoid
+undulations where orthometric observations meet ellipsoidal heights ([`13`](./13-module-integration.md) §3.2),
+and transformation parameters where a solution is being related to another frame.
+
+**A direction's orientation belongs to its setup, and never to nobody** **[V]**. The owner is the direction's
+`setup_id`; else an explicit `meta["orientation_owner"]` (two setups sharing one — a pillar occupied twice);
+else **its set's cluster**, because a direction set is one setup's by construction and a direction outside a
+set cannot be constructed (`observation_requires_cluster`). Until P9a a direction with no setup id was given
+no orientation unknown and adjusted as an absolute azimuth — the Krumm reader was fixed for exactly this
+([`22`](./22-reference-data-sources.md) §2.2), and P9a found the DynaML reader doing the same, a set read back
+38° from its own readings. The rule is now the core's (`parameters.orientation_owner`), not each reader's.
+
+#### The geocentric frame (P9a) [V]
+
+`Frame.GEOCENTRIC_3D` estimates each station's ECEF X, Y, Z and evaluates every observation **in its own
+station's horizon** — the ellipsoidal normal at that station (GRS80), with instrument and target heights
+along each end's own normal. It is what a combination needs: a flat frame's single "up" is wrong by
+`d²/2R` in height, 0.7 m at 3 km, and GNSS vectors are geocentric to begin with. The Jacobians are exact,
+the turning of each station's horizon with its position included, and are checked against numerical
+derivatives for every type. It holds slope and horizontal distances, zenith and vertical angles,
+azimuths, directions, horizontal angles, height differences (ellipsoidal or orthometric, which the
+observation must state), ellipsoidal and orthometric heights, GNSS baselines (ECEF, or `LOCAL` in the base's
+horizon) and GNSS points; any other type is refused by name (`observation_type_not_geocentric`) — an
+ellipsoid distance and the astronomic types among them. The deflection of the vertical is not modelled:
+astronomic and geodetic verticals are taken as one.
+
+**Held positions** in this frame are cartesian or geodetic. A geodetic hold is all three of latitude,
+longitude and height or nothing: one held in part constrains a combination no subset of X, Y, Z expresses and
+is refused, and a weighted one has its covariance carried to X, Y, Z through the conversion's Jacobian. Before
+this rule the constraint's names were matched against `x`, `y`, `z`, found nothing, and **left a
+geodetically held station free** — caught by a test before the frame shipped. A held height must be
+ellipsoidal (§3.2 of [`13`](./13-module-integration.md) says how an orthometric benchmark enters).
+
+It is cross-validated against DynAdjust on a combined GNSS and total-station survey
+([`07`](./07-engine-dynadjust.md) §6.3): the same files, coordinates within half the printed 0.1 mm.
 
 ### 2.4 Solving
 

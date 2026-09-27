@@ -18,6 +18,7 @@ example never would.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -894,6 +895,31 @@ class TestSolutionAssembly:
         assert [r.observation_id for r in flagged] == ["d4"]
         assert flagged[0].w_test.name.startswith("w-test")
 
+    def test_a_passing_observation_carries_its_w_test_too(self):
+        """Found in phase P8b: only failures were recorded, so a passing row
+        looked exactly like one never tested and the residual layer called it
+        "not testable"."""
+        reference = trilateration(blunder=0.5, blunder_on="d4")
+        run = adjust(reference.network, constrained(Frame.PLANE_2D))
+        from geocomp.core.statistics.tests import data_snooping
+
+        snooping = data_snooping(
+            run.residuals,
+            run.cofactor_residuals,
+            run.system.weight,
+            run.system.row_labels,
+            variance_factor=run.variance_factor_aposteriori,
+            degrees_of_freedom=run.degrees_of_freedom,
+        )
+        results = to_observation_results(run, snooping=snooping)
+        passing = [r for r in results if r.observation_id != "d4" and not r.is_uncheckable]
+        assert passing
+        for result in passing:
+            assert result.w_test is not None
+            assert result.w_test.passed
+            assert result.w_test.statistic == pytest.approx(result.standardised_residual)
+            assert result.w_test.critical_high == pytest.approx(snooping.critical_value)
+
     def test_the_solution_round_trips_through_json(self, run):
         """NFR-007: the document an algorithm writes must read back as the same
         solution, ellipses and per-observation results included."""
@@ -1043,6 +1069,37 @@ class TestOrientationUnknowns:
             ),
         )
         assert run.layout.column("A", "orientation") is not None
+
+    def test_a_set_that_names_only_its_cluster_is_still_oriented(self):
+        """The DynaML reader names a set's cluster and not its setup. Such a
+        set was adjusted as absolute azimuths -- 38 degrees from its own
+        readings in the combined cross-validation -- until the cluster became
+        the orientation's owner when nothing more specific is named."""
+        planted = {"A": math.radians(37.0), "B": math.radians(112.0)}
+        network = self._network(planted)
+        for identifier, observation in list(network.observations.items()):
+            if observation.type is ObservationType.DIRECTION:
+                network.observations[identifier] = replace(observation, setup_id=None)
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT),
+        )
+        for station, expected in planted.items():
+            column = run.layout.column(f"{station}-set", "orientation")
+            estimated = float(run.parameters[column]) % (2 * math.pi)
+            assert estimated == pytest.approx(expected, abs=1e-4)
+
+    def test_a_direction_naming_neither_a_setup_nor_a_set_cannot_exist(self):
+        """So it can never reach the adjustment as an azimuth: a direction must
+        be in a set from construction, which is what makes the cluster a
+        fallback that is always there."""
+        network = self._network({"A": 0.0, "B": 0.0})
+        direction = next(
+            o for o in network.observations.values() if o.type is ObservationType.DIRECTION
+        )
+        with pytest.raises(DataError) as excinfo:
+            replace(direction, setup_id=None, cluster_id=None)
+        assert excinfo.value.code == "data.observation_requires_cluster"
 
 
 class TestAngularMisclosureWrapping:

@@ -12,7 +12,8 @@ Nothing raises, nothing is logged -- the user simply reads
 which is worse than the bare code, because it looks like a finished sentence.
 
 This test closes that gap without a QGIS runtime, by reading both sides as
-source: every ``*Error("code", key=...)`` call in ``geocomp/core``, and every
+source: every ``*Error("code", key=...)`` call in ``geocomp/core`` and
+``geocomp/io``, and every
 ``MessageTemplate`` declared in the presentation layer.
 """
 
@@ -58,7 +59,11 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     context is exactly the case a template can get wrong.
     """
     found: dict[str, list[set[str]]] = defaultdict(list)
-    for path in python_sources(PLUGIN_DIR / "core"):
+    # The readers in `io` raise errors a user causes -- a malformed line, a file
+    # of an unknown format -- as much as the core does; phase P8b found their
+    # templates reported as stale because only `core` was read.
+    sources = [*python_sources(PLUGIN_DIR / "core"), *python_sources(PLUGIN_DIR / "io")]
+    for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):

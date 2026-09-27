@@ -114,6 +114,15 @@ def setting_label(key: str) -> str:
         "gnss.troposphere": _tr("Tropospheric correction"),
         "gnss.ambiguity_threshold": _tr("Ambiguity ratio threshold"),
         "gnss.independent_baselines_only": _tr("Use only the independent baseline subset"),
+        # -- Gravimeter (P8b) ---------------------------------------------
+        "gravimeter.tide_model": _tr("Solid-Earth tide model"),
+        "gravimeter.tide_amplification": _tr("Gravimetric factor (tide amplification)"),
+        "gravimeter.drift_mode": _tr("Drift treatment"),
+        "gravimeter.drift_degree": _tr("Drift polynomial degree"),
+        "gravimeter.precision_floor": _tr(
+            "Reading precision floor, added in quadrature (m/s²)"
+        ),
+        "gravimeter.display_unit": _tr("Gravity display unit"),
         "level.reciprocal_variance_inflation": _tr(
             "Variance inflation for reciprocal sights"
         ),
@@ -209,6 +218,12 @@ def choice_label(key: str, value: str) -> str:
         ("total_station.traverse_adjustment", "transit"): _tr("Transit rule"),
         ("level.weighting", "length"): _tr("Proportional to line length"),
         ("level.weighting", "setups"): _tr("Proportional to the number of setups"),
+        ("gravimeter.tide_model", "longman_1959"): _tr("Longman (1959)"),
+        ("gravimeter.tide_model", "none"): _tr("None (every instrument applies its own)"),
+        ("gravimeter.drift_mode", "joint"): _tr("Estimated with the station values"),
+        ("gravimeter.drift_mode", "pre_corrected"): _tr("Fitted to base readings first"),
+        ("gravimeter.display_unit", "mgal"): _tr("mGal"),
+        ("gravimeter.display_unit", "ugal"): _tr("µGal"),
     }.get((key, value), value)
 
 

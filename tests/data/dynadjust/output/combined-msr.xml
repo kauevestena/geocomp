@@ -1,0 +1,486 @@
+<?xml version='1.0' encoding='utf-8'?>
+<DnaXmlFormat type="Measurement File" referenceframe="ITRF2014" epoch="01.01.2020" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="DynaML.xsd">
+  <DnaMeasurement>
+    <Type>D</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M06</Second>
+    <Value>80.005739584</Value>
+    <StdDev>1.50000</StdDev>
+    <Total>2</Total>
+    <Directions>
+      <Ignore />
+      <Target>M03</Target>
+      <Value>1.214472747</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>M04</Target>
+      <Value>334.001965020</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>D</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>CTB1</Second>
+    <Value>181.211948305</Value>
+    <StdDev>1.50000</StdDev>
+    <Total>4</Total>
+    <Directions>
+      <Ignore />
+      <Target>M04</Target>
+      <Value>279.375132488</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>M05</Target>
+      <Value>6.473091639</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>CTB2</Target>
+      <Value>91.365679036</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>M06</Target>
+      <Value>145.595293096</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>D</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M03</Second>
+    <Value>186.471987231</Value>
+    <StdDev>1.50000</StdDev>
+    <Total>2</Total>
+    <Directions>
+      <Ignore />
+      <Target>M04</Target>
+      <Value>235.031817320</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>CTB2</Target>
+      <Value>123.515044801</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>D</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>CTB2</Second>
+    <Value>18.200586822</Value>
+    <StdDev>1.50000</StdDev>
+    <Total>2</Total>
+    <Directions>
+      <Ignore />
+      <Target>M03</Target>
+      <Value>325.595878961</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+    <Directions>
+      <Ignore />
+      <Target>CTB1</Target>
+      <Value>260.003856904</Value>
+      <StdDev>1.50000</StdDev>
+    </Directions>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>X</Type>
+    <Ignore />
+    <ReferenceFrame>ITRF2014</ReferenceFrame>
+    <Epoch>01.01.2020</Epoch>
+    <Vscale>1.000</Vscale>
+    <Pscale>1.000</Pscale>
+    <Lscale>1.000</Lscale>
+    <Hscale>1.000</Hscale>
+    <Total>3</Total>
+    <First>CTB1</First>
+    <Second>M05</Second>
+    <GPSBaseline>
+      <X>2446.0826</X>
+      <Y>687.4454</Y>
+      <Z>2188.6767</Z>
+      <SigmaXX>1.6e-05</SigmaXX>
+      <SigmaXY>3e-06</SigmaXY>
+      <SigmaXZ>-2e-06</SigmaXZ>
+      <SigmaYY>1.2e-05</SigmaYY>
+      <SigmaYZ>1e-06</SigmaYZ>
+      <SigmaZZ>3.6e-05</SigmaZZ>
+      <GPSCovariance>
+        <m11>0.0</m11>
+        <m12>0.0</m12>
+        <m13>0.0</m13>
+        <m21>0.0</m21>
+        <m22>0.0</m22>
+        <m23>0.0</m23>
+        <m31>0.0</m31>
+        <m32>0.0</m32>
+        <m33>0.0</m33>
+      </GPSCovariance>
+      <GPSCovariance>
+        <m11>0.0</m11>
+        <m12>0.0</m12>
+        <m13>0.0</m13>
+        <m21>0.0</m21>
+        <m22>0.0</m22>
+        <m23>0.0</m23>
+        <m31>0.0</m31>
+        <m32>0.0</m32>
+        <m33>0.0</m33>
+      </GPSCovariance>
+    </GPSBaseline>
+    <First>CTB2</First>
+    <Second>M04</Second>
+    <GPSBaseline>
+      <X>-1098.1510</X>
+      <Y>-2175.5000</Y>
+      <Z>2036.8204</Z>
+      <SigmaXX>1.6e-05</SigmaXX>
+      <SigmaXY>3e-06</SigmaXY>
+      <SigmaXZ>-2e-06</SigmaXZ>
+      <SigmaYY>1.2e-05</SigmaYY>
+      <SigmaYZ>1e-06</SigmaYZ>
+      <SigmaZZ>3.6e-05</SigmaZZ>
+      <GPSCovariance>
+        <m11>0.0</m11>
+        <m12>0.0</m12>
+        <m13>0.0</m13>
+        <m21>0.0</m21>
+        <m22>0.0</m22>
+        <m23>0.0</m23>
+        <m31>0.0</m31>
+        <m32>0.0</m32>
+        <m33>0.0</m33>
+      </GPSCovariance>
+    </GPSBaseline>
+    <First>CTB1</First>
+    <Second>M06</Second>
+    <GPSBaseline>
+      <X>718.2172</X>
+      <Y>1006.2704</Y>
+      <Z>-631.7590</Z>
+      <SigmaXX>1.6e-05</SigmaXX>
+      <SigmaXY>3e-06</SigmaXY>
+      <SigmaXZ>-2e-06</SigmaXZ>
+      <SigmaYY>1.2e-05</SigmaYY>
+      <SigmaYZ>1e-06</SigmaYZ>
+      <SigmaZZ>3.6e-05</SigmaZZ>
+    </GPSBaseline>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M06</Second>
+    <Value>1388.3584</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M06</Second>
+    <Value>89.491963860</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M03</Second>
+    <Value>2191.5618</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M03</Second>
+    <Value>89.485892701</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M04</Second>
+    <Value>2668.2864</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>CTB1</First>
+    <Second>M04</Second>
+    <Value>90.114519374</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>CTB1</Second>
+    <Value>2191.5739</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>CTB1</Second>
+    <Value>90.170996509</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M04</Second>
+    <Value>1239.1532</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M04</Second>
+    <Value>90.490205904</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M05</Second>
+    <Value>1165.4518</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M05</Second>
+    <Value>88.570354140</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>CTB2</Second>
+    <Value>1944.3236</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>CTB2</Second>
+    <Value>89.331245764</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M06</Second>
+    <Value>2352.2798</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M03</First>
+    <Second>M06</Second>
+    <Value>90.072176820</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M03</Second>
+    <Value>1165.5054</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M03</Second>
+    <Value>91.124366881</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M04</Second>
+    <Value>1658.7971</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M04</Second>
+    <Value>91.243212459</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>CTB2</Second>
+    <Value>2174.6892</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>CTB2</Second>
+    <Value>90.122706736</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>CTB2</Second>
+    <Value>1996.7038</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>CTB2</Second>
+    <Value>89.284875040</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>M03</Second>
+    <Value>2352.2790</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>M03</Second>
+    <Value>89.583192294</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>S</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>CTB1</Second>
+    <Value>1388.3690</Value>
+    <StdDev>0.0020</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>V</Type>
+    <Ignore />
+    <First>M06</First>
+    <Second>CTB1</Second>
+    <Value>90.190955552</Value>
+    <StdDev>3.00000</StdDev>
+    <InstHeight>1.5630</InstHeight>
+    <TargHeight>0.0000</TargHeight>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>A</Type>
+    <Ignore />
+    <First>M04</First>
+    <Second>M03</Second>
+    <Third>M05</Third>
+    <Value>315.253957703</Value>
+    <StdDev>1.50000</StdDev>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>B</Type>
+    <Ignore />
+    <First>M05</First>
+    <Second>M04</Second>
+    <Value>275.093061534</Value>
+    <StdDev>5.00000</StdDev>
+  </DnaMeasurement>
+  <DnaMeasurement>
+    <Type>R</Type>
+    <Ignore />
+    <First>M03</First>
+    <Value>921.0215</Value>
+    <StdDev>0.0150</StdDev>
+  </DnaMeasurement>
+</DnaXmlFormat>

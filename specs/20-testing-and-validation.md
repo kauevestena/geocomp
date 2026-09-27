@@ -57,7 +57,7 @@ permitting redistribution, and an expected-results file.
 | **RD-08** | Multi-epoch monitoring series with known displacements — a published deformation example, plus synthetic data with injected motion | [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) | To assemble — candidates in [`22`](./22-reference-data-sources.md) §5 |
 | **RD-09** | The RD-03 networks with a blunder of known size injected at a known place | Data snooping, reliability | **Implemented** (P2), in `tests/networks.py` |
 | **RD-10** | Field campaign data collected by students (`tex §Participação dos alunos`) | End-to-end, real-world | Project activity |
-| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T2), in `tests/data/krumm/` and `tests/test_krumm_corpus.py`. **34 reproduced to 0.05 mm.** Vendored from GNU Gama at a pinned commit, on the terms in [`22`](./22-reference-data-sources.md) §2.3 |
+| **RD-11** | Krumm's *Geodetic Network Adjustment Examples* — 61 networks from a dozen textbooks, 45 with the adjusted coordinates as published | [`06-adjustment-core.md`](./06-adjustment-core.md), and the citation RD-02/03/04 lacked | **Implemented** (T2), in `tests/data/krumm/` and `tests/test_krumm_corpus.py`. **36 reproduced to 0.05 mm**, two of them combined GNSS networks (P9a). Vendored from GNU Gama at a pinned commit, on the terms in [`22`](./22-reference-data-sources.md) §2.3 |
 | **RD-12** | Five surveying networks over one set of control — twelve free stations, three traverses and a triangulateration — published in the *Adjust* format, CC BY 4.0 | FR-161's reader and writer, the weighted-constraint path (FR-232), and blunder detection | **Implemented** (T2), in `tests/data/adjust/` and `tests/test_adjust_corpus.py`. Converted from `.Adat` into GeoComp's own serialisation on the terms in [`22`](./22-reference-data-sources.md) §4; **two defects in the publication are recorded rather than repaired**, and one is vendored twice |
 
 **RD-01 is special, and carries two known defects.** It is the author's own prototype data and it exercises
@@ -100,7 +100,7 @@ and for the teaching material (FR-952).
 **The citation is now made — see RD-11.** GNU Gama redistributes the 61 example networks of Krumm's
 *Geodetic Network Adjustment Examples* (Universität Stuttgart, 2020), **45 of them with the adjusted
 coordinates as published**, each citing the textbook it came from by edition and page.
-`geocomp/io/krumm.py` reads them and **34 reproduce to 0.05 mm** — Ghilani, Niemeier, Benning, Wolf, Strang
+`geocomp/io/krumm.py` reads them and **36 reproduce to 0.05 mm** — Ghilani, Niemeier, Benning, Wolf, Strang
 and Borre, Grossmann, Höpke, Lother and Strehle, Carosio, Weiss and Blankenbach among them. The full result
 and the reasons for every refusal are in
 [`22-reference-data-sources.md`](./22-reference-data-sources.md) §2.2.

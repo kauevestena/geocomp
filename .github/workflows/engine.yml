@@ -26,6 +26,7 @@ on:
       - "geocomp/core/techniques/gnss/**"
       - "geocomp/core/geodesy/**"
       - "geocomp/core/models/**"
+      - "geocomp/core/adjustment/**"
       - "geocomp/io/rinex.py"
       - "geocomp/io/gnss_discovery.py"
       - "tests/data/dynadjust/**"
@@ -36,6 +37,7 @@ on:
       - "tests/conftest.py"
       - "pyproject.toml"
       - "tests/test_dynadjust_*.py"
+      - "tests/combined_network.py"
       - "tests/test_dyna*.py"
       - "tests/test_dna_reader.py"
       - "tests/test_engines.py"
@@ -144,8 +146,13 @@ jobs:
       # a Solution, the provenance, the projected-network cross-validation --
       # had never run in CI. A tier-4 test that only ever runs on a
       # contributor's machine is a claim, not a check.
+      #
+      # The geocentric cross-validation is here too: its tier-1 half compares
+      # the in-house core with the committed combined.* output, and its tier-4
+      # half drives the engine on the same survey. It watches core/adjustment
+      # because a change there moves one side of that comparison.
       - name: The pipeline, against the real engine
-        run: pytest -q tests/test_dynadjust_pipeline.py
+        run: pytest -q tests/test_dynadjust_pipeline.py tests/test_dynadjust_geocentric.py
 
   # The same shape as the job above, for the second engine. rnx2rtkp has no
   # pinnable Linux binary to install: upstream publishes Windows executables

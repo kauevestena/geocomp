@@ -124,6 +124,13 @@ SEGMENTATION_THRESHOLD = 500
 #: HP is DynAdjust's own default; naming it explicitly costs nothing and means
 #: a change of default upstream cannot silently change what the parsers read.
 ANGULAR_FORMAT = AngularFormat.HP
+#: The same for angular *measurements*, which ``dnaadjust`` formats under two
+#: other options: degrees, minutes and seconds (``--angular-msr-type 0``) in
+#: separated fields (``--dms-msr-format 0``). Its defaults, stated for the same
+#: reason -- and kept apart from :data:`ANGULAR_FORMAT`, because reading the
+#: measurements in the stations' format is how the first engine run with a
+#: zenith angle in it failed to parse.
+MEASUREMENT_FORMAT = AngularFormat.SEPARATED
 
 
 #: ``dnaadjust --version`` prints a banner; this is the line that names the
@@ -442,6 +449,10 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
         # Stated rather than assumed: see the module docstring.
         "--angular-stn-type",
         "0" if ANGULAR_FORMAT is AngularFormat.HP else "1",
+        "--angular-msr-type",
+        "0",
+        "--dms-msr-format",
+        "0",
         "--output-apu-vcv-units",
         "0",
     ]
@@ -692,6 +703,7 @@ class DynAdjustEngine:
             apu_path=uncertainty if uncertainty.is_file() else None,
             cor_path=corrections if corrections.is_file() else None,
             angular_format=ANGULAR_FORMAT,
+            measurement_format=MEASUREMENT_FORMAT,
             provenance=provenance(runs, prepared),
         )
 
