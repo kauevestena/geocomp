@@ -40,6 +40,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.models import Network, Solution
 from geocomp.core.visualization import default_exaggeration
+from geocomp.core.visualization.display import for_display
 from geocomp.layers.builders import (
     correction_features,
     correction_layer_name,
@@ -241,7 +242,19 @@ def write_result_layers(
     """Fill whichever result-layer sinks the user asked for.
 
     Returns the destination ids, ready to merge into the algorithm's results.
+
+    A geocentric solution is drawn in the UTM grid of its own frame
+    (:func:`~geocomp.core.visualization.display.for_display`): X, Y, Z are not a
+    plane a map can show.
     """
+    solution, network, grid = for_display(solution, network)
+    if grid is not None and feedback is not None and _any_requested(parameters):
+        feedback.pushInfo(
+            _tr(
+                "The geocentric solution is drawn in %1: easting, northing and "
+                "ellipsoidal height."
+            ).replace("%1", grid.name)
+        )
     exaggeration = resolve_exaggeration(
         algorithm.parameterAsDouble(parameters, EXAGGERATION, context), solution
     )

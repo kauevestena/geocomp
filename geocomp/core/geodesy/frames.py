@@ -68,6 +68,7 @@ from geocomp.core.errors import ValidationError
 
 __all__ = [
     "FRAMES",
+    "FRAME_NAMES",
     "TRANSFORMATIONS",
     "Helmert",
     "TransformationRecord",
@@ -100,6 +101,10 @@ for _name, _codes in {
     for _code in _codes:
         FRAMES[f"EPSG:{_code}"] = _name
 FRAMES["SIRGAS 2000"] = "SIRGAS2000"
+
+#: The frames themselves, newest realisation first, for a choice offered to a
+#: user. Appending is safe; a saved model stores the index, so reordering is not.
+FRAME_NAMES: tuple[str, ...] = ("ITRF2020", "ITRF2014", "ITRF2008", "ITRF2005", "ITRF2000", "SIRGAS2000")
 
 
 def canonical_frame(name: str) -> str:

@@ -235,6 +235,18 @@ still drew.
 
 ---
 
+### 4.4 The network document (P9b)
+
+*Build baselines* writes, on request (`OUTPUT_NETWORK`), the network the Integration menu combines: the kept
+baselines as one cluster, each observation at its **session's mid-epoch** (`% obs start`/`% obs end`, or the
+first and last epochs), and each mark's **starting position** — the base's from the `% ref pos` header, a
+rover's from its last epoch (its antenna's, a metre or two from its mark at most: a start, not a coordinate).
+Every mark is free; the datum is the combination's to set.
+
+It needs **the frame of the base coordinates** (`FRAME`), which a `.pos` file does not state and GeoComp does
+not assume (FR-105). Asked for the document without it, the algorithm refuses: a vector with no frame cannot
+be brought into another's, and a combination would refuse it later with less to say about why.
+
 ## 5. Quality reporting (FR-603)
 
 Per session and, for kinematic, per epoch:

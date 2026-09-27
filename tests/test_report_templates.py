@@ -105,6 +105,9 @@ class TestSubstitution:
             "parameters",
             "results",
             "statistics",
+            # A combination's per-technique section (P9b); empty for a
+            # single-technique solution, but always placed.
+            "techniques",
             "observation_results",
             "reliability",
             "ellipses",

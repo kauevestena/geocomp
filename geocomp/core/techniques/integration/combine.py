@@ -35,6 +35,29 @@ what this assumes, and ``specs/14`` is where its epochs are kept apart.
 depends only on what the combination contains: gravity has no DynAdjust
 measurement type, so a combination with gravity is adjusted in-house, and the
 reason travels with the result rather than being inferred by the reader.
+
+**Two modes (P9b).** With a ``frame`` the combination is geocentric, as above.
+Without one it is **local**: total-station and levelling work in one projected
+or local system, merged as they are, because nothing in them is a position in a
+frame that moves. A local combination needs every input in one coordinate
+reference system and refuses a GNSS position, which is only meaningful in a
+geocentric frame.
+
+**What a levelling benchmark becomes.** A levelling network holds its
+benchmarks in height alone, on a placeholder planimetry. In a local combination
+that hold is kept -- ``up`` is a component there. In a geocentric one it cannot
+be: an orthometric height holds ``h - N``, not any of X, Y, Z, and the geocentric
+frame would otherwise have left the station silently free. It enters as an
+orthometric height *observation* with the benchmark's uncertainty, tested
+against the geoid like any other; a benchmark held exactly is refused rather
+than made exact in a model where the geoid is not.
+
+**A projected input in a geocentric combination** -- a total-station network
+in UTM -- is read through a :class:`GridFrame` the caller supplies, because the
+core carries no projection database (``specs/07`` section 4.4). Only its
+starting coordinates need it: its measurements belong to no frame, and a
+control point held in grid coordinates is refused, because its height is not
+the ellipsoidal height the geocentric frame holds.
 """
 
 from __future__ import annotations
@@ -45,10 +68,15 @@ from typing import Any
 
 import numpy as np
 
-from geocomp.core.adjustment.geocentric import ELLIPSOID
+from geocomp.core.adjustment.geocentric import ELLIPSOID, HEIGHT_TYPE_KEY
 from geocomp.core.adjustment.parameters import geocentric_component
 from geocomp.core.errors import ValidationError
-from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation, geodetic_to_cartesian_jacobian
+from geocomp.core.geodesy.cartesian import (
+    cartesian_to_geodetic,
+    enu_rotation,
+    geodetic_to_cartesian,
+    geodetic_to_cartesian_jacobian,
+)
 from geocomp.core.geodesy.frames import (
     TRANSFORMATIONS,
     TransformationRecord,
@@ -57,6 +85,7 @@ from geocomp.core.geodesy.frames import (
     transform_point,
     transform_vector,
 )
+from geocomp.core.geodesy.projection import ProjectionParameters, inverse_transverse_mercator
 from geocomp.core.models import (
     OBSERVATION_TYPES,
     BaselineFrame,
@@ -80,6 +109,7 @@ from geocomp.core.units import Unit
 __all__ = [
     "AppliedTransformation",
     "Combination",
+    "GridFrame",
     "Routing",
     "Velocity",
     "combine",
@@ -92,6 +122,28 @@ _GNSS_POSITIONAL = (
     ObservationType.GNSS_POINT,
     ObservationType.ELLIPSOIDAL_HEIGHT,
 )
+_ORTHOMETRIC_TYPES = (ObservationType.HEIGHT_DIFFERENCE, ObservationType.ORTHOMETRIC_HEIGHT)
+
+#: What an input with no planimetry says for its CRS: nothing, or the
+#: levelling network's ``LOCAL`` (``techniques/levelling/network.py``). Such an
+#: input is in no frame, and in no local system either.
+_NO_CRS = frozenset({"", "LOCAL"})
+
+#: What a projected height-only hold names (``easting, northing, up``).
+_HEIGHT_COMPONENTS = frozenset({"up"})
+
+
+@dataclass(frozen=True)
+class GridFrame:
+    """A projected CRS, as far as a geocentric combination needs to read it.
+
+    Attributes:
+        frame: The geodetic frame the grid is defined on, e.g. ``SIRGAS2000``.
+        projection: Its Transverse Mercator parameters.
+    """
+
+    frame: str
+    projection: ProjectionParameters
 
 
 @dataclass(frozen=True)
@@ -129,6 +181,10 @@ class Combination:
     """The merged network, in one frame at one epoch, and how it got there.
 
     Attributes:
+        frame: The geocentric frame, or for a local combination the inputs'
+            one coordinate reference system (empty when none stated one).
+        geocentric: Whether the network is adjusted in ``Frame.GEOCENTRIC_3D``;
+            a local one is adjusted in the frame its observations need.
         renamed: ``{new id: (input id, original id)}`` for every observation,
             cluster or setup whose id collided with an earlier input's and was
             prefixed with its input's. Station ids are never renamed: the same
@@ -143,6 +199,7 @@ class Combination:
     techniques: tuple[str, ...]
     transformations: tuple[AppliedTransformation, ...] = ()
     renamed: dict[str, tuple[str, str]] = field(default_factory=dict)
+    geocentric: bool = True
 
     def provenance_parameters(self) -> dict[str, Any]:
         """What a Solution's provenance should say about the combination."""
@@ -150,6 +207,7 @@ class Combination:
             "combination": {
                 "inputs": list(self.inputs),
                 "frame": self.frame,
+                "geocentric": self.geocentric,
                 "epoch": self.epoch.decimal_year,
                 "techniques": list(self.techniques),
                 "transformations": [t.to_dict() for t in self.transformations],
@@ -161,16 +219,22 @@ class Combination:
 def combine(
     inputs: Sequence[Network],
     *,
-    frame: str,
-    epoch: Epoch,
+    frame: str | None,
+    epoch: Epoch | None,
     velocities: Mapping[str, Velocity] | None = None,
+    grids: Mapping[str, GridFrame] | None = None,
     network_id: str = "combined",
 ) -> Combination:
     """Merge *inputs* into one network in *frame* at *epoch*.
 
     Args:
+        frame: The geocentric frame to combine in, or ``None`` for a local
+            combination in the inputs' one coordinate reference system.
+        epoch: The combination's epoch; required, whichever the mode.
         velocities: Per station, in the frame of the input it comes from. Needed
             wherever a position must change epoch; never assumed zero.
+        grids: ``{crs: GridFrame}`` for each projected CRS an input is in, so its
+            starting coordinates can be placed in the geocentric frame.
 
     Raises:
         ValidationError: ``combination_frame_irreconcilable`` for an input whose
@@ -179,63 +243,127 @@ def combine(
             states no frame; ``combination_epoch_without_velocity`` for a position
             that must change epoch with no velocity (naming the input and what);
             ``combination_station_held_differently`` when two inputs hold one
-            station at positions more than a millimetre apart.
+            station at positions more than a millimetre apart;
+            ``combination_projected_hold`` and ``combination_benchmark_held_exactly``
+            for holds a geocentric frame cannot keep; ``combination_frames_differ``
+            and ``combination_gnss_in_local_frame`` for a local combination.
     """
+    if epoch is None:
+        # A solution is at an epoch or it is not a solution (FR-105), and a
+        # local one too: it is what a later epoch's survey is compared with.
+        raise ValidationError(
+            "combination_epoch_required",
+            frame=frame,
+            expected=(
+                "the epoch the combination is at; GeoComp does not assume one "
+                "(FR-105), and a solution without one cannot be compared with any other"
+            ),
+        )
+    if frame is None:
+        return _combine_local(inputs, epoch, network_id)
     target = canonical_frame(frame)
     target_epoch = epoch.decimal_year
     velocities = dict(velocities or {})
+    grids = dict(grids or {})
+    starts = _ellipsoidal_starts(inputs)
     merged = Network(id=network_id, crs=target, epoch=epoch)
     applied: list[AppliedTransformation] = []
     renamed: dict[str, tuple[str, str]] = {}
     held_by: dict[str, str] = {}
+    held_heights: dict[str, tuple[Quantity, str]] = {}
 
     for network in inputs:
-        context = _Context(network, target, target_epoch, velocities, applied)
-        for station in network.stations.values():
-            _merge_station(merged, context.station(station), network.id, held_by)
+        context = _Context(network, target, target_epoch, velocities, applied, grids, starts)
+        _merge_input(merged, network, context, held_by, renamed)
+        for benchmark in context.benchmarks:
+            _merge_benchmark(merged, benchmark, network.id, held_heights, renamed)
 
-        cluster_ids = _namespaced(network.clusters, merged.clusters, network.id, renamed)
-        observation_ids = _namespaced(network.observations, merged.observations, network.id, renamed)
-        setup_ids = _setup_namespace(network, merged, renamed)
-
-        transformed = context.observations()
-        for identifier, observation in network.observations.items():
-            observation = transformed.get(identifier, observation)
-            meta = dict(observation.meta or {})
-            meta.setdefault(TECHNIQUE_KEY, technique_of(observation))
-            merged.add_observation(
-                replace(
-                    observation,
-                    id=observation_ids[identifier],
-                    cluster_id=(
-                        cluster_ids.get(observation.cluster_id, observation.cluster_id)
-                        if observation.cluster_id
-                        else None
-                    ),
-                    setup_id=setup_ids.get(observation.setup_id, observation.setup_id),
-                    meta=meta,
-                )
-            )
-        for identifier, cluster in network.clusters.items():
-            cluster = context.clusters.get(identifier, cluster)
-            merged.add_cluster(
-                replace(
-                    cluster,
-                    id=cluster_ids[identifier],
-                    observation_ids=tuple(observation_ids[o] for o in cluster.observation_ids),
-                )
-            )
-
-    techniques = tuple(dict.fromkeys(technique_of(o) for o in merged.observations.values()))
     return Combination(
         network=merged,
         frame=target,
         epoch=epoch,
         inputs=tuple(n.id for n in inputs),
-        techniques=techniques,
+        techniques=_techniques(merged),
         transformations=tuple(applied),
         renamed=renamed,
     )
+
+
+def _combine_local(inputs: Sequence[Network], epoch: Epoch, network_id: str) -> Combination:
+    """Merge *inputs* as they stand, in their one coordinate reference system."""
+    systems: dict[str, str] = {}
+    for network in inputs:
+        _LocalContext(network).observations()
+        crs = (network.crs or "").strip()
+        if crs.upper() not in _NO_CRS:
+            systems[network.id] = crs
+    if len({crs.upper() for crs in systems.values()}) > 1:
+        raise ValidationError(
+            "combination_frames_differ",
+            inputs=systems,
+            expected=(
+                "one coordinate reference system for every input of a local "
+                "combination; inputs in different systems are combined in a "
+                "geocentric frame, which transforms between them"
+            ),
+        )
+    crs = next(iter(systems.values()), "")
+    merged = Network(id=network_id, crs=crs, epoch=epoch)
+    renamed: dict[str, tuple[str, str]] = {}
+    held_by: dict[str, str] = {}
+    for network in inputs:
+        _merge_input(merged, network, _LocalContext(network), held_by, renamed)
+    return Combination(
+        network=merged,
+        frame=crs,
+        epoch=epoch,
+        inputs=tuple(n.id for n in inputs),
+        techniques=_techniques(merged),
+        renamed=renamed,
+        geocentric=False,
+    )
+
+
+def _techniques(network: Network) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(technique_of(o) for o in network.observations.values()))
+
+
+def _merge_input(merged: Network, network: Network, context, held_by, renamed) -> None:
+    """One input's stations, observations and clusters, into *merged*."""
+    for station in network.stations.values():
+        _merge_station(merged, context.station(station), network.id, held_by)
+
+    cluster_ids = _namespaced(network.clusters, merged.clusters, network.id, renamed)
+    observation_ids = _namespaced(network.observations, merged.observations, network.id, renamed)
+    setup_ids = _setup_namespace(network, merged, renamed)
+
+    transformed = context.observations()
+    for identifier, observation in network.observations.items():
+        observation = transformed.get(identifier, observation)
+        meta = dict(observation.meta or {})
+        meta.setdefault(TECHNIQUE_KEY, technique_of(observation))
+        merged.add_observation(
+            replace(
+                observation,
+                id=observation_ids[identifier],
+                cluster_id=(
+                    cluster_ids.get(observation.cluster_id, observation.cluster_id)
+                    if observation.cluster_id
+                    else None
+                ),
+                setup_id=setup_ids.get(observation.setup_id, observation.setup_id),
+                meta=meta,
+            )
+        )
+    for identifier, cluster in network.clusters.items():
+        cluster = context.clusters.get(identifier, cluster)
+        merged.add_cluster(
+            replace(
+                cluster,
+                id=cluster_ids[identifier],
+                observation_ids=tuple(observation_ids[o] for o in cluster.observation_ids),
+            )
+        )
 
 
 def route(network: Network, requested: str = "in_house") -> Routing:
@@ -276,6 +404,25 @@ def route(network: Network, requested: str = "in_house") -> Routing:
                     "combination rather than a part of it"
                 ),
             )
+        if not _in_a_frame(network):
+            return Routing(
+                engine="in_house",
+                reason=(
+                    f"the combination is in a local system ({network.crs or 'unstated'}), "
+                    "and DynAdjust adjusts on the ellipsoid of a named frame"
+                ),
+            )
+        orthometric = [o.id for o in network.observations.values() if _is_orthometric(o)]
+        if orthometric:
+            return Routing(
+                engine="in_house",
+                reason=(
+                    f"{len(orthometric)} orthometric observation(s) take part; the in-house "
+                    "core estimates each station's geoid undulation with the model's own "
+                    "uncertainty (specs/13 section 3.2), where DynAdjust would take the "
+                    "separations as exact"
+                ),
+            )
         return Routing(engine="dynadjust", reason="requested, and every observation has a DynAdjust type")
     return Routing(
         engine="in_house",
@@ -287,24 +434,120 @@ def route(network: Network, requested: str = "in_house") -> Routing:
 # -- internals ---------------------------------------------------------------
 
 
+def _in_a_frame(network: Network) -> bool:
+    try:
+        canonical_frame(network.crs or "")
+    except ValidationError:
+        return False
+    return True
+
+
+def _is_orthometric(observation: Observation) -> bool:
+    if observation.type is ObservationType.ORTHOMETRIC_HEIGHT:
+        return True
+    if observation.type is not ObservationType.HEIGHT_DIFFERENCE:
+        return False
+    stated = (observation.meta or {}).get(HEIGHT_TYPE_KEY)
+    # An untyped difference is refused by the adjustment, by name; here it is
+    # enough that it is not known to be ellipsoidal.
+    return stated != HeightType.ELLIPSOIDAL.name and stated is not HeightType.ELLIPSOIDAL
+
+
+class _LocalContext:
+    """One input of a local combination: taken as it stands.
+
+    Only the placeholder planimetry of a height-only hold is dropped, so a
+    real starting position from another input is not shadowed by two zeros.
+    """
+
+    def __init__(self, network: Network):
+        self.network = network
+        self.clusters: dict[str, Cluster] = {}
+
+    def station(self, station: Station) -> Station:
+        if _holds_height_only(station.constraint) and _is_placeholder(station):
+            return replace(station, approx_position=None)
+        return station
+
+    def observations(self) -> dict[str, Observation]:
+        for observation in self.network.observations.values():
+            if observation.type in _GNSS_POSITIONAL:
+                raise ValidationError(
+                    "combination_gnss_in_local_frame",
+                    input=self.network.id,
+                    observation=observation.id,
+                    expected=(
+                        "a geocentric frame for the combination: a GNSS vector, point or "
+                        "ellipsoidal height is a position in one, and a local system "
+                        "cannot hold it"
+                    ),
+                )
+        return {}
+
+
+def _holds_height_only(constraint: ConstraintSpec) -> bool:
+    return (
+        constraint.mode is not ConstraintMode.FREE
+        and constraint.position is not None
+        and constraint.position.system is CoordinateSystem.PROJECTED
+        and bool(constraint.components)
+        and constraint.components <= _HEIGHT_COMPONENTS
+    )
+
+
+def _is_placeholder(station: Station) -> bool:
+    """Whether the station's approximate position is its height hold's own,
+    zeros and all -- what a levelling network gives a benchmark."""
+    return station.approx_position is not None and station.approx_position == station.constraint.position
+
+
+def _ellipsoidal_starts(inputs: Sequence[Network]) -> dict[str, float]:
+    """An ellipsoidal height for each station some input places geocentrically.
+
+    Starting values only: a grid input's heights are orthometric, and are
+    lifted by the typical difference at the stations it shares with these.
+    """
+    heights: dict[str, float] = {}
+    for network in inputs:
+        for station in network.stations.values():
+            for position in (station.approx_position, station.constraint.position):
+                if position is None or station.id in heights:
+                    continue
+                values = [q.value for q in position.values]
+                if position.system is CoordinateSystem.CARTESIAN:
+                    heights[station.id] = cartesian_to_geodetic(*values, ELLIPSOID)[2]
+                elif position.system is CoordinateSystem.GEODETIC:
+                    heights[station.id] = values[2]
+    return heights
+
+
 class _Context:
     """One input's frame and epoch, and the transformations it needs."""
 
-    def __init__(self, network, target, target_epoch, velocities, applied):
+    def __init__(self, network, target, target_epoch, velocities, applied, grids=None, starts=None):
         self.network = network
         self.target = target
         self.target_epoch = target_epoch
         self.velocities = velocities
         self.applied = applied
         self.clusters: dict[str, Cluster] = {}
+        #: Height holds that enter as orthometric height observations.
+        self.benchmarks: list[Observation] = []
         self.epoch = network.epoch.decimal_year if network.epoch is not None else None
-        self.source = self._source_frame()
+        self.grid: ProjectionParameters | None = None
+        self.source = self._source_frame(grids or {})
+        self.lift = self._lift(starts or {}) if self.grid is not None else 0.0
 
-    def _source_frame(self) -> str | None:
-        if not self.network.crs:
+    def _source_frame(self, grids: Mapping[str, GridFrame]) -> str | None:
+        crs = (self.network.crs or "").strip()
+        if crs.upper() in _NO_CRS:
             return None
+        grid = grids.get(crs)
+        if grid is not None:
+            self.grid = grid.projection
+            crs = grid.frame
         try:
-            return canonical_frame(self.network.crs)
+            return canonical_frame(crs)
         except ValidationError as error:
             raise ValidationError(
                 "combination_frame_irreconcilable",
@@ -312,11 +555,23 @@ class _Context:
                 received=self.network.crs,
                 expected=error.context.get("expected"),
                 hint=(
-                    "every input must be in a frame GeoComp can transform from; "
-                    "combining without the transformation would absorb a datum "
-                    "shift into the residuals"
+                    "every input must be in a frame GeoComp can transform from, or in a "
+                    "projection of one whose parameters are stated; combining without "
+                    "the transformation would absorb a datum shift into the residuals"
                 ),
             ) from error
+
+    def _lift(self, starts: Mapping[str, float]) -> float:
+        """What to add to this grid input's heights to start near the ellipsoid:
+        the median difference at the stations another input places."""
+        differences = [
+            starts[station.id] - station.approx_position.values[2].value
+            for station in self.network.stations.values()
+            if station.id in starts
+            and station.approx_position is not None
+            and station.approx_position.system is CoordinateSystem.PROJECTED
+        ]
+        return float(np.median(differences)) if differences else 0.0
 
     def _require_frame(self, subject: str) -> str:
         if self.source is None:
@@ -394,22 +649,90 @@ class _Context:
 
     def station(self, station: Station) -> Station:
         approximate = station.approx_position
-        if approximate is not None and self.source is not None and self.source != self.target:
-            approximate = self._approximate(station.id, approximate)
         constraint = station.constraint
+        if _holds_height_only(constraint):
+            if _is_placeholder(station):
+                approximate = None
+            self.benchmarks.append(self._benchmark(station))
+            constraint = ConstraintSpec()
+        if approximate is not None:
+            approximate = self._approximate(station.id, approximate)
         if constraint.mode is not ConstraintMode.FREE and constraint.position is not None:
             constraint = self._constraint(station.id, constraint)
         return replace(station, approx_position=approximate, constraint=constraint)
 
-    def _approximate(self, station_id: str, position: Position) -> Position:
-        if position.system not in (CoordinateSystem.CARTESIAN, CoordinateSystem.GEODETIC):
+    def _benchmark(self, station: Station) -> Observation:
+        """A height-only hold as the orthometric height observation it is here."""
+        constraint = station.constraint
+        position = constraint.position
+        if constraint.mode is ConstraintMode.FIXED:
+            raise ValidationError(
+                "combination_benchmark_held_exactly",
+                input=self.network.id,
+                station=station.id,
+                expected=(
+                    "the benchmark's height with its uncertainty (a weighted hold): in a "
+                    "geocentric frame it holds h - N, and holding that exactly would make "
+                    "the geoid exact at the benchmark"
+                ),
+            )
+        if position.height_type is HeightType.ELLIPSOIDAL:
+            raise ValidationError(
+                "combination_projected_hold",
+                input=self.network.id,
+                station=station.id,
+                expected=(
+                    "an ellipsoidal height held as a geodetic or geocentric position, or "
+                    "entered as a GNSS ellipsoidal height observation"
+                ),
+            )
+        height = position.component("up")
+        variance = float(np.asarray(constraint.covariance.matrix)[0, 0])
+        return Observation(
+            id=f"benchmark:{station.id}",
+            type=ObservationType.ORTHOMETRIC_HEIGHT,
+            stations=(station.id,),
+            values=(replace(height, variance=variance),),
+            meta={TECHNIQUE_KEY: "levelling", "benchmark": True},
+        )
+
+    def _approximate(self, station_id: str, position: Position) -> Position | None:
+        if position.system is CoordinateSystem.PROJECTED:
+            if self.grid is None:
+                # A projected start in a projection nobody named cannot be
+                # placed; the station takes its start from another input or
+                # is refused by name when the adjustment needs one.
+                return None
+            easting, northing, up = (q.value for q in position.values)
+            latitude, longitude = inverse_transverse_mercator(easting, northing, self.grid)
+            xyz = geodetic_to_cartesian(latitude, longitude, up + self.lift, ELLIPSOID)
+        elif self.source is None or self.source == self.target:
             return position
-        xyz = [geocentric_component(position, c, station_id) for c in ("x", "y", "z")]
-        moved = transform_point(xyz, source=self.source, target=self.target, epoch=self._epoch_of())
-        return _cartesian(moved.xyz, self.target, self._epoch(), position)
+        else:
+            xyz = [geocentric_component(position, c, station_id) for c in ("x", "y", "z")]
+        if self.source is not None and self.source != self.target:
+            # A start, so standing still is good enough: a time-specific frame
+            # (SIRGAS 2000) may move it to its own epoch, and demanding a real
+            # velocity for a starting value would refuse what cannot matter.
+            xyz = transform_point(
+                xyz, source=self.source, target=self.target, epoch=self._epoch_of(), velocity=(0.0, 0.0, 0.0)
+            ).xyz
+        return _cartesian(xyz, self.target, self._epoch(), position)
 
     def _constraint(self, station_id: str, constraint: ConstraintSpec) -> ConstraintSpec:
         position = constraint.position
+        if position.system is CoordinateSystem.PROJECTED:
+            raise ValidationError(
+                "combination_projected_hold",
+                input=self.network.id,
+                station=station_id,
+                expected=(
+                    "control held as geodetic or geocentric coordinates, or through the "
+                    "GNSS input; a grid coordinate's height is not the ellipsoidal height "
+                    "the geocentric frame holds, and holding it would push the geoid "
+                    "into the residuals"
+                ),
+            )
         if position.system not in (CoordinateSystem.CARTESIAN, CoordinateSystem.GEODETIC):
             return constraint
         subject = f"station {station_id} ({constraint.mode.value} position)"
@@ -668,16 +991,9 @@ def _merge_station(merged: Network, station: Station, input_id: str, held_by: di
         return
     existing_held = existing.constraint.mode is not ConstraintMode.FREE
     if held and existing_held:
-        first, second = existing.constraint.position, station.constraint.position
-        comparable = first.system is second.system is CoordinateSystem.CARTESIAN
-        separation = (
-            float(
-                np.linalg.norm([a.value - b.value for a, b in zip(first.values, second.values, strict=True)])
-            )
-            if comparable
-            else float("inf")
-        )
-        if separation > 1e-3:
+        separation = _hold_separation(existing.constraint, station.constraint)
+        comparable = separation is not None
+        if separation is None or separation > 1e-3:
             raise ValidationError(
                 "combination_station_held_differently",
                 station=station.id,
@@ -689,6 +1005,15 @@ def _merge_station(merged: Network, station: Station, input_id: str, held_by: di
                     "distance into the residuals"
                 ),
             )
+        # They agree where both hold. Keep the one that holds more -- a
+        # levelling benchmark's height beside a control point's full position
+        # -- and a real starting position from either.
+        if station.constraint.components > existing.constraint.components:
+            existing, held_by[station.id] = station, input_id
+        merged.stations[station.id] = replace(
+            existing,
+            approx_position=merged.stations[station.id].approx_position or station.approx_position,
+        )
         return
     if held and not existing_held:
         approximate = existing.approx_position or station.approx_position
@@ -696,6 +1021,46 @@ def _merge_station(merged: Network, station: Station, input_id: str, held_by: di
         held_by[station.id] = input_id
     elif existing.approx_position is None and station.approx_position is not None:
         merged.stations[station.id] = replace(existing, approx_position=station.approx_position)
+
+
+def _hold_separation(first: ConstraintSpec, second: ConstraintSpec) -> float | None:
+    """How far apart two holds of one station are, in what both hold; ``None``
+    when they cannot be compared -- different systems, or nothing in common."""
+    a, b = first.position, second.position
+    if a is None or b is None or a.system is not b.system or a.system is CoordinateSystem.GEODETIC:
+        return None
+    names = a.system.component_names
+    common = [name for name in names if name in first.components and name in second.components]
+    if not common:
+        return None
+    return float(np.linalg.norm([a.component(n).value - b.component(n).value for n in common]))
+
+
+def _merge_benchmark(merged: Network, observation: Observation, input_id: str, held, renamed) -> None:
+    """A benchmark's height observation, once however many inputs hold it.
+
+    The same benchmark in two levelling networks is one piece of information,
+    not two; entered twice it would halve its own variance.
+    """
+    (station_id,) = observation.stations
+    earlier = held.get(station_id)
+    if earlier is not None:
+        value, first_input = earlier
+        if abs(value.value - observation.values[0].value) > 1e-3:
+            raise ValidationError(
+                "combination_station_held_differently",
+                station=station_id,
+                received=[first_input, input_id],
+                separation=round(abs(value.value - observation.values[0].value), 4),
+                expected="one height per benchmark, or heights that agree within a millimetre",
+            )
+        return
+    held[station_id] = (observation.values[0], input_id)
+    identifier = observation.id
+    if identifier in merged.observations:
+        identifier = f"{input_id}:{identifier}"
+        renamed[identifier] = (input_id, observation.id)
+    merged.add_observation(replace(observation, id=identifier))
 
 
 def _namespaced(items: Mapping[str, Any], taken: Mapping[str, Any], input_id: str, renamed):

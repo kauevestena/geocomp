@@ -394,6 +394,194 @@ def _statistics(solution: Solution) -> str:
     return body
 
 
+def _technique_label(group: str) -> str:
+    labels = {
+        "gnss": _tr("GNSS"),
+        "total_station": _tr("Total station"),
+        "levelling": _tr("Levelling"),
+        "gravimetry": _tr("Gravimetry"),
+        "astro_geodetic": _tr("Astro-geodetic"),
+        "constraints": _tr("Weighted constraints"),
+        "geoid": _tr("Geoid priors"),
+    }
+    return labels.get(group, group)
+
+
+def _techniques(solution: Solution) -> str:
+    """The combination, technique by technique (``specs/13`` section 6, criterion 7).
+
+    "The adjustment passed" is much less use than "it passed, and the levelling
+    carries almost none of the redundancy". Everything here is read from the
+    solution's provenance, where the combined adjustment recorded it, so a
+    report rendered later from the saved solution says the same. A solution
+    that is not a combination has no such section.
+    """
+    parameters = solution.provenance.parameters if solution.provenance is not None else {}
+    combination = parameters.get("combination")
+    if not combination:
+        return ""
+    body = _heading(_tr("Techniques"))
+
+    routing = parameters.get("routing") or {}
+    rows = [
+        [escape(_tr("Inputs")), escape(", ".join(combination.get("inputs", [])))],
+        [
+            escape(_tr("Techniques")),
+            escape(", ".join(_technique_label(t) for t in combination.get("techniques", []))),
+        ],
+        [escape(_tr("Frame")), escape(combination.get("frame") or "—")],
+        [
+            escape(_tr("Engine")),
+            escape(
+                _tr("DynAdjust") if routing.get("engine") == "dynadjust" else _tr("GeoComp in-house core")
+            ),
+        ],
+        [escape(_tr("Why this engine")), escape(routing.get("reason") or "—")],
+    ]
+    body += render_table([escape(_tr("Field")), escape(_tr("Value"))], rows)
+
+    transformations = combination.get("transformations") or []
+    if transformations:
+        body += render_table(
+            [
+                escape(_tr("Input")),
+                escape(_tr("Applied to")),
+                escape(_tr("From")),
+                escape(_tr("To")),
+                escape(_tr("Steps")),
+            ],
+            [
+                [
+                    escape(t.get("input", "")),
+                    escape(t.get("subject", "")),
+                    f"{escape(t.get('source', ''))} @ {format_number(t.get('source_epoch'), 4)}",
+                    f"{escape(t.get('target', ''))} @ {format_number(t.get('target_epoch'), 4)}",
+                    escape(len(t.get("steps", []))),
+                ]
+                for t in transformations
+            ],
+        )
+        body += render_note(
+            _tr(
+                "Every transformation the combination applied, with the input and the "
+                "position it was applied to. A datum shift not listed here was not applied."
+            ),
+            label=_tr("Frames and epochs"),
+        )
+
+    breakdown = parameters.get("technique_breakdown") or []
+    if breakdown:
+        body += render_table(
+            [
+                escape(_tr("Technique")),
+                escape(_tr("Observations")),
+                escape(_tr("Rows")),
+                escape(_tr("Redundancy")),
+                escape(_tr("Share")),
+                escape(_tr("vᵀPv")),
+                escape(_tr("vᵀPv / r")),
+                escape(_tr("Largest |w|")),
+                escape(_tr("Uncheckable")),
+            ],
+            [
+                [
+                    escape(_technique_label(row["technique"])),
+                    escape(row["observations"]),
+                    escape(row["rows"]),
+                    format_number(row["redundancy"], 2),
+                    format_number(100.0 * row["redundancy_share"], 1) + "&nbsp;%",
+                    format_number(row["weighted_squares"], 3),
+                    format_number(row["variance_factor"], 3),
+                    format_number(row["largest_standardised"], 2),
+                    escape(len(row["uncheckable"])),
+                ]
+                for row in breakdown
+            ],
+        )
+        body += render_note(
+            _tr(
+                "The redundancy each technique carries, and its own part of the weighted "
+                "squares. The parts add up to the whole. A technique's vᵀPv / r is a quick "
+                "reading of how its weights fit, not its variance component: that is "
+                "estimated below when it was asked for."
+            ),
+            label=_tr("Per-technique breakdown"),
+        )
+    else:
+        body += render_note(
+            _tr(
+                "No per-technique breakdown: its redundancy numbers come from the in-house "
+                "adjustment's design, and DynAdjust's output does not carry them. The "
+                "residuals are listed per observation below."
+            ),
+            label=_tr("Per-technique breakdown"),
+        )
+
+    components = parameters.get("variance_components")
+    if components:
+        body += render_table(
+            [
+                escape(_tr("Technique")),
+                escape(_tr("Variance factor")),
+                escape(_tr("Standard deviation")),
+                escape(_tr("Redundancy")),
+            ],
+            [
+                [
+                    escape(_technique_label(group)),
+                    format_number(value.get("factor"), 3),
+                    format_number(value.get("std_dev"), 3),
+                    format_number(value.get("redundancy"), 2),
+                ]
+                for group, value in components.items()
+            ],
+        )
+        body += render_note(
+            _tr(
+                "Estimated by least-squares variance component estimation, one factor per "
+                "technique. Each technique's weights were rescaled by its factor, and the "
+                "solution above is the rescaled network's."
+            ),
+            label=_tr("Variance components"),
+        )
+
+    residuals = parameters.get("geoid_residuals") or []
+    if residuals:
+        model = parameters.get("geoid_model") or "—"
+        body += render_table(
+            [
+                escape(_tr("Station")),
+                escape(_tr("Model N (m)")),
+                escape(_tr("Model std. dev. (m)")),
+                escape(_tr("Adjusted N (m)")),
+                escape(_tr("Residual (m)")),
+                escape(_tr("Redundancy")),
+                escape(_tr("w")),
+            ],
+            [
+                [
+                    escape(row["station_id"]),
+                    format_number(row["model"], 3),
+                    format_number(row["model_std_dev"], 3),
+                    format_number(row["adjusted"], 3),
+                    format_number(row["residual"], 4),
+                    format_number(row["redundancy"], 2),
+                    format_number(row["standardised"], 2),
+                ]
+                for row in residuals
+            ],
+        )
+        body += render_note(
+            _tr(
+                "The geoid model %1 tested by the survey: at each station where an "
+                "orthometric height met an ellipsoidal one, the undulation the adjustment "
+                "found against the one the model gave."
+            ).replace("%1", escape(model)),
+            label=_tr("Geoid residuals"),
+        )
+    return body
+
+
 def _observation_results(solution: Solution, gravity_unit: str = "mgal") -> str:
     if not solution.observation_results:
         return _heading(_tr("Observation results")) + render_note(
@@ -660,6 +848,7 @@ def build_sections(
         "parameters": _parameters(context),
         "results": _results(solution, context.gravity_unit),
         "statistics": _statistics(solution),
+        "techniques": _techniques(solution),
         "observation_results": _observation_results(solution, context.gravity_unit),
         "reliability": _reliability(solution),
         "ellipses": _ellipses(solution),

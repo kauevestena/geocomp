@@ -127,6 +127,7 @@ def estimate_variance_components(
     group_of: Callable[[Observation], str] | None = None,
     max_iterations: int = 30,
     tolerance: float = 1.0e-4,
+    approximate: dict[str, dict[str, float]] | None = None,
 ) -> VarianceComponents:
     """Estimate one variance factor per group, iterating to convergence.
 
@@ -149,7 +150,7 @@ def estimate_variance_components(
     scaled = network
     iterations = 0
     for iterations in range(1, max_iterations + 1):  # noqa: B007 - reported below
-        run = adjust(scaled, options)
+        run = adjust(scaled, options, approximate=approximate)
         estimate, covariance, redundancy, counts = _estimate(run, scaled, groups, group_of)
         for group, value in estimate.items():
             if not value > 0.0:

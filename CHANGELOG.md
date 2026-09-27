@@ -5,6 +5,58 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P9b — integration: the surface
+
+The four Integration menu items, the report's per-technique section, the
+result layers of a geocentric solution, and DynAdjust as the engine of a
+combination when routing allows it.
+
+#### Added
+
+- **Four Integration algorithms** (`algorithms/integration/`, FR-800…FR-803):
+  *GNSS and total station*, *Total station and level*, *GNSS and level* (geoid
+  required) and *Multiple techniques* (three or more, gravity beside the
+  geometry). Inputs are the technique algorithms' network documents; shared
+  frame, epoch, velocities, geoid, fixed stations, datum, engine, variance
+  components and confidence; outputs a solution, a report, the combined
+  network and the result layers.
+- **A local combination** (`combine(frame=None)`): total station and levelling
+  in their own CRS, adjusted in heights alone or in three dimensions.
+- **Projected inputs in a geocentric combination** through a `GridFrame`,
+  derived from QGIS's CRS by the algorithm; only starting positions use it.
+- **DynAdjust running a combination** (`engines/dynadjust/combination.py`):
+  agrees with the in-house core to 0.75 mm on the combined survey.
+- **The report's *Techniques* section** (criterion 7): inputs, engine and why,
+  transformations, per-technique redundancy and `vᵀPv`, variance components and
+  geoid residuals, read from the solution's provenance.
+- **A geocentric solution on the map** (`core/visualization/display.py`): drawn
+  in the UTM zone of its own frame — EPSG for SIRGAS 2000, a WKT2 grid naming
+  the ITRF otherwise — with ellipses and corrections turned by the convergence.
+- *Build baselines* writes a network document (`FRAME`, `OUTPUT_NETWORK`):
+  session mid-epochs, the base's and rovers' starting positions. Levelling
+  *Network adjustment* writes one too, every difference typed.
+
+#### Fixed
+
+- **A levelling benchmark in a geocentric combination was silently free**: its
+  hold names `up`, none of X, Y, Z. It now enters as an orthometric height
+  observation with its uncertainty; held exactly, it is refused.
+- **Levelled height differences did not say their height type**, which the
+  geocentric frame requires; both levelling builders now record it.
+- **Two agreeing holds of one station kept the first input's**, and a
+  benchmark's placeholder zeros shadowed another input's starting position.
+- **A levelling network's `LOCAL` CRS was refused as an irreconcilable frame.**
+- **The combined solution carried no per-observation results** — no w-tests,
+  no reliability — so its residual layer and report had nothing to show.
+
+#### Not done
+
+- The per-technique breakdown on the DynAdjust path (no redundancy numbers in
+  its output; the report says so).
+- A mark reached only by levelling in a three-dimensional combination is
+  refused by name rather than adjusted in height alone.
+- The geocentric layers are tested only where QGIS ≥ 3.38 runs.
+
 ### P9a — integration: the computation
 
 Techniques adjusted together: one geocentric frame in which every observation

@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""User-facing wording for what a combination refuses (``specs/13``, phase P9b).
+
+Each says what failed, why, and what to do about it (NFR-006). The combination
+refuses more than a single-technique adjustment does -- frames, epochs, height
+systems, holds -- and every one of those refusals names the input or the
+station, because "the inputs cannot be combined" is true and no use.
+
+Importing this module registers the templates; :mod:`geocomp.algorithms.integration`
+imports it.
+"""
+
+from __future__ import annotations
+
+from geocomp.services.messages import MessageTemplate, register_template
+
+__all__ = ["TEMPLATES"]
+
+TEMPLATES: dict[str, MessageTemplate] = {
+    "validation.combination_frame_irreconcilable": MessageTemplate(
+        "The input '%1' is in %2, which GeoComp cannot transform from. Give it in "
+        "ITRF2000 to ITRF2020 or SIRGAS 2000, or in a UTM or Transverse Mercator "
+        "projection of one of them. Combining it untransformed would absorb a datum "
+        "shift into the residuals.",
+        "input",
+        "received",
+    ),
+    "validation.combination_input_without_frame": MessageTemplate(
+        "The input '%1' holds a position (%2) but does not say what frame it is in. "
+        "State the frame when the network is built -- for GNSS baselines, the frame "
+        "of the base coordinates.",
+        "input",
+        "subject",
+    ),
+    "validation.combination_input_without_epoch": MessageTemplate(
+        "The input '%1' holds a position (%2) but not its epoch. GeoComp does not "
+        "assume one: the frame moves, and the same coordinates at two epochs are two "
+        "different places.",
+        "input",
+        "subject",
+    ),
+    "validation.combination_epoch_without_velocity": MessageTemplate(
+        "In the input '%1', %2 must be moved to the combination's epoch, and no "
+        "velocity was given for it. Supply one in the velocities file; zero is not "
+        "assumed -- it is a decimetre a decade in most of Brazil.",
+        "input",
+        "subject",
+    ),
+    "validation.combination_epoch_required": MessageTemplate(
+        "State the epoch of the combination (a decimal year). None of the inputs "
+        "states one GeoComp could take, and it does not assume one.",
+    ),
+    "validation.combination_station_held_differently": MessageTemplate(
+        "The station '%1' is held by two inputs (%2) at positions %3 m apart. Hold "
+        "it in one input only, or correct the one that is wrong: two holds a "
+        "distance apart force that distance into the residuals.",
+        "station",
+        "received",
+        "separation",
+    ),
+    "validation.combination_projected_hold": MessageTemplate(
+        "The input '%1' holds the station '%2' in grid coordinates. In a geocentric "
+        "combination a grid height is not the ellipsoidal height the frame holds. "
+        "Hold the station through the GNSS input instead (Fixed stations), or leave "
+        "it free in this one.",
+        "input",
+        "station",
+    ),
+    "validation.combination_benchmark_held_exactly": MessageTemplate(
+        "The input '%1' holds the benchmark '%2' exactly. In a geocentric combination "
+        "a benchmark's height holds h - N, and holding it exactly would make the "
+        "geoid exact there. Give the benchmark its uncertainty (height±sigma) when "
+        "adjusting the levelling network.",
+        "input",
+        "station",
+    ),
+    "validation.combination_frames_differ": MessageTemplate(
+        "The inputs are in different coordinate reference systems (%1). A combination "
+        "without GNSS is adjusted in the inputs' own system, so they must share one.",
+        "inputs",
+    ),
+    "validation.combination_gnss_in_local_frame": MessageTemplate(
+        "The input '%1' holds GNSS observations (%2), which need a geocentric frame. "
+        "Use a combination that includes the GNSS network.",
+        "input",
+        "observation",
+    ),
+    "validation.combination_station_without_horizontal": MessageTemplate(
+        "%1 station(s) are reached only through heights, so nothing determines where "
+        "they are horizontally: %2. Tie them in with a GNSS vector or a total-station "
+        "observation, hold them horizontally, or adjust the levelling on its own.",
+        "count",
+        "stations",
+    ),
+    "validation.combination_disconnected": MessageTemplate(
+        "The inputs fall into %1 pieces that share no station, so they cannot be "
+        "adjusted as one network. A combination is tied together by the stations the "
+        "techniques have in common.",
+        "received",
+    ),
+    "validation.combination_geoid_in_local_frame": MessageTemplate(
+        "A geoid model was given, but this combination is in a local system (%1) where "
+        "every height is what its input says it is. Leave the geoid out.",
+        "frame",
+    ),
+    "validation.mixed_height_types": MessageTemplate(
+        "Orthometric heights (from levelling) meet the ellipsoidal heights the "
+        "geocentric frame computes, and no geoid model relates them. Choose a geoid "
+        "model: without one they differ by the undulation, tens of metres in much of "
+        "Brazil.",
+    ),
+    "validation.height_difference_type_unstated": MessageTemplate(
+        "The height difference '%1' does not say whether it is orthometric or "
+        "ellipsoidal. Rebuild its network with the current GeoComp, which records it.",
+        "observation",
+    ),
+    "validation.epoch_change_without_velocity": MessageTemplate(
+        "A position must move from epoch %1 and no velocity was given for it. Supply "
+        "one in the velocities file.",
+        "received",
+    ),
+}
+
+for _code, _template in TEMPLATES.items():
+    register_template(_code, _template)

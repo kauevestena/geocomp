@@ -95,7 +95,9 @@ See [`11-module-gnss.md`](./11-module-gnss.md).
 See [`12-module-gravimetry.md`](./12-module-gravimetry.md).
 
 **Integration** → GNSS and Total Station · Total Station and Level · GNSS and Level · Multiple.
-See [`13-module-integration.md`](./13-module-integration.md).
+See [`13-module-integration.md`](./13-module-integration.md). Populated in P9b; the items read, in the
+sentence case every other entry uses, *GNSS and total station*, *Total station and level*, *GNSS and level*
+and *Multiple techniques* — the last because "Multiple" alone names nothing.
 
 **Analysis** → Inspect network · Pre-analyse network design · Adjust network · *(multi-epoch comparison and
 the monitoring report join it in P10).*

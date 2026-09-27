@@ -36,6 +36,23 @@ there; the one most observations belong to never appeared. The core now records 
 tested, and a result that records none — an engine's, which GeoComp did not test — says so with an empty
 decision rather than claiming a redundancy nobody computed.
 
+### 1.1 A geocentric solution on the map (P9b)
+
+A combined solution is in geocentric X, Y, Z, and no map draws those — a layer in them would put every station
+inside the Earth. The result layers re-express it **for display** (`core/visualization/display.py`) in the UTM
+zone of its centroid: easting, northing and ellipsoidal height, the covariance turned into each station's
+horizon. The solution itself is untouched.
+
+* **The grid names the solution's own frame.** SIRGAS 2000 by its EPSG code (31971–31976 north, 31977–31985
+  south); an ITRF by a WKT2 Transverse Mercator on *that* frame, so the layer reads "ITRF2020 / UTM zone 22S".
+  A bare GRS80 UTM string is what QGIS matches to "SIRGAS 2000 / UTM" — for an ITRF2020 solution at 2026, a
+  label decimetres of plate motion wrong.
+* **Ellipses and correction vectors turn by the grid convergence.** The solution states an ellipse's
+  orientation from geodetic north; UTM's north differs by the meridian convergence, over a degree at a zone's
+  edge, and every ellipse drawn without the turn would lean by that much.
+* **Held marks are placed from the network**, which is re-expressed too; their constraint mode still chooses
+  their symbol.
+
 ## 2. Styling (FR-904)
 
 Styles ship as **QML files** in `resources/`, applied by the algorithms and editable by users. Code applies a
@@ -123,6 +140,14 @@ statistics (variance factors, degrees of freedom, global test with its
 critical values and decision); per-observation results (residuals, standardised residuals, redundancy,
 w-test, MDB); reliability summary including uncheckable observations; error ellipses; maps; and a software
 and version record.
+
+**A combination adds a *Techniques* section (P9b, [`13`](./13-module-integration.md) criterion 7):** the
+inputs, the engine and why, every frame transformation applied, each technique's observations, redundancy
+and share of it, part of `vᵀPv` and `vᵀPv/r`, largest |w| and uncheckable count — the constraint and geoid
+rows as their own groups, so the shares add up — the variance components when estimated, and the geoid
+residuals with the model named. All of it is read from the solution's provenance, where the combined
+adjustment recorded it, so a report rendered later from the saved document says the same. A solution that is
+not a combination has no such section.
 
 **The report states the uncertainty mode and, if approximate, the strategies used** (FR-203). It states the
 engine, its version and its command line. It is intended to be defensible: a reader should be able to see
