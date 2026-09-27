@@ -29,6 +29,10 @@ on:
       - "geocomp/core/techniques/gravimetry/**"
       - "geocomp/core/instruments/gravimeter.py"
       - "geocomp/io/gravimeter_files.py"
+      - "geocomp/core/geodesy/frames.py"
+      - "scripts/check_frames.py"
+      - "tests/data/frames/**"
+      - "tests/test_frames.py"
       - ".github/workflows/reference.yml"
   pull_request:
     paths:
@@ -44,6 +48,10 @@ on:
       - "geocomp/core/techniques/gravimetry/**"
       - "geocomp/core/instruments/gravimeter.py"
       - "geocomp/io/gravimeter_files.py"
+      - "geocomp/core/geodesy/frames.py"
+      - "scripts/check_frames.py"
+      - "tests/data/frames/**"
+      - "tests/test_frames.py"
       - ".github/workflows/reference.yml"
   # Upstream cannot change under a pinned commit, but a rewritten tag or a
   # vanished repository can, and finding that out at release time is worse.
@@ -102,3 +110,26 @@ jobs:
         env:
           GEOCOMP_RD07_DATA: ${{ runner.temp }}/rd07
         run: python -m pytest -q -rs tests/test_rd07.py tests/test_gravimetry_tides.py tests/test_gravimetry_network.py
+
+  # The frame transformations are GeoComp's own arithmetic on EPSG's
+  # parameters (specs/13 section 5). PROJ is the independent implementation:
+  # it transforms the same 303 points, and GeoComp -- and the committed
+  # fixture the tier-1 test reads -- must agree with it to a micrometre, using
+  # the same EPSG operation. pyproj is pinned so a new bundled PROJ is a
+  # deliberate change rather than a surprise.
+  frames:
+    name: frame transformations agree with PROJ
+    runs-on: ubuntu-latest
+    env:
+      PYPROJ_VERSION: "3.6.1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PROJ's Python bindings and the test tooling
+        run: python -m pip install --upgrade pip pytest numpy "pyproj==$PYPROJ_VERSION"
+      - name: GeoComp and the committed fixture against a live PROJ
+        run: python scripts/check_frames.py
+      - name: The tier-1 frame tests
+        run: python -m pytest -q tests/test_frames.py

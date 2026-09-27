@@ -21,12 +21,13 @@ which epoch it is now at and where it came from. RD-06's own two stations show
 why this matters in the other direction too: they share a velocity exactly, so
 their *baseline* is epoch-invariant while neither *position* is.
 
-**Changing frame is refused, not guessed** (FR-832). A frame change is a
-Helmert transformation whose parameters GeoComp does not hold; PROJ does, and
-``specs/14`` section 3 assigns the operation to the QGIS/PROJ infrastructure in
-phase P10. Silently treating ITRF2020 coordinates as SIRGAS2000 is a
+**Changing frame is refused here, not done in passing** (FR-832). A frame
+change is a Helmert transformation, which ``geocomp.core.geodesy.frames`` holds
+since P9a -- but applying one belongs to whoever can record it, and a base
+station quietly transformed on its way into a processing run would leave no
+trace of it. Silently treating ITRF2020 coordinates as SIRGAS2000 is a
 decimetre-scale error that no test in this project would catch, so the request
-raises and names what would satisfy it.
+raises and names what would satisfy it: transform first, and keep the record.
 """
 
 from __future__ import annotations
@@ -202,13 +203,13 @@ def propagate_to_epoch(station: ReferenceStation, target: Epoch) -> ReferenceSta
 
 
 def require_same_frame(station: ReferenceStation, frame: str, *, operation: str) -> None:
-    """Refuse a frame mismatch rather than transforming it (FR-832, P10).
+    """Refuse a frame mismatch rather than transforming it (FR-832).
 
-    GeoComp does not hold Helmert parameters; PROJ does, and ``specs/14``
-    section 3 assigns the transformation to the QGIS/PROJ infrastructure in
-    phase P10. Until then a mismatch is an error with a name, not a conversion
-    with a guess -- ITRF2020 read as SIRGAS2000 is wrong by decimetres and
-    internally consistent, which is the worst combination there is.
+    A mismatch is an error with a name, not a conversion done out of sight --
+    ITRF2020 read as SIRGAS2000 is wrong by decimetres and internally
+    consistent, which is the worst combination there is. The transformation
+    exists (``geocomp.core.geodesy.frames.transform_point``, P9a); the caller
+    applies it and keeps the record it returns.
     """
     if station.frame != frame:
         raise ValidationError(
@@ -217,8 +218,8 @@ def require_same_frame(station: ReferenceStation, frame: str, *, operation: str)
             received=station.frame,
             expected=(
                 f"coordinates in {frame}, the frame this {operation} works in. "
-                "Transforming between frames needs Helmert parameters GeoComp "
-                "does not hold; phase P10 routes this through PROJ (FR-832)"
+                "Transform them first (geocomp.core.geodesy.frames.transform_point), "
+                "which records the transformation applied (FR-832)"
             ),
         )
 

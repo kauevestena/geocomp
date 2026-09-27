@@ -323,3 +323,26 @@ class TestAGravitySolution:
         assert "Residual (µGal)" in html
         residual = gravity.solution.observation_results[0].residual / 1e-8
         assert f"{residual:.2f}" in html
+
+
+class TestTheGeoidModelIsNamed:
+    """``specs/13`` criterion 2: with a geoid model, the model used appears in
+    the solution *and in the report*. P5 recorded it on every adjusted
+    position; nothing printed it until P9a."""
+
+    def test_the_identification_names_it(self, adjusted, context):
+        from dataclasses import replace
+
+        _network, solution = adjusted
+        stations = tuple(
+            replace(s, position=replace(s.position, geoid_model="mapgeo2015"))
+            for s in solution.adjusted_stations
+        )
+        html, _omitted = _render(replace(solution, adjusted_stations=stations), context)
+        assert "Geoid model" in html
+        assert "mapgeo2015" in html
+
+    def test_a_solution_without_one_says_nothing_about_it(self, adjusted, context):
+        _network, solution = adjusted
+        html, _omitted = _render(solution, context)
+        assert "Geoid model" not in html

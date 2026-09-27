@@ -1351,6 +1351,10 @@
             <translation>Núcleo propio de GeoComp</translation>
         </message>
         <message>
+            <source>Geoid model</source>
+            <translation>Modelo geoidal</translation>
+        </message>
+        <message>
             <source>Global test</source>
             <translation>Prueba global</translation>
         </message>

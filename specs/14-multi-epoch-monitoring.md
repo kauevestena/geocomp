@@ -52,8 +52,12 @@ Before differencing anything:
 
 1. **Check.** Frame, epoch, datum definition, height type, geoid model, and station identity. Report every
    discrepancy found.
-2. **Transform where possible.** Bring both solutions to a common frame and epoch. GeoComp uses the QGIS/PROJ
-   transformation infrastructure, including time-dependent transformations where the frames require them.
+2. **Transform where possible.** Bring both solutions to a common frame and epoch, with time-dependent
+   transformations where the frames require them. **GeoComp's own** (`core/geodesy/frames.py`, built in P9a
+   and shared with the combination — [`13`](./13-module-integration.md) §5.1): EPSG's parameters, checked
+   against PROJ to a nanometre, because the comparison needs each transformation's Jacobian, velocities
+   carried across it and a record, which a PROJ pipeline does not return. Its `TransformationRecord.accuracy`
+   is the common-mode term this item's uncertainty rule adds to absolute positions.
    The transformation applied is recorded in the result (FR-832), and **the transformation's own uncertainty
    propagates into the comparison** (FR-207) — a transformation is not exact, and its uncertainty can exceed
    the displacement being sought.

@@ -31,7 +31,7 @@ absorbed into the residuals.
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -297,6 +297,41 @@ def write_station_file(
     )
 
 
+def written_position(station: Station):
+    """The coordinates a station is written with: held ones where it is held.
+
+    DynAdjust holds a constrained component **at the value written beside it**
+    -- there is nowhere else in a station file for the held value to go -- so a
+    held component must be written from the constraint, not from the
+    approximate position. Found in phase P9a: the writer preferred the
+    approximate position, and a control station whose approximate coordinates
+    were 0.3 m from its held ones was held by DynAdjust 0.3 m from where GeoComp
+    held it. The adjustment still converged, to coordinates wrong by that much
+    and a variance factor of 900; P6's cross-validation never saw it because
+    its networks were read from DynaML, where the two coincide.
+
+    Free components keep the approximate value. When the two positions are in
+    different coordinate systems a component-by-component merge has no meaning,
+    and the constraint's position is written whole: holding a station at its
+    held coordinates matters more than starting its free ones close.
+    """
+    approximate = station.approx_position
+    constraint = station.constraint
+    if constraint is None or constraint.mode is ConstraintMode.FREE or constraint.position is None:
+        return approximate
+    held = constraint.position
+    if approximate is None or approximate.system is not held.system:
+        return held
+    names = held.system.component_names
+    return replace(
+        held,
+        values=tuple(
+            h if name in constraint.components else a
+            for name, h, a in zip(names, held.values, approximate.values, strict=True)
+        ),
+    )
+
+
 def _coordinates(
     station: Station,
     projection: ProjectionParameters | None = None,
@@ -319,9 +354,7 @@ def _coordinates(
     ``XAxis`` under some other type, and a UTM 22S station so written sits
     845 km above the Earth -- which DynAdjust accepts without complaint.
     """
-    position = station.approx_position or (
-        station.constraint.position if station.constraint else None
-    )
+    position = written_position(station)
     if position is None:
         # Zeros, and cartesian: DynAdjust computes approximate coordinates for
         # stations that have none, and refusing here would reject networks it
@@ -413,9 +446,7 @@ def _approximate(station: Station) -> tuple[float, float, float]:
     itself for stations that need them, and requiring GeoComp to supply them
     would refuse networks DynAdjust can perfectly well adjust.
     """
-    position = station.approx_position or (
-        station.constraint.position if station.constraint else None
-    )
+    position = written_position(station)
     if position is None:
         return (0.0, 0.0, 0.0)
     return tuple(q.value for q in position.values)  # type: ignore[return-value]

@@ -78,6 +78,8 @@ REPRODUCED = (
     "2D/WeissEtAl_Distance_fix",
     "2D/Wolf_DistanceDirectionAngle_free",
     "3D/Baumann23_3_4_fix",
+    "3D/Caspary",
+    "3D/Ghilani_GNSS_Baselines",
     "3D/BlankenbachWillert3D_Distance_fix",
     "3D/Wolf_3D_DistanceVerticalAngle_fix",
     "3D/Wolf_3D_Distance_fix",
@@ -122,8 +124,6 @@ REFUSED = {
     "2D/Leick55": "data.krumm_section_unsupported",
     "2D/Leick56": "data.krumm_section_unsupported",
     "2D/Wolf_Direction_fix_with_cond": "data.krumm_section_unsupported",
-    "3D/Caspary": "data.krumm_section_unsupported",
-    "3D/Ghilani_GNSS_Baselines": "data.krumm_section_unsupported",
     "3D/Wolf_PosAngle_and_Dist": "data.krumm_section_unsupported",
 }
 
@@ -231,7 +231,7 @@ def test_the_published_coordinates_are_reproduced(name):
 def test_the_corpus_is_complete():
     """61 files, every one of them accounted for."""
     assert len(corpus_files()) == 61
-    assert len(REPRODUCED) == 34
+    assert len(REPRODUCED) == 36
     assert not set(REPRODUCED) & set(REFUSED)
 
 
@@ -295,3 +295,51 @@ class TestTheCorpusIsTestDataOnly:
         assert (root / "PROVENANCE.md").is_file()
         assert len(list(root.rglob("*.dat"))) == 61
         assert len(list(root.rglob("*.adj"))) == 45
+
+
+# -- the combined networks (phase P9a) --------------------------------------
+
+#: The two files carrying GNSS baselines, with their published standard
+#: deviations. The ``.adj`` prints corrections and sigmas in **centimetres** --
+#: Caspary's N moves 14.8 mm and the file says 1.482 -- so these are compared in
+#: centimetres, to the printed third decimal.
+COMBINED = ("3D/Caspary", "3D/Ghilani_GNSS_Baselines")
+
+
+@pytest.mark.parametrize("name", COMBINED)
+def test_the_published_standard_deviations_are_reproduced_too(name):
+    """Caspary's network is GNSS, distances and a zenith angle adjusted together
+    (``specs/13`` section 7, criterion 1); Ghilani's is GNSS alone, each baseline
+    with its full covariance. The coordinates alone would not show whether the
+    stochastic model was read right -- a covariance read as its diagonal moves
+    the coordinates by less than the printing and every sigma by more -- so the
+    a-posteriori standard deviations are compared as well.
+    """
+    root = krumm_corpus()
+    assert root is not None
+    _report, run = solve(name)
+    reference = published(root / f"{name}.adj")
+    for station_id, values in reference.items():
+        for component, column in zip(("e", "n", "u"), (2, 5, 8), strict=True):
+            index = run.layout.column(station_id, component)
+            sigma_cm = float(run.parameter_covariance[index, index]) ** 0.5 * 100.0
+            assert sigma_cm == pytest.approx(values[column], abs=6e-4), (
+                f"{name} {station_id}.{component}"
+            )
+
+
+def test_a_baseline_between_antennas_is_refused_not_dropped(tmp_path):
+    """The format allows antenna heights after the covariance. A baseline between
+    antennas is not one between marks, and reducing it needs each mark's
+    vertical, so the file is refused rather than read with the heights ignored."""
+    from geocomp.core.errors import DataError
+
+    source = tmp_path / "antennas.dat"
+    source.write_text(
+        "[Coordinates]\nA 0 0 0\nB 100 0 0\n[Datum]\nfix xA yA zA\n"
+        "[3DBasislinie]\nA B 100.0 0.0 0.0 0.001 0.001 0.002 1.5 1.6\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(DataError) as caught:
+        read_krumm(source)
+    assert caught.value.code == "data.krumm_baseline_antenna_heights"

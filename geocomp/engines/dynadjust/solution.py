@@ -125,6 +125,7 @@ def read_solution(
     apu_path: str | Path | None = None,
     cor_path: str | Path | None = None,
     angular_format: AngularFormat | None = None,
+    measurement_format: AngularFormat | None = None,
     provenance: Provenance | None = None,
     solution_id: str | None = None,
 ) -> Solution:
@@ -142,7 +143,10 @@ def read_solution(
     """
     known = set(network.stations)
     rows, measurements, statistics, preamble = read_adj(
-        adj_path, known=known, angular_format=angular_format
+        adj_path,
+        known=known,
+        angular_format=angular_format,
+        measurement_format=measurement_format,
     )
 
     uncertainties: list[StationUncertainty] = []

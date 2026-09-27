@@ -5,6 +5,84 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P9a — integration: the computation
+
+Techniques adjusted together: one geocentric frame in which every observation
+is evaluated at its own station's vertical, the geoid relating orthometric
+observations to it, variance components by technique, frame and epoch
+reconciliation with a record, and the combination itself. The Integration
+menu, its report section and layers are P9b.
+
+#### Added
+
+- **`Frame.GEOCENTRIC_3D`** (`core/adjustment/geocentric.py`): ECEF unknowns,
+  every observation evaluated in its own station's horizon with instrument and
+  target heights along each end's own normal, exact Jacobians. Cross-validated
+  against DynAdjust on a combined GNSS and total-station survey: coordinates
+  within half the printed 0.1 mm, residuals within 0.05 mm and 0.0001″.
+- **Geoid undulations as parameters** with the model's value as a weighted
+  prior (`core/adjustment/undulations.py`, `AdjustmentOptions.geoid`), so the
+  geoid's uncertainty propagates and each prior's residual tests the model
+  (`geoid_residuals`). Refused without a model, for an unstated height type,
+  and for a station held at an orthometric height.
+- **Variance component estimation** (`core/adjustment/variance_components.py`,
+  FR-805): least-squares VCE by technique, exact for correlated clusters, with
+  weighted constraints and geoid priors as the known part; recovers a
+  mis-scaled technique within two of its standard deviations.
+- **Frame transformations** (`core/geodesy/frames.py`, FR-832): the eleven
+  non-deprecated EPSG v11.004 transformations between ITRF2000–ITRF2020 and to
+  SIRGAS 2000, time-dependent with rates, exact inverses, velocities carried
+  across, covariances through the Jacobian. Agrees with PROJ 9.4 to under a
+  nanometre in 303 cases (`scripts/check_frames.py`, in the `reference`
+  workflow). SIRGAS 2000 from any epoch but 2000.4 needs a velocity; WGS 84 is
+  refused.
+- **The combination** (`core/techniques/integration/`): `combine` merges
+  technique networks with clusters whole and every frame-dependent quantity in
+  one frame at one epoch, recording each transformation; `route` sends gravity
+  to the in-house core with the reason; `adjust_combination` runs it, with the
+  gravity network adjusted beside the geometry; `technique_breakdown` splits
+  residuals, redundancy and `vᵀPv` by technique exactly.
+- **Krumm's 3D baselines** (`[3DBaseline]`, `[3DBasislinie]`): `Caspary`, the
+  published combined GNSS and total-station example, and
+  `Ghilani_GNSS_Baselines` reproduce their coordinates and their standard
+  deviations; 36 of the corpus's networks now reproduce.
+- The shared report names the **geoid model** a solution used.
+- A committed DynAdjust fixture of the combined survey (`combined.*`), the first
+  with a direction set in an adjustment.
+
+#### Fixed
+
+- **Every GeoComp-driven DynAdjust run with an angle in it failed to parse**:
+  the engine passed the stations' angle format (HP) for the measurement table
+  too, which prints separated degrees, minutes and seconds. The two are now
+  separate settings, both stated on the command line.
+- **DynAdjust's direction-set rows were attributed to single directions.** Each
+  row carries a derived angle's correction — a difference of two directions'
+  residuals — and now produces no per-direction result.
+- **The DynaML writer wrote held stations at their approximate coordinates**,
+  and DynAdjust holds a component at the value written: 0.3 m between the two
+  was 0.3 m in the answer and a variance factor of 900.
+- **A direction with no setup id was adjusted as an absolute azimuth.** Its
+  set's cluster now owns the orientation when nothing more specific does; a
+  DynaML set read back had come out 38° from its own readings.
+
+#### Found in DynAdjust, recorded rather than tolerated (`specs/07` §6.3)
+
+- Its sigma zero for a direction set sums `v²/σ²` over the derived angles and
+  drops their correlation, which its own weights use.
+- Its slope distances carry the target height along the instrument's vertical
+  (0.8 mm at 2.9 km with a 1.7 m reflector); its zenith distances do not.
+
+#### Not done
+
+- The Integration menu's four presets, the report's per-technique section and
+  the layers (P9b). Criterion 7 is computed and tested, not yet rendered.
+- Running DynAdjust on a combination: routing decides, the engine glue is P9b.
+- The transformation's own accuracy is recorded, not added to covariances
+  (it is common-mode); P10's comparisons add it.
+- No velocity model (VEMOS); geoid priors independent between stations; the
+  deflection of the vertical is not modelled.
+
 ### P8b — gravimetry: the surface
 
 The two algorithms of the Gravimetry menu, the readers they start from, the

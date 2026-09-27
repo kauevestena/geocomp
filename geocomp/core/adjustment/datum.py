@@ -109,6 +109,12 @@ _POSSIBLE: dict[Frame, tuple[DefectComponent, ...]] = {
         DefectComponent.SCALE,
     ),
 }
+# A geocentric frame has the same seven, about its own axes. The observations
+# that fix a rotation in a local frame -- a zenith angle, an azimuth -- tie the
+# network to the ellipsoid's normals here, which fixes the same rotations less
+# strongly the smaller the network; a held station is the datum these frames
+# are meant to be used with (``specs/13`` section 6).
+_POSSIBLE[Frame.GEOCENTRIC_3D] = _POSSIBLE[Frame.SPACE_3D]
 
 
 @dataclass(frozen=True)
@@ -220,19 +226,21 @@ def _direction_terms(
     station along that radius.
     """
     height_component = "h" if frame is Frame.HEIGHT_1D else ("g" if frame is Frame.GRAVITY_1D else "u")
+    # In a geocentric frame the same directions are about X, Y and Z.
+    e, n, u = ("x", "y", "z") if frame is Frame.GEOCENTRIC_3D else ("e", "n", height_component)
 
     if component is DefectComponent.TRANSLATION_E:
-        return {"e": 1.0}
+        return {e: 1.0}
     if component is DefectComponent.TRANSLATION_N:
-        return {"n": 1.0}
+        return {n: 1.0}
     if component is DefectComponent.TRANSLATION_U:
-        return {height_component: 1.0}
+        return {u: 1.0}
     if component is DefectComponent.ROTATION_U:
-        return {"e": -reduced.get("n", 0.0), "n": reduced.get("e", 0.0)}
+        return {e: -reduced.get(n, 0.0), n: reduced.get(e, 0.0)}
     if component is DefectComponent.ROTATION_E:
-        return {"n": -reduced.get("u", 0.0), "u": reduced.get("n", 0.0)}
+        return {n: -reduced.get(u, 0.0), u: reduced.get(n, 0.0)}
     if component is DefectComponent.ROTATION_N:
-        return {"e": reduced.get("u", 0.0), "u": -reduced.get("e", 0.0)}
+        return {e: reduced.get(u, 0.0), u: -reduced.get(e, 0.0)}
     if component is DefectComponent.SCALE:
         return {name: reduced.get(name, 0.0) for name in frame.components}
     raise ValidationError("unknown_defect_component", received=component.value)

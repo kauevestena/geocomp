@@ -833,6 +833,67 @@ a geoid raises; with one, the model is recorded. A deliberately mis-scaled techn
 recovered. A three-technique combination runs end to end. A combination including gravity routes to the
 in-house core with the reason reported.
 
+**Split, at the maintainer's decision of 26 September 2026**, as P7 and P8 were: **P9a** the computation —
+combination, variance components, height and frame reconciliation, the published combined example, gravity
+routing, per-technique breakdowns — and **P9b** the surface: the four Integration menu presets
+([`13`](./13-module-integration.md) §1), the report's per-technique section and the layers. **The frame
+transformation is built here, in-house**, at the same decision, and P10 reuses it rather than routing through
+PROJ ([`14`](./14-multi-epoch-monitoring.md) §3).
+
+### P9a — the computation
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| `Frame.GEOCENTRIC_3D`: every observation at its own station's vertical, exact Jacobians; geodetic holds whole or refused | `core/adjustment/geocentric.py`, `parameters.py`, [`06`](./06-adjustment-core.md) §2.3 |
+| Geoid undulations as parameters with the model as prior; the geoid tested by its residuals; the model named in the report (FR-802, FR-804) | `core/adjustment/undulations.py`, `reports/adjustment.py`, [`13`](./13-module-integration.md) §3.2 |
+| Least-squares variance component estimation by technique, constraints as the known part (FR-805) | `core/adjustment/variance_components.py`, [`13`](./13-module-integration.md) §4.1 |
+| Frame and epoch transformations: eleven EPSG transformations, velocities, covariances, a record; agreeing with PROJ to a nanometre (FR-832) | `core/geodesy/frames.py`, `scripts/check_frames.py`, [`13`](./13-module-integration.md) §5.1 |
+| The combination: merge, reconcile, route, adjust, break down by technique (FR-800…FR-803) | `core/techniques/integration/`, [`13`](./13-module-integration.md) §6.1 |
+| Krumm's GNSS baselines read; `Caspary` and `Ghilani_GNSS_Baselines` reproduced, coordinates and sigmas | `io/krumm.py`, [`22`](./22-reference-data-sources.md) §2.2 |
+| The geocentric frame cross-validated against DynAdjust on a combined survey | `tests/test_dynadjust_geocentric.py`, [`07`](./07-engine-dynadjust.md) §6.3 |
+
+| P9 exit criterion ([`13`](./13-module-integration.md) §7) | State |
+|---|---|
+| A GNSS + total station network reproduces a published combined example | **met** — `Caspary`, to 0.05 mm and its sigmas to the printed 0.01 mm |
+| Mixing height types without a geoid raises; with one, the model is recorded | **met** — on the solution and, new, in the report |
+| A mis-scaled technique's variance component is recovered | **met** — within two of its standard deviations, and the stated uncertainty checked over 40 surveys |
+| A three-technique combination runs end to end | **met** — GNSS in ITRF2014, control in SIRGAS 2000, total station and levelling, one solution in ITRF2020 |
+| Gravity routes to the in-house core with the reason | **met** — and is adjusted beside the geometry, not dropped |
+| Per-technique breakdowns in the report | **computed and tested; rendered in P9b** |
+
+**Found.**
+
+- **Every GeoComp-driven DynAdjust run with an angle in it failed to parse** — the engine read the measurement
+  table in the stations' angle format. Unnoticed because every engine run until now carried only baselines.
+- **DynAdjust's direction-set rows were attributed to single directions**, though each carries a derived
+  angle's correction; no adjusted fixture had a direction set.
+- **The DynaML writer held stations at their approximate coordinates** — 0.3 m apart gave 0.3 m in the answer
+  and σ̂₀² ≈ 900. P6's networks were read *from* DynaML, where the two coincide.
+- **A direction with no setup id was an absolute azimuth in the core** — the Krumm reader had been fixed for
+  it, the DynaML reader had not. The rule is the core's now ([`06`](./06-adjustment-core.md) §2.3).
+- **The report never named the geoid model** P5 recorded on every position.
+- In DynAdjust, recorded in [`07`](./07-engine-dynadjust.md) §6.3: its σ̂₀ for a direction set drops the
+  derived angles' correlation, and its slope distances carry the target height along the instrument's
+  vertical.
+
+**Not built in P9a, named so the ticks above do not imply them.** The Integration menu, the report section and
+the layers (P9b). DynAdjust *running* a combination — routing decides, the engine glue is P9b. The
+transformation's common-mode accuracy is recorded, not added to covariances; P10 adds it where absolute
+positions are compared. No velocity model (VEMOS): a velocity is supplied or the epoch change is refused. Geoid
+priors are independent between stations. The deflection of the vertical is not modelled.
+
+### P9b — the surface
+
+**Delivers.** The four Integration menu items of [`13`](./13-module-integration.md) §1 as presets over the
+combination, each with its defaults and validation; the per-technique section of the report (residuals,
+redundancy shares, variance components, geoid residuals); the result layers; DynAdjust as the engine for a
+combination when routing allows it.
+
+**Exit.** Each preset runs from the menu and the toolbox and produces one solution, a report with the
+per-technique section, and layers. Criterion 7 is met in the report.
+
 ---
 
 ## P10 — Multi-epoch and monitoring

@@ -18,6 +18,7 @@ example never would.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -1068,6 +1069,37 @@ class TestOrientationUnknowns:
             ),
         )
         assert run.layout.column("A", "orientation") is not None
+
+    def test_a_set_that_names_only_its_cluster_is_still_oriented(self):
+        """The DynaML reader names a set's cluster and not its setup. Such a
+        set was adjusted as absolute azimuths -- 38 degrees from its own
+        readings in the combined cross-validation -- until the cluster became
+        the orientation's owner when nothing more specific is named."""
+        planted = {"A": math.radians(37.0), "B": math.radians(112.0)}
+        network = self._network(planted)
+        for identifier, observation in list(network.observations.items()):
+            if observation.type is ObservationType.DIRECTION:
+                network.observations[identifier] = replace(observation, setup_id=None)
+        run = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT),
+        )
+        for station, expected in planted.items():
+            column = run.layout.column(f"{station}-set", "orientation")
+            estimated = float(run.parameters[column]) % (2 * math.pi)
+            assert estimated == pytest.approx(expected, abs=1e-4)
+
+    def test_a_direction_naming_neither_a_setup_nor_a_set_cannot_exist(self):
+        """So it can never reach the adjustment as an azimuth: a direction must
+        be in a set from construction, which is what makes the cluster a
+        fallback that is always there."""
+        network = self._network({"A": 0.0, "B": 0.0})
+        direction = next(
+            o for o in network.observations.values() if o.type is ObservationType.DIRECTION
+        )
+        with pytest.raises(DataError) as excinfo:
+            replace(direction, setup_id=None, cluster_id=None)
+        assert excinfo.value.code == "data.observation_requires_cluster"
 
 
 class TestAngularMisclosureWrapping:

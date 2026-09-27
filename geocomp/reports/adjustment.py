@@ -97,6 +97,15 @@ def _identification(solution: Solution) -> str:
         [escape(_tr("Epoch")), format_number(solution.epoch.decimal_year, 4)],
         [escape(_tr("Datum definition")), escape(solution.datum_definition.value)],
     ]
+    # FR-804: two solutions computed with different geoid models are not
+    # comparable, so which one related the height systems is part of saying
+    # what the solution is. Every model named on any position, not the first:
+    # a solution that somehow mixed two should show both.
+    models = sorted(
+        {s.position.geoid_model for s in solution.adjusted_stations if s.position.geoid_model}
+    )
+    if models:
+        rows.append([escape(_tr("Geoid model")), escape(", ".join(models))])
     if solution.is_superseded:
         rows.append([escape(_tr("Superseded by")), escape(solution.superseded_by)])
     return _heading(_tr("Identification")) + render_table(

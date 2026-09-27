@@ -232,6 +232,48 @@ def test_constraints_use_the_positions_own_component_names(tmp_path: Path) -> No
     assert constraints["PT01"] == "FFF"
 
 
+class TestAHeldStationIsWrittenWhereItIsHeld:
+    """DynAdjust holds a component at the value written beside it, so that
+    value must be the constraint's, not the approximate position's."""
+
+    @staticmethod
+    def _written(tmp_path: Path, station: Station) -> tuple[float, ...]:
+        network = gnss_network()
+        network.stations[station.id] = station
+        write_station_file(network, tmp_path / "s.xml", frame=FRAME, epoch=EPOCH)
+        (element,) = [
+            s for s in parse(tmp_path / "s.xml").findall("DnaStation") if s.findtext("Name") == station.id
+        ]
+        coord = element.find("StationCoord")
+        return tuple(float(coord.findtext(tag)) for tag in ("XAxis", "YAxis", "Height"))
+
+    def test_a_fully_held_station_is_written_at_its_held_coordinates(self, tmp_path: Path) -> None:
+        """The P9a defect: 0.3 m between the two positions was 0.3 m in
+        DynAdjust's answer and a variance factor of 900."""
+        station = Station(
+            id="PT01",
+            approx_position=cartesian(4052050.3, 617000.2, 4867000.1),
+            constraint=ConstraintSpec(
+                mode=ConstraintMode.FIXED,
+                components=frozenset({"x", "y", "z"}),
+                position=cartesian(4052050.0, 617000.0, 4867000.0, exact=True),
+            ),
+        )
+        assert self._written(tmp_path, station) == (4052050.0, 617000.0, 4867000.0)
+
+    def test_a_partly_held_station_keeps_its_free_components_approximate(self, tmp_path: Path) -> None:
+        station = Station(
+            id="PT01",
+            approx_position=cartesian(4052050.3, 617000.2, 4867000.1),
+            constraint=ConstraintSpec(
+                mode=ConstraintMode.FIXED,
+                components=frozenset({"z"}),
+                position=cartesian(4052050.0, 617000.0, 4867000.0, exact=True),
+            ),
+        )
+        assert self._written(tmp_path, station) == (4052050.3, 617000.2, 4867000.0)
+
+
 def test_a_weighted_constraint_is_refused_rather_than_approximated(tmp_path: Path) -> None:
     """DynAdjust holds a component exactly or not at all (specs/07 4.3 rule 4).
 

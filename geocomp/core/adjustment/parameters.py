@@ -35,8 +35,42 @@ __all__ = [
     "WeightedConstraint",
     "drift_component",
     "is_drift_component",
+    "orientation_owner",
     "weighted_constraints",
 ]
+
+
+def orientation_owner(observation) -> str:
+    """Whose orientation unknown a direction carries: its setup's.
+
+    A direction's circle zero is arbitrary, so without an orientation unknown it
+    is adjusted as an absolute azimuth -- not imprecise but unrelated to the
+    geometry. The setup is named by ``setup_id``; by an explicit
+    ``meta["orientation_owner"]`` where two setups share one (a pillar occupied
+    twice); and failing both by the direction's **cluster**, because a
+    direction set is one setup's by construction and some readers name only the
+    set. Until this, a set naming only its cluster was silently adjusted as
+    azimuths: a DynaML direction set read back without setup ids came out 38
+    degrees from its own readings with nothing to say why. A direction outside
+    a set cannot be constructed (``observation_requires_cluster``), so the
+    refusal here is a guard, not a path anything should reach.
+    """
+    owner = (
+        observation.setup_id
+        or (observation.meta or {}).get("orientation_owner")
+        or observation.cluster_id
+    )
+    if not owner:
+        raise ValidationError(
+            "direction_without_setup",
+            observation=observation.id,
+            expected=(
+                "a setup id, or membership of a direction set; without one the "
+                "direction has no orientation unknown and would be adjusted as an "
+                "absolute azimuth"
+            ),
+        )
+    return owner
 
 
 class Frame(Enum):
@@ -58,6 +92,10 @@ class Frame(Enum):
     SPACE_3D = "space_3d"
     #: Station gravity values. Not coordinates; the same machinery, different meaning.
     GRAVITY_1D = "gravity_1d"
+    #: Geocentric X, Y, Z, with every observation evaluated at its own station's
+    #: vertical (phase P9a). The frame for combining techniques over any extent;
+    #: see :mod:`geocomp.core.adjustment.geocentric`.
+    GEOCENTRIC_3D = "geocentric_3d"
 
     @property
     def components(self) -> tuple[str, ...]:
@@ -66,6 +104,7 @@ class Frame(Enum):
             Frame.PLANE_2D: ("e", "n"),
             Frame.SPACE_3D: ("e", "n", "u"),
             Frame.GRAVITY_1D: ("g",),
+            Frame.GEOCENTRIC_3D: ("x", "y", "z"),
         }[self]
 
     @property
@@ -76,6 +115,7 @@ class Frame(Enum):
             Frame.PLANE_2D: 2,
             Frame.SPACE_3D: 3,
             Frame.GRAVITY_1D: 1,
+            Frame.GEOCENTRIC_3D: 3,
         }[self]
 
     @property
@@ -107,11 +147,16 @@ class Frame(Enum):
             Frame.PLANE_2D: ("easting", "northing"),
             Frame.SPACE_3D: ("easting", "northing", "up"),
             Frame.GRAVITY_1D: (),
+            # A geocentric frame reads and writes cartesian positions, whose
+            # components are named for themselves.
+            Frame.GEOCENTRIC_3D: ("x", "y", "z"),
         }[self]
 
     @property
     def position_indices(self) -> tuple[int, ...]:
         """The same correspondence as indices into the position's triple."""
+        if self is Frame.GEOCENTRIC_3D:
+            return (0, 1, 2)
         names = ("easting", "northing", "up")
         return tuple(names.index(name) for name in self.position_components)
 
@@ -285,7 +330,51 @@ def _is_fixed(station: Station, component: str, frame: Frame) -> bool:
     constraint = station.constraint
     if constraint.mode is not ConstraintMode.FIXED:
         return False
+    if frame is Frame.GEOCENTRIC_3D:
+        held = _geocentric_components(station)
+        # A geodetic hold is all three axes or a refusal; a cartesian one, each.
+        return held is not None and (held == _GEODETIC or component in held)
     return _constraint_name(component, frame) in constraint.components
+
+
+_GEODETIC = ("latitude", "longitude", "height")
+
+
+def _geocentric_components(station: Station) -> tuple[str, ...] | None:
+    """The position components a constraint holds, as the geocentric frame sees them.
+
+    A cartesian constraint names X, Y and Z directly. A **geodetic** one names
+    latitude, longitude and height, none of which is an ECEF axis, and matching
+    the names against ``x``, ``y``, ``z`` -- what this did until P9a -- found
+    nothing and left every geodetically held station **free**, silently. Held
+    whole, it holds all three axes; held in part (a height alone, say), it
+    constrains a combination no subset of X, Y, Z expresses, and is refused: the
+    height of a benchmark enters the combined model as a height observation.
+
+    Returns the constrained names, or ``None`` for a constraint that holds
+    nothing.
+    """
+    from geocomp.core.models import CoordinateSystem
+
+    constraint = station.constraint
+    position = constraint.position
+    if constraint.mode is ConstraintMode.FREE or position is None or not constraint.components:
+        return None
+    if position.system is not CoordinateSystem.GEODETIC:
+        return tuple(name for name in ("x", "y", "z") if name in constraint.components) or None
+    held = tuple(name for name in _GEODETIC if name in constraint.components)
+    if len(held) != len(_GEODETIC):
+        raise ValidationError(
+            "geocentric_frame_partial_geodetic_constraint",
+            station=station.id,
+            received=list(held),
+            expected=(
+                "latitude, longitude and height held together, or a cartesian "
+                "constraint; a height alone holds no subset of X, Y and Z, so "
+                "enter it as an ellipsoidal or orthometric height observation"
+            ),
+        )
+    return held
 
 
 def _fixed_value(station: Station, component: str, frame: Frame) -> float:
@@ -297,7 +386,55 @@ def _fixed_value(station: Station, component: str, frame: Frame) -> float:
     position = station.constraint.position
     if position is None:  # pragma: no cover - ConstraintSpec guarantees this
         raise ValidationError("fixed_station_without_position", station=station.id)
+    if frame is Frame.GEOCENTRIC_3D:
+        return geocentric_component(position, component, station.id, held=True)
     return position.component(_constraint_name(component, frame)).value
+
+
+def geocentric_component(position, component: str, station_id: str, *, held: bool = False) -> float:
+    """One of X, Y, Z from a cartesian or geodetic position.
+
+    A projected position is refused: undoing a projection needs its parameters,
+    which a frame does not carry, and the integration layer converts before it
+    gets here (``specs/13`` section 5).
+
+    So is a **held** geodetic position whose height is orthometric: converting
+    it as though ellipsoidal would hold the station an undulation -- tens of
+    metres -- from where it is. An orthometric benchmark enters the combined
+    model as an ``ORTHOMETRIC_HEIGHT`` observation instead, where the geoid can
+    relate it. A starting position that far off is harmless and is accepted.
+    """
+    from geocomp.core.models import CoordinateSystem, HeightType
+
+    index = ("x", "y", "z").index(component)
+    if position.system is CoordinateSystem.CARTESIAN:
+        return position.values[index].value
+    orthometric = position.height_type is HeightType.ORTHOMETRIC
+    if held and orthometric and position.system is CoordinateSystem.GEODETIC:
+        raise ValidationError(
+            "geocentric_frame_orthometric_constraint",
+            station=station_id,
+            expected=(
+                "an ellipsoidal height on a held position; hold an orthometric "
+                "benchmark as an ORTHOMETRIC_HEIGHT observation, which the geoid "
+                "relates to the frame's ellipsoidal heights"
+            ),
+        )
+    if position.system is CoordinateSystem.GEODETIC:
+        from geocomp.core.adjustment.geocentric import ELLIPSOID
+        from geocomp.core.geodesy.cartesian import geodetic_to_cartesian
+
+        latitude, longitude, height = (quantity.value for quantity in position.values)
+        return geodetic_to_cartesian(latitude, longitude, height, ELLIPSOID)[index]
+    raise ValidationError(
+        "geocentric_frame_projected_position",
+        station=station_id,
+        received=position.system.value,
+        expected=(
+            "a cartesian or geodetic position; a projected one needs its projection "
+            "undone first, which the combination does before adjusting"
+        ),
+    )
 
 
 def _constraint_name(component: str, frame: Frame) -> str:
@@ -310,7 +447,15 @@ def _constraint_name(component: str, frame: Frame) -> str:
     """
     if frame is Frame.GRAVITY_1D:
         return GRAVITY_COMPONENT
-    return {"e": "easting", "n": "northing", "u": "up", "h": "up"}[component]
+    return {
+        "e": "easting",
+        "n": "northing",
+        "u": "up",
+        "h": "up",
+        "x": "x",
+        "y": "y",
+        "z": "z",
+    }[component]
 
 
 @dataclass(frozen=True)
@@ -382,6 +527,12 @@ def weighted_constraints(
         if constraint.position is None or constraint.covariance is None:
             continue
 
+        if frame is Frame.GEOCENTRIC_3D:
+            geocentric = _weighted_geocentric(station, layout)
+            if geocentric is not None:
+                found.append(geocentric)
+            continue
+
         columns = layout.station_columns(station.id)
         components: list[str] = []
         indices: list[int] = []
@@ -408,6 +559,50 @@ def weighted_constraints(
             )
         )
     return found
+
+
+def _weighted_geocentric(station: Station, layout: ParameterLayout) -> WeightedConstraint | None:
+    """A station held weighted, as an observation of its X, Y and Z.
+
+    A geodetic constraint's covariance is over latitude, longitude and height;
+    it is carried to X, Y, Z through the Jacobian of the conversion, correlations
+    and all, rather than read as though its variances were in metres.
+    """
+    from geocomp.core.models import CoordinateSystem
+
+    held = _geocentric_components(station)
+    constraint = station.constraint
+    columns = layout.station_columns(station.id)
+    if held is None or constraint.covariance is None:
+        return None
+    position = constraint.position
+    if position.system is CoordinateSystem.GEODETIC:
+        from geocomp.core.adjustment.geocentric import ELLIPSOID
+        from geocomp.core.geodesy.cartesian import geodetic_to_cartesian_jacobian
+
+        axes = ("x", "y", "z")
+        if any(axis not in columns for axis in axes):
+            return None
+        latitude, longitude, height = (q.value for q in position.values)
+        jacobian = geodetic_to_cartesian_jacobian(latitude, longitude, height, ELLIPSOID)
+        block = _covariance_block(constraint.covariance, list(held), station.id)
+        return WeightedConstraint(
+            station_id=station.id,
+            components=axes,
+            columns=tuple(columns[axis] for axis in axes),
+            values=tuple(geocentric_component(position, axis, station.id, held=True) for axis in axes),
+            covariance=jacobian @ block @ jacobian.T,
+        )
+    axes = tuple(axis for axis in held if axis in columns)
+    if not axes:
+        return None
+    return WeightedConstraint(
+        station_id=station.id,
+        components=axes,
+        columns=tuple(columns[axis] for axis in axes),
+        values=tuple(position.values[("x", "y", "z").index(axis)].value for axis in axes),
+        covariance=_covariance_block(constraint.covariance, list(axes), station.id),
+    )
 
 
 def _weighted_gravity(station: Station, layout: ParameterLayout) -> WeightedConstraint | None:

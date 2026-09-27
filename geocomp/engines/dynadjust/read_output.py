@@ -1433,6 +1433,20 @@ def match_observations(
                 received=list(row.stations),
                 expected=list(stations),
             )
+        if code == "D":
+            # A direction set's row is not one direction's result. DynAdjust
+            # adjusts the set as **derived angles**, each from the previous
+            # target to this one, and prints each row as the direction as read
+            # plus the *angle's* correction (``PrintMeasurementValue``, case
+            # ``'D'``) -- a difference of two directions' residuals, not either's
+            # own. It never computes the directions' residuals at all.
+            # Attributing the row to the direction, as this did until a direction
+            # set first reached it, reported a residual for one observation that
+            # was really about a pair. The rows are still checked above, so a set
+            # out of order still fails; they produce no result, and a comparison
+            # says the directions were not compared rather than comparing the
+            # wrong thing.
+            continue
         results.append(
             ObservationResult(
                 observation_id=identifier,
@@ -1449,6 +1463,7 @@ def read_adj(
     *,
     known: Iterable[str] | None = None,
     angular_format: AngularFormat | None = None,
+    measurement_format: AngularFormat | None = None,
 ) -> tuple[list[CoordinateRow], list[AdjustedMeasurement], AdjustmentStatistics, OutputPreamble]:
     """Everything a ``.adj`` file holds, read in one pass over the file.
 
@@ -1456,10 +1471,17 @@ def read_adj(
     :class:`~geocomp.core.models.solution.Solution`: assembling one needs the
     ``.apu`` for the covariances and the network for the observation
     identifiers, and neither belongs to this file.
+
+    *angular_format* is the stations' latitude and longitude and
+    *measurement_format* the angular measurements'. They are two settings of
+    ``dnaadjust`` whose defaults differ -- HP for the one, separated fields for
+    the other -- and one argument for both read every angular measurement of a
+    GeoComp-driven run as HP, failing on the first ``1 21 44.7275``. Found the
+    first time an engine run carried an angle rather than only baselines.
     """
     lines = _read_lines(path)
     preamble = read_preamble(lines, path=path)
     rows, _ = read_coordinates(path, known=known, angular_format=angular_format)
-    measurements = read_measurements(path, known=known, angular_format=angular_format)
+    measurements = read_measurements(path, known=known, angular_format=measurement_format)
     statistics = read_statistics(path)
     return rows, measurements, statistics, preamble
