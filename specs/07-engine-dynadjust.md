@@ -717,9 +717,9 @@ from the written coordinates (`tests/test_dynadjust_geocentric.py`).
 |---|---|---|---|
 | Degrees of freedom | 38 | 38 | exact |
 | Observations / parameters | 54 / 16 | 50 / 12 | differ by the four sets, as they must (§5.6) |
-| Adjusted coordinates | — | — | within half the printed 0.1 mm, plus 0.2 µm |
-| Residuals, 40 rows | — | — | 0.048 mm linear, 0.00008″ angular |
-| σ̂₀² | 1.0898 | 1.060 | **differ**, and why is below |
+| Adjusted coordinates | — | — | within half the printed 0.1 mm (0.049 mm at most) |
+| Residuals, 40 rows | — | — | 0.049 mm linear, 0.00008″ angular |
+| σ̂₀² | 1.1112 | 1.080 | **differ**, and why is below |
 
 **DynAdjust's σ̂₀ for a direction set drops the angles' correlation.** It weights the derived angles with
 their full banded covariance (`LoadVarianceMatrix_D`: σ²ᵢ + σ²ᵢ₊₁ on the diagonal, −σ²ᵢ₊₁ beside it) —

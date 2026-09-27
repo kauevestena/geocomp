@@ -70,7 +70,7 @@ PERTURBATION = 5.0
 
 #: DynAdjust prints coordinates to 0.1 mm, so half that is the most two equal
 #: answers can differ by on the page; the micrometre is for arithmetic. The
-#: largest difference found is 0.2 micrometres beyond the rounding.
+#: largest difference on this survey is 0.049 mm, inside the rounding.
 PRINTED = 0.5e-4 + 1e-6
 
 

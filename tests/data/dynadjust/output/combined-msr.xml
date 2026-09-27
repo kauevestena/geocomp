@@ -109,9 +109,9 @@
     <First>CTB1</First>
     <Second>M05</Second>
     <GPSBaseline>
-      <X>2446.0803</X>
-      <Y>687.4494</Y>
-      <Z>2188.6679</Z>
+      <X>2446.0826</X>
+      <Y>687.4454</Y>
+      <Z>2188.6767</Z>
       <SigmaXX>1.6e-05</SigmaXX>
       <SigmaXY>3e-06</SigmaXY>
       <SigmaXZ>-2e-06</SigmaXZ>
@@ -144,9 +144,9 @@
     <First>CTB2</First>
     <Second>M04</Second>
     <GPSBaseline>
-      <X>-1098.1556</X>
-      <Y>-2175.4966</Y>
-      <Z>2036.8157</Z>
+      <X>-1098.1510</X>
+      <Y>-2175.5000</Y>
+      <Z>2036.8204</Z>
       <SigmaXX>1.6e-05</SigmaXX>
       <SigmaXY>3e-06</SigmaXY>
       <SigmaXZ>-2e-06</SigmaXZ>
@@ -168,9 +168,9 @@
     <First>CTB1</First>
     <Second>M06</Second>
     <GPSBaseline>
-      <X>718.2178</X>
-      <Y>1006.2730</Y>
-      <Z>-631.7671</Z>
+      <X>718.2172</X>
+      <Y>1006.2704</Y>
+      <Z>-631.7590</Z>
       <SigmaXX>1.6e-05</SigmaXX>
       <SigmaXY>3e-06</SigmaXY>
       <SigmaXZ>-2e-06</SigmaXZ>

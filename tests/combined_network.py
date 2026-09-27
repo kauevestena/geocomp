@@ -114,6 +114,18 @@ SETUPS = {
 }
 
 
+def correlated_normal(rng: np.random.Generator, covariance: np.ndarray) -> np.ndarray:
+    """One draw from N(0, *covariance*), the same on every platform.
+
+    Not ``rng.multivariate_normal``: it factors the covariance by SVD, whose
+    signs and ordering depend on the LAPACK underneath, so macOS's Accelerate
+    and Linux's OpenBLAS draw different noise from one seed -- and a fixture
+    written from the survey on one no longer matches it on the other. The
+    Cholesky factor is unique, so this is the same draw everywhere.
+    """
+    return np.linalg.cholesky(covariance) @ rng.standard_normal(len(covariance))
+
+
 def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET) -> Network:
     """The network, its measurements drawn once from their stated precision.
 
@@ -198,7 +210,7 @@ def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET
 
     baselines = []
     for base, rover in (("CTB1", "M05"), ("CTB2", "M04"), ("CTB1", "M06")):
-        noise = rng.multivariate_normal(np.zeros(3), GNSS_COVARIANCE)
+        noise = correlated_normal(rng, GNSS_COVARIANCE)
         identifier = f"g-{base}-{rover}"
         network.add_observation(
             Observation(

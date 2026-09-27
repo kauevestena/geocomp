@@ -136,7 +136,10 @@ def survey(*, gnss_declared_scale: float = 1.0, seed: int = 11) -> Network:
                 )
             if distance < 1700.0 and (int(a[1]) + int(b[2])) % 2 == 0:
                 counter += 1
-                noise = rng.multivariate_normal(np.zeros(3), GNSS_TRUE)
+                # Cholesky rather than multivariate_normal, whose SVD differs
+                # between LAPACKs: the same seed must be the same survey on
+                # every platform CI runs on.
+                noise = np.linalg.cholesky(GNSS_TRUE) @ rng.standard_normal(3)
                 declared = GNSS_TRUE * gnss_declared_scale**2
                 identifier = f"g{counter}"
                 network.add_observation(
@@ -344,3 +347,20 @@ def test_scaling_leaves_values_and_correlations_alone():
         assert np.asarray(scaled.clusters[identifier].covariance.matrix) == pytest.approx(
             np.asarray(cluster.covariance.matrix) * 4.0
         )
+
+
+def test_the_module_imports_on_its_own():
+    """The integration package imports this module, and this one used to import
+    the package back at load time: fine when anything else came first, an
+    ImportError when this was the first thing imported -- which is what running
+    this file alone does."""
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-c", "import geocomp.core.adjustment.variance_components"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr

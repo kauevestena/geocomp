@@ -122,7 +122,7 @@ def gnss_input() -> Network:
         vector, _, _ = transform_vector(
             TRUTH[rover] - TRUTH[base], source="ITRF2020", target="ITRF2014", epoch=2020.0
         )
-        noisy = vector + rng.multivariate_normal(np.zeros(3), field.GNSS_COVARIANCE)
+        noisy = vector + field.correlated_normal(rng, field.GNSS_COVARIANCE)
         identifier = f"g-{base}-{rover}"
         network.add_observation(
             Observation(

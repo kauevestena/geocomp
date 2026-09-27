@@ -46,7 +46,6 @@ from geocomp.core.adjustment.least_squares import AdjustmentOptions, AdjustmentR
 from geocomp.core.adjustment.normal_equations import CONSTRAINT_ROW_PREFIX
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import Cluster, Network, Observation
-from geocomp.core.techniques.integration.techniques import technique_of
 from geocomp.core.uncertainty import Covariance, Quantity
 
 __all__ = [
@@ -125,14 +124,14 @@ def estimate_variance_components(
     network: Network,
     options: AdjustmentOptions | None = None,
     *,
-    group_of: Callable[[Observation], str] = technique_of,
+    group_of: Callable[[Observation], str] | None = None,
     max_iterations: int = 30,
     tolerance: float = 1.0e-4,
 ) -> VarianceComponents:
     """Estimate one variance factor per group, iterating to convergence.
 
     Args:
-        group_of: Assigns each observation its group. Defaults to its technique
+        group_of: Assigns each observation its group. ``None`` means its technique
             (:func:`~geocomp.core.techniques.integration.techniques.technique_of`);
             grouping by observation type is the other common choice.
         tolerance: Stop when every factor of an iteration is within this of one.
@@ -144,6 +143,7 @@ def estimate_variance_components(
             negative estimate, or no convergence. Each names the group.
     """
     options = options or AdjustmentOptions()
+    group_of = group_of or _by_technique()
     groups = _groups(network, group_of)
     factors = dict.fromkeys(groups, 1.0)
     scaled = network
@@ -203,7 +203,7 @@ def estimate_variance_components(
 def scale_groups(
     network: Network,
     factors: dict[str, float],
-    group_of: Callable[[Observation], str] = technique_of,
+    group_of: Callable[[Observation], str] | None = None,
 ) -> Network:
     """A copy of *network* with each group's variances multiplied by its factor.
 
@@ -211,6 +211,7 @@ def scale_groups(
     known: the observations keep their values, and every variance -- on the
     observation and in its cluster -- is scaled, so correlations are unchanged.
     """
+    group_of = group_of or _by_technique()
     observations = {}
     for identifier, observation in network.observations.items():
         factor = factors.get(group_of(observation), 1.0)
@@ -228,6 +229,14 @@ def scale_groups(
 
 
 # -- internals ---------------------------------------------------------------
+
+
+def _by_technique() -> Callable[[Observation], str]:
+    """The default grouping, imported when used: the integration package
+    imports this module, so importing it back at load time is a cycle."""
+    from geocomp.core.techniques.integration.techniques import technique_of
+
+    return technique_of
 
 
 def _groups(network: Network, group_of) -> list[str]:
