@@ -17,6 +17,9 @@ and RD-07, assembled and reproduced (§5.6).
 
 ## 1. Why this document exists
 
+> **What is still missing is listed in [`23-wanted-reference-data.md`](./23-wanted-reference-data.md)**, one
+> entry per gap with what would close it. This document records what was found; that one, what was not.
+
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists the reference datasets. One remains
 *to assemble* (RD-08); RD-06 is met (§5) and RD-07 is assembled and reproduced (§5.6).
 RD-02, RD-03 and RD-04 carry a standing note that their
