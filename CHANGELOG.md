@@ -5,6 +5,62 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P10a — multi-epoch comparison and monitoring: the computation
+
+Two epochs of a network compared for motion, and a series of them followed to
+velocities. The monitoring algorithms, layers, time-series panel and report
+are P10b.
+
+#### Added
+
+- **`core/monitoring/`** (FR-830…FR-838): `compare` (FR-105 refusal,
+  compatibility refusals by name, geocentric frames transformed with the
+  transformation's accuracy as a common translation, cross-covariance or
+  `INDEPENDENCE_ASSUMED` with its bias); `analyse` (S-transformation onto the
+  reference block, its congruency with stepwise localisation, a refusal to
+  proceed on a block that moved, every displacement tested jointly and by
+  component and reported *significant* or *not significant* with its value);
+  `strain` (rigid-body motion separated from homogeneous strain); `series`
+  (velocities with uncertainties, plottable rows); `evaluate_alerts`.
+- RD-08's synthetic half: a structure measured and adjusted as a free network
+  at each epoch, with motion injected at known stations.
+
+#### Fixed
+
+- `Solution.from_dict` crashed on a document without an epoch instead of
+  refusing it (FR-105).
+
+#### Not done
+
+- RD-08's published half: no worked example is reachable from the development
+  environment; it waits on one being supplied.
+- The algorithms, layers, panel and report (P10b); the product download.
+
+### RD-06 — `ngs20.atx` vendored after NGS republished it
+
+The `engine` workflow's `rnx2rtkp` job went red on 28 September 2026: NGS
+republished a file under the pinned ANTCAL URL with bytes that no longer
+match the recorded size or SHA-256, and `scripts/check_rd06.py` correctly
+refused the substitution rather than silently processing against an
+unreviewed calibration. `geodesy.noaa.gov` is 403 from the development
+environment, so nothing here could re-derive or review the new file.
+
+#### Fixed
+
+- The maintainer supplied the original 2026-09-17 bytes directly (SHA-256
+  `bc653727…1661c931`, 68,109,210 bytes — the digest already pinned and
+  already checked against NGS's own calibration in `specs/22` §5.4).
+  `ngs20.atx` is now vendored as `tests/data/rd06/sources/ngs20.atx.gz`
+  instead of fetched live, so RD-06 processing no longer depends on
+  `geodesy.noaa.gov` being reachable or unchanged.
+
+#### Not done
+
+- The new upstream file was neither reviewed nor adopted. If NGS's
+  republication is a genuine calibration update rather than an artefact of
+  their site, re-pinning to it — reviewing what changed and regenerating any
+  fixture it affects — is still open.
+
 ### P9b — integration: the surface
 
 The four Integration menu items, the report's per-technique section, the

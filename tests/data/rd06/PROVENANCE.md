@@ -33,6 +33,17 @@ satellites or observation epochs were removed. Hatanaka decompression is
 lossless; RINEX header warnings from NOAA's upstream GFZRNX conversion remain.
 `.gitattributes` prevents newline conversion of the frozen originals.
 
+`ngs20.atx` is **vendored**, unlike the other large processing inputs. It was
+originally fetched live like the rest; NGS republished a file under the same
+URL with different bytes on or shortly before 28 September 2026, which is
+exactly the substitution `--fetch-inputs` exists to refuse (`ValueError:
+Upstream bytes changed`). The 2026-09-17 bytes (sha256 `bc653727…`) were
+supplied directly rather than re-derived from the new upload, so the RD-06
+processing this repository verifies against did not silently change with an
+upstream republication nobody reviewed. `check_rd06.py` skips the live fetch
+for a vendored entry and verifies the committed gzip's decompressed hash
+instead, so this file needs no network access at all.
+
 [NOTICE.md](NOTICE.md) records attribution and reuse terms; upstream terms are
 also preserved in `sources/`. NOAA/NGS, NASA Goddard, IGS and antenna calibration
 contributors retain their authorship. This is test data, excluded from the
@@ -166,5 +177,7 @@ even on failure; `GEOCOMP_RD06_OUTPUT` selects its retained output directory.
 The reference workflow verifies the vendored snapshots without network access.
 Engine CI explicitly downloads missing processing inputs and checks their original
 hashes before running. Changed upstream bytes cause failure, never substitution.
+`ngs20.atx` is the exception: it is vendored, so engine CI verifies it from the
+committed gzip and never re-fetches it, even under `--fetch-inputs`.
 The manifest also retains optional historical sources (the aggregate coordinate
 list and IGS terms PDF); these are not required to process the examples.

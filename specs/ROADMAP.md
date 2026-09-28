@@ -959,6 +959,46 @@ the stability test and named. A solution without an epoch is refused. Displaceme
 reported as "not significant", never as zero. A three-epoch series yields correct velocities and a plottable
 time series with map-to-plot linkage.
 
+**Split, at the maintainer's decision of 28 September 2026**, as P7 to P9 were: **P10a** the computation —
+compatibility, frame reconciliation with the transformation's uncertainty, displacements with
+cross-covariance, significance, reference-block stability, congruency and strain, velocities, time-series
+data and alert evaluation — and **P10b** the surface: the monitoring algorithms, the displacement layers and
+alert styling, the time-series panel with its map linkage, the monitoring report, and the product download
+(FR-352, FR-353, NFR-010) if the archives are reachable by then.
+
+### P10a — the computation
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| Two epochs compared: FR-105 refusal, compatibility refusals by name, frames transformed with their uncertainty as a common translation, cross-covariance or independence marked | `core/monitoring/compare.py`, [`14`](./14-multi-epoch-monitoring.md) §8.1 |
+| S-transformation onto the reference block, its congruency, stepwise localisation naming the station, a refusal to proceed on a moved block; displacements tested jointly and by component | `core/monitoring/congruency.py` |
+| Rigid-body motion separated from homogeneous strain, the strain F-tested | `core/monitoring/strain.py` |
+| Series and velocities over any number of epochs, referred to the block | `core/monitoring/series.py` |
+| Alert thresholds evaluated, over the line whether or not significant | `core/monitoring/alerts.py` |
+| RD-08's synthetic half: a structure measured and adjusted as a free network at each epoch | `tests/monitoring_network.py`, `tests/test_monitoring.py` |
+
+| P10 exit criterion | State after P10a |
+|---|---|
+| RD-08 reproduces, with the significance decisions | **open** — the published half is unreachable from here ([`22`](./22-reference-data-sources.md) §5.3); the synthetic half is met |
+| Injected displacement recovered, no false positives | **met** |
+| A moving reference station caught and named | **met**, and the analysis refuses to proceed on it |
+| No epoch refused | **met** |
+| Not significant, never zero | **met** |
+| Three epochs: velocities and a plottable series with map-to-plot linkage | **velocities and the series met**; the linkage is the panel's (P10b) |
+
+**Found.**
+
+- **`Solution.from_dict` crashed on a document without an epoch** — an `AttributeError` from the epoch reader —
+  instead of refusing it as the constructor does (FR-105). A monitoring input read from disk is where it would
+  have surfaced.
+
+**Not built in P10a, named so the ticks above do not imply them.** The algorithms, layers, panel and report
+(P10b). The product download (P10b, or moved again with the reason if the archives are still refused). A
+published deformation example. Velocities assume independent epochs. Strain is two-dimensional and
+homogeneous; there is no vertical strain or velocity field between points.
+
 ---
 
 ## P11 — PostGIS

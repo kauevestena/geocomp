@@ -302,7 +302,7 @@ carry files in it: the five networks are vendored as `Network.to_dict()` JSON, p
 `scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
 and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
-## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 assembled **[V]**; RD-08 still to assemble **[C]**
+## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 assembled **[V]**; RD-08 half assembled **[C]**
 
 **RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
 environment. The reproducible evidence bundle, integrated into `tests/data/rd06/`, contains two complete
@@ -532,7 +532,11 @@ nothing is xfailed.
 primary output are vendored. Larger processing inputs are obtained explicitly with
 `python3 scripts/check_rd06.py --fetch-inputs --verify-inputs`; original source hashes are enforced before
 use. Engine CI performs this acquisition before testing, while ordinary offline checks need no download.
-Changed upstream files are refused.
+Changed upstream files are refused. `ngs20.atx` is the one exception, vendored rather than fetched since
+28 September 2026: NGS republished a file under the same ANTCAL URL with bytes that no longer match the
+pinned digest, exactly the substitution this refusal exists to catch, and the maintainer supplied the
+original 2026-09-17 bytes (§5.4's digest, unchanged) to commit instead of re-deriving them from the new
+upload.
 
 The following records the original source search and environmental blocker, retained as history.
 
@@ -580,6 +584,17 @@ test of Pelzer (1971), Niemeier (1981) and Caspary (2000) as the common core. A 
 analysis: the Caspary approach*, Geodetski vestnik 64(1), 2020, which works one dam network of 12 points
 through the Caspary method and reports agreement with the other named methods; JAG3D implements one of them.
 Synthetic data with injected motion (already RD-08's second half) remains the only source of exact truth.
+
+**State after P10a, 28 September 2026.** The **synthetic half is built** (`tests/monitoring_network.py`): a
+structure measured at each epoch and adjusted as a free network by the core, with motion injected into the
+truth. The **published half is not**: the development environment's egress policy refuses the journal's host
+(`www.geodetski-vestnik.com`, 403 on CONNECT) along with the general web, and nothing already vendored — Krumm's
+corpus, GNU Gama's, JAG3D's repository, which has congruence-analysis code but no worked example with its
+numbers — carries a two-epoch example with its published test decisions. Criterion 3 of
+[`14`](./14-multi-epoch-monitoring.md) §9 therefore stays open until the maintainer supplies one — the Caspary
+paper above, or a textbook example with both epochs' coordinates, their covariance and the published
+decisions — as `igs20.atx` was supplied for RD-06. Transcribing one from memory is not an option: a reference
+that might be misremembered is not a reference.
 
 ### 5.4 What a clean pair does — the criterion is unreachable against this reference [V]
 

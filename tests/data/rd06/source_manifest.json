@@ -210,10 +210,10 @@
     "sha256": "bc653727e9b237bd8ed1c1a782f37a5942fec63545d1312089da0e9d1661c931",
     "retrieved_utc": "2026-09-17T14:34:42.318863+00:00",
     "packaged_path": "sources/ngs20.atx.gz",
-    "packaged_bytes": 8978746,
-    "packaged_sha256": "c92492694d869313fe6129607803d10b70a6fcf6fc46ba5299703d0c33a9e692",
+    "packaged_bytes": 8978756,
+    "packaged_sha256": "2a09b8e57974c0ad3d2700f6c1bb4ece634b68099c1817bb09bdcf2ad85cdff7",
     "transformation": "Lossless gzip compression, mtime=0; original SHA-256 retained.",
-    "vendored": false,
+    "vendored": true,
     "required_for_processing": true
   },
   {
