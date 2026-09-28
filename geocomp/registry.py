@@ -630,6 +630,38 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="integration",
         menu_order=40,
     ),
+    # -- Monitoring (phase P10b, specs/14). In the Monitoring toolbox group and
+    # under Analysis in the menu, where specs/15 section 1.1 places multi-epoch
+    # comparison and the monitoring report: they analyse adjusted solutions,
+    # whatever technique produced them, as Adjust network does. In the order of
+    # specs/14 section 8: two epochs, then a series, then the report of either.
+    AlgorithmSpec(
+        operation="compare_epochs",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.compare_epochs",
+        class_name="MonitoringCompareEpochsAlgorithm",
+        requirement="FR-834",
+        menu="analysis",
+        menu_order=60,
+    ),
+    AlgorithmSpec(
+        operation="time_series",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.time_series",
+        class_name="MonitoringTimeSeriesAlgorithm",
+        requirement="FR-838",
+        menu="analysis",
+        menu_order=70,
+    ),
+    AlgorithmSpec(
+        operation="report",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.report",
+        class_name="MonitoringReportAlgorithm",
+        requirement="FR-932",
+        menu="analysis",
+        menu_order=80,
+    ),
 )
 
 #: Menu groups permitted a second level. One entry, and the reason is in
