@@ -272,7 +272,8 @@ class TestCriterion1Frames:
     def test_two_free_definitions_compare_and_the_finding_says_how(self, stable, moved):
         minimum = replace(moved, datum_definition=DatumDefinition.MINIMUM_CONSTRAINT)
         comparison = compare(stable, minimum)
-        assert any("S-transformation" in finding for finding in comparison.findings)
+        assert any(finding.code == "datums_both_free" for finding in comparison.findings)
+        assert any("S-transformation" in str(finding) for finding in comparison.findings)
 
     def test_two_projections_are_refused(self, stable, moved):
         other = replace(moved, crs="EPSG:31983")

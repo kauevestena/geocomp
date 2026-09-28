@@ -27,7 +27,7 @@ from geocomp.core.errors import ValidationError
 from geocomp.core.monitoring.congruency import Displacement
 from geocomp.core.monitoring.series import StationSeries
 
-__all__ = ["Alert", "AlertKind", "AlertThreshold", "evaluate_alerts"]
+__all__ = ["Alert", "AlertKind", "AlertThreshold", "evaluate_alerts", "thresholds_from_rows"]
 
 
 class AlertKind(Enum):
@@ -97,7 +97,7 @@ def evaluate_alerts(
             for station in series:
                 if not threshold.applies_to(station.station_id):
                     continue
-                speed = station.horizontal_speed
+                speed = station.speed
                 significant = None if station.velocity_test is None else not station.velocity_test.passed
                 alerts.append(
                     Alert(
@@ -133,3 +133,46 @@ def evaluate_alerts(
                 )
             )
     return tuple(alerts)
+
+
+def thresholds_from_rows(rows: Iterable[Sequence[str]]) -> tuple[AlertThreshold, ...]:
+    """Alert thresholds from the rows of a CSV file: ``kind, limit, stations, group``.
+
+    The file a monitoring project keeps its alarm criteria in (``specs/14``
+    section 7). ``kind`` is one of :class:`AlertKind`'s values; ``limit`` is in
+    metres, or metres a year for ``velocity``, and empty for ``significance``;
+    ``stations`` are separated by spaces or semicolons and empty for every
+    station; ``group`` names them in the report. A header row, blank rows and
+    rows starting ``#`` are skipped.
+
+    Raises:
+        ValidationError: ``monitoring_threshold_row`` naming the row and what is
+            wrong with it -- a criterion silently dropped is an alarm that never
+            sounds.
+    """
+    kinds = {kind.value: kind for kind in AlertKind}
+    thresholds: list[AlertThreshold] = []
+    for number, row in enumerate(rows, start=1):
+        cells = [cell.strip() for cell in row]
+        if not cells or not any(cells) or cells[0].startswith("#") or cells[0].lower() == "kind":
+            continue
+        cells += [""] * (4 - len(cells))
+        kind = kinds.get(cells[0].lower())
+        if kind is None:
+            raise ValidationError(
+                "monitoring_threshold_row", row=number, received=cells[0], expected=sorted(kinds)
+            )
+        limit = 0.0
+        if kind is not AlertKind.SIGNIFICANCE:
+            try:
+                limit = float(cells[1])
+            except ValueError:
+                raise ValidationError(
+                    "monitoring_threshold_row",
+                    row=number,
+                    received=cells[1] or "(empty)",
+                    expected="a positive limit in metres, or metres a year for a velocity",
+                ) from None
+        names = frozenset(cells[2].replace(";", " ").split()) or None
+        thresholds.append(AlertThreshold(kind=kind, limit=limit, stations=names, group=cells[3]))
+    return tuple(thresholds)

@@ -94,6 +94,19 @@ class StationSeries:
             np.hypot(self.velocity[self.components.index("e")], self.velocity[self.components.index("n")])
         )
 
+    @property
+    def speed(self) -> float | None:
+        """What a velocity alert is judged on: the horizontal speed where the
+        series has a plan, otherwise the vertical rate's size -- a settlement
+        series from levelling has only the height to move in."""
+        horizontal = self.horizontal_speed
+        if horizontal is not None or self.velocity is None:
+            return horizontal
+        for name in ("u", "h"):
+            if name in self.components:
+                return abs(float(self.velocity[self.components.index(name)]))
+        return None
+
     def to_rows(self) -> list[dict[str, float | str]]:
         """Plottable rows: one per epoch and component, value and band."""
         rows: list[dict[str, float | str]] = []

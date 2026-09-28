@@ -63,7 +63,7 @@ from geocomp.core.geodesy.frames import TransformationRecord, canonical_frame, t
 from geocomp.core.models import CoordinateSystem, DatumDefinition, Solution
 from geocomp.core.uncertainty import Strategy, UncertaintyMode
 
-__all__ = ["Comparison", "compare"]
+__all__ = ["Comparison", "Finding", "compare"]
 
 #: Where each component a solution estimates sits in its position triple.
 _INDEX = {"e": 0, "n": 1, "u": 2, "h": 2, "x": 0, "y": 1, "z": 2}
@@ -81,6 +81,39 @@ INDEPENDENCE_BIAS = (
     "uncertainty of each displacement is smaller than the one stated, and the "
     "significance of real motion is understated"
 )
+
+
+@dataclass(frozen=True)
+class Finding:
+    """Something that differs between two epochs without refusing them.
+
+    A code and its values rather than a sentence: the core does not phrase
+    (``specs/18`` section 2), and the monitoring report says the same finding
+    in three languages. ``str()`` gives the English, for logs and tests.
+
+    Codes: ``engines_differ`` (``first``, ``second``: engine and version),
+    ``datums_both_free`` (``first``, ``second``: datum definitions),
+    ``stations_in_one_epoch`` (``stations``).
+    """
+
+    code: str
+    context: dict[str, Any] = field(default_factory=dict)
+
+    def __str__(self) -> str:
+        c = self.context
+        if self.code == "engines_differ":
+            return f"processed by different engines or versions: {c['first']} and {c['second']}"
+        if self.code == "datums_both_free":
+            return (
+                f"datum definitions {c['first']} and {c['second']}: both free, related by the "
+                "S-transformation onto the reference block"
+            )
+        if self.code == "stations_in_one_epoch":
+            return f"stations in one epoch only, not compared: {', '.join(c['stations'])}"
+        return self.code
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"code": self.code, "context": dict(self.context)}
 
 
 @dataclass(frozen=True)
@@ -129,7 +162,7 @@ class Comparison:
     mode: UncertaintyMode = UncertaintyMode.RIGOROUS
     strategies: frozenset[Strategy] = frozenset()
     transformations: tuple[TransformationRecord, ...] = ()
-    findings: tuple[str, ...] = ()
+    findings: tuple[Finding, ...] = ()
     bias: str = ""
     meta: dict[str, Any] = field(default_factory=dict)
 
@@ -213,7 +246,7 @@ def compare(
         {s.station_id for s in first.adjusted_stations} ^ {s.station_id for s in second.adjusted_stations}
     )
     if only:
-        findings.append(f"stations in one epoch only, not compared: {', '.join(only)}")
+        findings.append(Finding("stations_in_one_epoch", {"stations": only}))
     if not common:
         raise ValidationError(
             "monitoring_no_common_stations",
@@ -298,7 +331,7 @@ def compare(
 # -- checks ------------------------------------------------------------------
 
 
-def _check(first: Solution, second: Solution) -> list[str]:
+def _check(first: Solution, second: Solution) -> list[Finding]:
     """Refuse what would put a systematic difference into every displacement;
     return what differs without doing so."""
     for name, a, b in (
@@ -329,18 +362,15 @@ def _check(first: Solution, second: Solution) -> list[str]:
                 "coordinates, and no transformation takes it out"
             ),
         )
-    findings = []
+    findings: list[Finding] = []
     p1, p2 = first.provenance, second.provenance
     if p1 is not None and p2 is not None:
-        e1 = (p1.engine or "in_house", p1.engine_version or "")
-        e2 = (p2.engine or "in_house", p2.engine_version or "")
+        e1 = " ".join(filter(None, (p1.engine or "in_house", p1.engine_version or "")))
+        e2 = " ".join(filter(None, (p2.engine or "in_house", p2.engine_version or "")))
         if e1 != e2:
-            findings.append(f"processed by different engines or versions: {e1} and {e2}")
+            findings.append(Finding("engines_differ", {"first": e1, "second": e2}))
     if d1 != d2:
-        findings.append(
-            f"datum definitions {d1.value} and {d2.value}: both free, related by the "
-            "S-transformation onto the reference block"
-        )
+        findings.append(Finding("datums_both_free", {"first": d1.value, "second": d2.value}))
     return findings
 
 
