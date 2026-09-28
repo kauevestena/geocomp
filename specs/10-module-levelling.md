@@ -185,6 +185,14 @@ The **rigorous** orthometric correction needs observed gravity along the line, a
 approximated here with an assumed field pretending to be a measured one. It arrives with the gravimetry
 module (P8), which is where the gravity observations do.
 
+**Every difference says what it is a difference of (P9b).** Both network builders tag each height difference
+with its height type (`meta["height_type"]`, the benchmarks' — orthometric unless the levelling was reduced
+otherwise). A single-technique adjustment never needed it; a geocentric combination does, because there a
+levelled difference and an ellipsoidal one differ by the change in undulation, and the core refuses one that
+does not say (`height_difference_type_unstated`). *Network adjustment* writes the network as built
+(`OUTPUT_NETWORK`) for the Integration menu, benchmarks held in `up` alone as the lines held them. What a
+geocentric combination makes of such a benchmark is in [`13`](./13-module-integration.md) §6.2.
+
 ---
 
 ## 6. Data import

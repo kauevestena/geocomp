@@ -592,6 +592,44 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="gravimetry",
         menu_order=20,
     ),
+    # -- P9b: the four Integration presets, in the order specs/13 section 1
+    # lists them. One capability, four sets of defaults and validation.
+    AlgorithmSpec(
+        operation="gnss_total_station",
+        group="integration",
+        module="geocomp.algorithms.integration.presets",
+        class_name="GnssTotalStationAlgorithm",
+        requirement="FR-800",
+        menu="integration",
+        menu_order=10,
+    ),
+    AlgorithmSpec(
+        operation="total_station_level",
+        group="integration",
+        module="geocomp.algorithms.integration.presets",
+        class_name="TotalStationLevelAlgorithm",
+        requirement="FR-801",
+        menu="integration",
+        menu_order=20,
+    ),
+    AlgorithmSpec(
+        operation="gnss_level",
+        group="integration",
+        module="geocomp.algorithms.integration.presets",
+        class_name="GnssLevelAlgorithm",
+        requirement="FR-802",
+        menu="integration",
+        menu_order=30,
+    ),
+    AlgorithmSpec(
+        operation="multiple",
+        group="integration",
+        module="geocomp.algorithms.integration.presets",
+        class_name="MultipleTechniquesAlgorithm",
+        requirement="FR-803",
+        menu="integration",
+        menu_order=40,
+    ),
 )
 
 #: Menu groups permitted a second level. One entry, and the reason is in

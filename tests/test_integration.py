@@ -265,6 +265,16 @@ def inputs():
     return [gnss_input(), control_input(), total_station_input(), levelling_input()]
 
 
+def _geometric():
+    """GNSS, control and total station: nothing DynAdjust lacks."""
+    return combine(
+        [gnss_input(), control_input(), total_station_input()],
+        frame="ITRF2020",
+        epoch=TARGET_EPOCH,
+        velocities=sirgas_velocities(),
+    )
+
+
 @pytest.fixture(scope="module")
 def combination():
     return combine(inputs(), frame="ITRF2020", epoch=TARGET_EPOCH, velocities=sirgas_velocities())
@@ -379,8 +389,15 @@ class TestCriterion6Routing:
         assert "gravity" in routing.reason and "DynAdjust" in routing.reason
         assert routing.gravity_observations == ("dg",)
 
-    def test_without_gravity_dynadjust_is_honoured(self, combination):
-        assert route(combination.network, "dynadjust").engine == "dynadjust"
+    def test_without_gravity_or_orthometric_heights_dynadjust_is_honoured(self):
+        assert route(_geometric().network, "dynadjust").engine == "dynadjust"
+
+    def test_orthometric_heights_keep_the_combination_in_house(self, combination):
+        """The in-house core estimates each undulation with the geoid's own
+        uncertainty; DynAdjust would take the separations as exact."""
+        routing = route(combination.network, "dynadjust")
+        assert routing.engine == "in_house"
+        assert "orthometric" in routing.reason and "4 " in routing.reason
 
     def test_a_type_dynadjust_lacks_keeps_the_whole_combination_in_house(self, combination):
         """A horizontal distance has no DynAdjust type. Sending the rest would
@@ -410,9 +427,9 @@ class TestCriterion6Routing:
         assert result.gravity.solution.statistics.converged
         assert result.solution.provenance.parameters["routing"]["engine"] == "in_house"
 
-    def test_dynadjust_asked_for_and_allowed_is_not_quietly_replaced(self, combination):
+    def test_dynadjust_asked_for_and_allowed_is_not_quietly_replaced(self):
         with pytest.raises(ValidationError) as caught:
-            adjust_combination(combination, geoid=GEOID, requested_engine="dynadjust")
+            adjust_combination(_geometric(), requested_engine="dynadjust")
         assert caught.value.code == "validation.combination_routed_to_dynadjust"
 
     def test_gravity_merged_into_the_geometry_is_refused(self, combination):

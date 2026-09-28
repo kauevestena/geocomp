@@ -746,6 +746,20 @@ a set cannot be constructed.
 
 ---
 
+### 6.4 DynAdjust adjusting a combination (P9b) [V]
+
+When routing allows it ([`13`](./13-module-integration.md) §6.1 — no gravity, no type without a letter, a
+geocentric frame, no orthometric heights), `engines/dynadjust/combination.py` runs the combined network, already
+in one frame at one epoch, as an ordinary job and returns the solution with the combination's provenance and
+the routing's reason. The job does not allow a partial network, so an observation the writer would skip
+refuses the run rather than DynAdjust adjusting something else.
+
+On the GNSS (ITRF2014) + control (SIRGAS 2000) + total-station combination of `tests/test_integration.py`,
+combined in ITRF2020, DynAdjust and the in-house core agree to **0.75 mm** — the reflector-height difference
+§6.3 records, at 1.7 m targets over up to 3 km. What this path does not give is the per-technique breakdown:
+its redundancy numbers come from the in-house design, which DynAdjust's output does not carry, and the report
+says so rather than inventing them.
+
 ## 7. Failure handling
 
 | Situation | Behaviour |

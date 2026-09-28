@@ -894,6 +894,41 @@ combination when routing allows it.
 **Exit.** Each preset runs from the menu and the toolbox and produces one solution, a report with the
 per-technique section, and layers. Criterion 7 is met in the report.
 
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| The four presets: GNSS and total station, Total station and level, GNSS and level, Multiple techniques | `algorithms/integration/`, [`13`](./13-module-integration.md) §6.2 |
+| A local combination, adjusted in heights alone or in 3D; projected inputs in a geocentric one through QGIS's CRS | `core/techniques/integration/combine.py`, `adjustment.py` |
+| Levelling benchmarks as orthometric height observations in a geocentric frame; stations nothing places refused by name | same, [`13`](./13-module-integration.md) §6.2 |
+| DynAdjust running a combination, agreeing with the in-house core to 0.75 mm | `engines/dynadjust/combination.py`, [`07`](./07-engine-dynadjust.md) §6.4 |
+| The report's *Techniques* section, read from the solution's provenance | `reports/adjustment.py`, [`19`](./19-visualization.md) §7.1 |
+| A geocentric solution drawn in its own frame's UTM grid, ellipses turned by the convergence | `core/visualization/display.py`, [`19`](./19-visualization.md) §1.1 |
+| Network documents from *Build baselines* (with its frame) and levelling *Network adjustment* (differences typed) | [`11`](./11-module-gnss.md) §4.4, [`10`](./10-module-levelling.md) §5 |
+
+| P9b exit | State |
+|---|---|
+| Each preset runs from the toolbox and produces one solution, a report and layers | **met** — `tests/qgis/test_integration_algorithms.py` runs all four; the menu is generated from the same registry entries |
+| The per-technique section in the report; criterion 7 | **met** — [`13`](./13-module-integration.md) §7.1 |
+| The layers | **met where QGIS ≥ 3.38 runs** — the display conversion is tested without QGIS; the layer test needs the modern field API, as every result-layer test does |
+
+**Found.**
+
+- **A levelling benchmark in a geocentric combination was silently free.** Its hold names `up`, which is none
+  of X, Y, Z, so the geocentric frame held nothing — no error, a free station. Now an orthometric height
+  observation; one held exactly is refused.
+- **Levelled differences never said their height type**, which P9a's geocentric frame refuses to guess; no
+  test had used a levelling network *as the levelling algorithm builds it*.
+- A levelling network's `LOCAL` CRS was an "irreconcilable frame"; two agreeing holds kept the first input's;
+  a benchmark's placeholder zeros shadowed another input's starting position.
+- **The combined solution carried no per-observation results**, so its residual layer would have been empty.
+- QGIS matches a bare GRS80 UTM string to "SIRGAS 2000 / UTM" — an ITRF solution drawn that way is labelled
+  decimetres wrong. The grid is WKT2 naming the frame.
+
+**Not built in P9b.** The per-technique breakdown on the DynAdjust path. Height-only adjustment of a mark only
+levelling reaches, inside a 3D combination. A control-point document. Gravity in the combined report (its
+solution is written beside it).
+
 ---
 
 ## P10 — Multi-epoch and monitoring

@@ -59,6 +59,7 @@ from typing import Any
 
 import numpy as np
 
+from geocomp.core.adjustment.geocentric import HEIGHT_TYPE_KEY
 from geocomp.core.adjustment.weighting import DifferenceWeighting, ExtentKind
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
@@ -324,6 +325,7 @@ def build_network(
             )
         )
 
+    _tag_height_type(network, height_type)
     network.require_valid()
     return LevellingNetworkResult(
         network=network,
@@ -511,6 +513,19 @@ def _station(
         constraint=constraint,
         station_type=StationType.BENCHMARK,
     )
+
+
+def _tag_height_type(network: Network, height_type: HeightType) -> None:
+    """Say on each difference what it is a difference of.
+
+    A levelled difference is orthometric (or normal) by construction, and the
+    geocentric frame of a combined adjustment refuses one that does not say --
+    it differs from the ellipsoidal difference by the change in undulation
+    (``specs/13`` section 3.2). The producer is the one that knows.
+    """
+    for identifier, observation in list(network.observations.items()):
+        meta = {**(observation.meta or {}), HEIGHT_TYPE_KEY: height_type.name}
+        network.observations[identifier] = dataclasses.replace(observation, meta=meta)
 
 
 def _add_line(
@@ -712,6 +727,7 @@ def build_setup_network(
             )
         )
 
+    _tag_height_type(network, height_type)
     network.require_valid()
     return LevellingNetworkResult(
         network=network,

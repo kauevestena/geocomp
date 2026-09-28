@@ -117,8 +117,8 @@
             <translation>%1 linha(s) de base: %2 independentes, %3 dependentes</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Lê cada solução &lt;code&gt;.pos&lt;/code&gt; ECEF de uma pasta e constrói a linha de base que cada uma determinou: o vetor entre os dois marcos, com sua covariância 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As alturas de antena são reduzidas uma única vez.&lt;/b&gt; O vetor determinado pelo motor é entre pontos de referência de antena; o ajustamento quer o vetor entre os marcos. Aplicar a redução duas vezes é detectado e recusado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Por padrão, apenas o subconjunto independente é mantido.&lt;/b&gt; Processar todos os pares de n estações observando simultaneamente produz n(n-1)/2 linhas de base, das quais apenas n-1 são independentes; usar todas infla a redundância aparente do ajustamento. As dependentes são marcadas na saída em vez de descartadas.&lt;/p&gt;&lt;p&gt;O resultado é um agrupamento: as observações compartilham uma matriz de covariância e chegam ao DynAdjust como uma medição G ou X com ela intacta.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A camada opcional desenha todas as linhas de base construídas&lt;/b&gt;, incluindo as dependentes quando não foram mantidas, porque ver quais pares não trouxeram informação nova é justamente o motivo de desenhá-las. A coluna &lt;code&gt;independent&lt;/code&gt; e o símbolo tracejado dizem qual é qual; a saída JSON carrega apenas o que foi mantido.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The network document&lt;/b&gt; is what the Integration menu combines with other techniques: the baselines at their sessions' mid-epochs and each mark's starting position. It needs &lt;i&gt;Frame of the base coordinates&lt;/i&gt;, which a &lt;code&gt;.pos&lt;/code&gt; file does not state and GeoComp will not assume.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Lê cada solução &lt;code&gt;.pos&lt;/code&gt; ECEF de uma pasta e constrói a linha de base que cada uma determinou: o vetor entre os dois marcos, com sua covariância 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As alturas de antena são reduzidas uma única vez.&lt;/b&gt; O vetor determinado pelo motor é entre pontos de referência de antena; o ajustamento quer o vetor entre os marcos. Aplicar a redução duas vezes é detectado e recusado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Por padrão, apenas o subconjunto independente é mantido.&lt;/b&gt; Processar todos os pares de n estações observando simultaneamente produz n(n-1)/2 linhas de base, das quais apenas n-1 são independentes; usar todas infla a redundância aparente do ajustamento. As dependentes são marcadas na saída em vez de descartadas.&lt;/p&gt;&lt;p&gt;O resultado é um agrupamento: as observações compartilham uma matriz de covariância e chegam ao DynAdjust como uma medição G ou X com ela intacta.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A camada opcional desenha todas as linhas de base construídas&lt;/b&gt;, incluindo as dependentes quando não foram mantidas, porque ver quais pares não trouxeram informação nova é justamente o motivo de desenhá-las. A coluna &lt;code&gt;independent&lt;/code&gt; e o símbolo tracejado dizem qual é qual; a saída JSON carrega apenas o que foi mantido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O documento de rede&lt;/b&gt; é o que o menu Integração combina com outras técnicas: as linhas de base nas épocas médias das suas sessões e a posição inicial de cada marco. Ele precisa de &lt;i&gt;Referencial das coordenadas da base&lt;/i&gt;, que um arquivo &lt;code&gt;.pos&lt;/code&gt; não informa e o GeoComp não presume.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Base antenna height above the mark (m)</source>
@@ -141,8 +141,16 @@
             <translation>Pasta com soluções .pos</translation>
         </message>
         <message>
+            <source>Frame of the base coordinates</source>
+            <translation>Referencial das coordenadas da base</translation>
+        </message>
+        <message>
             <source>GNSS baselines</source>
             <translation>Linhas de base GNSS</translation>
+        </message>
+        <message>
+            <source>GeoComp network (*.json)</source>
+            <translation>Rede GeoComp (*.json)</translation>
         </message>
         <message>
             <source>JSON files (*.json)</source>
@@ -157,6 +165,10 @@
             <translation>Mantendo %1 linha(s) de base dependente(s). Elas não trazem informação nova, e um ajustamento que as trate como independentes relatará uma incerteza menor do que os dados sustentam.</translation>
         </message>
         <message>
+            <source>Network</source>
+            <translation>Rede</translation>
+        </message>
+        <message>
             <source>No .pos solutions were found in %1</source>
             <translation>Nenhuma solução .pos foi encontrada em %1</translation>
         </message>
@@ -165,12 +177,20 @@
             <translation>Não foi possível construir nenhuma linha de base a partir das soluções em %1</translation>
         </message>
         <message>
+            <source>Not stated</source>
+            <translation>Não informado</translation>
+        </message>
+        <message>
             <source>Rover antenna height above the mark (m)</source>
             <translation>Altura da antena do móvel sobre o marco (m)</translation>
         </message>
         <message>
             <source>Skipped %1: %2</source>
             <translation>Ignorado %1: %2</translation>
+        </message>
+        <message>
+            <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's.</source>
+            <translation>O documento de rede precisa do referencial em que as coordenadas da base foram dadas. Um arquivo .pos não o informa e o GeoComp não presume um: um vetor sem referencial não pode ser levado a outro.</translation>
         </message>
         <message>
             <source>Turn processed sessions into baseline observations with covariance.</source>
@@ -434,6 +454,205 @@
         <message>
             <source>Z (m)</source>
             <translation>Z (m)</translation>
+        </message>
+    </context>
+    <context>
+        <name>CombinedAdjustmentAlgorithm</name>
+        <message>
+            <source>%1: %2 observation(s), %3 of the redundancy, vᵀPv/r %4.</source>
+            <translation>%1: %2 observação(ões), %3 da redundância, vᵀPv/r %4.</translation>
+        </message>
+        <message>
+            <source>'%1' is not an epoch. Write it as a decimal year, for example 2024.5.</source>
+            <translation>'%1' não é uma época. Escreva-a como ano decimal, por exemplo 2024.5.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;&lt;b&gt;Inputs&lt;/b&gt; are the network documents the technique algorithms write. Each is combined as its producer built it; stations with the same name in two inputs are the same mark, which is what ties the techniques together.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Fixed stations&lt;/b&gt; are held where the first input that places them says they are &amp;mdash; for GNSS, the base coordinates from the processing.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Engine&lt;/b&gt;: DynAdjust is used only when it can adjust everything. Gravity, an observation type it lacks, a local system or orthometric heights keep the combination in the in-house core, and the report says which and why.&lt;/p&gt;&lt;p&gt;The report has a &lt;i&gt;Techniques&lt;/i&gt; section: each technique's share of the redundancy and of the weighted squares, the variance components when asked for, the geoid residuals, and every frame transformation applied.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;As entradas&lt;/b&gt; são os documentos de rede que os algoritmos de cada técnica escrevem. Cada uma é combinada como seu produtor a construiu; estações com o mesmo nome em duas entradas são o mesmo marco, e é isso que liga as técnicas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As estações fixas&lt;/b&gt; são mantidas onde a primeira entrada que as posiciona diz que estão &amp;mdash; no GNSS, as coordenadas da base usadas no processamento.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Motor&lt;/b&gt;: o DynAdjust é usado apenas quando pode ajustar tudo. Gravidade, um tipo de observação que ele não tem, um sistema local ou altitudes ortométricas mantêm a combinação no núcleo interno, e o relatório diz qual motivo e por quê.&lt;/p&gt;&lt;p&gt;O relatório tem uma seção &lt;i&gt;Técnicas&lt;/i&gt;: a parcela de cada técnica na redundância e nos quadrados ponderados, os componentes de variância quando solicitados, os resíduos do geoide e toda transformação de referencial aplicada.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Combines a GNSS network and a total-station network in one geocentric frame at one epoch, each observation at its own station's vertical.&lt;/p&gt;&lt;p&gt;The total-station network may be in a UTM or Transverse Mercator projection of SIRGAS 2000 or an ITRF: its starting coordinates are read through it. Its measurements belong to no frame and are not transformed. Hold control through the GNSS input: a point held in grid coordinates is refused, because its height is not the ellipsoidal one.&lt;/p&gt;&lt;p&gt;A geoid model is needed only if orthometric heights take part.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Combina uma rede GNSS e uma rede de estação total em um referencial geocêntrico, em uma época, cada observação na vertical da sua própria estação.&lt;/p&gt;&lt;p&gt;A rede de estação total pode estar em uma projeção UTM ou Transversa de Mercator do SIRGAS 2000 ou de um ITRF: suas coordenadas iniciais são lidas por ela. Suas medições não pertencem a referencial algum e não são transformadas. Fixe o controle pela entrada GNSS: um ponto fixado em coordenadas de grade é recusado, porque sua altitude não é a elipsoidal.&lt;/p&gt;&lt;p&gt;Um modelo geoidal só é necessário se altitudes ortométricas participarem.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Combines a total-station network and a levelling network in the total station's own coordinate reference system. Nothing is transformed: neither technique measures a position in a frame.&lt;/p&gt;&lt;p&gt;When the total-station network holds only height differences, the combination is adjusted in heights alone; otherwise in three dimensions, where a mark reached only by levelling is refused by name, because nothing places it horizontally.&lt;/p&gt;&lt;p&gt;A benchmark held by the levelling network and a control point held by the total station are the same hold if they agree in height.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Combina uma rede de estação total e uma rede de nivelamento no próprio sistema de referência de coordenadas da estação total. Nada é transformado: nenhuma das técnicas mede uma posição em um referencial.&lt;/p&gt;&lt;p&gt;Quando a rede de estação total contém apenas desníveis, a combinação é ajustada só em altitudes; caso contrário, em três dimensões, e um marco alcançado apenas pelo nivelamento é recusado pelo nome, porque nada o posiciona horizontalmente.&lt;/p&gt;&lt;p&gt;Uma referência de nível fixada pela rede de nivelamento e um ponto de controle fixado pela estação total são a mesma fixação se concordarem na altitude.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;GNSS gives ellipsoidal heights and levelling orthometric ones; they are related by the geoid, h = H + N. The geoid model is &lt;b&gt;required&lt;/b&gt;, is named in the solution and the report, and its uncertainty takes part: each station's undulation is estimated with the model as its prior.&lt;/p&gt;&lt;p&gt;The &lt;b&gt;geoid residuals&lt;/b&gt; in the report are the survey's test of the model over the project area.&lt;/p&gt;&lt;p&gt;A levelling benchmark enters as an orthometric height observation with its uncertainty; one held exactly is refused, because it would make the geoid exact there. Every levelled mark must also be occupied by GNSS, or nothing places it horizontally.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;O GNSS fornece altitudes elipsoidais e o nivelamento, ortométricas; elas se relacionam pelo geoide, h = H + N. O modelo geoidal é &lt;b&gt;obrigatório&lt;/b&gt;, é identificado na solução e no relatório, e sua incerteza participa: a ondulação de cada estação é estimada com o modelo como informação a priori.&lt;/p&gt;&lt;p&gt;Os &lt;b&gt;resíduos do geoide&lt;/b&gt; no relatório são o teste do modelo feito pelo levantamento na área do projeto.&lt;/p&gt;&lt;p&gt;Uma referência de nível entra como observação de altitude ortométrica com sua incerteza; uma fixada exatamente é recusada, porque tornaria o geoide exato ali. Todo marco nivelado deve também ser ocupado por GNSS, ou nada o posiciona horizontalmente.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Three or more of GNSS, total station, levelling and gravimetry. With GNSS the combination is geocentric; without it, in the inputs' own system.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Gravity is adjusted beside the geometry&lt;/b&gt;, by the in-house core with its drift model: nothing in the combination relates gravity to position, so adjusting it inside would give the same answer. It is never dropped, and asking for DynAdjust with gravity present keeps the whole combination in-house, with the reason in the report.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Três ou mais entre GNSS, estação total, nivelamento e gravimetria. Com GNSS a combinação é geocêntrica; sem ele, no próprio sistema das entradas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A gravidade é ajustada ao lado da geometria&lt;/b&gt;, pelo núcleo interno com seu modelo de deriva: nada na combinação relaciona gravidade e posição, então ajustá-la junto daria a mesma resposta. Ela nunca é descartada, e pedir o DynAdjust com gravidade presente mantém toda a combinação no núcleo interno, com o motivo no relatório.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Adjust GNSS baselines and levelled height differences together, through a geoid.</source>
+            <translation>Ajusta linhas de base GNSS e desníveis nivelados em conjunto, por meio de um geoide.</translation>
+        </message>
+        <message>
+            <source>Adjust GNSS baselines and total-station observations together.</source>
+            <translation>Ajusta linhas de base GNSS e observações de estação total em conjunto.</translation>
+        </message>
+        <message>
+            <source>Adjust three or more techniques together, gravity included.</source>
+            <translation>Ajusta três ou mais técnicas em conjunto, incluindo a gravidade.</translation>
+        </message>
+        <message>
+            <source>Adjust total-station and levelling observations together.</source>
+            <translation>Ajusta observações de estação total e de nivelamento em conjunto.</translation>
+        </message>
+        <message>
+            <source>Combined %1 inputs (%2) in %3; %4 transformation(s) applied.</source>
+            <translation>%1 entradas combinadas (%2) em %3; %4 transformação(ões) aplicada(s).</translation>
+        </message>
+        <message>
+            <source>Combined network</source>
+            <translation>Rede combinada</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Datum definition</source>
+            <translation>Definição do datum</translation>
+        </message>
+        <message>
+            <source>DynAdjust, when it can adjust everything</source>
+            <translation>DynAdjust, quando puder ajustar tudo</translation>
+        </message>
+        <message>
+            <source>Engine</source>
+            <translation>Motor</translation>
+        </message>
+        <message>
+            <source>Engine: %1 (%2).</source>
+            <translation>Motor: %1 (%2).</translation>
+        </message>
+        <message>
+            <source>Epoch (decimal year; empty takes the inputs')</source>
+            <translation>Época (ano decimal; vazio usa a das entradas)</translation>
+        </message>
+        <message>
+            <source>Estimate a variance component per technique</source>
+            <translation>Estimar um componente de variância por técnica</translation>
+        </message>
+        <message>
+            <source>Fixed stations (comma-separated)</source>
+            <translation>Estações fixas (separadas por vírgula)</translation>
+        </message>
+        <message>
+            <source>Frame to combine in</source>
+            <translation>Referencial da combinação</translation>
+        </message>
+        <message>
+            <source>GNSS and level</source>
+            <translation>GNSS e nível</translation>
+        </message>
+        <message>
+            <source>GNSS and total station</source>
+            <translation>GNSS e estação total</translation>
+        </message>
+        <message>
+            <source>GNSS network (from Build baselines)</source>
+            <translation>Rede GNSS (de Construir linhas de base)</translation>
+        </message>
+        <message>
+            <source>GeoComp in-house core</source>
+            <translation>Núcleo interno do GeoComp</translation>
+        </message>
+        <message>
+            <source>GeoComp network (*.json)</source>
+            <translation>Rede GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solução GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Geoid model (GTX or ESRI ASCII grid)</source>
+            <translation>Modelo geoidal (grade GTX ou ESRI ASCII)</translation>
+        </message>
+        <message>
+            <source>Geoid model uncertainty (m)</source>
+            <translation>Incerteza do modelo geoidal (m)</translation>
+        </message>
+        <message>
+            <source>Gravity readings (from Gravimetry pre-processing)</source>
+            <translation>Leituras gravimétricas (do pré-processamento de gravimetria)</translation>
+        </message>
+        <message>
+            <source>Gravity solution</source>
+            <translation>Solução gravimétrica</translation>
+        </message>
+        <message>
+            <source>Gravity was adjusted beside the geometry, by the in-house core; its solution is written separately.</source>
+            <translation>A gravidade foi ajustada ao lado da geometria, pelo núcleo interno; sua solução é gravada à parte.</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Known gravity (station=mGal[±sigma], ...)</source>
+            <translation>Gravidade conhecida (estação=mGal[±sigma], ...)</translation>
+        </message>
+        <message>
+            <source>Levelling network (from Network adjustment)</source>
+            <translation>Rede de nivelamento (de Ajustamento de rede)</translation>
+        </message>
+        <message>
+            <source>Line %1 of the velocities file does not hold numbers.</source>
+            <translation>A linha %1 do arquivo de velocidades não contém números.</translation>
+        </message>
+        <message>
+            <source>Line %1 of the velocities file has %2 numbers. Write station, vx, vy, vz in metres a year, and optionally their three standard deviations.</source>
+            <translation>A linha %1 do arquivo de velocidades tem %2 números. Escreva estação, vx, vy, vz em metros por ano e, opcionalmente, seus três desvios-padrão.</translation>
+        </message>
+        <message>
+            <source>Multiple techniques</source>
+            <translation>Múltiplas técnicas</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Relatório</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>State the epoch of the combination (a decimal year). None of the inputs states one, and GeoComp does not assume one.</source>
+            <translation>Informe a época da combinação (um ano decimal). Nenhuma das entradas informa uma, e o GeoComp não presume uma.</translation>
+        </message>
+        <message>
+            <source>Station velocities (CSV: station, vx, vy, vz in m/yr)</source>
+            <translation>Velocidades das estações (CSV: estação, vx, vy, vz em m/ano)</translation>
+        </message>
+        <message>
+            <source>These fixed stations have no position any input could hold them at: %1. In a combination with GNSS, a station is held at its GNSS position.</source>
+            <translation>Estas estações fixas não têm posição em que alguma entrada possa fixá-las: %1. Em uma combinação com GNSS, a estação é fixada na sua posição GNSS.</translation>
+        </message>
+        <message>
+            <source>This combination needs at least %1 techniques and was given %2. Use the two-technique combination that matches your inputs.</source>
+            <translation>Esta combinação precisa de pelo menos %1 técnicas e recebeu %2. Use a combinação de duas técnicas que corresponde às suas entradas.</translation>
+        </message>
+        <message>
+            <source>Total station and level</source>
+            <translation>Estação total e nível</translation>
+        </message>
+        <message>
+            <source>Total station network (from Classical network)</source>
+            <translation>Rede de estação total (de Rede clássica)</translation>
+        </message>
+        <message>
+            <source>the inputs' own system</source>
+            <translation>o próprio sistema das entradas</translation>
+        </message>
+        <message>
+            <source>this run</source>
+            <translation>esta execução</translation>
         </message>
     </context>
     <context>
@@ -1187,6 +1406,10 @@
             <translation>Observações ativas</translation>
         </message>
         <message>
+            <source>Adjusted N (m)</source>
+            <translation>N ajustado (m)</translation>
+        </message>
+        <message>
             <source>Adjusted coordinates</source>
             <translation>Coordenadas ajustadas</translation>
         </message>
@@ -1209,6 +1432,14 @@
         <message>
             <source>An observation with a redundancy number near zero is uncheckable: no blunder in it is detectable at all. A network full of them can pass every statistical test while being wrong, so they are listed here whether or not anything else in this report looks amiss.</source>
             <translation>Uma observação com número de redundância próximo de zero é não verificável: nenhum erro grosseiro nela é sequer detetável. Uma rede cheia delas pode passar em todos os testes estatísticos estando errada, pelo que são listadas aqui independentemente de tudo o resto neste relatório parecer bem.</translation>
+        </message>
+        <message>
+            <source>Applied to</source>
+            <translation>Aplicada a</translation>
+        </message>
+        <message>
+            <source>Astro-geodetic</source>
+            <translation>Astrogeodésia</translation>
         </message>
         <message>
             <source>CANDIDATE</source>
@@ -1291,6 +1522,10 @@
             <translation>Resumo criptográfico</translation>
         </message>
         <message>
+            <source>DynAdjust</source>
+            <translation>DynAdjust</translation>
+        </message>
+        <message>
             <source>Effective value</source>
             <translation>Valor efetivo</translation>
         </message>
@@ -1311,8 +1546,16 @@
             <translation>Elipses de erro</translation>
         </message>
         <message>
+            <source>Estimated by least-squares variance component estimation, one factor per technique. Each technique's weights were rescaled by its factor, and the solution above is the rescaled network's.</source>
+            <translation>Estimados por estimação de componentes de variância por mínimos quadrados, um fator por técnica. Os pesos de cada técnica foram reescalados pelo seu fator, e a solução acima é a da rede reescalada.</translation>
+        </message>
+        <message>
             <source>Every observation in this adjustment is checkable.</source>
             <translation>Todas as observações deste ajustamento são verificáveis.</translation>
+        </message>
+        <message>
+            <source>Every transformation the combination applied, with the input and the position it was applied to. A datum shift not listed here was not applied.</source>
+            <translation>Toda transformação que a combinação aplicou, com a entrada e a posição a que foi aplicada. Uma mudança de datum que não esteja listada aqui não foi aplicada.</translation>
         </message>
         <message>
             <source>Every uncertainty in this report was propagated rigorously: no approximate strategy was used at any step.</source>
@@ -1339,8 +1582,20 @@
             <translation>Campo</translation>
         </message>
         <message>
+            <source>Frame</source>
+            <translation>Referencial</translation>
+        </message>
+        <message>
+            <source>Frames and epochs</source>
+            <translation>Referenciais e épocas</translation>
+        </message>
+        <message>
             <source>From</source>
             <translation>De</translation>
+        </message>
+        <message>
+            <source>GNSS</source>
+            <translation>GNSS</translation>
         </message>
         <message>
             <source>GeoComp</source>
@@ -1355,8 +1610,20 @@
             <translation>Modelo geoidal</translation>
         </message>
         <message>
+            <source>Geoid priors</source>
+            <translation>Informação a priori do geoide</translation>
+        </message>
+        <message>
+            <source>Geoid residuals</source>
+            <translation>Resíduos do geoide</translation>
+        </message>
+        <message>
             <source>Global test</source>
             <translation>Teste global</translation>
+        </message>
+        <message>
+            <source>Gravimetry</source>
+            <translation>Gravimetria</translation>
         </message>
         <message>
             <source>Gravity (%1)</source>
@@ -1391,6 +1658,14 @@
             <translation>Maior correção</translation>
         </message>
         <message>
+            <source>Largest |w|</source>
+            <translation>Maior |w|</translation>
+        </message>
+        <message>
+            <source>Levelling</source>
+            <translation>Nivelamento</translation>
+        </message>
+        <message>
             <source>Lower critical</source>
             <translation>Crítico inferior</translation>
         </message>
@@ -1401,6 +1676,14 @@
         <message>
             <source>MDB (%1)</source>
             <translation>MDB (%1)</translation>
+        </message>
+        <message>
+            <source>Model N (m)</source>
+            <translation>N do modelo (m)</translation>
+        </message>
+        <message>
+            <source>Model std. dev. (m)</source>
+            <translation>Desvio-padrão do modelo (m)</translation>
         </message>
         <message>
             <source>NO</source>
@@ -1421,6 +1704,10 @@
         <message>
             <source>No global test was run for this solution.</source>
             <translation>Nenhum teste global foi executado para esta solução.</translation>
+        </message>
+        <message>
+            <source>No per-technique breakdown: its redundancy numbers come from the in-house adjustment's design, and DynAdjust's output does not carry them. The residuals are listed per observation below.</source>
+            <translation>Sem detalhamento por técnica: seus números de redundância vêm do modelo do ajustamento interno, e a saída do DynAdjust não os traz. Os resíduos estão listados por observação abaixo.</translation>
         </message>
         <message>
             <source>Observation</source>
@@ -1459,6 +1746,10 @@
             <translation>Parâmetros</translation>
         </message>
         <message>
+            <source>Per-technique breakdown</source>
+            <translation>Detalhamento por técnica</translation>
+        </message>
+        <message>
             <source>Positional uncertainty (mm)</source>
             <translation>Incerteza posicional (mm)</translation>
         </message>
@@ -1495,12 +1786,20 @@
             <translation>Resíduo (%1)</translation>
         </message>
         <message>
+            <source>Residual (m)</source>
+            <translation>Resíduo (m)</translation>
+        </message>
+        <message>
             <source>Results</source>
             <translation>Resultados</translation>
         </message>
         <message>
             <source>Row</source>
             <translation>Linha</translation>
+        </message>
+        <message>
+            <source>Rows</source>
+            <translation>Linhas</translation>
         </message>
         <message>
             <source>Semi-major (mm)</source>
@@ -1513,6 +1812,10 @@
         <message>
             <source>Setting</source>
             <translation>Configuração</translation>
+        </message>
+        <message>
+            <source>Share</source>
+            <translation>Parcela</translation>
         </message>
         <message>
             <source>Shown in %1, as the Gravimeter settings ask; the solution stores m/s². A station held fixed has no uncertainty of its own and is not listed.</source>
@@ -1535,6 +1838,10 @@
             <translation>Origem</translation>
         </message>
         <message>
+            <source>Standard deviation</source>
+            <translation>Desvio-padrão</translation>
+        </message>
+        <message>
             <source>Standardised</source>
             <translation>Padronizado</translation>
         </message>
@@ -1555,12 +1862,28 @@
             <translation>Estatísticas</translation>
         </message>
         <message>
+            <source>Steps</source>
+            <translation>Etapas</translation>
+        </message>
+        <message>
             <source>Superseded by</source>
             <translation>Substituída por</translation>
         </message>
         <message>
+            <source>Technique</source>
+            <translation>Técnica</translation>
+        </message>
+        <message>
+            <source>Techniques</source>
+            <translation>Técnicas</translation>
+        </message>
+        <message>
             <source>Test</source>
             <translation>Teste</translation>
+        </message>
+        <message>
+            <source>The geoid model %1 tested by the survey: at each station where an orthometric height met an ellipsoidal one, the undulation the adjustment found against the one the model gave.</source>
+            <translation>O modelo geoidal %1 testado pelo levantamento: em cada estação onde uma altitude ortométrica encontrou uma elipsoidal, a ondulação que o ajustamento obteve contra a que o modelo forneceu.</translation>
         </message>
         <message>
             <source>The global test failed. Either the observations disagree with each other more than their weights allow, or the weights are wrong — the test cannot distinguish the two, and reporting it as &amp;quot;the adjustment failed&amp;quot; would.</source>
@@ -1569,6 +1892,10 @@
         <message>
             <source>The network was not supplied to the report, so the input summary is limited to what the solution records.</source>
             <translation>A rede não foi fornecida ao relatório, pelo que o resumo das entradas se limita ao que a solução regista.</translation>
+        </message>
+        <message>
+            <source>The redundancy each technique carries, and its own part of the weighted squares. The parts add up to the whole. A technique's vᵀPv / r is a quick reading of how its weights fit, not its variance component: that is estimated below when it was asked for.</source>
+            <translation>A redundância que cada técnica carrega e sua própria parte dos quadrados ponderados. As partes somam o todo. O vᵀPv / r de uma técnica é uma leitura rápida de como seus pesos se ajustam, não seu componente de variância: este é estimado abaixo quando solicitado.</translation>
         </message>
         <message>
             <source>The scope column is what makes a run reproducible: the same value reached from a project override and from the built-in default are different statements to somebody repeating the work.</source>
@@ -1587,12 +1914,24 @@
             <translation>Esta solução não registou resultados por observação.</translation>
         </message>
         <message>
+            <source>To</source>
+            <translation>Para</translation>
+        </message>
+        <message>
+            <source>Total station</source>
+            <translation>Estação total</translation>
+        </message>
+        <message>
             <source>Uncertainty</source>
             <translation>Incerteza</translation>
         </message>
         <message>
             <source>Uncertainty mode</source>
             <translation>Modo de incerteza</translation>
+        </message>
+        <message>
+            <source>Uncheckable</source>
+            <translation>Não verificáveis</translation>
         </message>
         <message>
             <source>Uncheckable observations</source>
@@ -1611,6 +1950,14 @@
             <translation>Valor</translation>
         </message>
         <message>
+            <source>Variance components</source>
+            <translation>Componentes de variância</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Fator de variância</translation>
+        </message>
+        <message>
             <source>Variance factor a posteriori</source>
             <translation>Fator de variância a posteriori</translation>
         </message>
@@ -1623,12 +1970,20 @@
             <translation>Versão</translation>
         </message>
         <message>
+            <source>Weighted constraints</source>
+            <translation>Injunções ponderadas</translation>
+        </message>
+        <message>
             <source>What a failed global test means</source>
             <translation>O que significa um teste global reprovado</translation>
         </message>
         <message>
             <source>Where each value came from</source>
             <translation>De onde veio cada valor</translation>
+        </message>
+        <message>
+            <source>Why this engine</source>
+            <translation>Por que este motor</translation>
         </message>
         <message>
             <source>accepted</source>
@@ -1653,6 +2008,18 @@
         <message>
             <source>sigma (%1)</source>
             <translation>sigma (%1)</translation>
+        </message>
+        <message>
+            <source>vᵀPv</source>
+            <translation>vᵀPv</translation>
+        </message>
+        <message>
+            <source>vᵀPv / r</source>
+            <translation>vᵀPv / r</translation>
+        </message>
+        <message>
+            <source>w</source>
+            <translation>w</translation>
         </message>
         <message>
             <source>w-test</source>
@@ -1844,6 +2211,10 @@
         <message>
             <source>Residuals (layer)</source>
             <translation>Resíduos (camada)</translation>
+        </message>
+        <message>
+            <source>The geocentric solution is drawn in %1: easting, northing and ellipsoidal height.</source>
+            <translation>A solução geocêntrica é desenhada em %1: coordenada leste, coordenada norte e altitude elipsoidal.</translation>
         </message>
         <message>
             <source>The style file '%1' could not be applied: %2</source>
@@ -2198,6 +2569,10 @@
     <context>
         <name>GeoCompMessages</name>
         <message>
+            <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
+            <translation>%1 estação(ões) são alcançadas apenas por altitudes, então nada determina onde estão horizontalmente: %2. Ligue-as com um vetor GNSS ou uma observação de estação total, fixe-as horizontalmente ou ajuste o nivelamento sozinho.</translation>
+        </message>
+        <message>
             <source>'%1' holds no readings: expected %2.</source>
             <translation>'%1' não contém leituras: esperava-se %2.</translation>
         </message>
@@ -2208,6 +2583,14 @@
         <message>
             <source>A counter reading of %1 is outside the gravimeter's calibration table: expected %2.</source>
             <translation>Uma leitura de contador de %1 está fora da tabela de calibração do gravímetro: esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>A geoid model was given, but this combination is in a local system (%1) where every height is what its input says it is. Leave the geoid out.</source>
+            <translation>Foi informado um modelo geoidal, mas esta combinação está em um sistema local (%1), onde cada altitude é o que sua entrada diz. Não informe o geoide.</translation>
+        </message>
+        <message>
+            <source>A position must move from epoch %1 and no velocity was given for it. Supply one in the velocities file.</source>
+            <translation>Uma posição precisa ser levada da época %1 e não foi dada velocidade para ela. Informe uma no arquivo de velocidades.</translation>
         </message>
         <message>
             <source>Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The two must agree, in the same order.</source>
@@ -2224,6 +2607,10 @@
         <message>
             <source>GeoComp could not complete the operation (%1). See the GeoComp tab of the Log Messages panel for details.</source>
             <translation>O GeoComp não conseguiu concluir a operação (%1). Consulte a aba GeoComp do painel Mensagens de Log para mais detalhes.</translation>
+        </message>
+        <message>
+            <source>In the input '%1', %2 must be moved to the combination's epoch, and no velocity was given for it. Supply one in the velocities file; zero is not assumed -- it is a decimetre a decade in most of Brazil.</source>
+            <translation>Na entrada '%1', %2 precisa ser levado à época da combinação, e não foi dada velocidade para ele. Informe uma no arquivo de velocidades; zero não é presumido -- é um decímetro por década na maior parte do Brasil.</translation>
         </message>
         <message>
             <source>Line %1 of '%2' could not be read: %3. Correct or remove the line and run again.</source>
@@ -2274,6 +2661,10 @@
             <translation>A observação '%1', do tipo %2, não pode contribuir para um ajustamento %3. Escolha um referencial de coordenadas que a observação possa injuncionar, ou exclua-a.</translation>
         </message>
         <message>
+            <source>Orthometric heights (from levelling) meet the ellipsoidal heights the geocentric frame computes, and no geoid model relates them. Choose a geoid model: without one they differ by the undulation, tens of metres in much of Brazil.</source>
+            <translation>Altitudes ortométricas (do nivelamento) encontram as altitudes elipsoidais que o referencial geocêntrico calcula, e nenhum modelo geoidal as relaciona. Escolha um modelo geoidal: sem ele, elas diferem pela ondulação, dezenas de metros em boa parte do Brasil.</translation>
+        </message>
+        <message>
             <source>Reading '%1' has had no tide removed, and the tide model is set to none. Leaving the tide in costs a few hundred microgal that change by the hour; choose Longman's model, or confirm that the instrument applied its own.</source>
             <translation>A leitura '%1' não teve a maré removida, e o modelo de maré está definido como nenhum. Deixar a maré custa algumas centenas de microgal que mudam a cada hora; escolha o modelo de Longman, ou confirme que o instrumento aplicou o seu próprio.</translation>
         </message>
@@ -2288,6 +2679,10 @@
         <message>
             <source>Session '%1' holds readings from several instruments (%2). Drift belongs to an instrument, so each needs its own session.</source>
             <translation>A sessão '%1' contém leituras de vários instrumentos (%2). A deriva pertence a um instrumento, então cada um precisa de sua própria sessão.</translation>
+        </message>
+        <message>
+            <source>State the epoch of the combination (a decimal year). None of the inputs states one GeoComp could take, and it does not assume one.</source>
+            <translation>Informe a época da combinação (um ano decimal). Nenhuma das entradas informa uma que o GeoComp possa usar, e ele não presume uma.</translation>
         </message>
         <message>
             <source>Station '%1' has no approximate %2, and the linearised adjustment needs a point to linearise about. Supply approximate coordinates, or generate them from the observations.</source>
@@ -2328,6 +2723,42 @@
         <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
             <translation>A deriva da sessão '%1' não pode ser estimada junto com os valores das estações: nenhuma estação foi lida novamente em instantes distintos suficientes para uma deriva de grau %2. Reocupe uma estação nessa sessão, reduza o grau ou divida a sessão.</translation>
+        </message>
+        <message>
+            <source>The height difference '%1' does not say whether it is orthometric or ellipsoidal. Rebuild its network with the current GeoComp, which records it.</source>
+            <translation>O desnível '%1' não diz se é ortométrico ou elipsoidal. Reconstrua sua rede com o GeoComp atual, que registra isso.</translation>
+        </message>
+        <message>
+            <source>The input '%1' holds GNSS observations (%2), which need a geocentric frame. Use a combination that includes the GNSS network.</source>
+            <translation>A entrada '%1' contém observações GNSS (%2), que precisam de um referencial geocêntrico. Use uma combinação que inclua a rede GNSS.</translation>
+        </message>
+        <message>
+            <source>The input '%1' holds a position (%2) but does not say what frame it is in. State the frame when the network is built -- for GNSS baselines, the frame of the base coordinates.</source>
+            <translation>A entrada '%1' contém uma posição (%2), mas não diz em que referencial está. Informe o referencial ao construir a rede -- para linhas de base GNSS, o referencial das coordenadas da base.</translation>
+        </message>
+        <message>
+            <source>The input '%1' holds a position (%2) but not its epoch. GeoComp does not assume one: the frame moves, and the same coordinates at two epochs are two different places.</source>
+            <translation>A entrada '%1' contém uma posição (%2), mas não sua época. O GeoComp não presume uma: o referencial se move, e as mesmas coordenadas em duas épocas são dois lugares diferentes.</translation>
+        </message>
+        <message>
+            <source>The input '%1' holds the benchmark '%2' exactly. In a geocentric combination a benchmark's height holds h - N, and holding it exactly would make the geoid exact there. Give the benchmark its uncertainty (height±sigma) when adjusting the levelling network.</source>
+            <translation>A entrada '%1' fixa a referência de nível '%2' exatamente. Em uma combinação geocêntrica, a altitude de uma RN fixa h - N, e fixá-la exatamente tornaria o geoide exato ali. Dê à RN sua incerteza (altitude±sigma) ao ajustar a rede de nivelamento.</translation>
+        </message>
+        <message>
+            <source>The input '%1' holds the station '%2' in grid coordinates. In a geocentric combination a grid height is not the ellipsoidal height the frame holds. Hold the station through the GNSS input instead (Fixed stations), or leave it free in this one.</source>
+            <translation>A entrada '%1' fixa a estação '%2' em coordenadas de grade. Em uma combinação geocêntrica, uma altitude de grade não é a altitude elipsoidal que o referencial fixa. Fixe a estação pela entrada GNSS (Estações fixas) ou deixe-a livre nesta.</translation>
+        </message>
+        <message>
+            <source>The input '%1' is in %2, which GeoComp cannot transform from. Give it in ITRF2000 to ITRF2020 or SIRGAS 2000, or in a UTM or Transverse Mercator projection of one of them. Combining it untransformed would absorb a datum shift into the residuals.</source>
+            <translation>A entrada '%1' está em %2, a partir do qual o GeoComp não sabe transformar. Forneça-a em ITRF2000 a ITRF2020 ou SIRGAS 2000, ou em uma projeção UTM ou Transversa de Mercator de um deles. Combiná-la sem transformar absorveria uma mudança de datum nos resíduos.</translation>
+        </message>
+        <message>
+            <source>The inputs are in different coordinate reference systems (%1). A combination without GNSS is adjusted in the inputs' own system, so they must share one.</source>
+            <translation>As entradas estão em sistemas de referência de coordenadas diferentes (%1). Uma combinação sem GNSS é ajustada no próprio sistema das entradas, então elas precisam compartilhar um.</translation>
+        </message>
+        <message>
+            <source>The inputs fall into %1 pieces that share no station, so they cannot be adjusted as one network. A combination is tied together by the stations the techniques have in common.</source>
+            <translation>As entradas se dividem em %1 partes que não compartilham estação, então não podem ser ajustadas como uma rede. Uma combinação é ligada pelas estações que as técnicas têm em comum.</translation>
         </message>
         <message>
             <source>The network '%1' has no active observations, so there is nothing to adjust. Observations marked as rejected do not take part; re-activate the ones you want to use.</source>
@@ -2372,6 +2803,10 @@
         <message>
             <source>The setting '%1' expects a value of type %2, but received %3. Correct it in Global Settings, or restore the default.</source>
             <translation>A configuração '%1' espera um valor do tipo %2, mas recebeu %3. Corrija-a em Configurações Globais ou restaure o padrão.</translation>
+        </message>
+        <message>
+            <source>The station '%1' is held by two inputs (%2) at positions %3 m apart. Hold it in one input only, or correct the one that is wrong: two holds a distance apart force that distance into the residuals.</source>
+            <translation>A estação '%1' é fixada por duas entradas (%2) em posições a %3 m uma da outra. Fixe-a em apenas uma entrada ou corrija a errada: duas fixações separadas por uma distância forçam essa distância nos resíduos.</translation>
         </message>
         <message>
             <source>This JSON file is not a GeoComp network document: it has no network identifier. Expected %1.</source>
@@ -4259,6 +4694,10 @@
             <translation>De</translation>
         </message>
         <message>
+            <source>GeoComp network (*.json)</source>
+            <translation>Rede GeoComp (*.json)</translation>
+        </message>
+        <message>
             <source>GeoComp solution (*.json)</source>
             <translation>Solução GeoComp (*.json)</translation>
         </message>
@@ -4285,6 +4724,10 @@
         <message>
             <source>Levelling network adjustment</source>
             <translation>Ajustamento de rede de nivelamento</translation>
+        </message>
+        <message>
+            <source>Network</source>
+            <translation>Rede</translation>
         </message>
         <message>
             <source>Observation</source>

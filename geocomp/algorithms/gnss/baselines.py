@@ -12,12 +12,20 @@ engine.
 were independent inflates its redundancy and understates every uncertainty that
 follows. Advanced mode may take the full set, and the dependent ones are
 **marked rather than discarded** so a report can say which they were.
+
+**The network document** (P9b) is what the Integration menu combines: the
+baselines, each at its session's mid-epoch, and each mark's starting position --
+the base's from the ``% ref pos`` header, a rover's from its last epoch. It
+needs the frame the base coordinates were given in, which a ``.pos`` file does
+not state and GeoComp does not assume (FR-105): without it the document is
+refused, because a vector with no frame cannot be brought into another.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import replace
+from dataclasses import dataclass, replace
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +35,7 @@ from qgis.core import (
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
@@ -42,6 +51,8 @@ from geocomp.algorithms.gnss.common import (
 )
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
+from geocomp.core.geodesy.frames import FRAME_NAMES
+from geocomp.core.models import CoordinateSystem, Epoch, HeightType, Network, Position, Station
 from geocomp.core.techniques.gnss import (
     AntennaOffset,
     independent_subset,
@@ -59,8 +70,13 @@ INDEPENDENT_ONLY = "INDEPENDENT_ONLY"
 BASE_HEIGHT = "BASE_HEIGHT"
 ROVER_HEIGHT = "ROVER_HEIGHT"
 HEIGHT_SIGMA = "HEIGHT_SIGMA"
+FRAME = "FRAME"
 OUTPUT_JSON = "OUTPUT_JSON"
+OUTPUT_NETWORK = "OUTPUT_NETWORK"
 OUTPUT_LAYER = "OUTPUT_LAYER"
+
+#: A starting position is only a start; this says so in its uncertainty.
+_START_SIGMA = 1.0
 
 
 class BuildBaselinesAlgorithm(GeoCompAlgorithm):
@@ -96,6 +112,11 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             "drawing them at all. The <code>independent</code> column and the "
             "dashed symbol say which is which; the JSON output carries only "
             "what was kept.</p>"
+            "<p><b>The network document</b> is what the Integration menu combines "
+            "with other techniques: the baselines at their sessions' mid-epochs "
+            "and each mark's starting position. It needs <i>Frame of the base "
+            "coordinates</i>, which a <code>.pos</code> file does not state and "
+            "GeoComp will not assume.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -147,12 +168,29 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
         )
         self.addParameter(
+            QgsProcessingParameterEnum(
+                FRAME,
+                self.tr("Frame of the base coordinates"),
+                options=[self.tr("Not stated"), *FRAME_NAMES],
+                defaultValue=0,
+            )
+        )
+        self.addParameter(
             QgsProcessingParameterFileDestination(
                 OUTPUT_JSON,
                 self.tr("Baselines"),
                 self.tr("JSON files (*.json)"),
                 optional=True,
                 createByDefault=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                OUTPUT_NETWORK,
+                self.tr("Network"),
+                self.tr("GeoComp network (*.json)"),
+                optional=True,
+                createByDefault=False,
             )
         )
         self.addParameter(
@@ -176,6 +214,17 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         base_height = self.parameterAsDouble(parameters, BASE_HEIGHT, context)
         rover_height = self.parameterAsDouble(parameters, ROVER_HEIGHT, context)
         sigma = self.parameterAsDouble(parameters, HEIGHT_SIGMA, context)
+        frame_index = self.parameterAsEnum(parameters, FRAME, context)
+        frame = FRAME_NAMES[frame_index - 1] if frame_index > 0 else ""
+        network_path = self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context)
+        if network_path and not frame:
+            raise QgsProcessingException(
+                self.tr(
+                    "The network document needs the frame the base coordinates were given "
+                    "in. A .pos file does not state it and GeoComp does not assume one: a "
+                    "vector with no frame cannot be brought into another's."
+                )
+            )
 
         solutions = sorted(folder.glob("*.pos"))
         if not solutions:
@@ -185,6 +234,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
 
         built = []
         quality: dict[str, dict[str, Any]] = {}
+        sessions: dict[str, _Session] = {}
         for index, path in enumerate(solutions):
             if feedback.isCanceled():
                 return {}
@@ -218,6 +268,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                     meta={**baseline.meta, "fixed_fraction": summary.fixed_fraction},
                 )
                 quality[baseline.id] = summary.to_dict()
+                sessions[baseline.id] = _session(solution, baseline)
             except GeoCompError as exc:
                 # One unreadable solution does not lose the rest (FR-166).
                 feedback.pushWarning(
@@ -279,6 +330,13 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
             outputs[OUTPUT_JSON] = destination
 
+        if network_path:
+            network = _network(kept, observations, cluster, sessions, frame)
+            Path(network_path).write_text(
+                json.dumps(network.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            outputs[OUTPUT_NETWORK] = network_path
+
         # Every baseline that was built, kept or not (FR-357). The dependent
         # ones are what the layer is most worth looking at for: the style draws
         # them dashed, so a glance says which pairs carried no new information.
@@ -295,6 +353,61 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(100)
         return outputs
+
+
+@dataclass(frozen=True)
+class _Session:
+    """What a baseline's session says beyond the vector: when, and where its
+    two ends started."""
+
+    epoch: Epoch
+    base: tuple[float, float, float]
+    rover: tuple[float, float, float]
+
+
+def _session(solution, baseline) -> _Session:
+    """The session's mid-epoch, and the base and rover positions it printed.
+
+    The rover's is its antenna's, not its mark's: a start, a metre or two off at
+    most, which is what the adjustment linearises about and nothing more.
+    """
+    start = solution.obs_start or solution.epochs[0].time
+    end = solution.obs_end or solution.epochs[-1].time
+    middle = start + (end - start) / 2
+    if middle.tzinfo is None:
+        # GPS time, which is within a minute of UTC: a decimal year to 1e-7.
+        middle = middle.replace(tzinfo=UTC)
+    return _Session(
+        epoch=Epoch.from_datetime(middle),
+        base=tuple(float(v) for v in solution.reference_position),
+        rover=tuple(float(v) for v in solution.last().position),
+    )
+
+
+def _network(baselines, observations, cluster, sessions, frame: str) -> Network:
+    """The network document: every kept baseline at its epoch, every mark with
+    its first stated start, all free -- the datum is the combination's to set."""
+    epochs = [sessions[b.id].epoch.decimal_year for b in baselines]
+    network = Network(id="gnss", crs=frame, epoch=Epoch.from_decimal_year(sum(epochs) / len(epochs)))
+    for baseline in baselines:
+        session = sessions[baseline.id]
+        for station, xyz in ((baseline.base_station, session.base), (baseline.rover_station, session.rover)):
+            if station not in network.stations:
+                network.add_station(Station(id=station, approx_position=_start(xyz, frame, session.epoch)))
+    for baseline, observation in zip(baselines, observations, strict=True):
+        network.add_observation(replace(observation, epoch=sessions[baseline.id].epoch))
+    network.add_cluster(cluster)
+    return network
+
+
+def _start(xyz, frame: str, epoch: Epoch) -> Position:
+    return Position(
+        values=tuple(Quantity.from_std_dev(v, _START_SIGMA, Unit.METRE) for v in xyz),
+        system=CoordinateSystem.CARTESIAN,
+        crs=frame,
+        epoch=epoch,
+        height_type=HeightType.ELLIPSOIDAL,
+    )
 
 
 def _stations_from(solution, path: Path) -> tuple[str, str]:

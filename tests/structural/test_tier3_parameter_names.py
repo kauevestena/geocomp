@@ -52,6 +52,7 @@ NOT_PARAMETER_KEYS = frozenset(
         "GDA2020",
         "SIRGAS2000",
         "WGS84",
+        "ITRF2014",
         "ITRF2020",
         # Environment variables a test sets.
         "PATH",
@@ -203,16 +204,28 @@ def _geocomp_imports(path: Path) -> set[Path]:
     calls it -- the five result-layer sinks live in ``layer_outputs.py``
     precisely so both adjustments offer the same ones -- so the constants an
     algorithm module imports count as its own.
+
+    **Through a shared base, too.** The four Integration presets are one
+    algorithm class in ``integration/common.py`` with four sets of defaults;
+    the base declares the parameters, and the layer sinks through
+    ``layer_outputs.py`` in turn. So an imported module that is itself in the
+    algorithms package is followed to *its* imports -- and only such a module:
+    a core module's constants are not parameters of anything.
     """
-    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     imported: set[Path] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            if not node.module.startswith("geocomp."):
-                continue
-            candidate = REPO_ROOT / Path(*node.module.split(".")).with_suffix(".py")
-            if candidate.is_file():
-                imported.add(candidate)
+    pending = [path]
+    while pending:
+        current = pending.pop()
+        tree = ast.parse(current.read_text(encoding="utf-8"), filename=str(current))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                if not node.module.startswith("geocomp."):
+                    continue
+                candidate = REPO_ROOT / Path(*node.module.split(".")).with_suffix(".py")
+                if candidate.is_file() and candidate not in imported:
+                    imported.add(candidate)
+                    if candidate.is_relative_to(ALGORITHM_ROOT):
+                        pending.append(candidate)
     return imported
 
 

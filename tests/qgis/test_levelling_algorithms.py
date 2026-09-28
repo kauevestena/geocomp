@@ -521,3 +521,31 @@ class TestClosuresAndTheNetwork:
         values = stations["BM2"]["position"]["values"]
         assert values[2]["value"] == pytest.approx(rd.HEIGHTS["BM2"], abs=0.002)
         assert values[0]["value"] == 0.0
+
+    def test_the_network_document_types_every_difference(self, tmp_path, loop_reductions):
+        """What the Integration menu combines (``specs/10`` section 5): each
+        difference says what it is a difference of, and the benchmark is held
+        in height alone, as the lines held it."""
+        from geocomp.core.models import HeightType, network_from_document
+
+        results = _run(
+            "geocomp:levelling_network",
+            {
+                "REDUCTIONS": loop_reductions,
+                "BENCHMARKS": f"BM1={rd.HEIGHTS['BM1']:.3f}±0.002",
+                "WEIGHTING": 0,
+                "SIGMA_PER_KM": 0.0007,
+                "OUTPUT_NETWORK": str(tmp_path / "network.json"),
+            },
+        )
+        network = network_from_document(
+            json.loads(Path(results["OUTPUT_NETWORK"]).read_text(encoding="utf-8"))
+        )
+        assert network.observations
+        assert {o.meta["height_type"] for o in network.observations.values()} == {
+            HeightType.ORTHOMETRIC.name
+        }
+        assert network.epoch is not None
+        benchmark = network.stations["BM1"]
+        assert benchmark.constraint.components == {"up"}
+        assert benchmark.constraint.position.values[2].value == pytest.approx(rd.HEIGHTS["BM1"])

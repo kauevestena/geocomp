@@ -346,3 +346,79 @@ class TestTheGeoidModelIsNamed:
         _network, solution = adjusted
         html, _omitted = _render(solution, context)
         assert "Geoid model" not in html
+
+
+class TestTheTechniquesSection:
+    """``specs/13`` criterion 7: per-technique residual and redundancy
+    breakdowns appear in the report. Read from the solution's provenance, so a
+    report rendered later from the saved document says the same."""
+
+    @pytest.fixture(scope="class")
+    def combined(self):
+        from geocomp.core.models import Solution
+        from geocomp.core.techniques.integration import adjust_combination, combine
+        from tests.test_integration import (
+            GEOID,
+            TARGET_EPOCH,
+            control_input,
+            gnss_input,
+            levelling_input,
+            sirgas_velocities,
+            total_station_input,
+        )
+
+        combination = combine(
+            [gnss_input(), control_input(), total_station_input(), levelling_input()],
+            frame="ITRF2020",
+            epoch=TARGET_EPOCH,
+            velocities=sirgas_velocities(),
+        )
+        result = adjust_combination(combination, geoid=GEOID, estimate_components=True)
+        # Through the document and back: what a later report would render.
+        import json
+
+        document = json.loads(json.dumps(result.solution.to_dict()))
+        return combination.network, Solution.from_dict(document), result
+
+    def _html(self, combined):
+        from geocomp.reports import ReportContext
+
+        network, solution, _result = combined
+        html, omitted = _render(solution, ReportContext(network=network, qgis_version="3.34"))
+        assert omitted == []
+        return html
+
+    def test_each_technique_has_its_row(self, combined):
+        html = self._html(combined)
+        assert "<h2>Techniques</h2>" in html
+        for label in ("GNSS", "Total station", "Levelling", "Geoid priors"):
+            assert f"<td>{label}</td>" in html
+
+    def test_the_redundancy_shares_add_up(self, combined):
+        _network, _solution, result = combined
+        shares = sum(s.redundancy_share for s in result.breakdown)
+        assert shares == pytest.approx(1.0)
+        html = self._html(combined)
+        for summary in result.breakdown:
+            assert f"{100.0 * summary.redundancy_share:.1f}&nbsp;%" in html
+
+    def test_the_routing_and_the_transformations_are_stated(self, combined):
+        html = self._html(combined)
+        assert "Why this engine" in html
+        assert "SIRGAS2000" in html and "ITRF2020" in html
+        assert "A datum shift not listed here was not applied." in html
+
+    def test_the_variance_components_and_the_geoid_residuals_are_shown(self, combined):
+        _network, _solution, result = combined
+        html = self._html(combined)
+        assert "Variance components" in html
+        assert "Geoid residuals" in html
+        assert "curitiba-planar" in html
+        for residual in result.geoid:
+            assert f"<td>{residual.station_id}</td>" in html
+
+    def test_a_single_technique_solution_has_no_such_section(self, adjusted, context):
+        _network, solution = adjusted
+        html, omitted = _render(solution, context)
+        assert omitted == []
+        assert "<h2>Techniques</h2>" not in html

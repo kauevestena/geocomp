@@ -88,6 +88,7 @@ EPOCH = "EPOCH"
 OUTPUT_SOLUTION = "OUTPUT_SOLUTION"
 OUTPUT_HTML = "OUTPUT_HTML"
 OUTPUT_CSV = "OUTPUT_CSV"
+OUTPUT_NETWORK = "OUTPUT_NETWORK"
 VARIANCE_FACTOR_APOSTERIORI = "VARIANCE_FACTOR_APOSTERIORI"
 DEGREES_OF_FREEDOM = "DEGREES_OF_FREEDOM"
 GLOBAL_TEST_PASSED = "GLOBAL_TEST_PASSED"
@@ -226,6 +227,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             (OUTPUT_SOLUTION, self.tr("Solution"), self.tr("GeoComp solution (*.json)"), True),
             (OUTPUT_HTML, self.tr("Report"), self.tr("HTML files (*.html)"), True),
             (OUTPUT_CSV, self.tr("Heights"), self.tr("CSV files (*.csv)"), False),
+            (OUTPUT_NETWORK, self.tr("Network"), self.tr("GeoComp network (*.json)"), False),
         ):
             self.addParameter(
                 QgsProcessingParameterFileDestination(
@@ -351,6 +353,13 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             self.parameterAsFileOutput(parameters, OUTPUT_SOLUTION, context),
             solution.to_dict(),
         )
+        # The network as built -- every difference typed with its height type
+        # and every benchmark held as the lines were -- for the Integration menu.
+        network.epoch = solution.epoch
+        write_document(
+            self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context),
+            network.to_dict(),
+        )
         relative = self._relative_uncertainties(run, solution)
         self._write_report(parameters, context, built, run, solution, test, snooping, relative)
         self._write_csv(parameters, context, solution)
@@ -369,6 +378,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             OUTPUT_SOLUTION: self.parameterAsFileOutput(parameters, OUTPUT_SOLUTION, context),
             OUTPUT_HTML: self.parameterAsFileOutput(parameters, OUTPUT_HTML, context),
             OUTPUT_CSV: self.parameterAsFileOutput(parameters, OUTPUT_CSV, context),
+            OUTPUT_NETWORK: self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context),
         }
 
     # -- inputs ----------------------------------------------------------

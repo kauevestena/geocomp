@@ -481,3 +481,57 @@ class TestTheTrajectoryLayer:
         assert len(produced) >= 2
         declared = {category.value() for category in layer.renderer().categories()}
         assert produced <= declared
+
+
+class TestTheNetworkDocument:
+    """The document the Integration menu combines (``specs/11`` section 4.4)."""
+
+    def test_it_is_refused_without_the_frame_of_the_base(
+        self, geocomp_provider, solution_folder, tmp_path
+    ):
+        from qgis.core import QgsProcessingContext, QgsProcessingException, QgsProcessingFeedback
+
+        algorithm = _algorithm().create({})
+        parameters = {
+            "FOLDER": str(solution_folder),
+            "OUTPUT_JSON": str(tmp_path / "baselines.json"),
+            "OUTPUT_NETWORK": str(tmp_path / "network.json"),
+        }
+        with pytest.raises(QgsProcessingException, match="frame"):
+            algorithm.run(
+                parameters, QgsProcessingContext(), QgsProcessingFeedback(), catchExceptions=False
+            )
+
+    def test_it_carries_the_frame_the_epochs_and_the_starts(
+        self, geocomp_provider, solution_folder, tmp_path
+    ):
+        from qgis.core import QgsProcessingContext, QgsProcessingFeedback
+
+        from geocomp.core.geodesy.frames import FRAME_NAMES
+        from geocomp.core.models import network_from_document
+
+        path = tmp_path / "network.json"
+        parameters = {
+            "FOLDER": str(solution_folder),
+            "INDEPENDENT_ONLY": True,
+            # Index 2 is ITRF2014: "Not stated" first, then newest to oldest.
+            "FRAME": 2,
+            "OUTPUT_NETWORK": str(path),
+        }
+        results, ok = _algorithm().create({}).run(
+            parameters, QgsProcessingContext(), QgsProcessingFeedback(), catchExceptions=False
+        )
+        assert ok
+        assert results["OUTPUT_NETWORK"] == str(path)
+        network = network_from_document(json.loads(path.read_text(encoding="utf-8")))
+        assert network.crs == FRAME_NAMES[1]
+        assert set(network.stations) == {"3040", "0759", "1111"}
+        base = [q.value for q in network.stations["3040"].approx_position.values]
+        assert base == pytest.approx([-3978242.1933, 3382841.1747, 3649902.2990])
+        # The sessions were observed on day 92 of 2005.
+        assert 2005.24 < network.epoch.decimal_year < 2005.26
+        assert all(o.epoch is not None for o in network.observations.values())
+        # The independent pair only; the dependent third is not in the network.
+        assert len(network.observations) == 2
+        cluster = next(iter(network.clusters.values()))
+        assert set(cluster.observation_ids) == set(network.observations)

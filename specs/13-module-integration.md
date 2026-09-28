@@ -1,7 +1,7 @@
 # 13 — Module: Integration
 
-**Status:** Draft — the computation is implemented (P9a, §3.2, §4.1, §5.1, §6.1); the menu, report
-section and layers are P9b's.
+**Status:** Draft — implemented: the computation in P9a (§3.2, §4.1, §5.1, §6.1), the menu, report section,
+layers and DynAdjust path in P9b (§6.2).
 **Requirements covered:** FR-800…FR-805; uses FR-165, FR-804.
 **Source:** tex §Painel de Configuração Global, item 5 (Integração); O4.
 
@@ -281,6 +281,64 @@ differences in DynAdjust recorded in [`07`](./07-engine-dynadjust.md) §6.3.
 
 ---
 
+### 6.2 As implemented (P9b)
+
+**The four menu items** (`algorithms/integration/`) are presets over one algorithm. Each takes the network
+documents the technique algorithms write — *Build baselines* ([`11`](./11-module-gnss.md) §4.4), *Classical
+network*, levelling *Network adjustment* ([`10`](./10-module-levelling.md) §5) — and produces one solution, the
+report with its *Techniques* section ([`19`](./19-visualization.md) §7.1), the result layers
+([`19`](./19-visualization.md) §1.1) and, on request, the combined network.
+
+| Preset | Inputs | Combines | Particular to it |
+|---|---|---|---|
+| GNSS and total station (FR-800) | GNSS, total station | geocentric | the total station may be in UTM |
+| Total station and level (FR-801) | total station, levelling | in the total station's own CRS | heights alone when that is all there is |
+| GNSS and level (FR-802) | GNSS, levelling | geocentric | the geoid model is required |
+| Multiple techniques (FR-803) | any three of GNSS, total station, levelling, gravimetry | geocentric with GNSS, local without | gravity beside the geometry; fewer than three refused |
+
+Shared: the frame and epoch (the epoch defaulting to the GNSS input's, else refused), station velocities as
+CSV, the geoid model and its uncertainty, *fixed stations* held where the first input that places them says
+they are (for GNSS, the base's coordinates from the processing), the datum, the engine, variance components by
+technique, the confidence level.
+
+**What the combination learned to do for them:**
+
+* **A local combination** (`combine(frame=None)`): the inputs merged as they stand, in their one CRS —
+  different ones refused naming each (`combination_frames_differ`), a GNSS position refused
+  (`combination_gnss_in_local_frame`). Adjusted in `HEIGHT_1D` when every observation is a height or a height
+  difference, in `SPACE_3D` otherwise. Every combination needs an epoch, local ones included
+  (`combination_epoch_required`): a solution is at one or it is not a solution (FR-105).
+* **A projected input in a geocentric combination** is read through a `GridFrame` — its Transverse Mercator
+  parameters and the frame beneath — which the algorithm derives from QGIS's own CRS, the core carrying no
+  projection database ([`07`](./07-engine-dynadjust.md) §4.4). Only starting positions use it, their heights
+  lifted by the median ellipsoid-minus-grid difference at the stations another input places. A point held in
+  grid coordinates is refused (`combination_projected_hold`): its height is not the ellipsoidal one.
+* **A levelling benchmark** holds a height on a placeholder planimetry. In a local combination the hold is
+  kept. In a geocentric one it becomes an **orthometric height observation** with its uncertainty, tested
+  against the geoid like any other; one held exactly is refused (`combination_benchmark_held_exactly`), since
+  it would make the geoid exact there, and the same benchmark in two networks is one observation, not two.
+  Before this, a geocentric combination would have left such a station **silently free** — a height-only hold
+  names none of X, Y, Z.
+* **A station nothing places horizontally** — reached only through heights, not held horizontally — is refused
+  by name in either three-dimensional frame (`combination_station_without_horizontal`), rather than left for a
+  singular matrix to report.
+* **Two agreeing holds of one station** — a benchmark's height and a control point's full position — merge into
+  the fuller one; before, the first input's won, and the second input's starting position was shadowed by the
+  benchmark's placeholder zeros.
+* **Routing** keeps a local combination in-house (DynAdjust adjusts on the ellipsoid of a named frame) and one
+  with orthometric observations (the in-house core estimates each undulation with the model's uncertainty,
+  where DynAdjust would take separations as exact). When it allows DynAdjust, `adjust_with_dynadjust` runs it
+  ([`07`](./07-engine-dynadjust.md) §6.4); the two engines agree to 0.75 mm on the combined survey.
+* **The solution is complete**: the global test, data snooping and reliability per observation, as every
+  single-technique algorithm's is, and in its provenance the per-technique breakdown, the geoid residuals and
+  the variance components — so the report reads them from the saved document.
+
+**Not done, named so the ticks below do not imply them.** The per-technique breakdown on the DynAdjust path (its
+output carries no redundancy numbers; the report says so). A mark reached only by levelling in a
+three-dimensional combination is refused rather than adjusted in height alone — a per-station component set
+the core does not have. No `CONTROL` document: control is held through an input's own positions. A gravity
+solution is written beside the geometric one, and the report covers the geometry.
+
 ## 7. Acceptance criteria
 
 1. A GNSS + total station network reproduces a published combined-adjustment example within tolerance.
@@ -295,7 +353,7 @@ differences in DynAdjust recorded in [`07`](./07-engine-dynadjust.md) §6.3.
 7. Per-technique residual and redundancy breakdowns appear in the report.
 8. A three-technique combination (FR-803) runs end to end and produces a single solution.
 
-### 7.1 State after P9a
+### 7.1 State after P9a, and P9b
 
 | Criterion | State |
 |---|---|
@@ -305,5 +363,5 @@ differences in DynAdjust recorded in [`07`](./07-engine-dynadjust.md) §6.3.
 | 4. Two frames transform with a record; irreconcilable refused by input | **met** — §5.1, §6.1: GNSS in ITRF2014 and control in SIRGAS 2000 (2000.4, with velocities) combined in ITRF2020 at 2020.0 return the held marks to their truth to a micrometre; WGS 84 is refused naming the input |
 | 5. Clusters survive intact | **met** — a 12 × 12 baseline covariance through a frame change, four direction sets |
 | 6. Gravity routed in-house with the reason | **met** — including when DynAdjust was asked for, and the gravity network is adjusted, not dropped |
-| 7. Per-technique breakdowns in the report | **computed, not yet rendered** — `technique_breakdown` is exact and tested; the report section is P9b |
+| 7. Per-technique breakdowns in the report | **met in P9b** — the report's *Techniques* section, from the solution's provenance, checked against the breakdown and through a saved document (`tests/qgis/test_adjustment_report.py`) |
 | 8. Three techniques end to end, one solution | **met** — GNSS, total station and levelling with a geoid, in `tests/test_integration.py`; every station within 2 cm of the truth, the geoid residuals and variance components by technique on the same run |
