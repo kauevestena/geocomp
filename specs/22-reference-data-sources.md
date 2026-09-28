@@ -532,7 +532,11 @@ nothing is xfailed.
 primary output are vendored. Larger processing inputs are obtained explicitly with
 `python3 scripts/check_rd06.py --fetch-inputs --verify-inputs`; original source hashes are enforced before
 use. Engine CI performs this acquisition before testing, while ordinary offline checks need no download.
-Changed upstream files are refused.
+Changed upstream files are refused. `ngs20.atx` is the one exception, vendored rather than fetched since
+28 September 2026: NGS republished a file under the same ANTCAL URL with bytes that no longer match the
+pinned digest, exactly the substitution this refusal exists to catch, and the maintainer supplied the
+original 2026-09-17 bytes (§5.4's digest, unchanged) to commit instead of re-deriving them from the new
+upload.
 
 The following records the original source search and environmental blocker, retained as history.
 

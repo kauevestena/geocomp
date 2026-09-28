@@ -17,6 +17,14 @@ transformation here is lossless gzip compression. The IGS data/product terms URL
 [NOAA/NOS's reuse policy](https://oceanservice.noaa.gov/about/faq.html). They do not imply
 NOAA, NASA, NGS, IGS, or calibration contributors endorse GeoComp or this analysis.
 
+**The calibration is now vendored, not download-pinned.** It was fetched live like the
+rest until 28 September 2026, when NGS republished a file under the same ANTCAL URL
+with different bytes, which broke the pinned-hash download. The maintainer supplied the
+2026-09-17 bytes directly (SHA-256 `bc653727…1661c931`, 68,109,210 bytes — unchanged from
+the digest this bundle already pinned), and they are committed as `sources/ngs20.atx.gz`
+rather than re-fetched. The [PROVENANCE.md](PROVENANCE.md) "Sources and reuse" section
+records why.
+
 The expected-results JSON is a transcription of the **ITRF2020 ARP** block in
 the two official NGS coordinate sheets. Epoch propagation, decompressed RINEX,
 engine outputs, error statistics, and this report are derived analysis, not
