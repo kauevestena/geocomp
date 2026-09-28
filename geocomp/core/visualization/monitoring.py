@@ -37,11 +37,14 @@ from geocomp.core.visualization.geometry import (
 __all__ = [
     "ALERT",
     "CATEGORIES",
+    "Curve",
     "DrawnDisplacement",
     "DrawnVelocity",
     "displacement_exaggeration",
     "drawn_displacements",
     "drawn_velocities",
+    "series_curves",
+    "series_limits",
     "station_category",
     "velocity_exaggeration",
 ]
@@ -184,6 +187,84 @@ def drawn_velocities(document: dict[str, Any], *, exaggeration: float) -> list[D
             )
         )
     return drawn
+
+
+@dataclass(frozen=True)
+class Curve:
+    """One station's series in one component, in millimetres, ready to plot.
+
+    ``low`` and ``high`` are the band, ``band_factor`` standard deviations each
+    side; ``fit`` is the fitted line's two ends, or ``None`` without a velocity.
+    ``solutions`` names each point's epoch, for the panel's hover.
+    """
+
+    station: str
+    component: str
+    epochs: tuple[float, ...]
+    values: tuple[float, ...]
+    low: tuple[float, ...]
+    high: tuple[float, ...]
+    solutions: tuple[str, ...]
+    fit: tuple[tuple[float, float], tuple[float, float]] | None
+
+
+def series_curves(
+    document: dict[str, Any], stations: list[str], component: str, *, band_factor: float
+) -> list[Curve]:
+    """The plottable curves of *stations* in *component* from a series document.
+
+    What the time-series panel draws and what the report's plots draw, from one
+    function, so the two cannot disagree about a band or a line.
+    """
+    records = {record["station"]: record for record in document["stations"]}
+    curves: list[Curve] = []
+    for station in stations:
+        record = records.get(station)
+        if record is None or component not in record["components"]:
+            continue
+        index = record["components"].index(component)
+        points = record["points"]
+        epochs = tuple(p["epoch"] for p in points)
+        values = tuple(1000.0 * p["offsets"][index] for p in points)
+        sigmas = tuple(1000.0 * band_factor * p["std_devs"][index] for p in points)
+        fit = None
+        velocity, offset, middle = record.get("velocity"), record.get("line_offset"), record.get("line_epoch")
+        if velocity is not None and offset is not None and middle is not None:
+            t0, t1 = min(epochs), max(epochs)
+            fit = (
+                (t0, 1000.0 * (offset[index] + velocity[index] * (t0 - middle))),
+                (t1, 1000.0 * (offset[index] + velocity[index] * (t1 - middle))),
+            )
+        curves.append(
+            Curve(
+                station=station,
+                component=component,
+                epochs=epochs,
+                values=values,
+                low=tuple(v - s for v, s in zip(values, sigmas, strict=True)),
+                high=tuple(v + s for v, s in zip(values, sigmas, strict=True)),
+                solutions=tuple(p["solution"] for p in points),
+                fit=fit,
+            )
+        )
+    return curves
+
+
+def series_limits(document: dict[str, Any], station: str, component: str) -> list[float]:
+    """The alert limits, in metres, that apply to *station* in *component*.
+
+    A vertical limit is drawn on the up or height plot; a horizontal or
+    magnitude limit on east and north, where a component past it certainly
+    puts the station past it.
+    """
+    kinds = ("vertical",) if component in ("u", "h") else ("horizontal", "magnitude")
+    return sorted(
+        {
+            t["limit"]
+            for t in document.get("thresholds", [])
+            if t["kind"] in kinds and (t["stations"] is None or station in t["stations"])
+        }
+    )
 
 
 # -- internals -----------------------------------------------------------------

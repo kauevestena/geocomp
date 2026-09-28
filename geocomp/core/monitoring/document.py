@@ -51,6 +51,7 @@ from geocomp.core.monitoring.strain import Strain
 __all__ = [
     "COMPARISON_KIND",
     "SERIES_KIND",
+    "SERIES_PROPERTY",
     "VERSION",
     "comparison_document",
     "epoch_metadata",
@@ -61,6 +62,9 @@ __all__ = [
 ]
 
 COMPARISON_KIND = "geocomp.monitoring.comparison"
+#: The layer property that names a layer's series document: how the
+#: time-series panel finds the series behind a velocity layer on the map.
+SERIES_PROPERTY = "geocomp/series_document"
 SERIES_KIND = "geocomp.monitoring.series"
 VERSION = 1
 

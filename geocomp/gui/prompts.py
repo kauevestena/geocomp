@@ -139,10 +139,26 @@ def _interactive_preanalysis(
     return {"NETWORK": str(Path(handle.name))}
 
 
+def _compatibility(parent: QWidget | None, _canvas: Any = None) -> dict[str, Any] | None:
+    """Choose two epochs and see what comparing them will find, before the run.
+
+    The check is the algorithm's own ``compare``; the analysis itself is still
+    ``geocomp:monitoring_compare_epochs``, reached with the two files filled in
+    (ADR-0005).
+    """
+    from geocomp.gui.compare_dialog import CompatibilityDialog
+
+    dialog = CompatibilityDialog(parent)
+    if dialog.exec() != QDialog.DialogCode.Accepted:
+        return None
+    return dialog.parameters()
+
+
 #: One handler per entry in :data:`geocomp.registry.CUSTOM_DIALOGS`. The two are
 #: held equal by a structural test: a declared dialog with no handler would
 #: leave a menu item promising something that never appears.
 _HANDLERS = {
     "analysis_network_preanalysis": _interactive_preanalysis,
+    "monitoring_compare_epochs": _compatibility,
     "totalstation_import_fieldbook": _field_mapping,
 }

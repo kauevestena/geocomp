@@ -25,7 +25,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from geocomp.core.visualization.monitoring import ALERT, SIGNIFICANT, drawn_displacements
+from geocomp.core.visualization.monitoring import ALERT, SIGNIFICANT, drawn_displacements, series_curves
 
 __all__ = ["COLOURS", "MapText", "PlotText", "displacement_map", "series_plot"]
 
@@ -200,10 +200,9 @@ def series_plot(
     states in ``text.band``), the fitted line, and any alert limit as a dashed
     line at plus and minus its value.
     """
-    index = record["components"].index(component)
-    epochs = [p["epoch"] for p in record["points"]]
-    values = [1000.0 * p["offsets"][index] for p in record["points"]]
-    sigmas = [1000.0 * band_factor * p["std_devs"][index] for p in record["points"]]
+    (curve,) = series_curves({"stations": [record]}, [record["station"]], component, band_factor=band_factor)
+    epochs, values = list(curve.epochs), list(curve.values)
+    sigmas = [h - v for h, v in zip(curve.high, curve.values, strict=True)]
     limits = [1000.0 * t for t in thresholds]
     low = min([v - s for v, s in zip(values, sigmas, strict=True)] + [-t for t in limits] + [0.0])
     high = max([v + s for v, s in zip(values, sigmas, strict=True)] + limits + [0.0])
@@ -270,12 +269,10 @@ def series_plot(
     parts.append(
         f'<polygon points="{band}" fill="{COLOURS[SIGNIFICANT]}" fill-opacity="0.15" stroke="none"/>'
     )
-    velocity, offset, middle = record.get("velocity"), record.get("line_offset"), record.get("line_epoch")
-    if velocity is not None and offset is not None and middle is not None:
-        a = 1000.0 * (offset[index] + velocity[index] * (t0 - middle))
-        b = 1000.0 * (offset[index] + velocity[index] * (t1 - middle))
+    if curve.fit is not None:
+        (ta, a), (tb, b) = curve.fit
         parts.append(
-            f'<line x1="{_f(px(t0))}" y1="{_f(py(a))}" x2="{_f(px(t1))}" y2="{_f(py(b))}" '
+            f'<line x1="{_f(px(ta))}" y1="{_f(py(a))}" x2="{_f(px(tb))}" y2="{_f(py(b))}" '
             f'stroke="{COLOURS[SIGNIFICANT]}" stroke-dasharray="3 3" stroke-width="1.5"/>'
         )
     for t, v, s in zip(epochs, values, sigmas, strict=True):

@@ -62,6 +62,7 @@ from geocomp.core.monitoring import (
     series,
     series_document,
 )
+from geocomp.core.monitoring.document import SERIES_PROPERTY
 from geocomp.core.visualization.monitoring import velocity_exaggeration
 
 __all__ = ["SERIES_PROPERTY", "MonitoringTimeSeriesAlgorithm"]
@@ -82,9 +83,6 @@ EPOCH_COUNT = "EPOCH_COUNT"
 MOVING_COUNT = "MOVING_COUNT"
 ALERT_COUNT = "ALERT_COUNT"
 
-#: The custom property that ties a layer to its series document, which the
-#: time-series panel reads (``geocomp.gui.time_series_panel``).
-SERIES_PROPERTY = "geocomp/series_document"
 
 
 def _file_type() -> Any:

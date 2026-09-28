@@ -223,6 +223,13 @@ CUSTOM_DIALOGS: dict[str, str] = {
         "tells them is accessible. The dialog builds the design and hands it to "
         "this same algorithm for the full report (FR-272)."
     ),
+    "monitoring_compare_epochs": (
+        "Two epochs in different frames, processed by different engines or with a "
+        "station one of them lacks are comparable, but a user should decide to compare "
+        "them knowing it; and two that cannot be compared should be refused before the "
+        "parameters are filled in, not after. The dialog shows the compatibility "
+        "findings first and hands the two files to this algorithm (FR-831)."
+    ),
     "totalstation_import_fieldbook": (
         "Mapping columns onto fields is impossible without seeing the data in "
         "them. A combo box offering 'HS' and 'hs' tells a user nothing; a "

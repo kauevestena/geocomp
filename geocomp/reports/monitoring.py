@@ -35,7 +35,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.algorithms.reporting import _STYLE, escape, format_number, render_note, render_table
 from geocomp.core.statistics.distributions import normal_quantile
 from geocomp.core.version import __version__
-from geocomp.core.visualization.monitoring import ALERT, displacement_exaggeration
+from geocomp.core.visualization.monitoring import ALERT, displacement_exaggeration, series_limits
 from geocomp.core.visualization.svg import MapText, PlotText, displacement_map, series_plot
 from geocomp.reports.templates import load_template, render, unused_sections
 
@@ -577,7 +577,6 @@ def _time_series(series: dict[str, Any] | None) -> str:
     if series is None:
         return ""
     factor = normal_quantile(0.5 + series["confidence"] / 2.0)
-    thresholds = series.get("thresholds", [])
     body = _heading(_tr("Time series"))
     body += render_note(
         _tr(
@@ -589,7 +588,7 @@ def _time_series(series: dict[str, Any] | None) -> str:
     )
     for record in series["stations"]:
         for component in record["components"]:
-            limits = _limits_for(thresholds, record["station"], component)
+            limits = series_limits(series, record["station"], component)
             body += '<div class="figure">' + series_plot(
                 record,
                 component,
@@ -605,17 +604,6 @@ def _time_series(series: dict[str, Any] | None) -> str:
                 ),
             ) + "</div>"
     return body
-
-
-def _limits_for(thresholds: list[dict[str, Any]], station: str, component: str) -> list[float]:
-    kinds = ("vertical",) if component in ("u", "h") else ("horizontal", "magnitude")
-    return sorted(
-        {
-            t["limit"]
-            for t in thresholds
-            if t["kind"] in kinds and (t["stations"] is None or station in t["stations"])
-        }
-    )
 
 
 def _velocities(series: dict[str, Any] | None) -> str:
