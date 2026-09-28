@@ -533,6 +533,14 @@ class Solution:
     def from_dict(cls, payload: dict[str, Any]) -> Solution:
         covariance = payload.get("parameter_covariance")
         provenance = payload.get("provenance")
+        if payload.get("epoch") is None:
+            # The same refusal the constructor makes (FR-105), before the epoch
+            # reader fails on the missing value with an error naming neither.
+            raise ValidationError(
+                "solution_without_epoch",
+                solution=payload.get("id"),
+                expected="a reference epoch; GeoComp will not assume one (FR-105)",
+            )
         return cls(
             id=payload["id"],
             network_id=payload["network_id"],

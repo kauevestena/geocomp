@@ -1,6 +1,7 @@
 # 14 — Multi-epoch comparison and structural monitoring
 
-**Status:** Draft
+**Status:** Draft — the computation is implemented (P10a, §8.1); the algorithms, panel, layers and report
+are P10b's.
 **Requirements covered:** FR-830…FR-838; uses FR-105, FR-207, FR-835, FR-903, FR-932.
 **Source:** O6; tex §Comparação multiépoca e monitoramento de estruturas; §Introdução; §Justificativa
 aplicada e comercial.
@@ -176,6 +177,45 @@ Epoch 2 solution ─┼─► compatibility check (FR-831)
 Each step is a Processing algorithm (FR-005), so a monitoring campaign can be re-run identically at every
 epoch — which is exactly what a monitoring programme needs.
 
+### 8.1 As implemented (P10a)
+
+`core/monitoring/`, the pipeline above as functions; the Processing algorithms over them are P10b's.
+
+* **`compare(first, second, cross_covariance=)`** (§2–§4). Refuses a solution without an epoch
+  (`monitoring_solution_without_epoch`, FR-105), heights of different types or geoid models, datum definitions
+  no transformation bridges (`monitoring_datum_incompatible`: free against free compares, held against held,
+  free against held does not), two projected systems, and a frame pair related only at another epoch
+  (`monitoring_frame_needs_velocity`: moving a position between epochs is the motion being measured).
+  Geocentric solutions in different frames are transformed with GeoComp's own transformations (§3), the
+  second into the first's frame at its own epoch; the transformation's stated accuracy enters as a **common
+  translation** of every station, so it cancels in anything measured against the reference block and stays in
+  an absolute displacement. Differences in engine or version, and stations one epoch lacks, are findings, not
+  refusals. Without a cross-covariance the result is `APPROXIMATE` with `INDEPENDENCE_ASSUMED` and states its
+  bias (§4). Tests use each epoch's cofactors with the **pooled** a-posteriori variance factor over their joint
+  degrees of freedom: F under the null hypothesis, chi-square when neither epoch had redundancy.
+  A geocentric difference is turned into each station's east, north and up.
+* **`analyse(comparison, reference, objects=)`** (§4.1, §5). The difference is S-transformed onto the datum
+  the reference block defines — translations; a rotation about the vertical for a terrestrial network; a scale
+  on request — so two free epochs, each with its own realisation of the datum, are not mistaken for motion.
+  The block's congruency is tested; if it fails, `check_reference` localises it step by step (the station whose
+  removal reduces Ω most, every step and every station's contribution kept) and `analyse` **refuses**, naming
+  the implicated stations (`monitoring_reference_block_unstable`). The stable subset is proposed, never adopted.
+  Every station's displacement is then reported with its covariance, horizontal confidence ellipse and joint,
+  horizontal and vertical tests — *significant* or *not significant*, the value kept either way — and the
+  global congruency test over all stations.
+* **`strain(analysis)`** (§6). Rigid-body translation and rotation fitted to the object points, then a
+  homogeneous strain; the drop in weighted squares over the three strain parameters F-tested, so a block that
+  moved whole is distinguished from one that is deforming. Dilatation, maximum shear, principal strains and
+  their azimuth, with standard deviations. Three points in an area at least, or refused.
+* **`series(solutions, reference=)`** (§6, §7). Each station's offsets from the first epoch with that epoch's
+  own covariance, referred to the reference block as the two-epoch analysis is, as plottable rows; a velocity
+  per station by weighted least squares with its covariance, its test and the line's own redundancy. Epochs are
+  independent (`INDEPENDENCE_ASSUMED`).
+* **`evaluate_alerts(thresholds, displacements=, series=)`** (§7). Magnitude, horizontal, vertical, velocity or
+  significance, per station or group; one alert per station covered, so a result says what was checked as well
+  as what crossed. A displacement over its limit is flagged **whether or not it is significant**: the owner's
+  criterion is not silenced by the survey's.
+
 ---
 
 ## 9. Acceptance criteria
@@ -193,3 +233,20 @@ epoch — which is exactly what a monitoring programme needs.
 7. Displacements below the detection threshold are reported as "not significant", never as zero.
 8. A three-epoch series produces correct velocities with uncertainties and a plottable time series.
 9. Alert thresholds flag the correct stations, in the results, the map styling and the report.
+
+### 9.1 State after P10a
+
+Against `tests/monitoring_network.py`: four reference pillars and five points on a structure, 36 distances an
+epoch, each epoch adjusted by the core as a free network from its own starting coordinates.
+
+| Criterion | State |
+|---|---|
+| 1. Frames transform with a record; incompatible datums refused by name | **met** — ITRF2014 against ITRF2020 with the record and the common-mode uncertainty; free against held, two projections, two geoid models, and SIRGAS 2000 at another epoch refused |
+| 2. No epoch refused | **met** — by `compare`, and by `Solution.from_dict`, which crashed on it before (see ROADMAP P10a) |
+| 3. A published worked example reproduced | **open** — no published example is reachable from the development environment ([`22`](./22-reference-data-sources.md) §5.3); it waits on one being supplied |
+| 4. Injected displacement recovered, no false positives | **met** — 10 mm at one point found at 99 %, every other station's statistic under half its critical value |
+| 5. A moving reference station caught and named | **met** — 18 mm on a pillar: the block fails, the localisation names it at the first step, the analysis refuses; with the block the user accepts, its motion is found |
+| 6. Independence marked approximate with its bias | **met** |
+| 7. Not significant is not zero | **met** — the value, its σ and its ellipse are kept |
+| 8. Three epochs give velocities and a plottable series | **met in the core** — velocities within their uncertainty, a series as rows; the panel and its map linkage are P10b's |
+| 9. Alerts flag the right stations | **met in the results**; the map styling and the report are P10b's |
