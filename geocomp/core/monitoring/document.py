@@ -433,6 +433,8 @@ def _station_series(s: StationSeries) -> dict[str, Any]:
         "velocity_covariance": covariance,
         "velocity_test": _test(s.velocity_test),
         "speed": s.speed,
+        "line_epoch": s.line_epoch,
+        "line_offset": None if s.line_offset is None else list(s.line_offset),
         "degrees_of_freedom": s.degrees_of_freedom,
         "weighted_squares": s.weighted_squares,
     }

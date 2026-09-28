@@ -334,22 +334,25 @@ def compare(
 def _check(first: Solution, second: Solution) -> list[Finding]:
     """Refuse what would put a systematic difference into every displacement;
     return what differs without doing so."""
-    for name, a, b in (
-        ("height", _height_types(first), _height_types(second)),
-        ("geoid", _geoid_models(first), _geoid_models(second)),
-    ):
-        if a != b:
-            raise ValidationError(
-                "monitoring_height_types_differ" if name == "height" else "monitoring_geoid_models_differ",
-                received=[sorted(a), sorted(b)],
-                solutions=[first.id, second.id],
-                expected=(
-                    "heights of one type in both epochs"
-                    if name == "height"
-                    else "one geoid model in both epochs: heights computed with two "
-                    "models differ by the difference of the models, which is not motion"
-                ),
-            )
+    heights = _height_types(first), _height_types(second)
+    if heights[0] != heights[1]:
+        raise ValidationError(
+            "monitoring_height_types_differ",
+            received=[sorted(heights[0]), sorted(heights[1])],
+            solutions=[first.id, second.id],
+            expected="heights of one type in both epochs",
+        )
+    geoids = _geoid_models(first), _geoid_models(second)
+    if geoids[0] != geoids[1]:
+        raise ValidationError(
+            "monitoring_geoid_models_differ",
+            received=[sorted(geoids[0]), sorted(geoids[1])],
+            solutions=[first.id, second.id],
+            expected=(
+                "one geoid model in both epochs: heights computed with two models "
+                "differ by the difference of the models, which is not motion"
+            ),
+        )
     d1, d2 = first.datum_definition, second.datum_definition
     if d1 != d2 and not ({d1, d2} <= _FREE):
         raise ValidationError(

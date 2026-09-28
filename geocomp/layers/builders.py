@@ -42,6 +42,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QMetaType
 from geocomp.core.models import ConstraintMode, CoordinateSystem, Network, Solution
 from geocomp.core.units import convert
 from geocomp.core.visualization import displacement_arrow, ellipse_ring
+from geocomp.core.visualization.monitoring import drawn_displacements, drawn_velocities
 from geocomp.layers.styles import apply_style
 
 __all__ = [
@@ -50,6 +51,11 @@ __all__ = [
     "LAYER_FIELDS",
     "correction_features",
     "correction_layer",
+    "displacement_ellipse_features",
+    "displacement_ellipse_layer_name",
+    "displacement_features",
+    "displacement_layer",
+    "displacement_layer_name",
     "ellipse_features",
     "ellipse_layer",
     "exaggeration_label",
@@ -69,6 +75,9 @@ __all__ = [
     "residual_layer",
     "station_features",
     "station_layer",
+    "velocity_features",
+    "velocity_layer",
+    "velocity_layer_name",
 ]
 
 _CONTEXT = "GeoCompLayers"
@@ -214,6 +223,69 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("absolute_decision", _TEXT),
         ("uncertainty", _TEXT),
     ),
+    # Monitoring (phase P10b, specs/14, specs/19 section 1). A displacement is a
+    # line from where the first epoch put the station to the exaggerated
+    # displacement, and its confidence ellipse is a polygon of its own at the
+    # tip -- two layers because a line and a polygon cannot share one. The
+    # components are the station's own east, north and up (or height), whatever
+    # grid the arrow is drawn on. `category` is what the style draws: alert,
+    # significant or not significant; `alerts` names the thresholds crossed.
+    "displacements": (
+        ("station", _TEXT),
+        ("role", _TEXT),
+        ("first_epoch", _REAL),
+        ("second_epoch", _REAL),
+        ("d_e", _REAL),
+        ("d_n", _REAL),
+        ("d_u", _REAL),
+        ("horizontal", _REAL),
+        ("vertical", _REAL),
+        ("magnitude", _REAL),
+        ("sigma_e", _REAL),
+        ("sigma_n", _REAL),
+        ("sigma_u", _REAL),
+        ("statistic", _REAL),
+        ("critical", _REAL),
+        ("confidence", _REAL),
+        ("decision", _TEXT),
+        ("horizontal_decision", _TEXT),
+        ("vertical_decision", _TEXT),
+        ("alerts", _TEXT),
+        ("category", _TEXT),
+        ("exaggeration", _REAL),
+    ),
+    "displacement_ellipses": (
+        ("station", _TEXT),
+        ("semi_major", _REAL),
+        ("semi_minor", _REAL),
+        ("orientation", _REAL),
+        ("confidence", _REAL),
+        ("decision", _TEXT),
+        ("category", _TEXT),
+        ("exaggeration", _REAL),
+    ),
+    # A velocity is drawn as a year's motion. `speed` is what a velocity alert
+    # is judged on: the horizontal speed, or the vertical rate of a series with
+    # no plan.
+    "velocities": (
+        ("station", _TEXT),
+        ("v_e", _REAL),
+        ("v_n", _REAL),
+        ("v_u", _REAL),
+        ("sigma_ve", _REAL),
+        ("sigma_vn", _REAL),
+        ("sigma_vu", _REAL),
+        ("speed", _REAL),
+        ("epochs", _INT),
+        ("first_epoch", _REAL),
+        ("last_epoch", _REAL),
+        ("statistic", _REAL),
+        ("critical", _REAL),
+        ("decision", _TEXT),
+        ("alerts", _TEXT),
+        ("category", _TEXT),
+        ("exaggeration", _REAL),
+    ),
     "gravity_differences": (
         ("observation", _TEXT),
         ("from_station", _TEXT),
@@ -241,6 +313,9 @@ LAYER_GEOMETRY: dict[str, str] = {
     "corrections": "LineString",
     "gravity_stations": "Point",
     "gravity_differences": "LineString",
+    "displacements": "LineString",
+    "displacement_ellipses": "Polygon",
+    "velocities": "LineString",
 }
 
 
@@ -899,6 +974,177 @@ def _absolute_decisions(solution: Solution, network: Network) -> dict[str, str]:
         if _DECISION_RANK.get(decision, -1) >= _DECISION_RANK.get(decisions.get(station, ""), -1):
             decisions[station] = decision
     return decisions
+
+
+# -- monitoring -------------------------------------------------------------
+
+
+def displacement_features(document: dict[str, Any], *, exaggeration: float) -> Iterator[QgsFeature]:
+    """One arrow per displacement a comparison document places on the map.
+
+    The geometry is :func:`~geocomp.core.visualization.monitoring.drawn_displacements`'s;
+    this only carries it into features. A value the comparison did not
+    estimate -- the up of a plane network, the plan of a levelling one -- is
+    left null rather than written as zero, which would read as "did not move".
+    """
+    fields = fields_for("displacements")
+    first, second = (e["epoch"] for e in document["epochs"])
+    for drawn in drawn_displacements(document, exaggeration=exaggeration):
+        record = drawn.record
+        components, values, sigmas = record["components"], record["values"], record["std_devs"]
+        test = record["test"] or {}
+        feature = QgsFeature(fields)
+        feature.setGeometry(QgsGeometry.fromPolylineXY([QgsPointXY(*drawn.tail), QgsPointXY(*drawn.tip)]))
+        feature.setAttributes(
+            [
+                drawn.station,
+                record["role"],
+                first,
+                second,
+                _component(components, values, "e"),
+                _component(components, values, "n"),
+                _component(components, values, "u", "h"),
+                record["horizontal_magnitude"],
+                record["vertical_magnitude"],
+                record["magnitude"],
+                _component(components, sigmas, "e"),
+                _component(components, sigmas, "n"),
+                _component(components, sigmas, "u", "h"),
+                test.get("statistic"),
+                test.get("critical_high"),
+                test.get("confidence"),
+                record["decision"],
+                _decision_of(record["horizontal"]),
+                _decision_of(record["vertical"]),
+                ", ".join(drawn.alerts),
+                drawn.category,
+                exaggeration,
+            ]
+        )
+        yield feature
+
+
+def displacement_ellipse_features(
+    document: dict[str, Any], *, exaggeration: float
+) -> Iterator[QgsFeature]:
+    """Each displacement's horizontal confidence ellipse, drawn at its tip.
+
+    Zero -- the arrow's tail -- inside the ellipse is what "not significant"
+    looks like; outside it, what "significant" does (``specs/14`` section 4.1).
+    """
+    fields = fields_for("displacement_ellipses")
+    for drawn in drawn_displacements(document, exaggeration=exaggeration):
+        if drawn.ellipse is None:
+            continue
+        feature = QgsFeature(fields)
+        feature.setGeometry(_polygon(drawn.ellipse.ring))
+        feature.setAttributes(
+            [
+                drawn.station,
+                drawn.ellipse.semi_major,
+                drawn.ellipse.semi_minor,
+                math.degrees(drawn.ellipse.orientation),
+                drawn.ellipse.confidence,
+                drawn.record["decision"],
+                drawn.category,
+                exaggeration,
+            ]
+        )
+        yield feature
+
+
+def velocity_features(document: dict[str, Any], *, exaggeration: float) -> Iterator[QgsFeature]:
+    """One arrow per station velocity in a series document: a year's motion."""
+    fields = fields_for("velocities")
+    for drawn in drawn_velocities(document, exaggeration=exaggeration):
+        record = drawn.record
+        components = record["components"]
+        velocity = record["velocity"]
+        sigmas = record["velocity_std_devs"] or [None] * len(components)
+        test = record["velocity_test"] or {}
+        epochs = [point["epoch"] for point in record["points"]]
+        feature = QgsFeature(fields)
+        feature.setGeometry(QgsGeometry.fromPolylineXY([QgsPointXY(*drawn.tail), QgsPointXY(*drawn.tip)]))
+        feature.setAttributes(
+            [
+                drawn.station,
+                _component(components, velocity, "e"),
+                _component(components, velocity, "n"),
+                _component(components, velocity, "u", "h"),
+                _component(components, sigmas, "e"),
+                _component(components, sigmas, "n"),
+                _component(components, sigmas, "u", "h"),
+                record["speed"],
+                len(epochs),
+                min(epochs),
+                max(epochs),
+                test.get("statistic"),
+                test.get("critical_high"),
+                _decision_of(test or None),
+                ", ".join(drawn.alerts),
+                drawn.category,
+                exaggeration,
+            ]
+        )
+        yield feature
+
+
+def displacement_layer(
+    document: dict[str, Any], *, exaggeration: float, crs: str = "", name: str = ""
+) -> QgsVectorLayer:
+    """Displacement arrows, named for the factor they were drawn at."""
+    return _build(
+        "displacements",
+        crs or document["display"]["crs"],
+        name or displacement_layer_name(document, exaggeration=exaggeration),
+        displacement_features(document, exaggeration=exaggeration),
+    )
+
+
+def velocity_layer(
+    document: dict[str, Any], *, exaggeration: float, crs: str = "", name: str = ""
+) -> QgsVectorLayer:
+    """Velocity arrows, named for the factor they were drawn at."""
+    return _build(
+        "velocities",
+        crs or document["display"]["crs"],
+        name or velocity_layer_name(exaggeration=exaggeration),
+        velocity_features(document, exaggeration=exaggeration),
+    )
+
+
+def displacement_layer_name(document: dict[str, Any], *, exaggeration: float) -> str:
+    first, second = (e["epoch"] for e in document["epochs"])
+    return (
+        _tr("Displacements %1 to %2 (%3)")
+        .replace("%1", f"{first:.2f}")
+        .replace("%2", f"{second:.2f}")
+        .replace("%3", exaggeration_label(exaggeration))
+    )
+
+
+def displacement_ellipse_layer_name(document: dict[str, Any], *, exaggeration: float) -> str:
+    return _tr("Displacement ellipses (%1)").replace(
+        "%1", exaggeration_label(exaggeration, document["confidence"])
+    )
+
+
+def velocity_layer_name(*, exaggeration: float) -> str:
+    return _tr("Velocities, one year's motion (%1)").replace("%1", exaggeration_label(exaggeration))
+
+
+def _component(components: list[str], values: list[Any], *names: str) -> Any:
+    for name in names:
+        if name in components:
+            return values[components.index(name)]
+    return None
+
+
+def _decision_of(test: dict[str, Any] | None) -> str:
+    """A test's decision in the words the style uses; empty when not tested."""
+    if not test:
+        return ""
+    return "not significant" if test["passed"] else "significant"
 
 
 # -- helpers --------------------------------------------------------------

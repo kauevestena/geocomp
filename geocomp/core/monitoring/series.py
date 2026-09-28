@@ -77,6 +77,10 @@ class StationSeries:
     velocity_test: TestResult | None = None
     degrees_of_freedom: int = 0
     weighted_squares: float = 0.0
+    #: The fitted line's own offset, at :attr:`line_epoch` (the epochs' mean):
+    #: a plot draws the line that was fitted, not one forced through zero.
+    line_epoch: float | None = None
+    line_offset: tuple[float, ...] | None = None
     mode: UncertaintyMode = UncertaintyMode.APPROXIMATE
     strategies: frozenset[Strategy] = frozenset({Strategy.INDEPENDENCE_ASSUMED})
 
@@ -237,4 +241,6 @@ def _fit(station, components, points, covariances, confidence) -> StationSeries:
         velocity_test=test,
         degrees_of_freedom=k * (len(points) - 2),
         weighted_squares=squares,
+        line_epoch=middle,
+        line_offset=tuple(float(v) for v in estimate[:k]),
     )
