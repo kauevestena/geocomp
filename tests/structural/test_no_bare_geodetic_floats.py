@@ -434,6 +434,13 @@ TECHNIQUE_PLAIN_RETURNS = {
         "a pooled standard deviation and the degrees of freedom behind it -- the "
         "figure *is* an uncertainty, and the count is what says how much to trust it"
     ),
+    # P10c: products are inputs to the engine, not measurements.
+    "products.fetch_with_retry": "the bytes of a product file as the archive served them",
+    "products.days_of": "the calendar days observations touch, which name the products needed",
+    "products.sp3_span": (
+        "the first and last epoch an orbit file states in its header -- labels that "
+        "say which days it covers, not observed quantities"
+    ),
 }
 
 

@@ -17,9 +17,16 @@ pytestmark = pytest.mark.qgis
 
 
 @pytest.fixture(scope="session")
-def qgis_app():
+def qgis_app(tmp_path_factory):
     if not has_qgis():
         pytest.skip("requires a QGIS runtime")
+
+    import os
+
+    # The authentication database in a directory of the session's own: the
+    # product download tests store a login there and set its master password,
+    # which must never happen to the database of a developer's QGIS profile.
+    os.environ["QGIS_AUTH_DB_DIR_PATH"] = str(tmp_path_factory.mktemp("qgis-auth"))
 
     from qgis.core import QgsApplication
 

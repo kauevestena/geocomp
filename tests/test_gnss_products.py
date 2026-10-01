@@ -26,14 +26,18 @@ from geocomp.core.techniques.gnss.products import (
     ProductKind,
     ProductRequest,
     ProductService,
+    Resolution,
     check_availability,
     days_of,
     fetch_with_retry,
     gps_week,
+    local_record,
+    needed_for,
     read_services,
     requests_for,
     resolve,
     safe_url,
+    sp3_span,
 )
 
 MANIFEST = Path(__file__).parent / "data" / "rd06" / "source_manifest.json"
@@ -210,6 +214,133 @@ class TestResolution:
         )
         assert result.resolved[0].record.service == "mirror"
         assert [call[0] for call in archive.calls] == ["get"]
+
+
+def _sp3(day: date, *, epochs: int = 96, interval: float = 900.0) -> str:
+    """A synthetic SP3-d header's first two lines, as an analysis centre writes them."""
+    week, dow = gps_week(day)
+    return (
+        f"#dP{day.year:4d} {day.month:2d} {day.day:2d}  0  0  0.00000000 {epochs:7d} ORBIT IGS20 FIT  COD\n"
+        f"## {week:4d} {dow * 86400:15.8f} {interval:14.8f} 60676 0.0000000000000\n"
+        "*  2025  1  1  0  0  0.00000000\n"
+    )
+
+
+class Session:
+    """What :func:`needed_for` reads of a session."""
+
+    def __init__(self, start, end, nav_files=()):
+        self.start, self.end, self.nav_files = start, end, tuple(nav_files)
+
+
+class TestWhatASessionNeeds:
+    MORNING = (datetime(2025, 1, 1, 8), datetime(2025, 1, 1, 12))
+    ACROSS_MIDNIGHT = (datetime(2025, 1, 1, 20), datetime(2025, 1, 2, 4))
+
+    def test_a_precise_run_needs_the_orbit_of_every_day_it_touches(self):
+        requests = needed_for([Session(*self.ACROSS_MIDNIGHT, ["brdc.25n"])], precise=True)
+        assert [(r.kind, r.day) for r in requests] == [
+            (ProductKind.ORBIT, date(2025, 1, 1)),
+            (ProductKind.ORBIT, date(2025, 1, 2)),
+        ]
+
+    def test_a_folder_with_its_own_navigation_keeps_it(self):
+        """A campaign that ran offline before P10c still does."""
+        assert needed_for([Session(*self.MORNING, ["a.25n"]), Session(*self.MORNING)], precise=False) == []
+
+    def test_navigation_is_asked_for_only_when_no_session_brought_any(self):
+        (request,) = needed_for([Session(*self.MORNING)], precise=False)
+        assert request.kind is ProductKind.GPS_NAVIGATION and request.latency is Latency.BROADCAST
+
+    def test_glonass_navigation_only_when_glonass_is_processed(self):
+        kinds = [r.kind for r in needed_for([Session(*self.MORNING)], precise=True, glonass=True)]
+        assert kinds == [ProductKind.ORBIT, ProductKind.GPS_NAVIGATION, ProductKind.GLONASS_NAVIGATION]
+
+
+class TestTheProductDirectory:
+    def test_the_header_states_the_span(self):
+        first, last = sp3_span(_sp3(NEW_YEAR_2025))
+        assert first == datetime(2025, 1, 1) and last == datetime(2025, 1, 1, 23, 45)
+
+    @pytest.mark.parametrize("text", ["", "not an orbit\n", "#dP2025 x\n## 2347\n", "#dP\n##\n"])
+    def test_anything_else_has_no_span(self, text):
+        assert sp3_span(text) is None
+
+    def test_another_centres_orbit_is_found_by_its_header(self, tmp_path):
+        """P7 handed the engine every SP3 in the directory, whatever its day;
+        P10c hands over the one that covers the day, under any centre's name."""
+        directory = tmp_path / "products"
+        directory.mkdir()
+        (directory / "COD0OPSFIN_20250010000_01D_05M_ORB.SP3").write_text(_sp3(NEW_YEAR_2025))
+        (directory / "COD0OPSFIN_20250020000_01D_05M_ORB.SP3").write_text(_sp3(date(2025, 1, 2)))
+        result = resolve(
+            [_final(NEW_YEAR_2025)], cache=tmp_path / "cache", directory=directory, services=[], fetcher=None
+        )
+        (product,) = result.resolved
+        assert product.path.name == "COD0OPSFIN_20250010000_01D_05M_ORB.SP3"
+        assert product.record.origin == "directory"
+
+    def test_an_orbit_covering_part_of_the_day_is_not_taken_for_it(self, tmp_path):
+        directory = tmp_path / "products"
+        directory.mkdir()
+        (directory / "half.sp3").write_text(_sp3(NEW_YEAR_2025, epochs=48))
+        result = resolve(
+            [_final(NEW_YEAR_2025)], cache=tmp_path / "cache", directory=directory, services=[], fetcher=None
+        )
+        assert result.resolved == () and len(result.missing) == 1
+
+    def test_a_compressed_orbit_is_inflated_into_the_cache(self, tmp_path):
+        """The engine reads an SP3 by its extension and skips .gz -- a compressed
+        orbit handed over as it is would be loaded by nothing, silently."""
+        directory = tmp_path / "products"
+        directory.mkdir()
+        original = directory / "IGS0OPSFIN_20250010000_01D_15M_ORB.SP3.gz"
+        original.write_bytes(_gz("* on disk\n"))
+        result = resolve(
+            [_final(NEW_YEAR_2025)], cache=tmp_path / "cache", directory=directory, services=[], fetcher=None
+        )
+        (product,) = result.resolved
+        assert product.path.name == "IGS0OPSFIN_20250010000_01D_15M_ORB.SP3"
+        assert product.path.read_text() == "* on disk\n"
+        assert product.record.origin == "directory"
+        assert product.record.downloaded_sha256 == hashlib.sha256(original.read_bytes()).hexdigest()
+        assert original.is_file()
+        again = resolve(
+            [_final(NEW_YEAR_2025)], cache=tmp_path / "cache", directory=None, services=[], fetcher=None
+        )
+        assert again.resolved[0].record.origin == "cache"
+
+    def test_a_file_used_as_it_is_is_named_and_checksummed(self, tmp_path):
+        clock = tmp_path / "COD23473.CLK"
+        clock.write_text("clock\n")
+        record = local_record(clock, "clock")
+        assert (record.name, record.kind, record.origin) == ("COD23473.CLK", "clock", "directory")
+        assert record.sha256 == hashlib.sha256(b"clock\n").hexdigest()
+
+
+class TestProvenance:
+    def test_every_product_and_substitution_is_recorded(self, tmp_path):
+        (rapid, _legacy) = NOAA.urls(_final(NEW_YEAR_2025).with_latency(Latency.RAPID))
+        archive = FakeArchive({rapid: _gz("* rapid\n")})
+        result = resolve(
+            [
+                _final(NEW_YEAR_2025),
+                ProductRequest(ProductKind.GPS_NAVIGATION, NEW_YEAR_2025, Latency.BROADCAST),
+            ],
+            cache=tmp_path,
+            directory=None,
+            services=[NOAA],
+            fetcher=archive,
+            fallback=True,
+        )
+        entry = result.to_dict()
+        (product,) = entry["products"]
+        assert product["latency"] == "rapid" and product["url"] == rapid and product["sha256"]
+        assert entry["substituted"] == [{"product": "orbit final 2025-01-01", "used": "rapid"}]
+        assert entry["missing"] == [{"product": "gps_navigation broadcast 2025-01-01", "reason": "not found"}]
+
+    def test_an_empty_resolution_says_so(self):
+        assert Resolution().to_dict() == {"products": [], "substituted": [], "missing": []}
 
 
 class TestAvailability:

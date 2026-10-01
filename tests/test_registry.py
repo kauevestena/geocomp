@@ -202,12 +202,14 @@ class TestNesting:
             assert nested == reachable
 
     def test_algorithms_directly_under_a_nesting_menu_are_still_reachable(self):
-        """Nesting is per algorithm, not per menu: Scan sessions, Build
-        baselines, Batch process and Compare sit at the GNSS group's own level
-        and must not disappear because four of their siblings nest."""
+        """Nesting is per algorithm, not per menu: Scan sessions, Download
+        products, Build baselines, Batch process and Compare sit at the GNSS
+        group's own level and must not disappear because four of their
+        siblings nest."""
         flat = {spec.name for spec in algorithms_in_submenu("gnss", None)}
         assert flat == {
             "gnss_scan_sessions",
+            "gnss_download_products",
             "gnss_build_baselines",
             "gnss_batch",
             "gnss_compare_configurations",

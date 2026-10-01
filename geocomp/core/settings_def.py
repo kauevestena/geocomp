@@ -684,11 +684,10 @@ SETTINGS: tuple[SettingDef, ...] = (
     # FR-063's list, with one omission stated rather than left to be noticed:
     # **there is no credential setting here, and there will not be one.** The
     # requirement asks for "credential references (never the credentials)"
-    # (`specs/15` section 6), and a reference is only meaningful once there is
-    # something to authenticate to -- which is FR-353, re-planned into P10 when
-    # every candidate archive turned out to be unreachable (`specs/22` §5).
-    # Declaring an empty credential field now would invite someone to type a
-    # password into a settings file, which is exactly what NFR-010 forbids.
+    # (`specs/15` section 6). Since P10c the references live in the services
+    # file, as QGIS authentication configuration ids (below); a credential
+    # field would invite someone to type a password into a settings file,
+    # which is exactly what NFR-010 forbids.
     SettingDef(
         key="gnss.product_directory",
         section="gnss",
@@ -769,6 +768,47 @@ SETTINGS: tuple[SettingDef, ...] = (
         type=SettingType.BOOL,
         default=True,
         requirement="FR-602",
+    ),
+    # -- GNSS products (P10c) ----------------------------------------------
+    #
+    # FR-352's "preferred download servers and their priority" and FR-353's
+    # "credential references (never the credentials)". The services are ids in
+    # priority order; `noaa-ncn` is the one GeoComp ships, and an empty list
+    # means GeoComp never downloads. A service that needs a login is defined in
+    # the services file with the id of a QGIS authentication configuration --
+    # the credential itself stays in QGIS's encrypted store and never in a
+    # setting, a log, a provenance record or an export (NFR-010).
+    SettingDef(
+        key="gnss.product_services",
+        section="gnss",
+        type=SettingType.STRING,
+        default="noaa-ncn",
+        requirement="FR-352",
+    ),
+    SettingDef(
+        key="gnss.service_definitions",
+        section="gnss",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-353",
+    ),
+    # Empty is the QGIS profile's own folder (`geocomp/products`), so the
+    # cache works without configuration and is never inside a project.
+    SettingDef(
+        key="gnss.product_cache",
+        section="gnss",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-352",
+    ),
+    # Off: a run asked for final orbits does not quietly use rapid ones. On, it
+    # may, and the substitution is recorded (specs/08 section 5).
+    SettingDef(
+        key="gnss.product_fallback",
+        section="gnss",
+        type=SettingType.BOOL,
+        default=False,
+        requirement="FR-352",
     ),
     # -- Gravimeter (P8b) -------------------------------------------------
     #

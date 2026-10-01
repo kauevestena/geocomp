@@ -71,10 +71,13 @@ __all__ = [
     "days_of",
     "fetch_with_retry",
     "gps_week",
+    "local_record",
+    "needed_for",
     "read_services",
     "requests_for",
     "resolve",
     "safe_url",
+    "sp3_span",
 ]
 
 GPS_EPOCH = date(1980, 1, 6)
@@ -366,6 +369,19 @@ class Resolution:
     def records(self) -> tuple[ProductRecord, ...]:
         return tuple(p.record for p in self.resolved)
 
+    def to_dict(self) -> dict[str, Any]:
+        """The provenance entry: every product used, and every substitution made."""
+        return {
+            "products": [record.to_dict() for record in self.records],
+            "substituted": [
+                {"product": request.describe(), "used": latency.value}
+                for request, latency in self.substituted
+            ],
+            "missing": [
+                {"product": request.describe(), "reason": reason} for request, reason in self.missing
+            ],
+        }
+
 
 @dataclass(frozen=True)
 class Availability:
@@ -415,6 +431,78 @@ def requests_for(
         for day in days
         for kind in kinds
     ]
+
+
+def needed_for(
+    sessions: Sequence[Any],
+    *,
+    precise: bool,
+    glonass: bool = False,
+    latency: Latency = Latency.FINAL,
+) -> list[ProductRequest]:
+    """What a set of sessions processed together needs from outside the folder.
+
+    An orbit for every day the sessions touch when the precise ephemeris is
+    selected; broadcast navigation only when **no** session brought its own --
+    a campaign folder with navigation files keeps using them, so a run that
+    worked offline before P10c still does. GLONASS navigation is asked for only
+    when GLONASS is among the systems processed.
+
+    *sessions* need ``start``, ``end`` and ``nav_files``, which
+    :class:`~geocomp.core.models.network.GnssSession` has.
+    """
+    kinds: list[ProductKind] = []
+    if precise:
+        kinds.append(ProductKind.ORBIT)
+    if not any(session.nav_files for session in sessions):
+        kinds.append(ProductKind.GPS_NAVIGATION)
+        if glonass:
+            kinds.append(ProductKind.GLONASS_NAVIGATION)
+    if not kinds:
+        return []
+    return requests_for(days_of((s.start, s.end) for s in sessions), kinds, latency=latency)
+
+
+def local_record(path: Path, kind: str) -> ProductRecord:
+    """The record of a file used as it is, from the product directory.
+
+    For what this module does not resolve by day -- clock and ionosphere files
+    the user placed in the directory -- so that they are named and checksummed
+    in provenance like every other input (FR-134).
+    """
+    data = Path(path).read_bytes()
+    return ProductRecord(
+        name=Path(path).name,
+        kind=kind,
+        latency="",
+        day="",
+        origin="directory",
+        sha256=_sha256(data),
+        size=len(data),
+    )
+
+
+def sp3_span(head: bytes | str) -> tuple[datetime, datetime] | None:
+    """The first and last epoch an SP3 file states in its first two header lines.
+
+    ``#cP2025  1  1  0  0  0.00000000      96 ORBIT IGS20 HLM  IGS`` gives the
+    first epoch and the number of epochs; ``## 2347      0.00000000   900.00000000 ...``
+    gives the interval. ``None`` for anything that is not an SP3 header.
+    """
+    text = head.decode("ascii", "replace") if isinstance(head, bytes) else head
+    lines = text.splitlines()
+    if len(lines) < 2 or not lines[0].startswith("#") or not lines[1].startswith("##"):
+        return None
+    try:
+        fields = lines[0][3:].split()
+        first = datetime(*(int(v) for v in fields[:5]), int(float(fields[5])))
+        count = int(fields[6])
+        interval = float(lines[1].split()[3])
+    except (IndexError, ValueError):
+        return None
+    if count < 1 or interval <= 0:
+        return None
+    return first, first + timedelta(seconds=interval * (count - 1))
 
 
 # -- resolution -----------------------------------------------------------------------
@@ -532,24 +620,90 @@ def _local(request: ProductRequest, cache: Path | None, directory: Path | None) 
                     continue  # a damaged cache entry is fetched again, not used
                 return ResolvedProduct(request, path, _replace(record, origin="cache"))
     if directory is not None and directory.is_dir():
-        for name in _names(request, ()):
-            for candidate in (directory / name, directory / (name + ".gz")):
-                if candidate.is_file():
-                    data = candidate.read_bytes()
-                    return ResolvedProduct(
-                        request,
-                        candidate,
-                        ProductRecord(
-                            name=candidate.name,
-                            kind=request.kind.value,
-                            latency=request.latency.value,
-                            day=request.day.isoformat(),
-                            origin="directory",
-                            sha256=_sha256(data),
-                            size=len(data),
-                        ),
-                    )
+        candidate = _in_directory(request, directory)
+        if candidate is not None:
+            return _from_directory(request, candidate, cache)
     return None
+
+
+def _in_directory(request: ProductRequest, directory: Path) -> Path | None:
+    """The directory's file for *request*: by IGS name, else an orbit by its header.
+
+    The name comes first because it is cheap and exact. An orbit under another
+    analysis centre's name (``COD0OPSFIN_...``, ``com23470.sp3``) is then found
+    by the span its header states -- the file must cover at least 23 hours of
+    the day -- which replaces P7's rule of handing the engine every SP3 in the
+    directory whatever its day.
+    """
+    for name in _names(request, ()):
+        for candidate in (directory / name, directory / (name + ".gz")):
+            if candidate.is_file():
+                return candidate
+    if request.kind is not ProductKind.ORBIT:
+        return None
+    day = datetime(request.day.year, request.day.month, request.day.day)
+    for candidate in sorted(directory.iterdir()):
+        lowered = candidate.name.lower()
+        if not candidate.is_file() or not lowered.endswith((".sp3", ".sp3.gz")):
+            continue
+        try:
+            opener = gzip.open if lowered.endswith(".gz") else open
+            with opener(candidate, "rb") as stream:
+                span = sp3_span(stream.readline() + stream.readline())
+        except (OSError, EOFError):
+            continue
+        if span is None:
+            continue
+        overlap = min(span[1], day + timedelta(days=1)) - max(span[0], day)
+        if overlap >= timedelta(hours=23):
+            return candidate
+    return None
+
+
+def _from_directory(request: ProductRequest, candidate: Path, cache: Path | None) -> ResolvedProduct:
+    """A directory product, inflated into the cache when it is compressed.
+
+    The engine reads an SP3 by its extension and skips ``.gz``, so a compressed
+    orbit handed over as it is would be loaded by nothing -- with no error. The
+    inflated copy goes in the cache with its record; the original is untouched.
+    Without a cache (an availability check) the compressed file is reported as
+    it is.
+    """
+    raw = candidate.read_bytes()
+    record = ProductRecord(
+        name=candidate.name,
+        kind=request.kind.value,
+        latency=request.latency.value,
+        day=request.day.isoformat(),
+        origin="directory",
+        sha256=_sha256(raw),
+        size=len(raw),
+    )
+    if cache is None or not candidate.name.lower().endswith(".gz"):
+        return ResolvedProduct(request, candidate, record)
+    data = _inflate(raw, candidate.name)
+    path = _store(request, cache, _decompressed(candidate.name), data)
+    record = _replace(
+        record, name=path.name, sha256=_sha256(data), downloaded_sha256=_sha256(raw), size=len(data)
+    )
+    _write_record(path, record)
+    return ResolvedProduct(request, path, record)
+
+
+def _store(request: ProductRequest, cache: Path, name: str, data: bytes) -> Path:
+    folder = request.cache_directory(cache)
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / name
+    temporary = path.with_name(path.name + ".part")
+    temporary.write_bytes(data)
+    temporary.replace(path)
+    return path
+
+
+def _write_record(path: Path, record: ProductRecord) -> None:
+    path.with_name(path.name + ".json").write_text(
+        json.dumps(record.to_dict(), indent=1, sort_keys=True), encoding="utf-8"
+    )
 
 
 def _available(
@@ -589,12 +743,7 @@ def _download(
                 raise
             name = url.rsplit("/", 1)[-1]
             data = _inflate(raw, name)
-            folder = request.cache_directory(cache)
-            folder.mkdir(parents=True, exist_ok=True)
-            path = folder / _decompressed(name)
-            temporary = path.with_name(path.name + ".part")
-            temporary.write_bytes(data)
-            temporary.replace(path)
+            path = _store(request, cache, _decompressed(name), data)
             record = ProductRecord(
                 name=path.name,
                 kind=request.kind.value,
@@ -608,9 +757,7 @@ def _download(
                 size=len(data),
                 retrieved=now().astimezone().isoformat(timespec="seconds"),
             )
-            path.with_name(path.name + ".json").write_text(
-                json.dumps(record.to_dict(), indent=1, sort_keys=True), encoding="utf-8"
-            )
+            _write_record(path, record)
             return ResolvedProduct(request, path, record)
     raise DataError("product_not_found", product=request.describe(), services=[s.id for s in services])
 

@@ -28,7 +28,13 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.gnss.common import configured_profile, translate_error
+from geocomp.algorithms.gnss.common import (
+    SessionProducts,
+    configured_profile,
+    gather_products,
+    missing_products_message,
+    translate_error,
+)
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.batch import run_batch
 from geocomp.engines.rtklib import RtklibEngine, RtklibJob
@@ -66,6 +72,12 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             "file finishes and tells you which one it was.</p>"
             "<p>Cancelling stops the batch promptly: the remaining sessions are "
             "not attempted, and what has already run is kept.</p>"
+            "<p><b>Products are checked before the batch starts.</b> The orbits "
+            "and navigation every session needs are resolved first -- from the "
+            "cache, the product directory or a download service -- and a batch "
+            "that lacks any is refused, naming each session and product, before "
+            "a long run begins. A download that fails is reported against its "
+            "session, and the batch continues.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -164,17 +176,48 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
         work_root = Path(tempfile.mkdtemp(prefix="geocomp-batch-"))
 
+        # specs/08 section 5: availability is checked before the batch starts.
+        # Every session's products are resolved now; what nothing can supply is
+        # refused for all sessions at once, and a download that failed is held
+        # against its session for the batch to report (section 9).
+        products: dict[str, SessionProducts] = {}
+        unreachable: dict[str, GeoCompError] = {}
+        lacking: list[str] = []
+        for session in rovers:
+            try:
+                found = gather_products(
+                    [session, *([base] if base is not None else [])],
+                    configuration.ephemeris,
+                    configuration.navigation_systems,
+                    feedback,
+                )
+            except GeoCompError as exc:
+                unreachable[session.station_id] = exc
+                continue
+            products[session.station_id] = found
+            lacking += [f"{session.station_id}: {item}" for item in found.missing()]
+        if lacking:
+            raise QgsProcessingException(missing_products_message(lacking))
+
         def process(station_id: str):
+            if station_id in unreachable:
+                raise unreachable[station_id]
             session = by_station[station_id]
             kwargs = {"base": base} if base is not None else {}
             result = RtklibEngine().run(
-                RtklibJob(rover=session, config=configuration, **kwargs),
+                RtklibJob(
+                    rover=session,
+                    config=configuration,
+                    products=products[station_id].paths,
+                    **kwargs,
+                ),
                 work_dir=work_root / station_id,
             )
             return {
                 "station": station_id,
                 "quality": quality_from_solution(result.solution, session_id=station_id).to_dict(),
                 "solution": str(result.output_file),
+                "products": products[station_id].provenance(),
             }
 
         def report(fraction: float | None, code: str | None = None) -> None:

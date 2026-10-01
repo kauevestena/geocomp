@@ -44,7 +44,7 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     configured_profile,
     ppp_limitation_notice,
-    product_files,
+    session_products,
     translate_error,
 )
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
@@ -233,21 +233,23 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
 
         configuration = configured_profile(self.profile_name, **overrides)
-        # Precise products, where the user configured a directory holding them.
-        # `configuration.ephemeris` decides whether they are wanted; this
-        # decides whether any are there (FR-358).
-        products = product_files() if configuration.ephemeris == "precise" else ()
-        if products:
-            feedback.pushInfo(
-                self.tr("Using %1 precise product file(s)").replace("%1", str(len(products)))
-            )
+        # The products the sessions need for their own days -- an orbit when
+        # `configuration.ephemeris` asks for precise, navigation when the folder
+        # has none -- from the cache, the directory or a service (FR-352). A
+        # missing one stops the run here rather than in the engine.
+        products = session_products(
+            [rover, *([job_kwargs["base"]] if "base" in job_kwargs else [])],
+            configuration.ephemeris,
+            configuration.navigation_systems,
+            feedback,
+        )
         feedback.setProgress(35)
 
         work_dir = Path(self.parameterAsFileOutput(parameters, OUTPUT_POS, context) or ".").parent
         try:
             result = RtklibEngine().run(
                 RtklibJob(
-                    rover=rover, config=configuration, products=products, **job_kwargs
+                    rover=rover, config=configuration, products=products.paths, **job_kwargs
                 ),
                 work_dir=work_dir / f"{self.profile_name}-{rover.station_id}",
             )
@@ -277,6 +279,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         **({"base": job_kwargs["base"].station_id} if "base" in job_kwargs else {}),
                         "quality": quality.to_dict(),
                         "configuration": configuration.to_dict(),
+                        # FR-134: a GNSS solution is not reproducible without
+                        # knowing which orbit produced it (specs/08 section 5).
+                        "products": products.provenance(),
                     },
                     indent=2,
                 )

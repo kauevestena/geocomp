@@ -114,6 +114,11 @@ def setting_label(key: str) -> str:
         "gnss.troposphere": _tr("Tropospheric correction"),
         "gnss.ambiguity_threshold": _tr("Ambiguity ratio threshold"),
         "gnss.independent_baselines_only": _tr("Use only the independent baseline subset"),
+        # -- GNSS products (P10c) -----------------------------------------
+        "gnss.product_services": _tr("Download services, in priority order (empty: never download)"),
+        "gnss.service_definitions": _tr("Additional download services (JSON)"),
+        "gnss.product_cache": _tr("Product cache (empty: the QGIS profile's folder)"),
+        "gnss.product_fallback": _tr("Use rapid orbits where final ones are not yet published"),
         # -- Gravimeter (P8b) ---------------------------------------------
         "gravimeter.tide_model": _tr("Solid-Earth tide model"),
         "gravimeter.tide_amplification": _tr("Gravimetric factor (tide amplification)"),
