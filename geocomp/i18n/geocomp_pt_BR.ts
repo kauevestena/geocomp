@@ -2093,6 +2093,49 @@
         </message>
     </context>
     <context>
+        <name>GeoCompCompareDialog</name>
+        <message>
+            <source>%1 stations in both epochs.</source>
+            <translation>%1 estações nas duas épocas.</translation>
+        </message>
+        <message>
+            <source>%1 — epoch %2, %3, datum %4</source>
+            <translation>%1 — época %2, %3, datum %4</translation>
+        </message>
+        <message>
+            <source>Choose both epochs' solutions.</source>
+            <translation>Escolha as soluções das duas épocas.</translation>
+        </message>
+        <message>
+            <source>Compare two epochs</source>
+            <translation>Comparar duas épocas</translation>
+        </message>
+        <message>
+            <source>First epoch</source>
+            <translation>Primeira época</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solução GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Not comparable: %1</source>
+            <translation>Não comparáveis: %1</translation>
+        </message>
+        <message>
+            <source>Second epoch</source>
+            <translation>Segunda época</translation>
+        </message>
+        <message>
+            <source>The epochs will be taken as independent: the displacements' uncertainty is overstated if they share reference stations or products.</source>
+            <translation>As épocas serão tomadas como independentes: a incerteza dos deslocamentos é superestimada se partilham estações de referência ou produtos.</translation>
+        </message>
+        <message>
+            <source>Transformed from %1 to %2, accuracy %3 mm, common to every station.</source>
+            <translation>Transformado de %1 para %2, acurácia %3 mm, comum a todas as estações.</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompGnss</name>
         <message>
             <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
@@ -2165,6 +2208,14 @@
             <translation>Correções de coordenadas (camada)</translation>
         </message>
         <message>
+            <source>Displacement ellipses (%1)</source>
+            <translation>Elipses dos deslocamentos (%1)</translation>
+        </message>
+        <message>
+            <source>Displacements %1 to %2 (%3)</source>
+            <translation>Deslocamentos de %1 a %2 (%3)</translation>
+        </message>
+        <message>
             <source>Ellipse exaggeration (0 = from the network's extent)</source>
             <translation>Exagero das elipses (0 = a partir da extensão da rede)</translation>
         </message>
@@ -2223,6 +2274,10 @@
         <message>
             <source>The style file '%1' is missing, so the layer is unstyled.</source>
             <translation>O arquivo de estilo '%1' não foi encontrado, portanto a camada ficou sem estilo.</translation>
+        </message>
+        <message>
+            <source>Velocities, one year's motion (%1)</source>
+            <translation>Velocidades, movimento de um ano (%1)</translation>
         </message>
         <message>
             <source>exaggerated %1x</source>
@@ -2577,6 +2632,10 @@
             <translation>'%1' não contém leituras: esperava-se %2.</translation>
         </message>
         <message>
+            <source>'%1' is not a datum GeoComp can refer displacements to. Choose one of: %2.</source>
+            <translation>'%1' não é um datum ao qual o GeoComp possa referir deslocamentos. Escolha um de: %2.</translation>
+        </message>
+        <message>
             <source>(not set)</source>
             <translation>(não definido)</translation>
         </message>
@@ -2591,6 +2650,10 @@
         <message>
             <source>A position must move from epoch %1 and no velocity was given for it. Supply one in the velocities file.</source>
             <translation>Uma posição precisa ser levada da época %1 e não foi dada velocidade para ela. Informe uma no arquivo de velocidades.</translation>
+        </message>
+        <message>
+            <source>A series needs two epochs at least; %1 was given.</source>
+            <translation>Uma série precisa de pelo menos duas épocas; foi dada %1.</translation>
         </message>
         <message>
             <source>Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The two must agree, in the same order.</source>
@@ -2633,6 +2696,10 @@
             <translation>Nenhuma leitura ou valor absoluto se refere a %1, então sua gravidade não pode ser fixada nem ajustada. Confira os nomes das estações com as leituras.</translation>
         </message>
         <message>
+            <source>No reference stations were named. A displacement is measured against stations assumed stable; name them in Reference stations, or mark them REFERENCE in the network document.</source>
+            <translation>Nenhuma estação de referência foi nomeada. Um deslocamento é medido contra estações supostas estáveis; nomeie-as em Estações de referência, ou marque-as REFERENCE no documento da rede.</translation>
+        </message>
+        <message>
             <source>No stations were given to define the datum on. %1</source>
             <translation>Nenhuma estação foi indicada para definir o datum. %1</translation>
         </message>
@@ -2673,6 +2740,10 @@
             <translation>A leitura '%1' precisa de uma correção de maré e não tem latitude e longitude para calculá-la. Adicione a localização ao arquivo, ou mantenha a maré aplicada pelo instrumento.</translation>
         </message>
         <message>
+            <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected %3. Each row is kind, limit, stations, group.</source>
+            <translation>A linha %1 do arquivo de limiares de alerta não pode ser lida: '%2'. Esperado: %3. Cada linha é tipo, limite, estações, grupo.</translation>
+        </message>
+        <message>
             <source>Session '%1' cannot be pre-corrected: its base station %2 was read %3 time(s), and a degree-%4 drift needs one more reading than its degree. Estimate the drift with the station values instead, or lower the degree.</source>
             <translation>A sessão '%1' não pode ser pré-corrigida: sua estação base %2 foi lida %3 vez(es), e uma deriva de grau %4 precisa de uma leitura a mais que seu grau. Estime a deriva junto com os valores das estações, ou reduza o grau.</translation>
         </message>
@@ -2697,6 +2768,14 @@
             <translation>A estação '%1' está fixa mas não possui posição, portanto não há valor no qual mantê-la. Atribua-lhe coordenadas, ou libere a injunção.</translation>
         </message>
         <message>
+            <source>Strain cannot be computed here: %1. It needs three object points at least, spread over an area.</source>
+            <translation>A deformação não pode ser calculada aqui: %1. São necessários pelo menos três pontos objeto, distribuídos numa área.</translation>
+        </message>
+        <message>
+            <source>The %1 threshold's limit is %2; it must be positive.</source>
+            <translation>O limite do limiar %1 é %2; deve ser positivo.</translation>
+        </message>
+        <message>
             <source>The '%1' engine is required for this operation but is not installed. Install it from Global Settings, under Paths and engines.</source>
             <translation>O motor '%1' é necessário para esta operação, mas não está instalado. Instale-o em Configurações Globais, na seção Caminhos e motores.</translation>
         </message>
@@ -2717,12 +2796,24 @@
             <translation>O ajustamento de '%1' não produziu iteração alguma. Este é um erro interno; por favor relate-o junto com a rede que o causou.</translation>
         </message>
         <message>
+            <source>The cross-covariance given has shape %1; it must be %2.</source>
+            <translation>A covariância cruzada fornecida tem forma %1; deve ser %2.</translation>
+        </message>
+        <message>
+            <source>The datum '%1' needs a plan (east and north) and these solutions have none. Use the translation datum for heights.</source>
+            <translation>O datum '%1' precisa de planimetria (leste e norte) e estas soluções não a têm. Use o datum de translação para altitudes.</translation>
+        </message>
+        <message>
             <source>The datum constraints do not remove the network's remaining freedom (%1 constraint(s) applied). Check that the stations defining the datum are enough to fix it.</source>
             <translation>As injunções de datum não removem a liberdade remanescente da rede (%1 injunção(ões) aplicada(s)). Verifique se as estações que definem o datum bastam para fixá-lo.</translation>
         </message>
         <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
             <translation>A deriva da sessão '%1' não pode ser estimada junto com os valores das estações: nenhuma estação foi lida novamente em instantes distintos suficientes para uma deriva de grau %2. Reocupe uma estação nessa sessão, reduza o grau ou divida a sessão.</translation>
+        </message>
+        <message>
+            <source>The frames %1 are related only at epoch %2, and the second solution is at another. Carrying a position between epochs along a velocity is exactly the motion being measured, so GeoComp will not do it here. Give both epochs in frames related at every epoch (the ITRFs), or in the same frame.</source>
+            <translation>Os referenciais %1 relacionam-se apenas na época %2, e a segunda solução está noutra. Levar uma posição entre épocas ao longo de uma velocidade é exatamente o movimento que se mede, por isso o GeoComp não o faz aqui. Forneça as duas épocas em referenciais relacionados em qualquer época (os ITRFs), ou no mesmo referencial.</translation>
         </message>
         <message>
             <source>The height difference '%1' does not say whether it is orthometric or ellipsoidal. Rebuild its network with the current GeoComp, which records it.</source>
@@ -2789,6 +2880,14 @@
             <translation>As leituras de '%1' não informam precisão e seu perfil não fornece nenhuma. O GeoComp não inventa um peso: defina um piso de precisão das leituras, ou uma precisão nominal no perfil do gravímetro.</translation>
         </message>
         <message>
+            <source>The reference block (%1) is too small to define the datum '%2'. Add reference stations, or choose a datum with fewer parameters.</source>
+            <translation>O bloco de referência (%1) é pequeno demais para definir o datum '%2'. Acrescente estações de referência, ou escolha um datum com menos parâmetros.</translation>
+        </message>
+        <message>
+            <source>The reference block has moved: its congruency test gives %1 against a critical value of %2, and the localisation implicates %3. The analysis does not proceed on a block that has itself moved, because that motion would be spread over every other station. The stations that remain stable are %4. Check the implicated pillars, then analyse again with them among the object points.</source>
+            <translation>O bloco de referência moveu-se: o seu teste de congruência dá %1 contra um valor crítico de %2, e a localização implica %3. A análise não prossegue sobre um bloco que se moveu, porque esse movimento seria distribuído por todas as outras estações. As estações que permanecem estáveis são %4. Verifique os pilares implicados e analise de novo com eles entre os pontos objeto.</translation>
+        </message>
+        <message>
             <source>The setting '%1' cannot be greater than %2 (received %3).</source>
             <translation>A configuração '%1' não pode ser maior que %2 (recebido %3).</translation>
         </message>
@@ -2805,8 +2904,60 @@
             <translation>A configuração '%1' espera um valor do tipo %2, mas recebeu %3. Corrija-a em Configurações Globais ou restaure o padrão.</translation>
         </message>
         <message>
+            <source>The solution '%1' has no position components to compare (%2).</source>
+            <translation>A solução '%1' não tem componentes de posição para comparar (%2).</translation>
+        </message>
+        <message>
+            <source>The solution '%1' mixes coordinate systems (%2) among its stations. Compare solutions whose stations are all in one system.</source>
+            <translation>A solução '%1' mistura sistemas de coordenadas (%2) entre as suas estações. Compare soluções cujas estações estejam todas num só sistema.</translation>
+        </message>
+        <message>
+            <source>The solution '%1' states no epoch, and GeoComp does not assume one (FR-105). Adjust its network again with its observation date.</source>
+            <translation>A solução '%1' não declara época, e o GeoComp não assume uma (FR-105). Ajuste a sua rede de novo com a data da observação.</translation>
+        </message>
+        <message>
+            <source>The solution '%1' states no epoch, so it cannot enter a comparison (FR-105). The difference of two unknown instants is not a displacement; GeoComp does not assume one. Adjust the epoch's network again with its observation date.</source>
+            <translation>A solução '%1' não declara época, e por isso não pode entrar numa comparação (FR-105). A diferença entre dois instantes desconhecidos não é um deslocamento; o GeoComp não assume uma época. Ajuste a rede dessa época de novo com a data da observação.</translation>
+        </message>
+        <message>
+            <source>The solutions '%1' and '%2' have no station in common, so there is nothing to compare. The same mark must carry the same name at every epoch.</source>
+            <translation>As soluções '%1' e '%2' não têm estações em comum, por isso não há nada a comparar. O mesmo marco deve ter o mesmo nome em todas as épocas.</translation>
+        </message>
+        <message>
             <source>The station '%1' is held by two inputs (%2) at positions %3 m apart. Hold it in one input only, or correct the one that is wrong: two holds a distance apart force that distance into the residuals.</source>
             <translation>A estação '%1' é fixada por duas entradas (%2) em posições a %3 m uma da outra. Fixe-a em apenas uma entrada ou corrija a errada: duas fixações separadas por uma distância forçam essa distância nos resíduos.</translation>
+        </message>
+        <message>
+            <source>The two solutions (%1) define their datum differently: %2. A free solution compares with a free one, and a held solution with one held the same way; a held one carries its constraint in its coordinates, and no transformation takes it out. Adjust both epochs with the same datum definition.</source>
+            <translation>As duas soluções (%1) definem o datum de modo diferente: %2. Uma solução livre compara-se com uma livre, e uma fixada com uma fixada do mesmo modo; uma fixada traz a sua restrição nas coordenadas, e nenhuma transformação a remove. Ajuste as duas épocas com a mesma definição de datum.</translation>
+        </message>
+        <message>
+            <source>The two solutions (%1) hold heights of different types: %2. Their difference would be the difference of the height systems, not motion. Adjust both epochs with heights of one type.</source>
+            <translation>As duas soluções (%1) têm altitudes de tipos diferentes: %2. A diferença seria a diferença entre os sistemas de altitude, não movimento. Ajuste as duas épocas com altitudes de um só tipo.</translation>
+        </message>
+        <message>
+            <source>The two solutions (%1) relate heights to the ellipsoid through different geoid models: %2. Heights from two models differ by the difference of the models, which is not motion. Use the same geoid model at every epoch.</source>
+            <translation>As duas soluções (%1) relacionam as altitudes ao elipsoide por modelos geoidais diferentes: %2. Altitudes de dois modelos diferem pela diferença dos modelos, que não é movimento. Use o mesmo modelo geoidal em todas as épocas.</translation>
+        </message>
+        <message>
+            <source>The two solutions are in different coordinate systems (%1). Two projections differ by the projection, not by motion. Adjust both epochs in one coordinate reference system, or give both in a geocentric frame, which GeoComp transforms.</source>
+            <translation>As duas soluções estão em sistemas de coordenadas diferentes (%1). Duas projeções diferem pela projeção, não por movimento. Ajuste as duas épocas num só sistema de referência de coordenadas, ou forneça ambas num referencial geocêntrico, que o GeoComp transforma.</translation>
+        </message>
+        <message>
+            <source>The two solutions are in frames GeoComp cannot relate (%1). Give both in ITRF2000 to ITRF2020 or SIRGAS 2000, which GeoComp transforms between with the transformation's own uncertainty.</source>
+            <translation>As duas soluções estão em referenciais que o GeoComp não sabe relacionar (%1). Forneça ambas em ITRF2000 a ITRF2020 ou SIRGAS 2000, entre os quais o GeoComp transforma com a incerteza da própria transformação.</translation>
+        </message>
+        <message>
+            <source>The two solutions estimate different components (%1). Compare epochs adjusted in the same dimension: plan with plan, heights with heights, 3D with 3D.</source>
+            <translation>As duas soluções estimam componentes diferentes (%1). Compare épocas ajustadas na mesma dimensão: planimetria com planimetria, altitudes com altitudes, 3D com 3D.</translation>
+        </message>
+        <message>
+            <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2.</source>
+            <translation>Estas estações não estão nas duas soluções: %1. Estações que as duas épocas estimam: %2.</translation>
+        </message>
+        <message>
+            <source>These stations were not compared: %1. The compared stations are: %2.</source>
+            <translation>Estas estações não foram comparadas: %1. As estações comparadas são: %2.</translation>
         </message>
         <message>
             <source>This JSON file is not a GeoComp network document: it has no network identifier. Expected %1.</source>
@@ -2817,8 +2968,20 @@
             <translation>Este arquivo não contém uma rede do GeoComp: seu nível superior é %1, e um documento de rede é um objeto JSON. Verifique se escolheu o arquivo certo.</translation>
         </message>
         <message>
+            <source>This file is a '%1', not a '%2'. Give the document the monitoring algorithm wrote for this input.</source>
+            <translation>Este arquivo é um '%1', não um '%2'. Forneça o documento que o algoritmo de monitoramento escreveu para esta entrada.</translation>
+        </message>
+        <message>
             <source>This file is not a gravimeter export GeoComp can read. Expected %1.</source>
             <translation>Este arquivo não é uma exportação de gravímetro que o GeoComp consiga ler. Esperava-se %1.</translation>
+        </message>
+        <message>
+            <source>This monitoring document is version %1; this GeoComp reads version %2. Run the analysis again to write it anew.</source>
+            <translation>Este documento de monitoramento é da versão %1; este GeoComp lê a versão %2. Execute a análise de novo para reescrevê-lo.</translation>
+        </message>
+        <message>
+            <source>This monitoring document lacks %1, so it cannot be read. Run the analysis again to write it anew.</source>
+            <translation>Falta %1 neste documento de monitoramento, por isso não pode ser lido. Execute a análise de novo para reescrevê-lo.</translation>
         </message>
         <message>
             <source>This network document could not be read: %1. It may have been written by a different version of GeoComp, or edited by hand.</source>
@@ -2827,6 +2990,540 @@
         <message>
             <source>This project file holds %1 networks, so GeoComp cannot tell which one you mean. Export the network you want to analyse and choose that file instead.</source>
             <translation>Este arquivo de projeto contém %1 redes, de modo que o GeoComp não pode saber a qual delas você se refere. Exporte a rede que deseja analisar e escolha esse arquivo.</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompMonitoring</name>
+        <message>
+            <source>From the network: translation and rotation for a plan, translation for heights</source>
+            <translation>Pela rede: translação e rotação para planimetria, translação para altitudes</translation>
+        </message>
+        <message>
+            <source>Name the reference stations -- the pillars assumed stable, against which movement is measured -- or mark them REFERENCE in the network document. GeoComp does not choose them: a block picked by the software is picked to make the answer stable.</source>
+            <translation>Nomeie as estações de referência -- os pilares supostos estáveis, contra os quais o movimento é medido -- ou marque-as REFERENCE no documento da rede. O GeoComp não as escolhe: um bloco escolhido pelo software é escolhido para tornar a resposta estável.</translation>
+        </message>
+        <message>
+            <source>Similarity: translation, rotation and scale</source>
+            <translation>Similaridade: translação, rotação e escala</translation>
+        </message>
+        <message>
+            <source>The alert thresholds file '%1' could not be read: %2</source>
+            <translation>O arquivo de limiares de alerta '%1' não pôde ser lido: %2</translation>
+        </message>
+        <message>
+            <source>Translation</source>
+            <translation>Translação</translation>
+        </message>
+        <message>
+            <source>Translation and rotation</source>
+            <translation>Translação e rotação</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompMonitoringReport</name>
+        <message>
+            <source>%1 (mm)</source>
+            <translation>%1 (mm)</translation>
+        </message>
+        <message>
+            <source>(not recorded)</source>
+            <translation>(não registado)</translation>
+        </message>
+        <message>
+            <source>A station over its limit is flagged whether or not its motion is significant: the owner's criterion is not silenced by the survey's precision.</source>
+            <translation>Uma estação acima do seu limite é sinalizada seja ou não significativo o seu movimento: o critério do proprietário não é silenciado pela precisão do levantamento.</translation>
+        </message>
+        <message>
+            <source>Accuracy (mm)</source>
+            <translation>Acurácia (mm)</translation>
+        </message>
+        <message>
+            <source>Alerts</source>
+            <translation>Alertas</translation>
+        </message>
+        <message>
+            <source>All compared stations</source>
+            <translation>Todas as estações comparadas</translation>
+        </message>
+        <message>
+            <source>Analysis refused</source>
+            <translation>Análise recusada</translation>
+        </message>
+        <message>
+            <source>Approximate: %1.</source>
+            <translation>Aproximado: %1.</translation>
+        </message>
+        <message>
+            <source>At epoch</source>
+            <translation>Na época</translation>
+        </message>
+        <message>
+            <source>Azimuth of the first principal strain (°)</source>
+            <translation>Azimute da primeira deformação principal (°)</translation>
+        </message>
+        <message>
+            <source>Both epochs agree in frame, datum definition, height type, geoid model and engine; nothing was found that would put a systematic difference into the displacements.</source>
+            <translation>As duas épocas concordam em referencial, definição de datum, tipo de altitude, modelo geoidal e motor; nada foi encontrado que introduzisse uma diferença sistemática nos deslocamentos.</translation>
+        </message>
+        <message>
+            <source>Compatibility and transformations</source>
+            <translation>Compatibilidade e transformações</translation>
+        </message>
+        <message>
+            <source>Component</source>
+            <translation>Componente</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Coordinate reference system</source>
+            <translation>Sistema de referência de coordenadas</translation>
+        </message>
+        <message>
+            <source>Criterion</source>
+            <translation>Critério</translation>
+        </message>
+        <message>
+            <source>Critical value</source>
+            <translation>Valor crítico</translation>
+        </message>
+        <message>
+            <source>Datum definition</source>
+            <translation>Definição do datum</translation>
+        </message>
+        <message>
+            <source>Datum of the displacements</source>
+            <translation>Datum dos deslocamentos</translation>
+        </message>
+        <message>
+            <source>Decision</source>
+            <translation>Decisão</translation>
+        </message>
+        <message>
+            <source>Deformation</source>
+            <translation>Deformação</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Graus de liberdade</translation>
+        </message>
+        <message>
+            <source>Dilatation (ppm)</source>
+            <translation>Dilatação (ppm)</translation>
+        </message>
+        <message>
+            <source>Displacement map</source>
+            <translation>Mapa dos deslocamentos</translation>
+        </message>
+        <message>
+            <source>Displacements</source>
+            <translation>Deslocamentos</translation>
+        </message>
+        <message>
+            <source>Each displacement is tested against its own covariance at the confidence level above. Not significant is not zero: the value is kept, with its uncertainty, because we could not detect motion is a different statement from there is no motion.</source>
+            <translation>Cada deslocamento é testado contra a sua própria covariância no nível de confiança acima. Não significativo não é zero: o valor é mantido, com a sua incerteza, porque não conseguimos detectar movimento é uma afirmação diferente de não há movimento.</translation>
+        </message>
+        <message>
+            <source>Each epoch of the series was compared with the first under the same checks: frames, epochs, datum definitions, height types and geoid models.</source>
+            <translation>Cada época da série foi comparada com a primeira sob as mesmas verificações: referenciais, épocas, definições de datum, tipos de altitude e modelos geoidais.</translation>
+        </message>
+        <message>
+            <source>Engine</source>
+            <translation>Motor</translation>
+        </message>
+        <message>
+            <source>Epoch</source>
+            <translation>Época</translation>
+        </message>
+        <message>
+            <source>Epochs</source>
+            <translation>Épocas</translation>
+        </message>
+        <message>
+            <source>Every epoch of the series is referred to the reference block by an S-transformation.</source>
+            <translation>Cada época da série é referida ao bloco de referência por uma transformação S.</translation>
+        </message>
+        <message>
+            <source>FAILED</source>
+            <translation>REPROVOU</translation>
+        </message>
+        <message>
+            <source>From</source>
+            <translation>De</translation>
+        </message>
+        <message>
+            <source>GeoComp</source>
+            <translation>GeoComp</translation>
+        </message>
+        <message>
+            <source>Geoid model</source>
+            <translation>Modelo geoidal</translation>
+        </message>
+        <message>
+            <source>Global congruency</source>
+            <translation>Congruência global</translation>
+        </message>
+        <message>
+            <source>Group</source>
+            <translation>Grupo</translation>
+        </message>
+        <message>
+            <source>Heights</source>
+            <translation>Altitudes</translation>
+        </message>
+        <message>
+            <source>Horizontal</source>
+            <translation>Horizontal</translation>
+        </message>
+        <message>
+            <source>Largest contributions</source>
+            <translation>Maiores contribuições</translation>
+        </message>
+        <message>
+            <source>Limit</source>
+            <translation>Limite</translation>
+        </message>
+        <message>
+            <source>Maximum shear (ppm)</source>
+            <translation>Cisalhamento máximo (ppm)</translation>
+        </message>
+        <message>
+            <source>Monitoring report</source>
+            <translation>Relatório de monitoramento</translation>
+        </message>
+        <message>
+            <source>No alert thresholds were set for this analysis.</source>
+            <translation>Nenhum limiar de alerta foi definido para esta análise.</translation>
+        </message>
+        <message>
+            <source>No station crossed a threshold. %1 station checks were made.</source>
+            <translation>Nenhuma estação ultrapassou um limiar. Foram feitas %1 verificações de estação.</translation>
+        </message>
+        <message>
+            <source>No transformation was applied: both epochs are in one frame.</source>
+            <translation>Nenhuma transformação foi aplicada: as duas épocas estão num mesmo referencial.</translation>
+        </message>
+        <message>
+            <source>Object stations</source>
+            <translation>Estações objeto</translation>
+        </message>
+        <message>
+            <source>Offsets from the first epoch, referred to the reference block, with a band of %1 standard deviations (%2% confidence) and the fitted velocity line.</source>
+            <translation>Afastamentos em relação à primeira época, referidos ao bloco de referência, com uma faixa de %1 desvios-padrão (%2% de confiança) e a reta de velocidade ajustada.</translation>
+        </message>
+        <message>
+            <source>Parameter</source>
+            <translation>Parâmetro</translation>
+        </message>
+        <message>
+            <source>Parameters</source>
+            <translation>Parâmetros</translation>
+        </message>
+        <message>
+            <source>Pooled variance factor</source>
+            <translation>Fator de variância combinado</translation>
+        </message>
+        <message>
+            <source>Principal strains (ppm)</source>
+            <translation>Deformações principais (ppm)</translation>
+        </message>
+        <message>
+            <source>QGIS</source>
+            <translation>QGIS</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Grandeza</translation>
+        </message>
+        <message>
+            <source>Reference block</source>
+            <translation>Bloco de referência</translation>
+        </message>
+        <message>
+            <source>Reference block congruency</source>
+            <translation>Congruência do bloco de referência</translation>
+        </message>
+        <message>
+            <source>Reference stations</source>
+            <translation>Estações de referência</translation>
+        </message>
+        <message>
+            <source>Removed</source>
+            <translation>Removida</translation>
+        </message>
+        <message>
+            <source>Report template</source>
+            <translation>Modelo de relatório</translation>
+        </message>
+        <message>
+            <source>Rigid rotation (µrad)</source>
+            <translation>Rotação rígida (µrad)</translation>
+        </message>
+        <message>
+            <source>Rigid translation east, north (mm)</source>
+            <translation>Translação rígida leste, norte (mm)</translation>
+        </message>
+        <message>
+            <source>Role</source>
+            <translation>Papel</translation>
+        </message>
+        <message>
+            <source>Significant</source>
+            <translation>Significativo</translation>
+        </message>
+        <message>
+            <source>Software</source>
+            <translation>Software</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Speed (mm/a)</source>
+            <translation>Rapidez (mm/a)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estações</translation>
+        </message>
+        <message>
+            <source>Stations in one epoch only, not compared: %1.</source>
+            <translation>Estações em uma só época, não comparadas: %1.</translation>
+        </message>
+        <message>
+            <source>Stations tested</source>
+            <translation>Estações testadas</translation>
+        </message>
+        <message>
+            <source>Statistic</source>
+            <translation>Estatística</translation>
+        </message>
+        <message>
+            <source>Std. dev. %1 (mm)</source>
+            <translation>Desvio-padrão %1 (mm)</translation>
+        </message>
+        <message>
+            <source>Std. dev. %1 (mm/a)</source>
+            <translation>Desvio-padrão %1 (mm/a)</translation>
+        </message>
+        <message>
+            <source>Step</source>
+            <translation>Passo</translation>
+        </message>
+        <message>
+            <source>Steps</source>
+            <translation>Etapas</translation>
+        </message>
+        <message>
+            <source>Strain test</source>
+            <translation>Teste da deformação</translation>
+        </message>
+        <message>
+            <source>Strain was not computed: it needs three object points at least, spread over an area.</source>
+            <translation>A deformação não foi calculada: são necessários pelo menos três pontos objeto, distribuídos numa área.</translation>
+        </message>
+        <message>
+            <source>Strain was not requested.</source>
+            <translation>A deformação não foi solicitada.</translation>
+        </message>
+        <message>
+            <source>The datum definitions differ (%1 and %2); both are free, and they are related by the S-transformation onto the reference block.</source>
+            <translation>As definições de datum diferem (%1 e %2); ambas são livres, e relacionam-se pela transformação S sobre o bloco de referência.</translation>
+        </message>
+        <message>
+            <source>The displacements' uncertainties were propagated rigorously, with the correlation between the epochs.</source>
+            <translation>As incertezas dos deslocamentos foram propagadas rigorosamente, com a correlação entre as épocas.</translation>
+        </message>
+        <message>
+            <source>The epochs were processed by different engines or versions: %1 and %2.</source>
+            <translation>As épocas foram processadas por motores ou versões diferentes: %1 e %2.</translation>
+        </message>
+        <message>
+            <source>The epochs were taken as independent. If they share reference stations, a datum definition or GNSS products, they are positively correlated: each displacement's true uncertainty is smaller than the one stated here, so the significance of real motion is understated, not overstated.</source>
+            <translation>As épocas foram tomadas como independentes. Se partilham estações de referência, uma definição de datum ou produtos GNSS, estão positivamente correlacionadas: a incerteza verdadeira de cada deslocamento é menor do que a aqui declarada, e a significância de um movimento real é subestimada, não superestimada.</translation>
+        </message>
+        <message>
+            <source>The reference block moved. The localisation implicates %1; the stations that remain stable together are %2. This subset is proposed, not adopted: the analysis did not proceed, because a moved block spreads its motion over every other station. Check the implicated pillars, then analyse again with them among the object points.</source>
+            <translation>O bloco de referência moveu-se. A localização implica %1; as estações que permanecem estáveis em conjunto são %2. Este subconjunto é proposto, não adotado: a análise não prosseguiu, porque um bloco que se moveu espalha o seu movimento por todas as outras estações. Verifique os pilares implicados e analise de novo com eles entre os pontos objeto.</translation>
+        </message>
+        <message>
+            <source>The reference stations have not moved relative to one another at this confidence: the block is a sound datum for the displacements.</source>
+            <translation>As estações de referência não se moveram umas em relação às outras com esta confiança: o bloco é um datum sólido para os deslocamentos.</translation>
+        </message>
+        <message>
+            <source>The stations have no plan position to draw them at; see the table above.</source>
+            <translation>As estações não têm posição planimétrica onde desenhá-las; veja a tabela acima.</translation>
+        </message>
+        <message>
+            <source>The transformation's accuracy enters every station alike, as a common translation: it cancels in displacements measured against the reference block and remains in an absolute one.</source>
+            <translation>A acurácia da transformação entra igualmente em todas as estações, como uma translação comum: cancela-se nos deslocamentos medidos contra o bloco de referência e permanece num deslocamento absoluto.</translation>
+        </message>
+        <message>
+            <source>Time series</source>
+            <translation>Séries temporais</translation>
+        </message>
+        <message>
+            <source>To</source>
+            <translation>Para</translation>
+        </message>
+        <message>
+            <source>To epoch</source>
+            <translation>Para a época</translation>
+        </message>
+        <message>
+            <source>Uncertainty</source>
+            <translation>Incerteza</translation>
+        </message>
+        <message>
+            <source>Uncertainty mode</source>
+            <translation>Modo de incerteza</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Velocities</source>
+            <translation>Velocidades</translation>
+        </message>
+        <message>
+            <source>Version</source>
+            <translation>Versão</translation>
+        </message>
+        <message>
+            <source>Vertical</source>
+            <translation>Vertical</translation>
+        </message>
+        <message>
+            <source>alert</source>
+            <translation>alerta</translation>
+        </message>
+        <message>
+            <source>alert limit</source>
+            <translation>limite de alerta</translation>
+        </message>
+        <message>
+            <source>all</source>
+            <translation>todas</translation>
+        </message>
+        <message>
+            <source>arrows and ellipses exaggerated %1x; ellipses at %2% confidence</source>
+            <translation>setas e elipses exageradas %1x; elipses com %2% de confiança</translation>
+        </message>
+        <message>
+            <source>band</source>
+            <translation>faixa</translation>
+        </message>
+        <message>
+            <source>deforming</source>
+            <translation>em deformação</translation>
+        </message>
+        <message>
+            <source>displacement magnitude</source>
+            <translation>magnitude do deslocamento</translation>
+        </message>
+        <message>
+            <source>east</source>
+            <translation>leste</translation>
+        </message>
+        <message>
+            <source>epoch (decimal year)</source>
+            <translation>época (ano decimal)</translation>
+        </message>
+        <message>
+            <source>fitted line</source>
+            <translation>reta ajustada</translation>
+        </message>
+        <message>
+            <source>height</source>
+            <translation>altitude</translation>
+        </message>
+        <message>
+            <source>horizontal displacement</source>
+            <translation>deslocamento horizontal</translation>
+        </message>
+        <message>
+            <source>moving as a rigid block</source>
+            <translation>movendo-se como bloco rígido</translation>
+        </message>
+        <message>
+            <source>no</source>
+            <translation>não</translation>
+        </message>
+        <message>
+            <source>north</source>
+            <translation>norte</translation>
+        </message>
+        <message>
+            <source>not significant</source>
+            <translation>não significativo</translation>
+        </message>
+        <message>
+            <source>object</source>
+            <translation>objeto</translation>
+        </message>
+        <message>
+            <source>offset (mm)</source>
+            <translation>afastamento (mm)</translation>
+        </message>
+        <message>
+            <source>passed</source>
+            <translation>aprovou</translation>
+        </message>
+        <message>
+            <source>reference</source>
+            <translation>referência</translation>
+        </message>
+        <message>
+            <source>shipped with GeoComp</source>
+            <translation>fornecido com o GeoComp</translation>
+        </message>
+        <message>
+            <source>significant</source>
+            <translation>significativo</translation>
+        </message>
+        <message>
+            <source>significant motion</source>
+            <translation>movimento significativo</translation>
+        </message>
+        <message>
+            <source>speed</source>
+            <translation>rapidez</translation>
+        </message>
+        <message>
+            <source>translation</source>
+            <translation>translação</translation>
+        </message>
+        <message>
+            <source>translation and rotation</source>
+            <translation>translação e rotação</translation>
+        </message>
+        <message>
+            <source>translation, rotation and scale</source>
+            <translation>translação, rotação e escala</translation>
+        </message>
+        <message>
+            <source>up</source>
+            <translation>altura</translation>
+        </message>
+        <message>
+            <source>v %1 (mm/a)</source>
+            <translation>v %1 (mm/a)</translation>
+        </message>
+        <message>
+            <source>vertical displacement</source>
+            <translation>deslocamento vertical</translation>
+        </message>
+        <message>
+            <source>yes</source>
+            <translation>sim</translation>
         </message>
     </context>
     <context>
@@ -2842,6 +3539,10 @@
         <message>
             <source>GeoComp Global Settings</source>
             <translation>Configurações Globais do GeoComp</translation>
+        </message>
+        <message>
+            <source>Time series panel</source>
+            <translation>Painel de séries temporais</translation>
         </message>
     </context>
     <context>
@@ -3474,6 +4175,81 @@
         <message>
             <source>µGal</source>
             <translation>µGal</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompTimeSeries</name>
+        <message>
+            <source>%1 rows written.</source>
+            <translation>%1 linhas gravadas.</translation>
+        </message>
+        <message>
+            <source>%1 stations over %2 epochs; band %3% confidence.</source>
+            <translation>%1 estações em %2 épocas; faixa com %3% de confiança.</translation>
+        </message>
+        <message>
+            <source>%1, epoch %2 (%3): %4 ± %5 mm</source>
+            <translation>%1, época %2 (%3): %4 ± %5 mm</translation>
+        </message>
+        <message>
+            <source>East</source>
+            <translation>Leste</translation>
+        </message>
+        <message>
+            <source>Export CSV…</source>
+            <translation>Exportar CSV…</translation>
+        </message>
+        <message>
+            <source>Export image…</source>
+            <translation>Exportar imagem…</translation>
+        </message>
+        <message>
+            <source>Export the plot</source>
+            <translation>Exportar o gráfico</translation>
+        </message>
+        <message>
+            <source>Export the series</source>
+            <translation>Exportar a série</translation>
+        </message>
+        <message>
+            <source>GeoComp monitoring document (*.json)</source>
+            <translation>Documento de monitoramento GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>GeoComp time series</source>
+            <translation>Séries temporais GeoComp</translation>
+        </message>
+        <message>
+            <source>Height</source>
+            <translation>Altitude</translation>
+        </message>
+        <message>
+            <source>North</source>
+            <translation>Norte</translation>
+        </message>
+        <message>
+            <source>Open a series document</source>
+            <translation>Abrir um documento de série</translation>
+        </message>
+        <message>
+            <source>Open series…</source>
+            <translation>Abrir série…</translation>
+        </message>
+        <message>
+            <source>Plot written.</source>
+            <translation>Gráfico gravado.</translation>
+        </message>
+        <message>
+            <source>Select stations on a velocity layer, or open a series document.</source>
+            <translation>Selecione estações numa camada de velocidades, ou abra um documento de série.</translation>
+        </message>
+        <message>
+            <source>The series document could not be read: %1</source>
+            <translation>O documento da série não pôde ser lido: %1</translation>
+        </message>
+        <message>
+            <source>Up</source>
+            <translation>Altura</translation>
         </message>
     </context>
     <context>
@@ -4844,6 +5620,271 @@
         <message>
             <source>w</source>
             <translation>w</translation>
+        </message>
+    </context>
+    <context>
+        <name>MonitoringCompareEpochsAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Compares two solutions of the same network and says which stations moved, by how much, and with what confidence.&lt;/p&gt;&lt;p&gt;Before anything is differenced, the epochs are checked: a solution without an epoch, heights of different types or geoid models, a free datum against a held one, and two projections are refused by name, because each would put a systematic difference into every displacement. Geocentric solutions in different frames are transformed, and the transformation's own uncertainty is carried.&lt;/p&gt;&lt;p&gt;The &lt;b&gt;reference stations&lt;/b&gt; are the pillars assumed stable. Their congruency is tested first; if they moved relative to one another, the analysis names the stations and &lt;b&gt;refuses&lt;/b&gt; to report displacements against them, after writing the report with every localisation step. Leave the field empty to take the stations marked REFERENCE in the network document.&lt;/p&gt;&lt;p&gt;Every displacement is tested against its own covariance and reported as &lt;i&gt;significant&lt;/i&gt; or &lt;i&gt;not significant&lt;/i&gt; with its value, never as zero. Without the covariance between the epochs, they are taken as independent and the result says so, and which way that errs.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;First / second epoch&lt;/b&gt; &amp;mdash; solution documents written by an adjustment algorithm.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Network document&lt;/b&gt; &amp;mdash; optional; where the monitoring roles are read from, and where a heights-only network's stations are placed on the map.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum of the displacements&lt;/b&gt; &amp;mdash; what the reference block fixes: translation (heights, geocentric), translation and rotation (a plan), or a similarity.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Alert thresholds&lt;/b&gt; &amp;mdash; a CSV file of &lt;code&gt;kind, limit, stations, group&lt;/code&gt;: kind is magnitude, horizontal, vertical or significance; limits in metres; stations separated by spaces or semicolons, empty for all. A station over its limit is flagged whether or not its motion is significant.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exaggeration&lt;/b&gt; &amp;mdash; the factor the arrows and ellipses are drawn at, stated in the layer names; 0 fits it to the network.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Compara duas soluções da mesma rede e diz quais estações se moveram, quanto, e com que confiança.&lt;/p&gt;&lt;p&gt;Antes de qualquer diferença, as épocas são verificadas: uma solução sem época, altitudes de tipos ou modelos geoidais diferentes, um datum livre contra um fixado, e duas projeções são recusados pelo nome, porque cada um introduziria uma diferença sistemática em todos os deslocamentos. Soluções geocêntricas em referenciais diferentes são transformadas, e a incerteza da própria transformação é propagada.&lt;/p&gt;&lt;p&gt;As &lt;b&gt;estações de referência&lt;/b&gt; são os pilares supostos estáveis. A sua congruência é testada primeiro; se se moveram umas em relação às outras, a análise nomeia as estações e &lt;b&gt;recusa-se&lt;/b&gt; a relatar deslocamentos contra elas, depois de escrever o relatório com cada passo da localização. Deixe o campo vazio para usar as estações marcadas REFERENCE no documento da rede.&lt;/p&gt;&lt;p&gt;Cada deslocamento é testado contra a sua própria covariância e relatado como &lt;i&gt;significativo&lt;/i&gt; ou &lt;i&gt;não significativo&lt;/i&gt; com o seu valor, nunca como zero. Sem a covariância entre as épocas, estas são tomadas como independentes e o resultado di-lo, e em que sentido isso erra.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Primeira / segunda época&lt;/b&gt; &amp;mdash; documentos de solução escritos por um algoritmo de ajustamento.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Documento da rede&lt;/b&gt; &amp;mdash; opcional; de onde se leem os papéis de monitoramento, e onde se posicionam no mapa as estações de uma rede só de altitudes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum dos deslocamentos&lt;/b&gt; &amp;mdash; o que o bloco de referência fixa: translação (altitudes, geocêntrico), translação e rotação (planimetria), ou uma similaridade.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiares de alerta&lt;/b&gt; &amp;mdash; um arquivo CSV de &lt;code&gt;kind, limit, stations, group&lt;/code&gt;: kind é magnitude, horizontal, vertical ou significance; limites em metros; estações separadas por espaços ou ponto e vírgula, vazio para todas. Uma estação acima do seu limite é sinalizada seja ou não significativo o seu movimento.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero&lt;/b&gt; &amp;mdash; o fator com que setas e elipses são desenhadas, declarado nos nomes das camadas; 0 ajusta-o à rede.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Alert thresholds (CSV)</source>
+            <translation>Limiares de alerta (CSV)</translation>
+        </message>
+        <message>
+            <source>Alert thresholds crossed at: %1.</source>
+            <translation>Limiares de alerta ultrapassados em: %1.</translation>
+        </message>
+        <message>
+            <source>Analysis document</source>
+            <translation>Documento da análise</translation>
+        </message>
+        <message>
+            <source>Arrows and ellipses are drawn exaggerated %1x.</source>
+            <translation>Setas e elipses são desenhadas exageradas %1x.</translation>
+        </message>
+        <message>
+            <source>Compare two epochs</source>
+            <translation>Comparar duas épocas</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Datum of the displacements</source>
+            <translation>Datum dos deslocamentos</translation>
+        </message>
+        <message>
+            <source>Displacement ellipses (layer)</source>
+            <translation>Elipses dos deslocamentos (camada)</translation>
+        </message>
+        <message>
+            <source>Displacements (layer)</source>
+            <translation>Deslocamentos (camada)</translation>
+        </message>
+        <message>
+            <source>Displacements between two epochs, tested against the reference block.</source>
+            <translation>Deslocamentos entre duas épocas, testados contra o bloco de referência.</translation>
+        </message>
+        <message>
+            <source>Exaggeration of arrows and ellipses (0 = from the network's extent)</source>
+            <translation>Exagero das setas e elipses (0 = pela extensão da rede)</translation>
+        </message>
+        <message>
+            <source>First epoch (solution)</source>
+            <translation>Primeira época (solução)</translation>
+        </message>
+        <message>
+            <source>GeoComp monitoring document (*.json)</source>
+            <translation>Documento de monitoramento GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Monitoring report</source>
+            <translation>Relatório de monitoramento</translation>
+        </message>
+        <message>
+            <source>Network document (monitoring roles)</source>
+            <translation>Documento da rede (papéis de monitoramento)</translation>
+        </message>
+        <message>
+            <source>Object stations (comma-separated; empty for all others)</source>
+            <translation>Estações objeto (separadas por vírgula; vazio para todas as outras)</translation>
+        </message>
+        <message>
+            <source>Reference stations (comma-separated)</source>
+            <translation>Estações de referência (separadas por vírgula)</translation>
+        </message>
+        <message>
+            <source>Second epoch (solution)</source>
+            <translation>Segunda época (solução)</translation>
+        </message>
+        <message>
+            <source>Separate rigid-body motion from strain</source>
+            <translation>Separar o movimento de corpo rígido da deformação</translation>
+        </message>
+        <message>
+            <source>Significant motion at %1 of %2 stations: %3.</source>
+            <translation>Movimento significativo em %1 de %2 estações: %3.</translation>
+        </message>
+        <message>
+            <source>Strain was not computed: the object points do not span an area.</source>
+            <translation>A deformação não foi calculada: os pontos objeto não abrangem uma área.</translation>
+        </message>
+        <message>
+            <source>The epochs were taken as independent; the displacements' uncertainty is overstated if they share reference stations or products, so real motion may be reported not significant.</source>
+            <translation>As épocas foram tomadas como independentes; a incerteza dos deslocamentos é superestimada se partilham estações de referência ou produtos, e um movimento real pode ser dado como não significativo.</translation>
+        </message>
+        <message>
+            <source>The localisation is recorded in: %1</source>
+            <translation>A localização está registrada em: %1</translation>
+        </message>
+        <message>
+            <source>The stations have no plan position, so nothing is drawn on the map. Give the network document to place a heights-only network's stations.</source>
+            <translation>As estações não têm posição planimétrica, por isso nada é desenhado no mapa. Forneça o documento da rede para posicionar as estações de uma rede só de altitudes.</translation>
+        </message>
+        <message>
+            <source>Transformed %1 at %2 into %3, accuracy %4 mm, common to every station.</source>
+            <translation>Transformado de %1 em %2 para %3, acurácia %4 mm, comum a todas as estações.</translation>
+        </message>
+        <message>
+            <source>none</source>
+            <translation>nenhuma</translation>
+        </message>
+    </context>
+    <context>
+        <name>MonitoringReportAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Renders the monitoring report: the epochs and every transformation applied, the reference block's test and its localisation, the displacements with their significance decisions, a displacement map, the deformation, the alerts, and the time series and velocities.&lt;/p&gt;&lt;p&gt;Built from the documents &lt;i&gt;Compare two epochs&lt;/i&gt; and &lt;i&gt;Time series and velocities&lt;/i&gt; write, and nothing else, so it renders the same report from the saved files at any later date.&lt;/p&gt;&lt;p&gt;Three sections are placed even by a template that leaves them out: the uncertainty mode with the direction of its bias, the compatibility findings and transformations, and the reference block's test. Every decision in the report rests on them.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Analysis document&lt;/b&gt; and &lt;b&gt;Series document&lt;/b&gt; &amp;mdash; at least one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Report template&lt;/b&gt; &amp;mdash; optional HTML template (FR-931).&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Gera o relatório de monitoramento: as épocas e cada transformação aplicada, o teste do bloco de referência e a sua localização, os deslocamentos com as decisões de significância, um mapa dos deslocamentos, a deformação, os alertas, e as séries temporais e velocidades.&lt;/p&gt;&lt;p&gt;Construído a partir dos documentos que &lt;i&gt;Comparar duas épocas&lt;/i&gt; e &lt;i&gt;Séries temporais e velocidades&lt;/i&gt; escrevem, e nada mais, por isso gera o mesmo relatório a partir dos arquivos salvos em qualquer data posterior.&lt;/p&gt;&lt;p&gt;Três seções são incluídas mesmo por um modelo que as omita: o modo de incerteza com o sentido do seu viés, os achados de compatibilidade e as transformações, e o teste do bloco de referência. Todas as decisões do relatório assentam nelas.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Documento da análise&lt;/b&gt; e &lt;b&gt;Documento da série&lt;/b&gt; &amp;mdash; pelo menos um.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Modelo do relatório&lt;/b&gt; &amp;mdash; modelo HTML opcional (FR-931).&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Analysis document (Compare two epochs)</source>
+            <translation>Documento da análise (Comparar duas épocas)</translation>
+        </message>
+        <message>
+            <source>Exaggeration of the map (0 = from the network's extent)</source>
+            <translation>Exagero do mapa (0 = pela extensão da rede)</translation>
+        </message>
+        <message>
+            <source>Give an analysis document, a series document, or both.</source>
+            <translation>Forneça um documento de análise, um documento de série, ou ambos.</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Monitoring report</source>
+            <translation>Relatório de monitoramento</translation>
+        </message>
+        <message>
+            <source>Render the monitoring report from a comparison, a series, or both.</source>
+            <translation>Gerar o relatório de monitoramento a partir de uma comparação, de uma série, ou de ambas.</translation>
+        </message>
+        <message>
+            <source>Report template (optional)</source>
+            <translation>Modelo de relatório (opcional)</translation>
+        </message>
+        <message>
+            <source>Report written.</source>
+            <translation>Relatório gravado.</translation>
+        </message>
+        <message>
+            <source>Series document (Time series and velocities)</source>
+            <translation>Documento da série (Séries temporais e velocidades)</translation>
+        </message>
+        <message>
+            <source>The template places no: </source>
+            <translation>O modelo não inclui: </translation>
+        </message>
+    </context>
+    <context>
+        <name>MonitoringTimeSeriesAlgorithm</name>
+        <message>
+            <source>%1 stations over %2 epochs; velocity significant at: %3.</source>
+            <translation>%1 estações em %2 épocas; velocidade significativa em: %3.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Follows every station through any number of epochs: its offset from the first epoch with each epoch's own uncertainty, and its velocity by weighted least squares, with the velocity's uncertainty and a test of whether it differs from zero.&lt;/p&gt;&lt;p&gt;Every epoch is referred to the &lt;b&gt;reference stations&lt;/b&gt; by an S-transformation, and their congruency with the first epoch is tested at every epoch: a velocity measured against a pillar that moved is the pillar's. The run refuses at the first epoch where the block fails, and names it. Leave the field empty to take the stations marked REFERENCE in the network document; with none there either, the epochs are taken in their own datums, which is right only if they were all held the same way.&lt;/p&gt;&lt;p&gt;The velocity layer is tied to its series: select a station on it and the time-series panel plots that station.&lt;/p&gt;&lt;p&gt;The epochs are taken as independent, and the result is marked approximate.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solutions&lt;/b&gt; &amp;mdash; two or more solution documents of the same network, in any order; they are sorted by epoch.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Alert thresholds&lt;/b&gt; &amp;mdash; a CSV file of &lt;code&gt;kind, limit, stations, group&lt;/code&gt;; a &lt;i&gt;velocity&lt;/i&gt; row sets a limit in metres a year on the horizontal speed, or the vertical rate of a heights-only series.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exaggeration&lt;/b&gt; &amp;mdash; the factor a year's motion is drawn at; 0 fits it to the network.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Acompanha cada estação ao longo de qualquer número de épocas: o seu afastamento em relação à primeira época com a incerteza própria de cada época, e a sua velocidade por mínimos quadrados ponderados, com a incerteza da velocidade e um teste de que difere de zero.&lt;/p&gt;&lt;p&gt;Cada época é referida às &lt;b&gt;estações de referência&lt;/b&gt; por uma transformação S, e a sua congruência com a primeira época é testada em cada época: uma velocidade medida contra um pilar que se moveu é a do pilar. A execução recusa-se na primeira época em que o bloco falha, e nomeia-a. Deixe o campo vazio para usar as estações marcadas REFERENCE no documento da rede; sem nenhuma também lá, as épocas são tomadas nos seus próprios datums, o que só está certo se foram todas fixadas do mesmo modo.&lt;/p&gt;&lt;p&gt;A camada de velocidades está ligada à sua série: selecione nela uma estação e o painel de séries temporais desenha essa estação.&lt;/p&gt;&lt;p&gt;As épocas são tomadas como independentes, e o resultado é marcado como aproximado.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Soluções&lt;/b&gt; &amp;mdash; dois ou mais documentos de solução da mesma rede, em qualquer ordem; são ordenados por época.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiares de alerta&lt;/b&gt; &amp;mdash; um arquivo CSV de &lt;code&gt;kind, limit, stations, group&lt;/code&gt;; uma linha &lt;i&gt;velocity&lt;/i&gt; define um limite em metros por ano sobre a rapidez horizontal, ou sobre a taxa vertical de uma série só de altitudes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero&lt;/b&gt; &amp;mdash; o fator com que se desenha o movimento de um ano; 0 ajusta-o à rede.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A series needs two epochs at least; %1 was given.</source>
+            <translation>Uma série precisa de pelo menos duas épocas; foi dada %1.</translation>
+        </message>
+        <message>
+            <source>Alert thresholds (CSV)</source>
+            <translation>Limiares de alerta (CSV)</translation>
+        </message>
+        <message>
+            <source>At the epoch of '%1' (%2): </source>
+            <translation>Na época de '%1' (%2): </translation>
+        </message>
+        <message>
+            <source>CSV files (*.csv)</source>
+            <translation>Arquivos CSV (*.csv)</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Datum of the offsets</source>
+            <translation>Datum dos afastamentos</translation>
+        </message>
+        <message>
+            <source>Every station's offsets across the epochs, and its velocity.</source>
+            <translation>Os afastamentos de cada estação ao longo das épocas, e a sua velocidade.</translation>
+        </message>
+        <message>
+            <source>Exaggeration of a year's motion (0 = from the network's extent)</source>
+            <translation>Exagero do movimento de um ano (0 = pela extensão da rede)</translation>
+        </message>
+        <message>
+            <source>GeoComp monitoring document (*.json)</source>
+            <translation>Documento de monitoramento GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Arquivos HTML (*.html)</translation>
+        </message>
+        <message>
+            <source>Monitoring report</source>
+            <translation>Relatório de monitoramento</translation>
+        </message>
+        <message>
+            <source>Network document (monitoring roles)</source>
+            <translation>Documento da rede (papéis de monitoramento)</translation>
+        </message>
+        <message>
+            <source>No reference stations: each epoch is taken in its own datum, which is right only if every epoch was held the same way.</source>
+            <translation>Sem estações de referência: cada época é tomada no seu próprio datum, o que só está certo se todas as épocas foram fixadas do mesmo modo.</translation>
+        </message>
+        <message>
+            <source>Reference block congruent between %1 and %2.</source>
+            <translation>Bloco de referência congruente entre %1 e %2.</translation>
+        </message>
+        <message>
+            <source>Reference stations (comma-separated)</source>
+            <translation>Estações de referência (separadas por vírgula)</translation>
+        </message>
+        <message>
+            <source>Series document</source>
+            <translation>Documento da série</translation>
+        </message>
+        <message>
+            <source>Series table</source>
+            <translation>Tabela da série</translation>
+        </message>
+        <message>
+            <source>Solutions, one per epoch</source>
+            <translation>Soluções, uma por época</translation>
+        </message>
+        <message>
+            <source>The stations have no plan position, so nothing is drawn on the map. Give the network document to place a heights-only network's stations.</source>
+            <translation>As estações não têm posição planimétrica, por isso nada é desenhado no mapa. Forneça o documento da rede para posicionar as estações de uma rede só de altitudes.</translation>
+        </message>
+        <message>
+            <source>Time series and velocities</source>
+            <translation>Séries temporais e velocidades</translation>
+        </message>
+        <message>
+            <source>Velocities (layer)</source>
+            <translation>Velocidades (camada)</translation>
+        </message>
+        <message>
+            <source>Velocity thresholds crossed at: %1.</source>
+            <translation>Limiares de velocidade ultrapassados em: %1.</translation>
+        </message>
+        <message>
+            <source>none</source>
+            <translation>nenhuma</translation>
         </message>
     </context>
     <context>

@@ -223,6 +223,13 @@ CUSTOM_DIALOGS: dict[str, str] = {
         "tells them is accessible. The dialog builds the design and hands it to "
         "this same algorithm for the full report (FR-272)."
     ),
+    "monitoring_compare_epochs": (
+        "Two epochs in different frames, processed by different engines or with a "
+        "station one of them lacks are comparable, but a user should decide to compare "
+        "them knowing it; and two that cannot be compared should be refused before the "
+        "parameters are filled in, not after. The dialog shows the compatibility "
+        "findings first and hands the two files to this algorithm (FR-831)."
+    ),
     "totalstation_import_fieldbook": (
         "Mapping columns onto fields is impossible without seeing the data in "
         "them. A combo box offering 'HS' and 'hs' tells a user nothing; a "
@@ -629,6 +636,38 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         requirement="FR-803",
         menu="integration",
         menu_order=40,
+    ),
+    # -- Monitoring (phase P10b, specs/14). In the Monitoring toolbox group and
+    # under Analysis in the menu, where specs/15 section 1.1 places multi-epoch
+    # comparison and the monitoring report: they analyse adjusted solutions,
+    # whatever technique produced them, as Adjust network does. In the order of
+    # specs/14 section 8: two epochs, then a series, then the report of either.
+    AlgorithmSpec(
+        operation="compare_epochs",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.compare_epochs",
+        class_name="MonitoringCompareEpochsAlgorithm",
+        requirement="FR-834",
+        menu="analysis",
+        menu_order=60,
+    ),
+    AlgorithmSpec(
+        operation="time_series",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.time_series",
+        class_name="MonitoringTimeSeriesAlgorithm",
+        requirement="FR-838",
+        menu="analysis",
+        menu_order=70,
+    ),
+    AlgorithmSpec(
+        operation="report",
+        group="monitoring",
+        module="geocomp.algorithms.monitoring.report",
+        class_name="MonitoringReportAlgorithm",
+        requirement="FR-932",
+        menu="analysis",
+        menu_order=80,
     ),
 )
 

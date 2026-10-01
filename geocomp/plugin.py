@@ -46,6 +46,7 @@ class GeoCompPlugin:
         self._toolbar: QToolBar | None = None
         self._toolbar_actions: list[QAction] = []
         self._plugin_menu_actions: list[QAction] = []
+        self._series_panel = None
 
     # -- lifecycle -------------------------------------------------------
 
@@ -74,6 +75,7 @@ class GeoCompPlugin:
         self._menu.build(self.iface.mainWindow().menuBar())
 
         self._build_toolbar()
+        self._build_series_panel()
         self._build_plugin_menu_entries()
 
         log.info("GeoComp ready")
@@ -101,6 +103,15 @@ class GeoCompPlugin:
             action.setParent(None)
             action.deleteLater()
         self._plugin_menu_actions.clear()
+
+        if self._series_panel is not None:
+            from geocomp.gui.time_series_panel import detach_from_project
+
+            detach_from_project(self._series_panel)
+            self.iface.removeDockWidget(self._series_panel)
+            self._series_panel.setParent(None)
+            self._series_panel.deleteLater()
+            self._series_panel = None
 
         if self._provider is not None:
             QgsApplication.processingRegistry().removeProvider(self._provider)
@@ -137,6 +148,22 @@ class GeoCompPlugin:
 
         self._toolbar.setVisible(bool(settings.value("interface.show_toolbar")))
 
+    def _build_series_panel(self) -> None:
+        """The time-series panel (FR-903), docked and hidden until wanted.
+
+        It shows itself when a layer written by *Time series and velocities* is
+        added to the project, and is reachable from Plugins ▸ GeoComp and from
+        QGIS's own panel list at any time.
+        """
+        from qgis.PyQt.QtCore import Qt
+
+        from geocomp.gui.time_series_panel import TimeSeriesPanel, attach_to_project
+
+        self._series_panel = TimeSeriesPanel(self.iface.mainWindow())
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._series_panel)
+        self._series_panel.hide()
+        attach_to_project(self._series_panel)
+
     def _build_plugin_menu_entries(self) -> None:
         """Add the conventional Plugins ▸ GeoComp entries.
 
@@ -150,6 +177,12 @@ class GeoCompPlugin:
         about.triggered.connect(self.open_about)
         self.iface.addPluginToMenu("&GeoComp", about)
         self._plugin_menu_actions.append(about)
+
+        series = QAction(_tr("Time series panel"), self.iface.mainWindow())
+        series.setObjectName("geocompPluginMenuTimeSeries")
+        series.triggered.connect(self.open_series_panel)
+        self.iface.addPluginToMenu("&GeoComp", series)
+        self._plugin_menu_actions.append(series)
 
     # -- actions ---------------------------------------------------------
 
@@ -187,6 +220,11 @@ class GeoCompPlugin:
             from geocomp.services.settings_service import settings
 
             self._toolbar.setVisible(bool(settings.value("interface.show_toolbar")))
+
+    def open_series_panel(self) -> None:
+        if self._series_panel is not None:
+            self._series_panel.show()
+            self._series_panel.raise_()
 
     def open_about(self) -> None:
         from geocomp.gui.about_dialog import AboutDialog

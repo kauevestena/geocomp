@@ -17,6 +17,9 @@ and RD-07, assembled and reproduced (§5.6).
 
 ## 1. Why this document exists
 
+> **What is still missing is listed in [`23-wanted-reference-data.md`](./23-wanted-reference-data.md)**, one
+> entry per gap with what would close it. This document records what was found; that one, what was not.
+
 [`20-testing-and-validation.md`](./20-testing-and-validation.md) §3 lists the reference datasets. One remains
 *to assemble* (RD-08); RD-06 is met (§5) and RD-07 is assembled and reproduced (§5.6).
 RD-02, RD-03 and RD-04 carry a standing note that their
@@ -594,7 +597,8 @@ numbers — carries a two-epoch example with its published test decisions. Crite
 [`14`](./14-multi-epoch-monitoring.md) §9 therefore stays open until the maintainer supplies one — the Caspary
 paper above, or a textbook example with both epochs' coordinates, their covariance and the published
 decisions — as `igs20.atx` was supplied for RD-06. Transcribing one from memory is not an option: a reference
-that might be misremembered is not a reference.
+that might be misremembered is not a reference. It is registered as W-01 in [`23`](./23-wanted-reference-data.md), with the leads
+still to check.
 
 ### 5.4 What a clean pair does — the criterion is unreachable against this reference [V]
 

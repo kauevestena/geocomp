@@ -43,7 +43,8 @@ Beyond tests, checks that enforce the specifications' structural rules:
 ## 3. Reference datasets (FR-950)
 
 Datasets with an independently known correct answer. Each has an id, a documented provenance, a licence
-permitting redistribution, and an expected-results file.
+permitting redistribution, and an expected-results file. What is still missing — here and in every module's
+criteria — is registered in [`23-wanted-reference-data.md`](./23-wanted-reference-data.md).
 
 | Id | Dataset | Validates | Status |
 |---|---|---|---|

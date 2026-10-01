@@ -77,6 +77,10 @@ class StationSeries:
     velocity_test: TestResult | None = None
     degrees_of_freedom: int = 0
     weighted_squares: float = 0.0
+    #: The fitted line's own offset, at :attr:`line_epoch` (the epochs' mean):
+    #: a plot draws the line that was fitted, not one forced through zero.
+    line_epoch: float | None = None
+    line_offset: tuple[float, ...] | None = None
     mode: UncertaintyMode = UncertaintyMode.APPROXIMATE
     strategies: frozenset[Strategy] = frozenset({Strategy.INDEPENDENCE_ASSUMED})
 
@@ -93,6 +97,19 @@ class StationSeries:
         return float(
             np.hypot(self.velocity[self.components.index("e")], self.velocity[self.components.index("n")])
         )
+
+    @property
+    def speed(self) -> float | None:
+        """What a velocity alert is judged on: the horizontal speed where the
+        series has a plan, otherwise the vertical rate's size -- a settlement
+        series from levelling has only the height to move in."""
+        horizontal = self.horizontal_speed
+        if horizontal is not None or self.velocity is None:
+            return horizontal
+        for name in ("u", "h"):
+            if name in self.components:
+                return abs(float(self.velocity[self.components.index(name)]))
+        return None
 
     def to_rows(self) -> list[dict[str, float | str]]:
         """Plottable rows: one per epoch and component, value and band."""
@@ -224,4 +241,6 @@ def _fit(station, components, points, covariances, confidence) -> StationSeries:
         velocity_test=test,
         degrees_of_freedom=k * (len(points) - 2),
         weighted_squares=squares,
+        line_epoch=middle,
+        line_offset=tuple(float(v) for v in estimate[:k]),
     )

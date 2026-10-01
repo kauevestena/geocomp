@@ -966,6 +966,12 @@ data and alert evaluation — and **P10b** the surface: the monitoring algorithm
 alert styling, the time-series panel with its map linkage, the monitoring report, and the product download
 (FR-352, FR-353, NFR-010) if the archives are reachable by then.
 
+**Split again, at the maintainer's decision of 28 September 2026, before P10b began**: the product download
+(FR-352, FR-353, NFR-010) is **P10c**. P10b re-checked the archives and found one reachable — NOAA's CORS
+open-data bucket, which serves IGS final orbits and broadcast navigation without credentials — so the
+download can be built and tested this phase. But it is about as large as the monitoring surface, and two
+reviewable changes were preferred to one.
+
 ### P10a — the computation
 
 **Delivered.**
@@ -998,6 +1004,64 @@ alert styling, the time-series panel with its map linkage, the monitoring report
 (P10b). The product download (P10b, or moved again with the reason if the archives are still refused). A
 published deformation example. Velocities assume independent epochs. Strain is two-dimensional and
 homogeneous; there is no vertical strain or velocity field between points.
+
+### P10b — the surface
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| The results as documents that the report, the layers and the panel all read: a comparison (or its refusal, with the localisation) and a series; stations placed for the map, geocentric ones in their frame's UTM grid | `core/monitoring/document.py`, [`14`](./14-multi-epoch-monitoring.md) §8.2 |
+| *Compare two epochs*: roles named or read from the network, the block tested, refusal after the record is written, displacements, strain, alerts | `algorithms/monitoring/compare_epochs.py` |
+| *Time series and velocities*: the block tested at every epoch, the series, a CSV, a velocity layer tied to its series | `algorithms/monitoring/time_series.py` |
+| *Monitoring report*: from the saved documents, templated, three sections a template cannot drop; map and plots as inline SVG | `algorithms/monitoring/report.py`, `reports/monitoring.py`, `core/visualization/svg.py` |
+| Displacement, displacement-ellipse and velocity layers, styled alert / significant / not significant, the exaggeration in the name | `core/visualization/monitoring.py`, `layers/builders.py`, three QML styles |
+| The time-series panel: map selection plots, plot picking selects on the map, CSV and image export | `gui/time_series_panel.py`, [`19`](./19-visualization.md) §5 |
+| The compatibility dialog before a comparison | `gui/compare_dialog.py`, [`15`](./15-ui-menu-and-settings.md) §3 |
+| A message naming the solutions or stations for every monitoring refusal | `algorithms/monitoring/messages.py` |
+| The register of validation data still to be found | [`23`](./23-wanted-reference-data.md) |
+
+| P10 exit criterion | State after P10b |
+|---|---|
+| RD-08 reproduces, with the significance decisions | **open** — the published half; W-01 in [`23`](./23-wanted-reference-data.md) |
+| Injected displacement recovered, no false positives | **met** (P10a) |
+| A moving reference station caught and named | **met**, in the core and as the algorithms refuse — both the two-epoch comparison and the series |
+| No epoch refused | **met** |
+| Not significant, never zero | **met** — in the table, the layer and the report |
+| Three epochs: velocities and a plottable series with map-to-plot linkage | **met** — the panel, both directions (`tests/qgis/test_time_series_panel.py`) |
+
+**Found.**
+
+- **A velocity alert on a heights-only series could never be raised.** It was judged on the horizontal
+  speed, which a levelling series does not have. It is now judged on the vertical rate there
+  (`StationSeries.speed`).
+- **A comparison's findings were English sentences** in the core, which does not phrase
+  ([`18`](./18-i18n-and-profiles.md) §2), and the report has to say them in three languages. They are now
+  codes with their values.
+- **A series stored its velocity but not the fitted line's offset**, so a plot could only draw a line forced
+  through the first epoch, which is not the line that was fitted.
+- **The monitoring refusals had no messages.** P10a's core raised them and nothing phrased them, so through
+  an algorithm every one would have read "could not complete the operation", without the stations it names.
+  Two codes were also raised through a conditional expression, which the template check cannot see; they are
+  now literal.
+
+**Not built in P10b, named so the ticks above do not imply them.** The cross-covariance between epochs as an
+input: no document GeoComp writes carries it, so every run is approximate, as it says. The product download
+(P10c). A published deformation example (W-01). The layer tests need QGIS ≥ 3.38 and run in CI only; the
+development environment has 3.34.
+
+### P10c — product download
+
+**Delivers.** FR-352, FR-353, NFR-010: precise and broadcast products resolved from cache, the configured
+product directory, then a configured service, through the QGIS network stack; credentials through the QGIS
+authentication system and never in a log, provenance or export; availability checked before a batch; every
+product used recorded by name, source and checksum ([`08`](./08-engine-rtklib.md) §5).
+
+**What is reachable**, re-checked 28 September 2026 from the development environment:
+`noaa-cors-pds.s3.amazonaws.com` (anonymous), which RD-06 already fetches IGS final orbits and broadcast
+navigation from. Still 403: `files.igs.org`, `cddis.nasa.gov`, `igs.bkg.bund.de`, `geoftp.ibge.gov.br`,
+`igs.ign.fr`, `garner.ucsd.edu` — W-14 in [`23`](./23-wanted-reference-data.md). The credentialed path has
+nothing reachable to authenticate to and will be tested against a local server.
 
 ---
 

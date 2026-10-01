@@ -63,6 +63,7 @@ __all__ = [
     "OUTPUT_RESIDUAL_LAYER",
     "OUTPUT_STATION_LAYER",
     "POINT_SOURCE_TYPE",
+    "POLYGON_SOURCE_TYPE",
     "add_result_layer_parameters",
     "resolve_exaggeration",
     "write_result_layers",
@@ -117,6 +118,9 @@ LINE_SOURCE_TYPE = _LINE
 #: The same, for a sink producing points: the GNSS trajectory.
 POINT_SOURCE_TYPE = _POINT
 
+#: And for polygons: the monitoring comparison's displacement ellipses.
+POLYGON_SOURCE_TYPE = _POLYGON
+
 #: Parameter name, style name, sink source type and sink geometry of each result
 #: layer, in the order they should appear in the dialog: what the adjustment
 #: produced first.
@@ -149,10 +153,11 @@ class _StyledLayer(QgsProcessingLayerPostProcessorInterface):
 
     _alive: ClassVar[list[_StyledLayer]] = []
 
-    def __init__(self, style: str, name: str) -> None:
+    def __init__(self, style: str, name: str, properties: dict[str, str] | None = None) -> None:
         super().__init__()
         self.style = style
         self.name = name
+        self.properties = dict(properties or {})
         _StyledLayer._alive.append(self)
 
     def postProcessLayer(self, layer, context, feedback) -> None:
@@ -160,6 +165,8 @@ class _StyledLayer(QgsProcessingLayerPostProcessorInterface):
             return
         if self.name:
             layer.setName(self.name)
+        for key, value in self.properties.items():
+            layer.setCustomProperty(key, value)
         apply_style(layer, self.style)
 
 
@@ -311,6 +318,7 @@ def write_styled_sink(
     crs: QgsCoordinateReferenceSystem,
     features: Callable[[], Iterable[Any]],
     layer_name: str = "",
+    properties: dict[str, str] | None = None,
 ) -> str | None:
     """Fill one optional sink with features, name it and register its style.
 
@@ -324,6 +332,9 @@ def write_styled_sink(
     requested no layers must not be able to fail inside the layer code, because
     the layers are a view of the result and a view must never take the result
     down with it.
+
+    *properties* are set on the layer as custom properties -- how the
+    time-series panel finds the series document behind a velocity layer.
 
     Returns the destination id, or ``None`` if the sink was not requested.
     """
@@ -341,8 +352,8 @@ def write_styled_sink(
     # QGIS loads into the project; it does not run for an algorithm driven from
     # a model or a script, and FR-901's exaggeration factor has to reach the
     # reader on every path, not only the toolbox one.
-    _name_layer(context, destination, layer_name)
-    _register_style(context, destination, style, layer_name)
+    _name_layer(context, destination, layer_name, properties)
+    _register_style(context, destination, style, layer_name, properties)
     return destination
 
 
@@ -350,7 +361,12 @@ def _any_requested(parameters: dict[str, Any]) -> bool:
     return any(parameters.get(name) for name, *_rest in LAYER_OUTPUTS)
 
 
-def _name_layer(context: QgsProcessingContext, destination: str, name: str) -> None:
+def _name_layer(
+    context: QgsProcessingContext,
+    destination: str,
+    name: str,
+    properties: dict[str, str] | None = None,
+) -> None:
     """Rename the layer now, while the run still has it.
 
     A sink's layer exists in the context's temporary store as soon as it is
@@ -359,19 +375,27 @@ def _name_layer(context: QgsProcessingContext, destination: str, name: str) -> N
     an improvement on the parameter's label, not a requirement, and the factor
     is on every feature regardless.
     """
-    if not destination or not name:
+    if not destination or not (name or properties):
         return
     layer = QgsProcessingUtils.mapLayerFromString(destination, context)
-    if layer is not None:
+    if layer is None:
+        return
+    if name:
         layer.setName(name)
+    for key, value in (properties or {}).items():
+        layer.setCustomProperty(key, value)
 
 
 def _register_style(
-    context: QgsProcessingContext, destination: str, style: str, name: str
+    context: QgsProcessingContext,
+    destination: str,
+    style: str,
+    name: str,
+    properties: dict[str, str] | None = None,
 ) -> None:
     if not destination:
         return
     details = context.layerToLoadOnCompletionDetails(destination)
     if details is None:
         return
-    details.setPostProcessor(_StyledLayer(style, name))
+    details.setPostProcessor(_StyledLayer(style, name, properties))
