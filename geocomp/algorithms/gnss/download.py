@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    Qgis,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
@@ -73,6 +74,15 @@ MISSING = "MISSING"
 
 _KINDS = (ProductKind.ORBIT, ProductKind.GPS_NAVIGATION, ProductKind.GLONASS_NAVIGATION)
 _LATENCIES = (Latency.FINAL, Latency.RAPID)
+
+#: QGIS 4 spells the date-only type ``Qgis.ProcessingDateTimeParameterDataType.Date``
+#: and QGIS 3 before 3.36 ``QgsProcessingParameterDateTime.Type.Date``; the older
+#: spelling is kept only so the test suite runs against a distribution's QGIS 3,
+#: as ``layer_outputs`` does for source types.
+if hasattr(Qgis, "ProcessingDateTimeParameterDataType"):
+    _DATE = Qgis.ProcessingDateTimeParameterDataType.Date
+else:  # pragma: no cover -- QGIS < 3.36
+    _DATE = QgsProcessingParameterDateTime.Type.Date
 
 #: A year of days. A typo in a year -- 2015 for 2025 -- would otherwise start
 #: ten years of downloads; a campaign longer than this is fetched in parts.
@@ -122,7 +132,7 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
         ):
             self.addParameter(
                 QgsProcessingParameterDateTime(
-                    name, label, type=QgsProcessingParameterDateTime.Type.Date, optional=True
+                    name, label, type=_DATE, optional=True
                 )
             )
         self.addParameter(

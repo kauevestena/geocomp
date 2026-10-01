@@ -18,7 +18,7 @@ appears in exactly one phase of [`ROADMAP.md`](./ROADMAP.md), and no row below i
 |---|---|---|---|
 | **O1** | Architect GeoComp as a QGIS *Processing Provider*, covering network pre-analysis, data preparation and processing | FR-005, FR-030…FR-036, FR-070, FR-270…FR-273 | P0, P2, P3 |
 | **O2** | Integrate DynAdjust via the command line: automatic input generation, execution, result import into QGIS | FR-036, FR-163, FR-300…FR-306, FR-320…FR-325, FR-930 | P5, P6 |
-| **O3** | Integrate `rnx2rtkp` (RTKLIB) for GNSS processing, including batch runs and automatic product download | FR-164, FR-350…FR-359, FR-600…FR-604 | P7 (FR-352, FR-353 re-planned into P10 — the egress policy blocks every candidate archive from the development environment, and P10 is the first phase whose work needs one — and within it to P10c) |
+| **O3** | Integrate `rnx2rtkp` (RTKLIB) for GNSS processing, including batch runs and automatic product download | FR-164, FR-350…FR-359, FR-600…FR-604 | P7 (FR-352, FR-353 re-planned into P10 — the egress policy blocks every candidate archive from the development environment, and P10 is the first phase whose work needs one — and within it to P10c, where they were built against NOAA's open-data archive) |
 | **O4** | Support multiple geodetic observation types: angles, distances, height differences, gravimetry, GNSS points and baselines | FR-103, FR-104, FR-227, FR-400…FR-411, FR-500…FR-504, FR-602, FR-700, FR-800…FR-803 | P1, P3, P4, P7, P8, P9 |
 | **O5** | Integrate PostGIS and other spatial databases for persistent storage of networks, observations and results | FR-130…FR-135 | P5, P11 |
 | **O6** | Multi-epoch comparison and structural monitoring: temporal metadata, compatibility checks, transformation, displacements and deformation | FR-105, FR-207, FR-830…FR-838, FR-903, FR-932 | P1, P10a (computation), P10b (algorithms, layers, panel, report) |
@@ -88,7 +88,7 @@ amended to match rather than being contradicted by the code.
 | Build baselines | FR-602, FR-104, FR-357 | P7c — `geocomp:gnss_build_baselines` |
 | Batch processing | FR-355 | P7c — `geocomp:gnss_batch` |
 | Compare configurations | FR-359 | P7c — `geocomp:gnss_compare_configurations`; the custom dialog of [`15`](./15-ui-menu-and-settings.md) §1.2 is still to come |
-| Download products | FR-352, FR-353 | P10c — re-planned out of P7 with the requirements themselves; the menu entry arrives with the capability rather than pointing at nothing |
+| Download products | FR-352, FR-353 | P10c — `geocomp:gnss_download_products`, fetch or check only; the menu entry arrived with the capability rather than pointing at nothing. The processing algorithms resolve their own products as well (`algorithms/gnss/common.py`) |
 
 **The GNSS submenu is the one group with a second level** (Absolute and Relative), because its four modes are
 two branches of two and "Static" alone names nothing. `geocomp/registry.py`'s `NESTING_MENUS` permits exactly
@@ -116,7 +116,7 @@ this group and refuses a submenu under any other at import.
 |---|---|---|
 | Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3 |
 | Atmospheric parameters: correction models, default T / P / RH | FR-062 | P3 |
-| GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7c — nine `gnss.*` settings declared and read; the **servers** half belongs to FR-352 and so to P10c, and credential references to FR-353/NFR-010, likewise P10c |
+| GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7c — nine `gnss.*` settings declared and read; P10c — the **servers** half: services in priority order, a services file, the cache and the rapid-orbit fallback, all read. Credential references are QGIS authentication configuration ids in the services file, never a setting (FR-353/NFR-010) |
 | Stochastic models: default weights per type, outlier detection parameters | FR-064 | P3 |
 | Reference systems: preferred CRS, default epochs, transformation parameters | FR-065 | P5 |
 | Paths and directories: DynAdjust and RTKLIB executables, working directories, report templates | FR-066 | P6 |
@@ -162,7 +162,7 @@ not additions to the project's scope. Each names what it derives from. They fall
 | Correctness safeguards | FR-104 (clusters), FR-203 (labelling approximations), FR-208 (correlations), FR-226 (rank diagnosis), FR-255 (no silent rejection) | Preventing silently wrong results |
 | Reproducibility | FR-133 (schema versioning), FR-134 (provenance), FR-302 (engine versions), NFR-007 | O11 |
 | Usability consequences | FR-068 (layered settings), FR-069 (instrument profiles), FR-166 (partial import), FR-901 (stated exaggeration) | Making a stated capability actually usable |
-| Security | FR-353, NFR-010 | FR-352 requiring authenticated downloads. All three re-planned from P7 into P10, and are P10c's — there are no credentials to protect until there is something to authenticate to |
+| Security | FR-353, NFR-010 | FR-352 requiring authenticated downloads. All three re-planned from P7 into P10, and built in P10c: a login is a QGIS authentication configuration id applied by the QGIS network stack; a URL with a credential in it is refused; `tests/qgis/test_product_download.py` asserts end to end that the password reaches no log, manifest, cache record, services file or setting |
 
 If a `derived` requirement cannot be traced to one of these, it is scope creep and should be challenged in
 review.

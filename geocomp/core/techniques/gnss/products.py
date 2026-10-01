@@ -663,8 +663,9 @@ def _in_directory(request: ProductRequest, directory: Path) -> Path | None:
 def _from_directory(request: ProductRequest, candidate: Path, cache: Path | None) -> ResolvedProduct:
     """A directory product, inflated into the cache when it is compressed.
 
-    The engine reads an SP3 by its extension and skips ``.gz``, so a compressed
-    orbit handed over as it is would be loaded by nothing -- with no error. The
+    The engine reads an SP3 by its extension and skips ``.gz`` (``readsp3``,
+    ``src/preceph.c`` at the pinned commit), so a compressed orbit handed over
+    as it is would be loaded by nothing -- with no error. The
     inflated copy goes in the cache with its record; the original is untouched.
     Without a cache (an availability check) the compressed file is reported as
     it is.
