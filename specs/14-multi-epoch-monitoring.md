@@ -1,7 +1,8 @@
 # 14 — Multi-epoch comparison and structural monitoring
 
-**Status:** Draft — the computation is implemented (P10a, §8.1); the algorithms, panel, layers and report
-are P10b's.
+**Status:** Draft — the computation (P10a, §8.1) and the surface (P10b, §8.2) are implemented. One criterion
+is open: a published worked example (§9.1), registered as W-01 in
+[`23-wanted-reference-data.md`](./23-wanted-reference-data.md).
 **Requirements covered:** FR-830…FR-838; uses FR-105, FR-207, FR-835, FR-903, FR-932.
 **Source:** O6; tex §Comparação multiépoca e monitoramento de estruturas; §Introdução; §Justificativa
 aplicada e comercial.
@@ -216,6 +217,42 @@ epoch — which is exactly what a monitoring programme needs.
   as what crossed. A displacement over its limit is flagged **whether or not it is significant**: the owner's
   criterion is not silenced by the survey's.
 
+### 8.2 As implemented (P10b)
+
+The pipeline as three Processing algorithms, in the Monitoring toolbox group and under **Analysis** in the
+menu ([`15`](./15-ui-menu-and-settings.md) §1.1), and the panel.
+
+* **The results are documents** (`core/monitoring/document.py`). A *comparison* document holds the epochs'
+  metadata (§2), every transformation and finding (§3), the reference block's test and every localisation
+  step, every displacement with its covariance and tests, the global test, the strain and the alerts — or,
+  when the block moved, the refusal with its localisation and no displacements. A *series* document holds
+  each station's points and velocity. The report, the layers and the panel read these and nothing else, so
+  the three cannot disagree, and a report rendered later from the saved files is the same report (NFR-007).
+  Each document also places the stations for the map: where a projected solution puts them, or in the UTM
+  grid of a geocentric solution's own frame, with the grid convergence that turns an east–north displacement
+  onto the grid.
+* **`geocomp:monitoring_compare_epochs`** (FR-831…FR-837). Two solution documents in. The reference block
+  is **named in the run or read from the network document's `monitoring_role`** — never chosen by the
+  software, which is the §5 hazard. When the block moves, the algorithm writes the document and the report
+  with the localisation, then **refuses**, naming the stations. Out: the analysis document, the monitoring
+  report, a displacement layer and a displacement-ellipse layer. From the menu, a dialog shows the
+  compatibility findings before the run (FR-831, [`15`](./15-ui-menu-and-settings.md) §3).
+* **`geocomp:monitoring_time_series`** (FR-836, FR-838). Any number of epochs. The block is tested between
+  the first epoch and every later one, and the run refuses at the first epoch where it fails: a velocity
+  measured against a pillar that moved is the pillar's. Out: the series document, a CSV of plottable rows,
+  the report's series sections, and a velocity layer that carries its series document's path.
+* **`geocomp:monitoring_report`** (FR-932). The report from saved documents and a template. Three sections are
+  placed even by a template that leaves them out: the uncertainty mode with the direction of its bias, the
+  compatibility findings and transformations, and the reference block's test. Every decision rests on them.
+* **Alert thresholds** (§7) are a CSV file the project keeps: `kind, limit, stations, group`. A velocity
+  alert on a heights-only series is judged on the vertical rate; it was judged on the horizontal speed, which
+  such a series does not have, and so could never be raised (fixed in P10b).
+* **The time-series panel** (FR-903): see [`19`](./19-visualization.md) §5.
+
+The cross-covariance between epochs is not an input of the algorithms: no document GeoComp writes carries it.
+Every run is therefore `APPROXIMATE` with `INDEPENDENCE_ASSUMED`, and says so in the log, the document and
+the report (§4). The core accepts one (§8.1).
+
 ---
 
 ## 9. Acceptance criteria
@@ -234,7 +271,7 @@ epoch — which is exactly what a monitoring programme needs.
 8. A three-epoch series produces correct velocities with uncertainties and a plottable time series.
 9. Alert thresholds flag the correct stations, in the results, the map styling and the report.
 
-### 9.1 State after P10a
+### 9.1 State after P10b
 
 Against `tests/monitoring_network.py`: four reference pillars and five points on a structure, 36 distances an
 epoch, each epoch adjusted by the core as a free network from its own starting coordinates.
@@ -243,10 +280,10 @@ epoch, each epoch adjusted by the core as a free network from its own starting c
 |---|---|
 | 1. Frames transform with a record; incompatible datums refused by name | **met** — ITRF2014 against ITRF2020 with the record and the common-mode uncertainty; free against held, two projections, two geoid models, and SIRGAS 2000 at another epoch refused |
 | 2. No epoch refused | **met** — by `compare`, and by `Solution.from_dict`, which crashed on it before (see ROADMAP P10a) |
-| 3. A published worked example reproduced | **open** — no published example is reachable from the development environment ([`22`](./22-reference-data-sources.md) §5.3); it waits on one being supplied |
+| 3. A published worked example reproduced | **open** — no published example is reachable from the development environment ([`22`](./22-reference-data-sources.md) §5.3); it waits on one being supplied, registered as W-01 in [`23`](./23-wanted-reference-data.md) with what would close it |
 | 4. Injected displacement recovered, no false positives | **met** — 10 mm at one point found at 99 %, every other station's statistic under half its critical value |
 | 5. A moving reference station caught and named | **met** — 18 mm on a pillar: the block fails, the localisation names it at the first step, the analysis refuses; with the block the user accepts, its motion is found |
 | 6. Independence marked approximate with its bias | **met** |
 | 7. Not significant is not zero | **met** — the value, its σ and its ellipse are kept |
-| 8. Three epochs give velocities and a plottable series | **met in the core** — velocities within their uncertainty, a series as rows; the panel and its map linkage are P10b's |
-| 9. Alerts flag the right stations | **met in the results**; the map styling and the report are P10b's |
+| 8. Three epochs give velocities and a plottable series | **met** — velocities within their uncertainty; the series as rows, as a CSV and in the time-series panel, which plots the stations selected on the velocity layer and selects on the map the station picked in the plot (`tests/qgis/test_time_series_panel.py`) |
+| 9. Alerts flag the right stations | **met** — in the documents, in the layers' `alert` category and style, and in the report's alerts section (`tests/qgis/test_monitoring_algorithms.py`; the layer half runs where QGIS builds typed fields, ≥ 3.38) |

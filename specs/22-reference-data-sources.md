@@ -597,7 +597,8 @@ numbers — carries a two-epoch example with its published test decisions. Crite
 [`14`](./14-multi-epoch-monitoring.md) §9 therefore stays open until the maintainer supplies one — the Caspary
 paper above, or a textbook example with both epochs' coordinates, their covariance and the published
 decisions — as `igs20.atx` was supplied for RD-06. Transcribing one from memory is not an option: a reference
-that might be misremembered is not a reference.
+that might be misremembered is not a reference. It is registered as W-01 in [`23`](./23-wanted-reference-data.md), with the leads
+still to check.
 
 ### 5.4 What a clean pair does — the criterion is unreachable against this reference [V]
 

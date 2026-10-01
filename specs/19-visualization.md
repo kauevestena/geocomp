@@ -22,7 +22,9 @@ the standard this module is held to.
 | GNSS baselines | Line | Components, covariance, solution status, quality indicators |
 | Gravity stations | Point | Gravity and its sigma in the display unit and in SI, how it was determined (held, absolute, relative), the w-test's decision on its absolute value |
 | Gravity differences | Line | Difference, sigma, residual, standardised residual, redundancy, MDB, w-test decision; uncheckable drawn as prominently as a blunder candidate |
-| Displacement vectors | Line | Displacement, covariance, significance decision, epochs compared |
+| Displacement vectors | Line | Displacement by component, its standard deviations, the joint, horizontal and vertical decisions, the alerts crossed, the epochs compared |
+| Displacement ellipses | Polygon | The displacement's horizontal confidence ellipse at the arrow's tip, with its confidence and the decision |
+| Velocities | Line | A year's motion: velocity by component, its standard deviations, the speed an alert is judged on, the test, the epochs |
 | Reliability | Point / Line | MDB, external reliability, uncheckable flag |
 | Planned network (pre-analysis) | Point / Line | Expected ellipses, expected reliability |
 
@@ -95,6 +97,14 @@ Displacement vectors carry the same treatment: an exaggeration factor stated in 
 displacement's confidence ellipse drawn at the vector tip so the reader can see whether zero lies inside it
 ([`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md) §4.1).
 
+**As built (P10b).** The arrow, the ellipse at its tip and a velocity's year of motion are computed without
+QGIS (`core/visualization/monitoring.py`). The factor is fitted so the largest arrow spans a seventh of the
+network, unless one is given, and it is stated in both layers' names. A geocentric comparison is drawn in the
+UTM grid of its frame, and each station's arrow and ellipse turn by the grid convergence, as §1.1's do. The
+three monitoring styles draw one category per station, strongest first: **alert** (a threshold crossed,
+whether or not the motion is significant), **significant**, **not significant**. Not significant is drawn,
+thinner and grey, never hidden.
+
 ## 4. Thematic quality maps (FR-902)
 
 Networks are styled by: positional uncertainty; standardised residual; redundancy number (which shows
@@ -116,6 +126,17 @@ bands, alert threshold lines, significance marks, and epoch metadata visible on 
 
 This map-to-plot linkage is the interaction that makes monitoring analysis inside a GIS worthwhile rather
 than merely possible.
+
+**As built (P10b)** — `gui/time_series_panel.py`. The panel is docked and hidden at start. A layer written by
+*Time series and velocities* carries its series document's path as a custom property; when such a layer is
+added to the project, the panel attaches to it and shows itself. Selecting stations on the map overlays their
+series. Clicking a point selects that station on the map and shows the epoch's solution, value and band.
+Hovering shows the same. The band is the confidence level's two-sided normal quantile times each epoch's
+standard deviation. The fitted line is the one fitted, with its own offset, not one forced through zero. The
+dashed limits are the station's vertical limit on the up or height plot, and its horizontal or magnitude
+limits on east and north. The panel exports the plotted stations' rows as CSV and the plot as a PNG. It is
+also reachable from Plugins ▸ GeoComp ▸ *Time series panel*. The curves come from
+`series_curves`, which the report's plots use too.
 
 ## 6. Base maps and layout (FR-167)
 
@@ -158,6 +179,15 @@ exactly what was computed, from what, with what assumptions.
 Displacement table with significance decisions; reference block stability test result; deformation summary;
 alert exceedances; displacement map; time series plots; and the epoch metadata and transformations applied
 for every epoch compared.
+
+**As built (P10b)** — `reports/monitoring.py`, template `monitoring.html`. Rendered from the monitoring
+documents alone, by the two analysis algorithms and by `geocomp:monitoring_report`. The map and the plots
+are **inline SVG**: a report travels as one file, and an SVG drawn from the same geometry as the layers
+cannot show something the map does not. The map states its exaggeration in the picture, because a report
+is read away from any legend. Three sections are placed even by a template that leaves them out: the
+uncertainty notice, the compatibility findings and transformations, and the reference block's test. A
+refused analysis has a report too, carrying the localisation steps and the proposed stable subset, marked as
+proposed and not adopted. Values are in millimetres; the documents keep metres.
 
 ### 7.3 Mechanics (FR-931)
 

@@ -5,6 +5,52 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P10b — multi-epoch comparison and monitoring: the surface
+
+The monitoring pipeline as three algorithms under **Analysis**, with its layers, its report and the
+time-series panel on the map. The product download is P10c, split out at the maintainer's decision of
+28 September 2026.
+
+#### Added
+
+- **Compare two epochs** (`geocomp:monitoring_compare_epochs`, FR-831…FR-837). Two solution documents in.
+  The reference block is named, or read from the network document's monitoring roles; it is never chosen by
+  the software. Out: an analysis document, the monitoring report, and the displacement and
+  displacement-ellipse layers. When the block has moved, the document and the report record the
+  localisation, then the run refuses, naming the stations. From the menu, a dialog first shows what
+  comparing the two files will find, or why they cannot be compared.
+- **Time series and velocities** (`geocomp:monitoring_time_series`, FR-836, FR-838). Any number of epochs. The
+  block is tested at every epoch, and the run refuses at the first epoch where it fails. Out: a series
+  document, a CSV of plottable rows, the report's series sections, and a velocity layer tied to its series.
+- **Monitoring report** (`geocomp:monitoring_report`, FR-932). Rendered from the saved documents with a
+  template, deterministically. The map and plots are inline SVG, and the exaggeration is stated in the
+  picture. The uncertainty notice, the compatibility findings and the reference block's test are placed
+  even by a template that leaves them out.
+- **The time-series panel** (FR-903). Docked. Selecting stations on the velocity layer plots them, with the
+  band, the fitted line and the alert limits. Clicking a point selects the station on the map and shows the
+  epoch. Exports to CSV and PNG.
+- **Alert thresholds** as a CSV file the project keeps (`kind, limit, stations, group`). Alerts are styled
+  on the map, ranking above significance.
+- **`specs/23-wanted-reference-data.md`**: every validation example still missing, with what each would
+  close and where to look.
+- Error messages for every monitoring refusal, naming the solutions or stations they concern. Portuguese and
+  Spanish for every new string.
+
+#### Fixed
+
+- A velocity alert on a heights-only series could never be raised: it was judged on the horizontal speed,
+  which such a series lacks. It is now judged on the vertical rate.
+- A comparison's findings were English sentences in the core; they are now codes the report phrases in
+  three languages.
+- A series did not keep its fitted line's offset, so a plot could only draw a line forced through zero.
+
+#### Not done
+
+- The cross-covariance between epochs is not an input. No GeoComp document carries it, so every run is
+  approximate, and says so.
+- RD-08's published half (W-01). The product download (P10c).
+- The layer tests need QGIS 3.38 or later, and run in CI only.
+
 ### P10a — multi-epoch comparison and monitoring: the computation
 
 Two epochs of a network compared for motion, and a series of them followed to

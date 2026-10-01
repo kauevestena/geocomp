@@ -44,7 +44,8 @@ now means in code:
   any other group at import, and `tests/test_registry.py` holds the set to one — so the exception cannot
   spread by imitation, which is how a one-level menu usually stops being one.
 - **Download products is not among the eight.** FR-352 and FR-353 moved to P10 when the egress check found
-  every major archive unreachable from CI (`ROADMAP.md`, P7b). The menu entry arrives with the capability;
+  every major archive unreachable from CI (`ROADMAP.md`, P7b), and are P10c's: NOAA's CORS open-data bucket,
+  which serves IGS final orbits and broadcast navigation without credentials, was found reachable in P10b. The menu entry arrives with the capability;
   listing it now would be a menu item pointing at nothing, which §1.2 of `specs/15` forbids outright.
 
 FR-604's notice reaches the user three ways in the Absolute algorithms — in the short description, in the

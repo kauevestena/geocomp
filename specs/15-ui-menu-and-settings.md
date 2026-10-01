@@ -80,8 +80,8 @@ Batch processing · Build baselines · Compare configurations.
 See [`11-module-gnss.md`](./11-module-gnss.md).
 
 > **Built in P7c, as eight of the nine.** Download products waits on FR-352, which moved to P10 when the
-> egress check found every major archive unreachable; a menu entry for it now would point at nothing, which
-> §1.2 forbids outright.
+> egress check found every major archive unreachable, and within P10 to **P10c** (maintainer's decision, 28
+> September 2026); a menu entry for it now would point at nothing, which §1.2 forbids outright.
 >
 > **GNSS is the only group with a second level**, and the exception is narrow and enforced. Its four modes are
 > two branches of two, and flattening them would give four entries distinguished pairwise by their first word
@@ -99,8 +99,9 @@ See [`13-module-integration.md`](./13-module-integration.md). Populated in P9b; 
 sentence case every other entry uses, *GNSS and total station*, *Total station and level*, *GNSS and level*
 and *Multiple techniques* — the last because "Multiple" alone names nothing.
 
-**Analysis** → Inspect network · Pre-analyse network design · Adjust network · *(multi-epoch comparison and
-the monitoring report join it in P10).*
+**Analysis** → Inspect network · Pre-analyse network design · Adjust network · the DynAdjust pair ·
+Compare two epochs · Time series and velocities · Monitoring report. The last three joined in P10b; in the
+Processing toolbox they form the *Monitoring* group ([`16`](./16-processing-provider.md) §2).
 See [`06-adjustment-core.md`](./06-adjustment-core.md) §5 and
 [`14-multi-epoch-monitoring.md`](./14-multi-epoch-monitoring.md).
 
@@ -139,8 +140,8 @@ Every menu item runs a Processing algorithm. The menu holds no second implementa
 | Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop. Arrives in P3, re-planned out of P2 — see [`ROADMAP.md`](./ROADMAP.md). The non-interactive route, `geocomp:analysis_network_preanalysis`, ships in P2 |
 | Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
 | Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison. **Not built.** P7c ships `geocomp:gnss_compare_configurations` alone: ADR-0005 makes the algorithm the capability, and the dialog will hand it the same parameters |
-| Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits |
-| Monitoring time series (FR-838) | An interactive panel, not a one-shot run |
+| Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits. **Built in P10b** (`gui/compare_dialog.py`): it runs the algorithm's own `compare` on the two files chosen, lists the frames, transformations, findings and the independence assumption, or the refusal, and offers OK only for a comparable pair |
+| Monitoring time series (FR-838) | An interactive panel, not a one-shot run. **Built in P10b as a dock panel rather than a dialog** (`gui/time_series_panel.py`, [`19`](./19-visualization.md) §5): the algorithm produces the series, and its velocity layer brings the panel up when it is added to the project, so the menu item stays the algorithm and no entry is needed in `CUSTOM_DIALOGS` |
 
 #### Toolbox-only algorithms
 
@@ -228,7 +229,7 @@ that a newly declared setting must have a consumer.
 
 Two of the row's items are absent and are not oversights. *Preferred download servers and their priority*
 belongs to FR-352, and *credential references* to FR-353 and NFR-010; all three moved to P10 with the
-download capability itself. A settings control for a server list that nothing downloads from would be exactly
+download capability itself, and are P10c's. A settings control for a server list that nothing downloads from would be exactly
 the defect §2.3 describes.
 
 Wiring the ANTEX file was where the distinction between naming a setting and honouring one showed up in
