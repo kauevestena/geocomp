@@ -312,7 +312,7 @@ class TestTheProductDirectory:
 
     def test_a_file_used_as_it_is_is_named_and_checksummed(self, tmp_path):
         clock = tmp_path / "COD23473.CLK"
-        clock.write_text("clock\n")
+        clock.write_bytes(b"clock\n")  # bytes: text mode would write \r\n on Windows
         record = local_record(clock, "clock")
         assert (record.name, record.kind, record.origin) == ("COD23473.CLK", "clock", "directory")
         assert record.sha256 == hashlib.sha256(b"clock\n").hexdigest()
