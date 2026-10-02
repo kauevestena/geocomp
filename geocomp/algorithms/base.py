@@ -15,6 +15,7 @@ defeat the "modo comercial" framing the research project gives it.
 
 from __future__ import annotations
 
+import functools
 import html
 from typing import Any
 
@@ -24,6 +25,7 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QCoreApplication
 
+from geocomp.core.number_format import numbers_for
 from geocomp.core.settings_def import MODE_ADVANCED
 from geocomp.registry import ALGORITHMS, AlgorithmSpec
 
@@ -46,6 +48,19 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
 
     #: Translation context. One per algorithm keeps Linguist navigable.
     TR_CONTEXT = "GeoCompAlgorithm"
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Every ``processAlgorithm`` writes all its outputs or none (specs/16 §7).
+
+        Wrapped here, when the class is defined, so that no algorithm can leave
+        the rule out: :mod:`geocomp.algorithms.transaction` says what it does.
+        """
+        super().__init_subclass__(**kwargs)
+        own = cls.__dict__.get("processAlgorithm")
+        if own is not None:
+            from geocomp.algorithms.transaction import transactional
+
+            cls.processAlgorithm = transactional(_in_the_display_locale(own))
 
     @classmethod
     def spec(cls) -> AlgorithmSpec:
@@ -141,6 +156,22 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:  # pragma: no cover
         raise NotImplementedError
+
+
+def _in_the_display_locale(process):
+    """A run writes its numbers for one language from start to end (FR-094).
+
+    Read once, at the start, and held for the run in a context variable, so a
+    run on a worker thread is not changed under it by anything the main thread
+    does meanwhile.
+    """
+
+    @functools.wraps(process)
+    def run(self, parameters, context, feedback):
+        with numbers_for():
+            return process(self, parameters, context, feedback)
+
+    return run
 
 
 def _tr(text: str) -> str:

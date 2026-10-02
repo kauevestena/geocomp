@@ -117,6 +117,24 @@ Cheap checks that cannot run in `checkParameterValues()` — those needing the d
 - Progress via `QgsProcessingFeedback`, determinate where the work is countable (FR-008).
 - Cancellation checked at every iteration and between batch items; a cancelled run leaves no partial output
   in the target.
+
+  **As built (P12c).** The second half is held in one place, `geocomp/algorithms/transaction.py`, which
+  the base class wraps around every subclass's `processAlgorithm` when the class is defined.
+  - **Before the run**, every file a destination parameter names is noted and, if it exists, copied aside.
+  - **If the run is cancelled**, those files are put back: restored from the copy, or removed if the run
+    made them. Anything the run added to a destination folder is removed. The run then raises, so
+    Processing reports it as unfinished, not as a success with no results. That holds whether the
+    algorithm noticed the cancel and returned early, ran on to the end, or failed because its engine was
+    stopped.
+  - **A run that fails is left as it failed.** Several algorithms deliberately write a refusal before
+    raising — the document and report saying why — and the user needs those.
+  - **Not covered.** A database destination is its provider's; GeoComp's own database writes (the project
+    store, the PostGIS switches) roll back in a transaction checked before it commits. A model's children
+    are runs of their own. An existing file inside a destination folder is not copied first. All three are
+    explained in the module.
+
+  The first half, polling at every iteration, is still per algorithm: 13 of the 46 poll. The rest run on to
+  the end and then discard what they wrote.
 - Every message the user needs goes through `feedback.pushInfo` / `pushWarning`; diagnostics go to the
   GeoComp log tab (FR-009).
 - Provenance is assembled during the run and stored with the result (FR-134).

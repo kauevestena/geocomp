@@ -43,6 +43,7 @@ from qgis.core import (
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.project.common import read_network, read_solution
+from geocomp.core.cancellation import Cancelled
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Project
 from geocomp.services.messages import message_for
@@ -222,7 +223,7 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
 
         written: list[str] = []
         try:
-            with store:
+            with store, store.atomic():
                 self._write(
                     store,
                     project_id=project_id,
@@ -233,6 +234,10 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
                     written=written,
                     feedback=feedback,
                 )
+                # Asked here, before anything commits: the project, its network
+                # and the solution are saved together or not at all.
+                if feedback.isCanceled():
+                    raise Cancelled()
         except GeoCompError as error:
             raise QgsProcessingException(message_for(error)) from error
 

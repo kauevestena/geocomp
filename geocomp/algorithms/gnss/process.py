@@ -50,6 +50,7 @@ from geocomp.algorithms.gnss.common import (
 )
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
+from geocomp.core.number_format import localised
 from geocomp.engines.rtklib import RtklibEngine, RtklibJob
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
@@ -272,7 +273,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         feedback.pushInfo(
             _tr("%1 epochs, %2% with resolved ambiguities")
             .replace("%1", str(quality.epochs))
-            .replace("%2", f"{quality.fixed_fraction * 100:.1f}")
+            .replace("%2", localised(f"{quality.fixed_fraction * 100:.1f}"))
         )
 
         outputs: dict[str, Any] = {}

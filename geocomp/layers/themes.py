@@ -30,6 +30,7 @@ from qgis.core import QgsRendererCategory, QgsRendererRange
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
+from geocomp.core.number_format import localised
 from geocomp.core.visualization.classes import fitted_bounds
 from geocomp.core.visualization.themes import THEMES, Theme
 from geocomp.layers.styles import apply_style
@@ -183,8 +184,8 @@ def _fit_ranges(layer, theme: Theme) -> None:
 def _range_label(lower: float, upper: float, unit: str) -> str:
     suffix = f" {unit}" if unit else ""
     if lower == upper:
-        return f"{lower:.3g}{suffix}"
-    return f"{lower:.3g} \u2013 {upper:.3g}{suffix}"
+        return localised(f"{lower:.3g}") + suffix
+    return localised(f"{lower:.3g}") + " \u2013 " + localised(f"{upper:.3g}") + suffix
 
 
 def _fill_categories(layer, theme: Theme) -> None:
@@ -195,7 +196,7 @@ def _fill_categories(layer, theme: Theme) -> None:
         symbol = template.clone()
         red, green, blue = _CATEGORY_COLOURS[position % len(_CATEGORY_COLOURS)]
         symbol.setColor(QColor(red, green, blue))
-        renderer.addCategory(QgsRendererCategory(value, symbol, f"{value:.3f}"))
+        renderer.addCategory(QgsRendererCategory(value, symbol, localised(f"{value:.3f}")))
     # The file's own category -- no epoch stated -- goes after the epochs, so
     # the legend reads in time order and ends with what has none.
     if renderer.categories():

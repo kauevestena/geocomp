@@ -29,6 +29,7 @@ import struct
 from dataclasses import dataclass, field
 from typing import Any
 
+from geocomp.core.cancellation import NULL_CANCELLATION, CancellationToken, Cancelled
 from geocomp.core.errors import DataError
 from geocomp.io.store.base import SRS_UNDEFINED_CARTESIAN, ProjectStore
 from geocomp.io.store.schema import (
@@ -65,11 +66,20 @@ class CopyReport:
         return not self.differences
 
 
-def copy_store(source: ProjectStore, target: ProjectStore) -> CopyReport:
+def copy_store(
+    source: ProjectStore,
+    target: ProjectStore,
+    cancellation: CancellationToken = NULL_CANCELLATION,
+) -> CopyReport:
     """Copy every table of *source* into the empty *target*, then compare them.
 
     Both must be at the current schema version: a copy is a move between
     backends, not a migration, and an older store is migrated first.
+
+    The rows go in as one transaction, and *cancellation* is asked between
+    tables and once more before the commit. A cancelled copy raises
+    :class:`~geocomp.core.cancellation.Cancelled` with nothing committed
+    (``specs/17`` criterion 6).
 
     Raises:
         DataError: ``store_copy_target_not_empty`` when *target* already holds
@@ -97,9 +107,13 @@ def copy_store(source: ProjectStore, target: ProjectStore) -> CopyReport:
     with target._transaction(write=True):
         _defer_foreign_keys(target)
         for entry in SCHEMA:
+            if cancellation.is_cancelled():
+                raise Cancelled()
             for row in contents[entry.name]:
                 target._insert(entry.name, _physical(entry, row, target.backend))
             report.rows[entry.name] = len(contents[entry.name])
+        if cancellation.is_cancelled():
+            raise Cancelled()
     target.refresh()
     report.differences = differences(source, target, first_rows=contents)
     return report

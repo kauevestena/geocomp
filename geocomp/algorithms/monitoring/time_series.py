@@ -64,6 +64,7 @@ from geocomp.core.monitoring import (
     series_document,
 )
 from geocomp.core.monitoring.document import SERIES_PROPERTY
+from geocomp.core.number_format import localised
 from geocomp.core.visualization.monitoring import velocity_exaggeration
 
 __all__ = ["SERIES_PROPERTY", "MonitoringTimeSeriesAlgorithm"]
@@ -296,13 +297,13 @@ class MonitoringTimeSeriesAlgorithm(GeoCompAlgorithm):
                 raise QgsProcessingException(
                     self.tr("At the epoch of '%1' (%2): ")
                     .replace("%1", later.id)
-                    .replace("%2", f"{later.epoch.decimal_year:.4f}")
+                    .replace("%2", localised(f"{later.epoch.decimal_year:.4f}"))
                     + message_for(error)
                 )
             feedback.pushInfo(
                 self.tr("Reference block congruent between %1 and %2.")
-                .replace("%1", f"{first.epoch.decimal_year:.4f}")
-                .replace("%2", f"{later.epoch.decimal_year:.4f}")
+                .replace("%1", localised(f"{first.epoch.decimal_year:.4f}"))
+                .replace("%2", localised(f"{later.epoch.decimal_year:.4f}"))
             )
 
     def _write(self, parameters, context, document, stations) -> dict[str, Any]:

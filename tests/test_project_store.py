@@ -963,3 +963,66 @@ class TestWritingDoesNotDiscardResults:
             stored_now = {entry.id: entry for entry in store.read_solutions()}
             assert stored_now[solution.id].superseded_by == newer.id
 
+
+
+class _CancelAfter:
+    """A cancellation token that says yes from its *n*-th question on."""
+
+    def __init__(self, n: int):
+        self.asked = 0
+        self.n = n
+
+    def is_cancelled(self) -> bool:
+        self.asked += 1
+        return self.asked >= self.n
+
+
+class TestSeveralWritesAsOne:
+    """``specs/17`` criterion 6: a cancelled run leaves the project as it was.
+
+    Each save was a transaction of its own, so a run saving a project, then its
+    network, then a solution, and cancelled between them, left the first two
+    stored. :meth:`ProjectStore.atomic` makes them one.
+    """
+
+    def test_an_exception_inside_rolls_every_write_back(self, stored):
+        from geocomp.core.cancellation import Cancelled
+
+        path, project, solution, _network = stored
+        later = dataclasses.replace(solution, id="later")
+        with open_store(path) as store:
+            revision = store.revision
+            with pytest.raises(Cancelled), store.atomic():
+                store.write(project, keep_solutions=True)
+                store.write_solution(later)
+                raise Cancelled()
+        with open_store(path) as store:
+            assert [entry.id for entry in store.read_solutions()] == [solution.id]
+            assert store.revision == revision
+
+    def test_the_writes_commit_once(self, stored):
+        path, project, solution, _network = stored
+        with open_store(path) as store:
+            revision = store.revision
+            with store.atomic():
+                store.write(project, keep_solutions=True)
+                store.write_solution(dataclasses.replace(solution, id="later"))
+        with open_store(path) as store:
+            assert {entry.id for entry in store.read_solutions()} == {solution.id, "later"}
+            assert store.revision == revision + 1
+
+
+class TestACancelledCopy:
+    def test_leaves_the_target_without_a_project(self, stored, tmp_path):
+        from geocomp.core.cancellation import Cancelled
+        from geocomp.io.store.transfer import copy_store, logical_rows
+
+        path, _project, _solution, _network = stored
+        target = tmp_path / "copy.gpkg"
+        token = _CancelAfter(4)
+        with open_store(path) as source, open_store(target, create=True) as copy:
+            with pytest.raises(Cancelled):
+                copy_store(source, copy, token)
+            assert copy.schema_version_or_none() is None
+            assert not any(logical_rows(copy).values())
+        assert token.asked == 4, "it is asked between tables, not only at the start"

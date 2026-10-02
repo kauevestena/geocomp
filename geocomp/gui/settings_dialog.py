@@ -250,6 +250,8 @@ class GlobalSettingsDialog(QDialog):
 
         self._editors: dict[str, QWidget] = {}
         self._origins: dict[str, QLabel] = {}
+        #: "This project", for each setting a project may override (FR-068).
+        self._overrides: dict[str, QCheckBox] = {}
 
         self._sidebar = QListWidget(self)
         self._sidebar.setObjectName("geocompSettingsSidebar")
@@ -331,6 +333,20 @@ class GlobalSettingsDialog(QDialog):
                 row_layout = QHBoxLayout(row)
                 row_layout.setContentsMargins(0, 0, 0, 0)
                 row_layout.addWidget(editor, stretch=1)
+                if Scope.PROJECT in definition.scopes:
+                    override = QCheckBox(_tr("this project"), row)
+                    override.setObjectName(f"geocompOverride_{definition.key}")
+                    override.setToolTip(
+                        _tr(
+                            "Override for this project: the value is saved in the project, "
+                            "travels with it, and applies to it alone."
+                        )
+                    )
+                    override.toggled.connect(
+                        lambda checked, key=definition.key: self._override_toggled(key, checked)
+                    )
+                    self._overrides[definition.key] = override
+                    row_layout.addWidget(override)
                 row_layout.addWidget(origin)
                 form.addRow(setting_label(definition.key), row)
 
@@ -372,11 +388,31 @@ class GlobalSettingsDialog(QDialog):
             if item is None:  # pragma: no cover - defensive
                 continue
             _set_editor_value(editor, item.value)
-            origin = self._origins[key]
-            origin.setText(_tr("from %1").replace("%1", scope_label(item.scope)))
-            origin.setToolTip(
-                _tr("Settings resolve in the order: this run, this project, global, default.")
-            )
+            override = self._overrides.get(key)
+            if override is not None:
+                override.blockSignals(True)
+                override.setChecked(item.scope is Scope.PROJECT)
+                override.blockSignals(False)
+            self._show_origin(key, item.scope)
+
+    def _show_origin(self, key: str, scope: Scope) -> None:
+        origin = self._origins[key]
+        origin.setText(_tr("from %1").replace("%1", scope_label(scope)))
+        origin.setToolTip(
+            _tr("Settings resolve in the order: this run, this project, global, default.")
+        )
+
+    def _override_toggled(self, key: str, checked: bool) -> None:
+        """Checked: the value shown becomes this project's. Unchecked: the value
+        that applies without the override is shown, global or default."""
+        from geocomp.services.settings_service import settings
+
+        if checked:
+            self._show_origin(key, Scope.PROJECT)
+            return
+        outside = settings.resolve_outside_project(key)
+        _set_editor_value(self._editors[key], outside.value)
+        self._show_origin(key, outside.scope)
 
     def values(self) -> dict[str, Any]:
         """Current editor values, keyed by setting."""
@@ -389,11 +425,17 @@ class GlobalSettingsDialog(QDialog):
             _set_editor_value(editor, setting(key).default)
 
     def accept(self) -> None:
-        """Write changed values at global scope, then close.
+        """Write each value to its scope, then close.
 
-        A value equal to the built-in default is *cleared* rather than written,
-        so the stored configuration stays small and a later change of default
-        reaches users who never expressed a preference.
+        A row marked *this project* is saved in the project and leaves the
+        global value alone; an unmarked one clears any project override and is
+        saved globally. Until P12c the window wrote every row globally,
+        including a value it had loaded from a project override -- so pressing
+        OK in one project made its override every other project's global value.
+
+        A global value equal to the built-in default is *cleared* rather than
+        written, so the stored configuration stays small and a later change of
+        default reaches users who never expressed a preference.
         """
         from geocomp.core.errors import GeoCompError
         from geocomp.core.settings_def import setting
@@ -416,9 +458,17 @@ class GlobalSettingsDialog(QDialog):
 
         for key, value in self.values().items():
             definition = setting(key)
-            if Scope.GLOBAL not in definition.scopes:
-                continue
+            override = self._overrides.get(key)
             try:
+                current = settings.resolve(key)
+                if override is not None and override.isChecked():
+                    if current.scope is not Scope.PROJECT or current.value != value:
+                        settings.set_project(key, value)
+                    continue
+                if current.scope is Scope.PROJECT:
+                    settings.clear_project(key)
+                if Scope.GLOBAL not in definition.scopes:
+                    continue
                 if value == definition.default:
                     settings.reset_global(key)
                 else:

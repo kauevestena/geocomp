@@ -277,3 +277,75 @@ class TestSavingToTheDatabase:
                     "SOLUTION": str(solution_path),
                 },
             )
+
+
+def _cancelled(algorithm_id: str, parameters: dict) -> None:
+    from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingException
+
+    recorder = Recorder()
+    recorder.feedback.cancel()
+    algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id).create({})
+    with pytest.raises(QgsProcessingException) as caught:
+        algorithm.run(parameters, QgsProcessingContext(), recorder.feedback, catchExceptions=False)
+    assert "Cancelled" in str(caught.value)
+
+
+def _schema_exists(schema: str) -> bool:
+    connection = psycopg2.connect(DSN)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT 1 FROM information_schema.schemata WHERE schema_name = %s", (schema,)
+            )
+            return cursor.fetchone() is not None
+    finally:
+        connection.close()
+
+
+class TestCancelling:
+    """``specs/17`` criterion 6: a cancelled switch or save leaves its target as it was."""
+
+    def test_a_cancelled_export_leaves_no_schema(self, saved_connection, schema, project_file):
+        path, *_ = project_file
+        _cancelled(EXPORT, {"SOURCE": str(path), "DATABASE": saved_connection, "SCHEMA": schema})
+        assert not _schema_exists(schema)
+
+    def test_a_cancelled_import_leaves_no_geopackage(
+        self, saved_connection, schema, project_file, tmp_path
+    ):
+        path, *_ = project_file
+        _run(EXPORT, {"SOURCE": str(path), "DATABASE": saved_connection, "SCHEMA": schema})
+        back = tmp_path / "back.gpkg"
+        _cancelled(IMPORT, {"DATABASE": saved_connection, "SCHEMA": schema, "OUTPUT": str(back)})
+        assert not back.exists()
+
+    def test_a_cancelled_save_leaves_the_database_project_as_it_was(
+        self, saved_connection, schema, project_file, tmp_path
+    ):
+        """No file to put back here: the database's own transaction is all there is."""
+        import dataclasses
+
+        from geocomp.services.postgis import open_database_store
+
+        _, _, solution, network = project_file
+        network_path = tmp_path / "network.json"
+        network_path.write_text(json.dumps(network.to_dict()), encoding="utf-8")
+        solution_path = tmp_path / "solution.json"
+        solution_path.write_text(json.dumps(solution.to_dict()), encoding="utf-8")
+        save = {
+            "DATABASE": saved_connection,
+            "SCHEMA": schema,
+            "NETWORK": str(network_path),
+            "SOLUTION": str(solution_path),
+        }
+        _run(STORE, save)
+        with open_database_store(saved_connection, schema) as store:
+            before = (store.revision, [s.id for s in store.read_solutions()])
+
+        second = tmp_path / "second.json"
+        second.write_text(
+            json.dumps(dataclasses.replace(solution, id="second").to_dict()), encoding="utf-8"
+        )
+        _cancelled(STORE, {**save, "SOLUTION": str(second)})
+        with open_database_store(saved_connection, schema) as store:
+            assert (store.revision, [s.id for s in store.read_solutions()]) == before

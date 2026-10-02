@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-3 — Cancelling keeps nothing; numbers in the language's separator
+
+#### Fixed
+
+- **A cancelled run leaves no partial output.** Before, it kept whatever it had written and was reported as
+  complete. Files it replaced are put back and files it made are removed. A save into a project or a copy
+  between backends rolls back, and a PostGIS schema the run created is dropped again.
+- **Reports, tables, dialogs and legends write a decimal comma in Portuguese and Spanish.** Every file still
+  writes a point, and a test proves it for RD-01's whole chain.
+- **Pressing OK in the settings window no longer turns one project's override into every project's global
+  value.**
+
+#### Added
+
+- *This project* in the settings window: a setting can be overridden for the open project alone, and the window
+  says where each value comes from.
+
 ### P12c-2 — The glossary held, and the chain run as a model
 
 #### Fixed

@@ -83,6 +83,14 @@ class SettingsService:
         """Return the effective value of *key*."""
         return self.resolve(key).value
 
+    def resolve_outside_project(self, key: str) -> ResolvedSetting:
+        """What *key* would be with no project override: the global value, or the default.
+
+        What the settings window shows when a project's override is taken away,
+        so the user sees the value that will then apply.
+        """
+        return resolve(key, {Scope.GLOBAL: self._read_global})
+
     def set_global(self, key: str, value: Any) -> None:
         """Write *value* at global scope, validating it first."""
         definition = self._checked(key, value, Scope.GLOBAL)

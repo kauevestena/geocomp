@@ -105,6 +105,27 @@ class PostgisStore(ProjectStore):
         super().__init__(label)
         self.schema = schema
         self._connection = connection
+        #: What opening with ``create=True`` made: the schema, or only its
+        #: tables in a schema that was there and empty. Kept so that a run
+        #: that is cancelled can take away exactly what it made, and no more.
+        self.created_schema = False
+        self.created_tables = False
+
+    def remove_what_was_created(self) -> None:
+        """Drop the schema, or the tables, that opening this store created.
+
+        For an export that was cancelled (``specs/17`` criterion 6): the target
+        must be left as it was, and before the run there was no project here.
+        Nothing is dropped that this store did not create.
+        """
+        if self.created_schema:
+            self._execute(f"DROP SCHEMA {quoted(self.schema)} CASCADE")
+        elif self.created_tables:
+            for entry in reversed(SCHEMA):
+                self._execute(
+                    f"DROP TABLE IF EXISTS {quoted(self.schema)}.{quoted(entry.name)} CASCADE"
+                )
+        self.created_schema = self.created_tables = False
 
     @property
     def connection(self) -> Any:
@@ -302,6 +323,7 @@ def _prepare(store: PostgisStore, *, create: bool) -> None:
         )
     if exists is None:
         store._execute(f"CREATE SCHEMA {quoted(store.schema)}")
+        store.created_schema = True
     # Unqualified names resolve to the project's schema; PostGIS's functions
     # and types to wherever the extension lives.
     store._execute(f"SET search_path TO {quoted(store.schema)}, {quoted(extension[0])}")
@@ -315,6 +337,7 @@ def _prepare(store: PostgisStore, *, create: bool) -> None:
                 expected="a schema holding a GeoComp project, or create=True",
             )
         _initialise(store)
+        store.created_tables = True
         return
     missing = sorted({entry.name for entry in SCHEMA} - names)
     if missing:

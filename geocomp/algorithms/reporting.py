@@ -19,6 +19,8 @@ from typing import Any
 
 from qgis.PyQt.QtCore import QCoreApplication
 
+from geocomp.core.number_format import localised
+
 __all__ = [
     "escape",
     "format_number",
@@ -78,8 +80,8 @@ def format_number(value: Any, decimals: int = 4) -> str:
     if math.isinf(number):
         return "∞" if number > 0 else "-∞"
     if number != 0.0 and (abs(number) < 10.0**-decimals or abs(number) >= 1.0e6):
-        return f"{number:.{decimals}e}"
-    return f"{number:.{decimals}f}"
+        return localised(f"{number:.{decimals}e}")
+    return localised(f"{number:.{decimals}f}")
 
 
 def render_note(text: str, *, label: str = "") -> str:
