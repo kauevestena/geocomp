@@ -68,6 +68,7 @@ ADDED_IN = {
     2: [("gc_observation", "instrument_height"), ("gc_observation", "target_height")],
     3: [("gc_adjusted_station", "gravity")],
     4: [("gc_project", "revision"), ("gc_network_member", "ordinal")],
+    5: [("gc_provenance", "strategies")],
 }
 
 
@@ -635,7 +636,10 @@ class TestVersioning:
         revision = connection.execute('SELECT "revision" FROM "gc_project"').fetchone()[0]
         connection.close()
 
-        assert report.steps == ["4: gc_project gains revision; gc_network_member gains ordinal"]
+        assert report.steps == [
+            "4: gc_project gains revision; gc_network_member gains ordinal",
+            "5: gc_provenance gains strategies",
+        ]
         assert ordinals and None not in ordinals
         assert revision == 0
         with open_store(path) as store:

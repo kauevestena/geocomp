@@ -41,6 +41,7 @@ from geocomp.core.errors import ValidationError
 from geocomp.core.models import Network, Solution
 
 __all__ = [
+    "COMPARISON_FIELDS",
     "SHEETS",
     "Sheet",
     "sheet_rows",
@@ -172,6 +173,8 @@ def _statistics_rows(network: Network | None, solution: Solution | None) -> list
         ("epoch", solution.epoch.decimal_year),
         ("datum_definition", solution.datum_definition.name),
         ("uncertainty_mode", solution.uncertainty_mode.name),
+        # FR-203: which approximations, not only that there were some.
+        ("strategies", ";".join(sorted(s.name for s in solution.strategies))),
         ("n_observations", statistics.n_observations),
         ("n_parameters", statistics.n_parameters),
         ("n_constraints", statistics.n_constraints),
@@ -278,6 +281,25 @@ SHEETS: tuple[Sheet, ...] = (
 )
 
 _BY_NAME = {sheet.name: sheet for sheet in SHEETS}
+
+#: ``specs/20`` section 5, step 3: the fixed field list a comparison with
+#: another package lines up, and where each lives in this export. The
+#: comparison export *is* this one -- a second export of the same numbers would
+#: be a second place for them to disagree. Statistics are rows of the
+#: ``statistics`` sheet, keyed by their ``quantity``.
+COMPARISON_FIELDS: dict[str, tuple[str, tuple[str, ...]]] = {
+    "adjusted coordinates": ("adjusted", ("value_1", "value_2", "value_3")),
+    "variance factor": ("statistics", ("variance_factor_aposteriori",)),
+    "degrees of freedom": ("statistics", ("degrees_of_freedom",)),
+    "residuals": ("residuals", ("residual", "standardised_residual")),
+    "error ellipses": (
+        "adjusted",
+        ("ellipse_semi_major", "ellipse_semi_minor", "ellipse_orientation", "ellipse_confidence"),
+    ),
+    "positional uncertainty": ("adjusted", ("positional_uncertainty",)),
+    "test decisions": ("residuals", ("w_test", "w_statistic", "w_passed")),
+    "global test decision": ("statistics", ("global_test_statistic", "global_test_passed")),
+}
 
 
 def sheet_rows(

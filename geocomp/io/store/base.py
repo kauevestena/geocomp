@@ -660,6 +660,7 @@ class ProjectStore:
                 "geocomp_version": payload.get("geocomp_version", ""),
                 "qgis_version": payload.get("qgis_version", ""),
                 "uncertainty_mode": payload["uncertainty_mode"],
+                "strategies": _dumps(payload.get("strategies")),
             },
         )
         return identifier
@@ -1105,6 +1106,7 @@ class ProjectStore:
                         "geocomp_version": entry["geocomp_version"] or "",
                         "qgis_version": entry["qgis_version"] or "",
                         "uncertainty_mode": entry["uncertainty_mode"],
+                        "strategies": _loads(entry["strategies"]) or [],
                     }
                 )
 

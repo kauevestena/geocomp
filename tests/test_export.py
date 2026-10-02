@@ -31,7 +31,7 @@ from geocomp.core.errors import ValidationError
 from geocomp.core.models import DatumDefinition, HeightType
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.statistics.tests import data_snooping, global_test
-from geocomp.io.tabular import SHEETS, sheet_rows, write_csv, write_workbook
+from geocomp.io.tabular import COMPARISON_FIELDS, SHEETS, sheet_rows, write_csv, write_workbook
 
 
 def _openpyxl():
@@ -78,6 +78,56 @@ def adjusted():
         global_test=global_test(run.variance_factor_aposteriori, run.degrees_of_freedom),
     )
     return reference.network, solution
+
+
+class TestTheComparisonExport:
+    """specs/20 criterion 7: §5's step-3 fields, every one, in this export.
+
+    A plane network, so the ellipses have something to say.
+    """
+
+    @pytest.fixture(scope="class")
+    def plane(self):
+        reference = nets.trilateration()
+        run = adjust(
+            reference.network,
+            AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.CONSTRAINED),
+        )
+        snooping = data_snooping(
+            run.residuals,
+            run.cofactor_residuals,
+            run.system.weight,
+            run.system.row_labels,
+            variance_factor=run.variance_factor_aposteriori,
+            degrees_of_freedom=run.degrees_of_freedom,
+        )
+        solution = to_solution(
+            run,
+            reference.network,
+            solution_id="plane",
+            crs="EPSG:31982",
+            epoch=Epoch.from_decimal_year(2026.0),
+            datum=DatumDefinition.CONSTRAINED,
+            observation_results=to_observation_results(run, snooping=snooping),
+            global_test=global_test(run.variance_factor_aposteriori, run.degrees_of_freedom),
+        )
+        return reference.network, solution
+
+    @pytest.mark.parametrize("field", sorted(COMPARISON_FIELDS))
+    def test_every_step_three_field_is_exported_and_filled(self, plane, field):
+        network, solution = plane
+        sheet, columns = COMPARISON_FIELDS[field]
+        headers, rows = sheet_rows(sheet, network, solution)
+        assert rows, f"{sheet} is empty"
+        if sheet == "statistics":
+            values = dict(rows)
+            for quantity in columns:
+                assert values.get(quantity) not in (None, ""), quantity
+            return
+        for column in columns:
+            assert column in headers, f"{sheet} has no {column}"
+            index = headers.index(column)
+            assert any(row[index] not in (None, "") for row in rows), f"{sheet}.{column} is empty"
 
 
 class TestTheSheetsAreDeclaredOnce:

@@ -69,7 +69,10 @@ __all__ = [
 #: detects that someone else saved first, and ``gc_network_member.ordinal``,
 #: which records the order of a network's stations and observations instead of
 #: leaving it to SQLite's row order -- an order PostgreSQL does not keep.
-SCHEMA_VERSION = 4
+#:
+#: Schema 5 (phase P12c) added ``gc_provenance.strategies``: which
+#: approximations a result rests on, which its provenance had never recorded.
+SCHEMA_VERSION = 5
 
 
 class ColumnKind(Enum):
@@ -416,6 +419,7 @@ SCHEMA: tuple[Table, ...] = (
             _text("geocomp_version"),
             _text("qgis_version"),
             _text("uncertainty_mode", nullable=False),
+            _json("strategies"),
         ),
         note=(
             "FR-134. Never holds a credential, a token, or a URL containing "

@@ -306,3 +306,16 @@ def _revision_and_order(target: MigrationTarget) -> None:
         )
     else:
         target.execute('UPDATE "gc_network_member" SET "ordinal" = rowid')
+
+
+@register(5, "gc_provenance gains strategies")
+def _provenance_strategies(target: MigrationTarget) -> None:
+    """Name the approximations a result rests on in its provenance (FR-203; P12c).
+
+    The audit of P12c found the provenance recorded an approximate solution's
+    mode and not which approximations made it so. The column is added empty and
+    nothing is back-filled here: a stored solution's strategies are in its
+    covariance, and :class:`~geocomp.core.models.Solution` puts them in its
+    provenance as it is read.
+    """
+    _add_column(target, "gc_provenance", "strategies")

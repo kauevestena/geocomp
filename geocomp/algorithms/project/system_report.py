@@ -118,17 +118,25 @@ class SystemReportAlgorithm(GeoCompAlgorithm):
         }
 
     def _collect_engines(self) -> list[tuple[str, str, str]]:
-        """Engine name, status and version.
+        """Engine name, status and version, probed as the algorithms would.
 
-        P0 has no engine adapters yet; the DynAdjust and RTKLIB rows appear in
-        P6 and P7. Reporting them as not yet supported is honest, and it is what
-        makes the report useful from the first release rather than misleading.
+        Written in P0 to say the engines were "not integrated yet", and left
+        saying it after P6 and P7 integrated them -- in the report a support
+        request attaches, which is where it most needed to be right. Found by
+        P12c's audit.
         """
-        not_yet = self.tr("Not integrated yet")
-        return [
-            ("DynAdjust", not_yet, self.tr("Arrives in phase P6")),
-            ("RTKLIB (rnx2rtkp)", not_yet, self.tr("Arrives in phase P7")),
-        ]
+        from geocomp.engines.status import engine_status
+
+        rows = []
+        for engine in engine_status():
+            if engine.version is None:
+                rows.append((engine.name, self.tr("Not installed"), ""))
+                continue
+            state = self.tr("Installed") if engine.version.tested else self.tr(
+                "Installed, a version GeoComp has not been tested with"
+            )
+            rows.append((engine.name, state, f"{engine.version.version} ({engine.version.path})"))
+        return rows
 
     def _collect_settings(
         self, feedback: QgsProcessingFeedback

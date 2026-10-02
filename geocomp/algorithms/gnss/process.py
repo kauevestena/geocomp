@@ -39,6 +39,7 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsWkbTypes,
 )
+from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
@@ -63,6 +64,16 @@ OUTPUT_JSON = "OUTPUT_JSON"
 OUTPUT_LAYER = "OUTPUT_LAYER"
 
 
+#: The shared body's own words. Through ``self.tr`` they were looked up under
+#: each mode's context and filed under none of them, so the four modes' common
+#: parameters and help never translated (found by P12c's audit).
+_CONTEXT = "GeoCompGnssProcess"
+
+
+def _tr(text: str) -> str:
+    return QCoreApplication.translate(_CONTEXT, text)
+
+
 class _GnssProcessAlgorithm(GeoCompAlgorithm):
     """Shared body of the four modes.
 
@@ -77,7 +88,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
     is_absolute = False
 
     def help_body(self) -> str:
-        body = self.tr(
+        body = _tr(
             "<p>Processes a folder of RINEX observations with <code>rnx2rtkp</code>. "
             "Sessions are discovered from the file headers, not their names, and "
             "only sessions that actually overlap in time are processed together.</p>"
@@ -97,19 +108,19 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         self.addParameter(
             QgsProcessingParameterFile(
                 FOLDER,
-                self.tr("Folder of RINEX observations"),
+                _tr("Folder of RINEX observations"),
                 behavior=QgsProcessingParameterFile.Behavior.Folder,
             )
         )
         if not self.is_absolute:
             self.addParameter(
                 QgsProcessingParameterString(
-                    BASE_STATION, self.tr("Base station"), optional=True
+                    BASE_STATION, _tr("Base station"), optional=True
                 )
             )
         self.addParameter(
             QgsProcessingParameterString(
-                ROVER_STATION, self.tr("Rover station"), optional=True
+                ROVER_STATION, _tr("Rover station"), optional=True
             )
         )
         # Default -1 means "use the Global Settings value". A default that
@@ -118,7 +129,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 ELEVATION_MASK,
-                self.tr("Elevation mask, degrees (-1 uses Global Settings)"),
+                _tr("Elevation mask, degrees (-1 uses Global Settings)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=-1.0,
                 minValue=-1.0,
@@ -128,13 +139,13 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterBoolean(
                 KEEP_WORK_DIR,
-                self.tr("Keep the engine's working directory"),
+                _tr("Keep the engine's working directory"),
                 defaultValue=True,
             )
         )
         for name, label, filter_text in (
-            (OUTPUT_POS, self.tr("Solution"), self.tr("RTKLIB solution (*.pos)")),
-            (OUTPUT_JSON, self.tr("Quality summary"), self.tr("JSON files (*.json)")),
+            (OUTPUT_POS, _tr("Solution"), _tr("RTKLIB solution (*.pos)")),
+            (OUTPUT_JSON, _tr("Quality summary"), _tr("JSON files (*.json)")),
         ):
             self.addParameter(
                 QgsProcessingParameterFileDestination(
@@ -144,7 +155,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 OUTPUT_LAYER,
-                self.tr("Solution epochs (layer)"),
+                _tr("Solution epochs (layer)"),
                 type=POINT_SOURCE_TYPE,
                 optional=True,
                 createByDefault=False,
@@ -165,7 +176,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         if self.is_absolute:
             # FR-604: at the top of the log, before any result exists to be
             # mistaken for a good one.
-            feedback.pushWarning(self.tr(
+            feedback.pushWarning(_tr(
                 "Absolute (PPP) processing in RTKLIB is limited and typically "
                 "decimetre-level. Prefer Relative processing where a base "
                 "station is available."
@@ -189,15 +200,15 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         # every file it could not use rather than stopping at the first.
         for path, reason in scan.skipped:
             feedback.pushWarning(
-                self.tr("Skipped %1: %2").replace("%1", str(path)).replace("%2", reason)
+                _tr("Skipped %1: %2").replace("%1", str(path)).replace("%2", reason)
             )
         for path, reason in scan.warnings:
             feedback.pushWarning(
-                self.tr("%1: %2").replace("%1", str(path)).replace("%2", reason)
+                _tr("%1: %2").replace("%1", str(path)).replace("%2", reason)
             )
         if not scan.sessions:
             raise QgsProcessingException(
-                self.tr("No RINEX observation sessions were found in %1").replace(
+                _tr("No RINEX observation sessions were found in %1").replace(
                     "%1", str(folder)
                 )
             )
@@ -214,7 +225,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             groups = overlapping_groups(scan.sessions)
             if not any(len(group) >= 2 for group in groups):
                 raise QgsProcessingException(
-                    self.tr(
+                    _tr(
                         "Relative processing needs two sessions that observed at the "
                         "same time; the folder's sessions do not overlap."
                     )
@@ -227,7 +238,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
             job_kwargs["base"] = base
             feedback.pushInfo(
-                self.tr("Base %1 → rover %2")
+                _tr("Base %1 → rover %2")
                 .replace("%1", base.station_id)
                 .replace("%2", rover.station_id)
             )
@@ -259,7 +270,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
 
         quality = quality_from_solution(result.solution, session_id=rover.station_id)
         feedback.pushInfo(
-            self.tr("%1 epochs, %2% with resolved ambiguities")
+            _tr("%1 epochs, %2% with resolved ambiguities")
             .replace("%1", str(quality.epochs))
             .replace("%2", f"{quality.fixed_fraction * 100:.1f}")
         )
@@ -306,7 +317,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             features=lambda: gnss_trajectory_features(
                 trajectory_from_solution(result.solution)
             ),
-            layer_name=self.tr("GNSS trajectory"),
+            layer_name=_tr("GNSS trajectory"),
         )
 
         feedback.setProgress(100)
@@ -323,7 +334,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         if name:
             if name not in candidates:
                 raise QgsProcessingException(
-                    self.tr("No %1 session for station %2; found: %3")
+                    _tr("No %1 session for station %2; found: %3")
                     .replace("%1", role)
                     .replace("%2", name)
                     .replace("%3", ", ".join(sorted(candidates)) or "none")
@@ -331,7 +342,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             return candidates[name]
         if len(candidates) != 1:
             raise QgsProcessingException(
-                self.tr("Name the %1 station explicitly; the folder holds: %2")
+                _tr("Name the %1 station explicitly; the folder holds: %2")
                 .replace("%1", role)
                 .replace("%2", ", ".join(sorted(candidates)))
             )

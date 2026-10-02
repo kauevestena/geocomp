@@ -741,6 +741,12 @@ def to_solution(
                 ),
                 covariance=block,
                 ellipse=ellipse,
+                # specs/06 section 4.5, as core.statistics.positional_uncertainty
+                # defines it: the ellipse's semi-major axis at the solution's
+                # confidence. Until P12c the in-house adjustment never set it --
+                # only DynAdjust's reader did -- so every report, table, layer
+                # and thematic map of an in-house solution showed it as missing.
+                positional_uncertainty=ellipse.semi_major if ellipse is not None else None,
             )
         )
 
