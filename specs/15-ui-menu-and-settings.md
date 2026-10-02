@@ -55,8 +55,14 @@ closures were implicit in the others and each produces a document the next step 
 [`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
 
-**Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Add base
-map · GeoComp system report · Install tutorial dataset.
+**Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
+project to PostGIS · Import project from PostGIS · Add base map · GeoComp system report · Install tutorial
+dataset.
+
+> **P11 added the two mode switches** of [`17`](./17-persistence-and-interoperability.md) §4, beside the store
+> they move a project into and out of, and gave *Save to project store* a database mode: a PostgreSQL connection
+> saved in QGIS and a schema, instead of a GeoPackage. The connection is chosen from QGIS's own list, so its
+> login stays QGIS's (NFR-010).
 
 > **Why an eighth entry.** Six algorithms had accumulated with no menu home: P0's system report and tutorial
 > dataset, and P5's export, report, store and base map. Each was individually defensible as toolbox-only, and

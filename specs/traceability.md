@@ -20,7 +20,7 @@ appears in exactly one phase of [`ROADMAP.md`](./ROADMAP.md), and no row below i
 | **O2** | Integrate DynAdjust via the command line: automatic input generation, execution, result import into QGIS | FR-036, FR-163, FR-300…FR-306, FR-320…FR-325, FR-930 | P5, P6 |
 | **O3** | Integrate `rnx2rtkp` (RTKLIB) for GNSS processing, including batch runs and automatic product download | FR-164, FR-350…FR-359, FR-600…FR-604 | P7 (FR-352, FR-353 re-planned into P10 — the egress policy blocks every candidate archive from the development environment, and P10 is the first phase whose work needs one — and within it to P10c, where they were built against NOAA's open-data archive) |
 | **O4** | Support multiple geodetic observation types: angles, distances, height differences, gravimetry, GNSS points and baselines | FR-103, FR-104, FR-227, FR-400…FR-411, FR-500…FR-504, FR-602, FR-700, FR-800…FR-803 | P1, P3, P4, P7, P8, P9 |
-| **O5** | Integrate PostGIS and other spatial databases for persistent storage of networks, observations and results | FR-130…FR-135 | P5, P11 |
+| **O5** | Integrate PostGIS and other spatial databases for persistent storage of networks, observations and results | FR-130…FR-135 | P5 (GeoPackage), P11 (PostGIS, mode switching, concurrent saves) |
 | **O6** | Multi-epoch comparison and structural monitoring: temporal metadata, compatibility checks, transformation, displacements and deformation | FR-105, FR-207, FR-830…FR-838, FR-903, FR-932 | P1, P10a (computation), P10b (algorithms, layers, panel, report) |
 | **O7** | Make the plugin trilingual (pt-BR, en, es) using the QGIS i18n infrastructure | FR-090…FR-095 | P0, P12 |
 | **O8** | Involve undergraduate and postgraduate students in development, test-data collection and real case studies | FR-950, FR-952, FR-954 | P3, P13 |
@@ -139,7 +139,7 @@ this group and refuses a submenu under any other at import.
 | §Justificativa aplicada — monitoring reports, graphical and cartographic | FR-932 | P10b |
 | §Integração com o rnx2rtkp — comparative testing of processing configurations | FR-359 | P7c — the algorithm and the significance test; the side-by-side dialog is still to come ([`11`](./11-module-gnss.md) §6) |
 | §Integração com o rnx2rtkp — architecture open to other GNSS engines | FR-303 | P6 |
-| §Integração com PostGIS — transparent switching between file and database modes | FR-132 | P5, P11 |
+| §Integração com PostGIS — transparent switching between file and database modes | FR-132 | P5, P11 — `io/store/transfer.py`; *Export project to PostGIS* / *Import project from PostGIS*, each comparing every table after the copy (`tests/test_postgis_store.py`, `tests/qgis/test_postgis_project.py`) |
 | §Integração com PostGIS — traceability and reprocessing | FR-134, FR-135 | P5 |
 | §Comparação com softwares comerciais — comparison protocol | FR-951 | P13 |
 | §Resultados esperados — upstream feedback to DynAdjust and RTKLIB | FR-955 | P13 |
