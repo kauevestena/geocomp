@@ -495,3 +495,54 @@ def _comparable(value):
     if isinstance(value, list | tuple):
         return [_comparable(item) for item in value]
     return value
+
+
+class TestACancelledExport:
+    """``specs/17`` criterion 6, on the backend where a copy creates its target."""
+
+    class _CancelAfter:
+        def __init__(self, n: int):
+            self.asked, self.n = 0, n
+
+        def is_cancelled(self) -> bool:
+            self.asked += 1
+            return self.asked >= self.n
+
+    @staticmethod
+    def _exists(schema: str) -> bool:
+        connection = psycopg2.connect(DSN)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM information_schema.schemata WHERE schema_name = %s", (schema,)
+                )
+                return cursor.fetchone() is not None
+        finally:
+            connection.close()
+
+    def test_the_rows_roll_back_and_the_schema_it_made_goes(self, schema, complete, tmp_path):
+        from geocomp.core.cancellation import Cancelled
+
+        path = tmp_path / "p.gpkg"
+        with open_store(path, create=True) as source:
+            _fill(source, complete)
+        with open_store(path) as source, _open(schema, create=True) as database:
+            assert database.created_schema
+            with pytest.raises(Cancelled):
+                copy_store(source, database, self._CancelAfter(3))
+            assert database.schema_version_or_none() is None
+            database.remove_what_was_created()
+        assert not self._exists(schema)
+
+    def test_a_schema_that_was_there_keeps_existing(self, schema):
+        """Only what this store created is taken away."""
+        connection = psycopg2.connect(DSN)
+        connection.autocommit = True
+        with connection.cursor() as cursor:
+            cursor.execute(f'CREATE SCHEMA "{schema}"')
+        connection.close()
+        with _open(schema, create=True) as database:
+            assert not database.created_schema and database.created_tables
+            database.remove_what_was_created()
+            assert database.tables() == []
+        assert self._exists(schema)

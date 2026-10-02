@@ -47,6 +47,19 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
     #: Translation context. One per algorithm keeps Linguist navigable.
     TR_CONTEXT = "GeoCompAlgorithm"
 
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Every ``processAlgorithm`` writes all its outputs or none (specs/16 §7).
+
+        Wrapped here, when the class is defined, so that no algorithm can leave
+        the rule out: :mod:`geocomp.algorithms.transaction` says what it does.
+        """
+        super().__init_subclass__(**kwargs)
+        own = cls.__dict__.get("processAlgorithm")
+        if own is not None:
+            from geocomp.algorithms.transaction import transactional
+
+            cls.processAlgorithm = transactional(own)
+
     @classmethod
     def spec(cls) -> AlgorithmSpec:
         """The registry entry for this class."""

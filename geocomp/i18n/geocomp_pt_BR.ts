@@ -2115,6 +2115,10 @@
             <translation>Análise</translation>
         </message>
         <message>
+            <source>Cancelled. Nothing was written: every output is as it was before the run.</source>
+            <translation>Cancelado. Nada foi gravado: todas as saídas estão como estavam antes da execução.</translation>
+        </message>
+        <message>
             <source>GNSS</source>
             <translation>GNSS</translation>
         </message>

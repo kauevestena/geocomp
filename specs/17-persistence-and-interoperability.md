@@ -410,7 +410,10 @@ written. `basemaps.reuse_existing_layer` is the *Add base map* algorithm's defau
 4. RD-01's `raw_data.csv` imports through a saved field mapping, including three-column DMS and a
    locale-independent decimal separator; reapplying the saved mapping to a second file works unchanged.
 5. An import with deliberately corrupt rows reports each one with its row number and imports the rest.
-6. Cancelling an import leaves the target unchanged.
+6. Cancelling an import leaves the target unchanged. *Met in P12c*: every algorithm's file outputs are
+   restored or removed on cancel ([`16`](./16-processing-provider.md) §7). A save into a project commits its
+   project, network and solution together or not at all (`ProjectStore.atomic`). A copy between backends
+   asks between tables and before it commits, and a PostGIS schema the run created is dropped again.
 7. An *Adjust*-format example file reads, adjusts, and writes back to the same format equivalently.
    *Blocked at P5 for want of a format specification and an example file; **met after P6**, once both were
    found — §5.2.*

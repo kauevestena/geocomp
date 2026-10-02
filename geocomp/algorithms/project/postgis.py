@@ -40,6 +40,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.core.cancellation import Cancelled
 from geocomp.core.errors import GeoCompError
 from geocomp.services.messages import message_for
 
@@ -84,12 +85,13 @@ class _SwitchAlgorithm(GeoCompAlgorithm):
         return connection, schema
 
     def _copy(self, source, target, feedback: QgsProcessingFeedback) -> int:
+        from geocomp.algorithms.transaction import FeedbackCancellation
         from geocomp.io.store.transfer import copy_store
 
         feedback.pushInfo(
             _tr("Copying %1 to %2").replace("%1", source.location).replace("%2", target.location)
         )
-        report = copy_store(source, target)
+        report = copy_store(source, target, FeedbackCancellation(feedback))
         for name, count in report.rows.items():
             if count:
                 feedback.pushInfo(f"  {name}: {count}")
@@ -158,7 +160,13 @@ class ExportToPostgisAlgorithm(_SwitchAlgorithm):
         try:
             with open_store(path, migrate_older=True) as source:
                 with open_database_store(connection, schema, create=True) as target:
-                    rows = self._copy(source, target, feedback)
+                    try:
+                        rows = self._copy(source, target, feedback)
+                    except Cancelled:
+                        # The rows were rolled back; what opening the target
+                        # made goes too, so the database is as it was.
+                        target.remove_what_was_created()
+                        raise
                     location = target.location
         except GeoCompError as error:
             raise QgsProcessingException(message_for(error)) from error

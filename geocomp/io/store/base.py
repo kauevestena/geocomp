@@ -256,6 +256,19 @@ class ProjectStore:
         self._commit()
 
     @contextmanager
+    def atomic(self) -> Iterator[None]:
+        """Several writes as one: all of them commit, or none does.
+
+        Each save is a transaction already. This is for a caller making several
+        -- a project, its network and a solution -- which a cancelled or failed
+        run must not leave half made (``specs/17`` criterion 6). An exception
+        inside, :class:`~geocomp.core.cancellation.Cancelled` included, rolls
+        every one of them back.
+        """
+        with self._writing():
+            yield
+
+    @contextmanager
     def _writing(self) -> Iterator[None]:
         """A write, refused if someone else saved since this store last looked.
 

@@ -296,7 +296,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 107 met, 18 partly met, 8 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 109 met, 18 partly met, 6 open, 2 manual, of 135.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -395,13 +395,13 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 16 | 5 | A model chaining import, pre-process, adjust, visualise runs headless | **met** | Since P12c: `tests/qgis/test_model_chain.py::TestTheModel`. The test builds the model, saves it as a `.model3`, loads it back and runs it from the field book to the solution and its layers |
 | 16 | 6 | Translated help documenting every parameter with units | **met** | Since P12c: every algorithm's help lists its parameters and outputs by their labels, every number's label states its unit or is named dimensionless, and the help's own words translate (`tests/qgis/test_algorithm_help.py`) |
 | 16 | 7 | Inputs validated before computing, the failure naming the parameter | **partly met** | Refusals name what is wrong algorithm by algorithm (`tests/qgis/test_analysis_algorithms.py::TestInspect::test_a_disconnected_network_is_blocked_and_named`, `tests/qgis/test_project_algorithms.py::test_an_unknown_service_names_the_ones_that_exist`); no test covers every algorithm |
-| 16 | 8 | Cancelling leaves no partial output | **open** | 13 of 46 algorithms check for cancellation, and none writes its outputs atomically. The task service's cancellation is tested (`tests/qgis/test_task_service.py::TestCancellation`), but it is not the path Processing runs |
+| 16 | 8 | Cancelling leaves no partial output | **met** | Since P12c, held around every algorithm (`geocomp/algorithms/transaction.py`, applied by the base class to all 46: `tests/qgis/test_cancellation.py::test_every_algorithm_runs_inside_the_transaction`). A run cancelled after writing puts back the file it replaced and removes those it made (`tests/qgis/test_cancellation.py::TestCancelledAfterWriting`), and is reported as not finished. Database targets roll back in their own transaction (`tests/test_project_store.py::TestSeveralWritesAsOne`) |
 | 17 | 1 | GeoPackage → PostGIS → GeoPackage identical | **met** | `tests/test_postgis_store.py`, `tests/qgis/test_postgis_project.py` |
 | 17 | 2 | Newer schemas refused, older migrated after a backup, both backends | **met** | `tests/test_project_store.py::TestVersioning`, `tests/test_postgis_store.py::TestVersioning` |
 | 17 | 3 | Deleting what a solution used is refused | **met** | `tests/test_project_store.py::TestNothingThatProducedAResultIsDeleted`, `tests/test_postgis_store.py::TestNothingThatProducedAResultIsDeleted::test_deleting_an_observation_a_solution_used_is_refused` |
 | 17 | 4 | RD-01 through a saved mapping, reapplied to a second file | **met** | `tests/test_fieldbook_import.py::TestReadingRd01`, `tests/test_fieldbook_import.py::TestMappingDocument`, `tests/test_fieldbook_import.py::TestLocaleIndependentNumbers` |
 | 17 | 5 | Corrupt rows reported by number, the rest imported | **met** | `tests/test_fieldbook_import.py::TestPerRecordErrors` |
-| 17 | 6 | Cancelling an import leaves the target unchanged | **open** | As 16.8: neither import checks for cancellation, and neither writes atomically |
+| 17 | 6 | Cancelling an import leaves the target unchanged | **met** | Since P12c: a field-book import (`tests/qgis/test_cancellation.py::test_a_cancelled_import_leaves_its_target_unchanged`); a save into a project, GeoPackage and PostGIS (`tests/qgis/test_cancellation.py::test_a_cancelled_save_leaves_the_project_as_it_was`, `tests/qgis/test_postgis_project.py::TestCancelling`); the PostGIS switches, which roll back the rows and drop a schema the run created (`tests/test_postgis_store.py::TestACancelledExport`) |
 | 17 | 7 | An *Adjust* file reads, adjusts and writes back equivalently | **met** | Since after P6: `tests/test_adjust.py`, `tests/test_adjust_corpus.py` |
 | 17 | 8 | A geoid model imported, applied, recorded, propagated | **met** | `tests/test_geoid_in_a_solution.py::test_the_whole_chain_from_file_to_solution` |
 | 17 | 9 | Covariance stored and reloaded bit-identical | **met** | `tests/test_project_store.py::TestTheSolution::test_the_covariance_is_bit_identical`, `tests/test_postgis_store.py::TestARoundTrip::test_the_covariance_is_bit_identical` |
