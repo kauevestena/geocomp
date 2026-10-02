@@ -310,7 +310,10 @@ class TestRd01ArrivesAsStyledLayers:
             details = context.layerToLoadOnCompletionDetails(results[name])
             details.postProcessor().postProcessLayer(layer, context, QgsProcessingFeedback())
             produced[name] = layer
-        return produced
+        # Yielded, not returned: the layers live in the context's temporary
+        # store, which deletes them when the context goes, and this frame is
+        # what keeps the context until the class's tests are done.
+        yield produced
 
     def test_every_station_has_its_ellipse(self, layers):
         assert layers["OUTPUT_ELLIPSE_LAYER"].featureCount() == 3
