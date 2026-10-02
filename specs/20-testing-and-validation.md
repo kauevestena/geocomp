@@ -39,6 +39,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Locale round trip: every output format written under a comma-decimal locale reads back under a period-decimal one | FR-095 |
 | No credential appears in any log, config, provenance record or export | NFR-010 |
 | Basic and Advanced modes produce identical numeric results with defaults, for every algorithm | FR-071 |
+| Every acceptance criterion of every specification has one row in §10's register, and every test a row cites exists | §9 criterion 8 |
 
 ## 3. Reference datasets (FR-950)
 
@@ -257,4 +258,162 @@ requirements, and an untested fallback is a fallback that does not work.
 6. Coverage of `core/` is measured and reported per release; every public function has at least one test.
 7. A comparison export producing the §5 step-3 fields exists and is documented.
 8. Every acceptance criterion in every other specification document has a corresponding automated test, or a
-   documented reason why it must be manual.
+   documented reason why it must be manual. *(The register, §10, since P12c.)*
+
+## 10. Acceptance register (P12c)
+
+**Every acceptance criterion in specifications 05 to 21 has exactly one row here**, saying whether it is met
+and what shows it — criterion 8 above, made checkable. `tests/structural/test_acceptance_register.py` reads
+each document's acceptance section and this table, and fails when a criterion has no row or two, when a row
+names a criterion that does not exist, when a **met** row cites no test, when a row that is not met says
+nothing about why, or when a cited test, file or class does not exist. It cannot tell whether a test proves
+what its row claims; that is what review is for, and a row is changed in the same commit as the test it cites.
+
+| State | Means |
+|---|---|
+| **met** | A test that runs in CI asserts the criterion as written. Tier 4 tests run in the `engine` workflow, and tests needing QGIS ≥ 3.38 run only on the CI image |
+| **partly met** | Part of the criterion is asserted; the row names the part that is not |
+| **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
+| **manual** | Cannot be automated; the row says why and how it is checked instead |
+
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 96 met, 27 partly met, 10 open, 2 manual, of 135.** The audit
+found that several criteria believed met were met in part. A test existed near each one but did not assert
+what the criterion says, and nothing compared the two until this table. The rows say which part.
+
+| Spec | # | Criterion, abridged | State | Evidence, or what is missing |
+|---|---|---|---|---|
+| 05 | 1 | Jacobians against numerical derivatives | **met** | `tests/test_adjustment.py::TestJacobians` (central differences: the observation equations are not complex-safe), `tests/test_uncertainty.py::TestJacobianVerification`, `tests/test_geodesy.py::TestJacobians`, `tests/test_differentiation.py` |
+| 05 | 2 | Propagation reproduces Ghilani and Gemael | **partly met** | RD-02 is validated three ways, closed form, first order and Monte Carlo (`tests/test_reference_propagation.py`). Published standard deviations are reproduced through RD-11 (`tests/test_krumm_corpus.py::test_the_published_standard_deviations_are_reproduced_too`). No printed *propagation* example is transcribed: Gemael waits on W-04, and the books are not transcribed from memory |
+| 05 | 3 | A pre-processing chain preserves the combined propagation | **partly met** | The identity holds in general (`tests/test_uncertainty.py::TestRigorousPropagation::test_propagation_composes`). No test runs the real total-station chain against a single propagation through it |
+| 05 | 4 | No geodetic value without an uncertainty | **met** | `tests/structural/test_no_bare_geodetic_floats.py` |
+| 05 | 5 | Approximate results name their strategies in export, report and provenance | **partly met** | The report does (`tests/qgis/test_adjustment_report.py::TestItIsDefensible::test_an_approximate_solution_names_its_strategies`). The export names them per observation but not for the solution, and `Provenance` records the mode without the strategies |
+| 05 | 6 | Correlated operands refused by the scalar path | **met** | `tests/test_uncertainty.py::TestCorrelationGuard` |
+| 06 | 1 | Ghilani and Gemael network examples reproduced | **partly met** | Ghilani by name through RD-11, coordinates to 0.05 mm (`tests/test_krumm_corpus.py::test_the_published_coordinates_are_reproduced`); the corpus publishes coordinates, so residuals, σ̂₀² and ellipses are not compared against print. Gemael waits on W-04 |
+| 06 | 2 | Free and constrained solutions consistent | **met** | `tests/test_adjustment.py::TestFreeNetworkAndDatum` |
+| 06 | 3 | A 2 × MDB blunder found on the first pass | **met** | `tests/test_statistics.py::TestDataSnooping::test_a_blunder_at_twice_the_mdb_is_located_on_the_first_pass` |
+| 06 | 4 | Rank deficiency diagnosed, never a number | **met** | `tests/test_adjustment.py::TestRankDiagnosis` |
+| 06 | 5 | Pre-analysis reproduces the adjusted Σₓ | **met** | `tests/test_statistics.py::TestPreAnalysis` |
+| 06 | 6 | In-house core and DynAdjust agree | **met** | Tier 4: `tests/test_dynadjust_crossvalidation.py::TestTheTwoEnginesAgree`, `tests/test_dynadjust_pipeline.py::TestAProjectedNetworkCrossValidates`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates` |
+| 06 | 7 | Every statistic with critical value, confidence and decision | **met** | `tests/test_statistics.py::TestGlobalTest::test_the_statistic_carries_both_critical_values`, `tests/test_statistics.py::TestDataSnooping::test_the_distribution_used_is_reported` |
+| 07 | 1 | DynaML validates and imports without warnings, every mapped type | **partly met** | Imports are checked against `dnaimport`'s own counts on three networks: GNSS, levelling, and directions, zenith angles and slope distances (`tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_an_unparsed_measurement_file_is_caught_despite_a_zero_exit`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates`). Not every type of §4.2 passes through `dnaimport`, and nothing validates against the schema |
+| 07 | 2 | A baseline cluster round-trips at full precision | **met** | `tests/test_dynaml_writer.py::test_the_covariance_survives_to_full_double_precision`, `tests/test_gnss_to_dynadjust.py::TestTwoBaselinesBecomeAnXCluster` |
+| 07 | 3 | The pipeline runs end to end to a Solution | **met** | Tier 4: `tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_the_whole_pipeline_reaches_a_solution` |
+| 07 | 4 | Parsed results match the printed files | **met** | `tests/test_dynadjust_output.py`, against files a real DynAdjust wrote; tier 4 re-runs them (`tests/test_dynadjust_output.py::TestTheFixtureDriftGuard`) |
+| 07 | 5 | Cross-validation passes | **met** | As 06.6 |
+| 07 | 6 | Every **[C]** confirmed | **manual** | A documentation audit, not a behaviour; discharged in P6 against upstream at a pinned commit, recorded in [`07`](./07-engine-dynadjust.md)'s header |
+| 07 | 7 | Without DynAdjust, everything else works | **met** | `tests/qgis/test_engine_algorithms.py::TestAdjustWithoutTheEngine::test_it_says_how_to_get_dynadjust_rather_than_failing_obscurely`; the whole suite runs without engines in `.github/workflows/test.yml` |
+| 08 | 1 | Session discovery over RINEX 2 and 3, compressed, mismatches reported | **met** | `tests/test_gnss_discovery.py`, `tests/test_rinex.py` |
+| 08 | 2 | A configuration fed back through `-k` reproduces the run bit for bit | **partly met** | The file written is the one the engine read (`tests/test_rtklib_engine.py::TestAgainstTheRealEngine::test_the_written_configuration_is_what_the_engine_read`); no test re-runs it and compares the output |
+| 08 | 3 | `.pos` parsing round-trips, every format | **met** | `tests/test_pos_reader.py::TestEveryFormatReads`, `tests/test_pos_reader.py::TestTheFormatsAgree` |
+| 08 | 4 | Covariance reaches a G measurement intact | **met** | `tests/test_gnss_to_dynadjust.py::TestOneBaselineBecomesAGMeasurement` |
+| 08 | 5 | One broken session does not abort a batch | **met** | `tests/test_gnss_batch.py::TestOneBadSessionDoesNotAbortTheBatch` |
+| 08 | 6 | Products from cache on a second run, named in provenance | **met** | `tests/test_gnss_products.py::TestResolution`, `tests/test_gnss_products.py::TestProvenance` |
+| 08 | 7 | No credential anywhere GeoComp writes | **met** | `tests/test_gnss_products.py::TestCredentials`, `tests/qgis/test_product_download.py` |
+| 08 | 8 | A PPP mode shows the FR-604 notice | **met** | Since P12c: in the Absolute algorithms' help and description, not the Relative ones', and as the first warning of a run (`tests/qgis/test_ppp_notice.py`) |
+| 09 | 1 | RD-01 reproduces, except where the prototype is wrong | **met** | `tests/test_reference_total_station.py::TestReproduction`, `tests/test_reference_total_station.py::TestTheOneHundredAndEightyDegreeError` |
+| 09 | 2 | Both RD-01 defects caught | **met** | `tests/test_reference_total_station.py::TestTheDistanceBlunder`, `tests/test_reference_total_station.py::TestTheOneHundredAndEightyDegreeError` |
+| 09 | 3 | The wrap case | **met** | `tests/test_reference_total_station.py::TestTheWrapCase::test_the_case_the_spec_names` |
+| 09 | 4 | Injected collimation and index error recovered | **met** | `tests/test_reference_total_station.py::TestInjectedInstrumentalErrors` |
+| 09 | 5 | Traverse against a published worked example | **open** | Waits on W-07. The traverse paths are tested against constructed truth (`tests/test_survey_computations.py::TestTraverse`), not against print |
+| 09 | 6 | The danger circle detected, not solved | **met** | `tests/test_survey_computations.py::TestTheDangerCircle` |
+| 09 | 7 | A triangulateration free and constrained is consistent | **met** | Since P12c, on RD-03's triangulateration as well as its trilateration (`tests/test_adjustment.py::TestFreeNetworkAndDatum`, parametrised over both) |
+| 09 | 8 | Every output carries an uncertainty and a mode | **met** | `tests/structural/test_no_bare_geodetic_floats.py::TestTechniqueModuleReturns` |
+| 09 | 9 | RD-01 through the menu gives styled layers with ellipses | **partly met** | RD-01 runs the chain through Processing to a solution with ellipses (`tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain`); styled layers are asserted for the analysis adjustment (`tests/qgis/test_result_layers.py::TestTheStylesLoad`), not for RD-01's |
+| 10 | 1 | Three schemes reproduce published examples | **open** | Waits on W-05. RD-04's field books are generated by inverting the equations under test (`tests/test_levelling.py::TestEqualSights`, `tests/test_levelling.py::TestExtremeSights`, `tests/test_levelling.py::TestReciprocalSights`), which proves correctness but not agreement by name |
+| 10 | 2 | Loop misclosure and tolerance against a worked example, failing case included | **partly met** | The failing case is asserted (`tests/test_levelling.py::TestClosures`); agreement with a published example waits on W-05 |
+| 10 | 3 | Extreme sights are a correlated cluster that helps | **met** | `tests/test_levelling.py::TestExtremeSights::test_the_correlation_makes_a_derived_difference_better_not_worse` |
+| 10 | 4 | Length and setup weighting consistent, and with a published example | **partly met** | Consistent with each other (`tests/test_levelling.py::TestTheNetwork::test_length_and_setup_weighting_agree_on_the_heights`); a network published under both waits on W-06 |
+| 10 | 5 | Geometric and trigonometric combined, variance components by technique | **partly met** | The computation, since P12c: geometric and trigonometric height differences in one network, a factor of 4 recovered on the mis-declared technique and 1 on the other (`tests/test_variance_components.py::TestTwoLevellingTechniques`). No algorithm reads the document *Trigonometric levelling* writes, so the two cannot yet be combined from the menu |
+| 10 | 6 | Mixed heights without a geoid refused; with one, converted and named | **met** | `tests/test_levelling.py::TestHeightSystems` |
+| 10 | 7 | Every output carries an uncertainty and a mode | **met** | `tests/test_levelling.py::TestEveryOutputCarriesAnUncertainty` |
+| 10 | 8 | The tolerance gate and the orthometric correction | **met** | `tests/test_levelling.py::TestTheToleranceGate`, `tests/test_levelling.py::TestOrthometricCorrectionOfLines`, `tests/qgis/test_levelling_algorithms.py` |
+| 11 | 1 | Mixed RINEX sessions with mismatches reported | **met** | `tests/test_gnss_discovery.py` |
+| 11 | 2 | A static session reproduces a published reference within tolerance | **met** | Tier 4, on the criterion as P7e restated it: loop closure and repeatability ([`20`](./20-testing-and-validation.md) §6), `tests/test_rd06.py::TestTheTriangleCloses`. Agreement with the published coordinate is reported, not judged (`tests/test_rd06.py::test_the_published_coordinate_comparison_is_reported_not_judged`) |
+| 11 | 3 | The independent subset identified | **met** | `tests/test_gnss_baselines.py::TestTheIndependentSubset` |
+| 11 | 4 | A baseline reaches a G measurement intact | **met** | As 08.4 |
+| 11 | 5 | Antenna height reduced twice is prevented | **met** | `tests/test_gnss_baselines.py::TestAntennaHeightIsRemovedOnce` |
+| 11 | 6 | Two configurations compared with significance | **met** | `tests/test_gnss_comparison.py` |
+| 11 | 7 | A base station in another frame is transformed, with a record | **partly met** | The mismatch is refused (`tests/test_gnss_stations.py`); the P9a transformation is not applied in the base-station path |
+| 11 | 8 | An Absolute mode shows the FR-604 notice | **met** | As 08.8 |
+| 12 | 1 | Scale, tide and drift against worked examples | **partly met** | Tide against the CG-5 firmware (`tests/test_gravimetry_readings.py::TestTheTide`) and ETERNA (`tests/test_gravimetry_tides.py::TestAgainstEterna`); drift against pyGrav (`tests/test_rd07.py::TestGeoCompIsThePublishedModel`). Scale has no published example: W-02 |
+| 12 | 2 | Injected drift recovered with the truth | **met** | `tests/test_gravimetry_network.py::TestTheTruthIsRecovered` |
+| 12 | 3 | Pre-corrected and joint drift, consistent and different where they should be | **met** | `tests/test_gravimetry_network.py::TestPreCorrectionAgainstJointEstimation` |
+| 12 | 4 | A datum defect of one, reported | **met** | `tests/test_gravimetry_network.py::TestTheDatum` |
+| 12 | 5 | Absolute values weighted, not fixed | **met** | `tests/test_gravimetry_network.py::TestTheDatum::test_absolute_values_are_weighted_not_fixed` |
+| 12 | 6 | Uncheckable observations flagged prominently | **met** | `tests/test_gravimetry_network.py::TestUncheckableObservationsAreNamed`, `tests/qgis/test_gravimetry_algorithms.py` |
+| 12 | 7 | SI in storage, the configured unit on display | **met** | `tests/test_gravimetry_network.py::TestEveryOutputCarriesItsUncertainty::test_values_are_stored_in_si`, `tests/qgis/test_gravimetry_algorithms.py` |
+| 12 | 8 | Every output carries an uncertainty and a mode | **met** | `tests/test_gravimetry_network.py::TestEveryOutputCarriesItsUncertainty` |
+| 13 | 1 | A published combined example within tolerance | **met** | Caspary through RD-11 (`tests/test_krumm_corpus.py::test_the_published_standard_deviations_are_reproduced_too`) |
+| 13 | 2 | No geoid refuses; with one, it is named | **met** | `tests/test_geocentric_frame.py::TestHeightSystems`, `tests/qgis/test_adjustment_report.py::TestTheGeoidModelIsNamed` |
+| 13 | 3 | A mis-scaled technique's factor recovered | **met** | `tests/test_variance_components.py::TestTheEstimator::test_a_mis_scaled_technique_is_recovered` |
+| 13 | 4 | Two frames transformed with a record; irreconcilable refused | **met** | `tests/test_integration.py::TestCriterion4Frames` |
+| 13 | 5 | Clusters survive intact | **met** | `tests/test_integration.py::TestCriterion5Clusters` |
+| 13 | 6 | Gravity routed in-house, with the reason | **met** | `tests/test_integration.py::TestCriterion6Routing` |
+| 13 | 7 | Per-technique breakdowns in the report | **met** | `tests/test_integration.py::TestCriterion7Breakdown`, `tests/qgis/test_adjustment_report.py::TestTheTechniquesSection` |
+| 13 | 8 | Three techniques, one solution | **met** | `tests/test_integration.py::TestCriterion8ThreeTechniques` |
+| 14 | 1 | Frames transformed with a record; incompatible datums refused | **met** | `tests/test_monitoring.py::TestCriterion1Frames` |
+| 14 | 2 | A solution without an epoch refused | **met** | `tests/test_monitoring.py::TestCriterion2Epoch` |
+| 14 | 3 | A published deformation example reproduced | **open** | Waits on W-01: no published example is reachable ([`22`](./22-reference-data-sources.md) §5.3) |
+| 14 | 4 | An injected displacement found, no false positive | **met** | `tests/test_monitoring.py::TestCriterion4InjectedDisplacement` |
+| 14 | 5 | A moving reference station caught and named | **met** | `tests/test_monitoring.py::TestCriterion5MovingReference` |
+| 14 | 6 | Independence marked approximate with its bias | **met** | `tests/test_monitoring.py::TestCriterion6Independence` |
+| 14 | 7 | Not significant is not zero | **met** | `tests/test_monitoring.py::TestCriterion7NotSignificantIsNotZero` |
+| 14 | 8 | Three epochs give velocities and a plottable series | **met** | `tests/test_monitoring.py::TestCriterion8Series`, `tests/qgis/test_time_series_panel.py` |
+| 14 | 9 | Alerts flag the right stations, in results, styling and report | **met** | `tests/test_monitoring.py::TestAlerts`, `tests/qgis/test_monitoring_algorithms.py` |
+| 15 | 1 | The menu's eight entries in order, with the separator | **met** | Since P12c, on a main window: `tests/qgis/test_plugin_lifecycle.py::TestLoading::test_the_menu_is_on_the_menu_bar_with_its_eight_entries_in_order`; the structure in the registry it is built from, `tests/test_registry.py::TestMenuStructure` |
+| 15 | 2 | Menu items and algorithms correspond | **met** | `tests/structural/test_menu_algorithm_parity.py` |
+| 15 | 3 | Unload removes everything; reloading duplicates nothing | **met** | Since P12c: `tests/qgis/test_plugin_lifecycle.py`, in a QGIS of its own with a stand-in `iface` |
+| 15 | 4 | Global Settings shows the specified sections | **met** | `tests/test_settings_def.py`, `tests/qgis/test_settings_dialog.py` |
+| 15 | 5 | An instrument profile created, used, exported, imported, identical | **met** | Since P12c: `tests/test_total_station.py::TestAProfileTravels` |
+| 15 | 6 | A project-scope override takes effect and the UI shows its origin | **partly met** | It takes effect and every contributing scope is recorded (`tests/test_settings_resolution.py`); the window shows neither the override nor its origin |
+| 15 | 7 | Basic and Advanced identical, every algorithm | **met** | `tests/qgis/test_basic_advanced_identity.py` |
+| 15 | 8 | No string bypasses the translation layer | **met** | `tests/structural/test_i18n_strings.py` |
+| 16 | 1 | Provider `geocomp`, algorithms in their groups | **met** | `tests/test_registry.py`, and `tests/qgis/test_basic_advanced_identity.py::test_every_algorithm_is_checked` through the registered provider |
+| 16 | 2 | Toolbox, modeller, batch and PyQGIS give identical results | **partly met** | Every QGIS-tier test runs algorithms as PyQGIS does; the toolbox and batch dialogs are QGIS's own and run the same `processAlgorithm`. No test runs one through a model and compares |
+| 16 | 3 | The menu-to-algorithm correspondence | **met** | As 15.2 |
+| 16 | 4 | Basic and Advanced identical | **met** | As 15.7 |
+| 16 | 5 | A model chaining import, pre-process, adjust, visualise runs headless | **open** | Chaining is tested step to step (`tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain::test_the_network_document_feeds_the_analysis_algorithms`); no test builds a model |
+| 16 | 6 | Translated help documenting every parameter with units | **partly met** | Every algorithm has help through the base class, and the engine algorithms are checked (`tests/qgis/test_engine_algorithms.py::TestRegistration::test_every_parameter_is_described`); nothing checks every algorithm, or the units |
+| 16 | 7 | Inputs validated before computing, the failure naming the parameter | **partly met** | Refusals name what is wrong algorithm by algorithm (`tests/qgis/test_analysis_algorithms.py::TestInspect::test_a_disconnected_network_is_blocked_and_named`, `tests/qgis/test_project_algorithms.py::test_an_unknown_service_names_the_ones_that_exist`); no test covers every algorithm |
+| 16 | 8 | Cancelling leaves no partial output | **open** | 13 of 46 algorithms check for cancellation, and none writes its outputs atomically. The task service's cancellation is tested (`tests/qgis/test_task_service.py::TestCancellation`), but it is not the path Processing runs |
+| 17 | 1 | GeoPackage → PostGIS → GeoPackage identical | **met** | `tests/test_postgis_store.py`, `tests/qgis/test_postgis_project.py` |
+| 17 | 2 | Newer schemas refused, older migrated after a backup, both backends | **met** | `tests/test_project_store.py::TestVersioning`, `tests/test_postgis_store.py::TestVersioning` |
+| 17 | 3 | Deleting what a solution used is refused | **met** | `tests/test_project_store.py::TestNothingThatProducedAResultIsDeleted`, `tests/test_postgis_store.py::TestNothingThatProducedAResultIsDeleted::test_deleting_an_observation_a_solution_used_is_refused` |
+| 17 | 4 | RD-01 through a saved mapping, reapplied to a second file | **met** | `tests/test_fieldbook_import.py::TestReadingRd01`, `tests/test_fieldbook_import.py::TestMappingDocument`, `tests/test_fieldbook_import.py::TestLocaleIndependentNumbers` |
+| 17 | 5 | Corrupt rows reported by number, the rest imported | **met** | `tests/test_fieldbook_import.py::TestPerRecordErrors` |
+| 17 | 6 | Cancelling an import leaves the target unchanged | **open** | As 16.8: neither import checks for cancellation, and neither writes atomically |
+| 17 | 7 | An *Adjust* file reads, adjusts and writes back equivalently | **met** | Since after P6: `tests/test_adjust.py`, `tests/test_adjust_corpus.py` |
+| 17 | 8 | A geoid model imported, applied, recorded, propagated | **met** | `tests/test_geoid_in_a_solution.py::test_the_whole_chain_from_file_to_solution` |
+| 17 | 9 | Covariance stored and reloaded bit-identical | **met** | `tests/test_project_store.py::TestTheSolution::test_the_covariance_is_bit_identical`, `tests/test_postgis_store.py::TestARoundTrip::test_the_covariance_is_bit_identical` |
+| 18 | 1 | Every string in the catalogues; no unwrapped literal | **met** | `tests/structural/test_translations.py`, `tests/structural/test_i18n_strings.py` |
+| 18 | 2 | Portuguese or Spanish translates the whole UI | **partly met** | Both catalogues are complete (`tests/structural/test_translations.py::test_every_source_string_is_translated`), and the legends since P12b (`tests/qgis/test_thematic_maps.py::TestTheLegendSpeaksTheLanguage`); no test switches the language and reads the menus, dialogs and messages back |
+| 18 | 3 | The override works independently of QGIS's language | **partly met** | The setting is global (`tests/test_settings_def.py::TestScopes::test_language_is_global_only`); no test installs it against a different QGIS locale |
+| 18 | 4 | Terminology checked against the glossary by a script | **open** | No such script exists |
+| 18 | 5 | Files written under one decimal convention read under the other | **partly met** | Imports read either separator (`tests/test_fieldbook_import.py::TestLocaleIndependentNumbers`, `tests/test_levelbook_import.py`); no test writes under a comma locale and reads back |
+| 18 | 6 | Displayed numbers use the locale separator | **open** | Not built (FR-094): every report and table uses a point, recorded in P12a |
+| 18 | 7 | Basic and Advanced identical | **met** | As 15.7 |
+| 18 | 8 | No concatenation inside a translation call | **met** | `tests/structural/test_i18n_strings.py::test_no_composed_string_inside_a_translation_call` |
+| 19 | 1 | Styled layers with no manual styling | **met** | `tests/qgis/test_result_layers.py::TestTheStylesLoad` |
+| 19 | 2 | Ellipses at the confidence, the exaggeration in the legend | **met** | `tests/qgis/test_result_layers.py::TestTheExaggerationReachesTheReader`, `tests/qgis/test_print_layouts.py` |
+| 19 | 3 | Relative ellipses match the joint covariance | **partly met** | The computation (`tests/test_statistics.py::TestEllipses::test_the_relative_ellipse_uses_the_cross_covariance`); no layer draws one |
+| 19 | 4 | Styles are QML, editable, surviving a project save | **met** | `tests/structural/test_layer_styles.py`, `tests/qgis/test_thematic_maps.py::TestTheyLast` |
+| 19 | 5 | Every thematic map renders | **met** | `tests/qgis/test_thematic_maps.py::TestEachMapDrawsEachFeatureInItsClass` |
+| 19 | 6 | The time-series panel, both directions | **met** | `tests/qgis/test_time_series_panel.py` |
+| 19 | 7 | Reports in three languages, locale numbers, byte-identical | **partly met** | Byte-identical (`tests/qgis/test_adjustment_report.py::TestItIsDeterministic`); locale numbers are 18.6 |
+| 19 | 8 | An approximate solution's report names its strategies | **met** | `tests/qgis/test_adjustment_report.py::TestItIsDefensible::test_an_approximate_solution_names_its_strategies` |
+| 20 | 1 | T1 in under 60 seconds | **manual** | Measured, not enforced: 33 s on the development container for 3,497 tests (P12b); the `core` jobs of `.github/workflows/test.yml` report their duration |
+| 20 | 2 | Every structural check in §2 implemented | **partly met** | All but two, in `tests/structural/`, with the credential and identity checks in `tests/qgis/test_product_download.py` and `tests/qgis/test_basic_advanced_identity.py`. The help check covers the engine algorithms only (16.6), and the locale round trip is not implemented (18.5) |
+| 20 | 3 | Every reference dataset with an expected-results file and a test | **partly met** | §3's table: RD-01 to RD-04, RD-06, RD-07, RD-09, RD-11 and RD-12 have tests; RD-08's published half waits on W-01, RD-05 is not vendored, RD-10 is P13's |
+| 20 | 4 | Cross-validation on three networks | **met** | As 06.6 |
+| 20 | 5 | The CI matrix, engines-absent and SciPy-absent rows included | **met** | `.github/workflows/test.yml`'s `degraded environments` job |
+| 20 | 6 | Coverage measured per release; every public function tested | **open** | Coverage is not measured in CI |
+| 20 | 7 | A comparison export of §5's step-3 fields, documented | **partly met** | *Export solution tables* carries every step-3 field (`tests/test_export.py`); it is not documented as the comparison export, and no comparison has been run (W-12) |
+| 20 | 8 | Every criterion has a test or a reason | **met** | This table, held by `tests/structural/test_acceptance_register.py` |
+| 21 | 1 | The ZIP installs into a clean QGIS and validates | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it |
+| 21 | 2 | Two builds byte-identical | **met** | `.github/workflows/build.yml`, *The archive must be reproducible* |
+| 21 | 3 | Loads with no engine; engine operations explained | **met** | As 07.7 |
+| 21 | 4 | The engine manager on every OS, with an override | **partly met** | Verified on Linux (P6); Windows and macOS are pinned and untested (`tests/test_engines.py`) |
+| 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **partly met** | The QGIS-free tier runs on all three (`.github/workflows/test.yml`); the QGIS tier runs on Linux against one QGIS image |
+| 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
+| 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
+| 21 | 8 | The About dialog shows the licences and engine versions | **partly met** | Built (`gui/about_dialog.py`); no test opens it |

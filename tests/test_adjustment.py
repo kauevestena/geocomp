@@ -52,7 +52,13 @@ from geocomp.core.models import (
 )
 from geocomp.core.uncertainty import Covariance, Quantity
 from geocomp.core.units import Unit
-from tests.networks import free_trilateration, levelling_loop, triangulateration, trilateration
+from tests.networks import (
+    free_triangulateration,
+    free_trilateration,
+    levelling_loop,
+    triangulateration,
+    trilateration,
+)
 
 METRE, RADIAN, ACCEL = Unit.METRE, Unit.RADIAN, Unit.ACCELERATION
 
@@ -617,16 +623,30 @@ class TestTriangulateration:
         assert 0.1 < run.variance_factor_aposteriori < 5.0
 
 
+#: RD-03's plane networks, constrained and free: the trilateration for
+#: specs/06 criterion 2, the triangulateration for specs/09 criterion 7.
+FREE_AND_FIXED = {
+    "trilateration": (trilateration, free_trilateration),
+    "triangulateration": (triangulateration, free_triangulateration),
+}
+
+
 class TestFreeNetworkAndDatum:
-    """specs/06 section 7 criterion 2."""
+    """specs/06 section 7 criterion 2, and specs/09 criterion 7 on the triangulateration."""
+
+    @pytest.fixture(scope="class", params=sorted(FREE_AND_FIXED))
+    def case(self, request):
+        return FREE_AND_FIXED[request.param]
 
     @pytest.fixture(scope="class")
-    def free(self):
-        return adjust(free_trilateration().network, inner(Frame.PLANE_2D))
+    def free(self, case):
+        _fixed, freed = case
+        return adjust(freed().network, inner(Frame.PLANE_2D))
 
     @pytest.fixture(scope="class")
-    def fixed(self):
-        return adjust(trilateration().network, constrained(Frame.PLANE_2D))
+    def fixed(self, case):
+        held, _freed = case
+        return adjust(held().network, constrained(Frame.PLANE_2D))
 
     def test_the_free_solution_converges(self, free):
         assert free.converged
@@ -667,7 +687,7 @@ class TestFreeNetworkAndDatum:
 
                 assert separation(free) == pytest.approx(separation(fixed), abs=1e-6)
 
-    def test_inner_constraints_privilege_no_station(self, free):
+    def test_inner_constraints_privilege_no_station(self, free, case):
         """The trace-minimum condition: the *corrections* sum to zero in each
         component, so the solution sits as close as possible to the approximate
         coordinates rather than being pinned to any one station.
@@ -676,7 +696,8 @@ class TestFreeNetworkAndDatum:
         inner-constraint solution deliberately does not know where the truth is,
         which is exactly why it is the right choice for deformation analysis.
         """
-        reference = free_trilateration()
+        _fixed, freed = case
+        reference = freed()
         approximate = starting_values(
             reference.network, free.layout, inner(Frame.PLANE_2D), None
         )

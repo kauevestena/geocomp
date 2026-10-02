@@ -325,9 +325,22 @@ def free_trilateration() -> ReferenceNetwork:
     solution of the same data agree on everything a datum choice cannot change:
     residuals, the variance factor, and the relative geometry.
     """
-    reference = trilateration()
+    return _freed(trilateration(), "rd03-free")
+
+
+def free_triangulateration() -> ReferenceNetwork:
+    """The triangulateration network with no station fixed (``specs/09`` criterion 7).
+
+    The same datum defect as the trilateration's -- two translations and a
+    rotation, the distances fixing the scale -- with the angles taking part in
+    the free solution too.
+    """
+    return _freed(triangulateration(), "rd03-triangulateration-free")
+
+
+def _freed(reference: ReferenceNetwork, network_id: str) -> ReferenceNetwork:
     network = Network(
-        id="rd03-free",
+        id=network_id,
         crs="EPSG:31982",
         stations={
             station_id: Station(id=station_id, approx_position=station.approx_position)

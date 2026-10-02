@@ -1290,6 +1290,64 @@ Relative ellipses ([`19`](./19-visualization.md) §3 item 4) are in no layer, an
 (item 6) in no template. The fitted classes are fitted when the layer loads; a layer edited afterwards keeps
 them.
 
+### P12c — the audit, and the work it found
+
+**Delivered in several pull requests, not one.** The split table above gives P12c one pull request. The audit
+found too much for that: 31 criteria partly met and 12 open, with the work behind them ranging from a missing
+test to a feature not yet built. Since 2 October 2026 the maintainer's standing instruction is that a
+pull request whose CI is green is merged. P12c is therefore a sequence of pull requests, each one coherent,
+each one updating the register:
+
+| | Delivers |
+|---|---|
+| **P12c-1** | The register itself — [`20`](./20-testing-and-validation.md) §10, one row per criterion, held by a structural check — and the stale state notes it contradicted |
+| **P12c-2** | The gaps that are tests and small code: the FR-604 notice, the plugin's load and unload, a model run headless, help for every algorithm, the language switch, the glossary check, strategies in the export and the provenance, the remaining criteria of 05, 09, 10, 15 and 21 |
+| **P12c-3** | The gaps that are features: cancellation that leaves no partial output, the locale's decimal separator (FR-094) and the locale round trip, the settings window showing a project override, the base-station frame transformation, and the assumed epochs P12a left to this audit |
+| **P12c-4** | NFR-008: the sparse path, and the refusal without SciPy, measured |
+| **P12c-5** | The records: ocean loading, the native-speaker review, and the remaining **[C]** claims; P12's exit |
+
+#### P12c-1 — the register
+
+**Delivered.** [`20`](./20-testing-and-validation.md) §10: 135 rows, one per criterion of specifications 05 to
+21, each with its state and evidence. `tests/structural/test_acceptance_register.py` fails on a criterion
+with no row or two, a **met** row with no test, a row that is not met and gives no reason, a count in the
+summary that drifts, and a citation of a test, class or file that does not exist. Every one of the 146
+citations resolved once five misremembered class names were corrected, which is what the check is for.
+
+**State at the audit: 90 met, 31 partly met, 12 open, 2 manual.** Seven rows were then closed or narrowed by tests
+written against them, leaving **96 met, 27 partly met, 10 open, 2 manual**:
+
+- The FR-604 notice, in help and run, for both criteria that name it (`tests/qgis/test_ppp_notice.py`).
+- The plugin loaded on a main window, unloaded without a trace and reloaded without duplicates, in a QGIS of
+  its own (`tests/qgis/test_plugin_lifecycle.py`). A deliberately leaked toolbar fails it.
+- An instrument profile computing identically after export and re-import.
+- The free-and-constrained check on the triangulateration.
+- Geometric and trigonometric height differences given a variance component each.
+
+**Found.**
+
+- **Criteria recorded as met that were met in part.** A test existed near each and asserted something
+  else. Examples:
+  - specs/09's free-and-constrained check ran on a trilateration, where the criterion says triangulateration;
+  - the FR-604 notice is written but nothing asserts it;
+  - specs/16's help check covers four algorithms of 46;
+  - two of specs/20 §2's eleven structural checks were never implemented — every algorithm's help, and the
+    locale round trip.
+- **Cancellation is not handled.** 13 of 46 algorithms check for it and none writes its outputs atomically,
+  so specs/16 criterion 8 and specs/17 criterion 6 are open. Nothing had claimed them met; nothing had
+  looked either.
+- **An approximate solution does not name its strategies in its provenance**, which records the mode only,
+  nor in the export's statistics sheet. The report derives them from the covariance.
+- **Two state notes contradicted later phases.** specs/17 called the *Adjust* format blocked, though it was
+  met after P6. specs/11 called its criterion 2 red, though it was met since P7e. Both now say so.
+- **No glossary check exists**, though specs/18 criterion 4 names one.
+- **The document *Trigonometric levelling* writes is read by nothing.** Its height differences cannot
+  reach a network adjustment, so specs/10 criterion 5 is met in the computation and not from the menu.
+- **specs/15 criterion 1 still said seven entries**, two phases after FR-003 was amended to eight.
+
+**Not done in P12c-1, and not implied by it.** Every row that is not met is listed in §10 with what it
+waits on; the four pull requests above work through them.
+
 ---
 
 ## P13 — Validation, documentation and release

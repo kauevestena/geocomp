@@ -258,6 +258,103 @@ class TestTheEstimator:
         assert np.mean(estimates) == pytest.approx(4.0, abs=3.0 * np.std(estimates) / math.sqrt(40))
 
 
+class TestTwoLevellingTechniques:
+    """specs/10 criterion 5: geometric and trigonometric height differences in
+    one network, each technique given a variance component of its own.
+
+    Both are ``HEIGHT_DIFFERENCE``; what tells them apart is the technique each
+    records, so the trigonometric ones carry ``total_station``. The geometric
+    ones are declared at their true sigma and the trigonometric ones at half
+    of theirs, so the factors to recover are 1 and 4.
+    """
+
+    GEOMETRIC = 0.0010
+    TRIGONOMETRIC = 0.0060
+
+    def _heights(self, *, trigonometric_declared_scale: float, seed: int = 5) -> Network:
+        from geocomp.core.techniques.integration import TECHNIQUE_KEY
+
+        rng = np.random.default_rng(seed)
+        names = [f"H{i:02d}" for i in range(30)]
+        truth = {name: 100.0 + rng.uniform(-20.0, 20.0) for name in names}
+        network = Network(id="heights", crs="LOCAL")
+        for name in names:
+            held = name == "H00"
+            network.add_station(
+                Station(
+                    id=name,
+                    approx_position=_position(
+                        (0.0, 0.0, truth[name] + (0.0 if held else rng.uniform(-0.05, 0.05))),
+                        exact=held,
+                    ),
+                    constraint=(
+                        ConstraintSpec(
+                            mode=ConstraintMode.FIXED,
+                            components=frozenset({"up"}),
+                            position=_position((0.0, 0.0, truth[name]), exact=True),
+                        )
+                        if held
+                        else ConstraintSpec()
+                    ),
+                )
+            )
+        counter = 0
+        for index, a in enumerate(names):
+            for b in names[index + 1 : index + 5]:
+                counter += 1
+                difference = truth[b] - truth[a]
+                network.add_observation(
+                    Observation(
+                        id=f"l{counter}",
+                        type=ObservationType.HEIGHT_DIFFERENCE,
+                        stations=(a, b),
+                        values=(
+                            Quantity.from_std_dev(
+                                difference + rng.normal(0.0, self.GEOMETRIC),
+                                self.GEOMETRIC,
+                                Unit.METRE,
+                            ),
+                        ),
+                    )
+                )
+                network.add_observation(
+                    Observation(
+                        id=f"t{counter}",
+                        type=ObservationType.HEIGHT_DIFFERENCE,
+                        stations=(a, b),
+                        values=(
+                            Quantity.from_std_dev(
+                                difference + rng.normal(0.0, self.TRIGONOMETRIC),
+                                self.TRIGONOMETRIC * trigonometric_declared_scale,
+                                Unit.METRE,
+                            ),
+                        ),
+                        meta={TECHNIQUE_KEY: "total_station"},
+                    )
+                )
+        return network
+
+    def test_each_technique_gets_its_own_factor(self):
+        options = AdjustmentOptions(frame=Frame.HEIGHT_1D, datum=DatumDefinition.FIXED)
+        result = estimate_variance_components(
+            self._heights(trigonometric_declared_scale=0.5), options
+        )
+        geometric = result.factor("levelling")
+        trigonometric = result.factor("total_station")
+        assert abs(geometric.factor - 1.0) <= 2.0 * geometric.std_dev
+        assert abs(trigonometric.factor - 4.0) <= 2.0 * trigonometric.std_dev
+        assert geometric.is_consistent_with_one()
+        assert not trigonometric.is_consistent_with_one()
+
+    def test_declared_honestly_both_are_one(self):
+        options = AdjustmentOptions(frame=Frame.HEIGHT_1D, datum=DatumDefinition.FIXED)
+        result = estimate_variance_components(
+            self._heights(trigonometric_declared_scale=1.0), options
+        )
+        for technique in ("levelling", "total_station"):
+            assert result.factor(technique).is_consistent_with_one(), technique
+
+
 class TestWhatItRefuses:
     def test_a_cluster_split_across_groups_is_refused(self):
         """Two distances in one correlated cluster, put in two groups: the

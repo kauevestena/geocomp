@@ -380,3 +380,8 @@ deferred:
 
 Criteria 2 and 7 are the two that are not closed, and neither closes inside P7c: one waits on a threshold to
 be *derived* rather than chosen, the other on applying P9a's transformation in the base-station path.
+
+**Since P7e, criterion 2 is met** on the criterion as restated — loop closure and repeatability
+([`20`](./20-testing-and-validation.md) §6). Criterion 7 is still half met. The table above is the state
+after P7c; the register in [`20`](./20-testing-and-validation.md) §10 holds the current state of every
+criterion.

@@ -409,6 +409,7 @@ written. `basemaps.reuse_existing_layer` is the *Add base map* algorithm's defau
 5. An import with deliberately corrupt rows reports each one with its row number and imports the rest.
 6. Cancelling an import leaves the target unchanged.
 7. An *Adjust*-format example file reads, adjusts, and writes back to the same format equivalently.
-   **Blocked at P5** for want of a format specification and an example file — see §5.2.
+   *Blocked at P5 for want of a format specification and an example file; **met after P6**, once both were
+   found — §5.2.*
 8. A geoid model imports, is applied, records its identity in the solution, and contributes its uncertainty.
 9. Covariance stored and reloaded is bit-identical (NFR-007).

@@ -838,3 +838,50 @@ class TestConstantsMatchTheSettings:
 
         choices = set(setting("total_station.atmospheric_model").choices)
         assert choices == {model.value for model in AtmosphericModel}
+
+
+class TestAProfileTravels:
+    """specs/15 criterion 5: created, used, exported, imported fresh, identical.
+
+    A profile leaves GeoComp as the library document *Generalised
+    pre-processing* reads (its ``PROFILES`` parameter). Round-tripping the
+    document was tested; computing with the profile on both sides of the trip
+    was not, and a field the document dropped would have changed the second
+    result while the round trip still compared equal on what survived.
+    """
+
+    @staticmethod
+    def _library() -> ProfileLibrary:
+        library = ProfileLibrary()
+        library.add_instrument(
+            InstrumentProfile(
+                id="ts",
+                name="Leica TS15",
+                collimation=Quantity.from_std_dev(1e-5, 2e-6, Unit.RADIAN),
+                edm_additive=metres(-0.0345, 0.0003),
+                cyclic_error_amplitude=metres(0.0002, 0.0001),
+                cyclic_error_wavelength=10.0,
+                edm=EdmSpecification(constant=0.001, proportional=1.5e-6),
+            )
+        )
+        library.add_reflector(ReflectorProfile(id="gpr1", additive_constant=metres(0.0, 0.0003)))
+        return library
+
+    def test_the_exported_profile_computes_exactly_what_the_original_did(self, tmp_path):
+        import json
+
+        created = self._library()
+        before = preprocess_setup(TestPipeline._setup(), created)
+
+        exported = tmp_path / "profiles.json"
+        exported.write_text(json.dumps(created.to_dict()), encoding="utf-8")
+        imported = ProfileLibrary.from_dict(json.loads(exported.read_text(encoding="utf-8")))
+        after = preprocess_setup(TestPipeline._setup(), imported)
+
+        (first,) = before.pointings
+        (second,) = after.pointings
+        for name in ("horizontal_distance", "height_difference"):
+            a, b = getattr(first.basic, name), getattr(second.basic, name)
+            assert (a.value, a.std_dev) == (b.value, b.std_dev), name
+        assert first.reduction.distance.value == second.reduction.distance.value
+        assert first.reduction.horizontal.value == second.reduction.horizontal.value
