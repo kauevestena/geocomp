@@ -5,6 +5,44 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12b — Thematic maps, the results panel, print layouts
+
+Results can now be read three more ways: coloured by any quality attribute, in a panel beside the map, and on
+a printed page (FR-902, FR-931; specs/15 §4).
+
+#### Added
+
+- **Thematic maps for every attribute FR-902 lists.** Each result layer offers its maps in its *Styles* menu:
+  positional uncertainty on the stations; standardised residual, redundancy number, minimal detectable bias
+  and external reliability on the residuals and the gravity differences; GNSS solution status on the
+  baselines; epoch on the observations. A layer still opens on its usual style, now named for what it shows.
+  Scales that belong to the network are fitted to it, and the legend states every bound. An observation whose
+  value could not be computed, or that is uncheckable, is drawn in a class of its own.
+- **The MDB of an angle drawn as a length** — the MDB times the sight — so angles and distances share one map;
+  a new `mdb_displacement` field on the residuals layer. Observations gained an `epoch` field.
+- **A results panel** (Plugins ▸ GeoComp ▸ *Results panel*): every run with its global test; its statistics;
+  its observations, sortable and filterable by decision; its stations. Selecting a row selects and zooms to
+  the feature on that run's own layer; selecting a station shows its time series when there is one. Runs
+  arrive with their layers, or from a solution file or a GeoPackage project store.
+- **Create print layout** (Project menu): a network map with its ellipses, a displacement map or a quality
+  map, from templates shipped as ordinary QGIS layout templates to adapt. The legend and notes state the
+  exaggeration and say that the scale bar measures the map, not the ellipses.
+- Portuguese and Spanish for every new string.
+
+#### Fixed
+
+- **Map legends were in English in every language.** None of the 31 labels in the shipped styles was ever
+  translated. They now are, along with the thematic maps' 16 new ones.
+- The redundancy-number map left a gap just below 0.01, where an observation was drawn in no class at all.
+  Found while writing the tests; it never shipped.
+
+#### Not done
+
+- The results panel opens GeoPackage stores only; a PostGIS project's runs reach it through their layers. It
+  shows no observation type.
+- Relative error ellipses and the scale-reference ellipse are in no layer and no template.
+- An observation records its epoch, not a campaign, so there is no campaign map.
+
 ### P12a — The settings reach the computation
 
 Every Global Setting now changes what it says it changes, and every one can be set from the Global Settings

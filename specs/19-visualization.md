@@ -114,6 +114,47 @@ type; and epoch or campaign.
 The redundancy-number map deserves particular emphasis: a network can pass every statistical test while
 containing observations whose blunders are undetectable, and the map is the fastest way to see it.
 
+**As built (P12b)** — `layers/themes.py`, the table in `core/visualization/themes.py`, and the QML files in
+`resources/styles/themes/`. **Each map is a named style on the layer that carries the attribute**, in QGIS's
+own style manager (the layer's *Styles* menu), not a layer of its own: nothing to keep in step, nothing to
+re-run, and a saved project keeps every style. The style a layer opens in is still its default, renamed from
+QGIS's *default* to say what it shows — *W-test decision*, *Constraint*, *Observation type*, *Independence*.
+
+| Map | On | Classes |
+|---|---|---|
+| Positional uncertainty | Adjusted stations | fitted; *not computed* (a held station) |
+| Standardised residual | Residuals; gravity differences | fixed: \|w\| below 1, 1–2, 2–3, 3 or more; *not tested* |
+| Redundancy number | Residuals; gravity differences | fixed: *uncheckable* (r below 0.01, `UNCHECKABLE_REDUNDANCY`), 0.01–0.1, 0.1–0.3, 0.3–0.5, 0.5–1; *not computed* |
+| Minimal detectable bias | Residuals (as a displacement, below); gravity differences (in the layer's unit) | fitted; *uncheckable: no finite MDB*; *not computed* |
+| External reliability | Residuals | fitted; *uncheckable: no finite effect*; *not computed* |
+| GNSS solution status | GNSS baselines | one category per status, as the trajectory's default style draws them |
+| Epoch | Observations | one category per epoch present; *no epoch stated* |
+| Observation type | Observations | its default style |
+
+- **Fixed or fitted.** Where an attribute has a meaning of its own — a redundancy number, a |w| — the file's
+  bands stand; the bands between 0.01 and 0.5 are a reading aid, not a standard, and the file says so. Where
+  the scale belongs to the network — an uncertainty, an MDB — the file fixes how each class looks and GeoComp
+  fits four classes to the values present, by quartile (`core/visualization/classes.py`), and writes every
+  bound in the legend with its unit. A fitted map is relative to its network, and a layout's notes say so (§6).
+- **What could not be computed is drawn, and said.** A feature with no value for the map's attribute is
+  never left in no class: the class expression sends *not computed* (an engine's result, which GeoComp did
+  not test), *uncheckable* and *not a length* to classes of their own, which `tests/qgis/test_thematic_maps.py`
+  asserts for every map. Uncheckable is drawn in black, as prominently as the worst class.
+- **The MDB is drawn as a displacement**, `mdb_displacement` on the residuals layer: what an undetectable
+  blunder would move the far end of the sight by, in metres. A length's MDB is one already; an angle's is its
+  MDB times the sight's plan length. On the raw MDB a 2″ direction and a 1 mm distance could not share a scale.
+  An MDB with no length — a gravity difference in a combined solution — is drawn as *MDB not a length*, and
+  its value is in the table.
+- **The epoch map** is added only to a layer that states an epoch: a style that draws every feature as *no
+  epoch stated* is a menu entry with nothing behind it. The layer gained an `epoch` field (decimal year) for
+  it. The proposal's *or campaign* has no field to draw from: an observation records its epoch, not a
+  campaign name.
+- **The legends are translated** (FR-090). Until P12b no QML label was: every shipped style's legend read in
+  English whatever the interface language. The extractor now reads the `label` of every category and range
+  in `resources/styles/`, under the `GeoCompStyles` context, and `apply_style` translates the legend
+  when it applies a file. A label a user has changed in a shipped file has no translation, and is shown as
+  written.
+
 ## 5. Time series (FR-903)
 
 A dockable panel plotting a station's coordinates across monitoring epochs: per component, with uncertainty
@@ -146,6 +187,32 @@ hard-codes no service.
 
 Print layout templates ship for the standard deliverables — network map with ellipses, displacement map,
 quality map — as QGIS layout templates the user can adapt.
+
+**As built (P12b)** — `resources/layouts/{network_map,displacement_map,quality_map}.qpt` and
+`geocomp:project_print_layout`, *Create print layout* in the Project menu (FR-931). The templates are
+ordinary QGIS layout templates, A4 landscape, written once through QGIS's own layout API by
+`scripts/build_layout_templates.py` and shipped as the artefact: an organisation adapts one in the layout
+designer and saves over it, or gives its own `.qpt` to the algorithm. Items are found by id — `title`,
+`map`, `legend`, `scalebar`, `north`, `notes`, `footer` — and an item a template lacks is simply not
+filled; a template with no `map` is refused.
+
+- **What it draws.** The layers chosen, or else the project's GeoComp result layers of the kinds the
+  deliverable draws — stations, ellipses, corrections, observations, baselines and the gravity layers for
+  the network map;
+  displacements, their ellipses and velocities for the displacement map; residuals, gravity differences and
+  stations for the quality map — in layer-tree order, over any configured base map already in the project
+  (§6, FR-167). Nothing to draw is an error that says how to get something.
+- **The exaggeration is stated on the page** (§3, FR-901). Every exaggerated layer states its factor in its
+  name, so the legend does, and the notes say what the factors are and that the scale bar measures the map,
+  not the ellipses or vectors.
+- **A quality map holds its thematic style as an override** on the map item: the layer stays on its default
+  style, so a network map and a quality map sit in one project, each drawn its own way. The notes name the map
+  and, for a fitted one, say that its classes are relative to this network.
+- The layout lands in the project's layout manager under the title, made unique, to edit, print or export as
+  QGIS does; the footer names the GeoComp version and the map's CRS.
+
+**Not built.** The scale reference of §3 item 6 — an ellipse of a stated true size — is not in the templates;
+neither are the relative ellipses of §3 item 4, which no layer draws yet.
 
 ---
 
@@ -226,11 +293,14 @@ monitoring report's displacement tables, which are in millimetres by design.
 
 1. Running an adjustment produces styled layers requiring no manual styling (FR-905).
 2. Error ellipses render at the selected confidence with the exaggeration factor stated in the legend; a
-   test asserts the legend text is present and correct.
+   test asserts the legend text is present and correct. *(In a layout's legend too, since P12b:
+   `tests/qgis/test_print_layouts.py`.)*
 3. Relative ellipses between a station pair match the values computed from the joint covariance.
 4. Layer styles are QML files, editable in the layer properties dialog, and surviving a QGIS project save
    and reload.
 5. Thematic maps render correctly for each listed attribute, including the redundancy-number map.
+   *(P12b: `tests/qgis/test_thematic_maps.py` places a feature of each kind in its class under every map; the
+   campaign half of "epoch or campaign" has no attribute to draw — §4.)*
 6. The time series panel plots a three-epoch series with uncertainty bands and threshold lines, and map-to-
    plot selection works in both directions.
 7. Reports render in all three languages with locale-correct numbers, and are byte-identical across two runs

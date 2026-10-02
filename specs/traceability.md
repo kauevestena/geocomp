@@ -132,7 +132,7 @@ this group and refuses a submenu under any other at import.
 | §Arquitetura do plugin — CSV/XLSX and *Adjust* interoperability | FR-160…FR-162 | P3, P4, P5, P6 (FR-161 re-planned out of P5, P6 and P7, and **met after P6** once an example file existed — see [`17`](./17-persistence-and-interoperability.md) §5.2) |
 | §Arquitetura do plugin — geoid and height model import, deflection of the vertical | FR-165 | P5 |
 | §Arquitetura do plugin — base maps and orthophotos for context | FR-167 | P5; P12a — the plugin *offers* one when results arrive ([`17`](./17-persistence-and-interoperability.md) §5.6) |
-| §Arquitetura do plugin — residual, ellipse, displacement vector and thematic map visualisation | FR-900…FR-905 | P3, P10, P12 |
+| §Arquitetura do plugin — residual, ellipse, displacement vector and thematic map visualisation | FR-900…FR-905 | P3, P10, P12b — every FR-902 attribute a named style on the layer that carries it, every legend translated ([`19`](./19-visualization.md) §4); print layouts stating the exaggeration (FR-931, §6) |
 | §Justificativa técnica — immediate visualisation | FR-905 | P3 |
 | §Justificativa técnica — reduction of operational error, standardised workflows | FR-035, FR-134, NFR-006 | P0, P3, P5 |
 | §Justificativa aplicada — installation in a few clicks | FR-301 | P6 |

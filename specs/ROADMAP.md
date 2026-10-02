@@ -1253,6 +1253,43 @@ epoch in FR-105's terms; P12c's audit owns it. The levelling reduction reports a
 their own units (metres to 0.01 mm; millimetres). The offer is tested against a message bar, not inside a
 running QGIS window.
 
+### P12b — thematic maps, the results panel, print layouts
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| A thematic map for every FR-902 attribute, as a named style on the layer that carries it; fitted classes where the scale is the network's, fixed bands where the value has a meaning of its own | `layers/themes.py`, `core/visualization/{themes,classes}.py`, `resources/styles/themes/`; [`19`](./19-visualization.md) §4 |
+| The MDB drawn as a length, and an epoch on every observation feature, so both can be mapped | `layers/builders.py` `mdb_displacement`, `epoch` |
+| Every legend label translated, the shipped styles' included | `scripts/translations.py`, `layers/styles.py` `translate_legend` |
+| The results panel: run history, statistics, observations sorted and filtered, stations, links to the run's own features and to the time series | `gui/results_panel.py`, `core/visualization/results.py`; [`15`](./15-ui-menu-and-settings.md) §4 |
+| Result layers name the solution document they came from | `algorithms/layer_outputs.py` `SOLUTION_PROPERTY` |
+| Three print layout templates and *Create print layout*, stating the exaggeration on the page | `resources/layouts/`, `algorithms/project/print_layout.py`; [`19`](./19-visualization.md) §6 |
+
+| P12b criterion | State |
+|---|---|
+| Thematic maps render for every listed attribute, the redundancy-number map included | **met**, but for the campaign — `tests/qgis/test_thematic_maps.py` draws a feature of each kind in its class under each of the eight maps, and the maps reach a real adjustment's layers (`tests/qgis/test_result_layers.py`). *Epoch or campaign*: an observation records its epoch and no campaign, so the epoch is mapped and there is nothing to draw a campaign from |
+| The results panel, each clause of [`15`](./15-ui-menu-and-settings.md) §4 | **met** — `tests/qgis/test_results_panel.py`, and `tests/test_results_view.py` without QGIS |
+| Print layout templates for the three deliverables, adaptable | **met** — `tests/qgis/test_print_layouts.py`, the exaggeration in the legend and notes included ([`19`](./19-visualization.md) criterion 2) |
+| No untranslated string | **met** for P12b's strings and every legend label, pt-BR and es; the native-speaker review is P12c's |
+
+**Found.**
+
+- **No map legend had ever been translated.** FR-090 asks for value maps in the active language; the 31
+  labels of the shipped QML styles reached every legend in English, because the extractor read Python and
+  nothing else. It now reads the styles too.
+- **The redundancy-number map, as first written, left a gap** between 0.00999999 and 0.01 in which an
+  observation was drawn in no class. The test written for the boundary found it; the class expression now
+  makes the 0.01 test itself.
+- **A map of raw MDBs cannot be read.** A direction's MDB is in radians and a distance's in metres; on one
+  scale either every angle or every distance falls in one class. Hence `mdb_displacement`.
+
+**Not built in P12b, named so the ticks above do not imply them.** The results panel opens GeoPackage stores
+only, and has no observation-type column (the type is in the network document, which it does not read).
+Relative ellipses ([`19`](./19-visualization.md) §3 item 4) are in no layer, and the scale-reference ellipse
+(item 6) in no template. The fitted classes are fitted when the layer loads; a layer edited afterwards keeps
+them.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -56,8 +56,8 @@ closures were implicit in the others and each produces a document the next step 
 See [`10-module-levelling.md`](./10-module-levelling.md).
 
 **Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
-project to PostGIS · Import project from PostGIS · Add base map · GeoComp system report · Install tutorial
-dataset.
+project to PostGIS · Import project from PostGIS · Add base map · Create print layout · GeoComp system report ·
+Install tutorial dataset. *Create print layout* joined in P12b ([`19`](./19-visualization.md) §6).
 
 > **P11 added the two mode switches** of [`17`](./17-persistence-and-interoperability.md) §4, beside the store
 > they move a project into and out of, and gave *Save to project store* a database mode: a PostgreSQL connection
@@ -431,6 +431,36 @@ feature. Selecting a station shows its time series when the project has multiple
 
 This is where the teaching value concentrates: the statistics are *visible*, next to the map, rather than
 buried in an output file.
+
+**As built (P12b)** — `gui/results_panel.py`, reading through `core/visualization/results.py`, which is
+QGIS-free and tested without QGIS. Docked on the right and hidden at start; Plugins ▸ GeoComp ▸ *Results
+panel* shows it. Each clause of the paragraph above is a test in `tests/qgis/test_results_panel.py`.
+
+- **Run history.** One row per solution: id, when, the algorithm, the global test's *passed* or *FAILED*,
+  the variance factor, degrees of freedom, and the counts of blunder candidates and uncheckable observations.
+  A superseded solution says so. Runs arrive three ways: an adjustment's result layers, when they are added to
+  the project, because each carries the path of the solution document it came from
+  (`SOLUTION_PROPERTY`, `geocomp/solution`); *Open solution…*; and *Open project store…*, which lists every
+  solution in a GeoPackage store. The same run twice is one row. An unreadable file is said in the panel's
+  status line, not listed.
+- **Statistics.** Every quantity in `Statistics`, in reading order, each with its critical values and
+  confidence (§5); what was not computed is shown as such, not left out. An approximate solution says so in the
+  panel's status line (FR-203).
+- **Observations.** Residual, w, redundancy, MDB, external reliability and the decision — *passes the
+  w-test*, *blunder candidate*, *uncheckable*, *not tested*. Filters: all, blunder candidates, uncheckable,
+  not tested, and an id search. Columns sort as numbers; an uncheckable MDB sorts as infinite, the largest
+  there is, and a value nobody computed sorts last in either order.
+- **To the map.** Selecting a row selects the feature with that id on the run's own result layer — matched by
+  the result kind and the solution path, so the same id in another run's layer is left alone — and zooms to
+  it. Selecting a station selects it on the stations layer and, when the time-series panel holds a series
+  with that station, shows its series there (FR-838).
+- **Stations.** Coordinates in the configured format (§7.4 of [`19`](./19-visualization.md)), standard
+  deviations, positional uncertainty and the ellipse's semi-axes.
+
+**Not built:** opening a PostGIS store in the panel — *Open project store…* takes a GeoPackage; a PostGIS
+project's runs reach it through their layers or an exported solution. The observation table has no
+observation-type column: the solution records results by id, and the type lives in the network document,
+which the panel does not read.
 
 ---
 
