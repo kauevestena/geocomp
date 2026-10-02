@@ -5,6 +5,24 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-2 — The glossary held, and the chain run as a model
+
+#### Fixed
+
+- **Translations now use the glossary's terms.** 128 strings did not. The worst were the levelling strings,
+  which called an instrument setup a station in both languages. A dialog thus named a mark and an instrument
+  position the same.
+- **European Portuguese vocabulary replaced** in the Brazilian catalogue (*ficheiro*, *registo*, *folha de
+  cálculo*, *partilhar*, *detetável*).
+
+#### Added
+
+- `scripts/check_glossary.py`, which reports every translation that departs from `specs/00-glossary.md`. A
+  structural test runs it for both languages.
+- Tests that a saved model runs RD-01's chain headless, from the field book to styled layers. PyQGIS, the
+  toolbox's task and the model all give the same solution. The total-station chain is tested against one
+  propagation through its whole Jacobian.
+
 ### P12c-2 — Gaps closed, and the defects behind them
 
 #### Fixed

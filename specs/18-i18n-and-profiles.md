@@ -71,6 +71,28 @@ aim"*.
 The glossary also fixes what is *not* translated: `data snooping`, `leap-frog`, `RINEX`, `PPP`, `SINEX`,
 `DynaML`, engine names, file extensions and command names.
 
+**As built (P12c).** `scripts/check_glossary.py` reads the glossary's tables and every translated string, and
+reports each string whose English uses a term, plurals included, but whose translation uses none of the
+term's renderings. A structural test runs it for both languages. It matches leniently, since the languages
+inflect: each word of the rendering must start a word of the translation, accents and case aside, with its
+last two letters free. It checks terminology, not grammar, and does not replace the review by native speakers
+that P12's exit asks for ([`ROADMAP.md`](./ROADMAP.md), P12c-5). Five English words are also ordinary words
+— *run*, *direction*, *static*, *engine*, *level* — and no pattern tells the term from the word. The script
+names them, each with its reason, and does not check them.
+
+Its first run found 128 strings off the glossary, 61 Portuguese and 67 Spanish. Most were levelling strings that rendered *setup* as
+*estação*/*estación*. The glossary keeps that word for *station*, so one levelling dialog gave a mark and an
+instrument position the same name, while the total-station strings had always said *estacionamento*. The rest:
+
+* *minimal detectable bias*, *datum defect* and *covariance matrix* had been worded freely;
+* in Portuguese, *resection* and *forward intersection* were *inversa*/*direta*, not *à ré*/*à vante*;
+* in Spanish, the *target height* had been called the *prism's*;
+* the gravity help translated *data snooping*, which the glossary keeps in English.
+
+Reading the levelling strings also showed European Portuguese in the pt_BR catalogue. The vocabulary was
+replaced (*ficheiro*, *registo*, *folha de cálculo*, *partilhar*, *detetável*). Constructions such as *pelo
+que* and *tem de*, about twenty strings, are left for that review.
+
 ## 4. Workflow
 
 | Step | Tool | When |

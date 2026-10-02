@@ -154,6 +154,13 @@ Each step's outputs must be directly acceptable as the next step's inputs. This 
 much as input design, and it is tested: [`20-testing-and-validation.md`](./20-testing-and-validation.md)
 includes a model-builder workflow test that runs the whole chain headlessly.
 
+**As built (P12c).** `tests/qgis/test_model_chain.py` is that test. It builds RD-01's chain as a model: import →
+pre-process → adjust, with the solution and the adjustment's layers as the model's outputs. It saves the model
+to a `.model3` file, loads it back, and runs it headless. Until then each step's output had been fed to the
+next by hand. The same file holds criterion 2. It runs the chain by PyQGIS, as a `QgsProcessingAlgRunnerTask`
+on a worker thread (how QGIS's algorithm dialog runs any algorithm not flagged `NoThreading`, and how its
+batch dialog runs each row), and through the model, and requires the same solution document from all three.
+
 **The tail of that chain arrived in P5.** `geocomp:project_export`, `project_report` and `project_store` all
 take a *solution document* — the JSON an adjustment algorithm writes — so they chain onto any of them, and
 onto DynAdjust's in P6 without changing. The mismatch this design risks is between what one algorithm writes

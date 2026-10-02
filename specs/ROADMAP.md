@@ -1390,6 +1390,36 @@ waits on; the four pull requests above work through them.
 criteria 2 and 5), the chain-against-single propagation test (specs/05 criterion 3) and RD-01's styled layers
 (specs/09 criterion 9) are the next pull request's.
 
+#### P12c-2 — the rest of it (second pull request)
+
+**Delivered.** Five more register rows closed, leaving **107 met, 18 partly met, 8 open, 2 manual**:
+
+| Criterion | Now shown by |
+|---|---|
+| specs/05 3: the chain is one propagation | `tests/test_total_station.py::TestTheChainIsOnePropagation`. The whole total-station chain is differentiated numerically, through 16 inputs, and agrees with the stepwise propagation to 2e-8 |
+| specs/09 9: RD-01 arrives as styled layers with ellipses | `tests/qgis/test_model_chain.py::TestRd01ArrivesAsStyledLayers`, run as the menu's dialog runs it |
+| specs/16 2: every way of running gives one answer | `tests/qgis/test_model_chain.py::TestEveryWayGivesOneAnswer`: PyQGIS, the task the toolbox and batch dialogs use, and a saved model |
+| specs/16 5: a model runs headless | `tests/qgis/test_model_chain.py::TestTheModel`, saved as `.model3` and loaded back |
+| specs/18 4: terminology checked against the glossary | `scripts/check_glossary.py`, held by `tests/structural/test_glossary.py` |
+
+**Found.**
+
+- **128 translated strings did not use the glossary's terms**, 61 Portuguese and 67 Spanish. Nothing had
+  checked them against it. Most were the levelling strings, which called an instrument *setup* a *station*
+  (*estação*/*estación*). That is the glossary's word for a mark, so a levelling dialog named the two the
+  same, while the total-station strings had always said *estacionamento*. The others had worded *minimal
+  detectable bias*, *datum defect*, *covariance matrix* and *cluster* freely. In Portuguese, *resection* and
+  *forward intersection* were not *à ré* and *à vante*; in Spanish, the target height was the prism's.
+  [`18`](./18-i18n-and-profiles.md) §3 lists them.
+- **European Portuguese in the pt_BR catalogue.** Its vocabulary is replaced. About twenty constructions such as
+  *pelo que* and *tem de* are left for the native speakers' review in P12c-5.
+- **The chain loses nothing, measurably.** Stage by stage it is the single propagation to the precision of the
+  difference quotient. The one term it leaves out by design, the cyclic error's slope in the distance,
+  moves the reduced pointing's covariance by at most 5.5e-5 on a 400 m sight.
+
+**Not done here.** specs/16 criterion 7, validation naming the parameter in every algorithm, stays partly met;
+a test across all 46 algorithms is bigger than this pull request.
+
 ---
 
 ## P13 — Validation, documentation and release
