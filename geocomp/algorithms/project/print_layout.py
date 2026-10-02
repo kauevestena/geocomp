@@ -101,6 +101,16 @@ def _no_threading() -> Any:
     return QgsProcessingAlgorithm.FlagNoThreading
 
 
+def _populate_manually(legend) -> None:
+    # QGIS 4 replaced the legend's auto-update switch with a sync mode, and
+    # deprecated the switch; QGIS 3.34 has only the switch.
+    modes = getattr(Qgis, "LegendSyncMode", None)
+    if modes is not None and hasattr(legend, "setSyncMode"):
+        legend.setSyncMode(modes.Manual)
+    else:
+        legend.setAutoUpdateModel(False)
+
+
 class PrintLayoutAlgorithm(GeoCompAlgorithm):
     """Makes a print layout from a shipped or adapted template, filled with result layers."""
 
@@ -227,7 +237,7 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
         legend = _item(layout, "legend", QgsLayoutItemLegend)
         if legend is not None:
             legend.setLinkedMap(map_item)
-            legend.setAutoUpdateModel(False)
+            _populate_manually(legend)
             root = legend.model().rootGroup()
             root.clear()
             for layer in layers:
