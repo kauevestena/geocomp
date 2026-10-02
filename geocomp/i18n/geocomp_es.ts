@@ -4695,6 +4695,10 @@
             <translation>Tasa de error tipo II de la prueba de errores groseros</translation>
         </message>
         <message>
+            <source>Override for this project: the value is saved in the project, travels with it, and applies to it alone.</source>
+            <translation>Sobrescribir en este proyecto: el valor se guarda en el proyecto, viaja con él y solo se aplica a él.</translation>
+        </message>
+        <message>
             <source>Paths and engines</source>
             <translation>Rutas y motores</translation>
         </message>

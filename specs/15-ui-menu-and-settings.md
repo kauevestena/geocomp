@@ -401,6 +401,19 @@ selector, with *not set* as a choice because it is the default. `tests/qgis/test
 bullet above) has its mechanism in the settings service and no control in the window. Number formatting per
 locale (FR-094) was not addressed in P12a; it arrived in P12c ([`18`](./18-i18n-and-profiles.md) §5).
 
+**Override for this project (P12c).** Each row whose setting a project may vary has a *this project* box,
+checked when the effective value is the project's.
+- **Checked:** OK saves the value in the project, and the global value is left alone.
+- **Unchecked:** the editor shows the value that applies without the override, global or default. OK clears
+  the project's override and saves the row globally.
+
+The label beside each row names the scope its value comes from. Settings that must not vary by project offer
+no box.
+
+**Found on the way.** Before this, the window loaded a project's override as the row's value, and OK wrote
+every row globally. Pressing OK in one project therefore made its override the global value for every other
+project. `tests/qgis/test_settings_dialog.py` holds both.
+
 ---
 
 ## 3. Basic and Advanced modes (FR-070, FR-071)

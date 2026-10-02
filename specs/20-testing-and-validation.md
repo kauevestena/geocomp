@@ -296,7 +296,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 113 met, 15 partly met, 5 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 114 met, 14 partly met, 5 open, 2 manual, of 135.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -385,7 +385,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 15 | 3 | Unload removes everything; reloading duplicates nothing | **met** | Since P12c: `tests/qgis/test_plugin_lifecycle.py`, in a QGIS of its own with a stand-in `iface` |
 | 15 | 4 | Global Settings shows the specified sections | **met** | `tests/test_settings_def.py`, `tests/qgis/test_settings_dialog.py` |
 | 15 | 5 | An instrument profile created, used, exported, imported, identical | **met** | Since P12c: `tests/test_total_station.py::TestAProfileTravels` |
-| 15 | 6 | A project-scope override takes effect and the UI shows its origin | **partly met** | It takes effect and every contributing scope is recorded (`tests/test_settings_resolution.py`); the window shows neither the override nor its origin |
+| 15 | 6 | A project-scope override takes effect and the UI shows its origin | **met** | It takes effect and every contributing scope is recorded (`tests/test_settings_resolution.py`). Since P12c the window shows the override, marks it *this project*, saves it to the project alone and can take it away (`tests/qgis/test_settings_dialog.py::test_marking_a_row_saves_it_in_the_project_alone`, `tests/qgis/test_settings_dialog.py::test_ok_no_longer_makes_a_projects_override_everyones`) |
 | 15 | 7 | Basic and Advanced identical, every algorithm | **met** | `tests/qgis/test_basic_advanced_identity.py` |
 | 15 | 8 | No string bypasses the translation layer | **met** | `tests/structural/test_i18n_strings.py` |
 | 16 | 1 | Provider `geocomp`, algorithms in their groups | **met** | `tests/test_registry.py`, and `tests/qgis/test_basic_advanced_identity.py::test_every_algorithm_is_checked` through the registered provider |

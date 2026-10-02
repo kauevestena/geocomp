@@ -121,3 +121,88 @@ def test_a_directory_and_a_text_are_saved(dialog, tmp_path):
     dialog.accept()
     assert settings.value("gnss.product_cache") == str(tmp_path)
     assert settings.value("gnss.product_services") == "noaa-ncn, other"
+
+
+# -- a project's own values (specs/15 criterion 6; P12c) ----------------------------
+
+KEY = "gnss.elevation_mask"
+
+
+@pytest.fixture
+def project_entries(qgis_app):
+    """GeoComp's entries in the open project, removed afterwards."""
+    from qgis.core import QgsProject
+
+    from geocomp.core.settings_def import SETTINGS
+    from geocomp.services.settings_service import PROJECT_ENTRY_SCOPE
+
+    yield QgsProject.instance()
+    for definition in SETTINGS:
+        QgsProject.instance().removeEntry(PROJECT_ENTRY_SCOPE, definition.key)
+
+
+def _window():
+    from geocomp.gui.settings_dialog import GlobalSettingsDialog
+
+    return GlobalSettingsDialog()
+
+
+def test_a_project_override_is_shown_as_the_projects(stored, project_entries):
+    from geocomp.services.settings_service import settings
+
+    settings.set_project(KEY, 25.0)
+    window = _window()
+    assert window._editors[KEY].value() == 25.0
+    assert window._overrides[KEY].isChecked()
+    assert "this project" in window._origins[KEY].text()
+    window.deleteLater()
+
+
+def test_ok_no_longer_makes_a_projects_override_everyones(stored, project_entries):
+    """Until P12c the window wrote every row globally, the project's value included."""
+    from geocomp.core.settings_def import Scope
+    from geocomp.services.settings_service import settings
+
+    global_before = settings.resolve_outside_project(KEY)
+    settings.set_project(KEY, 25.0)
+    window = _window()
+    window.accept()
+    assert settings.resolve(KEY).scope is Scope.PROJECT
+    assert settings.resolve_outside_project(KEY) == global_before
+    window.deleteLater()
+
+
+def test_marking_a_row_saves_it_in_the_project_alone(stored, project_entries):
+    from geocomp.core.settings_def import Scope
+    from geocomp.services.settings_service import settings
+
+    global_before = settings.resolve_outside_project(KEY)
+    window = _window()
+    window._overrides[KEY].setChecked(True)
+    window._editors[KEY].setText("12.5")
+    window.accept()
+    assert settings.resolve(KEY).value == 12.5
+    assert settings.resolve(KEY).scope is Scope.PROJECT
+    assert settings.resolve_outside_project(KEY) == global_before
+    window.deleteLater()
+
+
+def test_unmarking_shows_and_restores_the_value_outside_the_project(stored, project_entries):
+    from geocomp.services.settings_service import settings
+
+    settings.set_project(KEY, 25.0)
+    outside = settings.resolve_outside_project(KEY)
+    window = _window()
+    window._overrides[KEY].setChecked(False)
+    assert window._editors[KEY].value() == outside.value
+    window.accept()
+    assert settings.resolve(KEY) == outside
+    window.deleteLater()
+
+
+def test_a_setting_no_project_may_vary_offers_no_override(dialog):
+    from geocomp.core.settings_def import SETTINGS, Scope
+
+    global_only = {d.key for d in SETTINGS if Scope.PROJECT not in d.scopes}
+    assert global_only, "every setting is project-scoped: this test checks nothing"
+    assert not global_only & set(dialog._overrides)
