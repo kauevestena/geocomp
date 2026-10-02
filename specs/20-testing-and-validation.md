@@ -164,6 +164,25 @@ and published official reference data from IBGE, NGS/NOAA and Geoscience Austral
 **GeoComp's job is to make this cheap**: a comparison export producing exactly the fields of step 3, in a
 form that lines up against a commercial package's output.
 
+**As built (P12c): the comparison export is *Export solution tables*** (`geocomp:project_export`), CSV or
+`.xlsx`. A second export of the same numbers would be a second place for them to disagree. Every field of step 3
+is in it, and `io/tabular.py`'s `COMPARISON_FIELDS` names where. `tests/test_export.py::TestTheComparisonExport`
+asserts each is exported and filled for an adjusted network.
+
+| Step 3 field | Sheet | Columns |
+|---|---|---|
+| Adjusted coordinates | `adjusted` | `value_1`, `value_2`, `value_3` |
+| σ̂₀² | `statistics` | `variance_factor_aposteriori` |
+| Degrees of freedom | `statistics` | `degrees_of_freedom` |
+| Residuals | `residuals` | `residual`, `standardised_residual` |
+| Error ellipses | `adjusted` | `ellipse_semi_major`, `ellipse_semi_minor`, `ellipse_orientation`, `ellipse_confidence` |
+| Positional uncertainty | `adjusted` | `positional_uncertainty` |
+| Test decisions | `residuals`; `statistics` | `w_test`, `w_statistic`, `w_passed`; `global_test_statistic`, `global_test_passed` |
+
+**Writing that test found the positional uncertainty empty for every in-house solution.** Only DynAdjust's
+reader had ever filled it. The in-house adjustment now carries it, as [`06`](./06-adjustment-core.md) §4.5
+defines it.
+
 ## 6. Numerical tolerance policy
 
 | Comparison | Tolerance |
@@ -276,7 +295,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 96 met, 27 partly met, 10 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 102 met, 21 partly met, 10 open, 2 manual, of 135.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -286,7 +305,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 05 | 2 | Propagation reproduces Ghilani and Gemael | **partly met** | RD-02 is validated three ways, closed form, first order and Monte Carlo (`tests/test_reference_propagation.py`). Published standard deviations are reproduced through RD-11 (`tests/test_krumm_corpus.py::test_the_published_standard_deviations_are_reproduced_too`). No printed *propagation* example is transcribed: Gemael waits on W-04, and the books are not transcribed from memory |
 | 05 | 3 | A pre-processing chain preserves the combined propagation | **partly met** | The identity holds in general (`tests/test_uncertainty.py::TestRigorousPropagation::test_propagation_composes`). No test runs the real total-station chain against a single propagation through it |
 | 05 | 4 | No geodetic value without an uncertainty | **met** | `tests/structural/test_no_bare_geodetic_floats.py` |
-| 05 | 5 | Approximate results name their strategies in export, report and provenance | **partly met** | The report does (`tests/qgis/test_adjustment_report.py::TestItIsDefensible::test_an_approximate_solution_names_its_strategies`). The export names them per observation but not for the solution, and `Provenance` records the mode without the strategies |
+| 05 | 5 | Approximate results name their strategies in export, report and provenance | **met** | Since P12c: the report (`tests/qgis/test_adjustment_report.py::TestItIsDefensible::test_an_approximate_solution_names_its_strategies`); the provenance, its document and its stored row, schema 5; the export's statistics sheet (`tests/test_approximation_is_named.py`) |
 | 05 | 6 | Correlated operands refused by the scalar path | **met** | `tests/test_uncertainty.py::TestCorrelationGuard` |
 | 06 | 1 | Ghilani and Gemael network examples reproduced | **partly met** | Ghilani by name through RD-11, coordinates to 0.05 mm (`tests/test_krumm_corpus.py::test_the_published_coordinates_are_reproduced`); the corpus publishes coordinates, so residuals, σ̂₀² and ellipses are not compared against print. Gemael waits on W-04 |
 | 06 | 2 | Free and constrained solutions consistent | **met** | `tests/test_adjustment.py::TestFreeNetworkAndDatum` |
@@ -373,7 +392,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 16 | 3 | The menu-to-algorithm correspondence | **met** | As 15.2 |
 | 16 | 4 | Basic and Advanced identical | **met** | As 15.7 |
 | 16 | 5 | A model chaining import, pre-process, adjust, visualise runs headless | **open** | Chaining is tested step to step (`tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain::test_the_network_document_feeds_the_analysis_algorithms`); no test builds a model |
-| 16 | 6 | Translated help documenting every parameter with units | **partly met** | Every algorithm has help through the base class, and the engine algorithms are checked (`tests/qgis/test_engine_algorithms.py::TestRegistration::test_every_parameter_is_described`); nothing checks every algorithm, or the units |
+| 16 | 6 | Translated help documenting every parameter with units | **met** | Since P12c: every algorithm's help lists its parameters and outputs by their labels, every number's label states its unit or is named dimensionless, and the help's own words translate (`tests/qgis/test_algorithm_help.py`) |
 | 16 | 7 | Inputs validated before computing, the failure naming the parameter | **partly met** | Refusals name what is wrong algorithm by algorithm (`tests/qgis/test_analysis_algorithms.py::TestInspect::test_a_disconnected_network_is_blocked_and_named`, `tests/qgis/test_project_algorithms.py::test_an_unknown_service_names_the_ones_that_exist`); no test covers every algorithm |
 | 16 | 8 | Cancelling leaves no partial output | **open** | 13 of 46 algorithms check for cancellation, and none writes its outputs atomically. The task service's cancellation is tested (`tests/qgis/test_task_service.py::TestCancellation`), but it is not the path Processing runs |
 | 17 | 1 | GeoPackage → PostGIS → GeoPackage identical | **met** | `tests/test_postgis_store.py`, `tests/qgis/test_postgis_project.py` |
@@ -386,8 +405,8 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 17 | 8 | A geoid model imported, applied, recorded, propagated | **met** | `tests/test_geoid_in_a_solution.py::test_the_whole_chain_from_file_to_solution` |
 | 17 | 9 | Covariance stored and reloaded bit-identical | **met** | `tests/test_project_store.py::TestTheSolution::test_the_covariance_is_bit_identical`, `tests/test_postgis_store.py::TestARoundTrip::test_the_covariance_is_bit_identical` |
 | 18 | 1 | Every string in the catalogues; no unwrapped literal | **met** | `tests/structural/test_translations.py`, `tests/structural/test_i18n_strings.py` |
-| 18 | 2 | Portuguese or Spanish translates the whole UI | **partly met** | Both catalogues are complete (`tests/structural/test_translations.py::test_every_source_string_is_translated`), and the legends since P12b (`tests/qgis/test_thematic_maps.py::TestTheLegendSpeaksTheLanguage`); no test switches the language and reads the menus, dialogs and messages back |
-| 18 | 3 | The override works independently of QGIS's language | **partly met** | The setting is global (`tests/test_settings_def.py::TestScopes::test_language_is_global_only`); no test installs it against a different QGIS locale |
+| 18 | 2 | Portuguese or Spanish translates the whole UI | **met** | Since P12c, in both languages: every algorithm's name, group, description, parameters, outputs and help, and every menu entry (`tests/qgis/test_language.py`). Writing it found five places where a word was filed under one context and looked up under another, and so was never translated |
+| 18 | 3 | The override works independently of QGIS's language | **met** | Since P12c: `tests/qgis/test_language.py::test_geocomps_language_overrides_qgiss` |
 | 18 | 4 | Terminology checked against the glossary by a script | **open** | No such script exists |
 | 18 | 5 | Files written under one decimal convention read under the other | **partly met** | Imports read either separator (`tests/test_fieldbook_import.py::TestLocaleIndependentNumbers`, `tests/test_levelbook_import.py`); no test writes under a comma locale and reads back |
 | 18 | 6 | Displayed numbers use the locale separator | **open** | Not built (FR-094): every report and table uses a point, recorded in P12a |
@@ -402,12 +421,12 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 19 | 7 | Reports in three languages, locale numbers, byte-identical | **partly met** | Byte-identical (`tests/qgis/test_adjustment_report.py::TestItIsDeterministic`); locale numbers are 18.6 |
 | 19 | 8 | An approximate solution's report names its strategies | **met** | `tests/qgis/test_adjustment_report.py::TestItIsDefensible::test_an_approximate_solution_names_its_strategies` |
 | 20 | 1 | T1 in under 60 seconds | **manual** | Measured, not enforced: 33 s on the development container for 3,497 tests (P12b); the `core` jobs of `.github/workflows/test.yml` report their duration |
-| 20 | 2 | Every structural check in §2 implemented | **partly met** | All but two, in `tests/structural/`, with the credential and identity checks in `tests/qgis/test_product_download.py` and `tests/qgis/test_basic_advanced_identity.py`. The help check covers the engine algorithms only (16.6), and the locale round trip is not implemented (18.5) |
+| 20 | 2 | Every structural check in §2 implemented | **partly met** | All but one: in `tests/structural/`, the credential and identity checks in `tests/qgis/test_product_download.py` and `tests/qgis/test_basic_advanced_identity.py`, and the help check since P12c in `tests/qgis/test_algorithm_help.py`. The locale round trip is not implemented (18.5) |
 | 20 | 3 | Every reference dataset with an expected-results file and a test | **partly met** | §3's table: RD-01 to RD-04, RD-06, RD-07, RD-09, RD-11 and RD-12 have tests; RD-08's published half waits on W-01, RD-05 is not vendored, RD-10 is P13's |
 | 20 | 4 | Cross-validation on three networks | **met** | As 06.6 |
 | 20 | 5 | The CI matrix, engines-absent and SciPy-absent rows included | **met** | `.github/workflows/test.yml`'s `degraded environments` job |
 | 20 | 6 | Coverage measured per release; every public function tested | **open** | Coverage is not measured in CI |
-| 20 | 7 | A comparison export of §5's step-3 fields, documented | **partly met** | *Export solution tables* carries every step-3 field (`tests/test_export.py`); it is not documented as the comparison export, and no comparison has been run (W-12) |
+| 20 | 7 | A comparison export of §5's step-3 fields, documented | **met** | Since P12c: *Export solution tables*, documented in §5, every field exported and filled (`tests/test_export.py::TestTheComparisonExport`). No comparison has been run (W-12); that is §5's protocol, not this criterion |
 | 20 | 8 | Every criterion has a test or a reason | **met** | This table, held by `tests/structural/test_acceptance_register.py` |
 | 21 | 1 | The ZIP installs into a clean QGIS and validates | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it |
 | 21 | 2 | Two builds byte-identical | **met** | `.github/workflows/build.yml`, *The archive must be reproducible* |
@@ -416,4 +435,4 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **partly met** | The QGIS-free tier runs on all three (`.github/workflows/test.yml`); the QGIS tier runs on Linux against one QGIS image |
 | 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
 | 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
-| 21 | 8 | The About dialog shows the licences and engine versions | **partly met** | Built (`gui/about_dialog.py`); no test opens it |
+| 21 | 8 | The About dialog shows the licences and engine versions | **met** | Since P12c: GeoComp's licence and each engine's, and the version installed or *not installed* (`tests/qgis/test_about_dialog.py`, `tests/test_engine_status.py`) |

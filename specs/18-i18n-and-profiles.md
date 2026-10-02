@@ -44,6 +44,23 @@ Mechanics:
 **Enforcement:** a CI check scans for user-facing string literals outside a translation call, and for string
 concatenation inside one. See [`20-testing-and-validation.md`](./20-testing-and-validation.md).
 
+**A word is looked up under the context it is filed under, or it is not translated at all.** The extractor files
+a string under the `TR_CONTEXT` of the class whose body holds it, or under its module's `_CONTEXT`. At run time
+`self.tr` looks it up under the `TR_CONTEXT` of the instance, which for a shared base class is a subclass's.
+P12c's audit found five places where the two differed. Each catalogue was complete and the word still showed
+in English in every language:
+
+- "Requirement" in every algorithm's help;
+- every Processing group's name;
+- the four GNSS modes' shared parameters and help;
+- the PostGIS mode switch's connection and schema;
+- the layer outputs every adjustment declares.
+
+**Words that live in shared code use their module's own `_tr`.** A base class does not use `self.tr`.
+`tests/qgis/test_language.py` holds the rule from the outside. It installs each catalogue and reads back every
+algorithm's words, every help and every menu entry, so a word that does not translate fails, whatever the
+reason.
+
 ## 3. Terminology (FR-093)
 
 [`00-glossary.md`](./00-glossary.md) is **normative** for translators: its PT-BR and ES columns are the
