@@ -66,6 +66,7 @@ from geocomp.core.models import (
     Epoch,
     Network,
 )
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.integration import GridFrame, Velocity, adjust_combination, combine, route
 from geocomp.core.uncertainty import Quantity
 
@@ -513,8 +514,13 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                 self.tr("%1: %2 observation(s), %3 of the redundancy, vᵀPv/r %4.")
                 .replace("%1", summary.technique)
                 .replace("%2", str(summary.observations))
-                .replace("%3", f"{100.0 * summary.redundancy_share:.1f}%")
-                .replace("%4", "—" if summary.variance_factor is None else f"{summary.variance_factor:.3f}")
+                .replace("%3", localised(f"{100.0 * summary.redundancy_share:.1f}%"))
+                .replace(
+                    "%4",
+                    "—"
+                    if summary.variance_factor is None
+                    else localised(f"{summary.variance_factor:.3f}"),
+                )
             )
         if result.gravity is not None:
             feedback.pushInfo(

@@ -40,6 +40,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication, QMetaType
 
 from geocomp.core.models import ConstraintMode, CoordinateSystem, Network, Solution
+from geocomp.core.number_format import localised
 from geocomp.core.units import convert
 from geocomp.core.visualization import displacement_arrow, ellipse_ring
 from geocomp.core.visualization.classes import mdb_displacement
@@ -1134,8 +1135,8 @@ def displacement_layer_name(document: dict[str, Any], *, exaggeration: float) ->
     first, second = (e["epoch"] for e in document["epochs"])
     return (
         _tr("Displacements %1 to %2 (%3)")
-        .replace("%1", f"{first:.2f}")
-        .replace("%2", f"{second:.2f}")
+        .replace("%1", localised(f"{first:.2f}"))
+        .replace("%2", localised(f"{second:.2f}"))
         .replace("%3", exaggeration_label(exaggeration))
     )
 

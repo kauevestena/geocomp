@@ -48,6 +48,7 @@ from geocomp.algorithms.reporting import (
 )
 from geocomp.core.display_format import DisplayFormat
 from geocomp.core.models import Network, Solution
+from geocomp.core.number_format import localised_if_number
 from geocomp.core.uncertainty import UncertaintyMode
 from geocomp.core.units import convert
 from geocomp.core.version import __version__
@@ -225,7 +226,7 @@ def _parameters(context: ReportContext) -> str:
             label=_tr("Parameters"),
         )
     rows = [
-        [escape(key), escape(value), escape(scope)]
+        [escape(key), escape(localised_if_number(str(value))), escape(scope)]
         for key, (value, scope) in sorted(context.parameter_scopes.items())
     ]
     return (
@@ -796,7 +797,7 @@ def _provenance(solution: Solution) -> str:
         body += render_table(
             [escape(_tr("Parameter")), escape(_tr("Value"))],
             [
-                [escape(key), escape(value)]
+                [escape(key), escape(localised_if_number(str(value)))]
                 for key, value in sorted(provenance.parameters.items())
             ],
         )

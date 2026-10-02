@@ -399,7 +399,7 @@ selector, with *not set* as a choice because it is the default. `tests/qgis/test
 
 **Not done in P12a.** The window still writes global scope only; *override for this project* (the third
 bullet above) has its mechanism in the settings service and no control in the window. Number formatting per
-locale (FR-094) is not addressed: reports print a point as the decimal separator in every language.
+locale (FR-094) was not addressed in P12a; it arrived in P12c ([`18`](./18-i18n-and-profiles.md) §5).
 
 ---
 

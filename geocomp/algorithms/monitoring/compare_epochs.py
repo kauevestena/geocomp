@@ -61,6 +61,7 @@ from geocomp.core.monitoring import (
     refused_document,
     strain,
 )
+from geocomp.core.number_format import localised
 from geocomp.core.visualization.monitoring import displacement_exaggeration
 
 __all__ = ["MonitoringCompareEpochsAlgorithm"]
@@ -258,9 +259,9 @@ class MonitoringCompareEpochsAlgorithm(GeoCompAlgorithm):
             feedback.pushInfo(
                 self.tr("Transformed %1 at %2 into %3, accuracy %4 mm, common to every station.")
                 .replace("%1", record.source)
-                .replace("%2", f"{record.source_epoch:.4f}")
+                .replace("%2", localised(f"{record.source_epoch:.4f}"))
                 .replace("%3", record.target)
-                .replace("%4", f"{1000.0 * record.accuracy:.1f}")
+                .replace("%4", localised(f"{1000.0 * record.accuracy:.1f}"))
             )
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context)) or default_datum(comparison)
         feedback.setProgress(30)

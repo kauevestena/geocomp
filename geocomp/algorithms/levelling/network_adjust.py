@@ -72,6 +72,7 @@ from geocomp.core.adjustment.least_squares import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import DatumDefinition, Epoch, Provenance
+from geocomp.core.number_format import localised
 from geocomp.core.settings_def import WEIGHTINGS
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
@@ -651,7 +652,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
     def _verdict(self, check) -> str:
         if check.passed is None:
             return self.tr("not judged — no tolerance coefficient was configured")
-        permissible = f"{float(check.permissible) * 1000.0:.2f}"
+        permissible = localised(f"{float(check.permissible) * 1000.0:.2f}")
         if check.passed:
             return self.tr("within the %1 mm permitted").replace("%1", permissible)
         return self.tr("OUT OF TOLERANCE, %1 mm permitted").replace("%1", permissible)

@@ -25,6 +25,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from geocomp.core.number_format import localised
 from geocomp.core.visualization.monitoring import ALERT, SIGNIFICANT, drawn_displacements, series_curves
 
 __all__ = ["COLOURS", "MapText", "PlotText", "displacement_map", "series_plot"]
@@ -240,7 +241,7 @@ def series_plot(
         )
     for epoch in sorted(set(epochs)):
         x = px(epoch)
-        label = text.epochs.get(epoch, f"{epoch:.2f}")
+        label = text.epochs.get(epoch, localised(f"{epoch:.2f}"))
         parts.append(
             f'<text x="{_f(x)}" y="{_f(height - bottom + 14)}" font-size="10" text-anchor="middle" '
             f'font-family="sans-serif">{_e(label)}</text>'

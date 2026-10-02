@@ -127,6 +127,23 @@ open unchanged for a colleague running an English QGIS, and an engine input file
 simply invalid. This is the single most common i18n bug in scientific software and it is asserted by a test
 that writes every output format under a comma-decimal locale and reads it back under a period-decimal one.
 
+**As built (P12c).** `core/number_format.py` holds the separator. It is the language GeoComp's own words are
+in, which the plugin sets when it installs the catalogue, so a report never mixes Portuguese words with English
+numbers. Each Processing run reads it once, at its start, and holds it in a context variable for the whole run.
+The formatters for people — the reports' `format_number`, P12a's `DisplayFormat`, the dialogs, the chart and
+legend labels — turn the point of a number they have just formatted into the separator. A setting's value
+recorded as text is turned only if it is a number. The formatters for machines (`exact`, the engines' writers)
+do not call it.
+
+`tests/qgis/test_locale_numbers.py` is the round trip asked for above. It runs RD-01's chain, field book to
+export, in English, then in pt-BR and in es with Qt's, GeoComp's and Python's locale all set to the language.
+Every file must equal the English run's and read back, and every number in every report table must change
+its separator and nothing else. Writing it found two tables that printed a value with `str()`: the settings
+and the provenance parameters. Both used a point in every language.
+
+**Not built:** thousands grouping (a coordinate prints as `7395123,4567`) and locale dates (reports write ISO
+8601).
+
 ---
 
 ## 6. Basic and Advanced profiles (FR-070, FR-071)

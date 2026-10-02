@@ -31,6 +31,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from geocomp.core.errors import GeoCompError
+from geocomp.core.number_format import localised
 
 __all__ = ["Compatibility", "CompatibilityDialog", "check_compatibility"]
 
@@ -66,7 +67,7 @@ def check_compatibility(first_path: str, second_path: str) -> Compatibility:
         lines.append(
             _tr("%1 — epoch %2, %3, datum %4")
             .replace("%1", solution.id)
-            .replace("%2", f"{solution.epoch.decimal_year:.4f}")
+            .replace("%2", localised(f"{solution.epoch.decimal_year:.4f}"))
             .replace("%3", solution.crs)
             .replace("%4", solution.datum_definition.value)
         )
@@ -78,7 +79,7 @@ def check_compatibility(first_path: str, second_path: str) -> Compatibility:
             _tr("Transformed from %1 to %2, accuracy %3 mm, common to every station.")
             .replace("%1", record.source)
             .replace("%2", record.target)
-            .replace("%3", f"{1000.0 * record.accuracy:.1f}")
+            .replace("%3", localised(f"{1000.0 * record.accuracy:.1f}"))
         )
     lines.extend(describe_finding(finding.to_dict()) for finding in comparison.findings)
     if comparison.strategies:

@@ -285,8 +285,9 @@ inputs (NFR-007).
 
 Uncertainties, residuals in length and misclosures in millimetres stay in SI: they are precision figures with
 their own conventional units. **Only what a person reads changes**: every file — JSON, CSV, the project
-store — stays SI at full precision (FR-095). Not addressed: the locale's decimal separator (FR-094), and the
-monitoring report's displacement tables, which are in millimetres by design.
+store — stays SI at full precision (FR-095). The locale's decimal separator (FR-094) arrived in P12c
+([`18`](./18-i18n-and-profiles.md) §5). The monitoring report's displacement tables stay in millimetres by
+design.
 ---
 
 ## 8. Acceptance criteria

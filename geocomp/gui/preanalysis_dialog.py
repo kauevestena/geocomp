@@ -49,6 +49,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from geocomp.core.models import ObservationType
+from geocomp.core.number_format import localised
 from geocomp.core.preanalysis.session import DesignSession
 from geocomp.core.visualization import default_exaggeration, ellipse_ring
 
@@ -343,16 +344,16 @@ class PreAnalysisDialog(QDialog):
                 .replace("%1", str(len(report.stations)))
                 .replace("%2", str(report.observation_count))
                 .replace("%3", str(report.degrees_of_freedom))
-                .replace("%4", f"{worst.positional_uncertainty * 1000:.1f}")
+                .replace("%4", localised(f"{worst.positional_uncertainty * 1000:.1f}"))
                 .replace("%5", worst.station_id)
             )
             for row, station in enumerate(report.stations):
                 for column, text in enumerate(
                     (
                         station.station_id,
-                        f"{station.positional_uncertainty * 1000:.1f}",
-                        f"{station.ellipse.semi_major * 1000:.1f}",
-                        f"{station.ellipse.semi_minor * 1000:.1f}",
+                        localised(f"{station.positional_uncertainty * 1000:.1f}"),
+                        localised(f"{station.ellipse.semi_major * 1000:.1f}"),
+                        localised(f"{station.ellipse.semi_minor * 1000:.1f}"),
                     )
                 ):
                     self._table.setItem(row, column, QTableWidgetItem(text))

@@ -26,6 +26,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.core.number_format import localised_if_number
 from geocomp.core.settings_def import SECTIONS, settings_in_section
 from geocomp.core.version import __version__
 
@@ -226,7 +227,7 @@ class SystemReportAlgorithm(GeoCompAlgorithm):
             for key, value, origin, overridden in rows:
                 css = ' class="overridden"' if overridden else ""
                 parts.append(
-                    f"<tr><td><code>{esc(key)}</code></td><td>{esc(value)}</td>"
+                    f"<tr><td><code>{esc(key)}</code></td><td>{esc(localised_if_number(str(value)))}</td>"
                     f"<td{css}>{esc(origin)}</td></tr>"
                 )
             parts.append("</table>")

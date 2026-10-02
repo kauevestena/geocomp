@@ -47,6 +47,7 @@ from qgis.PyQt.QtWidgets import (
 from geocomp.core.errors import GeoCompError
 from geocomp.core.monitoring import read_series_document
 from geocomp.core.monitoring.document import SERIES_PROPERTY
+from geocomp.core.number_format import localised
 from geocomp.core.statistics.distributions import normal_quantile
 from geocomp.core.visualization.monitoring import Curve, series_curves, series_limits
 
@@ -177,10 +178,10 @@ class SeriesPlot(QWidget):
         epochs = sorted({t for c in self.curves for t in c.epochs})
         for epoch in epochs:
             point = to_screen(epoch, low)
-            painter.drawText(QPointF(point.x() - 16, point.y() + 16), f"{epoch:.2f}")
+            painter.drawText(QPointF(point.x() - 16, point.y() + 16), localised(f"{epoch:.2f}"))
         for value in (low, 0.0, high):
             point = to_screen(epochs[0], value)
-            painter.drawText(QPointF(4, point.y() + 4), f"{value:.1f}")
+            painter.drawText(QPointF(4, point.y() + 4), localised(f"{value:.1f}"))
 
     # -- picking -------------------------------------------------------------
 
@@ -211,10 +212,10 @@ class SeriesPlot(QWidget):
                 return (
                     _tr("%1, epoch %2 (%3): %4 ± %5 mm")
                     .replace("%1", station)
-                    .replace("%2", f"{curve.epochs[index]:.4f}")
+                    .replace("%2", localised(f"{curve.epochs[index]:.4f}"))
                     .replace("%3", curve.solutions[index])
-                    .replace("%4", f"{value:.2f}")
-                    .replace("%5", f"{band:.2f}")
+                    .replace("%4", localised(f"{value:.2f}"))
+                    .replace("%5", localised(f"{band:.2f}"))
                 )
         return ""
 

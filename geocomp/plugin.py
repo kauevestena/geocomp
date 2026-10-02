@@ -17,8 +17,9 @@ from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
+from geocomp.core.number_format import set_display_locale
 from geocomp.core.version import __version__
-from geocomp.i18n import install_translator
+from geocomp.i18n import install_translator, resolve_locale
 from geocomp.provider import GeoCompProvider
 from geocomp.resources import icon_path
 
@@ -62,6 +63,12 @@ class GeoCompPlugin:
         # the translation layer, so installing later would leave the menu in
         # the source language until the next restart (FR-092).
         self._translator = install_translator(_language_override())
+        # And the numbers in the language the words came out in: a decimal
+        # comma beside English words, or a point beside Portuguese ones, would
+        # be the mixture the override exists to prevent (FR-094).
+        set_display_locale(
+            resolve_locale(_language_override()) if self._translator is not None else "en"
+        )
 
         settings.apply_log_level()
         log.info("GeoComp starting", version=__version__)

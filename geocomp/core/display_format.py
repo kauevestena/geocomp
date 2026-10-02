@@ -41,6 +41,7 @@ import math
 from dataclasses import dataclass
 
 from geocomp.core.errors import ValidationError
+from geocomp.core.number_format import localised
 from geocomp.core.units import GON_PER_RADIAN, convert, format_dms
 
 __all__ = ["ANGLE_FORMATS", "DISTANCE_UNITS", "DisplayFormat"]
@@ -116,13 +117,13 @@ class DisplayFormat:
         if missing is not None:
             return missing
         if self.angle_format == "dms":
-            return format_dms(radians, decimals=self.angle_decimals)
+            return localised(format_dms(radians, decimals=self.angle_decimals))
         places = self.angle_decimals + _EXTRA_PLACES[self.angle_format]
         if self.angle_format == "decimal_degrees":
-            return f"{math.degrees(radians):.{places}f}°"
+            return localised(f"{math.degrees(radians):.{places}f}°")
         if self.angle_format == "gon":
-            return f"{radians * GON_PER_RADIAN:.{places}f} gon"
-        return f"{radians:.{places}f} rad"
+            return localised(f"{radians * GON_PER_RADIAN:.{places}f}") + " gon"
+        return localised(f"{radians:.{places}f}") + " rad"
 
     @property
     def small_angle_symbol(self) -> str:
@@ -144,7 +145,7 @@ class DisplayFormat:
             value = radians * 1.0e6
         else:
             value = radians * _ARCSECONDS_PER_RADIAN
-        return f"{value:.{self.angle_decimals}f}"
+        return localised(f"{value:.{self.angle_decimals}f}")
 
     # -- lengths -----------------------------------------------------------
 
@@ -153,7 +154,7 @@ class DisplayFormat:
         missing = _missing(value)
         if missing is not None:
             return missing
-        return f"{value:.{self.coordinate_decimals}f}"
+        return localised(f"{value:.{self.coordinate_decimals}f}")
 
     @property
     def distance_symbol(self) -> str:
@@ -166,4 +167,4 @@ class DisplayFormat:
         if missing is not None:
             return missing
         value = convert(metres, "metre", self.distance_unit)
-        return f"{value:.{self.coordinate_decimals}f}"
+        return localised(f"{value:.{self.coordinate_decimals}f}")
