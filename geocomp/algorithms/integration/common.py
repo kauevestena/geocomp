@@ -363,7 +363,13 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         self._summarise(result, feedback)
         outputs = self._write(parameters, context, combination, solution, result, frame, epoch, requested)
         layers = write_result_layers(
-            self, parameters, context, solution, combination.network, feedback=feedback
+            self,
+            parameters,
+            context,
+            solution,
+            combination.network,
+            feedback=feedback,
+            solution_path=self.parameterAsFileOutput(parameters, OUTPUT_SOLUTION, context),
         )
         feedback.setProgress(100)
 

@@ -326,6 +326,17 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="project",
         menu_order=40,
     ),
+    # Phase P12b: the print layouts of specs/19 section 6, beside the base map
+    # they are drawn over.
+    AlgorithmSpec(
+        operation="print_layout",
+        group="project",
+        module="geocomp.algorithms.project.print_layout",
+        class_name="PrintLayoutAlgorithm",
+        requirement="FR-931",
+        menu="project",
+        menu_order=42,
+    ),
     AlgorithmSpec(
         operation="network_inspect",
         group="analysis",

@@ -66,6 +66,7 @@ NOT_PARAMETER_KEYS = frozenset(
         "CSV",
         "HTML",
         "XML",
+        "GPKG",
     }
 )
 

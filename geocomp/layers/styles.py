@@ -20,7 +20,10 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.resources import STYLES_DIR
 from geocomp.services.logging import log
 
-__all__ = ["STYLE_DIR", "apply_style", "style_path"]
+__all__ = ["STYLE_CONTEXT", "STYLE_DIR", "apply_style", "style_path", "translate_legend"]
+
+#: The translation context of every legend label in a shipped style.
+STYLE_CONTEXT = "GeoCompStyles"
 
 #: Re-exported so callers that only want a style path need one import.
 STYLE_DIR = STYLES_DIR
@@ -64,5 +67,33 @@ def apply_style(layer, name: str) -> bool:
             .replace("%2", str(message))
         )
         return False
+    translate_legend(layer)
     layer.triggerRepaint()
     return True
+
+
+def translate_legend(layer) -> None:
+    """Put the style's legend labels into the active language (FR-090).
+
+    A QML's labels are English, as its author wrote them, and until P12b they
+    reached the legend that way in every language -- "Blunder candidate" on a
+    Portuguese map. ``scripts/translations.py`` extracts every label of every
+    shipped style into the ``GeoCompStyles`` context, so each has a translation
+    to look up here. A label the catalogue lacks -- one a user wrote into their
+    own copy of a style -- stays as written.
+    """
+    renderer = layer.renderer()
+    if renderer is None:
+        return
+    if renderer.type() == "categorizedSymbol":
+        for index, category in enumerate(renderer.categories()):
+            if category.label():
+                renderer.updateCategoryLabel(index, _legend(category.label()))
+    elif renderer.type() == "graduatedSymbol":
+        for index, item in enumerate(renderer.ranges()):
+            if item.label():
+                renderer.updateRangeLabel(index, _legend(item.label()))
+
+
+def _legend(label: str) -> str:
+    return QCoreApplication.translate(STYLE_CONTEXT, label)

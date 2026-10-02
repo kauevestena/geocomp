@@ -2425,6 +2425,10 @@
             <translation>Estações ajustadas (camada)</translation>
         </message>
         <message>
+            <source>Constraint</source>
+            <translation>Injunção</translation>
+        </message>
+        <message>
             <source>Coordinate corrections (%1)</source>
             <translation>Correções de coordenadas (%1)</translation>
         </message>
@@ -2449,6 +2453,10 @@
             <translation>As elipses e os vetores de correção são desenhados com exagero de %1x.</translation>
         </message>
         <message>
+            <source>Epoch</source>
+            <translation>Época</translation>
+        </message>
+        <message>
             <source>Error ellipses (%1)</source>
             <translation>Elipses de erro (%1)</translation>
         </message>
@@ -2457,8 +2465,16 @@
             <translation>Elipses de erro (camada)</translation>
         </message>
         <message>
+            <source>External reliability</source>
+            <translation>Confiabilidade externa</translation>
+        </message>
+        <message>
             <source>GNSS baselines</source>
             <translation>Linhas de base GNSS</translation>
+        </message>
+        <message>
+            <source>GNSS solution status</source>
+            <translation>Estado da solução GNSS</translation>
         </message>
         <message>
             <source>GNSS trajectory</source>
@@ -2473,6 +2489,18 @@
             <translation>Estações gravimétricas</translation>
         </message>
         <message>
+            <source>Independence</source>
+            <translation>Independência</translation>
+        </message>
+        <message>
+            <source>Minimal detectable bias</source>
+            <translation>Menor erro detectável</translation>
+        </message>
+        <message>
+            <source>Observation type</source>
+            <translation>Tipo de observação</translation>
+        </message>
+        <message>
             <source>Observations</source>
             <translation>Observações</translation>
         </message>
@@ -2481,12 +2509,24 @@
             <translation>Observações (camada)</translation>
         </message>
         <message>
+            <source>Positional uncertainty</source>
+            <translation>Incerteza posicional</translation>
+        </message>
+        <message>
+            <source>Redundancy number</source>
+            <translation>Número de redundância</translation>
+        </message>
+        <message>
             <source>Residuals</source>
             <translation>Resíduos</translation>
         </message>
         <message>
             <source>Residuals (layer)</source>
             <translation>Resíduos (camada)</translation>
+        </message>
+        <message>
+            <source>Standardised residual</source>
+            <translation>Resíduo padronizado</translation>
         </message>
         <message>
             <source>The geocentric solution is drawn in %1: easting, northing and ellipsoidal height.</source>
@@ -2503,6 +2543,10 @@
         <message>
             <source>Velocities, one year's motion (%1)</source>
             <translation>Velocidades, movimento de um ano (%1)</translation>
+        </message>
+        <message>
+            <source>W-test decision</source>
+            <translation>Decisão do teste w</translation>
         </message>
         <message>
             <source>exaggerated %1x</source>
@@ -3882,6 +3926,10 @@
             <translation>Configurações Globais do GeoComp</translation>
         </message>
         <message>
+            <source>Results panel</source>
+            <translation>Painel de resultados</translation>
+        </message>
+        <message>
             <source>Time series panel</source>
             <translation>Painel de séries temporais</translation>
         </message>
@@ -4013,6 +4061,249 @@
         <message>
             <source>not defined</source>
             <translation>não definido</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompResultsPanel</name>
+        <message>
+            <source>%1 solution(s) from %2.</source>
+            <translation>%1 solução(ões) de %2.</translation>
+        </message>
+        <message>
+            <source>(superseded)</source>
+            <translation>(substituída)</translation>
+        </message>
+        <message>
+            <source>Algorithm</source>
+            <translation>Algoritmo</translation>
+        </message>
+        <message>
+            <source>All observations</source>
+            <translation>Todas as observações</translation>
+        </message>
+        <message>
+            <source>Blunder candidate</source>
+            <translation>Candidato a erro grosseiro</translation>
+        </message>
+        <message>
+            <source>Blunder candidates</source>
+            <translation>Candidatos a erro grosseiro</translation>
+        </message>
+        <message>
+            <source>Condition number</source>
+            <translation>Número de condição</translation>
+        </message>
+        <message>
+            <source>Confidence level</source>
+            <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Constraints</source>
+            <translation>Injunções</translation>
+        </message>
+        <message>
+            <source>Converged</source>
+            <translation>Convergiu</translation>
+        </message>
+        <message>
+            <source>Coordinates</source>
+            <translation>Coordenadas</translation>
+        </message>
+        <message>
+            <source>Created</source>
+            <translation>Criado em</translation>
+        </message>
+        <message>
+            <source>Decision</source>
+            <translation>Decisão</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Graus de liberdade</translation>
+        </message>
+        <message>
+            <source>External reliability</source>
+            <translation>Confiabilidade externa</translation>
+        </message>
+        <message>
+            <source>FAILED</source>
+            <translation>REPROVOU</translation>
+        </message>
+        <message>
+            <source>Filter by observation id</source>
+            <translation>Filtrar pelo identificador da observação</translation>
+        </message>
+        <message>
+            <source>GeoComp project (*.gpkg)</source>
+            <translation>Projeto GeoComp (*.gpkg)</translation>
+        </message>
+        <message>
+            <source>GeoComp results</source>
+            <translation>Resultados do GeoComp</translation>
+        </message>
+        <message>
+            <source>GeoComp solution (*.json)</source>
+            <translation>Solução GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Teste global</translation>
+        </message>
+        <message>
+            <source>Iterations</source>
+            <translation>Iterações</translation>
+        </message>
+        <message>
+            <source>Largest last correction</source>
+            <translation>Maior correção na última iteração</translation>
+        </message>
+        <message>
+            <source>Lower critical value</source>
+            <translation>Valor crítico inferior</translation>
+        </message>
+        <message>
+            <source>MDB</source>
+            <translation>MDB</translation>
+        </message>
+        <message>
+            <source>Not tested</source>
+            <translation>Não testada</translation>
+        </message>
+        <message>
+            <source>Observation</source>
+            <translation>Observação</translation>
+        </message>
+        <message>
+            <source>Observations</source>
+            <translation>Observações</translation>
+        </message>
+        <message>
+            <source>Open project store</source>
+            <translation>Abrir repositório do projeto</translation>
+        </message>
+        <message>
+            <source>Open project store…</source>
+            <translation>Abrir repositório do projeto…</translation>
+        </message>
+        <message>
+            <source>Open solution</source>
+            <translation>Abrir solução</translation>
+        </message>
+        <message>
+            <source>Open solution…</source>
+            <translation>Abrir solução…</translation>
+        </message>
+        <message>
+            <source>Parameters</source>
+            <translation>Parâmetros</translation>
+        </message>
+        <message>
+            <source>Passes the w-test</source>
+            <translation>Passa no teste w</translation>
+        </message>
+        <message>
+            <source>Positional uncertainty (m)</source>
+            <translation>Incerteza posicional (m)</translation>
+        </message>
+        <message>
+            <source>Quantity</source>
+            <translation>Grandeza</translation>
+        </message>
+        <message>
+            <source>Redundancy</source>
+            <translation>Redundância</translation>
+        </message>
+        <message>
+            <source>Residual</source>
+            <translation>Resíduo</translation>
+        </message>
+        <message>
+            <source>Semi-major (m)</source>
+            <translation>Semieixo maior (m)</translation>
+        </message>
+        <message>
+            <source>Semi-minor (m)</source>
+            <translation>Semieixo menor (m)</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Standard deviations (m)</source>
+            <translation>Desvios-padrão (m)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estações</translation>
+        </message>
+        <message>
+            <source>Statistics</source>
+            <translation>Estatísticas</translation>
+        </message>
+        <message>
+            <source>Test statistic</source>
+            <translation>Estatística de teste</translation>
+        </message>
+        <message>
+            <source>The solution %1 could not be read: %2</source>
+            <translation>Não foi possível ler a solução %1: %2</translation>
+        </message>
+        <message>
+            <source>This solution's uncertainties are approximate; its report names the strategies used.</source>
+            <translation>As incertezas desta solução são aproximadas; o seu relatório indica as estratégias usadas.</translation>
+        </message>
+        <message>
+            <source>Uncertainty mode</source>
+            <translation>Modo de incerteza</translation>
+        </message>
+        <message>
+            <source>Uncheckable</source>
+            <translation>Não verificável</translation>
+        </message>
+        <message>
+            <source>Uncheckable observations</source>
+            <translation>Observações não verificáveis</translation>
+        </message>
+        <message>
+            <source>Upper critical value</source>
+            <translation>Valor crítico superior</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Valor</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Fator de variância</translation>
+        </message>
+        <message>
+            <source>Variance factor, a posteriori</source>
+            <translation>Fator de variância, a posteriori</translation>
+        </message>
+        <message>
+            <source>Variance factor, a priori</source>
+            <translation>Fator de variância, a priori</translation>
+        </message>
+        <message>
+            <source>no</source>
+            <translation>não</translation>
+        </message>
+        <message>
+            <source>passed</source>
+            <translation>aprovou</translation>
+        </message>
+        <message>
+            <source>w</source>
+            <translation>w</translation>
+        </message>
+        <message>
+            <source>yes</source>
+            <translation>sim</translation>
         </message>
     </context>
     <context>
@@ -4516,6 +4807,197 @@
         <message>
             <source>µGal</source>
             <translation>µGal</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompStyles</name>
+        <message>
+            <source>Absolute value</source>
+            <translation>Valor absoluto</translation>
+        </message>
+        <message>
+            <source>Alert: a threshold crossed</source>
+            <translation>Alerta: um limiar ultrapassado</translation>
+        </message>
+        <message>
+            <source>Alert: a velocity threshold crossed</source>
+            <translation>Alerta: um limiar de velocidade ultrapassado</translation>
+        </message>
+        <message>
+            <source>Azimuth</source>
+            <translation>Azimute</translation>
+        </message>
+        <message>
+            <source>Blunder candidate</source>
+            <translation>Candidato a erro grosseiro</translation>
+        </message>
+        <message>
+            <source>DGPS</source>
+            <translation>DGPS</translation>
+        </message>
+        <message>
+            <source>Dependent (no new information)</source>
+            <translation>Dependente (sem informação nova)</translation>
+        </message>
+        <message>
+            <source>Direction</source>
+            <translation>Direção</translation>
+        </message>
+        <message>
+            <source>Estimated</source>
+            <translation>Estimada</translation>
+        </message>
+        <message>
+            <source>Fixed</source>
+            <translation>Fixa</translation>
+        </message>
+        <message>
+            <source>Fixed (ambiguities resolved)</source>
+            <translation>Fixa (ambiguidades resolvidas)</translation>
+        </message>
+        <message>
+            <source>Float</source>
+            <translation>Flutuante</translation>
+        </message>
+        <message>
+            <source>Height difference</source>
+            <translation>Desnível</translation>
+        </message>
+        <message>
+            <source>Held (datum)</source>
+            <translation>Mantida (datum)</translation>
+        </message>
+        <message>
+            <source>Horizontal angle</source>
+            <translation>Ângulo horizontal</translation>
+        </message>
+        <message>
+            <source>Horizontal distance</source>
+            <translation>Distância horizontal</translation>
+        </message>
+        <message>
+            <source>Independent</source>
+            <translation>Independente</translation>
+        </message>
+        <message>
+            <source>MDB not a length (see the table)</source>
+            <translation>MDB não é um comprimento (ver a tabela)</translation>
+        </message>
+        <message>
+            <source>No epoch stated</source>
+            <translation>Sem época declarada</translation>
+        </message>
+        <message>
+            <source>Not assessed</source>
+            <translation>Não avaliada</translation>
+        </message>
+        <message>
+            <source>Not computed</source>
+            <translation>Não calculado</translation>
+        </message>
+        <message>
+            <source>Not recorded</source>
+            <translation>Não registado</translation>
+        </message>
+        <message>
+            <source>Not significant</source>
+            <translation>Não significativo</translation>
+        </message>
+        <message>
+            <source>Not testable</source>
+            <translation>Não testável</translation>
+        </message>
+        <message>
+            <source>Not tested</source>
+            <translation>Não testada</translation>
+        </message>
+        <message>
+            <source>Other</source>
+            <translation>Outra</translation>
+        </message>
+        <message>
+            <source>PPP</source>
+            <translation>PPP</translation>
+        </message>
+        <message>
+            <source>Passes the w-test</source>
+            <translation>Passa no teste w</translation>
+        </message>
+        <message>
+            <source>Relative only</source>
+            <translation>Apenas relativa</translation>
+        </message>
+        <message>
+            <source>SBAS</source>
+            <translation>SBAS</translation>
+        </message>
+        <message>
+            <source>Significant motion</source>
+            <translation>Movimento significativo</translation>
+        </message>
+        <message>
+            <source>Significant velocity</source>
+            <translation>Velocidade significativa</translation>
+        </message>
+        <message>
+            <source>Single (no differential)</source>
+            <translation>Simples (sem diferencial)</translation>
+        </message>
+        <message>
+            <source>Slope distance</source>
+            <translation>Distância inclinada</translation>
+        </message>
+        <message>
+            <source>Uncheckable (r below 0.01)</source>
+            <translation>Não verificável (r abaixo de 0.01)</translation>
+        </message>
+        <message>
+            <source>Uncheckable: no finite MDB</source>
+            <translation>Não verificável: sem MDB finito</translation>
+        </message>
+        <message>
+            <source>Uncheckable: no finite effect</source>
+            <translation>Não verificável: sem efeito finito</translation>
+        </message>
+        <message>
+            <source>Weighted</source>
+            <translation>Ponderada</translation>
+        </message>
+        <message>
+            <source>Zenith angle</source>
+            <translation>Ângulo zenital</translation>
+        </message>
+        <message>
+            <source>r 0.01 to 0.1</source>
+            <translation>r de 0.01 a 0.1</translation>
+        </message>
+        <message>
+            <source>r 0.1 to 0.3</source>
+            <translation>r de 0.1 a 0.3</translation>
+        </message>
+        <message>
+            <source>r 0.3 to 0.5</source>
+            <translation>r de 0.3 a 0.5</translation>
+        </message>
+        <message>
+            <source>r 0.5 to 1</source>
+            <translation>r de 0.5 a 1</translation>
+        </message>
+        <message>
+            <source>|w| 1 to 2</source>
+            <translation>|w| de 1 a 2</translation>
+        </message>
+        <message>
+            <source>|w| 2 to 3</source>
+            <translation>|w| de 2 a 3</translation>
+        </message>
+        <message>
+            <source>|w| 3 or more</source>
+            <translation>|w| 3 ou mais</translation>
+        </message>
+        <message>
+            <source>|w| below 1</source>
+            <translation>|w| abaixo de 1</translation>
         </message>
     </context>
     <context>
@@ -7213,6 +7695,113 @@
         <message>
             <source>yes</source>
             <translation>sim</translation>
+        </message>
+    </context>
+    <context>
+        <name>PrintLayoutAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Makes a print layout in the project from one of three templates: a network map with its error ellipses, a displacement map, and a quality map drawn by one of the thematic maps. The layout has the title, the map, a legend, a scale bar and a north arrow, and lands in the project's layout manager to edit, print or export like any other.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The exaggeration is stated.&lt;/b&gt; Every exaggerated layer names its factor, so the legend states it, and the notes say that the scale bar measures the map and not the ellipses or vectors.&lt;/p&gt;&lt;p&gt;With no layers chosen, the layout draws the GeoComp result layers in the project that suit it, and any configured base map already there. A template of your own -- a shipped one adapted in the layout designer -- can be given instead; its items are found by their ids: title, map, legend, scalebar, north, notes, footer.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Cria um layout de impressão no projeto a partir de um de três modelos: um mapa da rede com as suas elipses de erro, um mapa dos deslocamentos e um mapa de qualidade desenhado por um dos mapas temáticos. O layout tem o título, o mapa, uma legenda, uma barra de escala e uma seta de norte, e fica no gerenciador de layouts do projeto para editar, imprimir ou exportar como qualquer outro.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O exagero é declarado.&lt;/b&gt; Cada camada exagerada indica o seu fator, por isso a legenda o declara, e as notas dizem que a barra de escala mede o mapa e não as elipses ou os vetores.&lt;/p&gt;&lt;p&gt;Sem camadas escolhidas, o layout desenha as camadas de resultado do GeoComp no projeto que lhe convêm, e qualquer mapa de fundo configurado que já esteja lá. Em vez disso, pode ser dado um modelo próprio -- um dos incluídos, adaptado no editor de layouts; os seus itens são encontrados pelos identificadores: title, map, legend, scalebar, north, notes, footer.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A print layout for a network map, a displacement map or a quality map, ready to adapt.</source>
+            <translation>Um layout de impressão para um mapa da rede, um mapa dos deslocamentos ou um mapa de qualidade, pronto para adaptar.</translation>
+        </message>
+        <message>
+            <source>Coloured by %1.</source>
+            <translation>Colorido por %1.</translation>
+        </message>
+        <message>
+            <source>Create print layout</source>
+            <translation>Criar layout de impressão</translation>
+        </message>
+        <message>
+            <source>Deliverable</source>
+            <translation>Produto</translation>
+        </message>
+        <message>
+            <source>Displacement map</source>
+            <translation>Mapa dos deslocamentos</translation>
+        </message>
+        <message>
+            <source>Ellipses and vectors are drawn exaggerated, %1, as each legend entry states. The scale bar measures the map, not them.</source>
+            <translation>Elipses e vetores são desenhados exagerados, %1, como indica cada entrada da legenda. A barra de escala mede o mapa, não eles.</translation>
+        </message>
+        <message>
+            <source>GeoComp %1 · %2</source>
+            <translation>GeoComp %1 · %2</translation>
+        </message>
+        <message>
+            <source>Its classes are fitted to this network, so the map is relative to it; the legend states every bound.</source>
+            <translation>As suas classes são ajustadas a esta rede, por isso o mapa é relativo a ela; a legenda indica todos os limites.</translation>
+        </message>
+        <message>
+            <source>Layers (empty: the project's GeoComp result layers)</source>
+            <translation>Camadas (vazio: as camadas de resultado do GeoComp no projeto)</translation>
+        </message>
+        <message>
+            <source>Layout</source>
+            <translation>Layout</translation>
+        </message>
+        <message>
+            <source>Layout '%1': %2 layer(s).</source>
+            <translation>Layout '%1': %2 camada(s).</translation>
+        </message>
+        <message>
+            <source>Layout name (empty: from the title)</source>
+            <translation>Nome do layout (vazio: a partir do título)</translation>
+        </message>
+        <message>
+            <source>Legend</source>
+            <translation>Legenda</translation>
+        </message>
+        <message>
+            <source>Network map</source>
+            <translation>Mapa da rede</translation>
+        </message>
+        <message>
+            <source>Network map with error ellipses</source>
+            <translation>Mapa da rede com elipses de erro</translation>
+        </message>
+        <message>
+            <source>Network quality</source>
+            <translation>Qualidade da rede</translation>
+        </message>
+        <message>
+            <source>None of these layers has the '%1' map; they are drawn in their own styles. Run the adjustment again to give its layers their thematic maps.</source>
+            <translation>Nenhuma destas camadas tem o mapa '%1'; elas são desenhadas nos seus próprios estilos. Execute o ajustamento novamente para dar às suas camadas os mapas temáticos.</translation>
+        </message>
+        <message>
+            <source>Quality map</source>
+            <translation>Mapa de qualidade</translation>
+        </message>
+        <message>
+            <source>Quality map drawn by</source>
+            <translation>Mapa de qualidade desenhado por</translation>
+        </message>
+        <message>
+            <source>Template of your own (.qpt)</source>
+            <translation>Modelo próprio (.qpt)</translation>
+        </message>
+        <message>
+            <source>The template %1 could not be read: %2</source>
+            <translation>Não foi possível ler o modelo %1: %2</translation>
+        </message>
+        <message>
+            <source>The template %1 has no map item with the id 'map'.</source>
+            <translation>O modelo %1 não tem um item de mapa com o identificador 'map'.</translation>
+        </message>
+        <message>
+            <source>The template %1 is not a QGIS layout template.</source>
+            <translation>O modelo %1 não é um modelo de layout do QGIS.</translation>
+        </message>
+        <message>
+            <source>There is nothing to draw: no layers were chosen and the project holds no GeoComp result layers for this map. Run an adjustment with its layers, or choose the layers.</source>
+            <translation>Não há nada para desenhar: nenhuma camada foi escolhida e o projeto não contém camadas de resultado do GeoComp para este mapa. Execute um ajustamento com as suas camadas, ou escolha as camadas.</translation>
+        </message>
+        <message>
+            <source>Title</source>
+            <translation>Título</translation>
         </message>
     </context>
     <context>

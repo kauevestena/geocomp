@@ -285,3 +285,31 @@ def test_the_attribute_scan_found_the_builders():
     assert len(found) >= 6
     assert "gnss_baseline_features" in found
     assert "gnss_trajectory_features" in found
+
+
+def _theme_pairs() -> list[tuple[str, str]]:
+    from geocomp.core.visualization.themes import THEMES
+
+    return sorted((style, theme.id) for style, themes in THEMES.items() for theme in themes)
+
+
+@pytest.mark.parametrize(("style", "theme"), _theme_pairs())
+def test_every_field_a_thematic_map_names_is_one_its_layer_has(style, theme, layer_fields):
+    """The thematic maps of P12b (``specs/19`` section 4) draw by expressions --
+    ``CASE WHEN "redundancy" IS NULL ...`` -- so every quoted name in one must be
+    a field of each layer that offers it, or the map classes nothing."""
+    from geocomp.core.visualization.themes import THEMES
+
+    path = STYLE_DIR / "themes" / f"{theme}.qml"
+    root = ElementTree.parse(path).getroot()
+    attribute = next(root.iter("renderer-v2")).get("attr") or ""
+    referenced = set(re.findall(r'"([A-Za-z_][A-Za-z0-9_]*)"', attribute)) or {attribute}
+    entry = next(t for t in THEMES[style] if t.id == theme)
+    referenced |= {name for name in (entry.field, entry.unit_field) if name}
+    missing = referenced - layer_fields[style]
+    assert not missing, f"themes/{theme}.qml on {style} references {sorted(missing)}"
+
+
+def test_every_thematic_map_file_is_offered():
+    shipped = {path.stem for path in (STYLE_DIR / "themes").glob("*.qml")}
+    assert shipped == {theme for _style, theme in _theme_pairs()}

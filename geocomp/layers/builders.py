@@ -42,8 +42,11 @@ from qgis.PyQt.QtCore import QCoreApplication, QMetaType
 from geocomp.core.models import ConstraintMode, CoordinateSystem, Network, Solution
 from geocomp.core.units import convert
 from geocomp.core.visualization import displacement_arrow, ellipse_ring
+from geocomp.core.visualization.classes import mdb_displacement
 from geocomp.core.visualization.monitoring import drawn_displacements, drawn_velocities
+from geocomp.core.visualization.results import decision
 from geocomp.layers.styles import apply_style
+from geocomp.layers.themes import add_thematic_styles
 
 __all__ = [
     "GNSS_HORIZON_CRS",
@@ -133,6 +136,10 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("mdb", _REAL),
         ("external_reliability", _REAL),
         ("decision", _TEXT),
+        # The MDB as the displacement it would put at the far end, metres, so
+        # one thematic map can rank a direction's against a distance's (P12b;
+        # core/visualization/classes.py). Empty where the unit has none.
+        ("mdb_displacement", _REAL),
     ),
     "observations": (
         ("observation", _TEXT),
@@ -144,6 +151,10 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("status", _TEXT),
         ("cluster", _TEXT),
         ("station_count", _INT),
+        # Decimal year, empty where the observation states none: what the
+        # epoch-or-campaign map is drawn by (FR-902, P12b). A campaign belongs
+        # to exactly one epoch, so this is the campaign map too.
+        ("epoch", _REAL),
     ),
     # GNSS baselines (FR-357, phase P7c). Distinct from "observations" because a
     # baseline carries three components and a quality record, and the
@@ -487,6 +498,11 @@ def residual_features(solution: Solution, network: Network) -> Iterator[QgsFeatu
                 result.minimal_detectable_bias,
                 result.external_reliability,
                 _decision(result),
+                mdb_displacement(
+                    result.minimal_detectable_bias,
+                    observation.values[0].unit,
+                    _sight_length(observation.stations, positions),
+                ),
             ]
         )
         yield feature
@@ -538,6 +554,7 @@ def observation_features(
                 observation.status.value,
                 observation.cluster_id,
                 len(observation.stations),
+                observation.epoch.decimal_year if observation.epoch is not None else None,
             ]
         )
         yield feature
@@ -1160,7 +1177,8 @@ def _build(style: str, crs: str, name: str, features: Iterator[QgsFeature]) -> Q
     if collected:
         layer.dataProvider().addFeatures(collected)
     layer.updateExtents()
-    apply_style(layer, style)
+    if apply_style(layer, style):
+        add_thematic_styles(layer, style)
     return layer
 
 
@@ -1209,6 +1227,21 @@ def _connecting_line(stations, positions) -> QgsGeometry | None:
     return QgsGeometry.fromPolylineXY([QgsPointXY(east, north) for east, north in points])
 
 
+def _sight_length(stations, positions) -> float | None:
+    """The plan length of the sight an observation's last leg spans.
+
+    For a two-station observation that is the observation's own line. For a
+    three-station angle it is the vertex to the foresight -- the sight on which
+    an angular blunder moves the target -- not backsight to foresight, which no
+    one sighted along.
+    """
+    points = [positions[name] for name in stations if name in positions]
+    if len(points) < 2:
+        return None
+    (east_a, north_a), (east_b, north_b) = points[-2], points[-1]
+    return math.hypot(east_b - east_a, north_b - north_a)
+
+
 def _polygon(ring) -> QgsGeometry:
     return QgsGeometry.fromPolygonXY([[QgsPointXY(east, north) for east, north in ring]])
 
@@ -1222,11 +1255,7 @@ def _decision(result) -> str:
     which GeoComp did not test -- is none of the three and says so with an
     empty string, rather than claiming a redundancy nobody computed.
     """
-    if result.is_uncheckable:
-        return "uncheckable"
-    if result.w_test is None:
-        return ""
-    return "accepted" if result.w_test.passed else "rejected"
+    return decision(result)
 
 
 def _constraint_modes(network: Network | None) -> dict[str, str]:

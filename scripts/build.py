@@ -39,7 +39,7 @@ PLUGIN_NAME = "geocomp"
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 
 #: What ships. Everything else is development infrastructure.
-INCLUDE_SUFFIXES = {".py", ".txt", ".svg", ".png", ".qm", ".qml", ".html", ".csv", ".md", ".json"}
+INCLUDE_SUFFIXES = {".py", ".txt", ".svg", ".png", ".qm", ".qml", ".qpt", ".html", ".csv", ".md", ".json"}
 
 EXCLUDE_DIRS = {"__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache"}
 

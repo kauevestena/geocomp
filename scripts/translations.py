@@ -46,6 +46,13 @@ TEMPLATE_FACTORIES = {"MessageTemplate"}
 
 DEFAULT_CONTEXT = "GeoComp"
 
+#: Legend labels in the shipped QML styles. A style's labels reach the legend
+#: through ``geocomp.layers.styles.translate_legend``, which looks each one up
+#: in this context; the extractor reads them from the files so a label added to
+#: a style is a catalogue gap like any other (FR-091).
+STYLE_CONTEXT = "GeoCompStyles"
+STYLE_LABEL_ELEMENTS = ("category", "range", "rule")
+
 
 def catalogue_path(locale: str) -> Path:
     return I18N_DIR / f"geocomp_{locale}.ts"
@@ -132,6 +139,12 @@ def extract_sources(root: Path | None = None) -> dict[str, set[str]]:
 
             if isinstance(source_arg, ast.Constant) and isinstance(source_arg.value, str):
                 found[context].add(source_arg.value)
+
+    for path in sorted((root / "resources" / "styles").rglob("*.qml")):
+        for element in ET.parse(path).iter():
+            label = element.get("label") if element.tag in STYLE_LABEL_ELEMENTS else None
+            if label:
+                found[STYLE_CONTEXT].add(label)
 
     return dict(found)
 
