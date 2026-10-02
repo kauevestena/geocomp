@@ -40,6 +40,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | No credential appears in any log, config, provenance record or export | NFR-010 |
 | Basic and Advanced modes produce identical numeric results with defaults, for every algorithm | FR-071 |
 | Every acceptance criterion of every specification has one row in §10's register, and every test a row cites exists | §9 criterion 8 |
+| Every translated string that uses a glossary term uses the glossary's rendering of it (`scripts/check_glossary.py`) | FR-093, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §3 |
 
 ## 3. Reference datasets (FR-950)
 
@@ -295,7 +296,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 102 met, 21 partly met, 10 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 103 met, 21 partly met, 9 open, 2 manual, of 135.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -407,7 +408,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 18 | 1 | Every string in the catalogues; no unwrapped literal | **met** | `tests/structural/test_translations.py`, `tests/structural/test_i18n_strings.py` |
 | 18 | 2 | Portuguese or Spanish translates the whole UI | **met** | Since P12c, in both languages: every algorithm's name, group, description, parameters, outputs and help, and every menu entry (`tests/qgis/test_language.py`). Writing it found five places where a word was filed under one context and looked up under another, and so was never translated |
 | 18 | 3 | The override works independently of QGIS's language | **met** | Since P12c: `tests/qgis/test_language.py::test_geocomps_language_overrides_qgiss` |
-| 18 | 4 | Terminology checked against the glossary by a script | **open** | No such script exists |
+| 18 | 4 | Terminology checked against the glossary by a script | **met** | Since P12c: `scripts/check_glossary.py`, held by `tests/structural/test_glossary.py::test_every_translation_uses_the_glossary`. Its first run found 128 Portuguese and Spanish strings off the glossary, most of them the levelling strings calling a *setup* a *station* |
 | 18 | 5 | Files written under one decimal convention read under the other | **partly met** | Imports read either separator (`tests/test_fieldbook_import.py::TestLocaleIndependentNumbers`, `tests/test_levelbook_import.py`); no test writes under a comma locale and reads back |
 | 18 | 6 | Displayed numbers use the locale separator | **open** | Not built (FR-094): every report and table uses a point, recorded in P12a |
 | 18 | 7 | Basic and Advanced identical | **met** | As 15.7 |
