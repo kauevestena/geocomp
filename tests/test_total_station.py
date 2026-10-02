@@ -11,6 +11,7 @@ atmospheric physics reproduces the magnitudes the specification quotes.
 from __future__ import annotations
 
 import math
+from typing import ClassVar
 
 import pytest
 
@@ -885,3 +886,150 @@ class TestAProfileTravels:
             assert (a.value, a.std_dev) == (b.value, b.std_dev), name
         assert first.reduction.distance.value == second.reduction.distance.value
         assert first.reduction.horizontal.value == second.reduction.horizontal.value
+
+
+class TestTheChainIsOnePropagation:
+    """specs/05 criterion 3: the chain, stage by stage, is one propagation.
+
+    Each stage propagates what it receives and hands its result on, which is
+    what lets each be an algorithm of its own. Composing propagations is exact
+    for linear maps (``tests/test_uncertainty.py``); what this checks is that no
+    real stage drops a dependency on the way. So it differentiates the *whole*
+    chain numerically, from the raw readings, heights, air and calibration
+    constants to the reduced pointing, and propagates once through that
+    Jacobian.
+    """
+
+    #: Every uncertain input of one face pair: value, standard deviation.
+    INPUTS: ClassVar[dict[str, tuple[float, float]]] = {
+        "direct_horizontal": (math.radians(31.2), 5e-6),
+        "direct_zenith": (math.radians(84.0), 5e-6),
+        "direct_distance": (412.345, 0.002),
+        "reverse_horizontal": (math.radians(211.2001), 5e-6),
+        "reverse_zenith": (math.radians(276.0003), 5e-6),
+        "reverse_distance": (412.347, 0.002),
+        "instrument_height": (1.512, 0.001),
+        "target_height": (1.700, 0.002),
+        "temperature": (300.15, 1.0),
+        "pressure": (92000.0, 100.0),
+        "humidity": (0.55, 0.05),
+        "edm_additive": (-0.0345, 0.0003),
+        "prism_constant": (0.0, 0.0003),
+        "trunnion_tilt": (3e-5, 1e-5),
+        "edm_scale": (1.000004, 2e-6),
+        "cyclic_amplitude": (0.0002, 0.0001),
+    }
+    OUTPUTS = ("horizontal", "zenith", "distance")
+    REDUCED = ("horizontal_distance", "vertical_component", "height_difference")
+
+    @classmethod
+    def _run(cls, values: dict[str, float], *, cyclic: bool):
+        def q(name, unit):
+            return Quantity.from_std_dev(values[name], cls.INPUTS[name][1], unit)
+
+        library = ProfileLibrary()
+        library.add_instrument(
+            InstrumentProfile(
+                id="ts",
+                trunnion_tilt=q("trunnion_tilt", RADIAN),
+                edm_additive=q("edm_additive", METRE),
+                edm_scale=q("edm_scale", NONE),
+                cyclic_error_amplitude=q("cyclic_amplitude", METRE)
+                if cyclic
+                else Quantity.exact(0.0, METRE),
+                cyclic_error_wavelength=10.0,
+            )
+        )
+        library.add_reflector(ReflectorProfile(id="prism", additive_constant=q("prism_constant", METRE)))
+        setup = Setup(
+            station="A",
+            instrument_height=q("instrument_height", METRE),
+            instrument_id="ts",
+            reflector_id="prism",
+        )
+        target = q("target_height", METRE)
+        setup.pairs.append(
+            FacePair(
+                FaceReading(
+                    "B",
+                    Face.DIRECT,
+                    q("direct_horizontal", RADIAN),
+                    q("direct_zenith", RADIAN),
+                    q("direct_distance", METRE),
+                    target_height=target,
+                ),
+                FaceReading(
+                    "B",
+                    Face.REVERSE,
+                    q("reverse_horizontal", RADIAN),
+                    q("reverse_zenith", RADIAN),
+                    q("reverse_distance", METRE),
+                    target_height=target,
+                ),
+            )
+        )
+        air = Atmosphere(
+            temperature=q("temperature", KELVIN),
+            pressure=q("pressure", PASCAL),
+            humidity=q("humidity", NONE),
+        )
+        options = PreprocessingOptions(distance_zenith_correlation=0.0)
+        (pointing,) = preprocess_setup(setup, library, atmosphere=air, options=options).pointings
+        assert pointing.is_usable and pointing.atmospheric_ppm is not None
+        return pointing
+
+    @classmethod
+    def _outputs(cls, pointing) -> list[float]:
+        return [getattr(pointing.reduction, name).value for name in cls.OUTPUTS] + [
+            getattr(pointing.basic, name).value for name in cls.REDUCED
+        ]
+
+    @classmethod
+    def _at_once(cls, *, cyclic: bool):
+        """One propagation through the central-difference Jacobian of the whole chain."""
+        import numpy as np
+
+        names = list(cls.INPUTS)
+        centre = {name: value for name, (value, _sigma) in cls.INPUTS.items()}
+        columns = []
+        for name in names:
+            # A hundredth of a sigma: the air's refractivity is curved enough in
+            # temperature that a one-sigma step misstates its slope by 2.5e-5.
+            step = cls.INPUTS[name][1] / 100.0
+            up, down = dict(centre), dict(centre)
+            up[name] += step
+            down[name] -= step
+            columns.append(
+                (
+                    np.array(cls._outputs(cls._run(up, cyclic=cyclic)))
+                    - np.array(cls._outputs(cls._run(down, cyclic=cyclic)))
+                )
+                / (2.0 * step)
+            )
+        jacobian = np.column_stack(columns)
+        inputs = np.diag([cls.INPUTS[name][1] ** 2 for name in names])
+        return jacobian @ inputs @ jacobian.T, cls._run(centre, cyclic=cyclic)
+
+    def _compare(self, *, cyclic: bool, rtol: float):
+        import numpy as np
+
+        at_once, pointing = self._at_once(cyclic=cyclic)
+        for index, name in enumerate(self.OUTPUTS):
+            stepwise = getattr(pointing.reduction, name).variance
+            assert stepwise == pytest.approx(at_once[index, index], rel=rtol), name
+        reduced = pointing.basic.covariance
+        assert list(reduced.labels) == list(self.REDUCED)
+        np.testing.assert_allclose(reduced.matrix, at_once[3:, 3:], rtol=rtol, atol=0.0)
+
+    def test_every_stage_carries_every_dependency(self):
+        """Without the cyclic error, nothing is left out: the two agree to the
+        precision of the difference quotient."""
+        self._compare(cyclic=False, rtol=1e-6)
+
+    def test_the_one_term_left_out_is_the_one_the_code_says(self):
+        """The cyclic correction does not propagate the distance's own error
+        (``corrections._cyclic_error``): its slope is 2 pi A / lambda, here
+        1.3e-4, against 1 for the distance itself. That is the only difference."""
+        with pytest.raises(AssertionError):
+            self._compare(cyclic=True, rtol=1e-6)
+        self._compare(cyclic=True, rtol=1e-3)
