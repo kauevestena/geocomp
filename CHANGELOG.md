@@ -12,9 +12,15 @@ Every acceptance criterion in the specifications now has a row saying whether it
 
 #### Added
 
-- The register: 135 criteria. 90 are met, 31 partly met, 12 open and 2 manual, each with its evidence or
+- The register: 135 criteria. 96 are met, 27 partly met, 10 open and 2 manual, each with its evidence or
   what it waits on.
 - `tests/structural/test_acceptance_register.py`.
+- Tests the audit found missing:
+  - the PPP limitation notice;
+  - the plugin loading, unloading and reloading cleanly;
+  - an instrument profile computing identically after export and import;
+  - free-against-constrained on a triangulateration;
+  - geometric and trigonometric levelling with a variance component each.
 
 #### Fixed
 
@@ -23,8 +29,9 @@ Every acceptance criterion in the specifications now has a row saying whether it
 
 #### Not done
 
-- The 43 criteria that are partly met or open. P12c's later pull requests close them, or record why they
+- The 37 criteria that are partly met or open. P12c's later pull requests close them, or record why they
   cannot be closed here.
+- The height differences *Trigonometric levelling* writes are still read by no other algorithm.
 
 ### P12b — Thematic maps, the results panel, print layouts
 

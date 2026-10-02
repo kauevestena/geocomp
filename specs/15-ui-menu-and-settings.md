@@ -479,8 +479,9 @@ which the panel does not read.
 
 ## 6. Acceptance criteria
 
-1. The GeoComp menu appears on the QGIS menu bar with the seven entries in the specified order — the
-   figure's five technique submenus, then Analysis — and the separator before Global Settings.
+1. The GeoComp menu appears on the QGIS menu bar with the eight entries in the specified order — the
+   figure's five technique submenus, then Analysis and Project — and the separator before Global Settings.
+   *(It said seven until P12c's audit, which found it had missed the Project entry FR-003 added in P5.)*
 2. Every submenu item launches an algorithm; a test asserts that the set of menu items and the set of
    registered algorithms correspond, with no orphan on either side (FR-005).
 3. Unloading the plugin removes the menu, toolbar, provider and panels; reloading produces no duplicates.

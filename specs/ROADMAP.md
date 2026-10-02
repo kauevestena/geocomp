@@ -1314,7 +1314,15 @@ with no row or two, a **met** row with no test, a row that is not met and gives 
 summary that drifts, and a citation of a test, class or file that does not exist. Every one of the 146
 citations resolved once five misremembered class names were corrected, which is what the check is for.
 
-**State at the audit: 90 met, 31 partly met, 12 open, 2 manual.**
+**State at the audit: 90 met, 31 partly met, 12 open, 2 manual.** Seven rows were then closed or narrowed by tests
+written against them, leaving **96 met, 27 partly met, 10 open, 2 manual**:
+
+- The FR-604 notice, in help and run, for both criteria that name it (`tests/qgis/test_ppp_notice.py`).
+- The plugin loaded on a main window, unloaded without a trace and reloaded without duplicates, in a QGIS of
+  its own (`tests/qgis/test_plugin_lifecycle.py`). A deliberately leaked toolbar fails it.
+- An instrument profile computing identically after export and re-import.
+- The free-and-constrained check on the triangulateration.
+- Geometric and trigonometric height differences given a variance component each.
 
 **Found.**
 
@@ -1333,6 +1341,9 @@ citations resolved once five misremembered class names were corrected, which is 
 - **Two state notes contradicted later phases.** specs/17 called the *Adjust* format blocked, though it was
   met after P6. specs/11 called its criterion 2 red, though it was met since P7e. Both now say so.
 - **No glossary check exists**, though specs/18 criterion 4 names one.
+- **The document *Trigonometric levelling* writes is read by nothing.** Its height differences cannot
+  reach a network adjustment, so specs/10 criterion 5 is met in the computation and not from the menu.
+- **specs/15 criterion 1 still said seven entries**, two phases after FR-003 was amended to eight.
 
 **Not done in P12c-1, and not implied by it.** Every row that is not met is listed in §10 with what it
 waits on; the four pull requests above work through them.

@@ -116,14 +116,18 @@ def test_a_row_that_is_not_met_says_why():
 
 
 def test_the_summary_counts_the_table():
-    """The sentence above the table states the counts; it must not drift."""
+    """The sentence above the table states the counts; it must not drift.
+
+    It may keep the counts at the audit for the record; the last counts it
+    states are the current ones, and those must be the table's.
+    """
     text = REGISTER.read_text(encoding="utf-8")
     counts = {state: sum(row["state"] == state for row in _rows()) for state in STATES}
-    stated = re.search(
+    stated = re.findall(
         r"(\d+) met, (\d+) partly met, (\d+) open, (\d+) manual, of (\d+)\.", text
     )
-    assert stated is not None, "the register's summary sentence is missing"
-    met, partly, open_, manual, total = map(int, stated.groups())
+    assert stated, "the register's summary sentence is missing"
+    met, partly, open_, manual, total = map(int, stated[-1])
     assert (met, partly, open_, manual, total) == (
         counts["met"],
         counts["partly met"],
