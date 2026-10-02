@@ -549,3 +549,182 @@ class TestClosuresAndTheNetwork:
         benchmark = network.stations["BM1"]
         assert benchmark.constraint.components == {"up"}
         assert benchmark.constraint.position.values[2].value == pytest.approx(rd.HEIGHTS["BM1"])
+
+
+class TestTheToleranceGateAndTheOrthometricCorrection:
+    """P12a: ``level.adjust_failing_lines`` and ``level.apply_orthometric_correction``.
+
+    Both were settings with no behaviour behind them. ``specs/10`` section 3:
+    *GeoComp does not adjust a line that failed its tolerance without an
+    explicit acknowledgement*; section 5: the orthometric correction is *an
+    option with its magnitude reported*.
+    """
+
+    #: BM2 published 30 mm high: line BM1-BM2 closes against it 30 mm out,
+    #: an order of magnitude beyond 8 mm per root km over a fifth of a kilometre.
+    WRONG_BM2 = f"BM1={rd.HEIGHTS['BM1']:.3f}, BM2={rd.HEIGHTS['BM2'] + 0.030:.3f}"
+
+    loop_reductions = TestClosuresAndTheNetwork.loop_reductions
+
+    def _network(self, tmp_path, reductions, **parameters):
+        return _run(
+            "geocomp:levelling_network",
+            {
+                "REDUCTIONS": reductions,
+                "WEIGHTING": 0,
+                "SIGMA_PER_KM": 0.0007,
+                "OUTPUT_SOLUTION": str(tmp_path / "solution.json"),
+                "OUTPUT_HTML": str(tmp_path / "solution.html"),
+                **parameters,
+            },
+        )
+
+    def test_a_line_that_failed_its_tolerance_is_not_adjusted(self, tmp_path, loop_reductions):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException) as caught:
+            self._network(
+                tmp_path,
+                loop_reductions,
+                BENCHMARKS=self.WRONG_BM2,
+                TOLERANCE_COEFFICIENT=0.008,
+                ADJUST_FAILING=False,
+            )
+        message = str(caught.value)
+        assert "BM1-BM2" in message
+        assert "Adjust lines that failed their tolerance" in message
+
+    def test_an_acknowledged_failure_is_adjusted_and_recorded(self, tmp_path, loop_reductions):
+        results = self._network(
+            tmp_path,
+            loop_reductions,
+            BENCHMARKS=self.WRONG_BM2,
+            TOLERANCE_COEFFICIENT=0.008,
+            ADJUST_FAILING=True,
+        )
+        solution = json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        recorded = solution["provenance"]["parameters"]
+        assert recorded["adjusted_despite_tolerance"] == ["BM1-BM2"]
+        assert recorded["tolerance_coefficient"] == 0.008
+        html = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert "Closures before adjustment" in html
+        assert "OUT OF TOLERANCE" in html
+
+    def test_with_no_tolerance_nothing_is_judged_and_nothing_refused(self, tmp_path, loop_reductions):
+        results = self._network(
+            tmp_path, loop_reductions, BENCHMARKS=self.WRONG_BM2, TOLERANCE_COEFFICIENT=0.0
+        )
+        html = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert "not judged" in html
+
+    @staticmethod
+    def _positions(latitudes: dict[str, float]):
+        """The loop's benchmarks as a point layer in SIRGAS 2000 / UTM 23S.
+
+        Projected, so the latitude the algorithm uses has to come back through
+        QGIS's inverse projection -- the path a user's own layer takes.
+        """
+        from qgis.core import (
+            QgsCoordinateReferenceSystem,
+            QgsCoordinateTransform,
+            QgsFeature,
+            QgsGeometry,
+            QgsPointXY,
+            QgsProject,
+            QgsVectorLayer,
+        )
+
+        layer = QgsVectorLayer("Point?crs=EPSG:31983&field=station:string", "marks", "memory")
+        assert layer.isValid()
+        to_utm = QgsCoordinateTransform(
+            QgsCoordinateReferenceSystem("EPSG:4674"),
+            QgsCoordinateReferenceSystem("EPSG:31983"),
+            QgsProject.instance(),
+        )
+        features = []
+        for station, latitude in latitudes.items():
+            feature = QgsFeature(layer.fields())
+            feature["station"] = station
+            feature.setGeometry(QgsGeometry.fromPointXY(to_utm.transform(QgsPointXY(-45.0, latitude))))
+            features.append(feature)
+        layer.dataProvider().addFeatures(features)
+        return layer
+
+    LATITUDES = (("BM1", -20.0), ("BM2", -20.5), ("BM4", -21.0))
+
+    def test_the_correction_is_applied_and_its_magnitude_reported(self, tmp_path, loop_reductions):
+        layer = self._positions(dict(self.LATITUDES))
+        plain = self._network(
+            tmp_path,
+            loop_reductions,
+            BENCHMARKS=f"BM1={rd.HEIGHTS['BM1']:.3f}",
+            OUTPUT_CSV=str(tmp_path / "plain.csv"),
+        )
+        corrected = self._network(
+            tmp_path,
+            loop_reductions,
+            BENCHMARKS=f"BM1={rd.HEIGHTS['BM1']:.3f}",
+            ORTHOMETRIC=True,
+            POSITIONS=layer,
+            POSITION_ID="station",
+            OUTPUT_CSV=str(tmp_path / "corrected.csv"),
+        )
+        html = Path(corrected["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert "Orthometric corrections" in html
+        # The mean latitude of BM1-BM2, read back through the inverse projection
+        # and written in the default display format, sexagesimal.
+        assert "-20° 15' 00.0\"" in html
+        solution = json.loads(Path(corrected["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        assert solution["provenance"]["parameters"]["orthometric_correction"] == "normal"
+
+        def heights(path):
+            return {
+                row["station"]: float(row["height_m"])
+                for row in csv.DictReader(Path(path).open(encoding="utf-8"))
+            }
+
+        before, after = heights(plain["OUTPUT_CSV"]), heights(corrected["OUTPUT_CSV"])
+        assert after["BM2"] != before["BM2"]
+        # Half a degree at a few hundred metres: millimetres at most, not metres.
+        assert abs(after["BM2"] - before["BM2"]) < 0.01
+
+    def test_without_positions_the_correction_is_refused(self, tmp_path, loop_reductions):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException) as caught:
+            self._network(
+                tmp_path,
+                loop_reductions,
+                BENCHMARKS=f"BM1={rd.HEIGHTS['BM1']:.3f}",
+                ORTHOMETRIC=True,
+            )
+        assert "latitudes" in str(caught.value)
+
+    def test_a_station_missing_from_the_positions_is_named(self, tmp_path, loop_reductions):
+        from qgis.core import QgsProcessingException
+
+        layer = self._positions(dict(self.LATITUDES[:2]))
+        with pytest.raises(QgsProcessingException) as caught:
+            self._network(
+                tmp_path,
+                loop_reductions,
+                BENCHMARKS=f"BM1={rd.HEIGHTS['BM1']:.3f}",
+                ORTHOMETRIC=True,
+                POSITIONS=layer,
+                POSITION_ID="station",
+            )
+        assert "BM4" in str(caught.value)
+
+    def test_a_free_network_is_not_corrected_at_an_arbitrary_height(self, tmp_path, loop_reductions):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException) as caught:
+            self._network(
+                tmp_path,
+                loop_reductions,
+                FREE=True,
+                ORTHOMETRIC=True,
+                POSITIONS=self._positions(dict(self.LATITUDES)),
+                POSITION_ID="station",
+            )
+        assert "benchmark" in str(caught.value)

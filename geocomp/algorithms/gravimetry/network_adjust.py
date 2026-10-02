@@ -38,6 +38,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.gravimetry.common import (
     DRIFT_DEGREE_KEY,
     DRIFT_MODE_KEY,
@@ -65,7 +66,6 @@ from geocomp.algorithms.reporting import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import ObservationType, Provenance
-from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA
 from geocomp.core.techniques.gravimetry import (
     AbsoluteGravity,
     DriftMode,
@@ -172,7 +172,7 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                 KNOWN_GRAVITY, self.tr("Known gravity (mGal)"), defaultValue="", optional=True
             )
         )
-        configured = gravimeter_setting(DRIFT_MODE_KEY)
+        drift_mode = gravimeter_setting(DRIFT_MODE_KEY)
         self.addParameter(
             QgsProcessingParameterEnum(
                 DRIFT_MODE,
@@ -181,7 +181,7 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                     self.tr("Estimated with the station values"),
                     self.tr("Fitted to base readings first"),
                 ],
-                defaultValue=DRIFT_MODES.index(configured) if configured in DRIFT_MODES else 0,
+                defaultValue=DRIFT_MODES.index(drift_mode) if drift_mode in DRIFT_MODES else 0,
             )
         )
         self.addParameter(
@@ -206,14 +206,22 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
         )
         for name, label, default in (
-            (ALPHA, self.tr("Data snooping significance (alpha)"), DEFAULT_ALPHA),
-            (BETA, self.tr("Data snooping type II error rate (beta)"), DEFAULT_BETA),
+            (
+                ALPHA,
+                self.tr("Data snooping significance (alpha)"),
+                configured("stochastic.outlier_alpha"),
+            ),
+            (
+                BETA,
+                self.tr("Data snooping type II error rate (beta)"),
+                configured("stochastic.outlier_beta"),
+            ),
         ):
             self.addAdvancedParameter(
                 QgsProcessingParameterNumber(

@@ -58,17 +58,20 @@ so rather than leaving the user to work it out.
 
 from __future__ import annotations
 
+import dataclasses
 import math
 from dataclasses import dataclass
 
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.techniques.levelling.line import LineReduction
 from geocomp.core.uncertainty import Quantity, Strategy
 from geocomp.core.units import Unit
 
 __all__ = [
     "GRAVITY_FLATTENING",
     "OrthometricCorrection",
+    "correct_lines",
     "normal_orthometric_correction",
 ]
 
@@ -213,3 +216,75 @@ def normal_orthometric_correction(
         is_negligible=negligible,
         findings=tuple(findings),
     )
+
+
+def correct_lines(
+    reductions: list[LineReduction],
+    *,
+    latitudes: dict[str, float],
+    heights: dict[str, float],
+) -> tuple[list[LineReduction], tuple[tuple[str, OrthometricCorrection], ...]]:
+    """Apply the normal orthometric correction to every line, before adjustment (FR-504).
+
+    Each line's levelled difference has its correction added, with the
+    correction's uncertainty, so the adjustment works in differences of
+    orthometric height; the raw difference is kept for the report.
+
+    Args:
+        reductions: The lines.
+        latitudes: Geodetic latitude of each line's end stations, radians.
+        heights: Approximate orthometric height of each end station, metres --
+            a walk outward from the benchmarks is good enough (see
+            :func:`normal_orthometric_correction`).
+
+    Returns:
+        The corrected lines, and each line's correction by line id, for the
+        report: ``specs/10`` section 5 asks for *its magnitude reported so the
+        user can see when it matters*.
+
+    Raises:
+        ValidationError: ``orthometric_correction_without_position`` naming
+            every station with no latitude, and
+            ``orthometric_correction_without_height`` every one with no height.
+            A correction computed at an assumed latitude would be recorded as
+            applied and be wrong by an amount nobody could see.
+    """
+    stations = sorted({name for line in reductions for name in (line.from_station, line.to_station)})
+    unplaced = [name for name in stations if name not in latitudes]
+    if unplaced:
+        raise ValidationError(
+            "orthometric_correction_without_position",
+            received=unplaced,
+            expected=(
+                "a position for every station a line ends at; the correction is a function "
+                "of latitude"
+            ),
+        )
+    unheighted = [name for name in stations if name not in heights]
+    if unheighted:
+        raise ValidationError(
+            "orthometric_correction_without_height",
+            received=unheighted,
+            expected=(
+                "an approximate height for every station; a free network has none until "
+                "a benchmark is given"
+            ),
+        )
+
+    corrected: list[LineReduction] = []
+    applied: list[tuple[str, OrthometricCorrection]] = []
+    for line in reductions:
+        correction = normal_orthometric_correction(
+            line.height_difference,
+            latitude_from=latitudes[line.from_station],
+            latitude_to=latitudes[line.to_station],
+            height_from=heights[line.from_station],
+            height_to=heights[line.to_station],
+        )
+        corrected.append(
+            dataclasses.replace(
+                line, height_difference=line.height_difference + correction.correction
+            )
+        )
+        applied.append((line.line_id, correction))
+    return corrected, tuple(applied)

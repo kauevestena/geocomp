@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import csv
 import json
-import math
 from typing import Any
 
 from qgis.core import (
@@ -33,6 +32,8 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -52,7 +53,6 @@ from geocomp.core.techniques.total_station import (
     PreprocessingOptions,
     preprocess_setup,
 )
-from geocomp.core.techniques.total_station.face import DEFAULT_COLLIMATION_TOLERANCE
 
 __all__ = ["PreprocessAlgorithm"]
 
@@ -142,10 +142,30 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 PROFILES, self.tr("Instrument profiles"), extension="json", optional=True
             )
         )
+        # The meteorology a run assumes when the book records none: Global
+        # Settings → Total Station (P12a).
         for name, label, default, minimum, maximum in (
-            (TEMPERATURE, self.tr("Temperature (°C)"), 20.0, -90.0, 60.0),
-            (PRESSURE, self.tr("Pressure (hPa)"), 1013.25, 100.0, 1100.0),
-            (HUMIDITY, self.tr("Relative humidity (%)"), 60.0, 0.0, 100.0),
+            (
+                TEMPERATURE,
+                self.tr("Temperature (°C)"),
+                configured("total_station.default_temperature_celsius"),
+                -90.0,
+                60.0,
+            ),
+            (
+                PRESSURE,
+                self.tr("Pressure (hPa)"),
+                configured("total_station.default_pressure_hpa"),
+                100.0,
+                1100.0,
+            ),
+            (
+                HUMIDITY,
+                self.tr("Relative humidity (%)"),
+                configured("total_station.default_humidity_percent"),
+                0.0,
+                100.0,
+            ),
         ):
             self.addParameter(
                 QgsProcessingParameterNumber(
@@ -162,7 +182,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 TEMPERATURE_SIGMA,
                 self.tr("Temperature uncertainty (°C)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=5.0,
+                defaultValue=configured("total_station.default_temperature_sigma"),
                 minValue=0.0,
                 maxValue=50.0,
             )
@@ -172,7 +192,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 PRESSURE_SIGMA,
                 self.tr("Pressure uncertainty (hPa)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=10.0,
+                defaultValue=configured("total_station.default_pressure_sigma_hpa"),
                 minValue=0.0,
                 maxValue=200.0,
             )
@@ -189,7 +209,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 COLLIMATION_TOLERANCE,
                 self.tr("Collimation tolerance (rad)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=DEFAULT_COLLIMATION_TOLERANCE,
+                defaultValue=configured("total_station.collimation_tolerance"),
                 minValue=0.0,
                 maxValue=0.1,
             )
@@ -199,7 +219,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 DISTANCE_TOLERANCE,
                 self.tr("Face distance tolerance (m, 0 = from the instrument)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.0,
+                defaultValue=configured("total_station.face_distance_tolerance"),
                 minValue=0.0,
                 maxValue=10.0,
             )
@@ -414,6 +434,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         return {OUTPUT_REDUCED: reduced, OUTPUT_HTML: html_target, OUTPUT_CSV: csv_target}
 
     def _render(self, results, findings, options) -> str:
+        shown = display_format()
         body = [f"<h2>{escape(self.tr('Reduced pointings'))}</h2>"]
         rows = []
         for result in results:
@@ -423,13 +444,13 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                     [
                         escape(result.station),
                         escape(pointing.target),
-                        format_number(math.degrees(pointing.reduction.horizontal.value), 6),
-                        format_number(math.degrees(pointing.reduction.zenith.value), 6),
-                        format_number(basic.horizontal_distance.value, 4) if basic else "—",
+                        shown.angle(pointing.reduction.horizontal.value),
+                        shown.angle(pointing.reduction.zenith.value),
+                        shown.distance(basic.horizontal_distance.value) if basic else "—",
                         format_number(basic.horizontal_distance.std_dev * 1000.0, 2)
                         if basic
                         else "—",
-                        format_number(basic.height_difference.value, 4) if basic else "—",
+                        shown.distance(basic.height_difference.value) if basic else "—",
                         escape(self.tr("yes") if pointing.is_usable else self.tr("no")),
                     ]
                 )
@@ -438,11 +459,13 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 [
                     escape(self.tr("Station")),
                     escape(self.tr("Target")),
-                    escape(self.tr("Direction (°)")),
-                    escape(self.tr("Zenith (°)")),
-                    escape(self.tr("Horizontal distance (m)")),
+                    escape(self.tr("Direction")),
+                    escape(self.tr("Zenith")),
+                    escape(
+                        self.tr("Horizontal distance (%1)").replace("%1", shown.distance_symbol)
+                    ),
                     escape(self.tr("Std dev (mm)")),
-                    escape(self.tr("Height difference (m)")),
+                    escape(self.tr("Height difference (%1)").replace("%1", shown.distance_symbol)),
                     escape(self.tr("Usable")),
                 ],
                 rows,
@@ -455,23 +478,19 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
                 [
                     escape(self.tr("Station")),
                     escape(self.tr("Face pairs")),
-                    escape(self.tr('Mean collimation (")')),
-                    escape(self.tr('Collimation spread (")')),
-                    escape(self.tr('Mean index error (")')),
+                    escape(self.tr("Mean collimation (%1)").replace("%1", shown.small_angle_symbol)),
+                    escape(
+                        self.tr("Collimation spread (%1)").replace("%1", shown.small_angle_symbol)
+                    ),
+                    escape(self.tr("Mean index error (%1)").replace("%1", shown.small_angle_symbol)),
                 ],
                 [
                     [
                         escape(result.station),
                         escape(result.diagnostics.pair_count),
-                        format_number(
-                            math.degrees(result.diagnostics.collimation_mean) * 3600.0, 2
-                        ),
-                        format_number(
-                            math.degrees(result.diagnostics.collimation_spread) * 3600.0, 2
-                        ),
-                        format_number(
-                            math.degrees(result.diagnostics.vertical_index_mean) * 3600.0, 2
-                        ),
+                        shown.small_angle(result.diagnostics.collimation_mean),
+                        shown.small_angle(result.diagnostics.collimation_spread),
+                        shown.small_angle(result.diagnostics.vertical_index_mean),
                     ]
                     for result in results
                 ],

@@ -32,6 +32,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.core.errors import GeoCompError
 
 __all__ = ["ProjectBaseMapAlgorithm"]
@@ -86,7 +87,7 @@ class ProjectBaseMapAlgorithm(GeoCompAlgorithm):
             QgsProcessingParameterBoolean(
                 REUSE,
                 self.tr("Reuse a base map already in the project"),
-                defaultValue=True,
+                defaultValue=bool(configured("basemaps.reuse_existing_layer")),
             )
         )
 

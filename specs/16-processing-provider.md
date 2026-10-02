@@ -75,6 +75,16 @@ The invariant is FR-071: **a parameter hidden in Basic mode takes exactly the va
 Advanced default.** Gating changes what is *shown*, never what is *computed*. A test runs every algorithm in
 both modes with defaults and asserts identical numeric output.
 
+**As built (P12a).** No algorithm builds its parameters from the mode: every one flags, and none removes, so
+the dynamic construction anticipated above was never needed. A run therefore cannot differ by mode unless the
+run itself asks which mode it is in, and none does. That is what `tests/qgis/test_basic_advanced_identity.py`
+asserts, for every registered algorithm: the parameter set and every default identical in both modes; no
+advanced parameter required with no default, which Basic mode could not supply; and nothing under
+`algorithms/` reading the mode. Identical parameters and a mode-blind run are identical output, for every
+input rather than for the one per algorithm a run-both-ways test could afford — so the test asserts the
+construction instead of sampling its consequence. The defaults themselves are the Global Settings
+([`15`](./15-ui-menu-and-settings.md) §2.3).
+
 ## 5. Outputs (FR-034)
 
 Formal Processing outputs, so algorithms chain:

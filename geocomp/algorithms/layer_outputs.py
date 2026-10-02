@@ -64,6 +64,7 @@ __all__ = [
     "OUTPUT_STATION_LAYER",
     "POINT_SOURCE_TYPE",
     "POLYGON_SOURCE_TYPE",
+    "RESULT_LAYER_PROPERTY",
     "add_result_layer_parameters",
     "resolve_exaggeration",
     "write_result_layers",
@@ -78,6 +79,11 @@ OUTPUT_RESIDUAL_LAYER = "OUTPUT_RESIDUAL_LAYER"
 OUTPUT_OBSERVATION_LAYER = "OUTPUT_OBSERVATION_LAYER"
 OUTPUT_CORRECTION_LAYER = "OUTPUT_CORRECTION_LAYER"
 EXAGGERATION = "EXAGGERATION"
+
+#: The custom property every GeoComp result layer carries, valued with its style
+#: name: how the base-map offer (``gui/basemap_offer.py``) tells a result layer
+#: arriving in the project from any other layer.
+RESULT_LAYER_PROPERTY = "geocomp/result_layer"
 
 
 def _source_types() -> tuple[Any, Any, Any]:
@@ -352,6 +358,7 @@ def write_styled_sink(
     # QGIS loads into the project; it does not run for an algorithm driven from
     # a model or a script, and FR-901's exaggeration factor has to reach the
     # reader on every path, not only the toolbox one.
+    properties = {RESULT_LAYER_PROPERTY: style, **(properties or {})}
     _name_layer(context, destination, layer_name, properties)
     _register_style(context, destination, style, layer_name, properties)
     return destination

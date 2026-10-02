@@ -64,6 +64,7 @@ from geocomp.core.adjustment.weighting import DifferenceWeighting, ExtentKind
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.geoid import GeoidModel, combine_height
+from geocomp.core.instruments.level import LevellingClass
 from geocomp.core.models import (
     Cluster,
     ClusterKind,
@@ -78,6 +79,11 @@ from geocomp.core.models import (
     Station,
     StationType,
 )
+from geocomp.core.techniques.levelling.closure import (
+    ClosureCheck,
+    line_closure,
+    section_closure,
+)
 from geocomp.core.techniques.levelling.line import LineReduction
 from geocomp.core.techniques.levelling.schemes import SetupReduction
 from geocomp.core.uncertainty import Covariance, Quantity
@@ -90,6 +96,7 @@ __all__ = [
     "build_network",
     "build_setup_network",
     "harmonise_benchmarks",
+    "network_closures",
     "weighting_for",
 ]
 
@@ -338,6 +345,61 @@ def build_network(
             "geoid_model": geoid_model,
         },
     )
+
+
+def network_closures(
+    reductions: list[LineReduction],
+    benchmarks: list[Benchmark],
+    *,
+    levelling_class: LevellingClass | None,
+    weighting: str = "length",
+) -> tuple[ClosureCheck, ...]:
+    """The closures a network's own lines allow, checked before it is adjusted (FR-503).
+
+    ``specs/10`` section 3: *GeoComp does not adjust a line that failed its
+    tolerance without an explicit acknowledgement*. The closures algorithm
+    checks what a user points it at; this finds what a network already holds,
+    so that the adjustment can refuse a failing line rather than absorb it.
+
+    * **A line between two benchmarks** of the same height type, against the
+      difference of their published heights.
+    * **A section levelled more than once**, each later run against the first
+      (:func:`~geocomp.core.techniques.levelling.closure.section_closure`).
+
+    Loops are not searched for. A network's loops are not unique -- any cycle
+    basis would do, and each would give different numbers for the same
+    observations -- and the adjustment's global test and data snooping already
+    see every loop at once. A named loop is the closures algorithm's.
+
+    With no tolerance in *levelling_class* every check is returned unjudged,
+    which is the honest answer and not a pass.
+    """
+    known = {benchmark.station: benchmark for benchmark in benchmarks}
+    checks: list[ClosureCheck] = []
+    for reduction in reductions:
+        start = known.get(reduction.from_station)
+        end = known.get(reduction.to_station)
+        if start is None or end is None or start.height_type is not end.height_type:
+            continue
+        checks.append(
+            line_closure(
+                reduction,
+                end.height - start.height,
+                levelling_class=levelling_class,
+                weighting=weighting,
+            )
+        )
+    first_runs: dict[frozenset[str], LineReduction] = {}
+    for reduction in reductions:
+        ends = frozenset((reduction.from_station, reduction.to_station))
+        first = first_runs.setdefault(ends, reduction)
+        if first is not reduction:
+            checks.append(
+                section_closure(
+                    first, reduction, levelling_class=levelling_class, weighting=weighting
+                )
+            )
+    return tuple(checks)
 
 
 def harmonise_benchmarks(

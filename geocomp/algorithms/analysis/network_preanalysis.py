@@ -49,9 +49,10 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.display import display_format
 from geocomp.core.errors import GeoCompError
 from geocomp.core.preanalysis.design import simulate
-from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA
 
 __all__ = ["NetworkPreAnalysisAlgorithm"]
 
@@ -168,7 +169,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
@@ -187,7 +188,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                 ALPHA,
                 self.tr("Significance for the minimal detectable bias"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=DEFAULT_ALPHA,
+                defaultValue=configured("stochastic.outlier_alpha"),
                 minValue=1e-6,
                 maxValue=0.5,
             )
@@ -197,7 +198,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                 BETA,
                 self.tr("Type II error for the minimal detectable bias"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=DEFAULT_BETA,
+                defaultValue=configured("stochastic.outlier_beta"),
                 minValue=1e-6,
                 maxValue=0.9,
             )
@@ -369,7 +370,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                     escape(self.tr("Positional uncertainty (m)")),
                     escape(self.tr("Semi-major (m)")),
                     escape(self.tr("Semi-minor (m)")),
-                    escape(self.tr("Azimuth (rad)")),
+                    escape(self.tr("Azimuth")),
                 ],
                 [
                     [
@@ -377,7 +378,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                         f'<span class="num">{format_number(station.positional_uncertainty)}</span>',
                         format_number(station.ellipse.semi_major),
                         format_number(station.ellipse.semi_minor),
-                        format_number(station.ellipse.orientation),
+                        display_format().angle(station.ellipse.orientation),
                     ]
                     for station in design.stations
                 ],

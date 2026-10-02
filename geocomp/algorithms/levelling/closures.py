@@ -27,6 +27,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
     findings_table,
     levelling_class_from_parameters,
@@ -44,7 +45,7 @@ from geocomp.algorithms.reporting import (
     render_table,
 )
 from geocomp.core.errors import GeoCompError
-from geocomp.core.settings_def import WEIGHTING_LENGTH, WEIGHTING_SETUPS
+from geocomp.core.settings_def import WEIGHTINGS
 from geocomp.core.techniques.levelling import line_closure, loop_closure
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -139,7 +140,7 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
                 TOLERANCE_COEFFICIENT,
                 self.tr("Tolerance coefficient k (m per root km)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.0,
+                defaultValue=configured("level.tolerance_coefficient"),
                 minValue=0.0,
                 maxValue=1.0,
             )
@@ -169,7 +170,7 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
                 WEIGHTING,
                 self.tr("Distribute by"),
                 options=[self.tr("Line length"), self.tr("Number of setups")],
-                defaultValue=0,
+                defaultValue=WEIGHTINGS.index(configured("level.weighting")),
             )
         )
         self.addAdvancedParameter(
@@ -197,11 +198,7 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
         payload = read_reductions(self.parameterAsFile(parameters, REDUCTIONS, context))
         reductions = [reduction_from_dict(line) for line in payload]
         mode = self.parameterAsEnum(parameters, MODE, context)
-        weighting = (
-            WEIGHTING_LENGTH
-            if self.parameterAsEnum(parameters, WEIGHTING, context) == 0
-            else WEIGHTING_SETUPS
-        )
+        weighting = WEIGHTINGS[self.parameterAsEnum(parameters, WEIGHTING, context)]
         levelling_class = levelling_class_from_parameters(
             coefficient=self.parameterAsDouble(parameters, TOLERANCE_COEFFICIENT, context),
             max_sight_length=0.0,

@@ -36,6 +36,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -190,6 +191,7 @@ class RadiationAlgorithm(GeoCompAlgorithm):
 
         rows: list[dict[str, Any]] = []
         orientation_rows: list[list[str]] = []
+        shown = display_format()
 
         for index, result in enumerate(results, start=1):
             if result.station not in stations:
@@ -212,10 +214,8 @@ class RadiationAlgorithm(GeoCompAlgorithm):
             orientation_rows.append(
                 [
                     escape(result.station),
-                    format_number(math.degrees(orientation), 6),
-                    format_number(
-                        math.degrees(spread) * 3600.0 if spread is not None else None, 1
-                    ),
+                    shown.angle(orientation),
+                    shown.small_angle(spread),
                     escape(source),
                 ]
             )
@@ -332,16 +332,18 @@ class RadiationAlgorithm(GeoCompAlgorithm):
         allowed = 3.0 * math.hypot(max(sigmas), min(sigmas))
         if allowed <= 0.0 or abs(spread) <= allowed:
             return
+        shown = display_format()
         feedback.pushWarning(
             self.tr(
-                "The known points sighted from '%1' imply orientations spread over %2 "
-                "arcsec, against %3 expected from the pointing precision. One of them is "
+                "The known points sighted from '%1' imply orientations spread over %2 %4, "
+                "against %3 %4 expected from the pointing precision. One of them is "
                 "probably not where it is recorded, and every point radiated from this "
                 "setup carries that error."
             )
             .replace("%1", station)
-            .replace("%2", format_number(math.degrees(abs(spread)) * 3600.0, 1))
-            .replace("%3", format_number(math.degrees(allowed) * 3600.0, 1))
+            .replace("%2", shown.small_angle(abs(spread)))
+            .replace("%3", shown.small_angle(allowed))
+            .replace("%4", shown.small_angle_symbol)
         )
 
     # -- outputs ---------------------------------------------------------
@@ -398,13 +400,14 @@ class RadiationAlgorithm(GeoCompAlgorithm):
         return {OUTPUT_POINTS: points, OUTPUT_HTML: html_target, OUTPUT_CSV: csv_target}
 
     def _render(self, rows, orientation_rows) -> str:
+        shown = display_format()
         body = [
             f"<h2>{escape(self.tr('Setup orientations'))}</h2>",
             render_table(
                 [
                     escape(self.tr("Station")),
-                    escape(self.tr("Orientation (°)")),
-                    escape(self.tr('Spread (")')),
+                    escape(self.tr("Orientation")),
+                    escape(self.tr("Spread (%1)").replace("%1", shown.small_angle_symbol)),
                     escape(self.tr("Source")),
                 ],
                 orientation_rows,
@@ -433,9 +436,9 @@ class RadiationAlgorithm(GeoCompAlgorithm):
                     [
                         escape(row["result"].target),
                         escape(row["station"]),
-                        format_number(row["result"].position[0].value),
-                        format_number(row["result"].position[1].value),
-                        format_number(row["result"].position[2].value),
+                        shown.coordinate(row["result"].position[0].value),
+                        shown.coordinate(row["result"].position[1].value),
+                        shown.coordinate(row["result"].position[2].value),
                         format_number(row["result"].position[0].std_dev * 1000.0, 2),
                         format_number(row["result"].position[1].std_dev * 1000.0, 2),
                         format_number(row["result"].position[2].std_dev * 1000.0, 2),

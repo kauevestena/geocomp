@@ -31,6 +31,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.reporting import escape, render_document, render_table
 from geocomp.algorithms.totalstation.common import (
     findings_table,
@@ -120,9 +121,24 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
             )
         )
         for name, label, default, maximum in (
-            (SIGMA_DIRECTION, self.tr("Default direction precision (rad)"), 0.0, 0.1),
-            (SIGMA_ZENITH, self.tr("Default zenith angle precision (rad)"), 0.0, 0.1),
-            (SIGMA_DISTANCE, self.tr("Default distance precision (m)"), 0.0, 100.0),
+            (
+                SIGMA_DIRECTION,
+                self.tr("Default direction precision (rad)"),
+                configured("stochastic.default_sigma_direction"),
+                0.1,
+            ),
+            (
+                SIGMA_ZENITH,
+                self.tr("Default zenith angle precision (rad)"),
+                configured("stochastic.default_sigma_zenith_angle"),
+                0.1,
+            ),
+            (
+                SIGMA_DISTANCE,
+                self.tr("Default distance precision (m)"),
+                configured("stochastic.default_sigma_slope_distance"),
+                100.0,
+            ),
         ):
             self.addAdvancedParameter(
                 QgsProcessingParameterNumber(

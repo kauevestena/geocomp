@@ -51,6 +51,8 @@ from qgis.core import (
 
 from geocomp.algorithms.analysis.common import DATUM_ORDER, datum_labels, datum_of, load_network, station_list
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.core.errors import GeoCompError, ValidationError
 from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
@@ -101,10 +103,13 @@ ENGINE_USED = "ENGINE_USED"
 
 #: Engine choices; the index is what a saved model stores.
 ENGINES = ("in_house", "dynadjust")
-#: A 5 cm geoid is what MAPGEO2015 states for most of Brazil; the default says
-#: so rather than pretending the model is exact.
-DEFAULT_GEOID_SIGMA = 0.05
 _TECHNIQUE_OF_INPUT = {GNSS: "gnss", TOTAL_STATION: "total_station", LEVELLING: "levelling"}
+
+
+def _stated_epoch() -> str:
+    """The stated default epoch as the parameter's text: empty, taking the inputs', when none is."""
+    stated = configured_epoch(0.0)
+    return str(stated) if stated else ""
 
 
 class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
@@ -178,7 +183,10 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
             )
         self.addParameter(
             QgsProcessingParameterString(
-                EPOCH, self.tr("Epoch (decimal year; empty takes the inputs')"), optional=True
+                EPOCH,
+                self.tr("Epoch (decimal year; empty takes the inputs')"),
+                defaultValue=_stated_epoch(),
+                optional=True,
             )
         )
         if self.GEOCENTRIC is not False:
@@ -192,7 +200,10 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
             )
             self.addParameter(
                 QgsProcessingParameterFile(
-                    GEOID, self.tr("Geoid model (GTX or ESRI ASCII grid)"), optional=not self.GEOID_REQUIRED
+                    GEOID,
+                    self.tr("Geoid model (GTX or ESRI ASCII grid)"),
+                    defaultValue=configured("reference_systems.geoid_model") or None,
+                    optional=not self.GEOID_REQUIRED,
                 )
             )
             self.addParameter(
@@ -200,7 +211,7 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                     GEOID_SIGMA,
                     self.tr("Geoid model uncertainty (m)"),
                     type=QgsProcessingParameterNumber.Type.Double,
-                    defaultValue=DEFAULT_GEOID_SIGMA,
+                    defaultValue=configured("reference_systems.geoid_sigma"),
                     minValue=0.0,
                     maxValue=10.0,
                 )
@@ -241,7 +252,7 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
@@ -529,6 +540,7 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                 ReportContext(
                     network=combination.network,
                     qgis_version=Qgis.QGIS_VERSION,
+                    display=display_format(),
                     parameter_scopes={
                         "integration.frame": (frame or combination.frame or "—", scope),
                         "integration.epoch": (f"{epoch.decimal_year:.4f}", scope),

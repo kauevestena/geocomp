@@ -33,6 +33,8 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -156,7 +158,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                 REFRACTION,
                 self.tr("Refraction coefficient"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.13,
+                defaultValue=configured("total_station.refraction_coefficient"),
                 minValue=-1.0,
                 maxValue=1.0,
             )
@@ -166,7 +168,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                 REFRACTION_SIGMA,
                 self.tr("Refraction coefficient uncertainty"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.05,
+                defaultValue=configured("total_station.refraction_coefficient_sigma"),
                 minValue=0.0,
                 maxValue=1.0,
             )
@@ -402,7 +404,9 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
         headers = [
             escape(self.tr("From")),
             escape(self.tr("To")),
-            escape(self.tr("Height difference (m)")),
+            escape(
+                self.tr("Height difference (%1)").replace("%1", display_format().distance_symbol)
+            ),
             escape(self.tr("Std dev (mm)")),
         ]
         if mode == LEAPFROG:
@@ -418,7 +422,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
             cells = [
                 escape(row["from"]),
                 escape(row["to"]),
-                format_number(row["difference"].value, 4),
+                display_format().distance(row["difference"].value),
                 format_number(row["difference"].std_dev * 1000.0, 2),
             ]
             if mode == LEAPFROG:

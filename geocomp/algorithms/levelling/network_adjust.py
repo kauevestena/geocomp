@@ -35,6 +35,8 @@ from qgis.core import (
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterField,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterNumber,
@@ -42,8 +44,12 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.display import display_format
+from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE
 from geocomp.algorithms.levelling.common import (
     findings_table,
+    levelling_class_from_parameters,
     read_reductions,
     reduction_from_dict,
     summarise_findings,
@@ -66,10 +72,16 @@ from geocomp.core.adjustment.least_squares import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import DatumDefinition, Epoch, Provenance
-from geocomp.core.settings_def import WEIGHTING_LENGTH, WEIGHTING_SETUPS
-from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA, reliability
+from geocomp.core.settings_def import WEIGHTINGS
+from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
-from geocomp.core.techniques.levelling import Benchmark, build_network, weighting_for
+from geocomp.core.techniques.levelling import (
+    Benchmark,
+    build_network,
+    correct_lines,
+    network_closures,
+    weighting_for,
+)
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 
@@ -85,6 +97,11 @@ CONFIDENCE = "CONFIDENCE"
 ALPHA = "ALPHA"
 BETA = "BETA"
 EPOCH = "EPOCH"
+TOLERANCE_COEFFICIENT = "TOLERANCE_COEFFICIENT"
+ADJUST_FAILING = "ADJUST_FAILING"
+ORTHOMETRIC = "ORTHOMETRIC"
+POSITIONS = "POSITIONS"
+POSITION_ID = "POSITION_ID"
 OUTPUT_SOLUTION = "OUTPUT_SOLUTION"
 OUTPUT_HTML = "OUTPUT_HTML"
 OUTPUT_CSV = "OUTPUT_CSV"
@@ -169,7 +186,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 WEIGHTING,
                 self.tr("Weighting"),
                 options=[self.tr("By line length"), self.tr("By number of setups")],
-                defaultValue=0,
+                defaultValue=WEIGHTINGS.index(configured("level.weighting")),
             )
         )
         for name, label in (
@@ -189,19 +206,43 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(FREE, self.tr("Free network"), defaultValue=False)
         )
+        self.addParameter(
+            QgsProcessingParameterFeatureSource(
+                POSITIONS,
+                self.tr("Station positions (for the orthometric correction)"),
+                types=[POINT_SOURCE_TYPE],
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterField(
+                POSITION_ID,
+                self.tr("Station id field"),
+                parentLayerParameterName=POSITIONS,
+                optional=True,
+            )
+        )
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
         )
         for name, label, default in (
-            (ALPHA, self.tr("Data snooping significance (alpha)"), DEFAULT_ALPHA),
-            (BETA, self.tr("Data snooping type II error rate (beta)"), DEFAULT_BETA),
+            (
+                ALPHA,
+                self.tr("Data snooping significance (alpha)"),
+                configured("stochastic.outlier_alpha"),
+            ),
+            (
+                BETA,
+                self.tr("Data snooping type II error rate (beta)"),
+                configured("stochastic.outlier_beta"),
+            ),
         ):
             self.addAdvancedParameter(
                 QgsProcessingParameterNumber(
@@ -215,10 +256,34 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             )
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
+                TOLERANCE_COEFFICIENT,
+                self.tr("Tolerance coefficient k (m per root km; 0 judges nothing)"),
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=configured("level.tolerance_coefficient"),
+                minValue=0.0,
+                maxValue=1.0,
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterBoolean(
+                ADJUST_FAILING,
+                self.tr("Adjust lines that failed their tolerance"),
+                defaultValue=configured("level.adjust_failing_lines"),
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterBoolean(
+                ORTHOMETRIC,
+                self.tr("Apply the normal orthometric correction"),
+                defaultValue=configured("level.apply_orthometric_correction"),
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterNumber(
                 EPOCH,
                 self.tr("Epoch (decimal year)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=2026.0,
+                defaultValue=configured_epoch(2026.0),
                 minValue=1900.0,
                 maxValue=2200.0,
             )
@@ -250,16 +315,19 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             else self._benchmarks(self.parameterAsString(parameters, BENCHMARKS, context))
         )
 
-        mode = (
-            WEIGHTING_LENGTH
-            if self.parameterAsEnum(parameters, WEIGHTING, context) == 0
-            else WEIGHTING_SETUPS
-        )
+        mode = WEIGHTINGS[self.parameterAsEnum(parameters, WEIGHTING, context)]
         weighting = weighting_for(
             mode,
             sigma_per_km=self.parameterAsDouble(parameters, SIGMA_PER_KM, context),
             sigma_per_setup=self.parameterAsDouble(parameters, SIGMA_PER_SETUP, context),
         )
+
+        corrections: tuple = ()
+        if self.parameterAsBool(parameters, ORTHOMETRIC, context):
+            reductions, corrections = self._orthometric(reductions, benchmarks, parameters, context, feedback)
+        coefficient = self.parameterAsDouble(parameters, TOLERANCE_COEFFICIENT, context)
+        adjust_failing = self.parameterAsBool(parameters, ADJUST_FAILING, context)
+        closures = self._tolerance_gate(reductions, benchmarks, mode, coefficient, adjust_failing, feedback)
 
         feedback.setProgress(15)
         try:
@@ -339,7 +407,15 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             epoch=Epoch.from_decimal_year(self.parameterAsDouble(parameters, EPOCH, context)),
             datum=datum,
             height_type=built.height_type,
-            provenance=self._provenance(built, options, confidence),
+            provenance=self._provenance(
+                built,
+                options,
+                confidence,
+                coefficient=coefficient,
+                closures=closures,
+                adjust_failing=adjust_failing,
+                corrections=corrections,
+            ),
             observation_results=to_observation_results(
                 run, snooping=snooping, reliability=reliability_report
             ),
@@ -361,7 +437,18 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             network.to_dict(),
         )
         relative = self._relative_uncertainties(run, solution)
-        self._write_report(parameters, context, built, run, solution, test, snooping, relative)
+        self._write_report(
+            parameters,
+            context,
+            built,
+            run,
+            solution,
+            test,
+            snooping,
+            relative,
+            closures=closures,
+            corrections=corrections,
+        )
         self._write_csv(parameters, context, solution)
 
         feedback.setProgress(100)
@@ -427,7 +514,151 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             )
         return benchmarks
 
-    def _provenance(self, built, options, confidence) -> Provenance:
+    def _latitudes(self, parameters, context) -> dict[str, float]:
+        """Each station's geodetic latitude, radians, from the positions layer.
+
+        Read through QGIS in the geographic CRS of the layer's own datum: an
+        inverse projection, never a change of datum, so no transformation is
+        chosen on the user's behalf.
+        """
+        from qgis.core import QgsCoordinateTransform, QgsPointXY
+
+        source = self.parameterAsSource(parameters, POSITIONS, context)
+        field = (self.parameterAsString(parameters, POSITION_ID, context) or "").strip()
+        if source is None or not field:
+            raise QgsProcessingException(
+                self.tr(
+                    "The orthometric correction needs the stations' latitudes. Give a point "
+                    "layer of station positions and the field holding each station's id, or "
+                    "turn the correction off."
+                )
+            )
+        crs = source.sourceCrs()
+        if not crs.isValid():
+            raise QgsProcessingException(
+                self.tr(
+                    "The station positions layer has no valid CRS, so its points cannot be "
+                    "read as latitudes. Set the layer's CRS."
+                )
+            )
+        transform = QgsCoordinateTransform(crs, crs.toGeographicCrs(), context.transformContext())
+        latitudes: dict[str, float] = {}
+        for feature in source.getFeatures():
+            station = str(feature[field] if feature[field] is not None else "").strip()
+            geometry = feature.geometry()
+            if not station or geometry is None or geometry.isEmpty():
+                continue
+            point = transform.transform(QgsPointXY(geometry.vertexAt(0)))
+            latitudes[station] = math.radians(point.y())
+        return latitudes
+
+    def _orthometric(self, reductions, benchmarks, parameters, context, feedback):
+        """The normal orthometric correction on every line, before adjustment.
+
+        ``specs/10`` section 5: *applied ... as an option with its magnitude
+        reported so the user can see when it matters*. The option is
+        ``level.apply_orthometric_correction``. Approximate heights are the
+        benchmarks' carried along the lines; a network with no benchmark has
+        none -- its heights hang from an arbitrary zero -- and is refused rather
+        than corrected at a height nobody chose.
+        """
+        from geocomp.services.messages import message_for
+
+        latitudes = self._latitudes(parameters, context)
+        try:
+            provisional = build_network(reductions, benchmarks, network_id="levelling")
+            start = approximate_values(provisional.network, Frame.HEIGHT_1D)
+        except GeoCompError as exc:
+            raise QgsProcessingException(message_for(exc)) from exc
+        if not benchmarks or start.floating:
+            raise QgsProcessingException(
+                self.tr(
+                    "The orthometric correction needs approximate heights, and a free "
+                    "network has none: its heights hang from an arbitrary zero. Give at "
+                    "least one benchmark and do not adjust the network as free, or turn the "
+                    "correction off."
+                )
+            )
+        component = Frame.HEIGHT_1D.components[0]
+        heights = {station: values[component] for station, values in start.values.items()}
+        try:
+            corrected, corrections = correct_lines(reductions, latitudes=latitudes, heights=heights)
+        except GeoCompError as exc:
+            raise QgsProcessingException(message_for(exc)) from exc
+        for line_id, correction in corrections:
+            feedback.pushInfo(
+                self.tr("Orthometric correction, line %1: %2 mm.")
+                .replace("%1", line_id)
+                .replace("%2", f"{correction.millimetres:+.3f}")
+            )
+        return corrected, corrections
+
+    def _tolerance_gate(self, reductions, benchmarks, mode, coefficient, adjust_failing, feedback):
+        """Check the closures the network holds; refuse a failing one unless acknowledged.
+
+        ``specs/10`` section 3: *GeoComp does not adjust a line that failed its
+        tolerance without an explicit acknowledgement*. The acknowledgement is
+        ``level.adjust_failing_lines`` -- this run's *Adjust lines that failed
+        their tolerance* -- and a run that proceeds on it says so in the log,
+        the report and the provenance. With no *k* nothing is judged, and the
+        log says that too.
+        """
+        from geocomp.services.messages import message_for
+
+        levelling_class = levelling_class_from_parameters(
+            coefficient=coefficient,
+            max_sight_length=0.0,
+            max_sight_imbalance=0.0,
+            max_accumulated_imbalance=0.0,
+        )
+        try:
+            closures = network_closures(
+                reductions, benchmarks, levelling_class=levelling_class, weighting=mode
+            )
+        except GeoCompError as exc:
+            raise QgsProcessingException(message_for(exc)) from exc
+        for check in closures:
+            feedback.pushInfo(
+                self.tr("%1 %2: misclosure %3 mm; %4.")
+                .replace("%1", self._closure_kind(check))
+                .replace("%2", check.id)
+                .replace("%3", f"{check.misclosure * 1000.0:+.2f}")
+                .replace("%4", self._verdict(check))
+            )
+        failed = [check for check in closures if check.passed is False]
+        if failed and not adjust_failing:
+            raise QgsProcessingException(
+                self.tr(
+                    "%1 closure(s) failed their tolerance: %2. GeoComp does not adjust a "
+                    "line that failed its tolerance without an explicit acknowledgement. "
+                    "Re-run the line, or turn on 'Adjust lines that failed their tolerance' "
+                    "for this run or in Global Settings (Levelling)."
+                )
+                .replace("%1", str(len(failed)))
+                .replace("%2", ", ".join(check.id for check in failed))
+            )
+        for check in failed:
+            feedback.pushWarning(
+                self.tr("Adjusted although it failed its tolerance, as acknowledged: %1.").replace(
+                    "%1", check.id
+                )
+            )
+        return closures
+
+    def _closure_kind(self, check) -> str:
+        return self.tr("Section") if check.kind == "section" else self.tr("Line")
+
+    def _verdict(self, check) -> str:
+        if check.passed is None:
+            return self.tr("not judged — no tolerance coefficient was configured")
+        permissible = f"{float(check.permissible) * 1000.0:.2f}"
+        if check.passed:
+            return self.tr("within the %1 mm permitted").replace("%1", permissible)
+        return self.tr("OUT OF TOLERANCE, %1 mm permitted").replace("%1", permissible)
+
+    def _provenance(
+        self, built, options, confidence, *, coefficient, closures, adjust_failing, corrections
+    ) -> Provenance:
         """What was run, so the result can be reproduced (FR-134).
 
         The resolved values, never the raw parameter dictionary: that dictionary
@@ -444,6 +675,12 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 "confidence": confidence,
                 "weighting": built.weighting.describe if built.weighting else "propagated",
                 "height_type": built.height_type.value,
+                "tolerance_coefficient": coefficient,
+                "closures_judged": sum(1 for check in closures if check.was_judged),
+                "adjusted_despite_tolerance": sorted(check.id for check in closures if check.passed is False)
+                if adjust_failing
+                else [],
+                "orthometric_correction": "normal" if corrections else "none",
             },
         )
 
@@ -506,8 +743,91 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 .replace("%2", format_number(candidate.statistic, 2))
             )
 
+    def _closure_section(self, closures) -> list[str]:
+        if not closures:
+            return []
+        rows = [
+            [
+                escape(self._closure_kind(check)),
+                escape(check.id),
+                format_number(check.length_km, 3) if check.length_km is not None else "&mdash;",
+                format_number(check.misclosure * 1000.0, 2),
+                escape(self._verdict(check)),
+            ]
+            for check in closures
+        ]
+        return [
+            f"<h2>{escape(self.tr('Closures before adjustment'))}</h2>",
+            render_table(
+                [
+                    escape(self.tr("Kind")),
+                    escape(self.tr("Lines")),
+                    escape(self.tr("Length (km)")),
+                    escape(self.tr("Misclosure (mm)")),
+                    escape(self.tr("Verdict")),
+                ],
+                rows,
+            ),
+            render_note(
+                self.tr(
+                    "Each line between two benchmarks against the difference of their "
+                    "heights, and each section levelled more than once against its first "
+                    "run, on the section's one-way length. A line that failed is adjusted "
+                    "only when 'Adjust lines that failed their tolerance' is on, and the "
+                    "provenance records which."
+                ),
+                label=self.tr("What was checked"),
+            ),
+        ]
+
+    def _correction_section(self, corrections) -> list[str]:
+        if not corrections:
+            return []
+        rows = [
+            [
+                escape(line_id),
+                display_format().angle(correction.mean_latitude),
+                format_number(correction.mean_height, 1),
+                format_number(correction.millimetres, 3),
+            ]
+            for line_id, correction in corrections
+        ]
+        return [
+            f"<h2>{escape(self.tr('Orthometric corrections'))}</h2>",
+            render_table(
+                [
+                    escape(self.tr("Line")),
+                    escape(self.tr("Mean latitude")),
+                    escape(self.tr("Mean height (m)")),
+                    escape(self.tr("Correction (mm)")),
+                ],
+                rows,
+            ),
+            render_note(
+                self.tr(
+                    "The normal orthometric correction, from the ellipsoid's gravity field, "
+                    "added to each levelled difference before adjustment. Its uncertainty is "
+                    "taken as a tenth of the correction, a stand-in for the normality "
+                    "assumption that no propagation can express. Below 0.1 mm it is smaller "
+                    "than the noise of any levelling."
+                ),
+                label=self.tr("What was applied"),
+            ),
+        ]
+
     def _write_report(
-        self, parameters, context, built, run, solution, test, snooping, relative
+        self,
+        parameters,
+        context,
+        built,
+        run,
+        solution,
+        test,
+        snooping,
+        relative,
+        *,
+        closures=(),
+        corrections=(),
     ) -> None:
         path = self.parameterAsFileOutput(parameters, OUTPUT_HTML, context)
         if not path:
@@ -548,7 +868,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             [
                 [
                     escape(station.station_id),
-                    format_number(station.position.height.value, 5),
+                    display_format().coordinate(station.position.height.value),
                     format_number(station.position.height.std_dev * 1000.0, 3),
                 ]
                 for station in sorted(
@@ -637,6 +957,8 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 )
             )
 
+        body.extend(self._closure_section(closures))
+        body.extend(self._correction_section(corrections))
         body.append(f"<h2>{escape(self.tr('Findings'))}</h2>")
         body.append(findings_table(built.findings))
         with open(path, "w", encoding="utf-8") as handle:

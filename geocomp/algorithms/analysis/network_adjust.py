@@ -53,6 +53,8 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
@@ -65,7 +67,7 @@ from geocomp.core.adjustment.least_squares import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Epoch, HeightType, Provenance
-from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA, reliability
+from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 
 __all__ = ["NetworkAdjustAlgorithm"]
@@ -199,7 +201,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
@@ -237,7 +239,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 ALPHA,
                 self.tr("Significance for the minimal detectable bias"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=DEFAULT_ALPHA,
+                defaultValue=configured("stochastic.outlier_alpha"),
                 minValue=1e-6,
                 maxValue=0.5,
             )
@@ -247,7 +249,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 BETA,
                 self.tr("Type II error for the minimal detectable bias"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=DEFAULT_BETA,
+                defaultValue=configured("stochastic.outlier_beta"),
                 minValue=1e-6,
                 maxValue=0.9,
             )
@@ -257,7 +259,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
                 EPOCH,
                 self.tr("Reference epoch (decimal year)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=2000.0,
+                defaultValue=configured_epoch(2000.0),
             )
         )
         self.addParameter(
@@ -702,6 +704,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
         return block
 
     def _stations_table(self, solution) -> str:
+        shown = display_format()
         rows = []
         for station in solution.adjusted_stations:
             values = station.position.values
@@ -709,9 +712,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             rows.append(
                 [
                     escape(station.station_id),
-                    format_number(values[0].value, 4),
-                    format_number(values[1].value, 4),
-                    format_number(values[2].value, 4),
+                    shown.coordinate(values[0].value),
+                    shown.coordinate(values[1].value),
+                    shown.coordinate(values[2].value),
                     format_number(values[0].std_dev, 5),
                     format_number(values[1].std_dev, 5),
                     format_number(values[2].std_dev, 5),

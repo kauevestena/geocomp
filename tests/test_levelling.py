@@ -50,13 +50,16 @@ from geocomp.core.techniques.levelling import (
     ThreeWireReading,
     build_network,
     build_setup_network,
+    correct_lines,
     empirical_reading_sigma,
     line_closure,
     loop_closure,
+    network_closures,
     normal_orthometric_correction,
     reduce_line,
     reduce_reciprocal,
     reduce_setup,
+    section_closure,
     weighting_for,
 )
 from geocomp.core.uncertainty import Quantity, Strategy, UncertaintyMode
@@ -1035,6 +1038,176 @@ class TestOrthometricCorrections:
                 height_to=0.0,
             )
         assert caught.value.code == "validation.latitude_out_of_range"
+
+
+def _loop_lines(**kwargs):
+    books, _truth = rd.loop(**kwargs)
+    return [reduce_line(book.line, rd.profile()) for book in books]
+
+
+def _benchmark(station: str, height_type: HeightType = HeightType.ORTHOMETRIC) -> Benchmark:
+    return Benchmark(station, Quantity.exact(rd.HEIGHTS[station], METRE), height_type=height_type)
+
+
+def _rerun(line, *, line_id: str = "rerun", reverse: bool = True, error: float = 0.0):
+    """The same section levelled again: backwards by default, *error* metres off."""
+    difference = line.height_difference
+    if reverse:
+        return dataclasses.replace(
+            line,
+            line_id=line_id,
+            from_station=line.to_station,
+            to_station=line.from_station,
+            height_difference=dataclasses.replace(difference, value=-difference.value + error),
+        )
+    return dataclasses.replace(
+        line,
+        line_id=line_id,
+        height_difference=dataclasses.replace(difference, value=difference.value + error),
+    )
+
+
+class TestTheToleranceGate:
+    """``specs/10`` section 3: no line that failed its tolerance is adjusted unacknowledged.
+
+    :func:`network_closures` finds what a network's own lines can be closed
+    against, so the adjustment can refuse a failing one (P12a,
+    ``level.adjust_failing_lines``).
+    """
+
+    def test_a_line_between_two_benchmarks_is_closed_against_their_difference(self):
+        lines = _loop_lines(noise=0.0003)
+        checks = network_closures(
+            lines,
+            [_benchmark("BM1"), _benchmark("BM2")],
+            levelling_class=rd.levelling_class(),
+        )
+        assert [check.id for check in checks if check.kind == "line"] == ["BM1-BM2"]
+        assert checks[0].passed is True
+
+    def test_a_blunder_between_two_benchmarks_fails(self):
+        lines = _loop_lines(blunder=0.030, blunder_on="BM1-BM2")
+        checks = network_closures(
+            lines,
+            [_benchmark("BM1"), _benchmark("BM2")],
+            levelling_class=rd.levelling_class(),
+        )
+        failed = [check.id for check in checks if check.passed is False]
+        assert failed == ["BM1-BM2"]
+
+    def test_a_line_touching_one_benchmark_closes_against_nothing(self):
+        lines = _loop_lines()
+        assert network_closures(lines, [_benchmark("BM1")], levelling_class=rd.levelling_class()) == ()
+
+    def test_heights_of_different_types_are_not_differenced(self):
+        """The difference of an orthometric and an ellipsoidal height is the geoid
+        undulation plus the levelling: closing a line against it would fail every
+        good line and pass bad ones."""
+        lines = _loop_lines()
+        checks = network_closures(
+            lines,
+            [_benchmark("BM1"), _benchmark("BM2", HeightType.ELLIPSOIDAL)],
+            levelling_class=rd.levelling_class(),
+        )
+        assert checks == ()
+
+    def test_with_no_tolerance_nothing_is_judged(self):
+        lines = _loop_lines(blunder=0.030, blunder_on="BM1-BM2")
+        checks = network_closures(
+            lines, [_benchmark("BM1"), _benchmark("BM2")], levelling_class=None
+        )
+        assert checks and all(check.passed is None for check in checks)
+
+    def test_a_section_levelled_twice_is_found_and_closed(self):
+        lines = _loop_lines(noise=0.0003)
+        lines.append(_rerun(lines[1], error=0.0004))
+        checks = network_closures(lines, [], levelling_class=rd.levelling_class())
+        assert [(check.kind, check.id) for check in checks] == [("section", "BM2-BM4/rerun")]
+        # Forward plus backward: the run back came out 0.4 mm high.
+        assert checks[0].misclosure == pytest.approx(0.0004, abs=1e-12)
+
+    def test_a_section_is_judged_on_its_one_way_length(self):
+        """Two runs over the same section are not a loop twice its length:
+        judging them as one would loosen the tolerance by root two."""
+        line = _loop_lines()[1]
+        check = section_closure(line, _rerun(line), levelling_class=rd.levelling_class())
+        assert check.length_km == pytest.approx(line.length_km)
+        assert check.permissible == pytest.approx(
+            rd.levelling_class().permissible_misclosure(line.length_km)
+        )
+
+    def test_runs_in_the_same_direction_are_compared_directly(self):
+        line = _loop_lines()[0]
+        check = section_closure(line, _rerun(line, reverse=False, error=0.002))
+        assert check.misclosure == pytest.approx(-0.002, abs=1e-12)
+
+    def test_the_shorter_run_sets_the_length(self):
+        line = _loop_lines()[0]
+        longer = dataclasses.replace(_rerun(line), length_km=line.length_km * 1.5)
+        assert section_closure(line, longer).length_km == pytest.approx(line.length_km)
+
+    def test_runs_between_different_stations_are_refused(self):
+        first, second = _loop_lines()[:2]
+        with pytest.raises(ValidationError) as caught:
+            section_closure(first, second)
+        assert caught.value.code == "validation.section_runs_disagree"
+
+
+#: Latitudes for the loop's three benchmarks, far enough apart to give a correction.
+LOOP_LATITUDES = {"BM1": math.radians(-20.0), "BM2": math.radians(-20.5), "BM4": math.radians(-21.0)}
+
+
+class TestOrthometricCorrectionOfLines:
+    """``level.apply_orthometric_correction``: every line corrected before adjustment (P12a)."""
+
+
+    def test_every_line_has_its_correction_added_and_keeps_its_raw_difference(self):
+        lines = _loop_lines()
+        corrected, applied = correct_lines(lines, latitudes=LOOP_LATITUDES, heights=rd.HEIGHTS)
+        assert [line_id for line_id, _ in applied] == [line.line_id for line in lines]
+        for before, after, (_, correction) in zip(lines, corrected, applied, strict=True):
+            assert after.height_difference.value == pytest.approx(
+                before.height_difference.value + correction.correction.value, abs=1e-15
+            )
+            assert after.raw_height_difference == before.raw_height_difference
+            expected = normal_orthometric_correction(
+                before.height_difference,
+                latitude_from=LOOP_LATITUDES[before.from_station],
+                latitude_to=LOOP_LATITUDES[before.to_station],
+                height_from=rd.HEIGHTS[before.from_station],
+                height_to=rd.HEIGHTS[before.to_station],
+            )
+            assert correction.correction.value == expected.correction.value
+
+    def test_the_corrections_of_a_closed_loop_nearly_cancel(self):
+        """Around a loop the normal correction sums to a second-order term: the
+        latitude differences cancel and only the variation of the mean heights
+        is left. So a loop's misclosure is not something the correction hides."""
+        lines = _loop_lines()
+        _, applied = correct_lines(lines, latitudes=LOOP_LATITUDES, heights=rd.HEIGHTS)
+        total = math.fsum(correction.correction.value for _, correction in applied)
+        largest = max(abs(correction.correction.value) for _, correction in applied)
+        assert abs(total) < largest
+
+    def test_the_corrected_difference_says_its_uncertainty_is_partly_a_stand_in(self):
+        lines = _loop_lines()
+        corrected, _ = correct_lines(lines, latitudes=LOOP_LATITUDES, heights=rd.HEIGHTS)
+        assert all(
+            Strategy.DOMINANT_TERM in line.height_difference.strategies for line in corrected
+        )
+
+    def test_every_station_without_a_position_is_named(self):
+        lines = _loop_lines()
+        with pytest.raises(ValidationError) as caught:
+            correct_lines(lines, latitudes={"BM1": 0.0}, heights=rd.HEIGHTS)
+        assert caught.value.code == "validation.orthometric_correction_without_position"
+        assert caught.value.context["received"] == ["BM2", "BM4"]
+
+    def test_a_station_without_a_height_is_refused(self):
+        lines = _loop_lines()
+        with pytest.raises(ValidationError) as caught:
+            correct_lines(lines, latitudes=LOOP_LATITUDES, heights={"BM1": 100.0})
+        assert caught.value.code == "validation.orthometric_correction_without_height"
 
 
 # -- The stochastic model -------------------------------------------------

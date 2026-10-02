@@ -21,6 +21,7 @@ from geocomp.core.techniques.levelling.closure import (
     SetupShare,
     line_closure,
     loop_closure,
+    section_closure,
 )
 from geocomp.core.techniques.levelling.line import (
     LevellingLine,
@@ -34,10 +35,12 @@ from geocomp.core.techniques.levelling.network import (
     LevellingNetworkResult,
     build_network,
     build_setup_network,
+    network_closures,
     weighting_for,
 )
 from geocomp.core.techniques.levelling.orthometric import (
     OrthometricCorrection,
+    correct_lines,
     normal_orthometric_correction,
 )
 from geocomp.core.techniques.levelling.readings import (
@@ -71,13 +74,16 @@ __all__ = [
     "ThreeWireReading",
     "build_network",
     "build_setup_network",
+    "correct_lines",
     "empirical_reading_sigma",
     "line_closure",
     "loop_closure",
+    "network_closures",
     "normal_orthometric_correction",
     "reduce_line",
     "reduce_reciprocal",
     "reduce_setup",
     "reverse_height_difference",
+    "section_closure",
     "weighting_for",
 ]

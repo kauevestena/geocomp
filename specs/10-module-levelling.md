@@ -110,6 +110,24 @@ deviation**, and the result says which situation the user is in: consistent with
 which case distribute it, or not, in which case spreading it evenly is the one response guaranteed to hide
 it.
 
+**The acknowledgement, in the network adjustment (P12a).** Until P12a the rule above was kept by the closures
+algorithm, which checks what it is pointed at, and broken by *Levelling network adjustment*, which adjusted
+whatever it was given — while `level.adjust_failing_lines`, the setting that was to be the acknowledgement,
+was read by nothing. The adjustment now closes, before it adjusts, everything the network itself allows:
+
+- **each line between two benchmarks** of the same height type, against the difference of their heights;
+- **each section levelled more than once**, each later run against the first, oriented from the station ids.
+  A section is judged on its **one-way** length — the shorter run's where the two differ — because a section
+  tolerance is stated per section, and two runs over 2 km judged as a 4 km loop would loosen it by √2.
+
+Loops are not searched for: a network's cycle basis is not unique, each would give different numbers for the
+same observations, and the global test and data snooping see every loop at once. A named loop is the closures
+algorithm's. With *k* configured (`level.tolerance_coefficient`, the run's *Tolerance coefficient*), a failing
+closure **refuses the adjustment** by name unless *Adjust lines that failed their tolerance* is on — the
+setting's default, or the run's — and an adjustment that proceeds on it says so in the log, lists the closures
+in the report, and records which failed in the provenance. With no *k* nothing is judged, and the report says
+that too.
+
 ---
 
 ## 4. Network adjustment (FR-504)
@@ -181,6 +199,16 @@ over one degree of latitude it is 81 mm; at 100 m of height, 8 mm; over one minu
 height, 0.12 mm. It matters for precise levelling that climbs, over long north–south lines, and is negligible
 on a construction site — and the result says which.
 
+**Applied by the network adjustment (P12a).** The function existed from P4 and nothing called it, while
+`level.apply_orthometric_correction` was read by nothing. *Levelling network adjustment* now applies it to
+every line before adjusting when the option is on, and reports each line's correction with the mean latitude
+and height it came from. Latitudes come from a **point layer of station positions** and the field holding
+each station's id, read through QGIS in the geographic CRS of the layer's own datum — an inverse projection,
+never a datum transformation. Approximate heights are the benchmarks' carried along the lines. Three things
+are refused rather than assumed: a station a line ends at with no position (all of them named), a positions
+layer with no valid CRS, and a free network, whose heights hang from an arbitrary zero. The correction's
+uncertainty, a tenth of the correction tagged as a dominant-term stand-in, reaches the corrected difference.
+
 The **rigorous** orthometric correction needs observed gravity along the line, and is deliberately *not*
 approximated here with an assumed field pretending to be a measured one. It arrives with the gravimetry
 module (P8), which is where the gravity observations do.
@@ -236,3 +264,7 @@ of order 10⁻⁴. **A staff reading, whose σ becomes an adjustment weight, sti
    the benchmarks are converted, the model's uncertainty reaches the adjusted heights, and the solution
    names the model.
 7. Every output carries an uncertainty and an `uncertainty_mode` (FR-505).
+8. *(P12a)* The network adjustment refuses a line between two benchmarks, or a double-run section, that failed
+   its tolerance, unless the failure is acknowledged, and then records it; with positions it applies the normal
+   orthometric correction and reports it, refusing a station without one
+   (`tests/test_levelling.py`, `tests/qgis/test_levelling_algorithms.py`).

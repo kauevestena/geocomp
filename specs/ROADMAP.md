@@ -1200,6 +1200,59 @@ the same rule applies again — it moves, and the move is recorded.
 Thematic maps render for every listed attribute, including the redundancy-number map. Every acceptance
 criterion in every specification document has a passing automated test or a documented reason to be manual.
 
+**Split in three, at the maintainer's decision of 2 October 2026**, one pull request each, because the three
+halves share nothing but the phase's name and a single change touching all of them could not be reviewed:
+
+| | Delivers | Exit criteria it owns |
+|---|---|---|
+| **P12a** | The settings reaching the computation; units and display formatting; the Basic/Advanced identity check across every algorithm; an editor for every setting type | Every algorithm passes the identity check |
+| **P12b** | Thematic maps for every listed attribute (FR-902); the results panel; print layout templates (FR-931) | Thematic maps render for every listed attribute, the redundancy-number map included |
+| **P12c** | The acceptance-criteria audit across every specification; NFR-008 performance; the records — ocean loading moves again if Onsala is still unreachable, and the native-speaker review | Every acceptance criterion has a passing test or a documented reason to be manual; no untranslated string, reviewed |
+
+### P12a — the settings reach the computation
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| A parameter's default is its setting, resolved when the algorithm is instantiated, through run, project and global scope | `algorithms/defaults.py`; every algorithm group |
+| 29 settings wired to parameter defaults, 4 to behaviours, 4 to the reports; 4 removed as unconsumable | [`15`](./15-ui-menu-and-settings.md) §2.3 |
+| *Levelling network adjustment* closes lines between benchmarks and double-run sections before adjusting, and refuses a failure unless acknowledged | `core/techniques/levelling/network.py` `network_closures`, `closure.py` `section_closure`; [`10`](./10-module-levelling.md) §3 |
+| The normal orthometric correction applied in the network adjustment, from a positions layer read through QGIS | `orthometric.py` `correct_lines`; [`10`](./10-module-levelling.md) §5 |
+| The base-map offer, on a custom property every result layer now carries | `gui/basemap_offer.py`; [`17`](./17-persistence-and-interoperability.md) §5.6 |
+| Display formatting: angles, small angles, coordinates and distances in the reports, the adjustment report included | `core/display_format.py`, `algorithms/display.py`; [`19`](./19-visualization.md) §7.4 |
+| An editor for every setting type: numbers, text, paths, directories, the CRS | `gui/settings_dialog.py` |
+| The structural check reads code, not comments; `NOT_YET_HONOURED` is empty | `tests/structural/test_settings_are_honoured.py` |
+
+| P12a criterion | State |
+|---|---|
+| Every declared setting is read by the computation | **met** — the structural check, now blind to comments; and every parameter default asserted to follow its setting (`tests/qgis/test_settings_reach_the_computation.py`) |
+| Every algorithm passes the Basic/Advanced identity check | **met** — all 45, by construction ([`16`](./16-processing-provider.md) §4.1, `tests/qgis/test_basic_advanced_identity.py`) |
+| Every setting editable in the window | **met** — `tests/qgis/test_settings_dialog.py` |
+| No untranslated string | **met** for P12a's strings, pt-BR and es; the native-speaker review is P12c's |
+
+**Found.**
+
+- **Five settings passed the "is it read" check on prose alone** — a comment, a docstring — so the true
+  count of unread settings was 41 of 66, not 36. The check now reads string literals in code.
+- **The traverse setting's default was least squares**, which the Traverse algorithm cannot compute; the
+  angular tolerance setting said 29.9″ where the algorithm used 30″; the face-distance setting mirrored a
+  last-resort constant rather than the parameter's *from the instrument*. Each had agreed with nothing, which
+  no one could see while nothing read them.
+- **The closure check promised an acknowledgement nothing asked for.** Its finding says GeoComp will not
+  adjust a failing line without one; the network adjustment adjusted it anyway. The orthometric correction
+  had been written in P4 and called by nothing since.
+- **Every UTM northing in a report was printed with an exponent**, `7.3951e+06`: the report formatter
+  switches at a million, which a southern-hemisphere northing always exceeds.
+
+**Not built in P12a, named so the ticks above do not imply them.** A project-scope override control in the
+window — the settings service has the scope; the window writes global only. Number formatting per locale
+(FR-094): every report uses a point as the decimal separator. When no default epoch is stated, three network
+adjustments still fall back to an epoch of their own (2000.0, or 2026.0 for levelling), which is an assumed
+epoch in FR-105's terms; P12c's audit owns it. The levelling reduction reports and the monitoring report keep
+their own units (metres to 0.01 mm; millimetres). The offer is tested against a message bar, not inside a
+running QGIS window.
+
 ---
 
 ## P13 — Validation, documentation and release

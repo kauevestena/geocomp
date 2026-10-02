@@ -110,9 +110,19 @@ def default_library() -> ProfileLibrary:
     algorithms say so in their reports. It exists so that a first run works, not
     so that a real survey uses it.
     """
+    from geocomp.algorithms.defaults import configured
+    from geocomp.core.instruments.profiles import AtmosphericModel
+
     library = ProfileLibrary()
     library.add_instrument(
-        InstrumentProfile(id="generic", name="Generic total station (2 mm + 2 ppm, 5 arcsec)")
+        InstrumentProfile(
+            id="generic",
+            name="Generic total station (2 mm + 2 ppm, 5 arcsec)",
+            # The first-velocity formula from Global Settings (P12a). A profile
+            # document states its own: the manufacturer's formula belongs to
+            # the instrument, and the setting is for when there is none.
+            atmospheric_model=AtmosphericModel(configured("total_station.atmospheric_model")),
+        )
     )
     return library
 

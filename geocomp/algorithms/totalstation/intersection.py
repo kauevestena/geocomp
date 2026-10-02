@@ -29,6 +29,8 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     format_number,
@@ -128,7 +130,7 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
@@ -188,8 +190,8 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(70)
         feedback.pushInfo(
             self.tr("E %1, N %2; ellipse %3 by %4 mm.")
-            .replace("%1", format_number(easting.value))
-            .replace("%2", format_number(northing.value))
+            .replace("%1", display_format().coordinate(easting.value))
+            .replace("%2", display_format().coordinate(northing.value))
             .replace("%3", format_number(ellipse.semi_major * 1000.0, 1))
             .replace("%4", format_number(ellipse.semi_minor * 1000.0, 1))
         )
@@ -233,17 +235,15 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
         return {OUTPUT_POSITION: position, OUTPUT_HTML: html_target}
 
     def _render(self, target, result, ellipse, confidence) -> str:
+        shown = display_format()
         easting, northing = result.position
         summary = [
             [escape(self.tr("Point")), escape(target)],
-            [escape(self.tr("Easting (m)")), format_number(easting.value)],
-            [escape(self.tr("Northing (m)")), format_number(northing.value)],
+            [escape(self.tr("Easting (m)")), shown.coordinate(easting.value)],
+            [escape(self.tr("Northing (m)")), shown.coordinate(northing.value)],
             [escape(self.tr("Semi-major (mm)")), format_number(ellipse.semi_major * 1000.0, 2)],
             [escape(self.tr("Semi-minor (mm)")), format_number(ellipse.semi_minor * 1000.0, 2)],
-            [
-                escape(self.tr("Ellipse azimuth (°)")),
-                format_number(math.degrees(ellipse.orientation), 2),
-            ],
+            [escape(self.tr("Ellipse azimuth")), shown.angle(ellipse.orientation)],
             [escape(self.tr("Confidence level")), format_number(confidence, 3)],
         ]
 
@@ -252,9 +252,12 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
             render_table([escape(self.tr("Property")), escape(self.tr("Value"))], summary),
             f"<h2>{escape(self.tr('Residuals'))}</h2>",
             render_table(
-                [escape(self.tr("Station")), escape(self.tr('Residual (")'))],
                 [
-                    [escape(station), format_number(math.degrees(value) * 3600.0, 2)]
+                    escape(self.tr("Station")),
+                    escape(self.tr("Residual (%1)").replace("%1", shown.small_angle_symbol)),
+                ],
+                [
+                    [escape(station), shown.small_angle(value)]
                     for station, value in sorted(result.residuals.items())
                 ],
             ),

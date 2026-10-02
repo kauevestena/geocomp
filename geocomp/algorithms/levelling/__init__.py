@@ -12,3 +12,5 @@ between two marks. Extreme sights reduces a **setup** to several height
 differences that are correlated with each other -- which is the whole point of
 the scheme, and is invisible in a line reduction.
 """
+
+from geocomp.algorithms.levelling import messages as _messages  # noqa: F401

@@ -47,6 +47,7 @@ class GeoCompPlugin:
         self._toolbar_actions: list[QAction] = []
         self._plugin_menu_actions: list[QAction] = []
         self._series_panel = None
+        self._basemap_offer = None
 
     # -- lifecycle -------------------------------------------------------
 
@@ -77,6 +78,7 @@ class GeoCompPlugin:
         self._build_toolbar()
         self._build_series_panel()
         self._build_plugin_menu_entries()
+        self._build_basemap_offer()
 
         log.info("GeoComp ready")
 
@@ -103,6 +105,10 @@ class GeoCompPlugin:
             action.setParent(None)
             action.deleteLater()
         self._plugin_menu_actions.clear()
+
+        if self._basemap_offer is not None:
+            self._basemap_offer.unload()
+            self._basemap_offer = None
 
         if self._series_panel is not None:
             from geocomp.gui.time_series_panel import detach_from_project
@@ -163,6 +169,12 @@ class GeoCompPlugin:
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._series_panel)
         self._series_panel.hide()
         attach_to_project(self._series_panel)
+
+    def _build_basemap_offer(self) -> None:
+        """Offer a base map when result layers arrive (FR-167, ``basemaps.offer_on_result_layers``)."""
+        from geocomp.gui.basemap_offer import BaseMapOffer
+
+        self._basemap_offer = BaseMapOffer(self.iface.messageBar())
 
     def _build_plugin_menu_entries(self) -> None:
         """Add the conventional Plugins ▸ GeoComp entries.

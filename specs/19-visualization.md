@@ -199,6 +199,27 @@ proposed and not adopted. Values are in millimetres; the documents keep metres.
 - Data available separately as CSV/`.xlsx` (FR-162) for users who build their own reports.
 - Deterministic: the same solution produces the same report (NFR-007).
 
+
+### 7.4 How a number is written (FR-067; P12a)
+
+Four interface settings describe it — `interface.angle_format`, `angle_decimals`, `coordinate_decimals`,
+`distance_unit` — and until P12a no report read them: a user who chose gon saw decimal degrees, and every UTM
+northing printed as `7.3951e+06`, because the report's number formatter switches to an exponent at a million.
+`core/display_format.py` formats, QGIS-free; `algorithms/display.py` resolves the settings when a report is
+written, and the adjustment report receives the result in its context, so rendering stays a function of its
+inputs (NFR-007).
+
+| Quantity | Written as |
+|---|---|
+| An absolute angle — a direction, an orientation, an ellipse's azimuth, a latitude | the chosen format: DMS, decimal degrees, gon or radians; *places* count on the smallest customary unit (seconds for DMS), so one setting resolves about the same angle in every format |
+| A small angle — a misclosure, a residual, a collimation or index error, an orientation spread | the format's small unit: arc-seconds for DMS and decimal degrees, centesimal seconds (cc) for gon, microradians for radians; the column heading names it |
+| A coordinate | to the chosen places, **never with an exponent**, in its CRS's units — the distance unit does not apply, because a metric grid in feet describes a coordinate system that does not exist |
+| A distance or height difference that was measured or derived | in the chosen unit — metre, international foot or US survey foot — to the coordinate places |
+
+Uncertainties, residuals in length and misclosures in millimetres stay in SI: they are precision figures with
+their own conventional units. **Only what a person reads changes**: every file — JSON, CSV, the project
+store — stays SI at full precision (FR-095). Not addressed: the locale's decimal separator (FR-094), and the
+monitoring report's displacement tables, which are in millimetres by design.
 ---
 
 ## 8. Acceptance criteria

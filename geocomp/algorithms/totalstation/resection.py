@@ -31,6 +31,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     format_number,
@@ -208,9 +209,9 @@ class ResectionAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(80)
         feedback.pushInfo(
             self.tr("E %1 ± %2 mm, N %3 ± %4 mm.")
-            .replace("%1", format_number(easting.value))
+            .replace("%1", display_format().coordinate(easting.value))
             .replace("%2", format_number(easting.std_dev * 1000.0, 1))
-            .replace("%3", format_number(northing.value))
+            .replace("%3", display_format().coordinate(northing.value))
             .replace("%4", format_number(northing.std_dev * 1000.0, 1))
         )
 
@@ -248,19 +249,17 @@ class ResectionAlgorithm(GeoCompAlgorithm):
         return {OUTPUT_POSITION: position, OUTPUT_HTML: html_target}
 
     def _render(self, station, result) -> str:
+        shown = display_format()
         easting, northing = result.position
         correlation = result.covariance.to_correlation()
         summary = [
             [escape(self.tr("Station")), escape(station)],
-            [escape(self.tr("Easting (m)")), format_number(easting.value)],
-            [escape(self.tr("Northing (m)")), format_number(northing.value)],
+            [escape(self.tr("Easting (m)")), shown.coordinate(easting.value)],
+            [escape(self.tr("Northing (m)")), shown.coordinate(northing.value)],
             [escape(self.tr("Std dev E (mm)")), format_number(easting.std_dev * 1000.0, 2)],
             [escape(self.tr("Std dev N (mm)")), format_number(northing.std_dev * 1000.0, 2)],
             [escape(self.tr("Correlation")), format_number(correlation[0, 1], 3)],
-            [
-                escape(self.tr("Setup orientation (°)")),
-                format_number(math.degrees(result.orientation.value), 6),
-            ],
+            [escape(self.tr("Setup orientation")), shown.angle(result.orientation.value)],
         ]
 
         body = [
@@ -268,9 +267,12 @@ class ResectionAlgorithm(GeoCompAlgorithm):
             render_table([escape(self.tr("Property")), escape(self.tr("Value"))], summary),
             f"<h2>{escape(self.tr('Residuals'))}</h2>",
             render_table(
-                [escape(self.tr("Known point")), escape(self.tr('Residual (")'))],
                 [
-                    [escape(point), format_number(math.degrees(value) * 3600.0, 2)]
+                    escape(self.tr("Known point")),
+                    escape(self.tr("Residual (%1)").replace("%1", shown.small_angle_symbol)),
+                ],
+                [
+                    [escape(point), shown.small_angle(value)]
                     for point, value in sorted(result.residuals.items())
                 ],
             ),

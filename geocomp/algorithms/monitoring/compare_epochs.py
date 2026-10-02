@@ -38,6 +38,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, POLYGON_SOURCE_TYPE, write_styled_sink
 from geocomp.algorithms.monitoring.common import (
     datum_labels,
@@ -161,7 +162,7 @@ class MonitoringCompareEpochsAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )

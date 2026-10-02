@@ -5,6 +5,52 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12a — The settings reach the computation
+
+Every Global Setting now changes what it says it changes, and every one can be set from the Global Settings
+window (FR-060, FR-068, FR-071).
+
+#### Changed
+
+- **A setting is now the default of the parameter it governs.** Changing the default meteorology, refraction,
+  traverse rule and tolerances, face tolerances, levelling tolerance and sight limits, default observation
+  precisions, confidence level, α and β, preferred CRS, default epoch or geoid model now changes what an
+  algorithm computes when the run does not override it. Before, 41 of 66 settings were stored, shown and
+  ignored: every algorithm used a literal of its own.
+- **Reports follow the interface settings.** Angles are written in the chosen format (DMS, decimal degrees,
+  gon or radians) and places; small angles in that format's small unit; coordinates to the chosen places and
+  never with an exponent; measured distances in metres, feet or US survey feet. Files are unchanged: they stay
+  in SI at full precision.
+- *Traverse adjustment* in Global Settings offered least squares, which the Traverse algorithm cannot do. It
+  now offers compass (the default it always used), transit, and *none*. Least squares is *Classical network*.
+- The default epoch is a decimal year, with 0 for none stated. The face-pair distance tolerance defaults to 0,
+  *from the instrument*, which is what Preprocess always used. The traverse angular tolerance is exactly 30″.
+
+#### Added
+
+- **Levelling network adjustment checks closures before it adjusts.** A line between two benchmarks, or a
+  section levelled twice, that fails its tolerance stops the adjustment unless *Adjust lines that failed their
+  tolerance* is on. The report lists every closure checked; the provenance records any failure adjusted.
+- **The normal orthometric correction in Levelling network adjustment**, from a point layer of station
+  positions. Each line's correction is reported. A station without a position is refused by name.
+- **GeoComp offers a base map when results arrive** on the map, in the message bar. Nothing is added unless
+  a service is chosen, it asks once per project, and *Don't offer again* turns the offer off.
+- **Every setting can be edited in the Global Settings window.** Before, 40 settings were shown as not
+  editable: every decimal number, every path and directory, the text settings and the CRS.
+- Portuguese and Spanish for every new string.
+
+#### Removed
+
+- Three reference-system settings for choosing coordinate transformations, and the default height-difference
+  precision. Nothing in GeoComp could use them.
+
+#### Not done
+
+- The window still saves global settings only; a project-scope override has no control in it.
+- Numbers in reports use a point as the decimal separator in every language (FR-094).
+- Thematic maps, the results panel and print layouts (P12b); the acceptance-criteria audit, NFR-008
+  performance and the native-speaker review (P12c).
+
 ### P11 — PostGIS
 
 A project can live in a PostGIS database as well as in a GeoPackage, and move between the two without losing

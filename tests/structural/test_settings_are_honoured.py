@@ -23,6 +23,8 @@ hurdle.
 
 from __future__ import annotations
 
+import ast
+
 from tests.conftest import PLUGIN_DIR
 
 #: Where a setting is declared and where it is displayed. Naming a key in either
@@ -35,67 +37,36 @@ DECLARATION_SITES = ("core/settings_def.py", "gui/settings_dialog.py")
 #: silently does nothing, which is worse than an absent control: it invites a
 #: choice and then discards it.
 #:
-#: The wiring is assigned to **P12** ([`specs/ROADMAP.md`](../../specs/ROADMAP.md)),
-#: whose specification list already includes `specs/15`, and is recorded in
-#: `specs/15-ui-menu-and-settings.md` section 2.3.
-NOT_YET_HONOURED = {
-    # Display formatting. `core/units.py` has `format_dms` and `convert` ready
-    # for these and no caller; nothing in the reports, the exports or the layers
-    # formats an angle or a distance for display at all -- they emit SI with the
-    # unit named, which is right for a machine-readable export and is not what
-    # these four settings promise.
-    "interface.angle_decimals": "P12",
-    "interface.angle_format": "P12",
-    "interface.coordinate_decimals": "P12",
-    "interface.distance_unit": "P12",
-    # Levelling. All but the first have a core function taking them as an
-    # argument (`techniques/levelling/schemes.py`, `line.py` and
-    # `normal_orthometric_correction`); the algorithms pass hard-coded
-    # Processing parameter defaults instead of resolving the setting.
-    # `adjust_failing_lines` is the exception and the worse case: no switch of
-    # that name exists anywhere in the core, so nothing would honour it even if
-    # the value were passed.
-    "level.adjust_failing_lines": "P12",
-    "level.apply_orthometric_correction": "P12",
-    "level.max_accumulated_imbalance": "P12",
-    "level.max_sight_imbalance": "P12",
-    "level.max_sight_length": "P12",
-    "level.reciprocal_variance_inflation": "P12",
-    "level.tolerance_coefficient": "P12",
-    # Total station. Same shape: `techniques/total_station/atmosphere.py` and
-    # `survey.py` take them as arguments and the algorithms hard-code them.
-    "total_station.atmospheric_model": "P12",
-    "total_station.default_humidity_percent": "P12",
-    "total_station.default_pressure_hpa": "P12",
-    "total_station.default_pressure_sigma_hpa": "P12",
-    "total_station.default_temperature_celsius": "P12",
-    "total_station.default_temperature_sigma": "P12",
-    "total_station.refraction_coefficient": "P12",
-    "total_station.refraction_coefficient_sigma": "P12",
-    "total_station.traverse_adjustment": "P12",
-    "total_station.traverse_angular_tolerance_per_station": "P12",
-    "total_station.traverse_relative_precision": "P12",
-    # Stochastic defaults (FR-064). `instruments/profiles.py` carries the
-    # `StochasticDefaults` machinery these would populate.
-    "stochastic.confidence_level": "P12",
-    "stochastic.default_sigma_direction": "P12",
-    "stochastic.default_sigma_height_difference": "P12",
-    "stochastic.default_sigma_slope_distance": "P12",
-    "stochastic.default_sigma_zenith_angle": "P12",
-    "stochastic.outlier_beta": "P12",
-    # Reference systems (P5). `io/geoid.py` and `core/geodesy/` implement all of
-    # this; the algorithms take a CRS and a geoid file as parameters instead.
-    "reference_systems.default_epoch": "P12",
-    "reference_systems.geoid_model": "P12",
-    "reference_systems.geoid_sigma": "P12",
-    "reference_systems.preferred_crs": "P12",
-    "reference_systems.preferred_transformations": "P12",
-    "reference_systems.transformation_choice": "P12",
-    "reference_systems.transformation_grid_directory": "P12",
-    # Base maps. `basemaps.catalogue` and `basemaps.default_service` are read;
-    # this one, which decides whether to offer a base map at all, is not.
-    "basemaps.offer_on_result_layers": "P12",
-}
+#: Empty since P12a, which wired the 36 the pre-P7 review found and three more
+#: this test had been passing because a comment named them
+#: (`specs/15-ui-menu-and-settings.md` section 2.3).
+NOT_YET_HONOURED: dict[str, str] = {}
+
+
+def _code_strings(text: str) -> set[str]:
+    """Every string literal in *text* that is code: not a comment, not a docstring.
+
+    Until P12a this test asked whether a key appeared *anywhere* in a module, and
+    three settings passed on a comment alone -- ``stochastic.outlier_alpha``
+    named in a remark about data snooping, and both face tolerances in a note
+    that a core constant "mirrors" them. Nothing read any of the three. A key
+    in a comment is a sentence about a setting, not a use of one.
+    """
+    tree = ast.parse(text)
+    docstrings = {
+        id(node.body[0].value)
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.body
+        and isinstance(node.body[0], ast.Expr)
+        and isinstance(node.body[0].value, ast.Constant)
+        and isinstance(node.body[0].value.value, str)
+    }
+    return {
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docstrings
+    }
 
 
 def _readers() -> dict[str, list[str]]:
@@ -103,15 +74,37 @@ def _readers() -> dict[str, list[str]]:
     from geocomp.core.settings_def import SETTINGS
 
     sources = {
-        path.relative_to(PLUGIN_DIR).as_posix(): path.read_text(encoding="utf-8")
+        path.relative_to(PLUGIN_DIR).as_posix(): _code_strings(path.read_text(encoding="utf-8"))
         for path in PLUGIN_DIR.rglob("*.py")
     }
     for site in DECLARATION_SITES:
         sources.pop(site, None)
     return {
-        definition.key: sorted(name for name, text in sources.items() if definition.key in text)
+        # Within a literal rather than equal to one: QGIS's own storage key is
+        # the setting's behind a prefix, ``f"{SETTINGS_PREFIX}/interface.language"``.
+        definition.key: sorted(
+            name
+            for name, strings in sources.items()
+            if any(definition.key in text for text in strings)
+        )
         for definition in SETTINGS
     }
+
+
+def test_a_comment_is_not_a_reader():
+    """Guards the scan against the false pass P12a found."""
+    strings = _code_strings(
+        '''"""Module docstring naming level.weighting."""
+# A comment naming stochastic.outlier_alpha.
+def f():
+    """A docstring naming total_station.collimation_tolerance."""
+    return settings.value("level.tolerance_coefficient")
+'''
+    )
+    assert "level.tolerance_coefficient" in strings
+    assert not any(
+        "weighting" in text or "outlier_alpha" in text or "collimation" in text for text in strings
+    )
 
 
 def test_there_are_settings_to_check():

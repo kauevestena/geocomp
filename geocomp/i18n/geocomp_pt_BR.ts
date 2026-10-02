@@ -1912,8 +1912,8 @@
             <translation>Observações por tipo</translation>
         </message>
         <message>
-            <source>Orientation (rad)</source>
-            <translation>Orientação (rad)</translation>
+            <source>Orientation</source>
+            <translation>Orientação</translation>
         </message>
         <message>
             <source>Outlier candidates</source>
@@ -2272,6 +2272,29 @@
         <message>
             <source>The network document '%1' does not exist.</source>
             <translation>O documento de rede '%1' não existe.</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompBaseMapOffer</name>
+        <message>
+            <source>Add a base map beneath the results, for context?</source>
+            <translation>Adicionar um mapa de fundo sob os resultados, para contexto?</translation>
+        </message>
+        <message>
+            <source>Attribution: </source>
+            <translation>Atribuição: </translation>
+        </message>
+        <message>
+            <source>Base map</source>
+            <translation>Mapa de fundo</translation>
+        </message>
+        <message>
+            <source>Don't offer again</source>
+            <translation>Não oferecer novamente</translation>
+        </message>
+        <message>
+            <source>The base map service could not be loaded: </source>
+            <translation>Não foi possível carregar o serviço de mapa de fundo: </translation>
         </message>
     </context>
     <context>
@@ -3128,6 +3151,14 @@
         <message>
             <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
             <translation>A observação %1 não pode ser excluída: as soluções armazenadas %2 foram calculadas a partir dela (FR-135). Substitua essas soluções antes, ou mantenha a observação.</translation>
+        </message>
+        <message>
+            <source>The orthometric correction needs an approximate height for every station, and these have none: %1. Connect them to a benchmark, or turn the correction off.</source>
+            <translation>A correção ortométrica precisa de uma altitude aproximada para cada estação, e estas não têm nenhuma: %1. Ligue-as a uma referência de nível, ou desative a correção.</translation>
+        </message>
+        <message>
+            <source>The orthometric correction needs the latitude of every station a line ends at, and these have no position in the station positions layer: %1. Add them, check the station id field, or turn the correction off.</source>
+            <translation>A correção ortométrica precisa da latitude de cada estação onde uma linha termina, e estas não têm posição na camada de posições das estações: %1. Adicione-as, verifique o campo do identificador da estação, ou desative a correção.</translation>
         </message>
         <message>
             <source>The planned network '%1' contains no observations, so there is no design to evaluate. Add the observations you intend to make, with their assumed precisions.</source>
@@ -4027,10 +4058,6 @@
             <translation>Aplicar correções ortométricas</translation>
         </message>
         <message>
-            <source>Ask which to use</source>
-            <translation>Perguntar qual usar</translation>
-        </message>
-        <message>
             <source>Atmospheric model</source>
             <translation>Modelo atmosférico</translation>
         </message>
@@ -4103,10 +4130,6 @@
             <translation>Arquivo do modelo geoidal padrão</translation>
         </message>
         <message>
-            <source>Default height-difference standard deviation (m)</source>
-            <translation>Desvio padrão dos desníveis (m)</translation>
-        </message>
-        <message>
             <source>Default pressure (hPa)</source>
             <translation>Pressão padrão (hPa)</translation>
         </message>
@@ -4133,10 +4156,6 @@
         <message>
             <source>Degrees, minutes, seconds</source>
             <translation>Graus, minutos, segundos</translation>
-        </message>
-        <message>
-            <source>Directory holding transformation grid files</source>
-            <translation>Diretório com os arquivos de grade de transformação</translation>
         </message>
         <message>
             <source>Distance unit</source>
@@ -4191,8 +4210,8 @@
             <translation>Atraso zenital estimado com gradientes</translation>
         </message>
         <message>
-            <source>Face-pair distance tolerance (m)</source>
-            <translation>Tolerância de distância entre as duas posições da luneta (m)</translation>
+            <source>Face-pair distance tolerance (m; 0 = from the instrument's EDM)</source>
+            <translation>Tolerância de distância entre faces (m; 0 = do MED do instrumento)</translation>
         </message>
         <message>
             <source>Fitted to base readings first</source>
@@ -4205,6 +4224,10 @@
         <message>
             <source>Foot</source>
             <translation>Pé</translation>
+        </message>
+        <message>
+            <source>From %1 to %2.</source>
+            <translation>De %1 a %2.</translation>
         </message>
         <message>
             <source>GNSS</source>
@@ -4263,10 +4286,6 @@
             <translation>Maior desequilíbrio permitido por estação (m)</translation>
         </message>
         <message>
-            <source>Least squares</source>
-            <translation>Mínimos quadrados</translation>
-        </message>
-        <message>
             <source>Leica</source>
             <translation>Leica</translation>
         </message>
@@ -4303,6 +4322,18 @@
             <translation>Nenhum (cada instrumento aplica o seu)</translation>
         </message>
         <message>
+            <source>None: report the misclosure only (least squares is Network adjustment)</source>
+            <translation>Nenhuma: apenas relatar o erro de fechamento (mínimos quadrados é o Ajustamento de rede)</translation>
+        </message>
+        <message>
+            <source>Not saved: these values are not numbers within their range: %1.</source>
+            <translation>Não salvo: estes valores não são números dentro do seu intervalo: %1.</translation>
+        </message>
+        <message>
+            <source>Not set — each run states its CRS</source>
+            <translation>Não definido — cada execução informa o seu SRC</translation>
+        </message>
+        <message>
             <source>Offer a base map when adding result layers</source>
             <translation>Oferecer um mapa de fundo ao adicionar camadas de resultado</translation>
         </message>
@@ -4337,10 +4368,6 @@
         <message>
             <source>Preferred coordinate reference system</source>
             <translation>Sistema de referência de coordenadas preferido</translation>
-        </message>
-        <message>
-            <source>Preferred transformations, one per line, as source &gt; target &gt; operation</source>
-            <translation>Transformações preferidas, uma por linha, como origem &gt; destino &gt; operação</translation>
         </message>
         <message>
             <source>Product cache (empty: the QGIS profile's folder)</source>
@@ -4447,10 +4474,6 @@
             <translation>Usar um mapa de fundo já presente no projeto, se houver</translation>
         </message>
         <message>
-            <source>Use only a preferred transformation, and refuse otherwise</source>
-            <translation>Usar apenas uma transformação preferida e recusar caso contrário</translation>
-        </message>
-        <message>
             <source>Use only the independent baseline subset</source>
             <translation>Usar apenas o subconjunto independente de linhas de base</translation>
         </message>
@@ -4459,20 +4482,12 @@
             <translation>Usar órbitas rápidas onde as finais ainda não foram publicadas</translation>
         </message>
         <message>
-            <source>Use the most accurate available</source>
-            <translation>Usar a mais acurada disponível</translation>
-        </message>
-        <message>
             <source>Variance inflation for reciprocal sights</source>
             <translation>Inflação da variância para visadas recíprocas</translation>
         </message>
         <message>
             <source>Warning</source>
             <translation>Aviso</translation>
-        </message>
-        <message>
-            <source>When several transformations exist between two systems</source>
-            <translation>Quando houver várias transformações entre dois sistemas</translation>
         </message>
         <message>
             <source>default</source>
@@ -5453,8 +5468,8 @@
             <translation>E (m)</translation>
         </message>
         <message>
-            <source>Ellipse azimuth (°)</source>
-            <translation>Azimute da elipse (°)</translation>
+            <source>Ellipse azimuth</source>
+            <translation>Azimute da elipse</translation>
         </message>
         <message>
             <source>Fix a sighted point from two or more oriented known stations.</source>
@@ -5509,8 +5524,8 @@
             <translation>Relatório</translation>
         </message>
         <message>
-            <source>Residual (")</source>
-            <translation>Resíduo (")</translation>
+            <source>Residual (%1)</source>
+            <translation>Resíduo (%1)</translation>
         </message>
         <message>
             <source>Residuals</source>
@@ -5727,6 +5742,14 @@
     <context>
         <name>LevellingNetworkAlgorithm</name>
         <message>
+            <source>%1 %2: misclosure %3 mm; %4.</source>
+            <translation>%1 %2: erro de fechamento %3 mm; %4.</translation>
+        </message>
+        <message>
+            <source>%1 closure(s) failed their tolerance: %2. GeoComp does not adjust a line that failed its tolerance without an explicit acknowledgement. Re-run the line, or turn on 'Adjust lines that failed their tolerance' for this run or in Global Settings (Levelling).</source>
+            <translation>%1 fechamento(s) falharam na tolerância: %2. O GeoComp não ajusta uma linha que falhou na tolerância sem um reconhecimento explícito. Refaça a linha, ou ative 'Ajustar linhas que falharam na tolerância' nesta execução ou nas Configurações Globais (Nivelamento).</translation>
+        </message>
+        <message>
             <source>'%1' does not hold a number.</source>
             <translation>'%1' não contém um número.</translation>
         </message>
@@ -5743,12 +5766,24 @@
             <translation>Ajusta linhas de nivelamento como uma rede 1D, ponderando por extensão ou por número de estações.</translation>
         </message>
         <message>
+            <source>Adjust lines that failed their tolerance</source>
+            <translation>Ajustar linhas que falharam na tolerância</translation>
+        </message>
+        <message>
+            <source>Adjusted although it failed its tolerance, as acknowledged: %1.</source>
+            <translation>Ajustado embora tenha falhado na tolerância, conforme reconhecido: %1.</translation>
+        </message>
+        <message>
             <source>Adjusted heights</source>
             <translation>Altitudes ajustadas</translation>
         </message>
         <message>
             <source>Adjusting…</source>
             <translation>Ajustando…</translation>
+        </message>
+        <message>
+            <source>Apply the normal orthometric correction</source>
+            <translation>Aplicar a correção ortométrica normal</translation>
         </message>
         <message>
             <source>Benchmarks</source>
@@ -5771,8 +5806,16 @@
             <translation>Candidatos, não rejeições. O GeoComp nunca remove uma observação por si próprio: numa rede de monitorização, o deslocamento que está a ser medido é exatamente aquilo que um removedor automático de erros grosseiros apagaria.</translation>
         </message>
         <message>
+            <source>Closures before adjustment</source>
+            <translation>Fechamentos antes do ajustamento</translation>
+        </message>
+        <message>
             <source>Confidence level</source>
             <translation>Nível de confiança</translation>
+        </message>
+        <message>
+            <source>Correction (mm)</source>
+            <translation>Correção (mm)</translation>
         </message>
         <message>
             <source>Critical value</source>
@@ -5801,6 +5844,10 @@
         <message>
             <source>Degrees of freedom %1; variance factor %2.</source>
             <translation>Graus de liberdade %1; fator de variância %2.</translation>
+        </message>
+        <message>
+            <source>Each line between two benchmarks against the difference of their heights, and each section levelled more than once against its first run, on the section's one-way length. A line that failed is adjusted only when 'Adjust lines that failed their tolerance' is on, and the provenance records which.</source>
+            <translation>Cada linha entre duas referências de nível, face à diferença das suas altitudes, e cada seção nivelada mais de uma vez, face à sua primeira corrida, sobre o comprimento da seção em um só sentido. Uma linha que falhou só é ajustada quando 'Ajustar linhas que falharam na tolerância' está ativo, e a proveniência registra quais.</translation>
         </message>
         <message>
             <source>Epoch (decimal year)</source>
@@ -5851,12 +5898,44 @@
             <translation>Altitudes</translation>
         </message>
         <message>
+            <source>Kind</source>
+            <translation>Tipo</translation>
+        </message>
+        <message>
+            <source>Length (km)</source>
+            <translation>Comprimento (km)</translation>
+        </message>
+        <message>
             <source>Levelling network adjustment</source>
             <translation>Ajustamento de rede de nivelamento</translation>
         </message>
         <message>
+            <source>Line</source>
+            <translation>Linha</translation>
+        </message>
+        <message>
+            <source>Lines</source>
+            <translation>Linhas</translation>
+        </message>
+        <message>
+            <source>Mean height (m)</source>
+            <translation>Altitude média (m)</translation>
+        </message>
+        <message>
+            <source>Mean latitude</source>
+            <translation>Latitude média</translation>
+        </message>
+        <message>
+            <source>Misclosure (mm)</source>
+            <translation>Erro de fechamento (mm)</translation>
+        </message>
+        <message>
             <source>Network</source>
             <translation>Rede</translation>
+        </message>
+        <message>
+            <source>OUT OF TOLERANCE, %1 mm permitted</source>
+            <translation>FORA DA TOLERÂNCIA, %1 mm permitidos</translation>
         </message>
         <message>
             <source>Observation</source>
@@ -5865,6 +5944,14 @@
         <message>
             <source>Observations</source>
             <translation>Observações</translation>
+        </message>
+        <message>
+            <source>Orthometric correction, line %1: %2 mm.</source>
+            <translation>Correção ortométrica, linha %1: %2 mm.</translation>
+        </message>
+        <message>
+            <source>Orthometric corrections</source>
+            <translation>Correções ortométricas</translation>
         </message>
         <message>
             <source>Outlier candidate: %1 (w = %2).</source>
@@ -5895,12 +5982,24 @@
             <translation>Relatório</translation>
         </message>
         <message>
+            <source>Section</source>
+            <translation>Seção</translation>
+        </message>
+        <message>
             <source>Solution</source>
             <translation>Solução</translation>
         </message>
         <message>
             <source>Station</source>
             <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Station id field</source>
+            <translation>Campo do identificador da estação</translation>
+        </message>
+        <message>
+            <source>Station positions (for the orthometric correction)</source>
+            <translation>Posições das estações (para a correção ortométrica)</translation>
         </message>
         <message>
             <source>Stations</source>
@@ -5923,12 +6022,32 @@
             <translation>As linhas formam %1 partes desligadas, pelo que não podem ser ajustadas como uma única rede, qualquer que seja o datum. Nivele entre elas, ou ajuste cada parte separadamente.</translation>
         </message>
         <message>
+            <source>The normal orthometric correction, from the ellipsoid's gravity field, added to each levelled difference before adjustment. Its uncertainty is taken as a tenth of the correction, a stand-in for the normality assumption that no propagation can express. Below 0.1 mm it is smaller than the noise of any levelling.</source>
+            <translation>A correção ortométrica normal, a partir do campo de gravidade do elipsoide, somada a cada desnível nivelado antes do ajustamento. Sua incerteza é tomada como um décimo da correção, um substituto para a hipótese de normalidade que nenhuma propagação consegue expressar. Abaixo de 0,1 mm ela é menor que o ruído de qualquer nivelamento.</translation>
+        </message>
+        <message>
+            <source>The orthometric correction needs approximate heights, and a free network has none: its heights hang from an arbitrary zero. Give at least one benchmark and do not adjust the network as free, or turn the correction off.</source>
+            <translation>A correção ortométrica precisa de altitudes aproximadas, e uma rede livre não as tem: suas altitudes partem de um zero arbitrário. Informe ao menos uma referência de nível e não ajuste a rede como livre, ou desative a correção.</translation>
+        </message>
+        <message>
+            <source>The orthometric correction needs the stations' latitudes. Give a point layer of station positions and the field holding each station's id, or turn the correction off.</source>
+            <translation>A correção ortométrica precisa das latitudes das estações. Informe uma camada de pontos com as posições das estações e o campo com o identificador de cada estação, ou desative a correção.</translation>
+        </message>
+        <message>
             <source>The relative uncertainty is the 1D analogue of the relative error ellipse, and is usually what a levelling network was built to produce. It is not the difference of the two individual uncertainties: adjusted heights are correlated, and two marks at the ends of one well-observed line know their separation far better than either knows its own height.</source>
             <translation>A incerteza relativa é o análogo 1D da elipse de erro relativa e é normalmente aquilo que uma rede de nivelamento foi construída para produzir. Não é a diferença das duas incertezas individuais: as altitudes ajustadas são correlacionadas, e duas referências nos extremos de uma linha bem observada conhecem a sua separação muito melhor do que qualquer delas conhece a sua própria altitude.</translation>
         </message>
         <message>
+            <source>The station positions layer has no valid CRS, so its points cannot be read as latitudes. Set the layer's CRS.</source>
+            <translation>A camada de posições das estações não tem um SRC válido, então seus pontos não podem ser lidos como latitudes. Defina o SRC da camada.</translation>
+        </message>
+        <message>
             <source>To</source>
             <translation>Para</translation>
+        </message>
+        <message>
+            <source>Tolerance coefficient k (m per root km; 0 judges nothing)</source>
+            <translation>Coeficiente de tolerância k (m por raiz de km; 0 não avalia nada)</translation>
         </message>
         <message>
             <source>Uncertainty (mm)</source>
@@ -5951,8 +6070,20 @@
             <translation>Fator de variância</translation>
         </message>
         <message>
+            <source>Verdict</source>
+            <translation>Veredito</translation>
+        </message>
+        <message>
             <source>Weighting</source>
             <translation>Ponderação</translation>
+        </message>
+        <message>
+            <source>What was applied</source>
+            <translation>O que foi aplicado</translation>
+        </message>
+        <message>
+            <source>What was checked</source>
+            <translation>O que foi verificado</translation>
         </message>
         <message>
             <source>Why these are not the individual figures</source>
@@ -5961,6 +6092,10 @@
         <message>
             <source>dH (m)</source>
             <translation>dH (m)</translation>
+        </message>
+        <message>
+            <source>not judged — no tolerance coefficient was configured</source>
+            <translation>não avaliado — nenhum coeficiente de tolerância foi configurado</translation>
         </message>
         <message>
             <source>passed</source>
@@ -5973,6 +6108,10 @@
         <message>
             <source>w</source>
             <translation>w</translation>
+        </message>
+        <message>
+            <source>within the %1 mm permitted</source>
+            <translation>dentro dos %1 mm permitidos</translation>
         </message>
     </context>
     <context>
@@ -6721,8 +6860,8 @@
             <translation>Ao menos uma estação não atende aos %1 m exigidos.</translation>
         </message>
         <message>
-            <source>Azimuth (rad)</source>
-            <translation>Azimute (rad)</translation>
+            <source>Azimuth</source>
+            <translation>Azimute</translation>
         </message>
         <message>
             <source>CSV files (*.csv)</source>
@@ -6920,16 +7059,16 @@
             <translation>Arquivos CSV (*.csv)</translation>
         </message>
         <message>
-            <source>Collimation spread (")</source>
-            <translation>Dispersão da colimação (")</translation>
+            <source>Collimation spread (%1)</source>
+            <translation>Dispersão da colimação (%1)</translation>
         </message>
         <message>
             <source>Collimation tolerance (rad)</source>
             <translation>Tolerância da colimação (rad)</translation>
         </message>
         <message>
-            <source>Direction (°)</source>
-            <translation>Direção (°)</translation>
+            <source>Direction</source>
+            <translation>Direção</translation>
         </message>
         <message>
             <source>Distance/zenith correlation (-2 = unknown)</source>
@@ -6964,12 +7103,12 @@
             <translation>Arquivos HTML (*.html)</translation>
         </message>
         <message>
-            <source>Height difference (m)</source>
-            <translation>Desnível (m)</translation>
+            <source>Height difference (%1)</source>
+            <translation>Desnível (%1)</translation>
         </message>
         <message>
-            <source>Horizontal distance (m)</source>
-            <translation>Distância horizontal (m)</translation>
+            <source>Horizontal distance (%1)</source>
+            <translation>Distância horizontal (%1)</translation>
         </message>
         <message>
             <source>Instrument profiles</source>
@@ -6980,12 +7119,12 @@
             <translation>Diagnósticos instrumentais</translation>
         </message>
         <message>
-            <source>Mean collimation (")</source>
-            <translation>Colimação média (")</translation>
+            <source>Mean collimation (%1)</source>
+            <translation>Colimação média (%1)</translation>
         </message>
         <message>
-            <source>Mean index error (")</source>
-            <translation>Erro de índice médio (")</translation>
+            <source>Mean index error (%1)</source>
+            <translation>Erro de índice médio (%1)</translation>
         </message>
         <message>
             <source>Pre-processing report</source>
@@ -7064,8 +7203,8 @@
             <translation>Utilizável</translation>
         </message>
         <message>
-            <source>Zenith (°)</source>
-            <translation>Zenital (°)</translation>
+            <source>Zenith</source>
+            <translation>Zênite</translation>
         </message>
         <message>
             <source>no</source>
@@ -7351,8 +7490,8 @@
             <translation>N (m)</translation>
         </message>
         <message>
-            <source>Orientation (°)</source>
-            <translation>Orientação (°)</translation>
+            <source>Orientation</source>
+            <translation>Orientação</translation>
         </message>
         <message>
             <source>Orientations</source>
@@ -7391,8 +7530,8 @@
             <translation>Origem</translation>
         </message>
         <message>
-            <source>Spread (")</source>
-            <translation>Dispersão (")</translation>
+            <source>Spread (%1)</source>
+            <translation>Dispersão (%1)</translation>
         </message>
         <message>
             <source>Station</source>
@@ -7427,8 +7566,8 @@
             <translation>Altura do alvo (m)</translation>
         </message>
         <message>
-            <source>The known points sighted from '%1' imply orientations spread over %2 arcsec, against %3 expected from the pointing precision. One of them is probably not where it is recorded, and every point radiated from this setup carries that error.</source>
-            <translation>Os pontos conhecidos visados a partir de '%1' implicam orientações com dispersão de %2 segundos de arco, contra %3 esperados pela precisão da pontaria. Provavelmente um deles não está onde está registrado, e todo ponto irradiado desta estação carrega esse erro.</translation>
+            <source>The known points sighted from '%1' imply orientations spread over %2 %4, against %3 %4 expected from the pointing precision. One of them is probably not where it is recorded, and every point radiated from this setup carries that error.</source>
+            <translation>Os pontos conhecidos visados de '%1' implicam orientações dispersas em %2 %4, contra %3 %4 esperados pela precisão de pontaria. Um deles provavelmente não está onde foi registrado, e todo ponto irradiado deste estacionamento carrega esse erro.</translation>
         </message>
         <message>
             <source>The known stations document is empty.</source>
@@ -7572,16 +7711,16 @@
             <translation>Relatório da interseção inversa</translation>
         </message>
         <message>
-            <source>Residual (")</source>
-            <translation>Resíduo (")</translation>
+            <source>Residual (%1)</source>
+            <translation>Resíduo (%1)</translation>
         </message>
         <message>
             <source>Residuals</source>
             <translation>Resíduos</translation>
         </message>
         <message>
-            <source>Setup orientation (°)</source>
-            <translation>Orientação do estacionamento (°)</translation>
+            <source>Setup orientation</source>
+            <translation>Orientação do estacionamento</translation>
         </message>
         <message>
             <source>Station</source>
@@ -7793,12 +7932,12 @@
             <translation>Uma poligonal precisa de ao menos duas estações em seu percurso.</translation>
         </message>
         <message>
-            <source>Angular misclosure %1 arcsec.</source>
-            <translation>Erro angular de fechamento %1 segundos de arco.</translation>
+            <source>Angular misclosure %1 %2.</source>
+            <translation>Erro angular de fechamento %1 %2.</translation>
         </message>
         <message>
-            <source>Angular misclosure (")</source>
-            <translation>Erro angular de fechamento (")</translation>
+            <source>Angular misclosure (%1)</source>
+            <translation>Erro angular de fechamento (%1)</translation>
         </message>
         <message>
             <source>Angular tolerance per station (°)</source>
@@ -7901,12 +8040,12 @@
             <translation>Aberta</translation>
         </message>
         <message>
-            <source>Perimeter %1 m.</source>
-            <translation>Perímetro %1 m.</translation>
+            <source>Perimeter %1 %2.</source>
+            <translation>Perímetro %1 %2.</translation>
         </message>
         <message>
-            <source>Perimeter (m)</source>
-            <translation>Perímetro (m)</translation>
+            <source>Perimeter (%1)</source>
+            <translation>Perímetro (%1)</translation>
         </message>
         <message>
             <source>Property</source>
@@ -8032,8 +8171,8 @@
             <translation>Arquivos HTML (*.html)</translation>
         </message>
         <message>
-            <source>Height difference (m)</source>
-            <translation>Desnível (m)</translation>
+            <source>Height difference (%1)</source>
+            <translation>Desnível (%1)</translation>
         </message>
         <message>
             <source>Height differences</source>
