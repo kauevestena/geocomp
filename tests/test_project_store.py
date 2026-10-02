@@ -62,6 +62,25 @@ from geocomp.io.store.migrations import (
 )
 from geocomp.io.store.schema import ColumnKind, ddl, quoted
 
+#: What each schema version added, so a test can build a store of an older
+#: version from a current one by taking the additions back out.
+ADDED_IN = {
+    2: [("gc_observation", "instrument_height"), ("gc_observation", "target_height")],
+    3: [("gc_adjusted_station", "gravity")],
+    4: [("gc_project", "revision"), ("gc_network_member", "ordinal")],
+}
+
+
+def downgrade(path, version: int) -> None:
+    """Make the store at *path* a schema-*version* store, as an older GeoComp wrote it."""
+    connection = sqlite3.connect(path)
+    with connection:
+        for later in range(version + 1, SCHEMA_VERSION + 1):
+            for table_name, column in ADDED_IN[later]:
+                connection.execute(f'ALTER TABLE "{table_name}" DROP COLUMN "{column}"')
+        connection.execute('UPDATE "gc_project" SET schema_version = ?', (version,))
+    connection.close()
+
 
 @pytest.fixture
 def reference():
@@ -549,13 +568,7 @@ class TestVersioning:
         zero would turn "we do not know" into "the instrument stood on the mark".
         """
         path, *_ = stored
-        connection = sqlite3.connect(path)
-        with connection:
-            for column in ("instrument_height", "target_height"):
-                connection.execute(f'ALTER TABLE "gc_observation" DROP COLUMN "{column}"')
-            connection.execute('ALTER TABLE "gc_adjusted_station" DROP COLUMN "gravity"')
-            connection.execute('UPDATE "gc_project" SET schema_version = 1')
-        connection.close()
+        downgrade(path, 1)
 
         connection = sqlite3.connect(path)
         report = migrate(connection, path, found=1)
@@ -586,11 +599,7 @@ class TestVersioning:
         -- none could be written before P8 -- so the column arrives empty and
         every existing adjusted station reads back with no gravity."""
         path, *_ = stored
-        connection = sqlite3.connect(path)
-        with connection:
-            connection.execute('ALTER TABLE "gc_adjusted_station" DROP COLUMN "gravity"')
-            connection.execute('UPDATE "gc_project" SET schema_version = 2')
-        connection.close()
+        downgrade(path, 2)
 
         connection = sqlite3.connect(path)
         report = migrate(connection, path, found=2)
@@ -599,12 +608,63 @@ class TestVersioning:
         }
         connection.close()
 
-        assert report.steps == ["3: gc_adjusted_station gains gravity"]
+        assert report.steps[0] == "3: gc_adjusted_station gains gravity"
         assert "gravity" in columns
         with open_store(path) as store:
             solutions = store.read_solutions()
         stations = [station for solution in solutions for station in solution.adjusted_stations]
         assert stations and all(station.gravity is None for station in stations)
+
+    def test_a_schema_three_store_keeps_its_order_and_starts_at_revision_zero(
+        self, stored, reference
+    ):
+        """Phase P11's migration. Before schema 4 a network's order was SQLite's
+        row order; the migration writes that order down, so a migrated network
+        reads back exactly as it did before, and the revision starts at 0."""
+        path, *_ = stored
+        with open_store(path) as store:
+            before = store.read()
+        downgrade(path, 3)
+
+        connection = sqlite3.connect(path)
+        report = migrate(connection, path, found=3)
+        ordinals = [
+            row[0]
+            for row in connection.execute('SELECT "ordinal" FROM "gc_network_member"')
+        ]
+        revision = connection.execute('SELECT "revision" FROM "gc_project"').fetchone()[0]
+        connection.close()
+
+        assert report.steps == ["4: gc_project gains revision; gc_network_member gains ordinal"]
+        assert ordinals and None not in ordinals
+        assert revision == 0
+        with open_store(path) as store:
+            after = store.read()
+        for identifier, network in before.networks.items():
+            assert list(after.networks[identifier].stations) == list(network.stations)
+            assert list(after.networks[identifier].observations) == list(network.observations)
+
+    def test_a_failed_step_leaves_the_store_as_it_was(self, stored, monkeypatch):
+        """Each migration chain is one transaction, including its first
+        ``ALTER TABLE``. In Python's legacy sqlite3 mode an ALTER opens no
+        transaction of its own, so before P11 a chain's first column was
+        committed even when a later step failed."""
+        path, *_ = stored
+        downgrade(path, 3)
+
+        def broken(target):
+            raise RuntimeError("a step that fails")
+
+        monkeypatch.setattr("geocomp.io.store.migrations.SCHEMA_VERSION", 5)
+        monkeypatch.setitem(MIGRATIONS, 5, ("fails", broken))
+        connection = sqlite3.connect(path)
+        with pytest.raises(RuntimeError):
+            migrate(connection, path, found=3, take_backup=False)
+        columns = {row[1] for row in connection.execute('PRAGMA table_info("gc_project")')}
+        version = connection.execute('SELECT schema_version FROM "gc_project"').fetchone()[0]
+        connection.close()
+        assert "revision" not in columns
+        assert version == 3
 
     def test_the_machinery_runs_a_registered_migration(self, stored, monkeypatch):
         """The chain is empty today, so the machinery is exercised with a
@@ -617,7 +677,7 @@ class TestVersioning:
         monkeypatch.setitem(
             MIGRATIONS,
             2,
-            ("adds a column nobody needs", lambda connection: applied.append("ran")),
+            ("adds a column nobody needs", lambda target: applied.append("ran")),
         )
 
         connection = sqlite3.connect(path)
@@ -725,6 +785,106 @@ class TestTheSchemaIsDeclaredOnce:
         column = lookup("gc_observation_result").column("observation_id")
         assert column.references == "gc_observation.id"
         assert column.restrict
+
+
+class TestConcurrentSaves:
+    """``specs/17`` section 4: a concurrent modification is detected on save
+    rather than overwritten -- on a GeoPackage too, which two QGIS sessions can
+    have open on a shared drive (phase P11)."""
+
+    def test_a_save_after_someone_elses_is_refused(self, stored):
+        path, _, solution, _ = stored
+        mine, theirs = open_store(path), open_store(path)
+        try:
+            mine.read()
+            theirs.read()
+            theirs.delete_solution(solution.id)
+            with pytest.raises(DataError) as caught:
+                mine.write_solution(solution)
+            assert caught.value.code == "data.store_modified_concurrently"
+        finally:
+            mine.close()
+            theirs.close()
+        with open_store(path) as store:
+            assert store.read_solutions() == []
+
+    def test_reading_again_accepts_what_was_saved(self, stored):
+        path, _, solution, _ = stored
+        mine, theirs = open_store(path), open_store(path)
+        try:
+            theirs.delete_solution(solution.id)
+            mine.read()
+            mine.write_solution(solution)
+            assert mine.revision == theirs.revision + 1
+        finally:
+            mine.close()
+            theirs.close()
+
+    def test_every_save_advances_the_revision(self, stored):
+        path, _, solution, _ = stored
+        with open_store(path) as store:
+            before = store.revision
+            store.write_solution(solution)
+            assert store.revision == before + 1
+            assert store._stored_revision() == store.revision
+
+    def test_a_refused_save_changes_nothing(self, stored):
+        path, project, solution, _ = stored
+        mine, theirs = open_store(path), open_store(path)
+        try:
+            mine.read()
+            theirs.write_solution(solution)
+            with pytest.raises(DataError):
+                mine.write(Project(id="replacement"))
+        finally:
+            mine.close()
+            theirs.close()
+        with open_store(path) as store:
+            assert store.read().id == project.id
+
+
+class TestReSavingASolution:
+    """Before P11 the store wrote with SQLite's ``INSERT OR REPLACE``, which
+    deletes the old row first: re-saving a stored solution failed on its own
+    provenance (a restricting foreign key), and a replace that got through set
+    every ``superseded_by`` pointing at it to NULL."""
+
+    def test_it_replaces_the_stored_one(self, stored):
+        path, _, solution, _ = stored
+        changed = dataclasses.replace(solution, crs="EPSG:31983")
+        with open_store(path) as store:
+            store.write_solution(changed)
+            (back,) = store.read_solutions()
+        assert back.crs == "EPSG:31983"
+        assert len(back.adjusted_stations) == len(solution.adjusted_stations)
+        assert len(back.observation_results) == len(solution.observation_results)
+
+    def test_what_points_at_it_still_does(self, stored):
+        path, _, solution, _ = stored
+        later = dataclasses.replace(solution, id="s2")
+        with open_store(path) as store:
+            store.write_solution(later)
+            store.supersede_solution("s1", "s2")
+            store.write_solution(later)
+            back = {entry.id: entry for entry in store.read_solutions()}
+        assert back["s1"].superseded_by == "s2"
+
+
+class TestTheOrderIsRecorded:
+    """Schema 4: a network's order is written down, not left to SQLite's row order."""
+
+    def test_stations_and_observations_read_back_in_the_order_written(self, tmp_path):
+        network = Network(id="ordered", crs="EPSG:31982")
+        for identifier in ("b", "A10", "a2", "Z"):
+            network.add_station(Station(id=identifier))
+        project = Project(id="p")
+        project.add_network(network)
+        path = tmp_path / "p.gpkg"
+        with open_store(path, create=True) as store:
+            store.write(project)
+        with open_store(path) as store:
+            back = store.read()
+        assert list(back.networks["ordered"].stations) == ["b", "A10", "a2", "Z"]
 
 
 class TestWritingDoesNotDiscardResults:

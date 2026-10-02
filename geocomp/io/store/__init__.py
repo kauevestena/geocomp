@@ -5,25 +5,32 @@
 default and canonical store; PostGIS is its mirror with an identical logical
 schema, driven from the same declarations in :mod:`geocomp.io.store.schema`.
 
-**What is built and what is not.** The GeoPackage backend is complete and
-tested. The PostGIS backend is *not built*: there is no PostgreSQL server in
-this project's environments, so its round-trip acceptance criterion cannot be
-demonstrated, and shipping an untested storage backend for the one part of the
-system whose job is not losing data would be worse than shipping none. What is
-here for it is the shared schema and its physical type mapping, so the two
-cannot drift apart before the backend arrives.
+Since phase P11 both are built: what a store does with a project is written
+once, in :mod:`geocomp.io.store.base`; :mod:`~geocomp.io.store.geopackage` and
+:mod:`~geocomp.io.store.postgis` supply only what their backend does
+differently; and :mod:`~geocomp.io.store.transfer` moves a project between them
+table by table, then compares every table to show nothing was lost.
 """
 
 from __future__ import annotations
 
+from geocomp.io.store.base import ProjectStore
 from geocomp.io.store.geopackage import GeoPackageStore, open_store
+from geocomp.io.store.postgis import PostgisStore, open_postgis_store
 from geocomp.io.store.schema import SCHEMA, SCHEMA_VERSION, Table, table, table_names
+from geocomp.io.store.transfer import CopyReport, copy_store, differences
 
 __all__ = [
     "SCHEMA",
     "SCHEMA_VERSION",
+    "CopyReport",
     "GeoPackageStore",
+    "PostgisStore",
+    "ProjectStore",
     "Table",
+    "copy_store",
+    "differences",
+    "open_postgis_store",
     "open_store",
     "table",
     "table_names",

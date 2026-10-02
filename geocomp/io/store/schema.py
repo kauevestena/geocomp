@@ -42,13 +42,16 @@ from dataclasses import dataclass
 from enum import Enum
 
 __all__ = [
+    "POSTGRES",
     "SCHEMA",
     "SCHEMA_VERSION",
+    "SQLITE",
     "Column",
     "ColumnKind",
     "GeometryKind",
     "Table",
     "ddl",
+    "geometry_type",
     "index_ddl",
     "physical_type",
     "quoted",
@@ -61,7 +64,12 @@ __all__ = [
 #: with a migration added in :mod:`geocomp.io.store.migrations`. A monitoring
 #: project accumulates epochs over years and outlives several plugin releases,
 #: so this is load-bearing rather than ceremonial.
-SCHEMA_VERSION = 3
+#:
+#: Schema 4 (phase P11) added ``gc_project.revision``, which is how a save
+#: detects that someone else saved first, and ``gc_network_member.ordinal``,
+#: which records the order of a network's stations and observations instead of
+#: leaving it to SQLite's row order -- an order PostgreSQL does not keep.
+SCHEMA_VERSION = 4
 
 
 class ColumnKind(Enum):
@@ -193,6 +201,14 @@ SCHEMA: tuple[Table, ...] = (
             _stamp("created"),
             _stamp("modified"),
             _text("geocomp_version"),
+            _int(
+                "revision",
+                note=(
+                    "Incremented by every save. A save compares it with the revision "
+                    "it read and refuses when they differ, so a concurrent save is "
+                    "detected rather than overwritten (specs/17 section 4)"
+                ),
+            ),
         ),
         note="One row. The schema version lives here and nowhere else (FR-133).",
     ),
@@ -368,6 +384,14 @@ SCHEMA: tuple[Table, ...] = (
             _text("network_id", primary_key=True, references="gc_network.id"),
             _text("member_kind", primary_key=True, note="station, observation or cluster"),
             _text("member_id", primary_key=True),
+            _int(
+                "ordinal",
+                note=(
+                    "The member's position in the network. A network's stations and "
+                    "observations have an order -- the field book's -- and before "
+                    "schema 4 it survived only as SQLite's row order"
+                ),
+            ),
         ),
         note=(
             "A network is a *selection*, so membership is its own table: one "
@@ -537,25 +561,51 @@ def table_names() -> tuple[str, ...]:
     return tuple(entry.name for entry in SCHEMA)
 
 
-#: Physical types per backend. The PostgreSQL column is written from the
-#: documented type mapping and is **not exercised by any test**: there is no
-#: PostgreSQL server in this project's environments. It is here because
-#: ADR-0006 requires one schema definition to drive both, and leaving the
-#: mapping out would guarantee the two drift. It is not a claim that the
-#: PostGIS backend works; see ``specs/17`` section 4.
+#: Physical types per backend, exercised against a real PostgreSQL with PostGIS
+#: since phase P11 (``tests/test_postgis_store.py``). Two choices in the
+#: PostgreSQL column are not the obvious ones, and both are about losing
+#: nothing:
+#:
+#: * **Text is collated ``"C"``.** SQLite compares text byte by byte; a
+#:   PostgreSQL database compares it by its locale, so ``ORDER BY station_id``
+#:   would put ``a2`` and ``A10`` in a different order on the two backends, and
+#:   a project would read back in a different order depending on where it was
+#:   kept. ``"C"`` is byte order, which is SQLite's.
+#: * **JSON is ``text``, not ``jsonb``.** P5 planned ``jsonb``. It cannot hold
+#:   ``NaN``, which a zero-redundancy solution's global test stores as its
+#:   statistic, so a valid project would be refused; and it rewrites the
+#:   document's text, so a round trip would be equal only after parsing.
+#:   ``text`` keeps both. A query can still cast a column with ``::jsonb``.
 _PHYSICAL: dict[ColumnKind, tuple[str, str]] = {
-    ColumnKind.TEXT: ("TEXT", "text"),
+    ColumnKind.TEXT: ("TEXT", 'text COLLATE "C"'),
     ColumnKind.INTEGER: ("INTEGER", "bigint"),
     ColumnKind.REAL: ("REAL", "double precision"),
     ColumnKind.BOOLEAN: ("INTEGER", "boolean"),
-    ColumnKind.JSON: ("TEXT", "jsonb"),
+    ColumnKind.JSON: ("TEXT", 'text COLLATE "C"'),
     ColumnKind.BLOB: ("BLOB", "bytea"),
-    ColumnKind.TIMESTAMP: ("TEXT", "text"),
+    ColumnKind.TIMESTAMP: ("TEXT", 'text COLLATE "C"'),
 }
 
 SQLITE, POSTGRES = "sqlite", "postgres"
 
-_GEOMETRY_TYPE = {SQLITE: "BLOB", POSTGRES: "geometry"}
+_POSTGIS_GEOMETRY = {
+    GeometryKind.POINT: "geometry(Point)",
+    GeometryKind.LINESTRING: "geometry(LineString)",
+}
+
+
+def geometry_type(kind: GeometryKind, backend: str = SQLITE) -> str:
+    """The geometry column's physical type.
+
+    A typed PostGIS column with no SRID: each project's stations carry their
+    own network's CRS, and an unconstrained SRID is what lets one table hold
+    them. (``geometry(Point)`` accepts any SRID; checked against PostGIS 3.4.)
+    """
+    if backend == SQLITE:
+        return "BLOB"
+    if backend == POSTGRES:
+        return _POSTGIS_GEOMETRY[kind]
+    raise ValueError(f"unknown backend {backend!r}")
 
 
 def physical_type(kind: ColumnKind, backend: str = SQLITE) -> str:
@@ -592,7 +642,7 @@ def ddl(entry: Table, backend: str = SQLITE) -> str:
         lines.append(piece)
 
     if entry.geometry is not None:
-        lines.append(f"  {quoted('geom')} {_GEOMETRY_TYPE[backend]}")
+        lines.append(f"  {quoted('geom')} {geometry_type(entry.geometry, backend)}")
 
     keys = ", ".join(quoted(name) for name in entry.primary_key)
     lines.append(f"  PRIMARY KEY ({keys})")
@@ -602,10 +652,14 @@ def ddl(entry: Table, backend: str = SQLITE) -> str:
             continue
         target_table, target_column = column.references.split(".", 1)
         action = "RESTRICT" if column.restrict else "SET NULL"
+        # Deferrable in PostgreSQL so that copying a store can insert a solution
+        # before the solution it was superseded by; immediate unless a
+        # transaction asks otherwise, which is SQLite's behaviour too.
+        deferrable = " DEFERRABLE INITIALLY IMMEDIATE" if backend == POSTGRES else ""
         lines.append(
             f"  FOREIGN KEY ({quoted(column.name)}) "
             f"REFERENCES {quoted(target_table)}({quoted(target_column)}) "
-            f"ON DELETE {action}"
+            f"ON DELETE {action}{deferrable}"
         )
 
     body = ",\n".join(lines)
