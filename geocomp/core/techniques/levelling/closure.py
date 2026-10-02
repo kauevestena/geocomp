@@ -53,6 +53,7 @@ __all__ = [
     "SetupShare",
     "line_closure",
     "loop_closure",
+    "section_closure",
 ]
 
 #: |w| beyond which a misclosure is called inconsistent with the observations'
@@ -253,6 +254,64 @@ def loop_closure(
     )
 
 
+def section_closure(
+    first: LineReduction,
+    second: LineReduction,
+    *,
+    levelling_class: LevellingClass | None = None,
+    weighting: str = "length",
+) -> ClosureCheck:
+    """Close a section levelled twice -- forward and back, usually -- on itself (FR-503).
+
+    The two runs must join the same two stations, in either direction, and
+    GeoComp orients them from the station ids rather than trusting a sign
+    entered by hand. Their discrepancy is the first run's difference minus the
+    second's, oriented the same way: zero for perfect runs.
+
+    **Judged on the section's one-way length**, the shorter of the two runs'.
+    A section tolerance is stated per section, and two runs over the same 2 km
+    are not a 4 km loop: judging them as one would loosen the tolerance by
+    sqrt(2). The shorter run is the conservative reading where the two
+    recorded lengths differ.
+    """
+    ends = {first.from_station, first.to_station}
+    if {second.from_station, second.to_station} != ends or len(ends) != 2:
+        raise ValidationError(
+            "section_runs_disagree",
+            received=[
+                [first.from_station, first.to_station],
+                [second.from_station, second.to_station],
+            ],
+            expected="two runs between the same two stations, in either direction",
+        )
+    oriented = (
+        second.height_difference
+        if second.from_station == first.from_station
+        else -second.height_difference
+    )
+    misclosure = first.height_difference.value - oriented.value
+    variance = first.height_difference.variance + second.height_difference.variance
+    uncertainty = Quantity(
+        value=misclosure,
+        variance=variance,
+        unit=Unit.METRE,
+        mode=first.height_difference.mode,
+        strategies=first.height_difference.strategies | second.height_difference.strategies,
+    )
+    lengths = [run.length_km for run in (first, second)]
+    return _assemble(
+        kind="section",
+        identifier=f"{first.line_id}/{second.line_id}",
+        misclosure=misclosure,
+        sigma=math.sqrt(variance),
+        uncertainty=uncertainty,
+        reductions=[first, second],
+        levelling_class=levelling_class,
+        weighting=weighting,
+        length_km=None if None in lengths else min(float(value) for value in lengths),
+    )
+
+
 def _assemble(
     *,
     kind: str,
@@ -263,11 +322,13 @@ def _assemble(
     reductions: list[LineReduction],
     levelling_class: LevellingClass | None,
     weighting: str,
+    length_km: float | None = None,
 ) -> ClosureCheck:
-    lengths = [reduction.length_km for reduction in reductions]
-    length_km = None if any(value is None for value in lengths) else math.fsum(
-        float(value) for value in lengths
-    )
+    if length_km is None:
+        lengths = [reduction.length_km for reduction in reductions]
+        length_km = None if any(value is None for value in lengths) else math.fsum(
+            float(value) for value in lengths
+        )
     setup_count = sum(reduction.setup_count for reduction in reductions)
 
     permissible: float | None = None

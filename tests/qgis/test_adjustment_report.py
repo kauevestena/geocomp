@@ -422,3 +422,30 @@ class TestTheTechniquesSection:
         html, omitted = _render(solution, context)
         assert omitted == []
         assert "<h2>Techniques</h2>" not in html
+
+
+class TestTheDisplaySettingsReachIt:
+    """``interface.coordinate_decimals`` and its neighbours, read by nothing until P12a."""
+
+    def test_coordinates_are_written_to_the_configured_places(self, adjusted, context):
+        import dataclasses
+
+        from geocomp.core.display_format import DisplayFormat
+
+        _network, solution = adjusted
+        station = sorted(solution.adjusted_stations, key=lambda s: s.station_id)[0]
+        value = station.position.values[-1].value
+        for places in (2, 6):
+            shown = dataclasses.replace(context, display=DisplayFormat(coordinate_decimals=places))
+            html, _ = _render(solution, shown)
+            assert f">{value:.{places}f}<" in html
+
+    def test_the_rendering_still_depends_on_nothing_but_its_inputs(self, adjusted, context):
+        """NFR-007: the format arrives in the context; nothing reads a setting mid-render."""
+        from geocomp.services.settings_service import settings
+
+        _network, solution = adjusted
+        first, _ = _render(solution, context)
+        with settings.run_overrides({"interface.coordinate_decimals": 1}):
+            second, _ = _render(solution, context)
+        assert first == second

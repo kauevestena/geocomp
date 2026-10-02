@@ -54,6 +54,9 @@ NOT_PARAMETER_KEYS = frozenset(
         "WGS84",
         "ITRF2014",
         "ITRF2020",
+        # Constant names a test searches the sources for (test_basic_advanced_identity).
+        "MODE_ADVANCED",
+        "MODE_BASIC",
         # Environment variables a test sets or reads.
         "PATH",
         "HOME",

@@ -35,6 +35,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.project.common import read_network, read_solution
 from geocomp.core.errors import GeoCompError
 
@@ -139,6 +140,7 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
         report_context = ReportContext(
             network=network,
             qgis_version=Qgis.QGIS_VERSION,
+            display=display_format(),
             parameter_scopes=self._scopes(feedback),
             template_directory=str(Path(template).parent) if template else "",
             template_name=Path(template).name if template else "adjustment.html",

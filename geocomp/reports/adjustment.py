@@ -46,6 +46,7 @@ from geocomp.algorithms.reporting import (
     render_note,
     render_table,
 )
+from geocomp.core.display_format import DisplayFormat
 from geocomp.core.models import Network, Solution
 from geocomp.core.uncertainty import UncertaintyMode
 from geocomp.core.units import convert
@@ -74,6 +75,10 @@ class ReportContext:
         gravity_unit: ``"mgal"`` or ``"ugal"``: how a gravity solution's values
             and residuals are shown (FR-067). Display only; the solution is in
             m/s^2 and says so.
+        display: How coordinates and angles are written -- the interface
+            settings, resolved by the caller so that rendering stays a pure
+            function of its inputs (NFR-007). The default is the settings'
+            defaults.
     """
 
     network: Network | None = None
@@ -82,6 +87,7 @@ class ReportContext:
     template_directory: str = ""
     template_name: str = "adjustment.html"
     gravity_unit: str = "mgal"
+    display: DisplayFormat = field(default_factory=DisplayFormat)
 
 
 def _heading(text: str) -> str:
@@ -288,7 +294,10 @@ def _gravity_results(solution: Solution, unit: str) -> str:
     )
 
 
-def _results(solution: Solution, gravity_unit: str = "mgal") -> str:
+def _results(
+    solution: Solution, gravity_unit: str = "mgal", display: DisplayFormat | None = None
+) -> str:
+    display = display or DisplayFormat()
     if not solution.adjusted_stations:
         return _heading(_tr("Results")) + render_note(
             _tr("This solution adjusted no station."), label=_tr("Results")
@@ -301,7 +310,7 @@ def _results(solution: Solution, gravity_unit: str = "mgal") -> str:
         rows.append(
             [
                 escape(station.station_id),
-                *[format_number(quantity.value, 5) for quantity in values],
+                *[display.coordinate(quantity.value) for quantity in values],
                 *[format_number(quantity.std_dev * 1000.0, 2) for quantity in values],
                 format_number(
                     station.positional_uncertainty * 1000.0
@@ -723,13 +732,14 @@ def _reliability(solution: Solution) -> str:
     return body
 
 
-def _ellipses(solution: Solution) -> str:
+def _ellipses(solution: Solution, display: DisplayFormat | None = None) -> str:
+    display = display or DisplayFormat()
     rows = [
         [
             escape(station.station_id),
             format_number(station.ellipse.semi_major * 1000.0, 3),
             format_number(station.ellipse.semi_minor * 1000.0, 3),
-            format_number(station.ellipse.orientation, 5),
+            display.angle(station.ellipse.orientation),
             format_number(station.ellipse.confidence, 3),
         ]
         for station in sorted(solution.adjusted_stations, key=lambda s: s.station_id)
@@ -748,7 +758,7 @@ def _ellipses(solution: Solution) -> str:
             escape(_tr("Station")),
             escape(_tr("Semi-major (mm)")),
             escape(_tr("Semi-minor (mm)")),
-            escape(_tr("Orientation (rad)")),
+            escape(_tr("Orientation")),
             escape(_tr("Confidence")),
         ],
         rows,
@@ -846,12 +856,12 @@ def build_sections(
         "uncertainty_notice": _uncertainty_notice(solution),
         "inputs": _inputs(solution, context.network),
         "parameters": _parameters(context),
-        "results": _results(solution, context.gravity_unit),
+        "results": _results(solution, context.gravity_unit, context.display),
         "statistics": _statistics(solution),
         "techniques": _techniques(solution),
         "observation_results": _observation_results(solution, context.gravity_unit),
         "reliability": _reliability(solution),
-        "ellipses": _ellipses(solution),
+        "ellipses": _ellipses(solution, context.display),
         "provenance": _provenance(solution),
         "software": _software(solution, context, template),
     }

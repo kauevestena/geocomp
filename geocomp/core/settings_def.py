@@ -23,6 +23,7 @@ GNSS in P7, Gravimeter in P8.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -195,12 +196,19 @@ LANGUAGE_SYSTEM = "system"
 #: strings because a setting value is stored text, not a Python enum.
 ATMOSPHERIC_MODELS = ("barrell_sears", "leica", "trimble")
 
-#: Values for ``total_station.traverse_adjustment``. Both are offered and clearly
-#: distinguished: the classical rules are what students are taught and what many
-#: specifications still require, and they are *not* least squares (specs/09 §4.1).
+#: Values for ``total_station.traverse_adjustment``: the classical rule the
+#: *Traverse* algorithm applies by default. They are what students are taught and
+#: what many specifications still require, and they are *not* least squares
+#: (specs/09 §4.1).
+#:
+#: Until P12a the setting also offered ``least_squares``, and defaulted to it --
+#: a choice the Traverse algorithm has no way to honour. specs/09's rigorous path
+#: is a different algorithm, *Network adjustment*, which adjusts the same reduced
+#: observations by least squares; both paths stay offered. The setting now offers
+#: what it governs, and defaults to the rule the algorithm always used.
 TRAVERSE_COMPASS = "compass"
 TRAVERSE_TRANSIT = "transit"
-TRAVERSE_LEAST_SQUARES = "least_squares"
+TRAVERSE_NONE = "none"
 
 #: Values for ``level.weighting`` (FR-504). Length weighting suits long lines
 #: with consistent sight lengths; setup weighting suits short, irregular ones
@@ -208,17 +216,8 @@ TRAVERSE_LEAST_SQUARES = "least_squares"
 #: other, which is why specs/10 section 4 offers both rather than picking one.
 WEIGHTING_LENGTH = "length"
 WEIGHTING_SETUPS = "setups"
-
-#: Values for ``reference_systems.transformation_choice`` (FR-065). How to pick
-#: an operation when PROJ offers several between two CRSs. ``ask`` is the
-#: default deliberately: the operations differ by metres where a grid file is
-#: missing, and picking the most accurate *available* one silently is how a
-#: project acquires a datum shift nobody chose. ``most_accurate`` suits a
-#: batch run where being asked is not possible; ``preferred_only`` refuses
-#: rather than substitute, for an organisation with a mandated path.
-TRANSFORMATION_ASK = "ask"
-TRANSFORMATION_MOST_ACCURATE = "most_accurate"
-TRANSFORMATION_PREFERRED_ONLY = "preferred_only"
+#: In the order the algorithms offer them, so a choice's index is its enum value.
+WEIGHTINGS = (WEIGHTING_LENGTH, WEIGHTING_SETUPS)
 
 SETTINGS: tuple[SettingDef, ...] = (
     # -- Total Station (FR-061, FR-062). Added in phase P3. -------------------
@@ -304,11 +303,16 @@ SETTINGS: tuple[SettingDef, ...] = (
         maximum=1.0,
         requirement="FR-405",
     ),
+    # Zero is "from the instrument": three times the face-pair difference the
+    # EDM's own specification allows, which is the right threshold, and what
+    # Preprocess's parameter always defaulted to. Until P12a this said 0.005
+    # and nothing read it -- it mirrored the core's last-resort constant for an
+    # instrument with no specification, not anything a run used.
     SettingDef(
         key="total_station.face_distance_tolerance",
         section="total_station",
         type=SettingType.FLOAT,
-        default=0.005,
+        default=0.0,
         minimum=0.0,
         maximum=10.0,
         requirement="FR-400",
@@ -326,8 +330,8 @@ SETTINGS: tuple[SettingDef, ...] = (
         key="total_station.traverse_adjustment",
         section="total_station",
         type=SettingType.CHOICE,
-        default=TRAVERSE_LEAST_SQUARES,
-        choices=(TRAVERSE_LEAST_SQUARES, TRAVERSE_COMPASS, TRAVERSE_TRANSIT),
+        default=TRAVERSE_COMPASS,
+        choices=(TRAVERSE_COMPASS, TRAVERSE_TRANSIT, TRAVERSE_NONE),
         requirement="FR-406",
     ),
     SettingDef(
@@ -343,7 +347,10 @@ SETTINGS: tuple[SettingDef, ...] = (
         key="total_station.traverse_angular_tolerance_per_station",
         section="total_station",
         type=SettingType.FLOAT,
-        default=1.45e-4,
+        # Thirty arcseconds, exactly. It was 1.45e-4, a rounding of the same
+        # value that disagreed with the algorithm's 30" by 0.09" -- invisible
+        # until P12a made the algorithm read the setting.
+        default=math.radians(30.0 / 3600.0),
         minimum=0.0,
         maximum=0.1,
         requirement="FR-406",
@@ -360,7 +367,7 @@ SETTINGS: tuple[SettingDef, ...] = (
         section="level",
         type=SettingType.CHOICE,
         default=WEIGHTING_LENGTH,
-        choices=(WEIGHTING_LENGTH, WEIGHTING_SETUPS),
+        choices=WEIGHTINGS,
         requirement="FR-504",
     ),
     # Zero means "no tolerance configured", and a closure check then reports the
@@ -470,15 +477,6 @@ SETTINGS: tuple[SettingDef, ...] = (
         requirement="FR-064",
     ),
     SettingDef(
-        key="stochastic.default_sigma_height_difference",
-        section="stochastic",
-        type=SettingType.FLOAT,
-        default=0.0,
-        minimum=0.0,
-        maximum=100.0,
-        requirement="FR-064",
-    ),
-    SettingDef(
         key="stochastic.outlier_alpha",
         section="stochastic",
         type=SettingType.FLOAT,
@@ -507,12 +505,20 @@ SETTINGS: tuple[SettingDef, ...] = (
     ),
     # -- Reference systems (FR-065). Added in phase P5. -----------------------
     #
-    # Every default here is empty or "ask", and that is the point rather than an
+    # Every default here is empty, and that is the point rather than an
     # omission. GeoComp does not assume a CRS (specs/04 section 3) and refuses
     # operations needing an epoch it was not given (FR-105); a settings module
     # that shipped a plausible default for either would make the plugin assume
     # exactly what the rest of it is built to refuse. What the settings do is
     # let a user state theirs once, and record that they did.
+    #
+    # P5 also declared a transformation choice, preferred transformation paths
+    # and a grid directory. P12a removed them: they govern how PROJ picks an
+    # operation between two CRSs, and GeoComp never asks PROJ for one -- its
+    # only transformation is between ITRF realisations, by the published
+    # parameters in core/geodesy/frames.py, and a change of CRS is QGIS's.
+    # Three controls with nothing behind them are the defect specs/15
+    # section 2.3 records, not a feature (specs/15 section 2.3, P12a).
     SettingDef(
         key="reference_systems.preferred_crs",
         section="reference_systems",
@@ -523,34 +529,13 @@ SETTINGS: tuple[SettingDef, ...] = (
     SettingDef(
         key="reference_systems.default_epoch",
         section="reference_systems",
-        type=SettingType.STRING,
-        default="",
-        requirement="FR-065",
-    ),
-    SettingDef(
-        key="reference_systems.transformation_choice",
-        section="reference_systems",
-        type=SettingType.CHOICE,
-        default=TRANSFORMATION_ASK,
-        choices=(
-            TRANSFORMATION_ASK,
-            TRANSFORMATION_MOST_ACCURATE,
-            TRANSFORMATION_PREFERRED_ONLY,
-        ),
-        requirement="FR-065",
-    ),
-    SettingDef(
-        key="reference_systems.preferred_transformations",
-        section="reference_systems",
-        type=SettingType.STRING,
-        default="",
-        requirement="FR-065",
-    ),
-    SettingDef(
-        key="reference_systems.transformation_grid_directory",
-        section="reference_systems",
-        type=SettingType.DIRECTORY,
-        default="",
+        # A decimal year, with zero for "none stated" -- the convention the
+        # DynAdjust algorithm's epoch already used. It was a string until P12a,
+        # which nothing could validate and nothing read.
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=2200.0,
         requirement="FR-065",
     ),
     SettingDef(

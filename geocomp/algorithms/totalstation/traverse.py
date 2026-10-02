@@ -38,6 +38,8 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -184,7 +186,10 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                     self.tr("Transit"),
                     self.tr("None — report the misclosure only"),
                 ],
-                defaultValue=0,
+                # Global Settings → Total Station, by the same order as _METHODS.
+                defaultValue=[method.value for method in _METHODS].index(
+                    configured("total_station.traverse_adjustment")
+                ),
             )
         )
         # No numeric default, and optional: there is no sensible closing
@@ -212,7 +217,11 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                 ANGULAR_TOLERANCE,
                 self.tr("Angular tolerance per station (°)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=30.0 / 3600.0,
+                # The setting is in radians, like every stored angle; the
+                # parameter has always been in degrees.
+                defaultValue=math.degrees(
+                    configured("total_station.traverse_angular_tolerance_per_station")
+                ),
                 minValue=0.0,
                 maxValue=5.0,
             )
@@ -222,7 +231,7 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                 RELATIVE_LIMIT,
                 self.tr("Required relative precision (1:N)"),
                 type=QgsProcessingParameterNumber.Type.Integer,
-                defaultValue=5000,
+                defaultValue=int(configured("total_station.traverse_relative_precision")),
                 minValue=100,
                 maxValue=1000000,
             )
@@ -450,14 +459,17 @@ class TraverseAlgorithm(GeoCompAlgorithm):
     # -- feedback --------------------------------------------------------
 
     def _push_summary(self, result, feedback) -> None:
+        shown = display_format()
         feedback.pushInfo(
-            self.tr("Perimeter %1 m.").replace("%1", format_number(result.perimeter.value, 3))
+            self.tr("Perimeter %1 %2.")
+            .replace("%1", shown.distance(result.perimeter.value))
+            .replace("%2", shown.distance_symbol)
         )
         if result.angular_misclosure is not None:
             feedback.pushInfo(
-                self.tr("Angular misclosure %1 arcsec.").replace(
-                    "%1", format_number(math.degrees(result.angular_misclosure) * 3600.0, 1)
-                )
+                self.tr("Angular misclosure %1 %2.")
+                .replace("%1", shown.small_angle(result.angular_misclosure))
+                .replace("%2", shown.small_angle_symbol)
             )
         if result.relative_precision is not None:
             feedback.pushInfo(
@@ -512,15 +524,19 @@ class TraverseAlgorithm(GeoCompAlgorithm):
         }
 
     def _render(self, result) -> str:
+        shown = display_format()
         summary = [
             [escape(self.tr("Kind")), escape(result.kind.value)],
             [escape(self.tr("Distribution")), escape(result.method.value)],
-            [escape(self.tr("Perimeter (m)")), format_number(result.perimeter.value, 3)],
             [
-                escape(self.tr('Angular misclosure (")')),
-                format_number(math.degrees(result.angular_misclosure) * 3600.0, 1)
-                if result.angular_misclosure is not None
-                else "—",
+                escape(self.tr("Perimeter (%1)").replace("%1", shown.distance_symbol)),
+                shown.distance(result.perimeter.value),
+            ],
+            [
+                escape(
+                    self.tr("Angular misclosure (%1)").replace("%1", shown.small_angle_symbol)
+                ),
+                shown.small_angle(result.angular_misclosure),
             ],
             [
                 escape(self.tr("Linear misclosure (m)")),
@@ -556,8 +572,8 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                 [
                     [
                         escape(station),
-                        format_number(easting.value),
-                        format_number(northing.value),
+                        shown.coordinate(easting.value),
+                        shown.coordinate(northing.value),
                     ]
                     for station, (easting, northing) in sorted(result.coordinates.items())
                 ],

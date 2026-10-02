@@ -39,6 +39,7 @@ from qgis.core import (
 
 from geocomp.algorithms.analysis.common import load_network
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Epoch
 from geocomp.engines.base import EngineAbsentError
@@ -147,7 +148,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 EPOCH,
                 self.tr("Reference epoch, decimal year (0 = the network's own)"),
                 type=QgsProcessingParameterNumber.Double,
-                defaultValue=0.0,
+                defaultValue=configured("reference_systems.default_epoch"),
                 optional=True,
             )
         )
@@ -163,7 +164,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )

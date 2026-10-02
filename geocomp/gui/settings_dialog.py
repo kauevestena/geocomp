@@ -20,7 +20,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from qgis.PyQt.QtCore import QCoreApplication, Qt
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, Qt
+from qgis.PyQt.QtGui import QDoubleValidator
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -29,6 +30,7 @@ from qgis.PyQt.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
     QSpinBox,
@@ -46,7 +48,15 @@ from geocomp.core.settings_def import (
     settings_in_section,
 )
 
-__all__ = ["GlobalSettingsDialog", "section_label", "setting_label"]
+__all__ = [
+    "CrsEditor",
+    "FloatEditor",
+    "GlobalSettingsDialog",
+    "PathEditor",
+    "TextEditor",
+    "section_label",
+    "setting_label",
+]
 
 _TR_CONTEXT = "GeoCompSettings"
 
@@ -91,7 +101,9 @@ def setting_label(key: str) -> str:
         "total_station.default_pressure_sigma_hpa": _tr("Uncertainty of the default pressure (hPa)"),
         "total_station.refraction_coefficient": _tr("Coefficient of refraction (k)"),
         "total_station.refraction_coefficient_sigma": _tr("Uncertainty of k"),
-        "total_station.face_distance_tolerance": _tr("Face-pair distance tolerance (m)"),
+        "total_station.face_distance_tolerance": _tr(
+            "Face-pair distance tolerance (m; 0 = from the instrument's EDM)"
+        ),
         "total_station.collimation_tolerance": _tr("Collimation tolerance (rad)"),
         "total_station.traverse_adjustment": _tr("Traverse adjustment method"),
         "total_station.traverse_relative_precision": _tr("Required relative precision (1:N)"),
@@ -136,15 +148,6 @@ def setting_label(key: str) -> str:
         # -- Reference systems (P5) --------------------------------------
         "reference_systems.preferred_crs": _tr("Preferred coordinate reference system"),
         "reference_systems.default_epoch": _tr("Default reference epoch"),
-        "reference_systems.transformation_choice": _tr(
-            "When several transformations exist between two systems"
-        ),
-        "reference_systems.preferred_transformations": _tr(
-            "Preferred transformations, one per line, as source > target > operation"
-        ),
-        "reference_systems.transformation_grid_directory": _tr(
-            "Directory holding transformation grid files"
-        ),
         "reference_systems.geoid_model": _tr("Default geoid model file"),
         "reference_systems.geoid_sigma": _tr("Stated accuracy of the geoid model (m)"),
         # -- Base maps (P5) ----------------------------------------------
@@ -156,7 +159,6 @@ def setting_label(key: str) -> str:
         "stochastic.default_sigma_direction": _tr("Default direction standard deviation (rad)"),
         "stochastic.default_sigma_zenith_angle": _tr("Default zenith-angle standard deviation (rad)"),
         "stochastic.default_sigma_slope_distance": _tr("Default slope-distance standard deviation (m)"),
-        "stochastic.default_sigma_height_difference": _tr("Default height-difference standard deviation (m)"),
         "stochastic.outlier_alpha": _tr("Outlier test significance level"),
         "stochastic.outlier_beta": _tr("Outlier test type II error rate"),
         "stochastic.confidence_level": _tr("Confidence level"),
@@ -192,13 +194,6 @@ def choice_label(key: str, value: str) -> str:
         ("interface.log_level", "info"): _tr("Information"),
         ("interface.log_level", "warning"): _tr("Warning"),
         ("interface.log_level", "critical"): _tr("Critical"),
-        ("reference_systems.transformation_choice", "ask"): _tr("Ask which to use"),
-        ("reference_systems.transformation_choice", "most_accurate"): _tr(
-            "Use the most accurate available"
-        ),
-        ("reference_systems.transformation_choice", "preferred_only"): _tr(
-            "Use only a preferred transformation, and refuse otherwise"
-        ),
         ("total_station.atmospheric_model", "barrell_sears"): _tr("Barrell and Sears"),
         ("total_station.atmospheric_model", "leica"): _tr("Leica"),
         ("total_station.atmospheric_model", "trimble"): _tr("Trimble"),
@@ -218,9 +213,11 @@ def choice_label(key: str, value: str) -> str:
         ("gnss.troposphere", "sbas"): _tr("SBAS"),
         ("gnss.troposphere", "est-ztd"): _tr("Estimated zenith delay"),
         ("gnss.troposphere", "est-ztdgrad"): _tr("Estimated zenith delay with gradients"),
-        ("total_station.traverse_adjustment", "least_squares"): _tr("Least squares"),
         ("total_station.traverse_adjustment", "compass"): _tr("Compass (Bowditch) rule"),
         ("total_station.traverse_adjustment", "transit"): _tr("Transit rule"),
+        ("total_station.traverse_adjustment", "none"): _tr(
+            "None: report the misclosure only (least squares is Network adjustment)"
+        ),
         ("level.weighting", "length"): _tr("Proportional to line length"),
         ("level.weighting", "setups"): _tr("Proportional to the number of setups"),
         ("gravimeter.tide_model", "longman_1959"): _tr("Longman (1959)"),
@@ -282,8 +279,17 @@ class GlobalSettingsDialog(QDialog):
         body.addWidget(self._sidebar)
         body.addWidget(self._pages, stretch=1)
 
+        # Where a value that cannot be saved is named. Not a message box: the
+        # dialog stays open with the field still showing what was typed.
+        self._error = QLabel("", self)
+        self._error.setObjectName("geocompSettingsError")
+        self._error.setWordWrap(True)
+        self._error.setStyleSheet("color: #b00020;")
+        self._error.hide()
+
         layout = QVBoxLayout(self)
         layout.addLayout(body)
+        layout.addWidget(self._error)
         layout.addWidget(buttons)
 
         self._load()
@@ -343,6 +349,14 @@ class GlobalSettingsDialog(QDialog):
             spin.setMinimum(int(definition.minimum) if definition.minimum is not None else -(2**31))
             spin.setMaximum(int(definition.maximum) if definition.maximum is not None else 2**31 - 1)
             return spin
+        if definition.type is SettingType.FLOAT:
+            return FloatEditor(definition, parent)
+        if definition.type is SettingType.STRING:
+            return TextEditor(parent)
+        if definition.type in (SettingType.PATH, SettingType.DIRECTORY):
+            return PathEditor(definition, parent)
+        if definition.type is SettingType.CRS:
+            return CrsEditor(parent)
         label = QLabel(_tr("(not editable in this version)"), parent)
         label.setEnabled(False)
         return label
@@ -386,6 +400,20 @@ class GlobalSettingsDialog(QDialog):
         from geocomp.services.logging import log
         from geocomp.services.settings_service import settings
 
+        unreadable = [
+            setting_label(key)
+            for key, editor in self._editors.items()
+            if isinstance(editor, FloatEditor) and not editor.is_acceptable()
+        ]
+        if unreadable:
+            self._error.setText(
+                _tr("Not saved: these values are not numbers within their range: %1.").replace(
+                    "%1", ", ".join(unreadable)
+                )
+            )
+            self._error.show()
+            return
+
         for key, value in self.values().items():
             definition = setting(key)
             if Scope.GLOBAL not in definition.scopes:
@@ -402,8 +430,137 @@ class GlobalSettingsDialog(QDialog):
         super().accept()
 
 
+class FloatEditor(QLineEdit):
+    """A real number of any magnitude, in the user's locale, within its declared range.
+
+    Not a spin box. A spin box shows a fixed number of decimals, and the
+    floating-point settings span eight orders of magnitude -- an angular
+    tolerance of 1.45e-4 rad and a pressure of 1013.25 hPa -- so a fixed count
+    either hides the first as zero or pads the second with noise. A box that
+    takes ``1.45e-4`` as typed, and says so when a value is out of range, is the
+    honest editor for both.
+    """
+
+    def __init__(self, definition: SettingDef, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        validator = QDoubleValidator(self)
+        validator.setLocale(_locale())
+        validator.setNotation(QDoubleValidator.Notation.ScientificNotation)
+        if definition.minimum is not None:
+            validator.setBottom(float(definition.minimum))
+        if definition.maximum is not None:
+            validator.setTop(float(definition.maximum))
+        self.setValidator(validator)
+        if definition.minimum is not None and definition.maximum is not None:
+            self.setToolTip(
+                _tr("From %1 to %2.")
+                .replace("%1", _number(definition.minimum))
+                .replace("%2", _number(definition.maximum))
+            )
+
+    def set_value(self, value: Any) -> None:
+        self.setText(_number(value))
+
+    def value(self) -> float | None:
+        number, ok = _locale().toDouble(self.text().strip())
+        return float(number) if ok else None
+
+    def is_acceptable(self) -> bool:
+        return self.hasAcceptableInput() and self.value() is not None
+
+
+class TextEditor(QLineEdit):
+    """A free-text setting: a service id, a list of ids."""
+
+    def set_value(self, value: Any) -> None:
+        self.setText("" if value is None else str(value))
+
+    def value(self) -> str:
+        return self.text().strip()
+
+
+def _storage_mode(name: str) -> Any:
+    from qgis.gui import QgsFileWidget
+
+    modes = getattr(QgsFileWidget, "StorageMode", QgsFileWidget)
+    return getattr(modes, name)
+
+
+class PathEditor(QWidget):
+    """A file or a directory, chosen with QGIS's own picker."""
+
+    def __init__(self, definition: SettingDef, parent: QWidget | None = None) -> None:
+        from qgis.gui import QgsFileWidget
+
+        super().__init__(parent)
+        self._picker = QgsFileWidget(self)
+        self._picker.setStorageMode(
+            _storage_mode(
+                "GetDirectory" if definition.type is SettingType.DIRECTORY else "GetFile"
+            )
+        )
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._picker)
+
+    def set_value(self, value: Any) -> None:
+        self._picker.setFilePath("" if value is None else str(value))
+
+    def value(self) -> str:
+        return (self._picker.filePath() or "").strip()
+
+
+class CrsEditor(QWidget):
+    """A CRS, chosen with QGIS's selector, stored as its authority code.
+
+    "Not set" is a choice the selector offers, because it is the default:
+    GeoComp does not assume a CRS (``specs/15`` section 2.1).
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        from qgis.gui import QgsProjectionSelectionWidget
+
+        super().__init__(parent)
+        self._selector = QgsProjectionSelectionWidget(self)
+        options = getattr(QgsProjectionSelectionWidget, "CrsOption", QgsProjectionSelectionWidget)
+        self._selector.setOptionVisible(options.CrsNotSet, True)
+        self._selector.setNotSetText(_tr("Not set — each run states its CRS"))
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._selector)
+
+    def set_value(self, value: Any) -> None:
+        from qgis.core import QgsCoordinateReferenceSystem
+
+        self._selector.setCrs(QgsCoordinateReferenceSystem(str(value or "")))
+
+    def value(self) -> str:
+        crs = self._selector.crs()
+        return crs.authid() if crs.isValid() else ""
+
+
+def _locale() -> QLocale:
+    """The user's locale for numbers, without group separators: ``1013.25``, ``1013,25``."""
+    locale = QLocale()
+    locale.setNumberOptions(QLocale.NumberOption.OmitGroupSeparator)
+    return locale
+
+
+def _number(value: Any) -> str:
+    """The shortest text that reads back as exactly *value*.
+
+    Exactly, because OK writes every value that differs from its default: a
+    default shown to twelve digits and read back would differ in its last bits,
+    and every press of OK would store an override nobody made.
+    """
+    shortest = getattr(QLocale, "FloatingPointPrecisionOption", QLocale).FloatingPointShortest
+    return _locale().toString(float(value), "g", shortest)
+
+
 def _set_editor_value(editor: QWidget, value: Any) -> None:
-    if isinstance(editor, QComboBox):
+    if hasattr(editor, "set_value"):
+        editor.set_value(value)
+    elif isinstance(editor, QComboBox):
         index = editor.findData(value)
         editor.setCurrentIndex(index if index >= 0 else 0)
     elif isinstance(editor, QCheckBox):
@@ -413,6 +570,8 @@ def _set_editor_value(editor: QWidget, value: Any) -> None:
 
 
 def _editor_value(editor: QWidget) -> Any:
+    if hasattr(editor, "value") and not isinstance(editor, QSpinBox):
+        return editor.value()
     if isinstance(editor, QComboBox):
         return editor.currentData()
     if isinstance(editor, QCheckBox):

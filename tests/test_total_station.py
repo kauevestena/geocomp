@@ -798,18 +798,27 @@ class TestConstantsMatchTheSettings:
     until it is changed in the other.
     """
 
-    @pytest.mark.parametrize(
-        ("constant", "key"),
-        [
-            ("DEFAULT_COLLIMATION_TOLERANCE", "total_station.collimation_tolerance"),
-            ("DEFAULT_DISTANCE_TOLERANCE", "total_station.face_distance_tolerance"),
-        ],
-    )
-    def test_face_tolerances_agree(self, constant, key):
+    def test_the_collimation_tolerance_agrees(self):
         from geocomp.core.settings_def import setting
         from geocomp.core.techniques.total_station import face
 
-        assert getattr(face, constant) == pytest.approx(setting(key).default)
+        assert face.DEFAULT_COLLIMATION_TOLERANCE == pytest.approx(
+            setting("total_station.collimation_tolerance").default
+        )
+
+    def test_the_face_distance_tolerance_defaults_to_the_instruments(self):
+        """Zero, "from the instrument" -- not the core's last-resort constant.
+
+        Until P12a the setting said 0.005 and mirrored
+        ``DEFAULT_DISTANCE_TOLERANCE``, the figure used for an instrument with no
+        EDM specification. Nothing read it; Preprocess's parameter defaulted to
+        zero, which derives the tolerance from the instrument. Wired, the
+        setting is that parameter's default, so it says what the parameter
+        always did.
+        """
+        from geocomp.core.settings_def import setting
+
+        assert setting("total_station.face_distance_tolerance").default == 0.0
 
     def test_the_refraction_coefficient_agrees(self):
         from geocomp.core.settings_def import setting

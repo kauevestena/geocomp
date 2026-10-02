@@ -30,6 +30,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
     findings_table,
     read_lines,
@@ -115,7 +116,7 @@ class EquidistantSightsAlgorithm(GeoCompAlgorithm):
                 INFLATION,
                 self.tr("Variance inflation"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=2.0,
+                defaultValue=configured("level.reciprocal_variance_inflation"),
                 minValue=1.0,
                 maxValue=100.0,
             )

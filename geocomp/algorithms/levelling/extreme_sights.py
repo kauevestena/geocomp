@@ -32,6 +32,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
     findings_table,
     level_from_parameters,
@@ -130,16 +131,26 @@ class ExtremeSightsAlgorithm(GeoCompAlgorithm):
                 LEVEL_ID, self.tr("Level id"), defaultValue="", optional=True
             )
         )
-        for name, label, maximum in (
-            (MAX_SIGHT_LENGTH, self.tr("Longest sight (m)"), 500.0),
-            (MAX_SIGHT_IMBALANCE, self.tr("Largest imbalance per setup (m)"), 100.0),
+        for name, label, default, maximum in (
+            (
+                MAX_SIGHT_LENGTH,
+                self.tr("Longest sight (m)"),
+                configured("level.max_sight_length"),
+                500.0,
+            ),
+            (
+                MAX_SIGHT_IMBALANCE,
+                self.tr("Largest imbalance per setup (m)"),
+                configured("level.max_sight_imbalance"),
+                100.0,
+            ),
         ):
             self.addParameter(
                 QgsProcessingParameterNumber(
                     name,
                     label,
                     type=QgsProcessingParameterNumber.Type.Double,
-                    defaultValue=0.0,
+                    defaultValue=default,
                     minValue=0.0,
                     maxValue=maximum,
                 )

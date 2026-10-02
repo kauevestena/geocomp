@@ -43,6 +43,8 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
@@ -70,7 +72,7 @@ from geocomp.core.adjustment.parameters import Frame
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import DatumDefinition, Epoch, HeightType, Provenance
 from geocomp.core.preanalysis import inspect
-from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA, reliability
+from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.techniques.total_station import build_network
 
@@ -206,7 +208,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 CONFIDENCE,
                 self.tr("Confidence level"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.95,
+                defaultValue=configured("stochastic.confidence_level"),
                 minValue=0.5,
                 maxValue=0.9999,
             )
@@ -216,7 +218,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 EPOCH,
                 self.tr("Reference epoch (decimal year)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=2000.0,
+                defaultValue=configured_epoch(2000.0),
             )
         )
         # Required, and not advanced. It was both, which was incoherent: the
@@ -226,7 +228,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         # a message about a position rather than about the empty field.
         self.addParameter(
             QgsProcessingParameterString(
-                CRS, self.tr("CRS authority code, e.g. EPSG:31982"), defaultValue=""
+                CRS,
+                self.tr("CRS authority code, e.g. EPSG:31982"),
+                defaultValue=configured("reference_systems.preferred_crs"),
             )
         )
         for name, label, filter_text, by_default in (
@@ -335,8 +339,8 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             run.system.design,
             run.cofactor_parameters,
             run.system.row_labels,
-            alpha=DEFAULT_ALPHA,
-            beta=DEFAULT_BETA,
+            alpha=float(configured("stochastic.outlier_alpha")),
+            beta=float(configured("stochastic.outlier_beta")),
         )
 
         self._push_summary(run, test, snooping, feedback)
@@ -509,6 +513,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             ],
         ]
 
+        shown = display_format()
         rows = []
         for station in solution.adjusted_stations:
             values = station.position.values
@@ -516,9 +521,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             rows.append(
                 [
                     escape(station.station_id),
-                    format_number(values[0].value),
-                    format_number(values[1].value),
-                    format_number(values[2].value),
+                    shown.coordinate(values[0].value),
+                    shown.coordinate(values[1].value),
+                    shown.coordinate(values[2].value),
                     format_number(values[0].std_dev * 1000.0, 2),
                     format_number(values[1].std_dev * 1000.0, 2),
                     format_number(ellipse.semi_major * 1000.0, 2) if ellipse else "—",
