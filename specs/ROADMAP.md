@@ -1420,6 +1420,38 @@ criteria 2 and 5), the chain-against-single propagation test (specs/05 criterion
 **Not done here.** specs/16 criterion 7, validation naming the parameter in every algorithm, stays partly met;
 a test across all 46 algorithms is bigger than this pull request.
 
+#### P12c-3 — the feature gaps (first pull request)
+
+**Delivered.** Seven register rows closed, leaving **114 met, 14 partly met, 5 open, 2 manual**:
+
+| Criterion | Now shown by |
+|---|---|
+| specs/16 8 and 17 6: a cancelled run leaves no partial output; an import leaves its target unchanged | `geocomp/algorithms/transaction.py` around all 46 algorithms; `ProjectStore.atomic`; a cancellable `copy_store`; `tests/qgis/test_cancellation.py`, `tests/qgis/test_postgis_project.py::TestCancelling` |
+| specs/18 5 and 20 2: the locale round trip | `tests/qgis/test_locale_numbers.py::TestFilesKeepAPoint`, RD-01's chain under pt-BR and es |
+| specs/18 6 and 19 7: displayed numbers in the language's separator | `core/number_format.py`; `tests/qgis/test_locale_numbers.py::TestReportsUseTheComma` |
+| specs/15 6: the window shows and sets a project's override | `tests/qgis/test_settings_dialog.py` |
+
+**Found.**
+
+- **Cancelling reported success and kept what was written.** 13 algorithms looked at the cancel button, each
+  returned an empty result from wherever it noticed, and Processing called the run complete. The rule now sits
+  around every algorithm, so a new one cannot leave it out. A run cancelled after writing puts back the files
+  it replaced, removes the ones it made, and raises.
+- **A first version undid outputs on any failure, and the monitoring tests caught it.** An analysis that refuses
+  writes the refusal document and report before raising, and those are what the user reads. A failure is now
+  left as it failed.
+- **A save into a project was three transactions**: the project, its network, the solution. Cancelled between
+  them, it left the first stored. They now commit together or not at all.
+- **Two report tables printed a value with `str()`**, the settings with their scopes and the provenance
+  parameters, so a point appeared in every language. The locale test found them.
+- **The settings window made one project's override every project's.** It loaded the override as the row's
+  value and wrote every row globally on OK.
+
+**Not done here.** Thousands grouping and locale dates (FR-094's other half), recorded in
+[`18`](./18-i18n-and-profiles.md) §5. Of P12c-3's list, the base-station frame transformation (specs/11
+criterion 7), the assumed epochs P12a left and the trigonometric-levelling document read by nothing are the
+next pull request's.
+
 ---
 
 ## P13 — Validation, documentation and release
