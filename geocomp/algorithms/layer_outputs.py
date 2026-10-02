@@ -52,6 +52,7 @@ from geocomp.layers.builders import (
     station_features,
 )
 from geocomp.layers.styles import apply_style
+from geocomp.layers.themes import add_thematic_styles
 
 __all__ = [
     "EXAGGERATION",
@@ -65,6 +66,7 @@ __all__ = [
     "POINT_SOURCE_TYPE",
     "POLYGON_SOURCE_TYPE",
     "RESULT_LAYER_PROPERTY",
+    "SOLUTION_PROPERTY",
     "add_result_layer_parameters",
     "resolve_exaggeration",
     "write_result_layers",
@@ -84,6 +86,11 @@ EXAGGERATION = "EXAGGERATION"
 #: name: how the base-map offer (``gui/basemap_offer.py``) tells a result layer
 #: arriving in the project from any other layer.
 RESULT_LAYER_PROPERTY = "geocomp/result_layer"
+
+#: The path of the solution document a result layer was drawn from, where the
+#: run wrote one: how the results panel (``gui/results_panel.py``) finds the
+#: run behind a layer, as the time-series panel finds a series document.
+SOLUTION_PROPERTY = "geocomp/solution"
 
 
 def _source_types() -> tuple[Any, Any, Any]:
@@ -173,7 +180,8 @@ class _StyledLayer(QgsProcessingLayerPostProcessorInterface):
             layer.setName(self.name)
         for key, value in self.properties.items():
             layer.setCustomProperty(key, value)
-        apply_style(layer, self.style)
+        if apply_style(layer, self.style):
+            add_thematic_styles(layer, self.style)
 
 
 def add_result_layer_parameters(algorithm) -> None:
@@ -251,10 +259,16 @@ def write_result_layers(
     solution: Solution,
     network: Network,
     feedback=None,
+    *,
+    solution_path: str = "",
 ) -> dict[str, Any]:
     """Fill whichever result-layer sinks the user asked for.
 
     Returns the destination ids, ready to merge into the algorithm's results.
+
+    *solution_path* is the solution document the run wrote, if it wrote one:
+    every layer carries it as :data:`SOLUTION_PROPERTY`, which is how the
+    results panel finds the run behind a layer on the map (P12b).
 
     A geocentric solution is drawn in the UTM grid of its own frame
     (:func:`~geocomp.core.visualization.display.for_display`): X, Y, Z are not a
@@ -308,6 +322,7 @@ def write_result_layers(
             crs=crs,
             features=producers[name],
             layer_name=names.get(name, ""),
+            properties={SOLUTION_PROPERTY: solution_path} if solution_path else None,
         )
 
     return outputs

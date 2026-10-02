@@ -299,3 +299,47 @@ class TestTheStylesLoad:
         # Until phase P8b a passing row carried no w-test, and every one of
         # them was drawn as "not testable"; this network's rows mostly pass.
         assert "accepted" in produced
+
+
+@requires_modern_field_api
+class TestTheThematicMapsReachTheAdjustment:
+    """P12b, end to end: the post-processor that styles each layer also gives it
+    its thematic maps (``specs/19`` section 4), and the fields they draw by are
+    filled."""
+
+    @pytest.fixture(scope="class")
+    def processed(self, adjusted):
+        from qgis.core import QgsProcessingFeedback
+
+        results, layers, context = adjusted
+        for name, layer in layers.items():
+            details = context.layerToLoadOnCompletionDetails(results[name])
+            assert details is not None, f"{name} is not loaded on completion"
+            details.postProcessor().postProcessLayer(layer, context, QgsProcessingFeedback())
+        return layers
+
+    def test_the_residual_layer_offers_its_four_maps(self, processed):
+        styles = set(processed["OUTPUT_RESIDUAL_LAYER"].styleManager().styles())
+        assert {
+            "W-test decision",
+            "Standardised residual",
+            "Redundancy number",
+            "Minimal detectable bias",
+            "External reliability",
+        } <= styles
+
+    def test_the_stations_offer_positional_uncertainty(self, processed):
+        styles = set(processed["OUTPUT_STATION_LAYER"].styleManager().styles())
+        assert {"Constraint", "Positional uncertainty"} <= styles
+
+    def test_every_checkable_residual_has_its_mdb_as_a_displacement(self, processed):
+        layer = processed["OUTPUT_RESIDUAL_LAYER"]
+        rows = [
+            (feature["mdb"], feature["mdb_displacement"]) for feature in layer.getFeatures()
+        ]
+        assert rows
+        # A trilateration is distances only: each MDB already is a displacement.
+        for mdb, displacement in rows:
+            # A float, not "not None": a NULL attribute is a QVariant in QGIS 3.
+            if isinstance(mdb, float):
+                assert displacement == pytest.approx(mdb)

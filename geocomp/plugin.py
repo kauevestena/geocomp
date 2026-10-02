@@ -48,6 +48,7 @@ class GeoCompPlugin:
         self._plugin_menu_actions: list[QAction] = []
         self._series_panel = None
         self._basemap_offer = None
+        self._results_panel = None
 
     # -- lifecycle -------------------------------------------------------
 
@@ -77,6 +78,7 @@ class GeoCompPlugin:
 
         self._build_toolbar()
         self._build_series_panel()
+        self._build_results_panel()
         self._build_plugin_menu_entries()
         self._build_basemap_offer()
 
@@ -105,6 +107,15 @@ class GeoCompPlugin:
             action.setParent(None)
             action.deleteLater()
         self._plugin_menu_actions.clear()
+
+        if self._results_panel is not None:
+            from geocomp.gui.results_panel import detach_from_project as detach_results
+
+            detach_results(self._results_panel)
+            self.iface.removeDockWidget(self._results_panel)
+            self._results_panel.setParent(None)
+            self._results_panel.deleteLater()
+            self._results_panel = None
 
         if self._basemap_offer is not None:
             self._basemap_offer.unload()
@@ -176,6 +187,27 @@ class GeoCompPlugin:
 
         self._basemap_offer = BaseMapOffer(self.iface.messageBar())
 
+    def _build_results_panel(self) -> None:
+        """The results panel (specs/15 section 4), docked and hidden until wanted.
+
+        It lists each run whose result layers reach the project, and links its
+        rows to their features on the map -- which it zooms to -- and its
+        stations to the time-series panel.
+        """
+        from qgis.PyQt.QtCore import Qt
+
+        from geocomp.gui.results_panel import ResultsPanel, attach_to_project
+
+        canvas = self.iface.mapCanvas()
+        self._results_panel = ResultsPanel(
+            self.iface.mainWindow(),
+            zoom=canvas.zoomToSelected,
+            series_panel=self._series_panel,
+        )
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._results_panel)
+        self._results_panel.hide()
+        attach_to_project(self._results_panel)
+
     def _build_plugin_menu_entries(self) -> None:
         """Add the conventional Plugins ▸ GeoComp entries.
 
@@ -195,6 +227,12 @@ class GeoCompPlugin:
         series.triggered.connect(self.open_series_panel)
         self.iface.addPluginToMenu("&GeoComp", series)
         self._plugin_menu_actions.append(series)
+
+        results = QAction(_tr("Results panel"), self.iface.mainWindow())
+        results.setObjectName("geocompPluginMenuResults")
+        results.triggered.connect(self.open_results_panel)
+        self.iface.addPluginToMenu("&GeoComp", results)
+        self._plugin_menu_actions.append(results)
 
     # -- actions ---------------------------------------------------------
 
@@ -237,6 +275,11 @@ class GeoCompPlugin:
         if self._series_panel is not None:
             self._series_panel.show()
             self._series_panel.raise_()
+
+    def open_results_panel(self) -> None:
+        if self._results_panel is not None:
+            self._results_panel.show()
+            self._results_panel.raise_()
 
     def open_about(self) -> None:
         from geocomp.gui.about_dialog import AboutDialog

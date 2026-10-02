@@ -189,7 +189,9 @@ Anything that runs an engine, touches the network, or adjusts more than a trivia
 GeoComp today is a Processing algorithm, and Processing threads its own algorithms and supplies its own
 `QgsProcessingFeedback` ([`16-processing-provider.md`](./16-processing-provider.md) §7), which is how FR-008
 is actually met. The one computation the plugin runs on the main thread is the pre-analysis dialog's
-`DesignSession.evaluate()`, on networks of a few dozen stations — well inside NFR-004's 200 ms.
+`DesignSession.evaluate()`, on networks of a few dozen stations — well inside NFR-004's 200 ms. One
+algorithm declares Processing's no-threading flag: *Create print layout* (P12b), which adds a layout to the
+project — the mutation the third rule keeps on the main thread — and computes nothing.
 
 The module stays, because the first thing that does need it (a long import, a multi-session GNSS batch in
 P7, a monitoring run in P10) should not have to write it under deadline. It was at **0% coverage** until the

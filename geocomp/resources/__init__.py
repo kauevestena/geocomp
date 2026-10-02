@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Bundled resources: icons, layer styles, templates.
+"""Bundled resources: icons, layer styles, report and layout templates.
 
 Paths are resolved relative to this package so they work identically from a
 development checkout and from an installed plugin ZIP.
@@ -12,6 +12,7 @@ from pathlib import Path
 __all__ = [
     "DATASETS_DIR",
     "ICONS_DIR",
+    "LAYOUTS_DIR",
     "RESOURCES_DIR",
     "STYLES_DIR",
     "available_datasets",
@@ -23,6 +24,8 @@ RESOURCES_DIR = Path(__file__).parent
 ICONS_DIR = RESOURCES_DIR / "icons"
 STYLES_DIR = RESOURCES_DIR / "styles"
 DATASETS_DIR = RESOURCES_DIR / "datasets"
+#: Print layout templates (``.qpt``) for the standard deliverables (P12b).
+LAYOUTS_DIR = RESOURCES_DIR / "layouts"
 
 
 def icon_path(name: str) -> str:
