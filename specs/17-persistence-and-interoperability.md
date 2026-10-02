@@ -380,6 +380,20 @@ rather than left to QGIS's guess, which misplaces them against the network.
 The defaults are OpenStreetMap and OpenTopoMap, both openly licensed and both carrying the attribution their
 licence requires. They are a starting list, not a dependency.
 
+#### The offer (P12a)
+
+*The plugin offers to add configured base map services* — and until P12a it did not: the *Add base map*
+algorithm added one when run, and `basemaps.offer_on_result_layers`, the offer's switch, was read by nothing.
+`gui/basemap_offer.py` is the offer. When a GeoComp result layer arrives in a project that has no configured
+base map, the message bar asks, with a button for the configured default service alone when there is one, and
+for the catalogue's services otherwise. **Nothing is added unless a button is pressed** — the rule
+`BaseMapCatalogue.default` keeps for an unset default, kept by asking. It asks once per project; it offers
+*Don't offer again*, which turns the setting off and is how a user finds that it exists; a catalogue that
+cannot be read is said rather than replaced by the defaults. A result layer is recognised by the custom
+property every result sink now carries (`geocomp/result_layer`, its style name), set where all of them are
+written. `basemaps.reuse_existing_layer` is the *Add base map* algorithm's default and the offer's.
+`tests/qgis/test_basemap_offer.py`.
+
 ---
 
 ## 6. Acceptance criteria

@@ -231,8 +231,8 @@ under more than one specification at once; a single "the" tolerance would be wro
 **What P7c declared, and what it deliberately did not.** Nine settings: the product directory, the ANTEX
 file, the reference station database, and six processing defaults (elevation mask, ephemeris source,
 ionosphere and troposphere models, ambiguity ratio threshold, and whether to keep only the independent
-baseline subset). **All nine are read**, which is the point — see §2.3 for the 36 that are not, and the rule
-that a newly declared setting must have a consumer.
+baseline subset). **All nine are read**, which is the point — see §2.3 for the 41 that were not until P12a,
+and the rule that a newly declared setting must have a consumer.
 
 Two of the row's items were absent in P7c, and not by oversight. *Preferred download servers and their
 priority* belongs to FR-352, and *credential references* to FR-353 and NFR-010; all three moved to P10 with
@@ -262,8 +262,8 @@ are written together.
 precision floor (the section's default weighting) and the display unit — **all six read by the computation**,
 each as the default of the algorithm parameter of the same meaning
 ([`12-module-gravimetry.md`](./12-module-gravimetry.md) §6 has the table). Gravimeter profiles are library
-documents, like level profiles, not settings. Two of the six are numbers, which the window cannot yet edit:
-see §2.3.
+documents, like level profiles, not settings. Two of the six are numbers, which the window could not edit
+until P12a: see §2.3.
 | **Stochastic model** | Default weights per observation type; outlier detection parameters (α, β); variance component estimation defaults | FR-064 |
 | **Reference systems** | Preferred CRS; default reference epoch; transformation parameters and preferred transformation paths; default geoid model | FR-065 |
 | **Paths & engines** | DynAdjust and RTKLIB executable locations, engine installation and update, working directories, report templates | FR-066, FR-300 |
@@ -285,6 +285,11 @@ than an omission: GeoComp does not assume a CRS and refuses operations needing a
 (FR-105), so a settings module shipping a plausible default for either would make the plugin assume exactly
 what the rest of it refuses. What the settings do is let a user state theirs once, and record in provenance
 that they did.
+
+**Amendment (P12a).** The transformation choice, preferred paths and grid directory are removed: GeoComp
+never asks PROJ for an operation, so they had nothing to govern (§2.3). The default epoch is a decimal year
+with 0 for none stated, and the other three — CRS, geoid model, geoid accuracy — are the defaults of the
+parameters they name.
 
 The geoid model's **accuracy** is a setting because no grid format carries it and
 `geocomp.core.geoid` will not build a model without one (FR-204) — the figure that most often limits a
@@ -317,40 +322,84 @@ Three scopes, resolving **run parameter → project → global → built-in defa
 - The effective value and its origin are recorded in provenance (FR-134), which is what makes a result
   explicable months later.
 
-#### What is wired, and what is not — as of the pre-P7 review
+#### What was wired, and what was not — as found by the pre-P7 review
 
-The *mechanism* above works and is tested: declare a `SettingDef` and a labelled control appears, resolving
-correctly through run, project and global scope. What is not generated is the **use** of the resolved value,
-and the review found **36 of 47 declared settings read by nothing at all**. Only `interface.mode`,
-`interface.language`, `interface.log_level`, `interface.show_toolbar`, `basemaps.catalogue` and
-`basemaps.default_service` have a consumer.
+The *mechanism* above worked and was tested: declare a `SettingDef` and a labelled control appears, resolving
+correctly through run, project and global scope. What was not generated is the **use** of the resolved value,
+and the review found **36 of 47 declared settings read by nothing at all**. A user could open Global Settings,
+change the angle format, the default meteorology, the levelling class tolerances or the default observation
+weights, have the value stored and resolved and shown back correctly — and change no computation. The
+Processing algorithms exposed the same quantities as run parameters with **hard-coded defaults**, which is why
+nothing looked wrong at the default: the numbers agreed, and only a user who changed one discovered they did
+not. It is the same shape as the defect P4 recorded one level up, when the dialog rendered raw dotted keys for
+all seventeen settings P3 had declared — generated from the declarations, the labels were not, and nobody
+looked.
 
-A user can therefore open Global Settings, change the angle format, the default meteorology, the levelling
-class tolerances or the default observation weights, have the value stored and resolved and shown back
-correctly — and change no computation. The Processing algorithms expose the same quantities as run
-parameters with **hard-coded defaults**, which is why nothing looks wrong at the default: the numbers agree
-today, and only a user who changes one discovers they do not.
+The pre-P7 review also found, in P8b, that **the window edited only choices, switches and whole numbers**, and
+showed every other setting as *(not editable in this version)*: by P11 that was 40 of 66 — every
+floating-point setting (27), every path (5), string (4) and directory (3), and the CRS.
 
-This is the same shape as the defect P4 recorded one level up, when the dialog rendered raw dotted keys for
-all seventeen settings P3 had declared — the dialog is generated from the declarations, the labels were not,
-and nobody looked. Labels are guarded by `tests/structural/test_settings_labels.py`; the behaviour is now
-guarded by `tests/structural/test_settings_are_honoured.py`, which fails on a newly declared setting that
-nothing reads and holds the current 36 as an explicit list with the phase that owes each one.
+#### Resolved in P12a
 
-**The wiring is assigned to P12**, whose deliverables already cover this document. It is not a small change:
-each algorithm must resolve its parameter defaults through the settings service rather than declaring
-literals, and `specs/16` §5's Basic/Advanced identity check has to keep holding across the change.
+**A parameter's default is its setting.** Each algorithm declares the parameter with
+`defaultValue=configured("section.key")` (`geocomp/algorithms/defaults.py`), read when the algorithm is
+instantiated — which Processing does for every dialog and every run — through the run, project and global
+scopes. There is one value, not a setting and a literal that happen to agree. So changing a setting changes
+what a run that does not override it computes, and a parameter hidden in Basic mode runs at the setting
+exactly as Advanced mode left untouched would (FR-071, §3). The setting-to-parameter table is
+`tests/qgis/test_settings_reach_the_computation.py`'s `WIRING`, which asserts every row: a value set for the
+run becomes that parameter's default, in every algorithm the setting governs.
 
-#### Found in P8b: the window edits choices, switches and whole numbers only
+**Five more than the review counted.** `tests/structural/test_settings_are_honoured.py` asked whether a key
+appeared *anywhere* in a module, and five passed on prose alone: `stochastic.outlier_alpha` named in a comment
+about data snooping, both face tolerances in a note that a core constant "mirrors" them, `level.weighting` in
+a docstring, `basemaps.reuse_existing_layer` likewise. It now reads string literals in code only — a key in a
+comment is a sentence about a setting, not a use of one — so the true count at the start of P12a was **41 of
+66**. Of those:
 
-`gui/settings_dialog.py` builds an editor for three types — a list, a check box, an integer — and shows every
-other setting as *(not editable in this version)*. That is **36 of the 61 declared settings**: every
-floating-point one (26), every path (4), string (3) and directory (2), and the CRS. They resolve correctly and
-a run can override each through its algorithm parameter, but none can be set globally, or per project, from
-the window that exists to set them — the gravimetric factor and the precision floor among them, and GNSS's
-antenna file and product directory. It predates P8b, affects every section, and is not fixed there: the
-editors belong with P12's settings work, and the GNSS paths need a file picker that is its own piece of
-interface. It is recorded here so the settings tables above are not read as editable.
+| | Settings | How |
+|---|---|---|
+| **Wired to parameter defaults** | 29 | Meteorology and its uncertainties, refraction and its uncertainty, the three traverse settings and both face tolerances (total station); weighting, *k*, the three sight limits and the reciprocal inflation (levelling); the three default observation sigmas, α, β and the confidence level; the preferred CRS, the default epoch, the geoid model and its accuracy; reusing a base map |
+| **Wired to a behaviour** | 4 | The atmospheric model, through the generic instrument profile; the **tolerance gate** and the **orthometric correction** in *Levelling network adjustment* ([`10`](./10-module-levelling.md) §3, §5); the **base-map offer** ([`17`](./17-persistence-and-interoperability.md) §5.6) |
+| **Wired to the reports** | 4 | Angle format and places, coordinate places, distance unit ([`19`](./19-visualization.md) §7.4) |
+| **Removed** | 4 | Below |
+
+`NOT_YET_HONOURED` is empty, and stays the rule: a setting declared without a consumer fails the build.
+
+**Four settings removed, because nothing can consume them.** `reference_systems.transformation_choice`,
+`preferred_transformations` and `transformation_grid_directory` govern how PROJ picks an operation between two
+CRSs, and GeoComp never asks PROJ for one: its only transformation is between ITRF realisations, by the
+published fourteen-parameter sets in `core/geodesy/frames.py`, and a change of CRS is QGIS's, under QGIS's own
+transformation settings. `stochastic.default_sigma_height_difference` has no importer that reads a bare height
+difference to apply it to. Three controls with nothing behind them are the defect this section records, not a
+feature. FR-065's *transformation parameters* clause is therefore met by the frame transformation's own
+published parameters, which are data with provenance rather than settings — see the traceability matrix.
+
+**Four declarations changed to say what is computed.**
+
+- `total_station.traverse_adjustment` offered *least squares* as its default, which the Traverse algorithm
+  cannot do — least squares is *Classical network* on the same observations ([`09`](./09-module-total-station.md)
+  §4.1). Its choices are now compass (the default the algorithm always used), transit and *none* (report the
+  misclosure only).
+- `total_station.traverse_angular_tolerance_per_station` said 1.45×10⁻⁴ rad, about 29.9″, where the algorithm's
+  own default was 30″. It is now exactly 30″ in radians.
+- `total_station.face_distance_tolerance` said 0.005 m — the core's last resort for an instrument with no EDM
+  specification — where Preprocess's parameter defaulted to 0, *from the instrument*. Wired, the setting says
+  what the parameter did: 0.
+- `reference_systems.default_epoch` was free text, which nothing could validate. It is a decimal year, with 0
+  for *none stated*, the convention the DynAdjust algorithm's epoch already used. Unstated, each algorithm keeps
+  the epoch it always defaulted to, so an unconfigured installation computes what it did; the Integration
+  algorithms keep taking their inputs' epoch.
+
+**Every setting is editable.** The window builds an editor for every type: a number box for floating-point
+settings that takes the user's locale and scientific notation, refuses a value outside the declared range by
+naming it, and writes back exactly what it was given — a default shown to twelve digits and read back would
+have stored an override on every press of OK; QGIS's own file and directory pickers for paths; QGIS's CRS
+selector, with *not set* as a choice because it is the default. `tests/qgis/test_settings_dialog.py`.
+
+**Not done in P12a.** The window still writes global scope only; *override for this project* (the third
+bullet above) has its mechanism in the settings service and no control in the window. Number formatting per
+locale (FR-094) is not addressed: reports print a point as the decimal separator in every language.
 
 ---
 

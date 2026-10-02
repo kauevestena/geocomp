@@ -109,6 +109,10 @@ could not defend a Basic-mode result to a client, and the "modo comercial" frami
 Asserted by a test that runs every algorithm in both modes with defaults and compares numeric output
 (FR-071).
 
+*As built (P12a):* asserted by construction rather than by running — every algorithm's parameters and
+defaults are identical in both modes and no run reads the mode; see
+[`16-processing-provider.md`](./16-processing-provider.md) §4.1.
+
 ### 6.2 What differs
 
 | | Basic | Advanced |

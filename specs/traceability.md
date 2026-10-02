@@ -114,13 +114,13 @@ this group and refuses a submenu under any other at import.
 
 | Section (tex, item 6) | Requirement | Phase |
 |---|---|---|
-| Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3 |
-| Atmospheric parameters: correction models, default T / P / RH | FR-062 | P3 |
+| Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3; P12a — the levelling tolerance, sight limits and face tolerances are the defaults of the parameters they govern ([`15`](./15-ui-menu-and-settings.md) §2.3) |
+| Atmospheric parameters: correction models, default T / P / RH | FR-062 | P3; P12a — read by Preprocess and the generic instrument profile, which until then used literals of their own |
 | GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7c — nine `gnss.*` settings declared and read; P10c — the **servers** half: services in priority order, a services file, the cache and the rapid-orbit fallback, all read. Credential references are QGIS authentication configuration ids in the services file, never a setting (FR-353/NFR-010) |
-| Stochastic models: default weights per type, outlier detection parameters | FR-064 | P3 |
-| Reference systems: preferred CRS, default epochs, transformation parameters | FR-065 | P5 |
+| Stochastic models: default weights per type, outlier detection parameters | FR-064 | P3; P12a — the default sigmas, α, β and the confidence level reach every algorithm that uses them |
+| Reference systems: preferred CRS, default epochs, transformation parameters | FR-065 | P5; P12a — CRS, epoch and geoid read. **Transformation parameters** are the published parameter sets of the frame transformation (`core/geodesy/frames.py`, P9a), data with provenance; the three PROJ-operation settings P5 declared were removed, GeoComp never asking PROJ for an operation ([`15`](./15-ui-menu-and-settings.md) §2.3) |
 | Paths and directories: DynAdjust and RTKLIB executables, working directories, report templates | FR-066 | P6 |
-| Interface preferences: language, usage mode, units | FR-067 | P0 |
+| Interface preferences: language, usage mode, units | FR-067 | P0; P12a — units, angle format and places reach the reports ([`19`](./19-visualization.md) §7.4) |
 
 ## 3. Other named requirements from the proposal
 
@@ -131,7 +131,7 @@ this group and refuses a submenu under any other at import.
 | §Justificativa pedagógica — free and constrained networks, residuals, error ellipses explorable visually | FR-222, FR-254, FR-900, FR-901 | P2, P3 |
 | §Arquitetura do plugin — CSV/XLSX and *Adjust* interoperability | FR-160…FR-162 | P3, P4, P5, P6 (FR-161 re-planned out of P5, P6 and P7, and **met after P6** once an example file existed — see [`17`](./17-persistence-and-interoperability.md) §5.2) |
 | §Arquitetura do plugin — geoid and height model import, deflection of the vertical | FR-165 | P5 |
-| §Arquitetura do plugin — base maps and orthophotos for context | FR-167 | P5 |
+| §Arquitetura do plugin — base maps and orthophotos for context | FR-167 | P5; P12a — the plugin *offers* one when results arrive ([`17`](./17-persistence-and-interoperability.md) §5.6) |
 | §Arquitetura do plugin — residual, ellipse, displacement vector and thematic map visualisation | FR-900…FR-905 | P3, P10, P12 |
 | §Justificativa técnica — immediate visualisation | FR-905 | P3 |
 | §Justificativa técnica — reduction of operational error, standardised workflows | FR-035, FR-134, NFR-006 | P0, P3, P5 |
