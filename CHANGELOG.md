@@ -5,6 +5,27 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-1 — The acceptance register
+
+Every acceptance criterion in the specifications now has a row saying whether it is met and what shows it
+(specs/20 §10). A structural test keeps the table complete and every citation real.
+
+#### Added
+
+- The register: 135 criteria. 90 are met, 31 partly met, 12 open and 2 manual, each with its evidence or
+  what it waits on.
+- `tests/structural/test_acceptance_register.py`.
+
+#### Fixed
+
+- The specifications no longer call the *Adjust* format blocked, or RD-06's criterion red; both were met in
+  later phases.
+
+#### Not done
+
+- The 43 criteria that are partly met or open. P12c's later pull requests close them, or record why they
+  cannot be closed here.
+
 ### P12b — Thematic maps, the results panel, print layouts
 
 Results can now be read three more ways: coloured by any quality attribute, in a panel beside the map, and on
