@@ -129,6 +129,17 @@ the outputs contain, and a worked example reference. Translated (FR-090).
 Where an algorithm implements a documented method, its help names the method and the reference. A student
 reading the help should be able to find the theory.
 
+**As built (P12c).** Each algorithm writes what it does (`help_body`). The base class appends the rest, so no
+help can leave it out:
+- every parameter and every output, by the labels the dialog shows;
+- the requirement.
+
+A number's label states its unit — `(m)`, `(rad)`, `(hPa)` — or the parameter is named dimensionless, with what
+it is instead, in `tests/qgis/test_algorithm_help.py`, which holds all 46 algorithms to both. The audit found
+one label without its unit: *Trigonometric levelling*'s imbalance tolerance, a fraction of the longer sight. The
+label now says so. **Not built:** a worked-example reference in every help; some name their method and
+source, most do not.
+
 ## 9. Chainability (FR-033)
 
 The proposal's stated reason for the Processing Provider is that algorithms can be *chained*. Concretely, a

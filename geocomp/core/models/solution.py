@@ -12,7 +12,7 @@ than a second pipeline.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
@@ -20,7 +20,7 @@ from typing import Any
 from geocomp.core.errors import ValidationError
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.position import Position
-from geocomp.core.uncertainty import Covariance, Quantity, UncertaintyMode
+from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import Unit
 from geocomp.core.version import __version__
 
@@ -376,6 +376,11 @@ class Provenance:
     geocomp_version: str = __version__
     qgis_version: str = ""
     uncertainty_mode: UncertaintyMode = UncertaintyMode.RIGOROUS
+    #: Which approximations the result rests on (FR-203). A provenance record
+    #: travels without its solution -- attached to a bug report, shown to a
+    #: client -- and "approximate" alone does not say what was approximated.
+    #: A :class:`Solution` keeps this in step with its own uncertainties.
+    strategies: frozenset[Strategy] = frozenset()
 
     @classmethod
     def now(cls, **kwargs: Any) -> Provenance:
@@ -398,6 +403,7 @@ class Provenance:
             ("input_ids", list(self.input_ids) if self.input_ids else None),
             ("input_digests", dict(self.input_digests) if self.input_digests else None),
             ("qgis_version", self.qgis_version),
+            ("strategies", sorted(s.name for s in self.strategies) if self.strategies else None),
         ):
             if value is not None and value != "":
                 payload[key] = value
@@ -419,6 +425,7 @@ class Provenance:
             geocomp_version=payload.get("geocomp_version", ""),
             qgis_version=payload.get("qgis_version", ""),
             uncertainty_mode=UncertaintyMode[payload.get("uncertainty_mode", "RIGOROUS")],
+            strategies=frozenset(Strategy[name] for name in payload.get("strategies") or ()),
         )
 
 
@@ -458,6 +465,25 @@ class Solution:
             )
         if not self.crs:
             raise ValidationError("solution_without_crs", solution=self.id)
+        # FR-203: the provenance names the approximations the result rests on.
+        # Derived here, from the uncertainties themselves, so every producer --
+        # the core, DynAdjust's reader, the store -- gets it right without each
+        # having to remember; P12c's audit found none of them recorded it.
+        if self.provenance is not None and self.provenance.strategies != self.strategies:
+            object.__setattr__(
+                self, "provenance", replace(self.provenance, strategies=self.strategies)
+            )
+
+    @property
+    def strategies(self) -> frozenset[Strategy]:
+        """Every approximation the solution's uncertainties rest on (FR-203)."""
+        found: set[Strategy] = set()
+        if self.parameter_covariance is not None:
+            found |= self.parameter_covariance.strategies
+        for station in self.adjusted_stations:
+            if station.covariance is not None:
+                found |= station.covariance.strategies
+        return frozenset(found)
 
     @property
     def is_superseded(self) -> bool:

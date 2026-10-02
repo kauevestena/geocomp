@@ -192,11 +192,11 @@ def add_result_layer_parameters(algorithm) -> None:
     while one run from the toolbox is a click away from all of them.
     """
     labels = {
-        OUTPUT_STATION_LAYER: algorithm.tr("Adjusted stations (layer)"),
-        OUTPUT_ELLIPSE_LAYER: algorithm.tr("Error ellipses (layer)"),
-        OUTPUT_RESIDUAL_LAYER: algorithm.tr("Residuals (layer)"),
-        OUTPUT_OBSERVATION_LAYER: algorithm.tr("Observations (layer)"),
-        OUTPUT_CORRECTION_LAYER: algorithm.tr("Coordinate corrections (layer)"),
+        OUTPUT_STATION_LAYER: _tr("Adjusted stations (layer)"),
+        OUTPUT_ELLIPSE_LAYER: _tr("Error ellipses (layer)"),
+        OUTPUT_RESIDUAL_LAYER: _tr("Residuals (layer)"),
+        OUTPUT_OBSERVATION_LAYER: _tr("Observations (layer)"),
+        OUTPUT_CORRECTION_LAYER: _tr("Coordinate corrections (layer)"),
     }
     for name, _style, source_type, _geometry in LAYER_OUTPUTS:
         algorithm.addParameter(
@@ -207,7 +207,7 @@ def add_result_layer_parameters(algorithm) -> None:
     algorithm.addAdvancedParameter(
         QgsProcessingParameterNumber(
             EXAGGERATION,
-            algorithm.tr("Ellipse exaggeration (0 = from the network's extent)"),
+            _tr("Ellipse exaggeration (0 = from the network's extent)"),
             type=QgsProcessingParameterNumber.Type.Double,
             defaultValue=0.0,
             minValue=0.0,

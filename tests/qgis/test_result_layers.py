@@ -332,6 +332,14 @@ class TestTheThematicMapsReachTheAdjustment:
         styles = set(processed["OUTPUT_STATION_LAYER"].styleManager().styles())
         assert {"Constraint", "Positional uncertainty"} <= styles
 
+    def test_and_the_free_stations_have_one_to_draw(self, processed):
+        """P12c: offered, but drawn as *not computed* for every station, until
+        the in-house adjustment filled the field DynAdjust's reader always had.
+        Only a held station has none."""
+        layer = processed["OUTPUT_STATION_LAYER"]
+        values = [feature["positional_uncertainty"] for feature in layer.getFeatures()]
+        assert sum(isinstance(value, float) and value > 0.0 for value in values) >= 1
+
     def test_every_checkable_residual_has_its_mdb_as_a_displacement(self, processed):
         layer = processed["OUTPUT_RESIDUAL_LAYER"]
         rows = [

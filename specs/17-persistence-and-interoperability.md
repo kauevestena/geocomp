@@ -100,12 +100,15 @@ instrument and target heights to `gc_observation`; schema 3 (phase P8) added `gr
 `gc_adjusted_station`, empty in a migrated store because no earlier version could write a gravity solution;
 schema 4 (phase P11) added `gc_project.revision` and `gc_network_member.ordinal`. A migrated store's revision
 starts at 0, and its ordinals are taken from SQLite's row order -- the order the old store implied -- so a
-migrated network reads back exactly as it did.
+migrated network reads back exactly as it did. Schema 5 (phase P12c) added `gc_provenance.strategies`: which
+approximations a result rests on (FR-203), which the provenance had recorded only as a mode. It is added empty
+and left so: a solution's strategies are in its covariance, and a solution puts them in its provenance as it is
+read ([`05`](./05-uncertainty-and-covariance.md) criterion 5).
 
 **Migrations run on both backends since P11.** A migration writes the physical type the schema declares *on
 that backend* (`io/store/migrations.py`, `MigrationTarget`), and a PostGIS store's backup is a copy of its
 schema, beside it in the same database, with the time in its name. No PostGIS store older than schema 4 can
-exist; the PostGIS migration test builds one by removing schema 4's additions from a current store.
+exist; the PostGIS migration test builds one by removing the additions of schemas 4 and 5 from a current store.
 
 **[V] A migration chain was not one transaction until P11.** In Python's legacy `sqlite3` mode an
 `ALTER TABLE` opens no transaction -- only DML does -- so a chain's first column was committed on its own, and a

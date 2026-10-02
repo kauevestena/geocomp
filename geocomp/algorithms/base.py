@@ -15,6 +15,7 @@ defeat the "modo comercial" framing the research project gives it.
 
 from __future__ import annotations
 
+import html
 from typing import Any
 
 from qgis.core import (
@@ -25,6 +26,9 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.settings_def import MODE_ADVANCED
 from geocomp.registry import ALGORITHMS, AlgorithmSpec
+
+#: The context of the base class's own words: the help's headings, the group names.
+_CONTEXT = "GeoCompAlgorithm"
 
 __all__ = ["GeoCompAlgorithm"]
 
@@ -60,7 +64,7 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         return self.spec().name
 
     def group(self) -> str:
-        return self.tr(_group_label(self.spec().group))
+        return _group_label(self.spec().group)
 
     def groupId(self) -> str:
         return self.spec().group
@@ -101,12 +105,32 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
     def shortHelpString(self) -> str:
         """Every algorithm documents what it does and every parameter with units.
 
-        Subclasses override :meth:`help_body`; this wraps it with the
-        requirement reference so a reader can find the specification.
+        Subclasses override :meth:`help_body`, which says what the algorithm
+        does. This adds what ``specs/16`` section 8 asks of every help and no
+        body did until P12c: each parameter with its unit, and each output.
+        They are the parameters' own labels, which state their units -- a test
+        holds every number to it -- so the list cannot drift from the dialog.
+        Then the requirement, so a reader can find the specification.
         """
         body = self.help_body().strip()
         spec = self.spec()
-        return f"{body}\n\n<p><i>{self.tr('Requirement')}: {spec.requirement}</i></p>"
+        inputs = [p for p in self.parameterDefinitions() if not p.isDestination()]
+        outputs = {o.name(): o.description() for o in self.outputDefinitions()}
+        parts = [body]
+        if inputs:
+            parts.append(
+                f"<p><b>{_tr('Parameters')}</b></p><ul>"
+                + "".join(f"<li>{html.escape(p.description(), quote=False)}</li>" for p in inputs)
+                + "</ul>"
+            )
+        if outputs:
+            parts.append(
+                f"<p><b>{_tr('Outputs')}</b></p><ul>"
+                + "".join(f"<li>{html.escape(text, quote=False)}</li>" for text in outputs.values())
+                + "</ul>"
+            )
+        parts.append(f"<p><i>{_tr('Requirement')}: {spec.requirement}</i></p>")
+        return "\n\n".join(parts)
 
     def help_body(self) -> str:
         """The algorithm's help text. Subclasses must override."""
@@ -119,20 +143,28 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         raise NotImplementedError
 
 
-def _group_label(group_id: str) -> str:
-    """Source strings for the Processing group names.
+def _tr(text: str) -> str:
+    # The base class's own words are catalogued under its own context. Through
+    # ``self.tr`` they were looked up under each subclass's, where they are not,
+    # so "Requirement" had never been translated in any algorithm's help, nor a
+    # Processing group's name in the toolbox (found by P12c's audit).
+    return QCoreApplication.translate(_CONTEXT, text)
 
-    Written as literals so the translation extractor sees them; the mapping is
-    keyed by the stable group ids declared in :mod:`geocomp.registry`.
+
+def _group_label(group_id: str) -> str:
+    """The Processing group names, translated.
+
+    Written out in full so the translation extractor sees each one; the mapping
+    is keyed by the stable group ids declared in :mod:`geocomp.registry`.
     """
     return {
-        "totalstation": "Total Station",
-        "levelling": "Level",
-        "gnss": "GNSS",
-        "gravimetry": "Gravimetry",
-        "integration": "Integration",
-        "analysis": "Analysis",
-        "monitoring": "Monitoring",
-        "project": "Project and data",
-        "visualization": "Visualisation and reporting",
+        "totalstation": _tr("Total Station"),
+        "levelling": _tr("Level"),
+        "gnss": _tr("GNSS"),
+        "gravimetry": _tr("Gravimetry"),
+        "integration": _tr("Integration"),
+        "analysis": _tr("Analysis"),
+        "monitoring": _tr("Monitoring"),
+        "project": _tr("Project and data"),
+        "visualization": _tr("Visualisation and reporting"),
     }.get(group_id, group_id)

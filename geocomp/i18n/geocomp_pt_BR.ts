@@ -1426,116 +1426,8 @@
     <context>
         <name>GeoComp</name>
         <message>
-            <source>%1 epochs, %2% with resolved ambiguities</source>
-            <translation>%1 épocas, %2% com ambiguidades resolvidas</translation>
-        </message>
-        <message>
-            <source>%1 rows copied; every table compared identical.</source>
-            <translation>%1 linhas copiadas; todas as tabelas comparadas idênticas.</translation>
-        </message>
-        <message>
-            <source>%1: %2</source>
-            <translation>%1: %2</translation>
-        </message>
-        <message>
-            <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts and the ambiguity ratio.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Processa uma pasta de observações RINEX com &lt;code&gt;rnx2rtkp&lt;/code&gt;. As sessões são descobertas a partir dos cabeçalhos dos arquivos, não de seus nomes, e apenas sessões que de fato se sobrepõem no tempo são processadas juntas.&lt;/p&gt;&lt;p&gt;As opções de processamento vêm das Configurações Globais → GNSS, a menos que um parâmetro aqui as substitua: máscara de elevação, fonte das efemérides, modelos atmosféricos e o limiar da razão de ambiguidades.&lt;/p&gt;&lt;p&gt;Produz a solução &lt;code&gt;.pos&lt;/code&gt; do motor e um resumo JSON dos indicadores de qualidade da execução: situação da solução por época, a fração de épocas com ambiguidades resolvidas, contagem de satélites e a razão de ambiguidades.&lt;/p&gt;</translation>
-        </message>
-        <message>
-            <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
-            <translation>O processamento Absoluto (PPP) no RTKLIB é limitado e tipicamente decimétrico. Prefira o processamento Relativo quando houver uma estação base disponível.</translation>
-        </message>
-        <message>
-            <source>Base %1 → rover %2</source>
-            <translation>Base %1 → móvel %2</translation>
-        </message>
-        <message>
-            <source>Base station</source>
-            <translation>Estação base</translation>
-        </message>
-        <message>
-            <source>Copying %1 to %2</source>
-            <translation>Copiando %1 para %2</translation>
-        </message>
-        <message>
-            <source>Elevation mask, degrees (-1 uses Global Settings)</source>
-            <translation>Máscara de elevação, graus (-1 usa as Configurações Globais)</translation>
-        </message>
-        <message>
-            <source>Folder of RINEX observations</source>
-            <translation>Pasta com observações RINEX</translation>
-        </message>
-        <message>
-            <source>GNSS trajectory</source>
-            <translation>Trajetória GNSS</translation>
-        </message>
-        <message>
             <source>GeoComp</source>
             <translation>GeoComp</translation>
-        </message>
-        <message>
-            <source>Give a PostgreSQL connection and a schema.</source>
-            <translation>Informe uma conexão PostgreSQL e um esquema.</translation>
-        </message>
-        <message>
-            <source>JSON files (*.json)</source>
-            <translation>Arquivos JSON (*.json)</translation>
-        </message>
-        <message>
-            <source>Keep the engine's working directory</source>
-            <translation>Manter o diretório de trabalho do motor</translation>
-        </message>
-        <message>
-            <source>Name the %1 station explicitly; the folder holds: %2</source>
-            <translation>Informe a estação %1 explicitamente; a pasta contém: %2</translation>
-        </message>
-        <message>
-            <source>No %1 session for station %2; found: %3</source>
-            <translation>Nenhuma sessão %1 para a estação %2; encontradas: %3</translation>
-        </message>
-        <message>
-            <source>No RINEX observation sessions were found in %1</source>
-            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1</translation>
-        </message>
-        <message>
-            <source>PostgreSQL connection</source>
-            <translation>Conexão PostgreSQL</translation>
-        </message>
-        <message>
-            <source>Quality summary</source>
-            <translation>Resumo de qualidade</translation>
-        </message>
-        <message>
-            <source>RTKLIB solution (*.pos)</source>
-            <translation>Solução RTKLIB (*.pos)</translation>
-        </message>
-        <message>
-            <source>Relative processing needs two sessions that observed at the same time; the folder's sessions do not overlap.</source>
-            <translation>O processamento relativo exige duas sessões observadas ao mesmo tempo; as sessões da pasta não se sobrepõem.</translation>
-        </message>
-        <message>
-            <source>Rover station</source>
-            <translation>Estação móvel</translation>
-        </message>
-        <message>
-            <source>Schema</source>
-            <translation>Esquema</translation>
-        </message>
-        <message>
-            <source>Skipped %1: %2</source>
-            <translation>Ignorado %1: %2</translation>
-        </message>
-        <message>
-            <source>Solution</source>
-            <translation>Solução</translation>
-        </message>
-        <message>
-            <source>Solution epochs (layer)</source>
-            <translation>Épocas da solução (camada)</translation>
-        </message>
-        <message>
-            <source>The copy in %1 differs from the original in %2 place(s), listed above. Do not use it; delete it and report this.</source>
-            <translation>A cópia em %1 difere do original em %2 ponto(s), listados acima. Não a use; apague-a e relate o problema.</translation>
         </message>
     </context>
     <context>
@@ -1551,10 +1443,6 @@
         <message>
             <source>Developed at the Departamento de Geomática, Setor de Ciências da Terra, Universidade Federal do Paraná.</source>
             <translation>Desenvolvido no Departamento de Geomática, Setor de Ciências da Terra, Universidade Federal do Paraná.</translation>
-        </message>
-        <message>
-            <source>Engine integration arrives in later development phases.</source>
-            <translation>A integração com os motores de processamento será entregue em fases posteriores do desenvolvimento.</translation>
         </message>
         <message>
             <source>GeoComp is free software under the GNU General Public License, version 2 or later. You may use it, including commercially, study it, modify it and redistribute it.</source>
@@ -1575,6 +1463,14 @@
         <message>
             <source>Source code</source>
             <translation>Código-fonte</translation>
+        </message>
+        <message>
+            <source>not installed</source>
+            <translation>não instalado</translation>
+        </message>
+        <message>
+            <source>version %1, at %2</source>
+            <translation>versão %1, em %2</translation>
         </message>
     </context>
     <context>
@@ -2215,8 +2111,52 @@
     <context>
         <name>GeoCompAlgorithm</name>
         <message>
+            <source>Analysis</source>
+            <translation>Análise</translation>
+        </message>
+        <message>
+            <source>GNSS</source>
+            <translation>GNSS</translation>
+        </message>
+        <message>
+            <source>Gravimetry</source>
+            <translation>Gravimetria</translation>
+        </message>
+        <message>
+            <source>Integration</source>
+            <translation>Integração</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>Nível</translation>
+        </message>
+        <message>
+            <source>Monitoring</source>
+            <translation>Monitoramento</translation>
+        </message>
+        <message>
+            <source>Outputs</source>
+            <translation>Saídas</translation>
+        </message>
+        <message>
+            <source>Parameters</source>
+            <translation>Parâmetros</translation>
+        </message>
+        <message>
+            <source>Project and data</source>
+            <translation>Projeto e dados</translation>
+        </message>
+        <message>
             <source>Requirement</source>
             <translation>Requisito</translation>
+        </message>
+        <message>
+            <source>Total Station</source>
+            <translation>Estação Total</translation>
+        </message>
+        <message>
+            <source>Visualisation and reporting</source>
+            <translation>Visualização e relatórios</translation>
         </message>
     </context>
     <context>
@@ -2377,6 +2317,93 @@
         <message>
             <source>Unknown processing profile: %1</source>
             <translation>Perfil de processamento desconhecido: %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompGnssProcess</name>
+        <message>
+            <source>%1 epochs, %2% with resolved ambiguities</source>
+            <translation>%1 épocas, %2% com ambiguidades resolvidas</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts and the ambiguity ratio.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Processa uma pasta de observações RINEX com &lt;code&gt;rnx2rtkp&lt;/code&gt;. As sessões são descobertas a partir dos cabeçalhos dos arquivos, não de seus nomes, e apenas sessões que de fato se sobrepõem no tempo são processadas juntas.&lt;/p&gt;&lt;p&gt;As opções de processamento vêm das Configurações Globais → GNSS, a menos que um parâmetro aqui as substitua: máscara de elevação, fonte das efemérides, modelos atmosféricos e o limiar da razão de ambiguidades.&lt;/p&gt;&lt;p&gt;Produz a solução &lt;code&gt;.pos&lt;/code&gt; do motor e um resumo JSON dos indicadores de qualidade da execução: situação da solução por época, a fração de épocas com ambiguidades resolvidas, contagem de satélites e a razão de ambiguidades.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
+            <translation>O processamento Absoluto (PPP) no RTKLIB é limitado e tipicamente decimétrico. Prefira o processamento Relativo quando houver uma estação base disponível.</translation>
+        </message>
+        <message>
+            <source>Base %1 → rover %2</source>
+            <translation>Base %1 → móvel %2</translation>
+        </message>
+        <message>
+            <source>Base station</source>
+            <translation>Estação base</translation>
+        </message>
+        <message>
+            <source>Elevation mask, degrees (-1 uses Global Settings)</source>
+            <translation>Máscara de elevação, graus (-1 usa as Configurações Globais)</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations</source>
+            <translation>Pasta com observações RINEX</translation>
+        </message>
+        <message>
+            <source>GNSS trajectory</source>
+            <translation>Trajetória GNSS</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Arquivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Keep the engine's working directory</source>
+            <translation>Manter o diretório de trabalho do motor</translation>
+        </message>
+        <message>
+            <source>Name the %1 station explicitly; the folder holds: %2</source>
+            <translation>Informe a estação %1 explicitamente; a pasta contém: %2</translation>
+        </message>
+        <message>
+            <source>No %1 session for station %2; found: %3</source>
+            <translation>Nenhuma sessão %1 para a estação %2; encontradas: %3</translation>
+        </message>
+        <message>
+            <source>No RINEX observation sessions were found in %1</source>
+            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1</translation>
+        </message>
+        <message>
+            <source>Quality summary</source>
+            <translation>Resumo de qualidade</translation>
+        </message>
+        <message>
+            <source>RTKLIB solution (*.pos)</source>
+            <translation>Solução RTKLIB (*.pos)</translation>
+        </message>
+        <message>
+            <source>Relative processing needs two sessions that observed at the same time; the folder's sessions do not overlap.</source>
+            <translation>O processamento relativo exige duas sessões observadas ao mesmo tempo; as sessões da pasta não se sobrepõem.</translation>
+        </message>
+        <message>
+            <source>Rover station</source>
+            <translation>Estação móvel</translation>
+        </message>
+        <message>
+            <source>Skipped %1: %2</source>
+            <translation>Ignorado %1: %2</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solução</translation>
+        </message>
+        <message>
+            <source>Solution epochs (layer)</source>
+            <translation>Épocas da solução (camada)</translation>
         </message>
     </context>
     <context>
@@ -3932,6 +3959,33 @@
         <message>
             <source>Time series panel</source>
             <translation>Painel de séries temporais</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompPostgis</name>
+        <message>
+            <source>%1 rows copied; every table compared identical.</source>
+            <translation>%1 linhas copiadas; todas as tabelas comparadas idênticas.</translation>
+        </message>
+        <message>
+            <source>Copying %1 to %2</source>
+            <translation>Copiando %1 para %2</translation>
+        </message>
+        <message>
+            <source>Give a PostgreSQL connection and a schema.</source>
+            <translation>Informe uma conexão PostgreSQL e um esquema.</translation>
+        </message>
+        <message>
+            <source>PostgreSQL connection</source>
+            <translation>Conexão PostgreSQL</translation>
+        </message>
+        <message>
+            <source>Schema</source>
+            <translation>Esquema</translation>
+        </message>
+        <message>
+            <source>The copy in %1 differs from the original in %2 place(s), listed above. Do not use it; delete it and report this.</source>
+            <translation>A cópia em %1 difere do original em %2 ponto(s), listados acima. Não a use; apague-a e relate o problema.</translation>
         </message>
     </context>
     <context>
@@ -8398,14 +8452,6 @@
             <translation>Arquitetura</translation>
         </message>
         <message>
-            <source>Arrives in phase P6</source>
-            <translation>Chega na fase P6</translation>
-        </message>
-        <message>
-            <source>Arrives in phase P7</source>
-            <translation>Chega na fase P7</translation>
-        </message>
-        <message>
             <source>Collecting environment information…</source>
             <translation>Coletando informações do ambiente…</translation>
         </message>
@@ -8438,8 +8484,16 @@
             <translation>Arquivos HTML (*.html)</translation>
         </message>
         <message>
-            <source>Not integrated yet</source>
-            <translation>Ainda não integrado</translation>
+            <source>Installed</source>
+            <translation>Instalado</translation>
+        </message>
+        <message>
+            <source>Installed, a version GeoComp has not been tested with</source>
+            <translation>Instalado, numa versão com a qual o GeoComp não foi testado</translation>
+        </message>
+        <message>
+            <source>Not installed</source>
+            <translation>Não instalado</translation>
         </message>
         <message>
             <source>Origin</source>
@@ -8816,8 +8870,8 @@
             <translation>Desequilíbrio das visadas (m)</translation>
         </message>
         <message>
-            <source>Sight imbalance tolerance</source>
-            <translation>Tolerância de desequilíbrio das visadas</translation>
+            <source>Sight imbalance tolerance (relative to the longer sight)</source>
+            <translation>Tolerância do desequilíbrio das visadas (relativa à visada mais longa)</translation>
         </message>
         <message>
             <source>Std dev (mm)</source>

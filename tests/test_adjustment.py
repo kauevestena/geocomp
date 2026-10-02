@@ -832,6 +832,28 @@ class TestSolutionAssembly:
             assert station.ellipse.semi_major == pytest.approx(expected.semi_major)
             assert station.ellipse.semi_minor == pytest.approx(expected.semi_minor)
 
+    def test_every_station_carries_its_positional_uncertainty(self, run):
+        """specs/06 section 4.5: one scalar per station, at the solution's
+        confidence -- the ellipse's semi-major axis, as
+        core.statistics.positional_uncertainty defines it.
+
+        Found by P12c's audit: only DynAdjust's reader set it, so an in-house
+        solution's report, tables, layers and thematic map all showed it
+        missing, and nothing failed."""
+        from geocomp.core.statistics.ellipses import positional_uncertainty
+
+        solution = self._solution(run)
+        for station in solution.adjusted_stations:
+            columns = run.layout.station_columns(station.station_id)
+            indices = [columns[c] for c in ("e", "n") if c in columns]
+            assert station.positional_uncertainty == pytest.approx(
+                positional_uncertainty(
+                    run.parameter_covariance[np.ix_(indices, indices)],
+                    confidence=0.95,
+                    degrees_of_freedom=run.degrees_of_freedom,
+                )
+            )
+
     def test_the_confidence_level_reaches_the_ellipse(self, run):
         """A larger confidence must give a larger ellipse; if the parameter were
         ignored the two would come back identical."""

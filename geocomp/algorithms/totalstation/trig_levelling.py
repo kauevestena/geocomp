@@ -186,7 +186,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 IMBALANCE_TOLERANCE,
-                self.tr("Sight imbalance tolerance"),
+                self.tr("Sight imbalance tolerance (relative to the longer sight)"),
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0.05,
                 minValue=0.0,

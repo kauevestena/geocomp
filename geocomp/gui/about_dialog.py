@@ -9,6 +9,8 @@ project commits to feeding defects and improvements back upstream.
 
 from __future__ import annotations
 
+import html
+
 from qgis.PyQt.QtCore import QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout, QWidget
 
@@ -46,6 +48,31 @@ class AboutDialog(QDialog):
         layout.addWidget(text, stretch=1)
         layout.addWidget(buttons)
 
+    @staticmethod
+    def _engines() -> list[str]:
+        """Each engine with its licence, its authors and the version installed.
+
+        specs/21 criterion 8 asks for the versions *in use*; until P12c the
+        dialog named the licences, no version, and said engine integration was
+        still to come -- three phases after it had arrived.
+        """
+        from geocomp.engines.status import engine_status
+
+        items = []
+        for engine in engine_status():
+            found = (
+                _tr("version %1, at %2")
+                .replace("%1", html.escape(engine.version.version, quote=False))
+                .replace("%2", html.escape(str(engine.version.path), quote=False))
+                if engine.version is not None
+                else _tr("not installed")
+            )
+            items.append(
+                f"<li><b>{engine.name}</b> — {engine.attribution} — {engine.licence} — "
+                f'<a href="{engine.url}">{engine.url}</a><br>{found}</li>'
+            )
+        return items
+
     def _body(self) -> str:
         return "".join(
             [
@@ -74,14 +101,8 @@ class AboutDialog(QDialog):
                     "part of GeoComp and carry their own licences:"
                 ),
                 "</p><ul>",
-                "<li><b>DynAdjust</b> — Geoscience Australia — Apache License 2.0 — ",
-                '<a href="https://github.com/GeoscienceAustralia/DynAdjust">',
-                "github.com/GeoscienceAustralia/DynAdjust</a></li>",
-                "<li><b>RTKLIB</b> — T. Takasu, and the RTKLIB-EX contributors — ",
-                '<a href="https://www.rtklib.com/">rtklib.com</a></li>',
-                "</ul><p>",
-                _tr("Engine integration arrives in later development phases."),
-                "</p>",
+                *self._engines(),
+                "</ul>",
                 f"<h3>{_tr('Source code')}</h3>",
                 '<p><a href="https://github.com/kauevestena/geocomp">',
                 "github.com/kauevestena/geocomp</a></p>",

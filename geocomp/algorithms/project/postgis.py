@@ -37,6 +37,7 @@ from qgis.core import (
     QgsProcessingParameterProviderConnection,
     QgsProcessingParameterString,
 )
+from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.core.errors import GeoCompError
@@ -52,31 +53,41 @@ ROWS = "ROWS"
 TARGET = "TARGET"
 
 
+#: The shared body's own words, translated under their own context: through
+#: ``self.tr`` they were looked up under each subclass's and never found
+#: (found by P12c's audit).
+_CONTEXT = "GeoCompPostgis"
+
+
+def _tr(text: str) -> str:
+    return QCoreApplication.translate(_CONTEXT, text)
+
+
 class _SwitchAlgorithm(GeoCompAlgorithm):
     """What export and import share: the copy, the comparison, the report."""
 
     def _database_parameters(self) -> None:
         self.addParameter(
             QgsProcessingParameterProviderConnection(
-                DATABASE, self.tr("PostgreSQL connection"), "postgres"
+                DATABASE, _tr("PostgreSQL connection"), "postgres"
             )
         )
         self.addParameter(
-            QgsProcessingParameterString(SCHEMA, self.tr("Schema"), defaultValue="geocomp")
+            QgsProcessingParameterString(SCHEMA, _tr("Schema"), defaultValue="geocomp")
         )
 
     def _database(self, parameters, context) -> tuple[str, str]:
         connection = self.parameterAsConnectionName(parameters, DATABASE, context)
         schema = (self.parameterAsString(parameters, SCHEMA, context) or "").strip()
         if not connection or not schema:
-            raise QgsProcessingException(self.tr("Give a PostgreSQL connection and a schema."))
+            raise QgsProcessingException(_tr("Give a PostgreSQL connection and a schema."))
         return connection, schema
 
     def _copy(self, source, target, feedback: QgsProcessingFeedback) -> int:
         from geocomp.io.store.transfer import copy_store
 
         feedback.pushInfo(
-            self.tr("Copying %1 to %2").replace("%1", source.location).replace("%2", target.location)
+            _tr("Copying %1 to %2").replace("%1", source.location).replace("%2", target.location)
         )
         report = copy_store(source, target)
         for name, count in report.rows.items():
@@ -86,7 +97,7 @@ class _SwitchAlgorithm(GeoCompAlgorithm):
             for line in report.differences[:20]:
                 feedback.reportError(line)
             raise QgsProcessingException(
-                self.tr(
+                _tr(
                     "The copy in %1 differs from the original in %2 place(s), listed above. "
                     "Do not use it; delete it and report this."
                 )
@@ -94,7 +105,7 @@ class _SwitchAlgorithm(GeoCompAlgorithm):
                 .replace("%2", str(len(report.differences)))
             )
         feedback.pushInfo(
-            self.tr("%1 rows copied; every table compared identical.").replace(
+            _tr("%1 rows copied; every table compared identical.").replace(
                 "%1", str(report.total)
             )
         )

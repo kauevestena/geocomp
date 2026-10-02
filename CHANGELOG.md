@@ -5,6 +5,39 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-2 — Gaps closed, and the defects behind them
+
+#### Fixed
+
+- **The in-house adjustment now reports each station's positional uncertainty.** Before, only a DynAdjust
+  solution had one. Every in-house report, table, results panel, station layer and *Positional uncertainty*
+  map showed it as missing.
+- **Words that were never translated now are:**
+  - "Requirement" in every algorithm's help;
+  - the Processing groups in the toolbox;
+  - the four GNSS processing modes' shared parameters and help;
+  - the PostGIS export and import's connection and schema;
+  - the layer outputs of the adjustments.
+- **The About dialog shows the engine versions installed**, and RTKLIB's licence. It no longer says engine
+  integration is still to come.
+- **The system report states each engine as installed or not installed, with its version.** It had said both
+  were "not integrated yet" since P0.
+- *Trigonometric levelling*'s imbalance tolerance says it is relative to the longer sight.
+
+#### Added
+
+- **An approximate solution's provenance names its approximation strategies**, and so does the export's
+  statistics sheet. The project store gains a column for them: schema 5, migrated on opening, with a backup.
+- **Every algorithm's help lists its parameters, with their units, and its outputs.**
+- **The comparison export is documented** (specs/20 §5). It is *Export solution tables*.
+- Tests for each criterion closed: the language switch, help for every algorithm, the About dialog, and the
+  comparison export.
+
+#### Not done
+
+- The glossary check, a model run headless, the propagation-chain test and RD-01's styled layers. They come in
+  P12c-2's next pull request.
+
 ### P12c-1 — The acceptance register
 
 Every acceptance criterion in the specifications now has a row saying whether it is met and what shows it

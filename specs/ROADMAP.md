@@ -1348,6 +1348,48 @@ written against them, leaving **96 met, 27 partly met, 10 open, 2 manual**:
 **Not done in P12c-1, and not implied by it.** Every row that is not met is listed in §10 with what it
 waits on; the four pull requests above work through them.
 
+#### P12c-2 — the gaps that were tests and small code (first pull request)
+
+**Delivered.** Six register rows closed, leaving **102 met, 21 partly met, 10 open, 2 manual**:
+
+| Criterion | Now shown by |
+|---|---|
+| specs/05 5: approximate results name their strategies everywhere | `tests/test_approximation_is_named.py`, against the provenance, its document, its stored row (schema 5) and the export |
+| specs/16 6: help documents every parameter with its unit | `tests/qgis/test_algorithm_help.py`, all 46 algorithms |
+| specs/18 2 and 3: the whole UI in either language; GeoComp's language over QGIS's | `tests/qgis/test_language.py`, in both languages |
+| specs/20 7: the comparison export, documented | [`20`](./20-testing-and-validation.md) §5; `tests/test_export.py::TestTheComparisonExport` |
+| specs/21 8: the About dialog's licences and engine versions | `tests/qgis/test_about_dialog.py`, `tests/test_engine_status.py` |
+
+**Found — every one of them by writing the test the register asked for.**
+
+- **The in-house adjustment never set a station's positional uncertainty.** Only DynAdjust's reader did. Every
+  in-house solution's report, tables, results panel, station layer and P12b's *Positional uncertainty* map
+  showed it missing, and nothing failed. It is the confidence ellipse's semi-major axis, as
+  [`06`](./06-adjustment-core.md) §4.5 now records.
+- **Five places never translated, though every catalogue was complete.** Each word was filed under one context
+  and looked up under another:
+  - "Requirement" in every help;
+  - every Processing group's name;
+  - the four GNSS modes' shared parameters and help;
+  - the PostGIS switch's connection and schema;
+  - the adjustments' layer outputs.
+
+  [`18`](./18-i18n-and-profiles.md) §2 now states the rule, and `tests/qgis/test_language.py` holds it from
+  outside.
+- **The About dialog and the system report both said the engines were still to come**, three phases after
+  they arrived. The dialog showed no version, and the report put "not integrated yet" in the document a support
+  request attaches. Both now ask the engines (`engines/status.py`). The dialog also gained RTKLIB's licence,
+  which it had left out.
+- **The provenance recorded an approximate solution's mode and not its strategies.** Store schema 5 adds the
+  column. A `Solution` now keeps its provenance's strategies in step with its own uncertainties, whichever
+  producer built it.
+- **No help documented its parameters**, and one label stated no unit — *Trigonometric levelling*'s imbalance
+  tolerance, a fraction of the longer sight.
+
+**Not done here.** Of P12c-2's list, the glossary check (specs/18 criterion 4), a model run headless (specs/16
+criteria 2 and 5), the chain-against-single propagation test (specs/05 criterion 3) and RD-01's styled layers
+(specs/09 criterion 9) are the next pull request's.
+
 ---
 
 ## P13 — Validation, documentation and release

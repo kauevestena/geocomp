@@ -244,6 +244,13 @@ Display exaggeration is explicit and stated in the legend (FR-901).
 A single scalar per station at a stated confidence, comparable with the values DynAdjust reports in its
 `.apu` output — so that the two engines' results can be compared directly (roadmap P6 exit criterion).
 
+**As built.** The semi-major axis of the station's confidence ellipse at the solution's confidence
+(`core/statistics/ellipses.py`, `positional_uncertainty`) — the radius of the circle the ellipse fits in,
+which is never smaller than the true circular radius. DynAdjust's reader takes the engine's own `Hz PosU`.
+**Until P12c the in-house adjustment set nothing here.** Its reports, tables, layers and the P12b thematic
+map all showed it as missing for every in-house solution, and no test failed. The comparison export's test
+([`20`](./20-testing-and-validation.md) §5) found it.
+
 ---
 
 ## 5. Pre-analysis (FR-270…FR-273)

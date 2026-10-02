@@ -391,6 +391,7 @@ class TestVersioning:
             _fill(store, complete)
             store._execute('ALTER TABLE "gc_project" DROP COLUMN "revision"')
             store._execute('ALTER TABLE "gc_network_member" DROP COLUMN "ordinal"')
+            store._execute('ALTER TABLE "gc_provenance" DROP COLUMN "strategies"')
             store._execute('UPDATE "gc_project" SET schema_version = 3')
 
         with pytest.raises(DataError) as caught:
@@ -403,7 +404,10 @@ class TestVersioning:
             backup = report.backup
             kept = store._execute(f'SELECT schema_version FROM "{backup}"."gc_project"').fetchone()
             revision = store._stored_revision()
-        assert report.steps == ["4: gc_project gains revision; gc_network_member gains ordinal"]
+        assert report.steps == [
+            "4: gc_project gains revision; gc_network_member gains ordinal",
+            "5: gc_provenance gains strategies",
+        ]
         assert backup.startswith(schema + "_backup_")
         assert kept[0] == 3
         assert revision == 0
