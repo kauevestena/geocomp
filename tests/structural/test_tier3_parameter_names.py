@@ -54,9 +54,10 @@ NOT_PARAMETER_KEYS = frozenset(
         "WGS84",
         "ITRF2014",
         "ITRF2020",
-        # Environment variables a test sets.
+        # Environment variables a test sets or reads.
         "PATH",
         "HOME",
+        "GEOCOMP_TEST_POSTGRES",
         # File and data formats named in assertions.
         "JSON",
         "CSV",

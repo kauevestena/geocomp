@@ -55,3 +55,17 @@ Schema in [`../17-persistence-and-interoperability.md`](../17-persistence-and-in
   backend-specific *indexes*, which do not change the logical schema, before anything that does.
 - GeoPackage's concurrency limits are accepted; the documented answer for concurrent multi-user work is
   PostGIS.
+
+## Implementation note (phase P11)
+
+The decision stands as written; building the mirror changed three things beneath it, each recorded in
+[`../17-persistence-and-interoperability.md`](../17-persistence-and-interoperability.md) §4.
+
+- **"One schema definition drives both stores" became "one store logic drives both".** The declarations were
+  already shared; the code that turns a project into rows now is too (`io/store/base.py`), so the two backends
+  can differ only in what PostgreSQL and SQLite do differently.
+- **JSON is `text` in PostgreSQL, not `jsonb`.** `jsonb` cannot hold `NaN`, which a valid solution stores, and
+  it rewrites a document's text. A physical-type choice, as this ADR allows; queries can still cast to `jsonb`.
+- **Order and concurrency are in the logical schema** (schema 4): a network's member order, which SQLite had
+  kept by accident and PostgreSQL would not, and a revision every save checks.
+

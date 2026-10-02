@@ -1118,6 +1118,53 @@ schema versioning and migration, concurrent-modification detection, connections 
 **Exit.** GeoPackage → PostGIS → GeoPackage is lossless, table by table. Migration works on both backends. A
 concurrent modification is detected on save rather than overwritten.
 
+**Why it could be built now.** P5 could not: no environment it ran in had a PostgreSQL server
+([`17`](./17-persistence-and-interoperability.md) §4). The development environment now has PostgreSQL 16, to
+which PostGIS 3.4 installed, and CI runs the `postgis/postgis:16-3.4` service container, so every criterion
+below is asserted against a real server rather than a stub.
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| One store logic for both backends: the rows a project becomes, FR-135's refusals, the revision check | `io/store/base.py` |
+| The PostGIS store: one schema per project, PostGIS and schema checks refused by name, `psycopg2` named when absent | `io/store/postgis.py` |
+| Schema 4: `gc_project.revision`, `gc_network_member.ordinal`; migrations on both backends; a PostGIS backup as a schema copy | `io/store/schema.py`, `io/store/migrations.py` |
+| Concurrent saves refused, on both backends, under each one's write lock | `ProjectStore._writing` |
+| Mode switching, table by table, with every table compared after the copy | `io/store/transfer.py` |
+| Connections from the QGIS registry, logins from QGIS authentication, never in a message or the store's name | `services/postgis.py` |
+| *Save to project store* in database mode; *Export project to PostGIS*; *Import project from PostGIS* | `algorithms/project/store.py`, `algorithms/project/postgis.py` |
+| Messages for every store refusal, which showed as codes before | `algorithms/project/messages.py` |
+| A PostGIS service in the `test` workflow, for the store tests and the QGIS job, failing on a skip | `.github/workflows/test.yml` |
+
+| P11 exit criterion | State |
+|---|---|
+| GeoPackage → PostGIS → GeoPackage lossless, table by table | **met** — every table compared, floats by their bytes (`tests/test_postgis_store.py`; through QGIS, `tests/qgis/test_postgis_project.py`) |
+| Migration works on both backends | **met** — a schema-3 store migrated on each; the PostGIS one is constructed, since none older than schema 4 was ever written |
+| A concurrent modification detected on save rather than overwritten | **met** — on PostGIS and on GeoPackage; a refused save writes nothing |
+
+**Found.**
+
+- **Re-saving a stored solution failed on every GeoPackage.** `INSERT OR REPLACE` deletes the conflicting row
+  first, and the restricting foreign keys refused deleting the stored solution's provenance -- reproduced on
+  `main` as an integrity error. A replace that got through would have set every `superseded_by` pointing at the
+  row to NULL. Both backends now upsert in place.
+- **A migration chain's first `ALTER TABLE` committed on its own** (Python's legacy `sqlite3` mode opens no
+  transaction for DDL), so a failed later step left a half-migrated store. Migrations now begin explicitly.
+- **A network's order was an accident of SQLite.** Stations and observations read back in the order written
+  only because SQLite returns rows in insertion order. Schema 4 records it.
+- **`jsonb`, the mapping P5 planned for JSON, cannot hold `NaN`**, which a zero-redundancy solution's global test
+  stores; JSON is `text` in both backends. And text needs `COLLATE "C"`, or ordering follows the database's
+  locale.
+
+**Not built in P11, named so the ticks above do not imply them.** A project-level setting that remembers which
+store a project lives in: the store is chosen per run -- a GeoPackage, or a QGIS connection and a schema -- so
+"configurable" is met by the algorithms rather than by a setting. Merging concurrent saves: the second is
+refused, not reconciled. A spatial index on the PostGIS geometry columns (the logical schema declares none; a
+backend-specific index is the kind of change ADR-0006 anticipates). `psycopg2` is not bundled: QGIS's
+installers carry it, and where one does not the refusal names it. Inserts are row by row; a very large
+project's copy time is unmeasured.
+
 ---
 
 ## P12 — Consolidation

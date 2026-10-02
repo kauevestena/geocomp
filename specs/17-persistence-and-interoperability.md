@@ -86,11 +86,31 @@ later. A foreign key there would refuse to store the observation until somebody 
 is the storage layer dictating the order of the work. Every reference *from a result to its inputs* is
 enforced and restricting — that is FR-135, and it is the set where enforcement belongs.
 
+**Schema 4 (phase P11) added two columns, both found necessary by the second backend.**
+`gc_project.revision`, which every save advances and checks (§4); and `gc_network_member.ordinal`, the
+member's position in its network. Before schema 4 a network's stations and observations came back in the order
+they were written only because SQLite returns rows in insertion order; PostgreSQL makes no such promise, so the
+order -- a field book's -- is now a recorded fact. Every other collection is read in primary-key order, the
+same on both backends.
+
 ## 3. Versioning and migration (FR-133)
 
 `gc_project.schema_version` is an integer, incremented on every schema change. Schema 2 added a sight's
 instrument and target heights to `gc_observation`; schema 3 (phase P8) added `gravity` to
-`gc_adjusted_station`, empty in a migrated store because no earlier version could write a gravity solution.
+`gc_adjusted_station`, empty in a migrated store because no earlier version could write a gravity solution;
+schema 4 (phase P11) added `gc_project.revision` and `gc_network_member.ordinal`. A migrated store's revision
+starts at 0, and its ordinals are taken from SQLite's row order -- the order the old store implied -- so a
+migrated network reads back exactly as it did.
+
+**Migrations run on both backends since P11.** A migration writes the physical type the schema declares *on
+that backend* (`io/store/migrations.py`, `MigrationTarget`), and a PostGIS store's backup is a copy of its
+schema, beside it in the same database, with the time in its name. No PostGIS store older than schema 4 can
+exist; the PostGIS migration test builds one by removing schema 4's additions from a current store.
+
+**[V] A migration chain was not one transaction until P11.** In Python's legacy `sqlite3` mode an
+`ALTER TABLE` opens no transaction -- only DML does -- so a chain's first column was committed on its own, and a
+failure in a later step left a column the recorded version did not account for. Migrations now begin their
+transaction explicitly; `tests/test_project_store.py` proves a failed step leaves the store as it was.
 
 - Opening a store with a **newer** version: refuse, with a message naming the versions and directing the user
   to update the plugin. Reading a schema you do not understand silently corrupts it.
@@ -114,13 +134,53 @@ GeoComp inherits the user's existing connections and credentials handling rather
 Concurrency is PostGIS's business, with GeoComp taking the appropriate transaction scope for a write and
 detecting a concurrent modification on save rather than overwriting it.
 
-**Status after phase P5: the PostGIS backend is not built.** There is no PostgreSQL server in this project's
-development or CI environments, so acceptance criterion 1 — the lossless round trip — cannot be demonstrated,
-and shipping an untested storage backend for the one part of the system whose whole job is *not losing data*
-would be worse than shipping none. What P5 does deliver for it is the half that can be verified without a
-server: the schema is declared once, as data, and generates the DDL for **both** dialects, so the two cannot
-drift apart before the backend arrives. `tests/test_project_store.py` asserts the PostgreSQL dialect is
-generated; it does not assert that anything executes it.
+**Status after phase P5: the PostGIS backend was not built**, for want of a PostgreSQL server in any environment
+the project ran in: shipping an untested storage backend for the one part of the system whose job is *not
+losing data* would have been worse than shipping none. P5 delivered the half that needed no server -- one
+schema declaration generating both dialects.
+
+**Built in phase P11 [V]**, once a server was available to test against: PostgreSQL 16 with PostGIS 3.4 in
+the development environment, and the `postgis/postgis` service container in CI.
+
+- **One store logic, two backends** (`io/store/base.py`). What a store does with a project -- the rows a network
+  and a solution become, what may be deleted (FR-135), the revision check -- is written once; the GeoPackage
+  (`geopackage.py`) and PostGIS (`postgis.py`) backends supply only statement execution, parameter markers,
+  geometry encoding and transactions. A second copy of the domain logic would be a second implementation of
+  the one thing that must not differ.
+- **One project, one schema.** The tables, indexes and per-type views are created in a schema of their own;
+  the database must already have PostGIS, and a database without it, a missing schema, and a schema holding
+  someone else's tables are each refused by name.
+- **Through `psycopg2`**, the driver QGIS's own Python tools use. The store takes a libpq connection string, so
+  it is tested in the fast tier against a real server (`tests/test_postgis_store.py`) with no QGIS; where the
+  driver is absent the refusal names it. The plugin builds the string from a connection saved in QGIS
+  (`services/postgis.py`): a login there -- ideally a QGIS authentication configuration -- is expanded in
+  memory for the call that connects, and the store is named by the connection's name and the schema, never
+  by the string (NFR-010). `tests/qgis/test_postgis_project.py` asserts the password reaches no log, result,
+  copied GeoPackage or QGIS setting.
+- **The physical mapping, as amended now that it runs.** Text is `text COLLATE "C"`: SQLite compares bytes, a
+  database compares by its locale, and a project must not read back in a different order depending on where it
+  is kept. **JSON is `text`, not the `jsonb` P5 planned:** `jsonb` cannot hold `NaN`, which a zero-redundancy
+  solution's global test stores as its statistic, so a valid project would be refused; and it rewrites the
+  document's text. Geometry is `geometry(Point)` / `geometry(LineString)` with no SRID constraint, the
+  undefined reference stored as SRID 0 (GeoPackage: -1). Foreign keys are deferrable, so a copy can insert a
+  solution before the one that supersedes it.
+- **Concurrency.** Every save takes the backend's write lock -- `BEGIN IMMEDIATE` in SQLite, `LOCK TABLE
+  gc_project IN SHARE ROW EXCLUSIVE MODE` in PostgreSQL -- compares `gc_project.revision` with the revision the
+  store last read or wrote, refuses when they differ, and advances it when they do not. A refused save writes
+  nothing, and its message names both revisions and what to do. Reads are one consistent snapshot (`REPEATABLE
+  READ` in PostgreSQL). The GeoPackage gets the same check: two QGIS sessions can have one file open on a shared
+  drive.
+- **Mode switching** (`io/store/transfer.py`, and the *Export project to PostGIS* / *Import project from
+  PostGIS* algorithms): table by table, each value as its logical kind -- a boolean as a boolean, a covariance
+  as its exact bytes, a geometry re-encoded between the GeoPackage binary and EWKB -- with foreign keys
+  deferred; then both stores are read back and every row of every table compared, floating point by its bytes
+  (`NaN` equal to itself, `-0.0` not equal to `0.0`). A copy never goes into a store holding a project.
+- **[V] Re-saving a stored solution failed on every GeoPackage until P11.** The store wrote with SQLite's
+  `INSERT OR REPLACE`, which deletes the conflicting row first; the restricting foreign keys refused deleting
+  the provenance the stored solution referenced, so `write_solution`'s documented "add or replace" raised an
+  integrity error for any solution already stored -- and a replace that got through would have set to NULL
+  every `superseded_by` pointing at the row. Both backends now upsert in place (`ON CONFLICT ... DO UPDATE`,
+  SQLite since 3.24), and a re-saved solution's old result rows are removed first.
 
 ---
 
@@ -325,9 +385,10 @@ licence requires. They are a starting list, not a dependency.
 ## 6. Acceptance criteria
 
 1. A complete project — networks, observations, sessions, settings, solutions, provenance — round-trips
-   GeoPackage → PostGIS → GeoPackage with every table identical (FR-132).
+   GeoPackage → PostGIS → GeoPackage with every table identical (FR-132). **Met in P11**, against a real
+   PostGIS (`tests/test_postgis_store.py`, and through QGIS in `tests/qgis/test_postgis_project.py`).
 2. Opening a newer schema version is refused with a clear message; opening an older one migrates after a
-   backup, tested against fixture stores of every released version.
+   backup, tested against fixture stores of every released version — on both backends since P11.
 3. Deleting observations that a stored solution depends on is refused (FR-135).
 4. RD-01's `raw_data.csv` imports through a saved field mapping, including three-column DMS and a
    locale-independent decimal separator; reapplying the saved mapping to a second file works unchanged.

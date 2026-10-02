@@ -297,6 +297,26 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="project",
         menu_order=30,
     ),
+    # Phase P11: the two mode switches of specs/17 section 4, beside the store
+    # they move a project into and out of.
+    AlgorithmSpec(
+        operation="export_postgis",
+        group="project",
+        module="geocomp.algorithms.project.postgis",
+        class_name="ExportToPostgisAlgorithm",
+        requirement="FR-132",
+        menu="project",
+        menu_order=32,
+    ),
+    AlgorithmSpec(
+        operation="import_postgis",
+        group="project",
+        module="geocomp.algorithms.project.postgis",
+        class_name="ImportFromPostgisAlgorithm",
+        requirement="FR-132",
+        menu="project",
+        menu_order=34,
+    ),
     AlgorithmSpec(
         operation="basemap",
         group="project",

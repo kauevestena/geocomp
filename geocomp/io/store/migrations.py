@@ -26,22 +26,73 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, Protocol
 
 from geocomp.core.errors import DataError, ValidationError
-from geocomp.io.store.schema import SCHEMA_VERSION
+from geocomp.io.store.schema import POSTGRES, SCHEMA_VERSION, SQLITE, physical_type, table
 
 __all__ = [
     "MIGRATIONS",
     "MigrationReport",
+    "MigrationTarget",
+    "SqliteTarget",
     "backup_path",
     "check_version",
     "migrate",
     "register",
 ]
+
+
+class MigrationTarget(Protocol):
+    """What a migration needs of a store, on either backend (phase P11).
+
+    A migration runs SQL, so it needs to know which dialect it is writing:
+    a column added by a migration must have the physical type the schema
+    declares on *that* backend, or a migrated store and a new one would differ.
+    """
+
+    backend: str
+
+    def execute(self, sql: str) -> Any: ...
+
+    def transaction(self) -> Any: ...
+
+
+class SqliteTarget:
+    """A SQLite connection as a :class:`MigrationTarget`.
+
+    **The transaction is explicit.** In Python's legacy ``sqlite3`` mode an
+    ``ALTER TABLE`` does not open a transaction -- only DML does -- so before
+    P11 a migration's first ``ALTER`` ran outside the ``with connection:``
+    block and committed on its own. Had a later step failed, the store would
+    have kept a column its recorded version does not account for, and the
+    migration could not simply be run again.
+    """
+
+    backend = SQLITE
+
+    def __init__(self, connection: sqlite3.Connection) -> None:
+        self.connection = connection
+
+    def execute(self, sql: str) -> Any:
+        return self.connection.execute(sql)
+
+    @contextmanager
+    def transaction(self) -> Iterator[None]:
+        if self.connection.in_transaction:
+            self.connection.commit()
+        self.connection.execute("BEGIN IMMEDIATE")
+        try:
+            yield
+        except BaseException:
+            self.connection.rollback()
+            raise
+        self.connection.commit()
 
 
 @dataclass
@@ -50,7 +101,8 @@ class MigrationReport:
 
     from_version: int
     to_version: int
-    backup: Path | None = None
+    #: The file a GeoPackage was copied to, or the schema a PostGIS store was.
+    backup: Path | str | None = None
     steps: list[str] = field(default_factory=list)
 
     @property
@@ -58,20 +110,20 @@ class MigrationReport:
         return self.from_version != self.to_version
 
 
-#: ``{target_version: (description, apply)}``. A migration takes the store's
-#: connection inside an open transaction and brings it from ``target - 1`` to
-#: ``target``.
-MIGRATIONS: dict[int, tuple[str, Callable[[sqlite3.Connection], None]]] = {}
+#: ``{target_version: (description, apply)}``. A migration takes a
+#: :class:`MigrationTarget` inside an open transaction and brings the store from
+#: ``target - 1`` to ``target``.
+MIGRATIONS: dict[int, tuple[str, Callable[[MigrationTarget], None]]] = {}
 
 
 def register(
     version: int, description: str
-) -> Callable[[Callable[[sqlite3.Connection], None]], Callable[[sqlite3.Connection], None]]:
+) -> Callable[[Callable[[MigrationTarget], None]], Callable[[MigrationTarget], None]]:
     """Register the migration that produces *version*."""
 
     def decorate(
-        function: Callable[[sqlite3.Connection], None],
-    ) -> Callable[[sqlite3.Connection], None]:
+        function: Callable[[MigrationTarget], None],
+    ) -> Callable[[MigrationTarget], None]:
         if version in MIGRATIONS:
             raise ValueError(f"two migrations claim version {version}")
         if version > SCHEMA_VERSION:
@@ -131,11 +183,12 @@ def backup_path(path: Path, *, now: datetime | None = None) -> Path:
 
 
 def migrate(
-    connection: sqlite3.Connection,
-    path: Path,
+    connection: sqlite3.Connection | MigrationTarget,
+    path: Path | str,
     found: int,
     *,
     take_backup: bool = True,
+    backup: Callable[[], Path | str] | None = None,
 ) -> MigrationReport:
     """Bring a store from *found* up to :data:`SCHEMA_VERSION`.
 
@@ -144,10 +197,19 @@ def migrate(
     case a backup exists for, and it is discovered later.
 
     Args:
+        connection: A GeoPackage's SQLite connection, or any
+            :class:`MigrationTarget` -- a PostGIS store is one.
+        path: The GeoPackage, or the label a PostGIS store is named by.
         take_backup: Only a test that has already copied the file sets this
             false. There is no user-facing way to skip the backup.
+        backup: How to take the backup when it is not a file copy: a PostGIS
+            store copies its schema (:func:`geocomp.io.store.postgis.backup_schema`).
+            Returns where the backup went.
     """
-    check_version(found, path=path)
+    target: MigrationTarget = (
+        SqliteTarget(connection) if isinstance(connection, sqlite3.Connection) else connection
+    )
+    check_version(found, path=Path(path) if target.backend == SQLITE else None)
     report = MigrationReport(from_version=found, to_version=SCHEMA_VERSION)
     if found == SCHEMA_VERSION:
         return report
@@ -169,22 +231,31 @@ def migrate(
         )
 
     if take_backup:
-        report.backup = backup_path(path)
-        shutil.copy2(path, report.backup)
+        if backup is not None:
+            report.backup = backup()
+        else:
+            report.backup = backup_path(Path(path))
+            shutil.copy2(path, report.backup)
 
-    with connection:
+    with target.transaction():
         for version in range(found + 1, SCHEMA_VERSION + 1):
             description, apply = MIGRATIONS[version]
-            apply(connection)
-            connection.execute(
-                'UPDATE "gc_project" SET schema_version = ?', (version,)
-            )
+            apply(target)
+            target.execute(f'UPDATE "gc_project" SET schema_version = {int(version)}')
             report.steps.append(f"{version}: {description}")
     return report
 
 
+def _add_column(target: MigrationTarget, table_name: str, column_name: str) -> None:
+    """``ALTER TABLE ... ADD COLUMN`` with the type the schema declares on this backend."""
+    kind = table(table_name).column(column_name).kind
+    target.execute(
+        f'ALTER TABLE "{table_name}" ADD COLUMN "{column_name}" {physical_type(kind, target.backend)}'
+    )
+
+
 @register(2, "gc_observation gains instrument_height and target_height")
-def _setup_heights(connection: sqlite3.Connection) -> None:
+def _setup_heights(target: MigrationTarget) -> None:
     """Carry a sight's instrument and target heights (specs/09 section 2.5).
 
     A slope distance or zenith angle measured trunnion-axis to reflector needs
@@ -198,11 +269,11 @@ def _setup_heights(connection: sqlite3.Connection) -> None:
     the machinery as well as of itself.
     """
     for column in ("instrument_height", "target_height"):
-        connection.execute(f'ALTER TABLE "gc_observation" ADD COLUMN "{column}" TEXT')
+        _add_column(target, "gc_observation", column)
 
 
 @register(3, "gc_adjusted_station gains gravity")
-def _adjusted_gravity(connection: sqlite3.Connection) -> None:
+def _adjusted_gravity(target: MigrationTarget) -> None:
     """Carry a gravity solution's adjusted value (specs/12 section 5).
 
     Before phase P8 a gravity solution could not be written at all -- its value
@@ -210,4 +281,28 @@ def _adjusted_gravity(connection: sqlite3.Connection) -> None:
     acceleration -- so no schema 2 store holds one, and the column is added
     empty. As with the setup heights, nothing is back-filled.
     """
-    connection.execute('ALTER TABLE "gc_adjusted_station" ADD COLUMN "gravity" TEXT')
+    _add_column(target, "gc_adjusted_station", "gravity")
+
+
+@register(4, "gc_project gains revision; gc_network_member gains ordinal")
+def _revision_and_order(target: MigrationTarget) -> None:
+    """Concurrent saves detected, and a network's order kept (phase P11).
+
+    ``revision`` starts at 0 in a migrated store. ``ordinal`` is filled from
+    the order the old store implied: SQLite's ``rowid``, which is the order the
+    members were written in, so a migrated network reads back in the order it
+    always did. In PostgreSQL there is no such order to recover -- no PostGIS
+    store older than schema 4 was ever written -- so the physical order is the
+    best that exists, and it is used.
+    """
+    _add_column(target, "gc_project", "revision")
+    _add_column(target, "gc_network_member", "ordinal")
+    target.execute('UPDATE "gc_project" SET "revision" = 0')
+    if target.backend == POSTGRES:
+        target.execute(
+            'UPDATE "gc_network_member" AS m SET "ordinal" = r.n '
+            'FROM (SELECT ctid, row_number() OVER (ORDER BY ctid) AS n FROM "gc_network_member") AS r '
+            "WHERE m.ctid = r.ctid"
+        )
+    else:
+        target.execute('UPDATE "gc_network_member" SET "ordinal" = rowid')

@@ -1278,6 +1278,33 @@
         </message>
     </context>
     <context>
+        <name>ExportToPostgisAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Copies every table of a GeoComp GeoPackage into a schema of a PostGIS database, for a project that several people work on or that grows large. Nothing is converted through text: coordinates, covariances and their provenance arrive exactly as they were.&lt;/p&gt;&lt;p&gt;Both stores are then compared, every row of every table, and the log says so. The schema must be new or empty; an existing project is never overwritten. The database is reached through a connection saved in QGIS, with its login, and must have the PostGIS extension.&lt;/p&gt;&lt;p&gt;An older GeoPackage is migrated first, after a backup.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Copia todas as tabelas de um GeoPackage do GeoComp para um esquema de um banco PostGIS, para um projeto em que várias pessoas trabalham ou que cresce muito. Nada é convertido por texto: coordenadas, covariâncias e sua proveniência chegam exatamente como eram.&lt;/p&gt;&lt;p&gt;Os dois repositórios são então comparados, cada linha de cada tabela, e o log informa. O esquema deve ser novo ou vazio; um projeto existente nunca é sobrescrito. O banco é acessado por uma conexão salva no QGIS, com seu login, e deve ter a extensão PostGIS.&lt;/p&gt;&lt;p&gt;Um GeoPackage mais antigo é migrado antes, após uma cópia de segurança.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Copy a GeoPackage project into a PostGIS schema, and check the copy.</source>
+            <translation>Copia um projeto GeoPackage para um esquema PostGIS e verifica a cópia.</translation>
+        </message>
+        <message>
+            <source>Export project to PostGIS</source>
+            <translation>Exportar projeto para o PostGIS</translation>
+        </message>
+        <message>
+            <source>GeoComp GeoPackage</source>
+            <translation>GeoPackage do GeoComp</translation>
+        </message>
+        <message>
+            <source>Project store</source>
+            <translation>Repositório do projeto</translation>
+        </message>
+        <message>
+            <source>Rows copied</source>
+            <translation>Linhas copiadas</translation>
+        </message>
+    </context>
+    <context>
         <name>ExtremeSightsAlgorithm</name>
         <message>
             <source>&lt;p&gt;Reduces each instrument setup to one height difference per foresight, keeping the &lt;b&gt;full covariance&lt;/b&gt; between them.&lt;/p&gt;&lt;p&gt;All the foresights of a setup subtract the same backsight reading, so they share its error. Between two of them the backsight &lt;b&gt;cancels exactly&lt;/b&gt;: their height difference is one foresight minus the other, and the backsight does not appear. Treating the two as independent adds twice the backsight variance that is not there and reports an uncertainty too &lt;b&gt;large&lt;/b&gt; &amp;mdash; which is the opposite of the usual failure, and can have a network declared inadequate that is in fact fine.&lt;/p&gt;&lt;p&gt;The report gives both: the difference from the backsighted station to each foresight, and the difference between each pair of foresights computed through the covariance, next to what treating them independently would have claimed.&lt;/p&gt;&lt;p&gt;The correlation is carried into the output document as a covariance, so a network adjustment built from these setups keeps it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; the document the importer produced. &lt;b&gt;Only setups with several foresights&lt;/b&gt; &amp;mdash; skip the ordinary one-foresight setups, which have no correlation to show.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt; and &lt;b&gt;level id&lt;/b&gt; &amp;mdash; where the reading precision comes from. &lt;b&gt;Longest sight&lt;/b&gt; and &lt;b&gt;largest imbalance per setup&lt;/b&gt; (m) &amp;mdash; limits; zero disables a check.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Height differences&lt;/b&gt; &amp;mdash; JSON with the covariances. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Differences&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;DIFFERENCE_COUNT&lt;/code&gt; and &lt;code&gt;WORST_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
@@ -1403,6 +1430,10 @@
             <translation>%1 épocas, %2% com ambiguidades resolvidas</translation>
         </message>
         <message>
+            <source>%1 rows copied; every table compared identical.</source>
+            <translation>%1 linhas copiadas; todas as tabelas comparadas idênticas.</translation>
+        </message>
+        <message>
             <source>%1: %2</source>
             <translation>%1: %2</translation>
         </message>
@@ -1423,6 +1454,10 @@
             <translation>Estação base</translation>
         </message>
         <message>
+            <source>Copying %1 to %2</source>
+            <translation>Copiando %1 para %2</translation>
+        </message>
+        <message>
             <source>Elevation mask, degrees (-1 uses Global Settings)</source>
             <translation>Máscara de elevação, graus (-1 usa as Configurações Globais)</translation>
         </message>
@@ -1437,6 +1472,10 @@
         <message>
             <source>GeoComp</source>
             <translation>GeoComp</translation>
+        </message>
+        <message>
+            <source>Give a PostgreSQL connection and a schema.</source>
+            <translation>Informe uma conexão PostgreSQL e um esquema.</translation>
         </message>
         <message>
             <source>JSON files (*.json)</source>
@@ -1459,6 +1498,10 @@
             <translation>Nenhuma sessão de observação RINEX foi encontrada em %1</translation>
         </message>
         <message>
+            <source>PostgreSQL connection</source>
+            <translation>Conexão PostgreSQL</translation>
+        </message>
+        <message>
             <source>Quality summary</source>
             <translation>Resumo de qualidade</translation>
         </message>
@@ -1475,6 +1518,10 @@
             <translation>Estação móvel</translation>
         </message>
         <message>
+            <source>Schema</source>
+            <translation>Esquema</translation>
+        </message>
+        <message>
             <source>Skipped %1: %2</source>
             <translation>Ignorado %1: %2</translation>
         </message>
@@ -1485,6 +1532,10 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas da solução (camada)</translation>
+        </message>
+        <message>
+            <source>The copy in %1 differs from the original in %2 place(s), listed above. Do not use it; delete it and report this.</source>
+            <translation>A cópia em %1 difere do original em %2 ponto(s), listados acima. Não a use; apague-a e relate o problema.</translation>
         </message>
     </context>
     <context>
@@ -2775,6 +2826,14 @@
     <context>
         <name>GeoCompMessages</name>
         <message>
+            <source>%1 already holds a project, and copying into it would mix two. Copy into a new GeoPackage or a new schema.</source>
+            <translation>%1 já contém um projeto, e copiar para ele misturaria dois. Copie para um GeoPackage novo ou um esquema novo.</translation>
+        </message>
+        <message>
+            <source>%1 is not a GeoComp project store: it holds other tables (%2). GeoComp does not write into a store it did not create; choose a new file or schema.</source>
+            <translation>%1 não é um repositório de projeto do GeoComp: contém outras tabelas (%2). O GeoComp não grava em um repositório que não criou; escolha um arquivo ou esquema novo.</translation>
+        </message>
+        <message>
             <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
             <translation>%1 estação(ões) são alcançadas apenas por altitudes, então nada determina onde estão horizontalmente: %2. Ligue-as com um vetor GNSS ou uma observação de estação total, fixe-as horizontalmente ou ajuste o nivelamento sozinho.</translation>
         </message>
@@ -2803,8 +2862,16 @@
             <translation>Foi informado um modelo geoidal, mas esta combinação está em um sistema local (%1), onde cada altitude é o que sua entrada diz. Não informe o geoide.</translation>
         </message>
         <message>
+            <source>A geometry in the project store could not be read (it begins %1). The store may be damaged; the numeric coordinates beside it are the record.</source>
+            <translation>Uma geometria no repositório do projeto não pôde ser lida (começa com %1). O repositório pode estar danificado; as coordenadas numéricas ao lado são o registro.</translation>
+        </message>
+        <message>
             <source>A position must move from epoch %1 and no velocity was given for it. Supply one in the velocities file.</source>
             <translation>Uma posição precisa ser levada da época %1 e não foi dada velocidade para ela. Informe uma no arquivo de velocidades.</translation>
+        </message>
+        <message>
+            <source>A project store at schema %1 cannot be brought forward by this version of GeoComp: a migration step is missing. Report this; do not edit the store by hand.</source>
+            <translation>Um repositório de projeto no esquema %1 não pode ser atualizado por esta versão do GeoComp: falta uma etapa de migração. Relate o problema; não edite o repositório à mão.</translation>
         </message>
         <message>
             <source>A series needs two epochs at least; %1 was given.</source>
@@ -2813,6 +2880,10 @@
         <message>
             <source>Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The two must agree, in the same order.</source>
             <translation>O agrupamento correlacionado '%1' fornece %2 linhas de observação mas uma matriz de covariâncias %3. Os dois devem coincidir, na mesma ordem.</translation>
+        </message>
+        <message>
+            <source>Could not connect to the PostgreSQL server: %1. Check the connection in the QGIS browser; its login is the one GeoComp uses.</source>
+            <translation>Não foi possível conectar ao servidor PostgreSQL: %1. Verifique a conexão no navegador do QGIS; o login dela é o que o GeoComp usa.</translation>
         </message>
         <message>
             <source>Could not download %1: %2. The download was retried; check the network and the proxy configured in QGIS, then run again.</source>
@@ -2891,6 +2962,10 @@
             <translation>Altitudes ortométricas (do nivelamento) encontram as altitudes elipsoidais que o referencial geocêntrico calcula, e nenhum modelo geoidal as relaciona. Escolha um modelo geoidal: sem ele, elas diferem pela ondulação, dezenas de metros em boa parte do Brasil.</translation>
         </message>
         <message>
+            <source>PostGIS projects need the psycopg2 Python module, which this QGIS does not have. Install it into the Python QGIS uses (on Linux, the python3-psycopg2 package), then restart QGIS.</source>
+            <translation>Projetos PostGIS precisam do módulo Python psycopg2, que este QGIS não tem. Instale-o no Python que o QGIS usa (no Linux, o pacote python3-psycopg2) e reinicie o QGIS.</translation>
+        </message>
+        <message>
             <source>Reading '%1' has had no tide removed, and the tide model is set to none. Leaving the tide in costs a few hundred microgal that change by the hour; choose Longman's model, or confirm that the instrument applied its own.</source>
             <translation>A leitura '%1' não teve a maré removida, e o modelo de maré está definido como nenhum. Deixar a maré custa algumas centenas de microgal que mudam a cada hora; escolha o modelo de Longman, ou confirme que o instrumento aplicou o seu próprio.</translation>
         </message>
@@ -2909,6 +2984,10 @@
         <message>
             <source>Session '%1' holds readings from several instruments (%2). Drift belongs to an instrument, so each needs its own session.</source>
             <translation>A sessão '%1' contém leituras de vários instrumentos (%2). A deriva pertence a um instrumento, então cada um precisa de sua própria sessão.</translation>
+        </message>
+        <message>
+            <source>Someone else saved %1 since you opened it (revision %2 now; you read %3). Nothing was written. Open the project again and redo your change, so their save is not overwritten.</source>
+            <translation>Outra pessoa gravou %1 desde que você o abriu (revisão %2 agora; você leu a %3). Nada foi gravado. Abra o projeto de novo e refaça sua alteração, para que a gravação dela não seja sobrescrita.</translation>
         </message>
         <message>
             <source>State the epoch of the combination (a decimal year). None of the inputs states one GeoComp could take, and it does not assume one.</source>
@@ -2961,6 +3040,10 @@
         <message>
             <source>The cross-covariance given has shape %1; it must be %2.</source>
             <translation>A covariância cruzada fornecida tem forma %1; deve ser %2.</translation>
+        </message>
+        <message>
+            <source>The database behind %1 does not have the PostGIS extension. A database administrator enables it once, with: CREATE EXTENSION postgis</source>
+            <translation>O banco por trás de %1 não tem a extensão PostGIS. Um administrador do banco a habilita uma vez, com: CREATE EXTENSION postgis</translation>
         </message>
         <message>
             <source>The datum '%1' needs a plan (east and north) and these solutions have none. Use the translation datum for heights.</source>
@@ -3043,6 +3126,10 @@
             <translation>A rede não determina %1 combinação(ões) de incógnitas: %2. Acrescente observações que as fixem, ou defina o datum com injunções internas ou mínimas, de modo que a liberdade remanescente seja removida deliberadamente.</translation>
         </message>
         <message>
+            <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
+            <translation>A observação %1 não pode ser excluída: as soluções armazenadas %2 foram calculadas a partir dela (FR-135). Substitua essas soluções antes, ou mantenha a observação.</translation>
+        </message>
+        <message>
             <source>The planned network '%1' contains no observations, so there is no design to evaluate. Add the observations you intend to make, with their assumed precisions.</source>
             <translation>A rede planejada '%1' não contém observações, portanto não há projeto a avaliar. Acrescente as observações que pretende realizar, com suas precisões supostas.</translation>
         </message>
@@ -3057,6 +3144,22 @@
         <message>
             <source>The product %1 is not available from %2. A recent day's final orbit is published about two weeks later; allow rapid orbits in Global Settings → GNSS, add another download service, or place the file in the product directory.</source>
             <translation>O produto %1 não está disponível em %2. A órbita final de um dia recente é publicada cerca de duas semanas depois; permita órbitas rápidas em Configurações Globais → GNSS, adicione outro serviço de download, ou coloque o arquivo no diretório de produtos.</translation>
+        </message>
+        <message>
+            <source>The project store %1 holds no project yet. Save a network or a solution to it first.</source>
+            <translation>O repositório de projeto %1 ainda não contém projeto. Grave nele uma rede ou uma solução antes.</translation>
+        </message>
+        <message>
+            <source>The project store %1 records schema version %2, which no GeoComp wrote. It may be damaged; restore it from a backup.</source>
+            <translation>O repositório de projeto %1 registra a versão de esquema %2, que nenhum GeoComp gravou. Pode estar danificado; restaure-o de uma cópia de segurança.</translation>
+        </message>
+        <message>
+            <source>The project store %1 uses schema %2, older than this version's %3. It can be migrated, after a backup is taken.</source>
+            <translation>O repositório de projeto %1 usa o esquema %2, mais antigo que o %3 desta versão. Pode ser migrado, após uma cópia de segurança.</translation>
+        </message>
+        <message>
+            <source>The project store %1 was written by a newer GeoComp (schema %2; this version reads up to %3). Update the plugin to open it: GeoComp does not read a schema it does not understand, because what it cannot see would be lost on the next save.</source>
+            <translation>O repositório de projeto %1 foi gravado por um GeoComp mais novo (esquema %2; esta versão lê até o %3). Atualize o plugin para abri-lo: o GeoComp não lê um esquema que não entende, porque o que não consegue ver se perderia na próxima gravação.</translation>
         </message>
         <message>
             <source>The reading '%1' appears twice. Remove the duplicate line and run again.</source>
@@ -3093,6 +3196,10 @@
         <message>
             <source>The setting '%1' expects a value of type %2, but received %3. Correct it in Global Settings, or restore the default.</source>
             <translation>A configuração '%1' espera um valor do tipo %2, mas recebeu %3. Corrija-a em Configurações Globais ou restaure o padrão.</translation>
+        </message>
+        <message>
+            <source>The solution %1 cannot supersede itself; name the earlier solution it replaces.</source>
+            <translation>A solução %1 não pode substituir a si mesma; indique a solução anterior que ela substitui.</translation>
         </message>
         <message>
             <source>The solution '%1' has no position components to compare (%2).</source>
@@ -3141,6 +3248,18 @@
         <message>
             <source>The two solutions estimate different components (%1). Compare epochs adjusted in the same dimension: plan with plan, heights with heights, 3D with 3D.</source>
             <translation>As duas soluções estimam componentes diferentes (%1). Compare épocas ajustadas na mesma dimensão: planimetria com planimetria, altitudes com altitudes, 3D com 3D.</translation>
+        </message>
+        <message>
+            <source>There is no GeoComp project at %1. Check the name, or choose to create it.</source>
+            <translation>Não há projeto do GeoComp em %1. Verifique o nome, ou escolha criá-lo.</translation>
+        </message>
+        <message>
+            <source>There is no PostgreSQL connection named '%1' in QGIS. Add it in the Browser panel under PostgreSQL, or choose one that exists.</source>
+            <translation>Não há conexão PostgreSQL chamada '%1' no QGIS. Adicione-a no painel Navegador em PostgreSQL, ou escolha uma que exista.</translation>
+        </message>
+        <message>
+            <source>There is no solution %1 in this project store.</source>
+            <translation>Não há solução %1 neste repositório de projeto.</translation>
         </message>
         <message>
             <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2.</source>
@@ -5132,6 +5251,33 @@
         </message>
     </context>
     <context>
+        <name>ImportFromPostgisAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Copies every table of a GeoComp project in a PostGIS schema into a GeoPackage: for work away from the database, for a copy to send, or to keep a monitoring project's state at a date.&lt;/p&gt;&lt;p&gt;Both stores are then compared, every row of every table, and the log says so. The GeoPackage must be new; an existing project is never overwritten.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Copia todas as tabelas de um projeto do GeoComp em um esquema PostGIS para um GeoPackage: para trabalhar longe do banco, para enviar uma cópia, ou para guardar o estado de um projeto de monitoramento em uma data.&lt;/p&gt;&lt;p&gt;Os dois repositórios são então comparados, cada linha de cada tabela, e o log informa. O GeoPackage deve ser novo; um projeto existente nunca é sobrescrito.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Copy a PostGIS project into a new GeoPackage, and check the copy.</source>
+            <translation>Copia um projeto PostGIS para um GeoPackage novo e verifica a cópia.</translation>
+        </message>
+        <message>
+            <source>GeoPackage</source>
+            <translation>GeoPackage</translation>
+        </message>
+        <message>
+            <source>GeoPackage (*.gpkg)</source>
+            <translation>GeoPackage (*.gpkg)</translation>
+        </message>
+        <message>
+            <source>Import project from PostGIS</source>
+            <translation>Importar projeto do PostGIS</translation>
+        </message>
+        <message>
+            <source>Rows copied</source>
+            <translation>Linhas copiadas</translation>
+        </message>
+    </context>
+    <context>
         <name>ImportLevelBookAlgorithm</name>
         <message>
             <source>%1 setup(s) in %2 line(s).</source>
@@ -7070,8 +7216,8 @@
     <context>
         <name>ProjectStoreAlgorithm</name>
         <message>
-            <source>&lt;p&gt;Writes a network, a solution, or both into a GeoComp project store: a GeoPackage holding networks, observations, sessions, settings, solutions and their provenance, with the covariances stored so that they reload bit-identically.&lt;/p&gt;&lt;p&gt;By default the solution is &lt;b&gt;added&lt;/b&gt; to whatever the store already holds, because the opposite mistake cannot be undone: replacing a project that was meant to be added to loses it. Replacing is available and says so.&lt;/p&gt;&lt;p&gt;A store already holding solutions computed from these observations will refuse to have them deleted (FR-135). To record that a new solution replaces an older one, name the older one under &lt;i&gt;Supersedes&lt;/i&gt;: it is kept and marked, because in monitoring the earlier answer still matters after it stops being the current one.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Project store&lt;/b&gt; &amp;mdash; the GeoPackage to write to. It is created if it does not exist; an older schema version is migrated after a backup, and a newer one is refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; and &lt;b&gt;Network&lt;/b&gt; &amp;mdash; documents written by earlier algorithms. At least one is required.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Grava uma rede, uma solução, ou ambas em um repositório de projeto do GeoComp: um GeoPackage com redes, observações, sessões, configurações, soluções e sua proveniência, com as covariâncias armazenadas de modo a serem recarregadas bit a bit idênticas.&lt;/p&gt;&lt;p&gt;Por padrão a solução é &lt;b&gt;acrescentada&lt;/b&gt; ao que o repositório já contém, porque o erro contrário não tem volta: substituir um projeto que se pretendia complementar significa perdê-lo. Substituir está disponível e diz o que faz.&lt;/p&gt;&lt;p&gt;Um repositório que já contenha soluções calculadas a partir dessas observações recusará excluí-las (FR-135). Para registrar que uma nova solução substitui uma anterior, indique a anterior em &lt;i&gt;Substitui&lt;/i&gt;: ela é mantida e marcada, porque em monitoramento a resposta anterior continua importando depois de deixar de ser a atual.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Repositório do projeto&lt;/b&gt; &amp;mdash; o GeoPackage a gravar. É criado se não existir; uma versão de esquema mais antiga é migrada após uma cópia de segurança, e uma mais nova é recusada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; e &lt;b&gt;Rede&lt;/b&gt; &amp;mdash; documentos escritos por algoritmos anteriores. Ao menos um é obrigatório.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Writes a network, a solution, or both into a GeoComp project store: a GeoPackage holding networks, observations, sessions, settings, solutions and their provenance, with the covariances stored so that they reload bit-identically.&lt;/p&gt;&lt;p&gt;By default the solution is &lt;b&gt;added&lt;/b&gt; to whatever the store already holds, because the opposite mistake cannot be undone: replacing a project that was meant to be added to loses it. Replacing is available and says so.&lt;/p&gt;&lt;p&gt;A store already holding solutions computed from these observations will refuse to have them deleted (FR-135). To record that a new solution replaces an older one, name the older one under &lt;i&gt;Supersedes&lt;/i&gt;: it is kept and marked, because in monitoring the earlier answer still matters after it stops being the current one.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Project store&lt;/b&gt; &amp;mdash; the GeoPackage to write to. It is created if it does not exist; an older schema version is migrated after a backup, and a newer one is refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;PostgreSQL connection&lt;/b&gt; and &lt;b&gt;Schema&lt;/b&gt; &amp;mdash; instead of a GeoPackage, a project in a PostGIS database, through a connection saved in QGIS and its login. Give one or the other. If someone else saves to the same project while you work, your save is refused rather than overwriting theirs; open the project again and redo the change.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; and &lt;b&gt;Network&lt;/b&gt; &amp;mdash; documents written by earlier algorithms. At least one is required.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Grava uma rede, uma solução, ou ambas em um repositório de projeto do GeoComp: um GeoPackage com redes, observações, sessões, configurações, soluções e sua proveniência, com as covariâncias armazenadas de modo a serem recarregadas bit a bit idênticas.&lt;/p&gt;&lt;p&gt;Por padrão a solução é &lt;b&gt;acrescentada&lt;/b&gt; ao que o repositório já contém, porque o erro contrário não tem volta: substituir um projeto que se pretendia complementar significa perdê-lo. Substituir está disponível e diz o que faz.&lt;/p&gt;&lt;p&gt;Um repositório que já contenha soluções calculadas a partir dessas observações recusará excluí-las (FR-135). Para registrar que uma nova solução substitui uma anterior, indique a anterior em &lt;i&gt;Substitui&lt;/i&gt;: ela é mantida e marcada, porque em monitoramento a resposta anterior continua importando depois de deixar de ser a atual.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Repositório do projeto&lt;/b&gt; &amp;mdash; o GeoPackage a gravar. É criado se não existir; uma versão de esquema mais antiga é migrada após uma cópia de segurança, e uma mais nova é recusada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Conexão PostgreSQL&lt;/b&gt; e &lt;b&gt;Esquema&lt;/b&gt; &amp;mdash; em vez de um GeoPackage, um projeto em um banco PostGIS, por uma conexão salva no QGIS e seu login. Informe um ou outro. Se outra pessoa gravar no mesmo projeto enquanto você trabalha, sua gravação é recusada em vez de sobrescrever a dela; abra o projeto de novo e refaça a alteração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; e &lt;b&gt;Rede&lt;/b&gt; &amp;mdash; documentos escritos por algoritmos anteriores. Ao menos um é obrigatório.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>GeoPackage (*.gpkg)</source>
@@ -7082,12 +7228,24 @@
             <translation>Informe um documento de solução, um documento de rede, ou ambos.</translation>
         </message>
         <message>
+            <source>Give either a GeoPackage or a PostgreSQL connection to save to.</source>
+            <translation>Informe um GeoPackage ou uma conexão PostgreSQL onde gravar, um dos dois.</translation>
+        </message>
+        <message>
             <source>Id of the solution this one replaces (optional)</source>
             <translation>Identificador da solução que esta substitui (opcional)</translation>
         </message>
         <message>
+            <source>Migrated %1 from schema %2 to %3; the backup is %4</source>
+            <translation>%1 migrado do esquema %2 para o %3; a cópia de segurança é %4</translation>
+        </message>
+        <message>
             <source>Network document (optional)</source>
             <translation>Documento de rede (opcional)</translation>
+        </message>
+        <message>
+            <source>PostgreSQL connection (instead of a GeoPackage)</source>
+            <translation>Conexão PostgreSQL (em vez de um GeoPackage)</translation>
         </message>
         <message>
             <source>Project id</source>
@@ -7106,6 +7264,10 @@
             <translation>Salvar no repositório do projeto</translation>
         </message>
         <message>
+            <source>Schema</source>
+            <translation>Esquema</translation>
+        </message>
+        <message>
             <source>Solution document (optional)</source>
             <translation>Documento de solução (opcional)</translation>
         </message>
@@ -7114,8 +7276,8 @@
             <translation>A solução substituída é mantida, não excluída: o que se acreditava e quando faz parte do registro de monitoramento.</translation>
         </message>
         <message>
-            <source>Write a network and its solution into a GeoComp GeoPackage.</source>
-            <translation>Grava uma rede e sua solução em um GeoPackage do GeoComp.</translation>
+            <source>Write a network and its solution into a GeoComp project: a GeoPackage or a PostGIS schema.</source>
+            <translation>Grava uma rede e sua solução em um projeto do GeoComp: um GeoPackage ou um esquema PostGIS.</translation>
         </message>
     </context>
     <context>

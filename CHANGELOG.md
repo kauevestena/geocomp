@@ -5,6 +5,44 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P11 — PostGIS
+
+A project can live in a PostGIS database as well as in a GeoPackage, and move between the two without losing
+anything (FR-131, FR-132, FR-133).
+
+#### Added
+
+- **PostGIS project stores.** Each project lives in a schema of its own in a database with PostGIS. GeoComp
+  reaches the database through a PostgreSQL connection saved in QGIS, so it uses QGIS's login for it,
+  preferably held in a QGIS authentication configuration. A store is named by the connection and the schema,
+  never by anything that could hold a password.
+- **Export project to PostGIS** and **Import project from PostGIS**, in the Project menu. Each copies every
+  table, then compares the two stores row by row and says so in the log. Neither overwrites an existing
+  project.
+- **Save to project store** can write to a PostGIS schema instead of a GeoPackage.
+- **A save is refused when someone else saved first**, on PostGIS and on a GeoPackage alike. Nothing is
+  written, and the message names both revisions and says to open the project again.
+- Messages for every refusal the project store can give, which before showed as codes. Portuguese and
+  Spanish for every new string.
+- Schema version 4: a project revision, and the order of each network's stations and observations. Older
+  stores migrate after a backup. For PostGIS, the backup is a copy of the schema in the same database.
+
+#### Fixed
+
+- Saving a solution that was already in a GeoPackage failed with a database integrity error. Saving it again
+  now replaces it, and a solution that it supersedes keeps pointing at it.
+- If a migration step failed, the first column it had added stayed in the store. A failed migration now
+  leaves the store unchanged.
+- A network's stations and observations came back in their original order only because of how SQLite returns
+  rows. That order is now stored.
+
+#### Not done
+
+- No setting remembers where a project is stored; the store is chosen each time an algorithm runs.
+- Two concurrent saves are not merged: the second is refused.
+- No spatial index on the PostGIS geometry columns.
+- `psycopg2` is not bundled. Where QGIS lacks it, GeoComp says what to install.
+
 ### P10c — GNSS product download
 
 Orbits and navigation found or fetched for the days a GNSS session needs, with a login that never leaves

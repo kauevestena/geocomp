@@ -50,6 +50,48 @@ jobs:
       - name: The plugin package must import without QGIS
         run: python -c "import geocomp; print(geocomp.__version__)"
 
+  # Phase P11: the PostGIS store against a real PostGIS. specs/17 criterion 1 --
+  # GeoPackage -> PostGIS -> GeoPackage with every table identical -- needs a
+  # server, which P5 had nowhere to run; a service container is one. The tests
+  # skip without GEOCOMP_TEST_POSTGRES, so the second step fails the job if any
+  # of them did: a PostGIS check that silently skipped would be a green tick for
+  # nothing.
+  postgis:
+    name: postgis store
+    runs-on: ubuntu-latest
+    services:
+      postgis:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: pw-ci-6b2f0e-never-logged
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      GEOCOMP_TEST_POSTGRES: host=localhost port=5432 dbname=postgres user=postgres password=pw-ci-6b2f0e-never-logged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip pytest numpy psycopg2-binary
+
+      - name: The store on PostGIS, and the store on GeoPackage beside it
+        run: |
+          set -o pipefail
+          python -m pytest -q -rs tests/test_postgis_store.py tests/test_project_store.py | tee pytest.log
+
+      - name: None of the PostGIS tests may have skipped
+        run: |
+          if grep -q "SKIPPED" pytest.log; then
+            echo "::error::PostGIS tests skipped although a server was provided"
+            exit 1
+          fi
+
   # FR-090 / FR-091: an untranslated string fails the build at the commit that
   # introduces it, not at release.
   translations:
@@ -79,11 +121,30 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: qgis/qgis:latest
+    # P11: a PostGIS for the database-mode tests, reached by its service name
+    # from inside the container. Its password differs from every name the
+    # tests use, so the leak assertions (NFR-010) cannot match by accident.
+    services:
+      postgis:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: pw-ci-6b2f0e-never-logged
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      GEOCOMP_TEST_POSTGRES: host=postgis port=5432 dbname=postgres user=postgres password=pw-ci-6b2f0e-never-logged
     steps:
       - uses: actions/checkout@v4
 
       - name: Install test tooling
-        run: pip3 install --break-system-packages pytest
+        run: |
+          pip3 install --break-system-packages pytest
+          # The PostgreSQL driver QGIS's Python tools use; installed only if
+          # this image lacks it, and reported below either way.
+          python3 -c "import psycopg2" 2>/dev/null || pip3 install --break-system-packages psycopg2-binary
 
       # Each of these fails on its own line rather than inside the test run, so
       # a broken environment is distinguishable from a broken plugin. This job
@@ -94,6 +155,7 @@ jobs:
           python3 -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION)"
           python3 -c "import numpy; print('numpy', numpy.__version__)"
           python3 -c "import pytest; print('pytest', pytest.__version__)"
+          python3 -c "import psycopg2; print('psycopg2', psycopg2.__version__)"
           python3 -c "import geocomp; print('geocomp', geocomp.__version__)"
 
       - name: Collect the suite
@@ -130,6 +192,16 @@ jobs:
           else
             echo "xvfb-run not present; offscreen platform only"
             python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+          fi
+
+      # The database-mode tests skip without a server; here there is one, so a
+      # skip means the service or the driver failed, not that there was nothing
+      # to test.
+      - name: The PostGIS tests ran here too
+        run: |
+          if grep -E "SKIPPED.*test_postgis" pytest.log; then
+            echo "::error::PostGIS tests skipped in the QGIS job although a server was provided"
+            exit 1
           fi
 
       # A crash exits before pytest prints anything, and the run log is not

@@ -2,3 +2,5 @@
 """Project and data algorithms (Processing group ``project``)."""
 
 from __future__ import annotations
+
+from geocomp.algorithms.project import messages as _messages  # noqa: F401
