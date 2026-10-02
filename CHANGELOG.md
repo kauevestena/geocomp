@@ -5,6 +5,49 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P10c — GNSS product download
+
+Orbits and navigation found or fetched for the days a GNSS session needs, with a login that never leaves
+QGIS's authentication store (FR-352, FR-353, NFR-010).
+
+#### Added
+
+- **Download products** (`geocomp:gnss_download_products`, GNSS menu, after *Scan sessions*). IGS final or
+  rapid orbits and GPS or GLONASS broadcast navigation, for a folder's sessions or a range of days. Each comes
+  from the product cache, then the product directory, then the download services in their configured
+  order. *Check only* reports what can be had, and from where, without downloading. Products can be copied
+  to a folder, and a manifest records each one.
+- **Processing resolves its own products.** The four modes, batch processing and *Compare configurations*
+  fetch the orbit for each day their sessions touch when the precise ephemeris is selected. They fetch
+  broadcast navigation only when the folder has none. A product that cannot be had stops the run before the
+  engine starts, and the message names the product. Batch processing checks every session before the first
+  one runs. A download that fails is reported against its session, and the batch goes on. Every run's JSON
+  lists its products by origin and checksum.
+- **One download service ships**: NOAA's CORS open-data archive (`noaa-ncn`), which needs no login. Other
+  archives are added in a JSON services file.
+- **A login is applied by reference.** A service names a QGIS authentication configuration, and the QGIS
+  network stack applies it, along with QGIS's proxy settings. A services file with a password or token
+  written into a URL is refused.
+- Four GNSS settings, all read: the download services, the services file, the cache folder and whether
+  rapid orbits may replace final ones that are not yet published.
+- Separate messages for a product that is not found, a login that was refused and a network failure. Each
+  says what to do. Portuguese and Spanish for every new string.
+
+#### Fixed
+
+- Batch processing and *Compare configurations* never passed precise products, whatever the ephemeris
+  setting said.
+- The single-run modes passed every orbit, clock and ionosphere file in the product directory, whatever its
+  day. Orbits are now matched to the session's days, by name or by the span the file's header states.
+- A compressed orbit in the product directory was passed to RTKLIB as `.gz`. RTKLIB skips such files without
+  an error, so the run quietly used broadcast orbits. The orbit is now decompressed into the cache first.
+
+#### Not done
+
+- Clock and ionosphere files are still passed from the directory whatever their day. They are now recorded.
+- Ultra-rapid orbits are not offered.
+- GeoComp ships no templates for IGS, CDDIS, BKG or IBGE. None of these archives is reachable to test (W-14).
+
 ### P10b — multi-epoch comparison and monitoring: the surface
 
 The monitoring pipeline as three algorithms under **Analysis**, with its layers, its report and the
@@ -48,7 +91,7 @@ time-series panel on the map. The product download is P10c, split out at the mai
 
 - The cross-covariance between epochs is not an input. No GeoComp document carries it, so every run is
   approximate, and says so.
-- RD-08's published half (W-01). The product download (P10c).
+- RD-08's published half (W-01). The product download, which became P10c.
 - The layer tests need QGIS 3.38 or later, and run in CI only.
 
 ### P10a — multi-epoch comparison and monitoring: the computation

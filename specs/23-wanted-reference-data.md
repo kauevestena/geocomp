@@ -91,7 +91,7 @@ Not examples, but they block a capability the same way.
 
 | ID | Wanted | Blocks |
 |---|---|---|
-| **W-14** | **Reachable GNSS product archives** — any one of IGS (`files.igs.org`), CDDIS (`cddis.nasa.gov`, needs an Earthdata login), BKG (`igs.bkg.bund.de`), IBGE (`geoftp.ibge.gov.br`) — from CI or from the development environment; or a CI job allowed to fetch from one of them | FR-352/353 product download and NFR-010 credentials ([`ROADMAP.md`](./ROADMAP.md) P10b). Code that downloads from an archive nobody can reach would be untested |
+| **W-14** | **Reachable GNSS product archives** — any one of IGS (`files.igs.org`), CDDIS (`cddis.nasa.gov`, needs an Earthdata login), BKG (`igs.bkg.bund.de`), IBGE (`geoftp.ibge.gov.br`) — from CI or from the development environment; or a CI job allowed to fetch from one of them | ~~FR-352/353 product download~~ — built in P10c against NOAA's open-data archive, the one reachable; the credentialed path against a local server. **Still blocks** a shipped template for any of these archives: GeoComp ships none for them, because one nobody could test would be a claim. The user adds them in a services file ([`08`](./08-engine-rtklib.md) §5) |
 
 ---
 

@@ -14,6 +14,9 @@ first commit that declares them so they never join that list.
 
 from __future__ import annotations
 
+import json
+from collections.abc import Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -21,16 +24,33 @@ from qgis.core import QgsProcessingException
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
+from geocomp.core.techniques.gnss.products import (
+    BUILTIN_SERVICES,
+    Fetcher,
+    ProductRecord,
+    ProductService,
+    Resolution,
+    local_record,
+    needed_for,
+    read_services,
+    resolve,
+)
 from geocomp.core.techniques.gnss.stations import StationDatabase
 from geocomp.engines.rtklib.config import PROFILES, RtklibConfig
 
 __all__ = [
     "PPP_NOTICE_CODE",
+    "SessionProducts",
     "configured_profile",
+    "gather_products",
     "gnss_setting",
+    "missing_products_message",
     "ppp_limitation_notice",
-    "product_files",
+    "product_cache",
+    "product_directory",
+    "product_services",
     "reference_stations",
+    "session_products",
     "translate_error",
 ]
 
@@ -48,6 +68,13 @@ IONOSPHERE = "gnss.ionosphere"
 TROPOSPHERE = "gnss.troposphere"
 AMBIGUITY_THRESHOLD = "gnss.ambiguity_threshold"
 INDEPENDENT_BASELINES_ONLY = "gnss.independent_baselines_only"
+PRODUCT_SERVICES = "gnss.product_services"
+SERVICE_DEFINITIONS = "gnss.service_definitions"
+PRODUCT_CACHE = "gnss.product_cache"
+PRODUCT_FALLBACK = "gnss.product_fallback"
+
+#: RTKLIB's bit for GLONASS in ``pos1-navsys``.
+_GLONASS = 4
 
 _CONTEXT = "GeoCompGnss"
 
@@ -117,34 +144,191 @@ def configured_profile(profile_name: str, **overrides: Any) -> RtklibConfig:
     return PROFILES[profile_name].with_options(**configured)
 
 
-def product_files(*names: str) -> tuple[str, ...]:
-    """Locate precise products in the configured directory (FR-063, FR-358).
-
-    Returns only what exists. A missing product is not an error here: the
-    ephemeris setting decides whether precise products are *wanted*, and the
-    engine reports what it could not use -- so a caller that silently dropped a
-    file the user expected to be used would be the problem, not this.
-
-    **GeoComp does not download them.** FR-352 was re-planned into P10 when
-    every candidate archive proved unreachable from the development
-    environment (``specs/22`` §5); until then products arrive on disk and this
-    is how they are found.
-    """
+def product_directory() -> Path | None:
+    """The configured product directory (FR-063), or ``None`` when unset."""
     directory = gnss_setting(PRODUCT_DIRECTORY)
     if not directory:
-        return ()
+        return None
     root = Path(directory)
     if not root.is_dir():
         raise QgsProcessingException(
             _tr("The configured product directory does not exist: %1").replace("%1", str(root))
         )
-    if names:
-        return tuple(str(root / name) for name in names if (root / name).is_file())
-    return tuple(
-        str(path)
-        for pattern in ("*.SP3", "*.sp3", "*.CLK", "*.clk", "*.ION", "*.ionex")
-        for path in sorted(root.glob(pattern))
+    return root
+
+
+def product_cache() -> Path:
+    """Where downloaded products are kept (FR-352).
+
+    Unset, it is ``geocomp/products`` in the QGIS profile folder: a cache that
+    works without configuration and is never written inside a project.
+    """
+    configured = gnss_setting(PRODUCT_CACHE)
+    if configured:
+        return Path(configured)
+    from qgis.core import QgsApplication
+
+    return Path(QgsApplication.qgisSettingsDirPath()) / "geocomp" / "products"
+
+
+def product_services() -> list[ProductService]:
+    """The configured download services, in priority order (FR-352, FR-353).
+
+    Ids come from the setting; the shipped service is known by its id, others
+    from the services file. An id that names nothing is refused by name rather
+    than skipped -- a typo would otherwise read as "the archive has no product".
+    """
+    raw = str(gnss_setting(PRODUCT_SERVICES) or "")
+    names = [name.strip() for name in raw.replace(";", ",").split(",") if name.strip()]
+    known: dict[str, ProductService] = dict(BUILTIN_SERVICES)
+    definitions = gnss_setting(SERVICE_DEFINITIONS)
+    if definitions:
+        path = Path(definitions)
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise QgsProcessingException(
+                _tr("Could not read the download services file %1: %2")
+                .replace("%1", str(path))
+                .replace("%2", str(exc))
+            ) from exc
+        try:
+            known.update(read_services(payload))
+        except GeoCompError as exc:
+            raise QgsProcessingException(translate_error(exc)) from exc
+    unknown = [name for name in names if name not in known]
+    if unknown:
+        raise QgsProcessingException(
+            _tr("Unknown download service: %1. Known services: %2")
+            .replace("%1", ", ".join(unknown))
+            .replace("%2", ", ".join(sorted(known)))
+        )
+    return [known[name] for name in names]
+
+
+@dataclass(frozen=True)
+class SessionProducts:
+    """What a run hands the engine besides its observations, and the record of it."""
+
+    paths: tuple[str, ...] = ()
+    resolution: Resolution = field(default_factory=Resolution)
+    #: Clock and ionosphere files used from the directory as they are.
+    extras: tuple[ProductRecord, ...] = ()
+
+    def provenance(self) -> dict[str, Any]:
+        """Every product by name, origin and checksum (FR-134, ``specs/08`` §5)."""
+        entry = self.resolution.to_dict()
+        entry["products"] += [record.to_dict() for record in self.extras]
+        return entry
+
+    def missing(self) -> list[str]:
+        return [f"{request.describe()} ({reason})" for request, reason in self.resolution.missing]
+
+
+def session_products(
+    sessions: Sequence[Any],
+    ephemeris: str,
+    navigation_systems: int,
+    feedback: Any,
+    *,
+    fetcher: Fetcher | None = None,
+) -> SessionProducts:
+    """Resolve what *sessions* need, or refuse before the engine starts (FR-352).
+
+    An orbit for each day the sessions touch when the precise ephemeris is
+    selected, and broadcast navigation when the folder brought none; each from
+    the cache, the product directory, then the configured services. A product
+    nothing can supply stops the run here, naming it -- the engine's alternative
+    is no solution and a message about something else.
+    """
+    try:
+        found = gather_products(sessions, ephemeris, navigation_systems, feedback, fetcher=fetcher)
+    except GeoCompError as exc:
+        raise QgsProcessingException(translate_error(exc)) from exc
+    if found.resolution.missing:
+        raise QgsProcessingException(missing_products_message(found.missing()))
+    return found
+
+
+def gather_products(
+    sessions: Sequence[Any],
+    ephemeris: str,
+    navigation_systems: int,
+    feedback: Any,
+    *,
+    fetcher: Fetcher | None = None,
+) -> SessionProducts:
+    """:func:`session_products` without the refusal, for a batch to decide.
+
+    What is missing stays in the resolution; a download that failed -- the
+    network, a refused login -- raises its :class:`GeoCompError`, so a batch can
+    report it against the session and go on (``specs/08`` §9). A lower-latency
+    orbit is used in place of a missing final one only when the fallback
+    setting allows it, and the substitution is logged and recorded.
+    """
+    precise = ephemeris == "precise"
+    requests = needed_for(sessions, precise=precise, glonass=bool(navigation_systems & _GLONASS))
+    directory = product_directory()
+    extras = tuple(_directory_extras(directory)) if precise else ()
+    if not requests:
+        return SessionProducts(paths=tuple(str(path) for path, _ in extras), extras=_records(extras))
+    services = product_services()
+    if services and fetcher is None:
+        from geocomp.services.downloads import QgisFetcher
+
+        fetcher = QgisFetcher(feedback)
+    resolution = resolve(
+        requests,
+        cache=product_cache(),
+        directory=directory,
+        services=services,
+        fetcher=fetcher if services else None,
+        fallback=bool(gnss_setting(PRODUCT_FALLBACK)),
     )
+    for request, latency in resolution.substituted:
+        feedback.pushWarning(
+            _tr("%1: used the %2 orbit, as Global Settings allow; recorded in provenance.")
+            .replace("%1", request.describe())
+            .replace("%2", latency.value)
+        )
+    for record in resolution.records:
+        feedback.pushInfo(
+            _tr("Product %1 (%2)").replace("%1", record.name).replace("%2", record.origin)
+        )
+    return SessionProducts(
+        paths=(*resolution.paths, *(str(path) for path, _ in extras)),
+        resolution=resolution,
+        extras=_records(extras),
+    )
+
+
+def missing_products_message(missing: Sequence[str]) -> str:
+    """The refusal for products nothing could supply, with the three ways out."""
+    return _tr(
+        "Products this run needs are not available: %1. Place them in the "
+        "product directory, add a download service in Global Settings → GNSS, "
+        "or -- for a recent session whose final orbit is not yet published -- "
+        "allow rapid orbits there."
+    ).replace("%1", "; ".join(missing))
+
+
+def _directory_extras(directory: Path | None) -> list[tuple[Path, str]]:
+    """Clock and ionosphere files in the directory, which P10c does not resolve by day."""
+    if directory is None:
+        return []
+    # Keyed by path: on a case-insensitive file system both patterns of a pair
+    # match the same file, and it must reach the engine once.
+    found: dict[Path, str] = {}
+    for kind, patterns in (("clock", ("*.CLK", "*.clk")), ("ionosphere", ("*.ION", "*.ionex"))):
+        for pattern in patterns:
+            for path in sorted(directory.glob(pattern)):
+                if path.is_file():
+                    found.setdefault(path.resolve(), kind)
+    return list(found.items())
+
+
+def _records(extras: Sequence[tuple[Path, str]]) -> tuple[ProductRecord, ...]:
+    return tuple(local_record(path, kind) for path, kind in extras)
 
 
 def reference_stations() -> StationDatabase:

@@ -38,8 +38,8 @@
             <translation>%1: %2 épocas</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Processes every rover session in a folder against one base station, with the same configuration.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A session that fails does not stop the batch.&lt;/b&gt; Each is attempted, each failure is reported with the reason, and the summary lists what succeeded, what failed and what ran but produced no usable solution. A campaign of fifty sessions with one truncated file finishes and tells you which one it was.&lt;/p&gt;&lt;p&gt;Cancelling stops the batch promptly: the remaining sessions are not attempted, and what has already run is kept.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Processa todas as sessões móveis de uma pasta contra uma estação base, com a mesma configuração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Uma sessão que falha não interrompe o lote.&lt;/b&gt; Cada uma é tentada, cada falha é relatada com o motivo, e o resumo lista o que teve sucesso, o que falhou e o que executou mas não produziu solução utilizável. Uma campanha de cinquenta sessões com um arquivo truncado termina e informa qual foi.&lt;/p&gt;&lt;p&gt;O cancelamento interrompe o lote prontamente: as sessões restantes não são tentadas, e o que já foi executado é mantido.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Processes every rover session in a folder against one base station, with the same configuration.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A session that fails does not stop the batch.&lt;/b&gt; Each is attempted, each failure is reported with the reason, and the summary lists what succeeded, what failed and what ran but produced no usable solution. A campaign of fifty sessions with one truncated file finishes and tells you which one it was.&lt;/p&gt;&lt;p&gt;Cancelling stops the batch promptly: the remaining sessions are not attempted, and what has already run is kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Products are checked before the batch starts.&lt;/b&gt; The orbits and navigation every session needs are resolved first -- from the cache, the product directory or a download service -- and a batch that lacks any is refused, naming each session and product, before a long run begins. A download that fails is reported against its session, and the batch continues.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Processa todas as sessões móveis de uma pasta em relação a uma estação base, com a mesma configuração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Uma sessão que falha não interrompe o lote.&lt;/b&gt; Cada uma é tentada, cada falha é relatada com o motivo, e o resumo lista o que teve êxito, o que falhou e o que foi executado mas não produziu solução utilizável. Uma campanha de cinquenta sessões com um arquivo truncado termina e informa qual foi.&lt;/p&gt;&lt;p&gt;Cancelar interrompe o lote prontamente: as sessões restantes não são tentadas, e o que já foi executado é mantido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Os produtos são verificados antes de o lote começar.&lt;/b&gt; As órbitas e a navegação de que cada sessão precisa são resolvidas primeiro -- do cache, do diretório de produtos ou de um serviço de download -- e um lote ao qual falte algum é recusado, nomeando cada sessão e produto, antes de começar uma execução longa. Um download que falha é relatado na sua sessão, e o lote continua.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
@@ -731,6 +731,141 @@
         </message>
     </context>
     <context>
+        <name>DownloadProductsAlgorithm</name>
+        <message>
+            <source> (as %1)</source>
+            <translation> (como %1)</translation>
+        </message>
+        <message>
+            <source>%1 days were asked for; fetch at most %2 at a time.</source>
+            <translation>Foram pedidos %1 dias; baixe no máximo %2 de cada vez.</translation>
+        </message>
+        <message>
+            <source>%1 product(s) available, %2 missing</source>
+            <translation>%1 produto(s) disponível(is), %2 em falta</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>%1: %2 (%3)</source>
+            <translation>%1: %2 (%3)</translation>
+        </message>
+        <message>
+            <source>%1: available from %2%3</source>
+            <translation>%1: disponível em %2%3</translation>
+        </message>
+        <message>
+            <source>%1: not available (%2)</source>
+            <translation>%1: não disponível (%2)</translation>
+        </message>
+        <message>
+            <source>%1: used the %2 orbit, as Global Settings allow.</source>
+            <translation>%1: usada a órbita %2, como as Configurações Globais permitem.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;Resolves IGS orbits and broadcast navigation for the days of a folder's sessions, or for a range of days: each from the product cache, then the product directory, then the download services configured in Global Settings → GNSS, in their order.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Check only&lt;/b&gt; downloads nothing: it reports, for each product, whether it can be had and from where. Use it before a long batch on recent data, whose final orbits may not be published yet.&lt;/p&gt;&lt;p&gt;Processing resolves its own products; this is for fetching a campaign's products while there is a network, to process later without one. Ultra-rapid orbits are not offered.&lt;/p&gt;&lt;p&gt;A service that needs a login names a QGIS authentication configuration; GeoComp never sees the credential, and the manifest records service ids and URLs without one.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Resolve órbitas IGS e navegação transmitida para os dias das sessões de uma pasta, ou para um intervalo de dias: cada um do cache de produtos, depois do diretório de produtos, depois dos serviços de download configurados em Configurações Globais → GNSS, na sua ordem.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Apenas verificar&lt;/b&gt; não baixa nada: relata, para cada produto, se pode ser obtido e de onde. Use antes de um lote longo com dados recentes, cujas órbitas finais podem ainda não ter sido publicadas.&lt;/p&gt;&lt;p&gt;O processamento resolve os seus próprios produtos; isto serve para baixar os produtos de uma campanha enquanto há rede, para processar depois sem ela. Órbitas ultrarrápidas não são oferecidas.&lt;/p&gt;&lt;p&gt;Um serviço que exige login nomeia uma configuração de autenticação do QGIS; o GeoComp nunca vê a credencial, e o manifesto registra ids de serviço e URLs sem ela.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Check availability only; download nothing</source>
+            <translation>Apenas verificar a disponibilidade; não baixar nada</translation>
+        </message>
+        <message>
+            <source>Choose at least one product.</source>
+            <translation>Escolha pelo menos um produto.</translation>
+        </message>
+        <message>
+            <source>Copy the products to</source>
+            <translation>Copiar os produtos para</translation>
+        </message>
+        <message>
+            <source>Could not read %1: %2</source>
+            <translation>Não foi possível ler %1: %2</translation>
+        </message>
+        <message>
+            <source>Download products</source>
+            <translation>Baixar produtos</translation>
+        </message>
+        <message>
+            <source>Download services, in order: %1</source>
+            <translation>Serviços de download, em ordem: %1</translation>
+        </message>
+        <message>
+            <source>Fetch or check the orbits and navigation a campaign needs.</source>
+            <translation>Baixa ou verifica as órbitas e a navegação de que uma campanha precisa.</translation>
+        </message>
+        <message>
+            <source>Final</source>
+            <translation>Final</translation>
+        </message>
+        <message>
+            <source>First day (instead of, or as well as, a folder)</source>
+            <translation>Primeiro dia (em vez de uma pasta, ou além dela)</translation>
+        </message>
+        <message>
+            <source>Folder of RINEX observations (days from its sessions)</source>
+            <translation>Pasta de observações RINEX (dias das suas sessões)</translation>
+        </message>
+        <message>
+            <source>GLONASS broadcast navigation</source>
+            <translation>Navegação transmitida GLONASS</translation>
+        </message>
+        <message>
+            <source>GPS broadcast navigation</source>
+            <translation>Navegação transmitida GPS</translation>
+        </message>
+        <message>
+            <source>Give a folder of observations with dated sessions, or a first day.</source>
+            <translation>Indique uma pasta de observações com sessões datadas, ou um primeiro dia.</translation>
+        </message>
+        <message>
+            <source>JSON files (*.json)</source>
+            <translation>Arquivos JSON (*.json)</translation>
+        </message>
+        <message>
+            <source>Last day</source>
+            <translation>Último dia</translation>
+        </message>
+        <message>
+            <source>No download service is configured; only the cache and the product directory are looked in.</source>
+            <translation>Nenhum serviço de download está configurado; só o cache e o diretório de produtos são consultados.</translation>
+        </message>
+        <message>
+            <source>Orbit latency</source>
+            <translation>Latência da órbita</translation>
+        </message>
+        <message>
+            <source>Precise orbit (SP3)</source>
+            <translation>Órbita precisa (SP3)</translation>
+        </message>
+        <message>
+            <source>Product manifest</source>
+            <translation>Manifesto de produtos</translation>
+        </message>
+        <message>
+            <source>Products</source>
+            <translation>Produtos</translation>
+        </message>
+        <message>
+            <source>Products available</source>
+            <translation>Produtos disponíveis</translation>
+        </message>
+        <message>
+            <source>Products missing</source>
+            <translation>Produtos em falta</translation>
+        </message>
+        <message>
+            <source>Rapid</source>
+            <translation>Rápida</translation>
+        </message>
+        <message>
+            <source>The last day, %1, is before the first, %2.</source>
+            <translation>O último dia, %1, é anterior ao primeiro, %2.</translation>
+        </message>
+    </context>
+    <context>
         <name>DynAdjustAdjustAlgorithm</name>
         <message>
             <source>%1 observation(s) have no DynAdjust equivalent and were not written: %2</source>
@@ -1350,10 +1485,6 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas da solução (camada)</translation>
-        </message>
-        <message>
-            <source>Using %1 precise product file(s)</source>
-            <translation>Usando %1 arquivo(s) de produtos precisos</translation>
         </message>
     </context>
     <context>
@@ -2138,8 +2269,24 @@
     <context>
         <name>GeoCompGnss</name>
         <message>
+            <source>%1: used the %2 orbit, as Global Settings allow; recorded in provenance.</source>
+            <translation>%1: usada a órbita %2, como as Configurações Globais permitem; registrado na proveniência.</translation>
+        </message>
+        <message>
             <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
             <translation>&lt;p&gt;&lt;b&gt;O processamento Absoluto (PPP) no RTKLIB é limitado.&lt;/b&gt; Seu posicionamento por ponto preciso não equivale a um serviço de PPP dedicado: a convergência é mais lenta, o tratamento de ambiguidades é mais simples e o resultado é tipicamente decimétrico em vez de centimétrico. Prefira o processamento Relativo quando houver uma estação base disponível, e trate uma solução Absoluta como indicativa a menos que a tenha verificado contra uma determinação independente.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Could not read the download services file %1: %2</source>
+            <translation>Não foi possível ler o arquivo de serviços de download %1: %2</translation>
+        </message>
+        <message>
+            <source>Product %1 (%2)</source>
+            <translation>Produto %1 (%2)</translation>
+        </message>
+        <message>
+            <source>Products this run needs are not available: %1. Place them in the product directory, add a download service in Global Settings → GNSS, or -- for a recent session whose final orbit is not yet published -- allow rapid orbits there.</source>
+            <translation>Produtos de que esta execução precisa não estão disponíveis: %1. Coloque-os no diretório de produtos, adicione um serviço de download em Configurações Globais → GNSS, ou -- para uma sessão recente cuja órbita final ainda não foi publicada -- permita órbitas rápidas ali.</translation>
         </message>
         <message>
             <source>The configured antenna file does not exist: %1</source>
@@ -2148,6 +2295,10 @@
         <message>
             <source>The configured product directory does not exist: %1</source>
             <translation>O diretório de produtos configurado não existe: %1</translation>
+        </message>
+        <message>
+            <source>Unknown download service: %1. Known services: %2</source>
+            <translation>Serviço de download desconhecido: %1. Serviços conhecidos: %2</translation>
         </message>
         <message>
             <source>Unknown processing profile: %1</source>
@@ -2644,6 +2795,10 @@
             <translation>Uma leitura de contador de %1 está fora da tabela de calibração do gravímetro: esperava-se %2.</translation>
         </message>
         <message>
+            <source>A download service could not be read: %1. Each needs an 'id', a 'name' and 'templates' keyed like 'orbit/final'.</source>
+            <translation>Não foi possível ler um serviço de download: %1. Cada um precisa de 'id', 'name' e 'templates' com chaves como 'orbit/final'.</translation>
+        </message>
+        <message>
             <source>A geoid model was given, but this combination is in a local system (%1) where every height is what its input says it is. Leave the geoid out.</source>
             <translation>Foi informado um modelo geoidal, mas esta combinação está em um sistema local (%1), onde cada altitude é o que sua entrada diz. Não informe o geoide.</translation>
         </message>
@@ -2658,6 +2813,10 @@
         <message>
             <source>Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The two must agree, in the same order.</source>
             <translation>O agrupamento correlacionado '%1' fornece %2 linhas de observação mas uma matriz de covariâncias %3. Os dois devem coincidir, na mesma ordem.</translation>
+        </message>
+        <message>
+            <source>Could not download %1: %2. The download was retried; check the network and the proxy configured in QGIS, then run again.</source>
+            <translation>Não foi possível baixar %1: %2. O download foi repetido; verifique a rede e o proxy configurado no QGIS, e execute novamente.</translation>
         </message>
         <message>
             <source>Every station in this network is held fixed, so there is nothing to estimate. %1</source>
@@ -2796,6 +2955,10 @@
             <translation>O ajustamento de '%1' não produziu iteração alguma. Este é um erro interno; por favor relate-o junto com a rede que o causou.</translation>
         </message>
         <message>
+            <source>The archive refused the login for %1 (HTTP %2). Check the QGIS authentication configuration named for this service in the download services file.</source>
+            <translation>O arquivo recusou o login para %1 (HTTP %2). Verifique a configuração de autenticação do QGIS indicada para este serviço no arquivo de serviços de download.</translation>
+        </message>
+        <message>
             <source>The cross-covariance given has shape %1; it must be %2.</source>
             <translation>A covariância cruzada fornecida tem forma %1; deve ser %2.</translation>
         </message>
@@ -2806,6 +2969,22 @@
         <message>
             <source>The datum constraints do not remove the network's remaining freedom (%1 constraint(s) applied). Check that the stations defining the datum are enough to fix it.</source>
             <translation>As injunções de datum não removem a liberdade remanescente da rede (%1 injunção(ões) aplicada(s)). Verifique se as estações que definem o datum bastam para fixá-lo.</translation>
+        </message>
+        <message>
+            <source>The download service '%1' has a user name, password or token in a URL. Credentials are never written into a URL, a setting or a log: remove it, and name a QGIS authentication configuration in the service's 'authcfg' instead.</source>
+            <translation>O serviço de download '%1' tem um nome de usuário, senha ou token numa URL. Credenciais nunca são escritas numa URL, numa configuração ou num log: remova-o e, em vez disso, indique uma configuração de autenticação do QGIS no 'authcfg' do serviço.</translation>
+        </message>
+        <message>
+            <source>The download service '%1' has templates for products GeoComp does not know: %2. Keys are a product and a latency, such as 'orbit/final', 'orbit/rapid' or 'gps_navigation/broadcast'.</source>
+            <translation>O serviço de download '%1' tem modelos para produtos que o GeoComp não conhece: %2. As chaves são um produto e uma latência, como 'orbit/final', 'orbit/rapid' ou 'gps_navigation/broadcast'.</translation>
+        </message>
+        <message>
+            <source>The download service '%1' uses the URL scheme '%2'; use https, http or file.</source>
+            <translation>O serviço de download '%1' usa o esquema de URL '%2'; use https, http ou file.</translation>
+        </message>
+        <message>
+            <source>The download service id '%1' is empty or is the id of a service GeoComp ships. Give the service an id of its own.</source>
+            <translation>O id de serviço de download '%1' está vazio ou é o id de um serviço fornecido pelo GeoComp. Dê ao serviço um id próprio.</translation>
         </message>
         <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
@@ -2866,6 +3045,18 @@
         <message>
             <source>The planned network '%1' contains no observations, so there is no design to evaluate. Add the observations you intend to make, with their assumed precisions.</source>
             <translation>A rede planejada '%1' não contém observações, portanto não há projeto a avaliar. Acrescente as observações que pretende realizar, com suas precisões supostas.</translation>
+        </message>
+        <message>
+            <source>The product %1 could not be decompressed (%2). It was not used; run again to download it afresh.</source>
+            <translation>O produto %1 não pôde ser descomprimido (%2). Não foi usado; execute novamente para baixá-lo de novo.</translation>
+        </message>
+        <message>
+            <source>The product %1 is compressed with Unix compress (.Z), which GeoComp does not read. Point the service at the .gz or uncompressed file.</source>
+            <translation>O produto %1 está comprimido com Unix compress (.Z), que o GeoComp não lê. Aponte o serviço para o arquivo .gz ou não comprimido.</translation>
+        </message>
+        <message>
+            <source>The product %1 is not available from %2. A recent day's final orbit is published about two weeks later; allow rapid orbits in Global Settings → GNSS, add another download service, or place the file in the product directory.</source>
+            <translation>O produto %1 não está disponível em %2. A órbita final de um dia recente é publicada cerca de duas semanas depois; permita órbitas rápidas em Configurações Globais → GNSS, adicione outro serviço de download, ou coloque o arquivo no diretório de produtos.</translation>
         </message>
         <message>
             <source>The reading '%1' appears twice. Remove the duplicate line and run again.</source>
@@ -3681,6 +3872,10 @@
             <translation>(não editável nesta versão)</translation>
         </message>
         <message>
+            <source>Additional download services (JSON)</source>
+            <translation>Serviços de download adicionais (JSON)</translation>
+        </message>
+        <message>
             <source>Adjust lines that failed their tolerance</source>
             <translation>Ajustar linhas que não cumpriram a tolerância</translation>
         </message>
@@ -3827,6 +4022,10 @@
         <message>
             <source>Distance unit</source>
             <translation>Unidade de distância</translation>
+        </message>
+        <message>
+            <source>Download services, in priority order (empty: never download)</source>
+            <translation>Serviços de download, em ordem de prioridade (vazio: nunca baixar)</translation>
         </message>
         <message>
             <source>Drift polynomial degree</source>
@@ -4025,6 +4224,10 @@
             <translation>Transformações preferidas, uma por linha, como origem &gt; destino &gt; operação</translation>
         </message>
         <message>
+            <source>Product cache (empty: the QGIS profile's folder)</source>
+            <translation>Cache de produtos (vazio: a pasta do perfil do QGIS)</translation>
+        </message>
+        <message>
             <source>Proportional to line length</source>
             <translation>Proporcional à extensão da linha</translation>
         </message>
@@ -4131,6 +4334,10 @@
         <message>
             <source>Use only the independent baseline subset</source>
             <translation>Usar apenas o subconjunto independente de linhas de base</translation>
+        </message>
+        <message>
+            <source>Use rapid orbits where final ones are not yet published</source>
+            <translation>Usar órbitas rápidas onde as finais ainda não foram publicadas</translation>
         </message>
         <message>
             <source>Use the most accurate available</source>

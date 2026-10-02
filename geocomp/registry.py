@@ -511,6 +511,17 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="gnss",
         menu_order=10,
     ),
+    # P10c. After the scan because it reads the scan's days, and before the
+    # processing modes because it is what lets them run offline.
+    AlgorithmSpec(
+        operation="download_products",
+        group="gnss",
+        module="geocomp.algorithms.gnss.download",
+        class_name="DownloadProductsAlgorithm",
+        requirement="FR-352",
+        menu="gnss",
+        menu_order=15,
+    ),
     AlgorithmSpec(
         operation="absolute_static",
         group="gnss",

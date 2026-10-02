@@ -514,14 +514,14 @@ the reference station database, batch execution, and nine `gnss.*` settings that
 
 | P7c exit criterion | State |
 |---|---|
-| The menu of [`11`](./11-module-gnss.md) §1 exists and every entry runs an algorithm | **met** — eight algorithms; *Download products* waits on FR-352 in P10, so its entry does not exist rather than pointing at nothing |
+| The menu of [`11`](./11-module-gnss.md) §1 exists and every entry runs an algorithm | **met** — eight algorithms; *Download products* waits on FR-352 in P10, so its entry does not exist rather than pointing at nothing (it arrived in P10c) |
 | The four modes are reachable, and Absolute carries FR-604's notice | **met** — in the help, the short description and a warning at the top of every Absolute run |
 | GNSS results import as QGIS layers (FR-357) | **met** — baselines as lines, solution epochs as points, both styled and both carrying their quality |
 | Comparative configuration testing (FR-359) | **met as an algorithm**; the side-by-side dialog of [`15`](./15-ui-menu-and-settings.md) §1.2 is **not built** and is named below |
 | A reference station's frame and epoch are used, not assumed (FR-063, FR-105) | **met** |
 | A base in a different frame triggers transformation (FR-832) | **not met, and refused rather than guessed** — the transformations are P10's; a mismatch raises |
 | A batch with one broken session completes and reports it (FR-355) | **met** — a failure is a row, not an absence |
-| Precise ephemerides from a directory on disk (FR-358) | **met** — the download half is FR-352's and so P10's |
+| Precise ephemerides from a directory on disk (FR-358) | **met** — the download half is FR-352's and so P10's (P10c, which also found the directory's files were handed over whatever their day) |
 
 **Not built in P7c, named so the ticks above do not imply them.** The FR-359 comparison dialog: ADR-0005
 makes the algorithm the capability, and it ships first and alone. FR-832's transformations, which are P10's
@@ -1061,7 +1061,45 @@ product used recorded by name, source and checksum ([`08`](./08-engine-rtklib.md
 `noaa-cors-pds.s3.amazonaws.com` (anonymous), which RD-06 already fetches IGS final orbits and broadcast
 navigation from. Still 403: `files.igs.org`, `cddis.nasa.gov`, `igs.bkg.bund.de`, `geoftp.ibge.gov.br`,
 `igs.ign.fr`, `garner.ucsd.edu` — W-14 in [`23`](./23-wanted-reference-data.md). The credentialed path has
-nothing reachable to authenticate to and will be tested against a local server.
+nothing reachable to authenticate to and is tested against a local server.
+
+**Delivered.**
+
+| Delivered | Where |
+|---|---|
+| Products, requests and the days a session touches; services as URL templates; the cache keyed by kind, latency, centre and day with a record per product; resolution cache → directory → services; availability before anything is fetched; retry with backoff for a network failure only | `core/techniques/gnss/products.py`, [`08`](./08-engine-rtklib.md) §5 |
+| One shipped service, NOAA's CORS open-data archive (`noaa-ncn`): IGS final and rapid orbits, GPS and GLONASS broadcast navigation; others in a services file | `products.NOAA`, `gnss.service_definitions` |
+| The fetcher on the QGIS network stack, a login applied by its authentication configuration id; not found, refused login and network failure told apart | `services/downloads.py` |
+| Four settings, all read: services in priority order, services file, cache, rapid-orbit fallback | [`15`](./15-ui-menu-and-settings.md) §6 |
+| *Download products*: fetch or only check, for a folder's days or a range; copy out; a manifest | `algorithms/gnss/download.py` |
+| The four modes, batch and the configuration comparison resolve what their sessions need, refuse a missing product before the engine, and record every product in the run's JSON; batch checks every session first | `algorithms/gnss/common.py` |
+| A message for every product and service refusal, naming the product, service or URL | `algorithms/gnss/messages.py` |
+| A live check of RD-06's products against NOAA, monthly and on change | `scripts/check_products.py`, the `reference` workflow |
+
+| Criterion ([`08`](./08-engine-rtklib.md) §10) | State after P10c |
+|---|---|
+| 6. Products resolve from cache without a network call on a second run, and provenance names every product used | **met** — counted calls in tier 1, against NOAA in the `reference` workflow; the run JSON's `products` |
+| 7. No credential in any log, configuration file, provenance record or export | **met** — asserted end to end through a real QGIS login (`tests/qgis/test_product_download.py`) |
+| Availability before a batch, with the lower-latency option recorded (§5, §9) | **met** — batch refuses before starting, naming each session and product; the fallback setting, recorded as a substitution |
+| Authentication failure distinguished from network failure (§9) | **met** — three codes, three messages |
+
+**Found.**
+
+- **Batch processing and Compare configurations never passed precise products**, whatever the ephemeris
+  setting said; the single-run modes passed every SP3, CLK and ION file in the directory regardless of its day.
+  Orbits are now matched to the days the sessions touch — by IGS name, or by the span an SP3 header states,
+  so another analysis centre's orbit is still found.
+- **A compressed orbit in the product directory would have been loaded by nothing.** RTKLIB's SP3 reader
+  selects files by extension and skips `.gz`, with no error. A compressed directory product is now inflated
+  into the cache, with its record.
+- **The first P10c commit failed a structural test** (three new public functions with no recorded reason for
+  a plain return type), found when the whole suite ran; recorded.
+
+**Not built in P10c, named so the ticks above do not imply them.** Clock and ionosphere files are still passed
+from the directory whatever their day (they are now recorded). Ultra-rapid orbits are not offered. No archive
+but NOAA has a shipped template, because no other is reachable to test (W-14); IGS, CDDIS, BKG and IBGE are a
+services file away, untested. The interactive "proceed with rapid orbits?" of §5 is a setting, not a prompt:
+Processing has no place to ask, so the refusal names the setting.
 
 ---
 

@@ -43,10 +43,14 @@ now means in code:
   word. `geocomp/registry.py` names the permitted set in `NESTING_MENUS`, refuses a submenu declared under
   any other group at import, and `tests/test_registry.py` holds the set to one — so the exception cannot
   spread by imitation, which is how a one-level menu usually stops being one.
-- **Download products is not among the eight.** FR-352 and FR-353 moved to P10 when the egress check found
-  every major archive unreachable from CI (`ROADMAP.md`, P7b), and are P10c's: NOAA's CORS open-data bucket,
-  which serves IGS final orbits and broadcast navigation without credentials, was found reachable in P10b. The menu entry arrives with the capability;
-  listing it now would be a menu item pointing at nothing, which §1.2 of `specs/15` forbids outright.
+- **Download products was not among the eight, and is the ninth since P10c.** FR-352 and FR-353 moved to
+  P10 when the egress check found every major archive unreachable from CI (`ROADMAP.md`, P7b); P10b found
+  NOAA's CORS open-data bucket reachable, and P10c built the capability and its menu entry together, so the
+  entry never pointed at nothing (§1.2 of `specs/15`). It sits after *Scan sessions*, since it can read a
+  folder's days, and before the modes, since it is what lets them run offline. It fetches — or, with *check
+  only*, merely reports — the orbits and navigation for a folder's days or a range of days, copies them out
+  if asked, and writes a manifest. The processing algorithms do not depend on it: each resolves its own
+  products (§2), and this is for fetching ahead or checking ahead.
 
 FR-604's notice reaches the user three ways in the Absolute algorithms — in the short description, in the
 help body, and as a warning pushed at the top of every run — because "state the limitation in the UI" is not
@@ -74,6 +78,14 @@ adjust (in-house core or DynAdjust)  →  Solution
 
 Each arrow is a Processing algorithm, so the whole chain is scriptable and can be assembled in the graphical
 modeller (FR-033). Basic mode offers a single algorithm that runs the whole chain with defaults.
+
+**Resolving products is both an arrow and a step inside processing (P10c).** *Download products* is the
+arrow, for fetching or checking ahead. But the four modes, batch processing and *Compare configurations*
+resolve what their own sessions need before the engine starts — an orbit per day when the precise ephemeris
+is selected, navigation when the folder has none — and refuse a missing product there, naming it, rather
+than leave the engine to fail on something else or to run on broadcast orbits presented as precise ones.
+Batch processing resolves every session's products before the first session runs. Every run's JSON names its
+products by origin and checksum ([`08`](./08-engine-rtklib.md) §5).
 
 ---
 

@@ -37,7 +37,11 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.gnss.common import configured_profile, translate_error
+from geocomp.algorithms.gnss.common import (
+    configured_profile,
+    session_products,
+    translate_error,
+)
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.comparison import DEFAULT_CONFIDENCE, compare_baselines
 from geocomp.engines.rtklib import RtklibEngine, RtklibJob
@@ -156,6 +160,13 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
             .replace("%2", rover.station_id)
         )
 
+        # One resolution for every configuration: the sweep varies the mask, and
+        # a comparison whose runs used different orbits would be comparing those.
+        reference = configured_profile("relative-static", output_format="xyz")
+        products = session_products(
+            [rover, base], reference.ephemeris, reference.navigation_systems, feedback
+        )
+
         work_root = Path(tempfile.mkdtemp(prefix="geocomp-compare-"))
         baselines = {}
         for index, mask in enumerate(masks):
@@ -171,6 +182,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                         config=configured_profile(
                             "relative-static", output_format="xyz", elevation_mask=mask
                         ),
+                        products=products.paths,
                     ),
                     work_dir=work_root / f"mask-{mask:g}",
                 )
@@ -216,7 +228,9 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         json_path = self.parameterAsFileOutput(parameters, OUTPUT_JSON, context)
         if json_path:
             Path(json_path).write_text(
-                json.dumps(comparison.to_dict(), indent=2) + "\n", encoding="utf-8"
+                json.dumps({**comparison.to_dict(), "products": products.provenance()}, indent=2)
+                + "\n",
+                encoding="utf-8",
             )
             outputs[OUTPUT_JSON] = json_path
         feedback.setProgress(100)

@@ -201,12 +201,55 @@ selected mode.
 instead be named by `file-rcvantfile` and `file-satantfile` in `RtklibConfig.extra`; the pinned engine's
 `src/postpos.c` loads antenna calibration through these configuration options, not the positional product
 list. RD-06 exercises this path with explicit antenna types and offsets consistent with ARP truth
-(`tests/test_rd06.py`, [`22`](./22-reference-data-sources.md) §5). Automatic resolution remains deferred.
+(`tests/test_rd06.py`, [`22`](./22-reference-data-sources.md) §5).
 
 **Resolution order** for each session: the local cache → the configured product directory (FR-063) → download
 from a configured service. Cached products are keyed by product type, GNSS week/day, analysis centre and
 latency class (ultra-rapid / rapid / final), so that a later re-run with final products is a deliberate,
 visible change rather than an accidental one.
+
+**Built in P10c** (`core/techniques/gnss/products.py`, `services/downloads.py`,
+`algorithms/gnss/common.py`). What a run asks for, and what it has found:
+
+- **What a session needs.** An orbit (SP3, clocks included) for every day the sessions processed together
+  touch, when `gnss.ephemeris` is `precise`; GPS broadcast navigation — and GLONASS's, when GLONASS is among
+  the systems — only when **no** session brought a navigation file of its own, so a campaign folder that ran
+  offline before still does. Days are the observation files' GPST days, which are the days IGS products are
+  named by. Ultra-rapid orbits are not offered: each is a two-day file issued four times a day, half
+  predicted, and which issue serves a session is a decision not yet made well.
+- **The product directory is matched by day, not handed over whole.** By IGS name first (long or legacy, with
+  or without `.gz`), then — for an orbit only — by the span its SP3 header states: a file covering at least 23
+  hours of the day is that day's orbit, whatever centre named it. **[V]** P7c passed every SP3, CLK and ION
+  file in the directory to every run, whatever its day. Clock and ionosphere files still are (P10c resolves
+  orbits and navigation), and are now recorded.
+- **A compressed product is inflated before the engine sees it.** **[V]** `readsp3` in the pinned engine
+  (`src/preceph.c`, lines 332–335 at `06e8644`) takes the text after a file name's last `.` and skips the file
+  unless that is `.sp3`, `.SP3`, `.eph` or `.EPH` — so `….SP3.gz` is skipped, with no error, and a
+  compressed orbit handed over as it is would be loaded by nothing: the run would quietly be a
+  broadcast-orbit run. Downloads and compressed
+  directory files are inflated into the cache with their record; Unix compress (`.Z`) is refused by name.
+  The upper-case `.SP3` of the long names *is* read: RD-06's precise case changed the answer.
+- **Services are URL templates**, one or more per `kind/latency`, tried in order, with `{yyyy}`, `{yy}`,
+  `{doy}`, GPS `{week}` and `{dow}`. One is shipped: `noaa-ncn`, NOAA's CORS open-data archive on Amazon S3,
+  anonymous, whose day folders carry the IGS final and rapid orbits (long names since late 2022, legacy names
+  before and alongside) and the GPS and GLONASS broadcast navigation — the URLs RD-06 already pins by hash.
+  Others are defined in the file `gnss.service_definitions` names:
+  `{"services": [{"id", "name", "authcfg", "templates": {"orbit/final": ["https://…"]}}]}`. Their templates
+  are not shipped because none of those archives is reachable to test them (W-14 in
+  [`23`](./23-wanted-reference-data.md)).
+- **A login is a reference.** `authcfg` is the id of a QGIS authentication configuration; the QGIS network
+  stack applies it, so GeoComp never holds the credential. A template with a user name or password in it, or a
+  query parameter named like a token, is refused when the services are read — so no URL GeoComp records can
+  carry one.
+- **Three failures, three remedies.** *Not found* (try the rapid class, another service, or wait),
+  *authentication failed* (check the authentication configuration; never retried, since repeating a refused
+  login can lock an account) and *network failed* (retried twice with backoff, then reported). An anonymous
+  403 reads as not found: S3 answers a missing key that way where listing is not public.
+- **The lower-latency option is a setting**, `gnss.product_fallback`, off by default. Processing has no place
+  to ask mid-run, so a refusal names the setting, and a run that used it records the substitution.
+- **The record** of each product: name, kind, latency, day, origin (`download`, `cache` or `directory`),
+  service id, credential-free URL, SHA-256 of what was downloaded and of what the engine reads, size, time
+  retrieved. It sits beside the file in the cache and goes into the run's JSON under `products`.
 
 **Services** are configurable (FR-063) — IGS data centres, CDDIS, BKG, IBGE and others. The following are
 requirements, not implementation notes:
@@ -473,7 +516,7 @@ not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
 | Situation | Behaviour |
 |---|---|
 | Engine absent | GNSS processing disabled with an explanation and an offer to install (FR-306, FR-301) |
-| Product unavailable | Reported before the batch starts, with the option to use a lower-latency class, recorded |
+| Product unavailable | Reported before the batch starts, with the option to use a lower-latency class, recorded — the option is `gnss.product_fallback`, named in the refusal (P10c) |
 | Download failure | Retried with backoff, then reported per session; the batch continues |
 | Authentication failure | Distinguished from a network failure and reported as such, pointing to the credential configuration |
 | No solution for a session | Reported with the engine's own message and the session's data span; the batch continues |

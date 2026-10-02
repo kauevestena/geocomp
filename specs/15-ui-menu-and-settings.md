@@ -79,9 +79,10 @@ map · GeoComp system report · Install tutorial dataset.
 Batch processing · Build baselines · Compare configurations.
 See [`11-module-gnss.md`](./11-module-gnss.md).
 
-> **Built in P7c, as eight of the nine.** Download products waits on FR-352, which moved to P10 when the
-> egress check found every major archive unreachable, and within P10 to **P10c** (maintainer's decision, 28
-> September 2026); a menu entry for it now would point at nothing, which §1.2 forbids outright.
+> **Built in P7c as eight of the nine, and the ninth in P10c.** Download products waited on FR-352, which
+> moved to P10 when the egress check found every major archive unreachable, and within P10 to **P10c**
+> (maintainer's decision, 28 September 2026); until then a menu entry for it would have pointed at nothing,
+> which §1.2 forbids outright. It arrived with the capability, after *Scan sessions*.
 >
 > **GNSS is the only group with a second level**, and the exception is narrow and enforced. Its four modes are
 > two branches of two, and flattening them would give four entries distinguished pairwise by their first word
@@ -227,10 +228,23 @@ ionosphere and troposphere models, ambiguity ratio threshold, and whether to kee
 baseline subset). **All nine are read**, which is the point — see §2.3 for the 36 that are not, and the rule
 that a newly declared setting must have a consumer.
 
-Two of the row's items are absent and are not oversights. *Preferred download servers and their priority*
-belongs to FR-352, and *credential references* to FR-353 and NFR-010; all three moved to P10 with the
-download capability itself, and are P10c's. A settings control for a server list that nothing downloads from would be exactly
-the defect §2.3 describes.
+Two of the row's items were absent in P7c, and not by oversight. *Preferred download servers and their
+priority* belongs to FR-352, and *credential references* to FR-353 and NFR-010; all three moved to P10 with
+the download capability itself, because a settings control for a server list that nothing downloads from
+would be exactly the defect §2.3 describes. **P10c declared them with their consumer**, four settings, all
+read by `algorithms/gnss/common.py`:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `gnss.product_services` | `noaa-ncn` | Download services by id, in priority order; empty means GeoComp never downloads |
+| `gnss.service_definitions` | empty | A JSON file defining further services ([`08`](./08-engine-rtklib.md) §5) |
+| `gnss.product_cache` | empty | Where products are kept; empty is `geocomp/products` in the QGIS profile folder |
+| `gnss.product_fallback` | off | Whether a missing final orbit may be replaced by the rapid one, recorded when it is |
+
+**The credential references are not settings.** A service that needs a login names a QGIS authentication
+configuration by its id in the services file; the credential itself stays in QGIS's encrypted store. There is
+no setting a password could be typed into, which is the only arrangement that makes NFR-010 true by
+construction rather than by care.
 
 Wiring the ANTEX file was where the distinction between naming a setting and honouring one showed up in
 practice: supplying `file-rcvantfile` without also setting `pos1-posopt2` loads a calibration model

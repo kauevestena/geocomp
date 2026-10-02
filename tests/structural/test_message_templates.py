@@ -12,8 +12,8 @@ Nothing raises, nothing is logged -- the user simply reads
 which is worse than the bare code, because it looks like a finished sentence.
 
 This test closes that gap without a QGIS runtime, by reading both sides as
-source: every ``*Error("code", key=...)`` call in ``geocomp/core`` and
-``geocomp/io``, and every
+source: every ``*Error("code", key=...)`` call in ``geocomp/core``,
+``geocomp/io`` and ``geocomp/services``, and every
 ``MessageTemplate`` declared in the presentation layer.
 """
 
@@ -62,7 +62,13 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     # The readers in `io` raise errors a user causes -- a malformed line, a file
     # of an unknown format -- as much as the core does; phase P8b found their
     # templates reported as stale because only `core` was read.
-    sources = [*python_sources(PLUGIN_DIR / "core"), *python_sources(PLUGIN_DIR / "io")]
+    # And `services`, since P10c: the product fetcher on the QGIS network stack
+    # raises the not-found, refused-login and network failures a user reads.
+    sources = [
+        *python_sources(PLUGIN_DIR / "core"),
+        *python_sources(PLUGIN_DIR / "io"),
+        *python_sources(PLUGIN_DIR / "services"),
+    ]
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
