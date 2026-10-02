@@ -274,6 +274,7 @@ class ProjectStore:
                     "store_modified_concurrently",
                     path=self.location,
                     received=current,
+                    seen=self._revision,
                     expected=(
                         f"revision {self._revision}, which this store read; someone else "
                         "saved since. Open the project again and redo the change, so "

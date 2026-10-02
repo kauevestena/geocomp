@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""``geocomp:project_store`` -- save a network and its solution (FR-130, FR-134).
+"""``geocomp:project_store`` -- save a network and its solution (FR-130, FR-131, FR-134).
 
 ``specs/17-persistence-and-interoperability.md`` sections 2 to 4.
 
@@ -18,6 +18,12 @@ Replacing is available and says what it does.
 remove the one it replaces; it is recorded as superseding it, so the record of
 what was believed and when survives (FR-135). Monitoring is exactly the case
 where the earlier answer matters after it stops being the current one.
+
+**A GeoPackage or a PostGIS schema** (phase P11). The same project, the same
+tables, in one file or in a shared database reached through a QGIS connection.
+The second is where two people can save to one project at once, so a save that
+finds someone else's save since the store was read is refused -- and the
+message says what to do -- rather than overwriting it.
 """
 
 from __future__ import annotations
@@ -31,6 +37,7 @@ from qgis.core import (
     QgsProcessingParameterBoolean,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
+    QgsProcessingParameterProviderConnection,
     QgsProcessingParameterString,
 )
 
@@ -38,10 +45,13 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.project.common import read_network, read_solution
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Project
+from geocomp.services.messages import message_for
 
 __all__ = ["ProjectStoreAlgorithm"]
 
 STORE = "STORE"
+DATABASE = "DATABASE"
+SCHEMA = "SCHEMA"
 SOLUTION = "SOLUTION"
 NETWORK = "NETWORK"
 PROJECT_ID = "PROJECT_ID"
@@ -61,7 +71,10 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
         return self.tr("Save to project store")
 
     def shortDescription(self) -> str:
-        return self.tr("Write a network and its solution into a GeoComp GeoPackage.")
+        return self.tr(
+            "Write a network and its solution into a GeoComp project: a GeoPackage or "
+            "a PostGIS schema."
+        )
 
     def help_body(self) -> str:
         return self.tr(
@@ -81,6 +94,11 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
             "<p><b>Project store</b> &mdash; the GeoPackage to write to. It is created if "
             "it does not exist; an older schema version is migrated after a backup, and a "
             "newer one is refused.</p>"
+            "<p><b>PostgreSQL connection</b> and <b>Schema</b> &mdash; instead of a "
+            "GeoPackage, a project in a PostGIS database, through a connection saved in "
+            "QGIS and its login. Give one or the other. If someone else saves to the same "
+            "project while you work, your save is refused rather than overwriting theirs; "
+            "open the project again and redo the change.</p>"
             "<p><b>Solution</b> and <b>Network</b> &mdash; documents written by earlier "
             "algorithms. At least one is required.</p>"
         )
@@ -91,6 +109,21 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
                 STORE,
                 self.tr("Project store"),
                 self.tr("GeoPackage (*.gpkg)"),
+                optional=True,
+                createByDefault=False,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterProviderConnection(
+                DATABASE,
+                self.tr("PostgreSQL connection (instead of a GeoPackage)"),
+                "postgres",
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterString(
+                SCHEMA, self.tr("Schema"), defaultValue="geocomp", optional=True
             )
         )
         self.addParameter(
@@ -154,6 +187,12 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(str(error)) from error
 
         target = self.parameterAsFileOutput(parameters, STORE, context)
+        connection = self.parameterAsConnectionName(parameters, DATABASE, context)
+        schema = (self.parameterAsString(parameters, SCHEMA, context) or "geocomp").strip()
+        if bool(target) == bool(connection):
+            raise QgsProcessingException(
+                self.tr("Give either a GeoPackage or a PostgreSQL connection to save to.")
+            )
         replace = self.parameterAsBool(parameters, REPLACE, context)
         supersedes = (self.parameterAsString(parameters, SUPERSEDES, context) or "").strip()
         project_id = (
@@ -162,9 +201,24 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(20)
         try:
-            store = open_store(target, create=True, migrate_older=True)
+            if connection:
+                from geocomp.services.postgis import open_database_store
+
+                store = open_database_store(
+                    connection, schema, create=True, migrate_older=True
+                )
+            else:
+                store = open_store(target, create=True, migrate_older=True)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
+        if store.migration is not None and store.migration.migrated:
+            feedback.pushInfo(
+                self.tr("Migrated %1 from schema %2 to %3; the backup is %4")
+                .replace("%1", store.location)
+                .replace("%2", str(store.migration.from_version))
+                .replace("%3", str(store.migration.to_version))
+                .replace("%4", str(store.migration.backup))
+            )
 
         written: list[str] = []
         try:
@@ -180,9 +234,11 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
                     feedback=feedback,
                 )
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         feedback.setProgress(100)
+        if connection:
+            return {DATABASE: store.location, WRITTEN: written}
         return {STORE: target, WRITTEN: written}
 
     def _write(
