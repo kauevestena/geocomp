@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-5 — The records, and P12's exit assessed
+
+#### Changed
+
+- **Brazilian Portuguese reads as Brazilian in 23 more strings**: European constructions and spellings left
+  from earlier work (*pelo que*, *está a ser*, *registado*, *quilómetro*, *monitorização*) converted. One
+  Spanish *fichero* is now *archivo*, like the other 71.
+
+#### Documented
+
+- The native-speaker review has not been held; what it should look at, and where it will be recorded, are in
+  specs/18 §3.1. It moves to P13 with ocean loading, whose source is still unreachable.
+- JAG3D's TraCIM verification is of its form-fitting module, not of its network adjustment; specs/22 said
+  otherwise.
+- P12's exit is not met: 17 acceptance rows remain, nine waiting on unreachable reference data, one on the
+  release, and seven that are P12c-6's work.
+
 ### P12c-4 — Networks of 10,000 stations
 
 #### Added

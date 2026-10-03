@@ -182,7 +182,17 @@ Three things hold that position up, and each is checked rather than promised:
   document, and the textbooks behind it; GNU Gama's own `README.md` sits beside it unchanged, including its
   changelog of the edits Gama made to Krumm's originals.
 
-## 3. JAG3D, and how adjustment software gets certified **[C]**
+## 3. JAG3D, and how adjustment software gets certified — **[V]** against its README; the reports **[C]**
+
+> **Resolved in P12c-5, 3 October 2026.** Checked against JAG3D's own README and licence at commit
+> `b11b26bc` (6 September 2026), cloned from GitHub. They confirm the licence (GPL-3.0), the observation
+> types, the round-robin comparison and its site, the TraCIM verification and the three references below. One
+> statement was **wrong** and is corrected: TraCIM verified JAG3D's **JUniForm** module, which fits geometric
+> features — line, plane, circle, cylinder, sphere, cone — under ISO 10360-6. It did not verify the network
+> adjustment. The evidence for the network adjustment is the round robin: on its largest network, about
+> 40 km across, JAG3D's results are about 20 µm from the designed values. What the README cites stays
+> **[C]**: the PTB report, the Zenodo datasets and `comet.esgt.cnam.fr` all refuse the connection from here
+> (403 on CONNECT), so their contents are unchecked.
 
 [JAG3D](https://github.com/applied-geodesy/jag3d) (*Java·Applied·Geodesy·3D*, GPL-3.0) combines levelling,
 directions, distances, vertical angles **and GNSS baselines** in one rigorous model — which is GeoComp's own
@@ -191,10 +201,11 @@ shape, and a closer match than DynAdjust for a mixed terrestrial network.
 More interesting than the software is its **quality-assurance practice**, which is a direct answer to the
 question this project keeps running into — *how do you validate an adjustment implementation?*
 
-* Its `JUniForm` module passed **TraCIM** verification. TraCIM (*Traceability for Computationally-Intensive
-  Metrology*) is a PTB service certifying metrological adjustment algorithms under ISO 10360-6: synthetic
-  datasets with modelled random and systematic deviations are supplied, the results returned, and a test
-  report issued. Reported maximum deviations were < 0.1 µm and < 0.1 µrad.
+* Its `JUniForm` module passed **TraCIM** verification. TraCIM (*Traceability for Computational-Intensive
+  Metrology*) is a PTB service that verifies algorithms computing Gaussian associated features under
+  ISO 10360-6: synthetic datasets with modelled random and systematic deviations are supplied, the results
+  returned, and a test report issued. The estimated parameters stayed within the thresholds of 0.1 µm and
+  0.1 µrad. This is form fitting, not network adjustment (see the note above).
 * Round-robin comparisons are published with raw data and results at `comet.esgt.cnam.fr/comparisons`.
 * Lösler et al. (2023), *Operator-software impact in local tie networks*,
   [doi:10.1007/s12518-022-00477-5](https://doi.org/10.1007/s12518-022-00477-5) — measures how much the
@@ -305,7 +316,7 @@ carry files in it: the five networks are vendored as `Network.to_dict()` JSON, p
 `scripts/convert_adjust_corpus.py`. Interoperability is still implemented and still tested — by round trip,
 and against the originals for anyone who sets `GEOCOMP_ADJUST_DIR`.
 
-## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 assembled **[V]**; RD-08 half assembled **[C]**
+## 5. RD-06 — met on closure and repeatability **[V]**; RD-07 assembled **[V]**; RD-08's published half a lead **[C]**, W-01
 
 **RD-06 update, 17 September 2026.** The earlier archive-access blocker does not recur in the validation
 environment. The reproducible evidence bundle, integrated into `tests/data/rd06/`, contains two complete
@@ -598,7 +609,8 @@ numbers — carries a two-epoch example with its published test decisions. Crite
 paper above, or a textbook example with both epochs' coordinates, their covariance and the published
 decisions — as `igs20.atx` was supplied for RD-06. Transcribing one from memory is not an option: a reference
 that might be misremembered is not a reference. It is registered as W-01 in [`23`](./23-wanted-reference-data.md), with the leads
-still to check.
+still to check. Re-checked on 3 October 2026 (P12c-5): the journal's host still refuses the connection, so the
+lead stays a lead — the one **[C]** in this document that cannot be resolved from here.
 
 ### 5.4 What a clean pair does — the criterion is unreachable against this reference [V]
 
@@ -679,7 +691,7 @@ gate.
 ### 5.6 RD-07, assembled from what could be reached [V]
 
 **No archive that publishes a gravimetric network was reachable** — IBGE, the BGI, USGS publications, the
-Onsala loading service, Zenodo and NGS all return 403 on CONNECT, re-checked on 25 September 2026. What was
+Onsala loading service, Zenodo and NGS all return 403 on CONNECT, re-checked on 25 September 2026 and, for Onsala and Zenodo, on 3 October 2026. What was
 reachable was `git` to GitHub and PyPI, and through them four references, two of which cannot be committed:
 
 | Reference | What it checks | Where it lives | Result |

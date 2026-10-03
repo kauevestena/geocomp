@@ -175,6 +175,11 @@ coefficients from the Onsala service, which is unreachable from the development 
 reachable could check an implementation. Written and unverified would be a claim, not a feature — the same
 reasoning that moved FR-352.
 
+**Moved again, to P13** (P12c-5, 3 October 2026). The Onsala service still refuses the connection (403 on
+CONNECT), so by the rule P12 was given it moves again, and on the same condition: it is written when
+coefficients for a few stations and a published series with the correction applied can check it (W-11 in
+[`23`](./23-wanted-reference-data.md)).
+
 ### 4.3 Drift
 
 A relative gravimeter's reading changes with time even at a fixed station.
