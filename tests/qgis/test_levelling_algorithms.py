@@ -452,6 +452,82 @@ class TestClosuresAndTheNetwork:
         for station in ("BM2", "BM4"):
             assert rows[station] == pytest.approx(rd.HEIGHTS[station], abs=0.002)
 
+    def test_trigonometric_differences_join_the_network_with_their_own_factor(
+        self, tmp_path, loop_reductions
+    ):
+        """specs/10 criterion 5, from the menu: the document *Trigonometric
+        levelling* writes is adjusted with the lines, and each technique can be
+        given its own variance component (P12c). Until then nothing read it."""
+        from geocomp.core.uncertainty import Quantity
+        from geocomp.core.units import Unit
+
+        def difference(start, end, value):
+            quantity = Quantity.from_std_dev(value, 0.004, Unit.METRE)
+            return {"from": start, "to": end, "value": quantity.to_dict()}
+
+        heights = rd.HEIGHTS
+        trigonometric = tmp_path / "trigonometric.json"
+        trigonometric.write_text(
+            json.dumps(
+                {
+                    "kind": "geocomp.height_differences",
+                    "version": 1,
+                    "mode": "radial",
+                    "differences": [
+                        difference("BM1", "BM2", heights["BM2"] - heights["BM1"] + 0.003),
+                        difference("BM2", "BM4", heights["BM4"] - heights["BM2"] - 0.002),
+                        difference("BM4", "BM1", heights["BM1"] - heights["BM4"] + 0.001),
+                        # A point no line reached: the trigonometric differences give it a height.
+                        difference("BM2", "T1", 1.234),
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        results = _run(
+            "geocomp:levelling_network",
+            {
+                "REDUCTIONS": loop_reductions,
+                "TRIGONOMETRIC": str(trigonometric),
+                "VARIANCE_COMPONENTS": True,
+                "BENCHMARKS": f"BM1={rd.HEIGHTS['BM1']:.3f}",
+                "WEIGHTING": 0,
+                "SIGMA_PER_KM": 0.0007,
+                "OUTPUT_SOLUTION": str(tmp_path / "solution.json"),
+                "OUTPUT_HTML": str(tmp_path / "solution.html"),
+                "OUTPUT_CSV": str(tmp_path / "heights.csv"),
+            },
+        )
+        assert results["DEGREES_OF_FREEDOM"] == 1 + 3, "three differences between benchmarks add three"
+        rows = {
+            row["station"]: float(row["height_m"])
+            for row in csv.DictReader(Path(results["OUTPUT_CSV"]).open(encoding="utf-8"))
+        }
+        assert rows["T1"] == pytest.approx(rows["BM2"] + 1.234, abs=1e-6)
+
+        solution = json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        components = solution["provenance"]["parameters"]["variance_components"]
+        assert set(components) == {"levelling", "total_station"}
+        assert components["total_station"]["observations"] == 4
+        report = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert "Variance components by technique" in report
+
+    def test_a_document_of_another_kind_is_refused_by_name(self, tmp_path, loop_reductions):
+        from qgis.core import QgsProcessingException
+
+        wrong = tmp_path / "not-heights.json"
+        wrong.write_text(json.dumps({"kind": "geocomp.readings"}), encoding="utf-8")
+        with pytest.raises(QgsProcessingException, match="Trigonometric levelling"):
+            _run(
+                "geocomp:levelling_network",
+                {
+                    "REDUCTIONS": loop_reductions,
+                    "TRIGONOMETRIC": str(wrong),
+                    "BENCHMARKS": f"BM1={rd.HEIGHTS['BM1']:.3f}",
+                    "OUTPUT_SOLUTION": str(tmp_path / "solution.json"),
+                },
+            )
+
     def test_the_report_gives_relative_height_uncertainties(self, tmp_path, loop_reductions):
         """The 1D analogue of the relative error ellipse, which specs/10 section 4
         names and which no 2D-oriented station table shows."""

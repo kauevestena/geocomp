@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-3 — The base station's frame, the epoch's origin, trigonometric heights in the network
+
+#### Fixed
+
+- **A relative GNSS run now uses the reference-station database.** A base found there is held at its published
+  coordinates, transformed into the run's frame and moved to the session's epoch, and the run's summary records
+  every step. Before, the base sat at its RINEX header's approximate position, in no stated frame.
+- **An adjustment no longer assumes an epoch silently.** Unstated, it takes the network's. Where the network
+  states none, the old default is kept, and it is marked *assumed* in the provenance and the report. A
+  comparison of epochs refuses it.
+
+#### Added
+
+- *Frame of the results* on the relative GNSS algorithms and the batch. The default is the project's: the datum
+  of the preferred CRS.
+- *Trigonometric height differences* and *Estimate a variance component per technique* on *Levelling network*.
+
 ### P12c-3 — Cancelling keeps nothing; numbers in the language's separator
 
 #### Fixed

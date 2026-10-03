@@ -298,6 +298,26 @@ class TestCriterion2Epoch:
         assert caught.value.code == "validation.monitoring_solution_without_epoch"
         assert caught.value.context["solution"] == "undated"
 
+    def test_an_epoch_an_adjustment_assumed_is_refused(self, stable, moved):
+        """P12c: where nothing stated an epoch the adjustments keep their old
+        default, marked; a comparison must not take it for a date."""
+        from geocomp.core.models import Provenance
+        from geocomp.core.models.solution import EPOCH_ASSUMED
+
+        assumed = replace(
+            moved,
+            provenance=Provenance.now(
+                algorithm_id="geocomp:analysis_network_adjust",
+                source="test",
+                parameters={"epoch_origin": EPOCH_ASSUMED},
+            ),
+        )
+        assert assumed.epoch_assumed and not stable.epoch_assumed
+        with pytest.raises(ValidationError) as caught:
+            compare(stable, assumed)
+        assert caught.value.code == "validation.monitoring_solution_epoch_assumed"
+        assert caught.value.context["solution"] == assumed.id
+
     def test_nor_can_one_be_read_back_without_it(self, stable):
         document = stable.to_dict()
         document["epoch"] = None

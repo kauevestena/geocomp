@@ -1452,6 +1452,29 @@ a test across all 46 algorithms is bigger than this pull request.
 criterion 7), the assumed epochs P12a left and the trigonometric-levelling document read by nothing are the
 next pull request's.
 
+#### P12c-3 — the rest of it (second pull request)
+
+**Delivered.** Two register rows closed, leaving **116 met, 12 partly met, 5 open, 2 manual**, and P12a's
+assumed epochs settled:
+
+| Gap | Now |
+|---|---|
+| specs/11 7: a base in another frame transformed, with a record | `stations.to_frame`. Relative runs fetch the base from the reference-station database and hold it in the run's frame at the session's epoch. RTKLIB gets explicit `xyz`, and the run's summary keeps the record. `tests/qgis/test_base_station_frame.py` |
+| specs/10 5: geometric and trigonometric combined from the menu | *Levelling network* reads *Trigonometric levelling*'s document and estimates a variance component per technique. `tests/qgis/test_levelling_algorithms.py` |
+| FR-105: the epochs P12a left assumed | An unstated epoch is the network's own, or the old default marked *assumed*, which the report shows and a comparison refuses. `tests/qgis/test_assumed_epoch.py` |
+
+**Found.**
+
+- **No processing run read the reference-station database.** A relative run held its base where the RINEX
+  header put it: an approximate position in no stated frame. The frame check guarded a path nothing took.
+- **QGIS's geographic CRS for a projected one has no authority code.** `toGeographicCrs()` returns the base with
+  its axes normalised for display. The project's frame is therefore read from the WKT2 base CRS's name.
+- **The solution model requires an epoch, by design**, so that every solution can enter a comparison. The
+  assumed default therefore stays for a network that states none, and is marked rather than removed.
+
+**Not done here.** *Build baselines* still takes the base's frame as a parameter rather than reading the run's
+summary.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -32,6 +32,7 @@ from qgis.core import (
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
@@ -43,8 +44,11 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
+    base_coordinates,
     configured_profile,
+    frame_choices,
     ppp_limitation_notice,
+    run_frame,
     session_products,
     translate_error,
 )
@@ -57,6 +61,7 @@ from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
+FRAME = "FRAME"
 ROVER_STATION = "ROVER_STATION"
 ELEVATION_MASK = "ELEVATION_MASK"
 KEEP_WORK_DIR = "KEEP_WORK_DIR"
@@ -117,6 +122,16 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             self.addParameter(
                 QgsProcessingParameterString(
                     BASE_STATION, _tr("Base station"), optional=True
+                )
+            )
+            # specs/11 §7: a base in the reference-station database is held at
+            # its published coordinates, brought into this frame.
+            self.addAdvancedParameter(
+                QgsProcessingParameterEnum(
+                    FRAME,
+                    _tr("Frame of the results"),
+                    options=frame_choices(),
+                    defaultValue=0,
                 )
             )
         self.addParameter(
@@ -243,6 +258,10 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 .replace("%1", base.station_id)
                 .replace("%2", rover.station_id)
             )
+            held, base_record = base_coordinates(
+                base, run_frame(self.parameterAsEnum(parameters, FRAME, context)), feedback
+            )
+            overrides.update(held)
 
         configuration = configured_profile(self.profile_name, **overrides)
         # The products the sessions need for their own days -- an orbit when
@@ -289,6 +308,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         "profile": self.profile_name,
                         "rover": rover.station_id,
                         **({"base": job_kwargs["base"].station_id} if "base" in job_kwargs else {}),
+                        # FR-832: where the base was held, in what frame, and
+                        # the transformation that put it there.
+                        **({"base_coordinates": base_record} if "base" in job_kwargs else {}),
                         "quality": quality.to_dict(),
                         "configuration": configuration.to_dict(),
                         # FR-134: a GNSS solution is not reproducible without

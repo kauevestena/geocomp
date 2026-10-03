@@ -25,7 +25,9 @@ uncertainties, because they are correlated.
 from __future__ import annotations
 
 import csv
+import dataclasses
 import math
+from pathlib import Path
 from typing import Any
 
 from qgis.core import (
@@ -44,7 +46,12 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.defaults import (
+    configured,
+    configured_epoch,
+    recorded_epoch,
+    run_epoch,
+)
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE
 from geocomp.algorithms.levelling.common import (
@@ -70,14 +77,16 @@ from geocomp.core.adjustment.least_squares import (
     to_observation_results,
     to_solution,
 )
+from geocomp.core.adjustment.variance_components import estimate_variance_components
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import DatumDefinition, Epoch, Provenance
+from geocomp.core.models import DatumDefinition, Provenance
 from geocomp.core.number_format import localised
 from geocomp.core.settings_def import WEIGHTINGS
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.techniques.levelling import (
     Benchmark,
+    add_height_differences,
     build_network,
     correct_lines,
     network_closures,
@@ -89,6 +98,8 @@ from geocomp.core.units import Unit
 __all__ = ["LevellingNetworkAlgorithm"]
 
 REDUCTIONS = "REDUCTIONS"
+TRIGONOMETRIC = "TRIGONOMETRIC"
+VARIANCE_COMPONENTS = "VARIANCE_COMPONENTS"
 BENCHMARKS = "BENCHMARKS"
 WEIGHTING = "WEIGHTING"
 SIGMA_PER_KM = "SIGMA_PER_KM"
@@ -157,6 +168,12 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             "<b>Benchmarks</b> &mdash; as above. <b>Weighting</b>, and the coefficient for "
             "each model (m per root km, m per root setup); zero means that model is not "
             "configured.</p>"
+            "<p><b>Trigonometric height differences</b> &mdash; optional: the document "
+            "<i>Trigonometric levelling</i> writes. Its differences join the lines as one "
+            "network, each with its own propagated uncertainty, and a point only they reach "
+            "is added. <b>Estimate a variance component per technique</b> (advanced) &mdash; "
+            "scales each technique's uncertainties by a factor estimated from the residuals, "
+            "and reports the factors.</p>"
             "<p><b>Free network</b> &mdash; ignore the benchmarks and remove the datum "
             "defect with an inner constraint.</p>"
             "<p><b>Confidence</b>, <b>alpha</b> and <b>beta</b> &mdash; for the global "
@@ -176,6 +193,23 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
             QgsProcessingParameterFile(REDUCTIONS, self.tr("Reduced lines"), extension="json")
+        )
+        # specs/10 criterion 5: the document Trigonometric levelling writes,
+        # adjusted with the lines as one network.
+        self.addParameter(
+            QgsProcessingParameterFile(
+                TRIGONOMETRIC,
+                self.tr("Trigonometric height differences (optional)"),
+                extension="json",
+                optional=True,
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterBoolean(
+                VARIANCE_COMPONENTS,
+                self.tr("Estimate a variance component per technique"),
+                defaultValue=False,
+            )
         )
         self.addParameter(
             QgsProcessingParameterString(
@@ -282,10 +316,10 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 EPOCH,
-                self.tr("Epoch (decimal year)"),
+                self.tr("Reference epoch, decimal year (0 = the network's own)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=configured_epoch(2026.0),
-                minValue=1900.0,
+                defaultValue=configured_epoch(0.0),
+                minValue=0.0,
                 maxValue=2200.0,
             )
         )
@@ -340,8 +374,19 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
 
             raise QgsProcessingException(message_for(exc)) from exc
 
-        summarise_findings(built.findings, feedback)
         network = built.network
+        trigonometric = self.parameterAsFile(parameters, TRIGONOMETRIC, context)
+        if trigonometric:
+            try:
+                added = add_height_differences(
+                    network, self._height_differences(trigonometric), built.height_type
+                )
+            except GeoCompError as exc:
+                from geocomp.services.messages import message_for
+
+                raise QgsProcessingException(message_for(exc)) from exc
+            built = dataclasses.replace(built, findings=built.findings + added)
+        summarise_findings(built.findings, feedback)
 
         datum = (
             DatumDefinition.INNER_CONSTRAINT
@@ -364,8 +409,16 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                     "piece separately."
                 ).replace("%1", str(start.components))
             )
+        components = None
         try:
-            run = adjust(network, options, approximate=start.values)
+            if self.parameterAsBool(parameters, VARIANCE_COMPONENTS, context):
+                components = estimate_variance_components(
+                    network, options, approximate=start.values
+                )
+                run, network = components.run, components.network
+                self._push_components(components, feedback)
+            else:
+                run = adjust(network, options, approximate=start.values)
         except GeoCompError as exc:
             from geocomp.services.messages import message_for
 
@@ -400,29 +453,39 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             beta=self.parameterAsDouble(parameters, BETA, context),
         )
 
-        solution = to_solution(
-            run,
-            network,
-            solution_id="levelling-adjustment",
-            crs=network.crs,
-            epoch=Epoch.from_decimal_year(self.parameterAsDouble(parameters, EPOCH, context)),
-            datum=datum,
-            height_type=built.height_type,
-            provenance=self._provenance(
-                built,
-                options,
-                confidence,
-                coefficient=coefficient,
-                closures=closures,
-                adjust_failing=adjust_failing,
-                corrections=corrections,
-            ),
-            observation_results=to_observation_results(
-                run, snooping=snooping, reliability=reliability_report
-            ),
-            global_test=test,
-            confidence=confidence,
+        epoch, epoch_origin = run_epoch(
+            self.parameterAsDouble(parameters, EPOCH, context), network, 2026.0
         )
+        solution = recorded_epoch(
+            to_solution(
+                run,
+                network,
+                solution_id="levelling-adjustment",
+                crs=network.crs,
+                epoch=epoch,
+                datum=datum,
+                height_type=built.height_type,
+                provenance=self._provenance(
+                    built,
+                    options,
+                    confidence,
+                    coefficient=coefficient,
+                    closures=closures,
+                    adjust_failing=adjust_failing,
+                    corrections=corrections,
+                ),
+                observation_results=to_observation_results(
+                    run, snooping=snooping, reliability=reliability_report
+                ),
+                global_test=test,
+                confidence=confidence,
+            ),
+            epoch_origin,
+            feedback,
+        )
+        if components is not None:
+            solution = _with_components(solution, components)
+
 
         feedback.setProgress(80)
         self._push_summary(run, test, snooping, feedback)
@@ -960,10 +1023,84 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
 
         body.extend(self._closure_section(closures))
         body.extend(self._correction_section(corrections))
+        body.extend(self._components_section(solution))
         body.append(f"<h2>{escape(self.tr('Findings'))}</h2>")
         body.append(findings_table(built.findings))
         with open(path, "w", encoding="utf-8") as handle:
             handle.write(render_document(self.tr("Levelling network adjustment"), body))
+
+    def _height_differences(self, path: str):
+        """The ``(from, to, Quantity)`` triples of a document *Trigonometric levelling* wrote."""
+        import json
+
+        try:
+            payload = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise QgsProcessingException(
+                self.tr("The trigonometric height differences cannot be read: %1").replace(
+                    "%1", str(exc)
+                )
+            ) from exc
+        if not isinstance(payload, dict) or payload.get("kind") != "geocomp.height_differences":
+            raise QgsProcessingException(
+                self.tr(
+                    "%1 is not the height-difference document Trigonometric levelling writes."
+                ).replace("%1", path)
+            )
+        return [
+            (row["from"], row["to"], Quantity.from_dict(row["value"]))
+            for row in payload.get("differences", [])
+        ]
+
+    def _push_components(self, components, feedback) -> None:
+        for component in components.components:
+            feedback.pushInfo(
+                self.tr("Variance factor of %1: %2 ± %3 (%4 observations)")
+                .replace("%1", component.group)
+                .replace("%2", format_number(component.factor, 3))
+                .replace("%3", format_number(component.std_dev, 3))
+                .replace("%4", str(component.observations))
+            )
+
+    def _components_section(self, solution) -> list[str]:
+        """The factor each technique was given, when they were estimated (specs/10 criterion 5)."""
+        found = (solution.provenance.parameters if solution.provenance else {}).get(
+            "variance_components"
+        )
+        if not found:
+            return []
+        rows = [
+            [
+                escape(group),
+                format_number(entry["factor"], 3),
+                format_number(entry["std_dev"], 3),
+                format_number(entry["redundancy"], 2),
+                str(entry["observations"]),
+            ]
+            for group, entry in sorted(found.items())
+        ]
+        return [
+            f"<h2>{escape(self.tr('Variance components by technique'))}</h2>",
+            render_table(
+                [
+                    escape(self.tr("Technique")),
+                    escape(self.tr("Factor")),
+                    escape(self.tr("Standard deviation")),
+                    escape(self.tr("Redundancy")),
+                    escape(self.tr("Observations")),
+                ],
+                rows,
+            ),
+            render_note(
+                self.tr(
+                    "Each technique's declared uncertainties were scaled by its factor, "
+                    "estimated from the residuals until both settled. A factor near one says "
+                    "the technique was declared about right; four says its uncertainties "
+                    "were half what they should have been."
+                ),
+                label=self.tr("Variance components"),
+            ),
+        ]
 
     def _write_csv(self, parameters, context, solution) -> None:
         path = self.parameterAsFileOutput(parameters, OUTPUT_CSV, context)
@@ -980,3 +1117,26 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                         exact(station.position.height.std_dev),
                     ]
                 )
+
+
+def _with_components(solution, components):
+    """*solution* with each technique's variance factor in its provenance."""
+    if solution.provenance is None:
+        return solution
+    recorded = {
+        component.group: {
+            "factor": float(component.factor),
+            "std_dev": float(component.std_dev),
+            "redundancy": float(component.redundancy),
+            "observations": int(component.observations),
+        }
+        for component in components.components
+    }
+    return dataclasses.replace(
+        solution,
+        provenance=dataclasses.replace(
+            solution.provenance,
+            parameters={**solution.provenance.parameters, "variance_components": recorded},
+        ),
+    )
+

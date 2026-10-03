@@ -30,9 +30,12 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     SessionProducts,
+    base_coordinates,
     configured_profile,
+    frame_choices,
     gather_products,
     missing_products_message,
+    run_frame,
     translate_error,
 )
 from geocomp.core.errors import GeoCompError
@@ -43,6 +46,7 @@ from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
+FRAME = "FRAME"
 PROFILE = "PROFILE"
 OUTPUT_DIR = "OUTPUT_DIR"
 OUTPUT_JSON = "OUTPUT_JSON"
@@ -90,6 +94,16 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterString(BASE_STATION, self.tr("Base station"), optional=True)
+        )
+        # specs/11 §7: a base in the reference-station database is held at its
+        # published coordinates, brought into this frame. Relative modes only.
+        self.addAdvancedParameter(
+            QgsProcessingParameterEnum(
+                FRAME,
+                self.tr("Frame of the results (relative modes)"),
+                options=frame_choices(),
+                defaultValue=0,
+            )
         )
         self.addParameter(
             QgsProcessingParameterEnum(
@@ -172,7 +186,13 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 )
             feedback.pushInfo(self.tr("Base: %1").replace("%1", base.station_id))
 
-        configuration = configured_profile(profile_name)
+        held: dict[str, Any] = {}
+        base_record: dict[str, Any] | None = None
+        if base is not None:
+            held, base_record = base_coordinates(
+                base, run_frame(self.parameterAsEnum(parameters, FRAME, context)), feedback
+            )
+        configuration = configured_profile(profile_name, **held)
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
         work_root = Path(tempfile.mkdtemp(prefix="geocomp-batch-"))
 
@@ -261,6 +281,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                     {
                         "profile": profile_name,
                         **({"base": base.station_id} if base else {}),
+                        **({"base_coordinates": base_record} if base_record else {}),
                         **outcome.to_dict(),
                         "sessions": [r.value for r in outcome.succeeded if r.value],
                     },

@@ -25,6 +25,7 @@ from geocomp.core.units import Unit
 from geocomp.core.version import __version__
 
 __all__ = [
+    "EPOCH_ASSUMED",
     "AdjustedStation",
     "AdjustmentStatistics",
     "DatumDefinition",
@@ -35,6 +36,10 @@ __all__ = [
     "SolutionKind",
     "TestResult",
 ]
+
+#: The provenance's ``epoch_origin`` when no one stated the epoch and an
+#: adjustment's own default was used (:attr:`Solution.epoch_assumed`).
+EPOCH_ASSUMED = "assumed"
 
 
 class SolutionKind(Enum):
@@ -473,6 +478,21 @@ class Solution:
             object.__setattr__(
                 self, "provenance", replace(self.provenance, strategies=self.strategies)
             )
+
+    @property
+    def epoch_assumed(self) -> bool:
+        """Whether nothing stated this solution's epoch and the adjustment chose one (P12c).
+
+        An adjustment needs no epoch to compute, and a solution must carry one,
+        so where neither the run nor its network stated one the three
+        adjustments that always defaulted keep their default -- and say so,
+        here, from the provenance. A comparison refuses such a solution
+        (FR-105): its epoch is a convention, not when anything was measured.
+        """
+        return (
+            self.provenance is not None
+            and self.provenance.parameters.get("epoch_origin") == EPOCH_ASSUMED
+        )
 
     @property
     def strategies(self) -> frozenset[Strategy]:

@@ -33,6 +33,7 @@ from geocomp.core.techniques.levelling.line import (
 from geocomp.core.techniques.levelling.network import (
     Benchmark,
     LevellingNetworkResult,
+    add_height_differences,
     build_network,
     build_setup_network,
     network_closures,
@@ -72,6 +73,7 @@ __all__ = [
     "SideShot",
     "StaffReading",
     "ThreeWireReading",
+    "add_height_differences",
     "build_network",
     "build_setup_network",
     "correct_lines",

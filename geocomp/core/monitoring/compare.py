@@ -206,7 +206,8 @@ def compare(
             ``None`` takes the epochs as independent and says so.
 
     Raises:
-        ValidationError: ``monitoring_solution_without_epoch`` (FR-105);
+        ValidationError: ``monitoring_solution_without_epoch`` and
+            ``monitoring_solution_epoch_assumed`` (FR-105);
             ``monitoring_height_types_differ``, ``monitoring_geoid_models_differ``,
             ``monitoring_datum_incompatible``, ``monitoring_coordinate_systems_differ``,
             ``monitoring_frames_differ``, ``monitoring_frame_needs_velocity``,
@@ -220,6 +221,16 @@ def compare(
                 expected=(
                     "a reference epoch on every solution compared (FR-105): the "
                     "difference of two unknown instants is not a displacement"
+                ),
+            )
+        if getattr(solution, "epoch_assumed", False):
+            raise ValidationError(
+                "monitoring_solution_epoch_assumed",
+                solution=solution.id,
+                received=solution.epoch.decimal_year,
+                expected=(
+                    "an epoch someone stated (FR-105): this one is an adjustment's "
+                    "default, chosen because neither the run nor its network gave one"
                 ),
             )
     findings = _check(first, second)

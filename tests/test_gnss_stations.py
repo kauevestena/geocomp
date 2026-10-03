@@ -193,8 +193,10 @@ class TestTheDatabase:
         moved = database.resolve("GODN", frame="ITRF2020", epoch=Epoch(decimal_year=2025.0))
         assert moved.xyz[0] == pytest.approx(GODN_XYZ[0] - 0.076, abs=1e-9)
 
-        with pytest.raises(ValidationError, match="reference_station_frame_mismatch"):
-            database.resolve("GODN", frame="SIRGAS2000", epoch=ITRF2020)
+        # Since P12c another frame is transformed, with its record, not refused.
+        transformed = database.resolve("GODN", frame="SIRGAS2000", epoch=ITRF2020)
+        assert transformed.frame == "SIRGAS2000"
+        assert transformed.meta["transformation"]["target"] == "SIRGAS2000"
 
     def test_resolve_without_an_epoch_leaves_the_station_where_it_was(self):
         database = StationDatabase()
@@ -206,3 +208,66 @@ class TestTheDatabase:
         StationDatabase().write(path)
         assert json.loads(path.read_text()) == {"stations": []}
         assert StationDatabase.read(path).stations == {}
+
+
+class TestABaseInAnotherFrame:
+    """``specs/11`` criterion 7: a base published in another frame or epoch is
+    transformed for the run, and the run records what was applied (P12c)."""
+
+    def test_it_is_moved_by_p9as_transformation_and_says_so(self):
+        from geocomp.core.geodesy.frames import transform_point
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        published = station("GODN", GODN_XYZ)
+        moved = to_frame(published, "SIRGAS2000", Epoch(decimal_year=2025.5))
+        expected = transform_point(
+            GODN_XYZ,
+            source="ITRF2020",
+            target="SIRGAS2000",
+            epoch=2020.0,
+            target_epoch=2025.5,
+            velocity=VELOCITY,
+        )
+        assert moved.xyz == pytest.approx(tuple(expected.xyz), abs=1e-9)
+        assert moved.frame == "SIRGAS2000"
+        assert moved.epoch.decimal_year == pytest.approx(2025.5)
+        assert moved.meta["published"] == {
+            "frame": "ITRF2020",
+            "epoch": 2020.0,
+            "xyz": list(GODN_XYZ),
+        }
+        record = moved.meta["transformation"]
+        assert record["source"] == "ITRF2020" and record["target"] == "SIRGAS2000"
+        assert record["steps"], "a transformation with no steps recorded"
+
+    def test_its_uncertainty_is_carried(self):
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        moved = to_frame(station("GODN", GODN_XYZ), "ITRF2014")
+        assert all(q.std_dev == pytest.approx(0.002, rel=1e-6) for q in moved.position)
+
+    def test_without_an_epoch_it_is_refused(self):
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        with pytest.raises(ValidationError, match="epoch"):
+            to_frame(station("GODN", GODN_XYZ, epoch=None), "SIRGAS2000")
+
+    def test_without_a_velocity_a_change_of_epoch_is_refused(self):
+        """SIRGAS 2000 is defined at 2000.4, so getting there moves the epoch."""
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        with pytest.raises(ValidationError, match="epoch_change_without_velocity"):
+            to_frame(station("GODN", GODN_XYZ, velocity=None), "SIRGAS2000")
+
+    def test_a_frame_no_transformation_is_held_for_is_refused_by_name(self):
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        with pytest.raises(ValidationError, match="frame_unknown"):
+            to_frame(station("GODN", GODN_XYZ), "WGS84")
+
+    def test_the_same_frame_by_another_name_is_not_a_transformation(self):
+        from geocomp.core.techniques.gnss.stations import to_frame
+
+        same = station("GODN", GODN_XYZ, frame="EPSG:9988")
+        assert to_frame(same, "ITRF2020") is same
+

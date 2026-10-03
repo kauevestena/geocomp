@@ -347,6 +347,30 @@ deferred:
   call it yet**, so acceptance criterion 7 below is still half met: the mismatch is detected and processing
   refused, and applying the transformation there with its record is the wiring left.
 
+**Since P12c the base-station path transforms, and records it.** A wider gap came first: no processing run read
+the reference-station database at all. A relative run held its base where the RINEX header put it, which is an
+approximate position in no stated frame. Now:
+
+- **The run's frame.** The relative algorithms and the batch take *Frame of the results*. The default is the
+  project's: the datum of `reference_systems.preferred_crs`, read through its geographic base, so a SIRGAS 2000
+  UTM zone names SIRGAS 2000. The other choices are the base's own frame, or one of the frames P9a holds
+  transformations for.
+- **A base in the database** is brought into that frame at its session's epoch (`stations.to_frame`). P9a's
+  Helmert steps run at the published epoch, and a change of epoch moves the base along its published velocity.
+  RTKLIB gets the result as explicit `xyz` coordinates.
+- **The record.** The run's summary records what was published, where the base was held, and every step with
+  its stated accuracy, under `base_coordinates`.
+- **What cannot be done is refused** before the engine runs, each case by name:
+  - a session with no start time;
+  - a station with no epoch;
+  - a change of epoch with no velocity, including any move into SIRGAS 2000, which is defined at 2000.4;
+  - a frame no transformation is held for, such as WGS 84.
+- **A base not in the database** keeps the header position, as before, and the summary says it is in no stated
+  frame.
+
+Not done: *Build baselines* still asks for the base's frame as a parameter rather than reading it from the
+run's summary.
+
 ---
 
 ## 8. Acceptance criteria
@@ -375,7 +399,7 @@ deferred:
 | 4 | **Met** | `tests/test_gnss_to_dynadjust.py`; the cluster reaches `<GPSBaseline>` with its 3×3 intact |
 | 5 | **Met** | `tests/test_gnss_baselines.py`; the record lives on the reduced baseline, so a second call raises rather than relying on a caller to check a flag |
 | 6 | **Met** | `tests/test_gnss_comparison.py`; two configurations over one session, with the difference judged against the summed covariances |
-| 7 | **Half met** | The mismatch is detected and refused (§7). The transformation exists since P9a ([`13`](./13-module-integration.md) §5.1); the base-station path does not apply it yet |
+| 7 | **Met in P12c** | The base is transformed into the run's frame at the session's epoch and recorded in the run's summary; what cannot be transformed is refused (§7) |
 | 8 | **Met** | The notice is in the help, the short description and a warning pushed at the top of every Absolute run |
 
 Criteria 2 and 7 are the two that are not closed, and neither closes inside P7c: one waits on a threshold to

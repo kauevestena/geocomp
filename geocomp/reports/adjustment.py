@@ -96,12 +96,17 @@ def _heading(text: str) -> str:
 
 
 def _identification(solution: Solution) -> str:
+    epoch = format_number(solution.epoch.decimal_year, 4)
+    if solution.epoch_assumed:
+        # FR-105: a convention, not when anything was measured, and no
+        # comparison accepts it -- which a reader must not have to infer.
+        epoch += " " + escape(_tr("(assumed: none was stated)"))
     rows = [
         [escape(_tr("Solution")), escape(solution.id)],
         [escape(_tr("Network")), escape(solution.network_id or "—")],
         [escape(_tr("Kind")), escape(solution.kind.value)],
         [escape(_tr("Coordinate reference system")), escape(solution.crs)],
-        [escape(_tr("Epoch")), format_number(solution.epoch.decimal_year, 4)],
+        [escape(_tr("Epoch")), epoch],
         [escape(_tr("Datum definition")), escape(solution.datum_definition.value)],
     ]
     # FR-804: two solutions computed with different geoid models are not

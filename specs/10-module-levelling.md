@@ -166,6 +166,20 @@ Height differences from trigonometric levelling
 (generally larger) uncertainties. Combining geometric and trigonometric levelling in one network is
 supported and is a case where per-technique variance component scaling (FR-805) earns its place.
 
+**As built (P12c).** Until P12c nothing read the document *Trigonometric levelling* writes, so the
+combination worked in the core and not from the menu. *Levelling network* now does it:
+
+- **The input.** It takes that document as *Trigonometric height differences* (optional).
+- **The observations.** Each difference joins the lines as a `HEIGHT_DIFFERENCE` recording the technique
+  `total_station` (`levelling.add_height_differences`), weighted by its own propagated uncertainty, since it
+  has no line length or set-up count to be weighted by.
+- **New points.** A point only the trigonometric differences reach is added as a mark.
+- **Variance components.** *Estimate a variance component per technique* (advanced) runs P9a's estimation by
+  technique. The run lists the factors, the solution's provenance keeps them, and the report has a table of
+  them.
+- **What is assumed.** The differences take the levelling's height type. Over the distances trigonometric
+  levelling spans, the plumb line and the normal differ by far less than the differences' uncertainty.
+
 ---
 
 ## 5. Height systems

@@ -21,13 +21,16 @@ which epoch it is now at and where it came from. RD-06's own two stations show
 why this matters in the other direction too: they share a velocity exactly, so
 their *baseline* is epoch-invariant while neither *position* is.
 
-**Changing frame is refused here, not done in passing** (FR-832). A frame
-change is a Helmert transformation, which ``geocomp.core.geodesy.frames`` holds
-since P9a -- but applying one belongs to whoever can record it, and a base
-station quietly transformed on its way into a processing run would leave no
-trace of it. Silently treating ITRF2020 coordinates as SIRGAS2000 is a
-decimetre-scale error that no test in this project would catch, so the request
-raises and names what would satisfy it: transform first, and keep the record.
+**Changing frame is done with its record, or refused** (FR-832; P12c). A
+frame change is a Helmert transformation, which ``geocomp.core.geodesy.frames``
+holds since P9a. Until P12c this module refused every mismatch and left the
+transformation to a caller, and no caller applied it, so a base published in
+ITRF2020 could not be used in a SIRGAS 2000 project at all.
+:func:`to_frame` now applies it and keeps the record on the station it returns,
+where the processing run's summary reads it: a transformation that leaves no
+trace would be the error this rule exists to prevent. What cannot be done is
+refused by name -- no epoch, no velocity for a change of epoch, a frame no
+transformation is held for.
 """
 
 from __future__ import annotations
@@ -37,7 +40,10 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from geocomp.core.errors import DataError, ValidationError
+from geocomp.core.geodesy.frames import canonical_frame, transform_point
 from geocomp.core.models.epoch import Epoch, require_epoch
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -47,6 +53,7 @@ __all__ = [
     "StationDatabase",
     "propagate_to_epoch",
     "require_same_frame",
+    "to_frame",
 ]
 
 
@@ -202,14 +209,83 @@ def propagate_to_epoch(station: ReferenceStation, target: Epoch) -> ReferenceSta
     )
 
 
-def require_same_frame(station: ReferenceStation, frame: str, *, operation: str) -> None:
-    """Refuse a frame mismatch rather than transforming it (FR-832).
+def to_frame(station: ReferenceStation, frame: str, epoch: Epoch | None = None) -> ReferenceStation:
+    """*station* in *frame*, at *epoch* (or its own), with the record of what was applied.
 
-    A mismatch is an error with a name, not a conversion done out of sight --
-    ITRF2020 read as SIRGAS2000 is wrong by decimetres and internally
-    consistent, which is the worst combination there is. The transformation
-    exists (``geocomp.core.geodesy.frames.transform_point``, P9a); the caller
-    applies it and keeps the record it returns.
+    A change of frame runs P9a's Helmert transformations at the station's own
+    epoch; a change of epoch moves it along its published velocity. The record
+    -- frames, epochs, every step and its stated accuracy -- is kept in the
+    returned station's ``meta["transformation"]``, beside what it was before in
+    ``meta["published"]``, so a run can say exactly what it did (FR-832, FR-134).
+
+    The published uncertainty is carried through each step's Jacobian. Only the
+    variances are kept: a published coordinate states none of its
+    correlations, and the rotation introduces correlations of a few parts per
+    billion.
+
+    Raises:
+        ValidationError: ``frame_unknown`` for a frame no transformation is held
+            for; ``epoch_required`` when the station states no epoch;
+            ``epoch_change_without_velocity`` when the epoch must change and no
+            velocity is published -- including into SIRGAS 2000, whose
+            transformation is defined at 2000.4.
+    """
+    # A frame named exactly as the station's needs no transformation, even one
+    # GeoComp holds none for: there is nothing to look up.
+    if station.frame == frame or canonical_frame(station.frame) == canonical_frame(frame):
+        if epoch is None or (
+            station.epoch is not None and station.epoch.decimal_year == epoch.decimal_year
+        ):
+            return station
+        return propagate_to_epoch(station, epoch)
+    source, target = canonical_frame(station.frame), canonical_frame(frame)
+    origin = station.epoch_for(f"transform reference station {station.id} to {target}")
+    moved = transform_point(
+        station.xyz,
+        source=source,
+        target=target,
+        epoch=origin.decimal_year,
+        target_epoch=None if epoch is None else epoch.decimal_year,
+        covariance=np.diag([quantity.variance for quantity in station.position]),
+        velocity=station.velocity_per_year,
+    )
+    variances = np.diag(moved.covariance)
+    position = tuple(
+        Quantity(
+            value=float(value),
+            variance=float(variance),
+            unit=Unit.METRE,
+            mode=quantity.mode,
+            strategies=quantity.strategies,
+        )
+        for value, variance, quantity in zip(moved.xyz, variances, station.position, strict=True)
+    )
+    return replace(
+        station,
+        position=position,  # type: ignore[arg-type]
+        frame=target,
+        epoch=Epoch.from_decimal_year(moved.record.target_epoch),
+        velocity_per_year=None
+        if moved.velocity is None
+        else tuple(float(v) for v in moved.velocity),  # type: ignore[arg-type]
+        meta={
+            **station.meta,
+            "published": {
+                "frame": station.frame,
+                "epoch": origin.decimal_year,
+                "xyz": list(station.xyz),
+            },
+            "transformation": moved.record.to_dict(),
+        },
+    )
+
+
+def require_same_frame(station: ReferenceStation, frame: str, *, operation: str) -> None:
+    """Refuse a frame mismatch, for an operation that must not transform (FR-832).
+
+    A processing run transforms instead (:func:`to_frame`, through
+    :meth:`StationDatabase.resolve`). This remains for whatever must take a
+    station exactly as published.
     """
     if station.frame != frame:
         raise ValidationError(
@@ -255,19 +331,15 @@ class StationDatabase:
     def resolve(
         self, station_id: str, *, frame: str, epoch: Epoch | None = None, operation: str = "processing"
     ) -> ReferenceStation:
-        """Fetch a station, checked against the frame and moved to the epoch.
+        """Fetch a station in *frame*, moved to *epoch*, with the record of what was applied.
 
         The one call a processing algorithm should make: it applies FR-832's
-        frame check and FR-105's epoch rule together, so neither can be
-        forgotten at a call site that only remembered the other.
+        frame rule and FR-105's epoch rule together, so neither can be
+        forgotten at a call site that only remembered the other. Since P12c a
+        station in another frame is transformed (:func:`to_frame`) rather than
+        refused; *operation* names the work in a refusal when it cannot be.
         """
-        station = self.get(station_id)
-        require_same_frame(station, frame, operation=operation)
-        if epoch is None:
-            return station
-        if station.epoch is not None and station.epoch.decimal_year == epoch.decimal_year:
-            return station
-        return propagate_to_epoch(station, epoch)
+        return to_frame(self.get(station_id), frame, epoch)
 
     def to_dict(self) -> dict[str, Any]:
         return {"stations": [s.to_dict() for s in self.stations.values()]}

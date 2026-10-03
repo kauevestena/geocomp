@@ -24,6 +24,7 @@ from qgis.core import QgsProcessingException
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.gnss.products import (
     BUILTIN_SERVICES,
     Fetcher,
@@ -41,7 +42,9 @@ from geocomp.engines.rtklib.config import PROFILES, RtklibConfig
 __all__ = [
     "PPP_NOTICE_CODE",
     "SessionProducts",
+    "base_coordinates",
     "configured_profile",
+    "frame_choices",
     "gather_products",
     "gnss_setting",
     "missing_products_message",
@@ -50,6 +53,7 @@ __all__ = [
     "product_directory",
     "product_services",
     "reference_stations",
+    "run_frame",
     "session_products",
     "translate_error",
 ]
@@ -345,6 +349,152 @@ def reference_stations() -> StationDatabase:
         return StationDatabase.read(path)
     except GeoCompError as exc:
         raise QgsProcessingException(translate_error(exc)) from exc
+
+
+def frame_choices() -> list[str]:
+    """How the frame a relative run's results are in is chosen (specs/11 §7).
+
+    The order is stored by saved models as an index: appending is safe,
+    reordering is not.
+    """
+    from geocomp.core.geodesy.frames import FRAME_NAMES
+
+    return [
+        _tr("The project's: the preferred CRS's frame"),
+        _tr("As the base station publishes it"),
+        *FRAME_NAMES,
+    ]
+
+
+def run_frame(index: int) -> str | None:
+    """The frame chosen by *index* in :func:`frame_choices`, or ``None`` for the base's own.
+
+    The project's frame is the datum of ``reference_systems.preferred_crs``,
+    read through its geographic CRS, so a UTM zone of SIRGAS 2000 names SIRGAS
+    2000. ``None`` when no CRS is preferred, or it names a datum no
+    transformation is held for: the base is then used in its own frame, and
+    the run says so.
+    """
+    from geocomp.core.geodesy.frames import FRAME_NAMES, canonical_frame
+
+    if index >= 2:
+        return FRAME_NAMES[index - 2]
+    if index == 1:
+        return None
+    from qgis.core import QgsCoordinateReferenceSystem
+
+    from geocomp.algorithms.defaults import configured
+
+    preferred = str(configured("reference_systems.preferred_crs") or "")
+    crs = QgsCoordinateReferenceSystem(preferred) if preferred else None
+    if crs is None or not crs.isValid():
+        return None
+    for name in (crs.authid(), _datum_crs_name(crs)):
+        try:
+            return canonical_frame(name)
+        except GeoCompError:
+            continue
+    return None
+
+
+def _datum_crs_name(crs) -> str:
+    """The name of *crs*'s geographic base: ``SIRGAS 2000`` for a SIRGAS 2000 UTM zone.
+
+    Read from the WKT2, because QGIS's ``toGeographicCrs()`` returns the base
+    with its axes normalised for display, which has no authority code.
+    """
+    import re
+
+    from qgis.core import Qgis, QgsCoordinateReferenceSystem
+
+    # QGIS 4 spells the variant Qgis.CrsWktVariant.Wkt2_2019; QGIS 3 kept it on
+    # the CRS class. Neither found, the default WKT1 names the datum too.
+    variant = None
+    for owner, name in (
+        (getattr(Qgis, "CrsWktVariant", None), "Wkt2_2019"),
+        (getattr(QgsCoordinateReferenceSystem, "WktVariant", None), "WKT2_2019"),
+    ):
+        if owner is not None and hasattr(owner, name):
+            variant = getattr(owner, name)
+            break
+    wkt = crs.toWkt(variant) if variant is not None else crs.toWkt()
+    found = re.search(r'(?:BASEGEOGCRS|BASEGEODCRS|GEOGCRS|GEODCRS|GEOGCS)\["([^"]+)"', wkt)
+    return found.group(1) if found else ""
+
+
+def base_coordinates(session, frame: str | None, feedback) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Where RTKLIB is to hold the base, and the record of how that was decided (FR-832).
+
+    A base in the reference-station database (FR-063) is held at its published
+    coordinates, in *frame* -- its own when ``None`` -- at the session's epoch:
+    transformed and moved along its velocity as needed, with every step
+    recorded. What cannot be done is refused before the engine runs.
+
+    A base not in the database is held where its RINEX header puts it, as
+    before. That position is approximate and in no stated frame, and the record
+    says so, so nothing downstream can mistake the result for a framed one.
+
+    Returns:
+        RTKLIB option overrides, and the record for the run's summary.
+    """
+    from geocomp.core.models.epoch import Epoch
+
+    database = reference_stations()
+    if session.station_id not in database.stations:
+        feedback.pushInfo(
+            _tr(
+                "Base %1 is not in the reference-station database, so RTKLIB holds it at the "
+                "approximate position in its RINEX header, and the results are in no stated frame."
+            ).replace("%1", session.station_id)
+        )
+        return {}, {"station": session.station_id, "source": "RINEX header", "frame": None}
+
+    if session.start is None:
+        raise QgsProcessingException(
+            _tr(
+                "The session of base %1 states no start time, so its published coordinates cannot "
+                "be brought to the epoch it was observed at."
+            ).replace("%1", session.station_id)
+        )
+    published = database.get(session.station_id)
+    at = Epoch.from_datetime(session.start)
+    try:
+        held = database.resolve(
+            session.station_id,
+            frame=frame or published.frame,
+            epoch=at,
+            operation="relative processing",
+        )
+    except GeoCompError as exc:
+        raise QgsProcessingException(translate_error(exc)) from exc
+
+    transformation = held.meta.get("transformation")
+    if transformation:
+        feedback.pushInfo(
+            _tr("Base %1: published in %2 at %3, transformed to %4 at %5 for this run.")
+            .replace("%1", session.station_id)
+            .replace("%2", published.frame)
+            .replace("%3", localised(f"{transformation['source_epoch']:.4f}"))
+            .replace("%4", held.frame)
+            .replace("%5", localised(f"{at.decimal_year:.4f}"))
+        )
+    record = {
+        "station": session.station_id,
+        "source": published.source or "reference-station database",
+        "frame": held.frame,
+        "epoch": at.decimal_year,
+        "xyz": list(held.xyz),
+        "published": {
+            "frame": published.frame,
+            "epoch": None if published.epoch is None else published.epoch.decimal_year,
+            "xyz": list(published.xyz),
+        },
+    }
+    if transformation:
+        record["transformation"] = transformation
+    if "propagated_years" in held.meta:
+        record["propagated_years"] = held.meta["propagated_years"]
+    return {"base_position": held.xyz, "base_position_type": "xyz"}, record
 
 
 def ppp_limitation_notice() -> str:

@@ -193,12 +193,23 @@ def test_the_geoid_model_becomes_the_file_default(tmp_path):
     assert not _default("geocomp:integration_multiple", "GEOID")
 
 
-def test_an_unstated_epoch_leaves_each_algorithm_its_own():
-    """Zero is 'none stated': an unconfigured installation computes what it did."""
+def test_an_unstated_epoch_is_left_unstated():
+    """Zero is 'none stated', and since P12c every adjustment's parameter says so.
+
+    P12a kept each algorithm's own default -- 2000.0, 2026.0 for levelling --
+    so an unconfigured installation computed what it did; FR-105 calls that an
+    assumed epoch. The run now takes the network's own, and only where that is
+    missing too does the old default apply, marked as assumed
+    (``algorithms/defaults.run_epoch``).
+    """
     from geocomp.services.settings_service import settings
 
     with settings.run_overrides({"reference_systems.default_epoch": 0.0}):
-        assert _default("geocomp:levelling_network", "EPOCH") == 2026.0
-        assert _default("geocomp:analysis_network_adjust", "EPOCH") == 2000.0
-        assert _default("geocomp:analysis_dynadjust_adjust", "EPOCH") == 0.0
+        for algorithm_id in (
+            "geocomp:levelling_network",
+            "geocomp:analysis_network_adjust",
+            "geocomp:totalstation_network",
+            "geocomp:analysis_dynadjust_adjust",
+        ):
+            assert _default(algorithm_id, "EPOCH") == 0.0, algorithm_id
         assert not _default("geocomp:integration_multiple", "EPOCH")

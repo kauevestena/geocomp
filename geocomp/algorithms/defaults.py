@@ -28,7 +28,17 @@ from __future__ import annotations
 
 from typing import Any
 
-__all__ = ["configured", "configured_epoch"]
+from qgis.PyQt.QtCore import QCoreApplication
+
+from geocomp.core.number_format import localised
+
+__all__ = ["configured", "configured_epoch", "recorded_epoch", "run_epoch"]
+
+_CONTEXT = "GeoCompDefaults"
+
+
+def _tr(text: str) -> str:
+    return QCoreApplication.translate(_CONTEXT, text)
 
 
 def configured(key: str) -> Any:
@@ -48,3 +58,52 @@ def configured_epoch(fallback: float) -> float:
     """
     stated = float(configured("reference_systems.default_epoch") or 0.0)
     return stated if stated > 0.0 else fallback
+
+
+def run_epoch(stated: float, network, fallback: float):
+    """An adjustment's reference epoch, and where it came from (FR-105; P12c).
+
+    *stated* is the run's parameter, whose default is
+    ``reference_systems.default_epoch``; 0 means none was stated. Then the
+    network's own epoch, when it carries one. Only when neither says anything
+    does *fallback* -- the epoch the algorithm always defaulted to -- apply,
+    and it is returned as ``assumed`` so the solution can say so and a
+    comparison can refuse it.
+
+    Returns:
+        The epoch, and ``"stated"``, ``"network"`` or
+        :data:`~geocomp.core.models.solution.EPOCH_ASSUMED`.
+    """
+    from geocomp.core.models.epoch import Epoch
+    from geocomp.core.models.solution import EPOCH_ASSUMED
+
+    if stated and stated > 0.0:
+        return Epoch.from_decimal_year(stated), "stated"
+    if getattr(network, "epoch", None) is not None:
+        return network.epoch, "network"
+    return Epoch.from_decimal_year(fallback), EPOCH_ASSUMED
+
+
+def recorded_epoch(solution, origin: str, feedback):
+    """*solution* with its epoch's origin in the provenance, and a word if it was assumed."""
+    from dataclasses import replace
+
+    from geocomp.core.models.solution import EPOCH_ASSUMED
+
+    if solution.provenance is not None:
+        solution = replace(
+            solution,
+            provenance=replace(
+                solution.provenance,
+                parameters={**solution.provenance.parameters, "epoch_origin": origin},
+            ),
+        )
+    if origin == EPOCH_ASSUMED and feedback is not None:
+        feedback.pushWarning(
+            _tr(
+                "No reference epoch was stated, by the run or its network, so the solution "
+                "carries %1, assumed. It cannot enter a comparison of epochs (FR-105)."
+            ).replace("%1", localised(f"{solution.epoch.decimal_year:.4f}"))
+        )
+    return solution
+

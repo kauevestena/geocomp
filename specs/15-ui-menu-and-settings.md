@@ -391,6 +391,17 @@ published parameters, which are data with provenance rather than settings — se
   the epoch it always defaulted to, so an unconfigured installation computes what it did; the Integration
   algorithms keep taking their inputs' epoch.
 
+  **Since P12c an unstated epoch is no longer assumed silently** (FR-105). The three network adjustments
+  (*Network adjustment*, *Classical network*, *Levelling network*) default their epoch to the setting, 0 when
+  none is stated, as DynAdjust's always did.
+  - **Unstated**, a run takes its network's own epoch.
+  - **Where the network states none either**, the old default still applies, so a solution still carries an
+    epoch, as the model requires: 2000.0, or 2026.0 for levelling.
+  - **Such an epoch is marked.** The provenance records it as `epoch_origin: assumed`, beside `stated` and
+    `network`. The run warns, the adjustment report writes *assumed* beside it, and a comparison of epochs
+    refuses it (`monitoring_solution_epoch_assumed`): a convention is not when anything was measured.
+  - `algorithms/defaults.run_epoch` decides, and `tests/qgis/test_assumed_epoch.py` holds all three origins.
+
 **Every setting is editable.** The window builds an editor for every type: a number box for floating-point
 settings that takes the user's locale and scientific notation, refuses a value outside the declared range by
 naming it, and writes back exactly what it was given — a default shown to twelve digits and read back would

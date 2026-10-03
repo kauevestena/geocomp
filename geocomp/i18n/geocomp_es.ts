@@ -78,6 +78,10 @@
             <translation>Carpeta con observaciones RINEX</translation>
         </message>
         <message>
+            <source>Frame of the results (relative modes)</source>
+            <translation>Marco de referencia de los resultados (modos relativos)</translation>
+        </message>
+        <message>
             <source>JSON files (*.json)</source>
             <translation>Archivos JSON (*.json)</translation>
         </message>
@@ -364,8 +368,8 @@
             <translation>Redundancia</translation>
         </message>
         <message>
-            <source>Reference epoch (decimal year)</source>
-            <translation>Época de referencia (año decimal)</translation>
+            <source>Reference epoch, decimal year (0 = the network's own)</source>
+            <translation>Época de referencia, año decimal (0 = la de la propia red)</translation>
         </message>
         <message>
             <source>Report</source>
@@ -1476,6 +1480,10 @@
     <context>
         <name>GeoCompAdjustmentReport</name>
         <message>
+            <source>(assumed: none was stated)</source>
+            <translation>(supuesta: no se declaró ninguna)</translation>
+        </message>
+        <message>
             <source>(not recorded)</source>
             <translation>(no registrado)</translation>
         </message>
@@ -2285,6 +2293,13 @@
         </message>
     </context>
     <context>
+        <name>GeoCompDefaults</name>
+        <message>
+            <source>No reference epoch was stated, by the run or its network, so the solution carries %1, assumed. It cannot enter a comparison of epochs (FR-105).</source>
+            <translation>No se declaró ninguna época de referencia, ni por la ejecución ni por su red, por lo que la solución lleva %1, supuesta. No puede entrar en una comparación de épocas (FR-105).</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompGnss</name>
         <message>
             <source>%1: used the %2 orbit, as Global Settings allow; recorded in provenance.</source>
@@ -2293,6 +2308,18 @@
         <message>
             <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
             <translation>&lt;p&gt;&lt;b&gt;El procesamiento Absoluto (PPP) en RTKLIB es limitado.&lt;/b&gt; Su posicionamiento puntual preciso no equivale a un servicio PPP dedicado: la convergencia es más lenta, el tratamiento de ambigüedades es más simple y el resultado es típicamente decimétrico en lugar de centimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible, y trate una solución Absoluta como indicativa a menos que la haya contrastado con una determinación independiente.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>As the base station publishes it</source>
+            <translation>Como lo publica la estación base</translation>
+        </message>
+        <message>
+            <source>Base %1 is not in the reference-station database, so RTKLIB holds it at the approximate position in its RINEX header, and the results are in no stated frame.</source>
+            <translation>La base %1 no está en la base de datos de estaciones de referencia, por lo que RTKLIB la mantiene en la posición aproximada de su cabecera RINEX, y los resultados no están en ningún marco de referencia declarado.</translation>
+        </message>
+        <message>
+            <source>Base %1: published in %2 at %3, transformed to %4 at %5 for this run.</source>
+            <translation>Base %1: publicada en %2 en la época %3, transformada a %4 en la época %5 para esta ejecución.</translation>
         </message>
         <message>
             <source>Could not read the download services file %1: %2</source>
@@ -2313,6 +2340,14 @@
         <message>
             <source>The configured product directory does not exist: %1</source>
             <translation>El directorio de productos configurado no existe: %1</translation>
+        </message>
+        <message>
+            <source>The project's: the preferred CRS's frame</source>
+            <translation>El del proyecto: el marco de referencia del SRC preferido</translation>
+        </message>
+        <message>
+            <source>The session of base %1 states no start time, so its published coordinates cannot be brought to the epoch it was observed at.</source>
+            <translation>La sesión de la base %1 no declara hora de inicio, por lo que sus coordenadas publicadas no pueden llevarse a la época en que se observó.</translation>
         </message>
         <message>
             <source>Unknown download service: %1. Known services: %2</source>
@@ -2356,6 +2391,10 @@
         <message>
             <source>Folder of RINEX observations</source>
             <translation>Carpeta con observaciones RINEX</translation>
+        </message>
+        <message>
+            <source>Frame of the results</source>
+            <translation>Marco de referencia de los resultados</translation>
         </message>
         <message>
             <source>GNSS trajectory</source>
@@ -3306,6 +3345,10 @@
         <message>
             <source>The solution %1 cannot supersede itself; name the earlier solution it replaces.</source>
             <translation>La solución %1 no puede reemplazarse a sí misma; indique la solución anterior a la que reemplaza.</translation>
+        </message>
+        <message>
+            <source>The solution '%1' carries the epoch %2 only because nothing stated one: the adjustment used its own default. An assumed epoch is not when the network was measured, so it cannot enter a comparison (FR-105). Adjust the epoch's network again with its observation date as the reference epoch.</source>
+            <translation>La solución '%1' lleva la época %2 solo porque nada declaró una: el ajuste usó su propio valor por defecto. Una época supuesta no es cuando se midió la red, por lo que no puede entrar en una comparación (FR-105). Ajuste de nuevo la red de esa época con su fecha de observación como época de referencia.</translation>
         </message>
         <message>
             <source>The solution '%1' has no position components to compare (%2).</source>
@@ -6294,6 +6337,10 @@
             <translation>%1 cierre(s) no cumplieron la tolerancia: %2. GeoComp no ajusta una línea que no cumplió la tolerancia sin un reconocimiento explícito. Repita la línea, o active 'Ajustar líneas que no cumplieron la tolerancia' en esta ejecución o en la Configuración global (Nivelación).</translation>
         </message>
         <message>
+            <source>%1 is not the height-difference document Trigonometric levelling writes.</source>
+            <translation>%1 no es el documento de desniveles que escribe la Nivelación trigonométrica.</translation>
+        </message>
+        <message>
             <source>'%1' does not hold a number.</source>
             <translation>'%1' no contiene un número.</translation>
         </message>
@@ -6302,8 +6349,8 @@
             <translation>'%1' no es un punto de referencia. Escríbalos como id=altitud, por ejemplo BM1=100.000, y añada una tolerancia como BM2=103.750±0.002 para fijarlo con peso en lugar de exactamente.</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Adjusts reduced levelling lines as a one-dimensional network: the same least squares, the same global test, the same data snooping and reliability as any other GeoComp adjustment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two weighting models, and the choice is yours.&lt;/b&gt; A reduced line arrives carrying an uncertainty propagated from its staff readings. That figure is rigorous and usually optimistic: it knows nothing of refraction, of staff calibration, or of a tripod settling between backsight and foresight. The &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; and &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; models are fitted to lines that suffered all three. Length weighting suits long lines with consistent sight lengths; setup weighting suits short, irregular ones where the per-setup reading error dominates. Leaving both coefficients at zero keeps the propagated uncertainty, and the report says which was used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Benchmarks&lt;/b&gt; are entered as &lt;code&gt;id=height&lt;/code&gt; pairs, separated by commas or semicolons; add &lt;code&gt;±sigma&lt;/code&gt; to hold one with a weight rather than exactly, for example &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. With none, the network is free, which is often the right thing to adjust first: it shows the observations' internal consistency without a datum's errors mixed in.&lt;/p&gt;&lt;p&gt;Mixing orthometric and ellipsoidal heights without a geoid model is refused. The error would be the geoid undulation &amp;mdash; tens of metres across much of Brazil &amp;mdash; and the result would look entirely reasonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The report gives relative height uncertainties between pairs of benchmarks&lt;/b&gt;, which is the 1D analogue of the error ellipse and usually the number a levelling network was built to produce. It is not the difference of the two individual uncertainties, because adjusted heights are correlated.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; the document a reduction produced. &lt;b&gt;Benchmarks&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;Weighting&lt;/b&gt;, and the coefficient for each model (m per root km, m per root setup); zero means that model is not configured.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Free network&lt;/b&gt; &amp;mdash; ignore the benchmarks and remove the datum defect with an inner constraint.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence&lt;/b&gt;, &lt;b&gt;alpha&lt;/b&gt; and &lt;b&gt;beta&lt;/b&gt; &amp;mdash; for the global test, data snooping and the minimal detectable bias.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Heights&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No map layers.&lt;/b&gt; A levelling network has no planimetry: it determines heights and nothing else, so every station would be drawn at the same point. Use the network algorithm in the Analysis menu on a network document that carries coordinates, or wait for the project store that holds both. Scalars: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; and &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Ajusta líneas de nivelación reducidas como una red unidimensional: los mismos mínimos cuadrados, la misma prueba global, el mismo data snooping y la misma fiabilidad que cualquier otro ajuste de GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dos modelos de ponderación, y la elección es suya.&lt;/b&gt; Una línea reducida llega con una incertidumbre propagada a partir de sus lecturas de mira. Ese valor es riguroso y habitualmente optimista: no sabe nada de la refracción, de la calibración de la mira, ni del asentamiento del trípode entre la espalda y el frente. Los modelos &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; y &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; se ajustaron a líneas que sufrieron los tres. La ponderación por longitud conviene a líneas largas con visuales de longitud consistente; la ponderación por estacionamientos conviene a líneas cortas e irregulares, donde domina el error de lectura por estacionamiento. Dejar ambos coeficientes en cero mantiene la incertidumbre propagada, y el informe indica cuál se usó.&lt;/p&gt;&lt;p&gt;Los &lt;b&gt;puntos de referencia&lt;/b&gt; se introducen como pares &lt;code&gt;id=altitud&lt;/code&gt;, separados por comas o puntos y comas; añada &lt;code&gt;±sigma&lt;/code&gt; para fijar uno con peso en lugar de exactamente, por ejemplo &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. Sin ninguno, la red es libre, lo que a menudo es el primer ajuste correcto: muestra la consistencia interna de las observaciones sin los errores de un datum de por medio.&lt;/p&gt;&lt;p&gt;Mezclar alturas ortométricas y elipsoidales sin un modelo geoidal se rechaza. El error sería la ondulación geoidal &amp;mdash; decenas de metros en gran parte de Brasil &amp;mdash; y el resultado parecería perfectamente razonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El informe presenta las incertidumbres relativas de altitud entre pares de referencias&lt;/b&gt;, que son el análogo 1D de la elipse de error y habitualmente el número que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales, porque las altitudes ajustadas están correlacionadas.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Puntos de referencia&lt;/b&gt; &amp;mdash; como arriba. &lt;b&gt;Ponderación&lt;/b&gt;, y el coeficiente de cada modelo (m por raíz de km, m por raíz de estacionamiento); cero significa que ese modelo no está configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Red libre&lt;/b&gt; &amp;mdash; ignora los puntos de referencia y elimina la deficiencia de datum con una constricción interna.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confianza&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; y &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para la prueba global, el data snooping y el sesgo mínimo detectable.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Altitudes&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin capas de mapa.&lt;/b&gt; Una red de nivelación no tiene planimetría: determina altitudes y nada más, por lo que todas las estaciones se dibujarían en el mismo punto. Use el algoritmo de red del menú Análisis sobre un documento de red que contenga coordenadas, o espere al repositorio de proyecto que contenga ambos. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; y &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Adjusts reduced levelling lines as a one-dimensional network: the same least squares, the same global test, the same data snooping and reliability as any other GeoComp adjustment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two weighting models, and the choice is yours.&lt;/b&gt; A reduced line arrives carrying an uncertainty propagated from its staff readings. That figure is rigorous and usually optimistic: it knows nothing of refraction, of staff calibration, or of a tripod settling between backsight and foresight. The &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; and &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; models are fitted to lines that suffered all three. Length weighting suits long lines with consistent sight lengths; setup weighting suits short, irregular ones where the per-setup reading error dominates. Leaving both coefficients at zero keeps the propagated uncertainty, and the report says which was used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Benchmarks&lt;/b&gt; are entered as &lt;code&gt;id=height&lt;/code&gt; pairs, separated by commas or semicolons; add &lt;code&gt;±sigma&lt;/code&gt; to hold one with a weight rather than exactly, for example &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. With none, the network is free, which is often the right thing to adjust first: it shows the observations' internal consistency without a datum's errors mixed in.&lt;/p&gt;&lt;p&gt;Mixing orthometric and ellipsoidal heights without a geoid model is refused. The error would be the geoid undulation &amp;mdash; tens of metres across much of Brazil &amp;mdash; and the result would look entirely reasonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The report gives relative height uncertainties between pairs of benchmarks&lt;/b&gt;, which is the 1D analogue of the error ellipse and usually the number a levelling network was built to produce. It is not the difference of the two individual uncertainties, because adjusted heights are correlated.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; the document a reduction produced. &lt;b&gt;Benchmarks&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;Weighting&lt;/b&gt;, and the coefficient for each model (m per root km, m per root setup); zero means that model is not configured.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Trigonometric height differences&lt;/b&gt; &amp;mdash; optional: the document &lt;i&gt;Trigonometric levelling&lt;/i&gt; writes. Its differences join the lines as one network, each with its own propagated uncertainty, and a point only they reach is added. &lt;b&gt;Estimate a variance component per technique&lt;/b&gt; (advanced) &amp;mdash; scales each technique's uncertainties by a factor estimated from the residuals, and reports the factors.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Free network&lt;/b&gt; &amp;mdash; ignore the benchmarks and remove the datum defect with an inner constraint.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence&lt;/b&gt;, &lt;b&gt;alpha&lt;/b&gt; and &lt;b&gt;beta&lt;/b&gt; &amp;mdash; for the global test, data snooping and the minimal detectable bias.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Heights&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No map layers.&lt;/b&gt; A levelling network has no planimetry: it determines heights and nothing else, so every station would be drawn at the same point. Use the network algorithm in the Analysis menu on a network document that carries coordinates, or wait for the project store that holds both. Scalars: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; and &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta líneas de nivelación reducidas como una red unidimensional: los mismos mínimos cuadrados, la misma prueba global, el mismo data snooping y la misma fiabilidad que cualquier otro ajuste de GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dos modelos de ponderación, y la elección es suya.&lt;/b&gt; Una línea reducida llega con una incertidumbre propagada a partir de sus lecturas de mira. Ese valor es riguroso y habitualmente optimista: no sabe nada de la refracción, de la calibración de la mira, ni del asentamiento del trípode entre la espalda y el frente. Los modelos &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; y &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; se ajustaron a líneas que sufrieron los tres. La ponderación por longitud conviene a líneas largas con visuales de longitud consistente; la ponderación por estacionamientos conviene a líneas cortas e irregulares, donde domina el error de lectura por estacionamiento. Dejar ambos coeficientes en cero mantiene la incertidumbre propagada, y el informe indica cuál se usó.&lt;/p&gt;&lt;p&gt;Los &lt;b&gt;puntos de referencia&lt;/b&gt; se introducen como pares &lt;code&gt;id=altitud&lt;/code&gt;, separados por comas o puntos y comas; añada &lt;code&gt;±sigma&lt;/code&gt; para fijar uno con peso en lugar de exactamente, por ejemplo &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. Sin ninguno, la red es libre, lo que a menudo es el primer ajuste correcto: muestra la consistencia interna de las observaciones sin los errores de un datum de por medio.&lt;/p&gt;&lt;p&gt;Mezclar alturas ortométricas y elipsoidales sin un modelo geoidal se rechaza. El error sería la ondulación geoidal &amp;mdash; decenas de metros en gran parte de Brasil &amp;mdash; y el resultado parecería perfectamente razonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El informe presenta las incertidumbres relativas de altitud entre pares de referencias&lt;/b&gt;, que son el análogo 1D de la elipse de error y habitualmente el número que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales, porque las altitudes ajustadas están correlacionadas.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Puntos de referencia&lt;/b&gt; &amp;mdash; como arriba. &lt;b&gt;Ponderación&lt;/b&gt;, y el coeficiente de cada modelo (m por raíz de km, m por raíz de estacionamiento); cero significa que ese modelo no está configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Desniveles trigonométricos&lt;/b&gt; &amp;mdash; opcional: el documento que escribe la &lt;i&gt;Nivelación trigonométrica&lt;/i&gt;. Sus desniveles se unen a las líneas en una sola red, cada uno con su propia incertidumbre propagada, y se añade un punto que solo ellos alcanzan. &lt;b&gt;Estimar una componente de varianza por técnica&lt;/b&gt; (avanzado) &amp;mdash; escala las incertidumbres de cada técnica por un factor estimado a partir de los residuos, e informa de los factores.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Red libre&lt;/b&gt; &amp;mdash; ignora los puntos de referencia y elimina la deficiencia de datum con una constricción interna.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confianza&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; y &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para la prueba global, el data snooping y el sesgo mínimo detectable.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Altitudes&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin capas de mapa.&lt;/b&gt; Una red de nivelación no tiene planimetría: determina altitudes y nada más, por lo que todas las estaciones se dibujarían en el mismo punto. Use el algoritmo de red del menú Análisis sobre un documento de red que contenga coordenadas, o espere al repositorio de proyecto que contenga ambos. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; y &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Adjust levelling lines as a 1D network, by length or setup weighting.</source>
@@ -6394,12 +6441,20 @@
             <translation>Cada línea entre dos puntos de referencia, frente a la diferencia de sus alturas, y cada sección nivelada más de una vez, frente a su primera corrida, sobre la longitud de la sección en un solo sentido. Una línea que no cumplió solo se ajusta cuando 'Ajustar líneas que no cumplieron la tolerancia' está activo, y la procedencia registra cuáles.</translation>
         </message>
         <message>
-            <source>Epoch (decimal year)</source>
-            <translation>Época (año decimal)</translation>
+            <source>Each technique's declared uncertainties were scaled by its factor, estimated from the residuals until both settled. A factor near one says the technique was declared about right; four says its uncertainties were half what they should have been.</source>
+            <translation>Las incertidumbres declaradas de cada técnica se escalaron por su factor, estimado a partir de los residuos hasta que ambos se estabilizaron. Un factor cercano a uno indica que la técnica se declaró aproximadamente bien; cuatro indica que sus incertidumbres eran la mitad de lo que debían ser.</translation>
+        </message>
+        <message>
+            <source>Estimate a variance component per technique</source>
+            <translation>Estimar una componente de varianza por técnica</translation>
         </message>
         <message>
             <source>FAILED</source>
             <translation>FALLÓ</translation>
+        </message>
+        <message>
+            <source>Factor</source>
+            <translation>Factor</translation>
         </message>
         <message>
             <source>Findings</source>
@@ -6514,6 +6569,14 @@
             <translation>Líneas reducidas</translation>
         </message>
         <message>
+            <source>Redundancy</source>
+            <translation>Redundancia</translation>
+        </message>
+        <message>
+            <source>Reference epoch, decimal year (0 = the network's own)</source>
+            <translation>Época de referencia, año decimal (0 = la de la propia red)</translation>
+        </message>
+        <message>
             <source>Relative height uncertainties</source>
             <translation>Incertidumbres relativas de altitud</translation>
         </message>
@@ -6534,6 +6597,10 @@
             <translation>Solución</translation>
         </message>
         <message>
+            <source>Standard deviation</source>
+            <translation>Desviación estándar</translation>
+        </message>
+        <message>
             <source>Station</source>
             <translation>Estación</translation>
         </message>
@@ -6552,6 +6619,10 @@
         <message>
             <source>Summary</source>
             <translation>Resumen</translation>
+        </message>
+        <message>
+            <source>Technique</source>
+            <translation>Técnica</translation>
         </message>
         <message>
             <source>The global test failed. Either the observations disagree more than their weights allow, or the weights are wrong — the test cannot distinguish the two. A levelling network weighted by propagated staff readings routinely fails it, because that model omits refraction, staff calibration and settlement.</source>
@@ -6586,12 +6657,20 @@
             <translation>La capa de posiciones de las estaciones no tiene un SRC válido, así que sus puntos no pueden leerse como latitudes. Defina el SRC de la capa.</translation>
         </message>
         <message>
+            <source>The trigonometric height differences cannot be read: %1</source>
+            <translation>Los desniveles trigonométricos no se pueden leer: %1</translation>
+        </message>
+        <message>
             <source>To</source>
             <translation>Hasta</translation>
         </message>
         <message>
             <source>Tolerance coefficient k (m per root km; 0 judges nothing)</source>
             <translation>Coeficiente de tolerancia k (m por raíz de km; 0 no evalúa nada)</translation>
+        </message>
+        <message>
+            <source>Trigonometric height differences (optional)</source>
+            <translation>Desniveles trigonométricos (opcional)</translation>
         </message>
         <message>
             <source>Uncertainty (mm)</source>
@@ -6610,8 +6689,20 @@
             <translation>Valor</translation>
         </message>
         <message>
+            <source>Variance components</source>
+            <translation>Componentes de varianza</translation>
+        </message>
+        <message>
+            <source>Variance components by technique</source>
+            <translation>Componentes de varianza por técnica</translation>
+        </message>
+        <message>
             <source>Variance factor</source>
             <translation>Factor de varianza</translation>
+        </message>
+        <message>
+            <source>Variance factor of %1: %2 ± %3 (%4 observations)</source>
+            <translation>Factor de varianza de %1: %2 ± %3 (%4 observaciones)</translation>
         </message>
         <message>
             <source>Verdict</source>
@@ -6930,8 +7021,8 @@
             <translation>%1 observación(es) supera(n) el valor crítico de la prueba w.</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Adjusts a geodetic network by least squares using the parametric model, iterating the linearised solution to convergence, and reports the adjusted coordinates with their full covariance matrix, the residuals, and the statistical tests that say whether the result may be believed.&lt;/p&gt;&lt;p&gt;1D, 2D and 3D networks are all supported, free or constrained. The weight matrix is built from the observation covariances, including correlations between the observations of a correlated cluster such as a GNSS baseline.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Non-convergence is reported as a failure&lt;/b&gt;, never returned as a result. A set of coordinates that is really iteration seven of a diverging sequence is worse than no result, because nothing about it says so.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No observation is rejected automatically.&lt;/b&gt; Data snooping reports candidates and the decision is yours; re-adjusting after removing one is a second, explicit run. Automatic iterative rejection deletes real signal, which in deformation monitoring is the very thing being measured.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinate frame&lt;/b&gt; &amp;mdash; 1D, 2D or 3D. It decides which parameters exist and which observations can contribute.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum definition&lt;/b&gt; &amp;mdash; how the datum defect is removed. &lt;i&gt;Constrained&lt;/i&gt; and &lt;i&gt;Fixed&lt;/i&gt; hold the stations the network declares as constrained. &lt;i&gt;Inner constraint&lt;/i&gt; gives a free network whose solution is the trace minimum over all stations. &lt;i&gt;Minimum constraint&lt;/i&gt; does the same over the chosen stations, which is what a deformation analysis needs: holding a station that has itself moved spreads its motion across the network.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum stations&lt;/b&gt; &amp;mdash; comma-separated; empty means all of them.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the global test, the w-test and the error ellipses, between 0 and 1.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A priori variance factor&lt;/b&gt; &amp;mdash; the assumed sigma-nought squared the global test compares against.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Convergence threshold&lt;/b&gt; &amp;mdash; the largest parameter correction accepted as converged, in metres. &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; after which non-convergence is reported.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Significance&lt;/b&gt; and &lt;b&gt;Type II error&lt;/b&gt; &amp;mdash; alpha and beta for the minimal detectable bias.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the decimal year the coordinates refer to. It is recorded on the solution because comparing two epochs is only meaningful when both say which they are.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; a JSON document holding the adjusted coordinates, the full covariance matrix, the per-observation results and the provenance. It is the same structure an external engine's result fills, so everything downstream is engine-independent.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Adjusted stations&lt;/b&gt; and &lt;b&gt;Residuals&lt;/b&gt; &amp;mdash; CSV tables for a spreadsheet or a model.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;WORST_OUTLIER&lt;/code&gt; and &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Result layers&lt;/b&gt; &amp;mdash; five optional map layers, arriving styled and ready to read (FR-905): adjusted stations sized by their positional uncertainty, error ellipses, observations coloured by what the w-test decided about them, the measured network by observation type, and the coordinate correction vectors. None is created unless asked for, so an adjustment run to feed another algorithm writes nothing extra.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ellipse exaggeration&lt;/b&gt; &amp;mdash; real ellipses are invisible at map scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to the network's own extent. Whatever factor is used is stated in the layer's name, which is what reaches the legend: an unstated exaggeration turns a quality visualisation into a misrepresentation.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Ajusta una red geodésica por mínimos cuadrados usando el modelo paramétrico, iterando la solución linealizada hasta la convergencia, e informa de las coordenadas ajustadas con su matriz de covarianzas completa, los residuos y las pruebas estadísticas que dicen si el resultado puede creerse.&lt;/p&gt;&lt;p&gt;Se admiten redes 1D, 2D y 3D, libres o ligadas. La matriz de pesos se construye a partir de las covarianzas de las observaciones, incluidas las correlaciones entre las observaciones de un agrupamiento correlacionado, como una línea base GNSS.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La no convergencia se comunica como un fallo&lt;/b&gt;, nunca se devuelve como resultado. Un conjunto de coordenadas que en realidad es la séptima iteración de una sucesión divergente es peor que ningún resultado, porque nada en él lo indica.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ninguna observación se rechaza automáticamente.&lt;/b&gt; El data snooping informa de candidatas y la decisión es suya; reajustar tras eliminar una es una segunda ejecución, explícita. El rechazo iterativo automático borra señal real, que en el seguimiento de deformaciones es precisamente lo que se está midiendo.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Red&lt;/b&gt; &amp;mdash; un documento de red de GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Marco de coordenadas&lt;/b&gt; &amp;mdash; 1D, 2D o 3D. Decide qué parámetros existen y qué observaciones pueden contribuir.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definición del datum&lt;/b&gt; &amp;mdash; cómo se elimina la deficiencia de datum. &lt;i&gt;Ligada&lt;/i&gt; y &lt;i&gt;Fija&lt;/i&gt; mantienen las estaciones que la red declara constreñidas. &lt;i&gt;Constricción interna&lt;/i&gt; da una red libre cuya solución es la traza mínima sobre todas las estaciones. &lt;i&gt;Constricción mínima&lt;/i&gt; hace lo mismo sobre las estaciones elegidas, que es lo que exige un análisis de deformación: mantener una estación que se ha movido reparte su movimiento por toda la red.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Estaciones del datum&lt;/b&gt; &amp;mdash; separadas por comas; vacío significa todas ellas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt; &amp;mdash; para la prueba global, la prueba w y las elipses de errores, entre 0 y 1.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Factor de varianza a priori&lt;/b&gt; &amp;mdash; el sigma-cero al cuadrado supuesto con el que compara la prueba global.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Umbral de convergencia&lt;/b&gt; &amp;mdash; la mayor corrección de parámetro aceptada como convergida, en metros. &lt;b&gt;Número máximo de iteraciones&lt;/b&gt; &amp;mdash; tras el cual se comunica la no convergencia.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Significación&lt;/b&gt; y &lt;b&gt;error tipo II&lt;/b&gt; &amp;mdash; alfa y beta para el sesgo mínimo detectable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Época de referencia&lt;/b&gt; &amp;mdash; el año decimal al que se refieren las coordenadas. Se registra en la solución porque comparar dos épocas solo tiene sentido cuando ambas dicen cuáles son.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; un documento JSON con las coordenadas ajustadas, la matriz de covarianzas completa, los resultados por observación y la procedencia. Es la misma estructura que rellena el resultado de un motor externo, de modo que todo lo que viene después es independiente del motor.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estaciones ajustadas&lt;/b&gt; y &lt;b&gt;Residuos&lt;/b&gt; &amp;mdash; tablas CSV para una hoja de cálculo o un modelo.&lt;/p&gt;&lt;p&gt;Salidas escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;WORST_OUTLIER&lt;/code&gt; y &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Capas de resultado&lt;/b&gt; &amp;mdash; cinco capas opcionales, que llegan con estilo y listas para leer (FR-905): estaciones ajustadas dimensionadas por su incertidumbre posicional, elipses de error, observaciones coloreadas según lo que decidió la prueba w, la red medida por tipo de observación y los vectores de corrección de coordenadas. Ninguna se crea sin solicitarla, de modo que un ajuste ejecutado para alimentar otro algoritmo no escribe nada de más.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exageración de las elipses&lt;/b&gt; &amp;mdash; las elipses reales son invisibles a escala de mapa, por lo que se dibujan ampliadas. Déjelo en 0 y se ajusta un factor a la propia extensión de la red. Sea cual sea el factor utilizado, se declara en el nombre de la capa, que es lo que llega a la leyenda: una exageración no declarada convierte una visualización de calidad en una tergiversación.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Adjusts a geodetic network by least squares using the parametric model, iterating the linearised solution to convergence, and reports the adjusted coordinates with their full covariance matrix, the residuals, and the statistical tests that say whether the result may be believed.&lt;/p&gt;&lt;p&gt;1D, 2D and 3D networks are all supported, free or constrained. The weight matrix is built from the observation covariances, including correlations between the observations of a correlated cluster such as a GNSS baseline.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Non-convergence is reported as a failure&lt;/b&gt;, never returned as a result. A set of coordinates that is really iteration seven of a diverging sequence is worse than no result, because nothing about it says so.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No observation is rejected automatically.&lt;/b&gt; Data snooping reports candidates and the decision is yours; re-adjusting after removing one is a second, explicit run. Automatic iterative rejection deletes real signal, which in deformation monitoring is the very thing being measured.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinate frame&lt;/b&gt; &amp;mdash; 1D, 2D or 3D. It decides which parameters exist and which observations can contribute.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum definition&lt;/b&gt; &amp;mdash; how the datum defect is removed. &lt;i&gt;Constrained&lt;/i&gt; and &lt;i&gt;Fixed&lt;/i&gt; hold the stations the network declares as constrained. &lt;i&gt;Inner constraint&lt;/i&gt; gives a free network whose solution is the trace minimum over all stations. &lt;i&gt;Minimum constraint&lt;/i&gt; does the same over the chosen stations, which is what a deformation analysis needs: holding a station that has itself moved spreads its motion across the network.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum stations&lt;/b&gt; &amp;mdash; comma-separated; empty means all of them.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the global test, the w-test and the error ellipses, between 0 and 1.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A priori variance factor&lt;/b&gt; &amp;mdash; the assumed sigma-nought squared the global test compares against.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Convergence threshold&lt;/b&gt; &amp;mdash; the largest parameter correction accepted as converged, in metres. &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; after which non-convergence is reported.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Significance&lt;/b&gt; and &lt;b&gt;Type II error&lt;/b&gt; &amp;mdash; alpha and beta for the minimal detectable bias.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the decimal year the coordinates refer to. It is recorded on the solution because comparing two epochs is only meaningful when both say which they are. 0, the default unless Global Settings states one, takes the network's own; where the network states none either, the solution carries 2000.0 marked as assumed, and no comparison accepts it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; a JSON document holding the adjusted coordinates, the full covariance matrix, the per-observation results and the provenance. It is the same structure an external engine's result fills, so everything downstream is engine-independent.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Adjusted stations&lt;/b&gt; and &lt;b&gt;Residuals&lt;/b&gt; &amp;mdash; CSV tables for a spreadsheet or a model.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;WORST_OUTLIER&lt;/code&gt; and &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Result layers&lt;/b&gt; &amp;mdash; five optional map layers, arriving styled and ready to read (FR-905): adjusted stations sized by their positional uncertainty, error ellipses, observations coloured by what the w-test decided about them, the measured network by observation type, and the coordinate correction vectors. None is created unless asked for, so an adjustment run to feed another algorithm writes nothing extra.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ellipse exaggeration&lt;/b&gt; &amp;mdash; real ellipses are invisible at map scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to the network's own extent. Whatever factor is used is stated in the layer's name, which is what reaches the legend: an unstated exaggeration turns a quality visualisation into a misrepresentation.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta una red geodésica por mínimos cuadrados usando el modelo paramétrico, iterando la solución linealizada hasta la convergencia, e informa de las coordenadas ajustadas con su matriz de covarianzas completa, los residuos y las pruebas estadísticas que dicen si el resultado puede creerse.&lt;/p&gt;&lt;p&gt;Se admiten redes 1D, 2D y 3D, libres o ligadas. La matriz de pesos se construye a partir de las covarianzas de las observaciones, incluidas las correlaciones entre las observaciones de un agrupamiento correlacionado, como una línea base GNSS.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La no convergencia se comunica como un fallo&lt;/b&gt;, nunca se devuelve como resultado. Un conjunto de coordenadas que en realidad es la séptima iteración de una sucesión divergente es peor que ningún resultado, porque nada en él lo indica.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ninguna observación se rechaza automáticamente.&lt;/b&gt; El data snooping informa de candidatas y la decisión es suya; reajustar tras eliminar una es una segunda ejecución, explícita. El rechazo iterativo automático borra señal real, que en el seguimiento de deformaciones es precisamente lo que se está midiendo.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Red&lt;/b&gt; &amp;mdash; un documento de red de GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Marco de coordenadas&lt;/b&gt; &amp;mdash; 1D, 2D o 3D. Decide qué parámetros existen y qué observaciones pueden contribuir.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definición del datum&lt;/b&gt; &amp;mdash; cómo se elimina la deficiencia de datum. &lt;i&gt;Ligada&lt;/i&gt; y &lt;i&gt;Fija&lt;/i&gt; mantienen las estaciones que la red declara constreñidas. &lt;i&gt;Constricción interna&lt;/i&gt; da una red libre cuya solución es la traza mínima sobre todas las estaciones. &lt;i&gt;Constricción mínima&lt;/i&gt; hace lo mismo sobre las estaciones elegidas, que es lo que exige un análisis de deformación: mantener una estación que se ha movido reparte su movimiento por toda la red.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Estaciones del datum&lt;/b&gt; &amp;mdash; separadas por comas; vacío significa todas ellas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt; &amp;mdash; para la prueba global, la prueba w y las elipses de errores, entre 0 y 1.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Factor de varianza a priori&lt;/b&gt; &amp;mdash; el sigma-cero al cuadrado supuesto con el que compara la prueba global.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Umbral de convergencia&lt;/b&gt; &amp;mdash; la mayor corrección de parámetro aceptada como convergida, en metros. &lt;b&gt;Número máximo de iteraciones&lt;/b&gt; &amp;mdash; tras el cual se comunica la no convergencia.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Significación&lt;/b&gt; y &lt;b&gt;error tipo II&lt;/b&gt; &amp;mdash; alfa y beta para el sesgo mínimo detectable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Época de referencia&lt;/b&gt; &amp;mdash; el año decimal al que se refieren las coordenadas. Se registra en la solución porque comparar dos épocas solo tiene sentido cuando ambas dicen cuáles son. 0, el valor por defecto cuando la Configuración global no declara una, toma la de la propia red; cuando la red tampoco declara ninguna, la solución lleva 2000.0 marcada como supuesta, y ninguna comparación la acepta.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; un documento JSON con las coordenadas ajustadas, la matriz de covarianzas completa, los resultados por observación y la procedencia. Es la misma estructura que rellena el resultado de un motor externo, de modo que todo lo que viene después es independiente del motor.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estaciones ajustadas&lt;/b&gt; y &lt;b&gt;Residuos&lt;/b&gt; &amp;mdash; tablas CSV para una hoja de cálculo o un modelo.&lt;/p&gt;&lt;p&gt;Salidas escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;, &lt;code&gt;WORST_OUTLIER&lt;/code&gt; y &lt;code&gt;UNCHECKABLE_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Capas de resultado&lt;/b&gt; &amp;mdash; cinco capas opcionales, que llegan con estilo y listas para leer (FR-905): estaciones ajustadas dimensionadas por su incertidumbre posicional, elipses de error, observaciones coloreadas según lo que decidió la prueba w, la red medida por tipo de observación y los vectores de corrección de coordenadas. Ninguna se crea sin solicitarla, de modo que un ajuste ejecutado para alimentar otro algoritmo no escribe nada de más.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exageración de las elipses&lt;/b&gt; &amp;mdash; las elipses reales son invisibles a escala de mapa, por lo que se dibujan ampliadas. Déjelo en 0 y se ajusta un factor a la propia extensión de la red. Sea cual sea el factor utilizado, se declara en el nombre de la capa, que es lo que llega a la leyenda: una exageración no declarada convierte una visualización de calidad en una tergiversación.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>A posteriori variance factor</source>
@@ -7122,8 +7213,8 @@
             <translation>Redundancia</translation>
         </message>
         <message>
-            <source>Reference epoch (decimal year)</source>
-            <translation>Época de referencia (año decimal)</translation>
+            <source>Reference epoch, decimal year (0 = the network's own)</source>
+            <translation>Época de referencia, año decimal (0 = la de la propia red)</translation>
         </message>
         <message>
             <source>Reliability</source>
