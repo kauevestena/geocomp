@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-6 — Relative error ellipses on the map
+
+#### Added
+
+- **A relative-ellipse layer** for every adjustment: how well each observed line is known, from the
+  covariance between its two stations, drawn at the middle of the line with its exaggeration and confidence
+  in the layer's name. A solution without the covariance between stations draws none and says why.
+
 ### P12c-6 — Refusals that name the input; every mapped DynAdjust type checked
 
 #### Fixed

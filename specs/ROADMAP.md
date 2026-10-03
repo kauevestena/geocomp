@@ -1575,6 +1575,29 @@ finished with seventeen rows behind it would be the kind of claim the register e
 **Not done here.** 19 3 (a layer of relative ellipses), and 21 4 and 21 5 (the engine manager and the QGIS tier
 on Windows and macOS) — the next pull requests.
 
+#### P12c-6 — the in-repo rows (second pull request)
+
+**Delivered.** Row 19 3, leaving **122 met, 8 partly met, 4 open, 2 manual, of 136**. Every adjustment offers a
+sixth layer, *Relative ellipses between observed stations*: one ellipse for each pair of estimated stations an
+observation joins, from their joint covariance, drawn at the middle of the line at the absolute ellipses'
+factor and confidence, which its name states (`core/visualization/relative.py`; [`19`](./19-visualization.md)
+§3, as built). The computation is checked against `relative_ellipse` to 1e-12, and the layer feature by
+feature against the solution's covariance on the CI image.
+
+A line to a fixed station is not drawn: the solution does not estimate that station, and the line's ellipse
+would be the free station's own, already on the ellipse layer. The layout template did not need changing: its
+notes state the factor of any layer with an `exaggeration` field, so this layer's reaches the page as the
+others' do.
+
+**Found.** No defect. One result looked like one and is not: three of the trilateration's relative ellipses
+equal three of its absolute ones, but not the pair's own. The network is a square A B C D around E with A fixed,
+so B→C is the vector A→D moved and has D's ellipse, and B→D is A→C and has C's.
+
+**Not done here.** A solution that carries each station's own covariance only — the sparse path, or a
+DynAdjust `.apu` written without `--output-all-covariances` — draws no relative ellipses, and the run says so;
+computing the cross blocks for the observed pairs alone on the sparse path is possible and not built. 21 4 and
+21 5 — the next pull request.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -75,6 +75,8 @@ __all__ = [
     "gravity_station_layer",
     "observation_features",
     "observation_layer",
+    "relative_ellipse_features",
+    "relative_ellipse_layer_name",
     "residual_features",
     "residual_layer",
     "station_features",
@@ -123,6 +125,16 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("semi_minor", _REAL),
         ("orientation", _REAL),
         ("semi_vertical", _REAL),
+        ("confidence", _REAL),
+        ("exaggeration", _REAL),
+    ),
+    "relative_ellipses": (
+        ("from_station", _TEXT),
+        ("to_station", _TEXT),
+        ("distance", _REAL),
+        ("semi_major", _REAL),
+        ("semi_minor", _REAL),
+        ("orientation", _REAL),
         ("confidence", _REAL),
         ("exaggeration", _REAL),
     ),
@@ -318,6 +330,7 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
 LAYER_GEOMETRY: dict[str, str] = {
     "stations": "Point",
     "ellipses": "Polygon",
+    "relative_ellipses": "Polygon",
     "residuals": "LineString",
     "observations": "LineString",
     "gnss_baselines": "LineString",
@@ -463,6 +476,39 @@ def ellipse_layer_name(solution: Solution, *, exaggeration: float) -> str:
     return _tr("Error ellipses (%1)").replace(
         "%1", exaggeration_label(exaggeration, confidence)
     )
+
+
+def relative_ellipse_features(relative, *, exaggeration: float) -> Iterator[QgsFeature]:
+    """Relative ellipses at the middle of each line, drawn at *exaggeration* (specs/19 §3 item 4).
+
+    *relative* is what :func:`~geocomp.core.visualization.relative.relative_ellipses`
+    found; each feature records the factor and the confidence, as an absolute
+    ellipse does.
+    """
+    fields = fields_for("relative_ellipses")
+    for item in relative:
+        drawn = ellipse_ring(item.centre, item.ellipse, exaggeration=exaggeration)
+        feature = QgsFeature(fields)
+        feature.setGeometry(_polygon(drawn.ring))
+        feature.setAttributes(
+            [
+                item.first,
+                item.second,
+                item.distance,
+                drawn.semi_major,
+                drawn.semi_minor,
+                math.degrees(drawn.orientation),
+                drawn.confidence,
+                drawn.exaggeration,
+            ]
+        )
+        yield feature
+
+
+def relative_ellipse_layer_name(relative, *, exaggeration: float) -> str:
+    """What the legend reads: the factor the rings used, and their confidence."""
+    confidence = next((item.ellipse.confidence for item in relative), None)
+    return _tr("Relative ellipses (%1)").replace("%1", exaggeration_label(exaggeration, confidence))
 
 
 # -- residuals ------------------------------------------------------------

@@ -36,6 +36,7 @@ ADJUSTING_ALGORITHMS = (
 LAYER_OUTPUT_NAMES = (
     "OUTPUT_STATION_LAYER",
     "OUTPUT_ELLIPSE_LAYER",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER",
     "OUTPUT_RESIDUAL_LAYER",
     "OUTPUT_OBSERVATION_LAYER",
     "OUTPUT_CORRECTION_LAYER",
@@ -115,7 +116,7 @@ class TestDeclaration:
     @pytest.mark.parametrize("algorithm_id", ADJUSTING_ALGORITHMS)
     def test_no_layer_is_created_unless_asked_for(self, geocomp_provider, algorithm_id):
         """An adjustment run from the modeller to feed another algorithm should
-        not silently write five layers to disk."""
+        not silently write six layers to disk."""
         from qgis.core import QgsProcessingParameterDefinition
 
         for parameter in _algorithm(algorithm_id).parameterDefinitions():
@@ -260,6 +261,100 @@ class TestTheExaggerationReachesTheReader:
         factor = factors.pop()
         assert factor > 1.0
         assert f"{factor:g}" in layer.name()
+
+
+@requires_modern_field_api
+class TestTheRelativeEllipses:
+    """``specs/19`` section 3 item 4, criterion 3: a relative ellipse for every
+    pair of stations an observation joins, from their joint covariance.
+
+    On the sparse path (``pytest --sparse``) the solution carries only each
+    station's own block, and the layer is produced empty rather than drawn as
+    if the stations were uncorrelated."""
+
+    @staticmethod
+    def _solution_and_network(results, network_document):
+        from geocomp.core.models import Network, Solution
+
+        solution = Solution.from_dict(
+            json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        )
+        network = Network.from_dict(json.loads(Path(network_document).read_text(encoding="utf-8")))
+        return solution, network
+
+    def test_one_per_observed_pair_of_estimated_stations(self, adjusted, network_document):
+        from geocomp.core.visualization.relative import observed_pairs
+
+        results, layers, _context = adjusted
+        solution, network = self._solution_and_network(results, network_document)
+        layer = layers["OUTPUT_RELATIVE_ELLIPSE_LAYER"]
+        if solution.parameter_covariance is None:
+            assert layer.featureCount() == 0
+            return
+        estimated = {station.station_id for station in solution.adjusted_stations}
+        expected = {
+            frozenset(pair) for pair in observed_pairs(network) if set(pair) <= estimated
+        }
+        drawn = {
+            frozenset((feature["from_station"], feature["to_station"]))
+            for feature in layer.getFeatures()
+        }
+        assert expected
+        assert drawn == expected
+        assert layer.featureCount() == len(expected)
+
+    def test_each_is_the_ellipse_of_the_difference_from_the_joint_covariance(
+        self, adjusted, network_document
+    ):
+        """Against :func:`~geocomp.core.statistics.ellipses.relative_ellipse`,
+        given the two stations' columns of the full covariance."""
+        import numpy as np
+
+        from geocomp.core.statistics.ellipses import relative_ellipse
+
+        results, layers, _context = adjusted
+        solution, _network = self._solution_and_network(results, network_document)
+        if solution.parameter_covariance is None:
+            pytest.skip("the sparse path carries no covariance between stations")
+        covariance = solution.parameter_covariance
+        where = {label: index for index, label in enumerate(covariance.labels)}
+        matrix = np.asarray(covariance.matrix, dtype=float)
+        confidence = next(s.ellipse.confidence for s in solution.adjusted_stations if s.ellipse)
+        checked = 0
+        for feature in layers["OUTPUT_RELATIVE_ELLIPSE_LAYER"].getFeatures():
+            first, second = feature["from_station"], feature["to_station"]
+            truth = relative_ellipse(
+                matrix,
+                [where[f"{first}.e"], where[f"{first}.n"]],
+                [where[f"{second}.e"], where[f"{second}.n"]],
+                confidence=confidence,
+                degrees_of_freedom=solution.statistics.degrees_of_freedom,
+            )
+            assert feature["semi_major"] == pytest.approx(truth.semi_major, rel=1e-9)
+            assert feature["semi_minor"] == pytest.approx(truth.semi_minor, rel=1e-9)
+            assert feature["orientation"] == pytest.approx(math.degrees(truth.orientation), abs=1e-7)
+            assert feature["confidence"] == pytest.approx(confidence)
+            checked += 1
+        assert checked
+
+    def test_each_is_drawn_at_the_middle_of_its_line_at_the_stated_factor(self, adjusted):
+        _results, layers, _context = adjusted
+        stations = {
+            feature["station"]: feature.geometry().asPoint()
+            for feature in layers["OUTPUT_STATION_LAYER"].getFeatures()
+        }
+        layer = layers["OUTPUT_RELATIVE_ELLIPSE_LAYER"]
+        for feature in layer.getFeatures():
+            a, b = stations[feature["from_station"]], stations[feature["to_station"]]
+            centre = ((a.x() + b.x()) / 2.0, (a.y() + b.y()) / 2.0)
+            assert feature["distance"] == pytest.approx(math.hypot(b.x() - a.x(), b.y() - a.y()))
+            assert feature["exaggeration"] == 250.0
+            ring = feature.geometry().asPolygon()[0]
+            longest = max(math.hypot(p.x() - centre[0], p.y() - centre[1]) for p in ring)
+            assert longest == pytest.approx(feature["semi_major"] * 250.0, rel=1e-4)
+        if layer.featureCount():
+            assert "250" in layer.name()
+            assert "%" in layer.name()
 
 
 @requires_modern_field_api

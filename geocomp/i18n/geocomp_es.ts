@@ -2587,6 +2587,14 @@
             <translation>Sesgo mínimo detectable (MDB)</translation>
         </message>
         <message>
+            <source>No relative ellipses were drawn: no observation joins two stations this solution estimates.</source>
+            <translation>No se dibujó ninguna elipse relativa: ninguna observación une dos estaciones que esta solución estima.</translation>
+        </message>
+        <message>
+            <source>No relative ellipses were drawn: they need the covariance between stations, which this solution does not carry.</source>
+            <translation>No se dibujó ninguna elipse relativa: necesitan la covarianza entre estaciones, que esta solución no lleva.</translation>
+        </message>
+        <message>
             <source>Observation type</source>
             <translation>Tipo de observación</translation>
         </message>
@@ -2605,6 +2613,14 @@
         <message>
             <source>Redundancy number</source>
             <translation>Número de redundancia</translation>
+        </message>
+        <message>
+            <source>Relative ellipses (%1)</source>
+            <translation>Elipses relativas (%1)</translation>
+        </message>
+        <message>
+            <source>Relative ellipses between observed stations (layer)</source>
+            <translation>Elipses relativas entre estaciones observadas (capa)</translation>
         </message>
         <message>
             <source>Residuals</source>

@@ -2587,6 +2587,14 @@
             <translation>Erro máximo não detectável (MDB)</translation>
         </message>
         <message>
+            <source>No relative ellipses were drawn: no observation joins two stations this solution estimates.</source>
+            <translation>Nenhuma elipse relativa foi desenhada: nenhuma observação liga duas estações que esta solução estima.</translation>
+        </message>
+        <message>
+            <source>No relative ellipses were drawn: they need the covariance between stations, which this solution does not carry.</source>
+            <translation>Nenhuma elipse relativa foi desenhada: elas precisam da covariância entre estações, que esta solução não traz.</translation>
+        </message>
+        <message>
             <source>Observation type</source>
             <translation>Tipo de observação</translation>
         </message>
@@ -2605,6 +2613,14 @@
         <message>
             <source>Redundancy number</source>
             <translation>Número de redundância</translation>
+        </message>
+        <message>
+            <source>Relative ellipses (%1)</source>
+            <translation>Elipses relativas (%1)</translation>
+        </message>
+        <message>
+            <source>Relative ellipses between observed stations (layer)</source>
+            <translation>Elipses relativas entre estações observadas (camada)</translation>
         </message>
         <message>
             <source>Residuals</source>
