@@ -5,3 +5,6 @@ tests/data/rd06/*.pos -text -whitespace
 
 # RD-07: USGS's synthetic surveys, byte for byte (tests/data/rd07/PROVENANCE.md).
 tests/data/rd07/gsadjust/** -text -whitespace
+
+# DynAdjust's own DynaML schema, byte for byte (THIRD_PARTY.md gives its SHA-256).
+tests/data/dynadjust/DynaML.xsd -text -whitespace

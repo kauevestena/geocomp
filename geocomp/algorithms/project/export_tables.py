@@ -39,6 +39,7 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.project.common import read_network, read_solution
 from geocomp.core.errors import GeoCompError
 from geocomp.io.tabular import SHEETS, write_csv, write_workbook
+from geocomp.services.messages import message_for
 
 __all__ = ["ProjectExportAlgorithm"]
 
@@ -142,7 +143,7 @@ class ProjectExportAlgorithm(GeoCompAlgorithm):
             solution = read_solution(self.parameterAsFile(parameters, SOLUTION, context))
             network = read_network(self.parameterAsFile(parameters, NETWORK, context))
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         chosen = self.parameterAsEnum(parameters, FORMAT, context)
         feedback.setProgress(20)
@@ -171,7 +172,7 @@ class ProjectExportAlgorithm(GeoCompAlgorithm):
         try:
             paths = write_csv(folder, network=network, solution=solution)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
         for path in paths:
             feedback.pushInfo(path.name)
         if not paths:
@@ -189,7 +190,7 @@ class ProjectExportAlgorithm(GeoCompAlgorithm):
         try:
             path = write_workbook(target, network=network, solution=solution)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
         feedback.pushInfo(path.name)
         feedback.setProgress(100)
         return path

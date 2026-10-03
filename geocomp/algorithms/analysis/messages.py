@@ -159,6 +159,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "max_correction",
         "threshold",
     ),
+    # -- importing a field book (P12c-6) -------------------------------------
+    "validation.mapping_missing_required_fields": MessageTemplate(
+        "The field mapping supplies no column for %1, which every import needs: %2. "
+        "Give a mapping that names them, or a field book whose header does.",
+        "received",
+        "expected",
+    ),
     # -- scale (NFR-008) ----------------------------------------------------
     "computation.adjustment_needs_scipy": MessageTemplate(
         "This network is too large to adjust without SciPy: %1 observation rows and %2 "

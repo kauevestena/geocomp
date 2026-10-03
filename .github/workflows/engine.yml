@@ -86,7 +86,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install tooling
-        run: python -m pip install --upgrade pip pytest numpy
+        # lxml, to validate what the writer produces against DynAdjust's own
+        # schema (specs/07 criterion 1); here it must run, not skip.
+        run: python -m pip install --upgrade pip pytest numpy lxml
 
       - name: Cache the built engine
         id: engine-cache
@@ -152,7 +154,15 @@ jobs:
       # half drives the engine on the same survey. It watches core/adjustment
       # because a change there moves one side of that comparison.
       - name: The pipeline, against the real engine
-        run: pytest -q tests/test_dynadjust_pipeline.py tests/test_dynadjust_geocentric.py
+        run: |
+          set -o pipefail
+          pytest -q -rs tests/test_dynadjust_pipeline.py tests/test_dynadjust_geocentric.py \
+            tests/test_dynaml_every_type.py | tee every-type.log
+          # Every mapped type, schema and dnaimport both: a skip here is a gap.
+          if grep -E "SKIPPED.*test_dynaml_every_type" every-type.log; then
+            echo "::error::the every-type DynaML tests skipped with DynAdjust and lxml installed"
+            exit 1
+          fi
 
   # The same shape as the job above, for the second engine. rnx2rtkp has no
   # pinnable Linux binary to install: upstream publishes Windows executables

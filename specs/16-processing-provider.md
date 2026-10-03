@@ -110,6 +110,17 @@ Failures name the offending parameter and what was expected (NFR-006).
 Cheap checks that cannot run in `checkParameterValues()` — those needing the data — run first in
 `processAlgorithm()`, before the expensive work.
 
+> **As built (P12c-6).** Two rules every algorithm inherits from `GeoCompAlgorithm`
+> (`algorithms/inputs.py`). **Before the run**, every file and folder input must exist and every mandatory
+> input be given, and a refusal names the input by the label the dialog shows; it is asked in
+> `checkParameterValues()`, ahead of QGIS's own check, and again by the wrapper around `processAlgorithm()`,
+> because a run from PyQGIS never calls `checkParameterValues()`. QGIS's own refusal ("Incorrect parameter
+> value for VELOCITIES") is said against the label too. **During the run**, a refusal whose message carries
+> one input's path is prefixed with that input's label, and a core error that reached the wrapper
+> unconverted is rendered through its template. P12c-6's audit found that of 38 file inputs given a path that
+> did not exist, none was named this way; four produced a traceback, an internal code, or "could not complete
+> the operation". `tests/qgis/test_inputs_are_named.py` walks every algorithm and every input.
+
 ## 7. Execution
 
 - `processAlgorithm()` orchestrates; it contains no geodetic mathematics. The mathematics is in `core/`

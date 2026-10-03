@@ -287,7 +287,7 @@ class GravimetryPreprocessAlgorithm(GeoCompAlgorithm):
                 utc_offset_hours=offset,
             )
         except GeoCompError as exc:
-            raise QgsProcessingException(translate_error(exc)) from exc
+            raise QgsProcessingException(self.about_input(READINGS, translate_error(exc))) from exc
         feedback.setProgress(20)
 
         notes = list(loaded.notes)

@@ -530,6 +530,8 @@ not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
 1. Session discovery on a folder of RINEX 2 and RINEX 3 files (short and long names, compressed and
    Hatanaka-compressed) produces correct sessions, with header/filename mismatches reported.
 2. A generated configuration file, fed back through `-k`, reproduces a run bit-identically (NFR-007).
+   *Met in P12c-6:* the configuration a run wrote, given to `rnx2rtkp -k` by hand with the same inputs, writes
+   a `.pos` file identical byte for byte (`tests/test_rtklib_engine.py`, in the `engine` workflow).
 3. `.pos` parsing round-trips a known file: every field read matches the file, verified against fixtures for
    each supported output format.
 4. Covariance from a static relative solution reaches a DynAdjust G measurement with its 3×3 matrix intact.

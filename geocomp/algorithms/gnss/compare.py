@@ -148,9 +148,12 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         pair = next((g for g in overlapping_groups(scan.sessions) if len(g) == 2), None)
         if pair is None:
             raise QgsProcessingException(
-                self.tr(
-                    "Comparison needs exactly one pair of simultaneously observing "
-                    "sessions in the folder."
+                self.about_input(
+                    FOLDER,
+                    self.tr(
+                        "Comparison needs exactly one pair of simultaneously observing "
+                        "sessions in the folder."
+                    ),
                 )
             )
         base, rover = sorted(pair, key=lambda s: s.station_id)

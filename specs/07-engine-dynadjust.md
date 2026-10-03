@@ -777,6 +777,9 @@ says so rather than inventing them.
 
 1. DynaML written by GeoComp validates against the DynaML schema and is accepted by `dnaimport` without
    warnings, for every observation type in the §4.2 mapping.
+   *Met in P12c-6:* one network writes all eighteen codes GeoComp produces; both files validate against
+   upstream's own `DynaML.xsd` (vendored, `THIRD_PARTY.md`), and `dnaimport` reads every station and all 28
+   measurement rows with no warning (`tests/test_dynaml_every_type.py`, in the `engine` workflow).
 2. A GNSS baseline cluster round-trips through DynaML with its covariance intact to full double precision.
 3. The full pipeline runs end to end from a GeoComp `Network` and returns a populated `Solution`.
 4. Parsed results match, field for field, what is printed in the DynAdjust output files.

@@ -25,14 +25,14 @@ def read_json(path: str, what: str) -> dict[str, Any]:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise DataError(
-            "document_unreadable",
+            "json_document_unreadable",
             path=path,
             expected=f"a readable JSON {what} document",
             reason=str(error),
         ) from error
     if not isinstance(payload, dict):
         raise DataError(
-            "document_not_an_object",
+            "json_document_not_an_object",
             path=path,
             expected=f"a JSON object describing a {what}",
         )

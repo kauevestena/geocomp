@@ -287,10 +287,13 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
             ]
         if not chosen:
             raise QgsProcessingException(
-                self.tr(
-                    "There is nothing to draw: no layers were chosen and the project holds no "
-                    "GeoComp result layers for this map. Run an adjustment with its layers, or "
-                    "choose the layers."
+                self.about_input(
+                    LAYERS,
+                    self.tr(
+                        "There is nothing to draw: no layers were chosen and the project holds no "
+                        "GeoComp result layers for this map. Run an adjustment with its layers, or "
+                        "choose the layers."
+                    ),
                 )
             )
         # The layer tree's order, top first, which is what a map item draws by.

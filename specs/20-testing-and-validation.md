@@ -41,6 +41,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Basic and Advanced modes produce identical numeric results with defaults, for every algorithm | FR-071 |
 | Every acceptance criterion of every specification has one row in §10's register, and every test a row cites exists | §9 criterion 8 |
 | Every translated string that uses a glossary term uses the glossary's rendering of it (`scripts/check_glossary.py`) | FR-093, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §3 |
+| Coverage of `core/` measured on every run of the QGIS job, and every public function and method of `core/` reached by at least one test (`scripts/check_coverage.py`) | §9 criterion 6 |
 
 ## 3. Reference datasets (FR-950)
 
@@ -276,6 +277,9 @@ requirements, and an untested fallback is a fallback that does not work.
 4. Cross-validation (§4) passes on at least three networks of differing type and size.
 5. The CI matrix (§7) runs, including the engines-absent and SciPy-absent rows.
 6. Coverage of `core/` is measured and reported per release; every public function has at least one test.
+   *Met in P12c-6, and measured on every run rather than per release:* 95.6% of `core/`'s lines, and all 685
+   public functions and methods reached. The first measurement found 49 that no test reached;
+   `tests/test_core_public_functions.py` holds them to what they claim, and the check now admits none.
 7. A comparison export producing the §5 step-3 fields exists and is documented.
 8. Every acceptance criterion in every other specification document has a corresponding automated test, or a
    documented reason why it must be manual. *(The register, §10, since P12c.)*
@@ -296,7 +300,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 117 met, 12 partly met, 5 open, 2 manual, of 136.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 121 met, 9 partly met, 4 open, 2 manual, of 136.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -316,7 +320,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 06 | 6 | In-house core and DynAdjust agree | **met** | Tier 4: `tests/test_dynadjust_crossvalidation.py::TestTheTwoEnginesAgree`, `tests/test_dynadjust_pipeline.py::TestAProjectedNetworkCrossValidates`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates` |
 | 06 | 7 | Every statistic with critical value, confidence and decision | **met** | `tests/test_statistics.py::TestGlobalTest::test_the_statistic_carries_both_critical_values`, `tests/test_statistics.py::TestDataSnooping::test_the_distribution_used_is_reported` |
 | 06 | 8 | Beyond the dense path, the sparse one agrees with it; without SciPy, a refusal naming it | **met** | Since P12c: `tests/test_sparse_adjustment.py::TestTheTwoPathsAgree`, `tests/test_network_scale.py::TestTheAdjustmentAsks::test_without_scipy_it_refuses_before_allocating`, and the whole suite again on the sparse path in CI (`--sparse`). Measured to 10,000 stations ([`06`](./06-adjustment-core.md) §2.4.1) |
-| 07 | 1 | DynaML validates and imports without warnings, every mapped type | **partly met** | Imports are checked against `dnaimport`'s own counts on three networks: GNSS, levelling, and directions, zenith angles and slope distances (`tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_an_unparsed_measurement_file_is_caught_despite_a_zero_exit`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates`). Not every type of §4.2 passes through `dnaimport`, and nothing validates against the schema |
+| 07 | 1 | DynaML validates and imports without warnings, every mapped type | **met** | Since P12c-6: one network writes all eighteen codes; both files validate against upstream's `DynaML.xsd` and `dnaimport` reads every row with no warning (`tests/test_dynaml_every_type.py::test_every_file_validates_against_dynadjusts_own_schema`, `tests/test_dynaml_every_type.py::test_dnaimport_takes_in_every_row_and_warns_about_nothing`) |
 | 07 | 2 | A baseline cluster round-trips at full precision | **met** | `tests/test_dynaml_writer.py::test_the_covariance_survives_to_full_double_precision`, `tests/test_gnss_to_dynadjust.py::TestTwoBaselinesBecomeAnXCluster` |
 | 07 | 3 | The pipeline runs end to end to a Solution | **met** | Tier 4: `tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_the_whole_pipeline_reaches_a_solution` |
 | 07 | 4 | Parsed results match the printed files | **met** | `tests/test_dynadjust_output.py`, against files a real DynAdjust wrote; tier 4 re-runs them (`tests/test_dynadjust_output.py::TestTheFixtureDriftGuard`) |
@@ -324,7 +328,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 07 | 6 | Every **[C]** confirmed | **manual** | A documentation audit, not a behaviour; discharged in P6 against upstream at a pinned commit, recorded in [`07`](./07-engine-dynadjust.md)'s header |
 | 07 | 7 | Without DynAdjust, everything else works | **met** | `tests/qgis/test_engine_algorithms.py::TestAdjustWithoutTheEngine::test_it_says_how_to_get_dynadjust_rather_than_failing_obscurely`; the whole suite runs without engines in `.github/workflows/test.yml` |
 | 08 | 1 | Session discovery over RINEX 2 and 3, compressed, mismatches reported | **met** | `tests/test_gnss_discovery.py`, `tests/test_rinex.py` |
-| 08 | 2 | A configuration fed back through `-k` reproduces the run bit for bit | **partly met** | The file written is the one the engine read (`tests/test_rtklib_engine.py::TestAgainstTheRealEngine::test_the_written_configuration_is_what_the_engine_read`); no test re-runs it and compares the output |
+| 08 | 2 | A configuration fed back through `-k` reproduces the run bit for bit | **met** | Since P12c-6: `tests/test_rtklib_engine.py::TestAgainstTheRealEngine::test_the_written_configuration_fed_back_reproduces_the_run_bit_for_bit` |
 | 08 | 3 | `.pos` parsing round-trips, every format | **met** | `tests/test_pos_reader.py::TestEveryFormatReads`, `tests/test_pos_reader.py::TestTheFormatsAgree` |
 | 08 | 4 | Covariance reaches a G measurement intact | **met** | `tests/test_gnss_to_dynadjust.py::TestOneBaselineBecomesAGMeasurement` |
 | 08 | 5 | One broken session does not abort a batch | **met** | `tests/test_gnss_batch.py::TestOneBadSessionDoesNotAbortTheBatch` |
@@ -395,7 +399,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 16 | 4 | Basic and Advanced identical | **met** | As 15.7 |
 | 16 | 5 | A model chaining import, pre-process, adjust, visualise runs headless | **met** | Since P12c: `tests/qgis/test_model_chain.py::TestTheModel`. The test builds the model, saves it as a `.model3`, loads it back and runs it from the field book to the solution and its layers |
 | 16 | 6 | Translated help documenting every parameter with units | **met** | Since P12c: every algorithm's help lists its parameters and outputs by their labels, every number's label states its unit or is named dimensionless, and the help's own words translate (`tests/qgis/test_algorithm_help.py`) |
-| 16 | 7 | Inputs validated before computing, the failure naming the parameter | **partly met** | Refusals name what is wrong algorithm by algorithm (`tests/qgis/test_analysis_algorithms.py::TestInspect::test_a_disconnected_network_is_blocked_and_named`, `tests/qgis/test_project_algorithms.py::test_an_unknown_service_names_the_ones_that_exist`); no test covers every algorithm |
+| 16 | 7 | Inputs validated before computing, the failure naming the parameter | **met** | Since P12c-6, over every algorithm and every input: `tests/qgis/test_inputs_are_named.py::test_a_missing_file_or_folder_is_refused_before_the_run_and_named`, `tests/qgis/test_inputs_are_named.py::test_a_mandatory_input_left_out_is_named`, `tests/qgis/test_inputs_are_named.py::test_an_input_of_the_wrong_kind_is_refused_and_named` |
 | 16 | 8 | Cancelling leaves no partial output | **met** | Since P12c, held around every algorithm (`geocomp/algorithms/transaction.py`, applied by the base class to all 46: `tests/qgis/test_cancellation.py::test_every_algorithm_runs_inside_the_transaction`). A run cancelled after writing puts back the file it replaced and removes those it made (`tests/qgis/test_cancellation.py::TestCancelledAfterWriting`), and is reported as not finished. Database targets roll back in their own transaction (`tests/test_project_store.py::TestSeveralWritesAsOne`) |
 | 17 | 1 | GeoPackage → PostGIS → GeoPackage identical | **met** | `tests/test_postgis_store.py`, `tests/qgis/test_postgis_project.py` |
 | 17 | 2 | Newer schemas refused, older migrated after a backup, both backends | **met** | `tests/test_project_store.py::TestVersioning`, `tests/test_postgis_store.py::TestVersioning` |
@@ -427,7 +431,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 20 | 3 | Every reference dataset with an expected-results file and a test | **partly met** | §3's table: RD-01 to RD-04, RD-06, RD-07, RD-09, RD-11 and RD-12 have tests; RD-08's published half waits on W-01, RD-05 is not vendored, RD-10 is P13's |
 | 20 | 4 | Cross-validation on three networks | **met** | As 06.6 |
 | 20 | 5 | The CI matrix, engines-absent and SciPy-absent rows included | **met** | `.github/workflows/test.yml`'s `degraded environments` job |
-| 20 | 6 | Coverage measured per release; every public function tested | **open** | Coverage is not measured in CI |
+| 20 | 6 | Coverage measured per release; every public function tested | **met** | Since P12c-6: `scripts/check_coverage.py` in the QGIS job, on every run; the functions it first found unreached, `tests/test_core_public_functions.py` |
 | 20 | 7 | A comparison export of §5's step-3 fields, documented | **met** | Since P12c: *Export solution tables*, documented in §5, every field exported and filled (`tests/test_export.py::TestTheComparisonExport`). No comparison has been run (W-12); that is §5's protocol, not this criterion |
 | 20 | 8 | Every criterion has a test or a reason | **met** | This table, held by `tests/structural/test_acceptance_register.py` |
 | 21 | 1 | The ZIP installs into a clean QGIS and validates | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it |

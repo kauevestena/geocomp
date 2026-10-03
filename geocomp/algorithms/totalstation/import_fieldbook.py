@@ -221,7 +221,13 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         except GeoCompError as exc:
             from geocomp.services.messages import message_for
 
-            raise QgsProcessingException(message_for(exc)) from exc
+            message = message_for(exc)
+            if exc.code == "validation.mapping_missing_required_fields":
+                # The mapping given, or, with none, the one inferred from the
+                # field book's own header: whichever it was is the input at fault.
+                given = self.parameterAsFile(parameters, MAPPING, context)
+                message = self.about_input(MAPPING if given else SOURCE, message)
+            raise QgsProcessingException(message) from exc
 
         feedback.setProgress(60)
         summarise_findings(result.findings, feedback)
