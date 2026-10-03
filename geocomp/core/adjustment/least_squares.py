@@ -17,6 +17,7 @@ from dataclasses import dataclass, field, replace
 
 import numpy as np
 
+from geocomp.core.adjustment.blocks import product_diagonal, quadratic_form
 from geocomp.core.adjustment.datum import DatumDefect, constraint_matrix, detect_defect
 from geocomp.core.adjustment.difference_network import approximate_values
 from geocomp.core.adjustment.geocentric import UNDULATION
@@ -27,6 +28,7 @@ from geocomp.core.adjustment.parameters import (
     orientation_owner,
     weighted_constraints,
 )
+from geocomp.core.adjustment.scale import AUTO, DENSE, SPARSE, choose_solver
 from geocomp.core.adjustment.undulations import (
     model_undulations,
     orthometric_stations,
@@ -87,6 +89,10 @@ class AdjustmentOptions:
             orthometric observation touches gets an undulation parameter with
             the model's value as its prior (``undulations.py``). Without one,
             such an observation is refused.
+        solver: ``"auto"``, ``"dense"`` or ``"sparse"``
+            (:mod:`~geocomp.core.adjustment.scale`, NFR-008). Automatic by
+            default: dense while the network is small enough, sparse beyond,
+            and a refusal naming SciPy where neither can take it.
     """
 
     frame: Frame = Frame.PLANE_2D
@@ -98,6 +104,7 @@ class AdjustmentOptions:
     confidence: float = 0.95
     auxiliary: dict[str, tuple[str, ...]] = field(default_factory=dict)
     geoid: GeoidModel | None = None
+    solver: str = AUTO
 
 
 @dataclass
@@ -107,6 +114,14 @@ class AdjustmentRun:
     Kept separate so the statistics modules can work from the raw matrices --
     the residual cofactor matrix, redundancy numbers and reliability all need
     Qxx and Qvv, which a Solution does not carry.
+
+    On the sparse path (``solver == "sparse"``) the same fields hold the sparse
+    forms: ``system.design`` compressed by row, ``system.weight`` and
+    ``cofactor_residuals`` as :class:`~geocomp.core.adjustment.blocks.BlockDiagonal`
+    (**Q**vv over **P**'s blocks only), and ``cofactor_parameters`` as a
+    :class:`~geocomp.core.adjustment.sparse.SparseCofactor`. Each is indexed
+    as the dense array is, and the statistics read them through
+    :mod:`~geocomp.core.adjustment.blocks`.
     """
 
     layout: ParameterLayout
@@ -133,6 +148,8 @@ class AdjustmentRun:
     undulations: dict[str, Quantity] = field(default_factory=dict)
     #: Which geoid model related the height systems, if one did (FR-804).
     geoid_model: str | None = None
+    #: ``"dense"`` or ``"sparse"`` -- which path ran (NFR-008).
+    solver: str = DENSE
 
     @property
     def parameter_covariance(self) -> np.ndarray:
@@ -193,17 +210,38 @@ def adjust(
     weighted = weighted_constraints(network, layout, options.frame)
     weighted += undulation_priors(layout, undulations)
 
+    # NFR-008: which path, decided before anything the size of the network is
+    # allocated. Rows are counted rather than assembled to find out.
+    rows = sum(len(observation.spec.components) for observation in observations)
+    rows += sum(constraint.size for constraint in weighted)
+    choice = choose_solver(options.solver, rows, layout.size)
+    if choice.solver == SPARSE:
+        from geocomp.core.adjustment import sparse as path
+
+        def linearised(at):
+            return path.assemble(observations, network.clusters, layout, at, weighted=weighted)
+
+        def solved(system, *, first=False, final=False):
+            return path.solve(
+                system, layout, constraints=constraints, examine=first or final, statistics=final
+            )
+    else:
+
+        def linearised(at):
+            return assemble(observations, network.clusters, layout, at, weighted=weighted)
+
+        def solved(system, *, first=False, final=False):
+            return solve(system, layout, constraints=constraints)
+
     converged = False
     correction = float("inf")
     iteration = 0
-    system: LinearisedSystem | None = None
+    system = None
     result = None
 
-    # `iteration` is read after the loop -- in the non-convergence message and
-    # in the result -- so the usual rename to `_iteration` would break both.
-    for iteration in range(1, options.max_iterations + 1):  # noqa: B007
-        system = assemble(observations, network.clusters, layout, x, weighted=weighted)
-        result = solve(system, layout, constraints=constraints)
+    for iteration in range(1, options.max_iterations + 1):
+        system = linearised(x)
+        result = solved(system, first=iteration == 1)
         x = x + result.x
         correction = float(np.max(np.abs(result.x))) if result.x.size else 0.0
         if correction < options.convergence:
@@ -232,21 +270,24 @@ def adjust(
     # solution rather than the last step towards it. The final correction is
     # below the convergence threshold by construction; taking it makes the
     # residuals exact rather than exact-to-within-the-threshold.
-    system = assemble(observations, network.clusters, layout, x, weighted=weighted)
-    result = solve(system, layout, constraints=constraints)
+    system = linearised(x)
+    result = solved(system, final=True)
     x = x + result.x
     residuals = system.design @ result.x - system.misclosure
 
     degrees_of_freedom = system.observation_count - layout.size + defect.size * bool(
         constraints is not None
     )
-    weighted = float(residuals @ system.weight @ residuals)
+    weighted_squares = quadratic_form(system.weight, residuals)
     variance_factor = (
-        weighted / degrees_of_freedom if degrees_of_freedom > 0 else float("nan")
+        weighted_squares / degrees_of_freedom if degrees_of_freedom > 0 else float("nan")
     )
 
-    cofactor_residuals = _residual_cofactor(system, result.cofactor)
-    redundancy = np.diag(cofactor_residuals @ system.weight)
+    if choice.solver == SPARSE:
+        cofactor_residuals = result.cofactor.residuals
+    else:
+        cofactor_residuals = _residual_cofactor(system, result.cofactor)
+    redundancy = product_diagonal(cofactor_residuals, system.weight)
 
     return AdjustmentRun(
         layout=layout,
@@ -268,6 +309,7 @@ def adjust(
         observations=observations,
         undulations=undulations,
         geoid_model=options.geoid.id if undulations and options.geoid is not None else None,
+        solver=choice.solver,
     )
 
 
@@ -753,7 +795,7 @@ def to_solution(
     statistics = AdjustmentStatistics(
         n_observations=run.system.observation_count,
         n_parameters=run.layout.size,
-        n_constraints=run.defect.size if run.method == "bordered" else 0,
+        n_constraints=run.defect.size if run.method.endswith("bordered") else 0,
         degrees_of_freedom=run.degrees_of_freedom,
         variance_factor_apriori=run.variance_factor_apriori,
         variance_factor_aposteriori=run.variance_factor_aposteriori,
@@ -773,17 +815,36 @@ def to_solution(
         datum_definition=datum,
         uncertainty_mode=mode,
         adjusted_stations=tuple(adjusted),
-        parameter_covariance=Covariance(
-            matrix=covariance,
-            labels=tuple(run.layout.labels()),
-            units=tuple(units),
-            mode=mode,
-            strategies=strategies,
+        # The sparse path never forms the full matrix -- at 10,000 stations it
+        # is 3 GB -- and a block-diagonal stand-in would assert that every two
+        # stations are uncorrelated, which is false in every adjusted network.
+        # Each station carries its own block, and a comparison of epochs says
+        # what it lacks.
+        parameter_covariance=(
+            Covariance(
+                matrix=covariance,
+                labels=tuple(run.layout.labels()),
+                units=tuple(units),
+                mode=mode,
+                strategies=strategies,
+            )
+            if isinstance(covariance, np.ndarray)
+            else None
         ),
         observation_results=tuple(observation_results or ()),
         statistics=statistics,
         # The provenance states the result's mode too, and a caller building it
         # before the adjustment cannot know it: left alone it would say RIGOROUS
         # beside a solution that is not.
-        provenance=replace(provenance, uncertainty_mode=mode) if provenance is not None else None,
+        # And which path computed it (NFR-008): a sparse solution carries no full
+        # covariance, and the record says why.
+        provenance=(
+            replace(
+                provenance,
+                uncertainty_mode=mode,
+                parameters={**provenance.parameters, "solver": run.solver},
+            )
+            if provenance is not None
+            else None
+        ),
     )

@@ -491,7 +491,7 @@ class TestTheWholeSliceOverRd01:
         )
         assert run.converged
         assert run.degrees_of_freedom == 4
-        assert run.method == "bordered"
+        assert run.method.endswith("bordered")
 
     def test_the_adjusted_shape_matches_the_measured_one(self):
         """The check that the adjustment did something meaningful: the sides it

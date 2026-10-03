@@ -718,7 +718,9 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
 
         if solution.uncertainty_mode is UncertaintyMode.RIGOROUS:
             return self.tr("rigorous")
-        strategies = sorted(s.value for s in solution.parameter_covariance.strategies)
+        # The solution's, not the full matrix's: a sparse solution has no full
+        # matrix (NFR-008), and every station's block names its strategies too.
+        strategies = sorted(s.value for s in solution.strategies)
         return self.tr("approximate: %1").replace("%1", ", ".join(strategies) or "—")
 
     def _roles(self, result, network) -> dict[str, str]:

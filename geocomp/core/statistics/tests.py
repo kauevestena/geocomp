@@ -21,6 +21,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from geocomp.core.adjustment.blocks import product_diagonal
 from geocomp.core.models import TestResult
 from geocomp.core.statistics.distributions import chi2_quantile, normal_quantile, t_quantile
 
@@ -206,8 +207,8 @@ def data_snooping(
         A :class:`SnoopingReport`. Nothing is rejected here.
     """
     sigma_zero = 1.0 if sigma_known else float(np.sqrt(max(variance_factor, 0.0)))
-    redundancy = np.diag(cofactor_residuals @ weight)
-    diagonal = np.diag(cofactor_residuals)
+    redundancy = product_diagonal(cofactor_residuals, weight)
+    diagonal = np.asarray(cofactor_residuals.diagonal())
 
     if sigma_known or degrees_of_freedom < 1:
         critical = normal_quantile(1.0 - (1.0 - confidence) / 2.0)

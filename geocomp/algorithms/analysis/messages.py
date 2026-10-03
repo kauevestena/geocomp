@@ -159,6 +159,37 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "max_correction",
         "threshold",
     ),
+    # -- scale (NFR-008) ----------------------------------------------------
+    "computation.adjustment_needs_scipy": MessageTemplate(
+        "This network is too large to adjust without SciPy: %1 observation rows and %2 "
+        "unknowns would need about %3 MiB held densely, and this machine allows %4 MiB. "
+        "Install SciPy into QGIS's Python and run it again; the sparse solver it provides "
+        "adjusts 10,000 stations in a few hundred MiB. Beyond about 10,000 stations, adjust "
+        "the network with DynAdjust's segmentation.",
+        "rows",
+        "parameters",
+        "footprint_mib",
+        "limit_mib",
+    ),
+    "computation.adjustment_too_large_for_dense": MessageTemplate(
+        "This computation needs the whole network held densely, about %3 MiB for %1 "
+        "observation rows and %2 unknowns, and this machine allows %4 MiB. Variance "
+        "component estimation is such a computation: run the adjustment without it, or "
+        "estimate the components on a part of the network.",
+        "rows",
+        "parameters",
+        "footprint_mib",
+        "limit_mib",
+    ),
+    "computation.sparse_solver_needs_scipy": MessageTemplate(
+        "The sparse solver was asked for, but SciPy is not installed in QGIS's Python. "
+        "Install SciPy, or let GeoComp choose the solver."
+    ),
+    "computation.variance_components_need_dense": MessageTemplate(
+        "Variance components cannot be estimated with the sparse solver: the estimator "
+        "reads the whole residual cofactor matrix, which that solver never forms. Let "
+        "GeoComp choose the solver."
+    ),
     "computation.adjustment_did_not_run": MessageTemplate(
         "The adjustment of '%1' produced no iterations at all. This is an internal error; "
         "please report it with the network that caused it.",

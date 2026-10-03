@@ -497,6 +497,8 @@ class TestTheGeoidInTheCombination:
             assert undulation.std_dev == pytest.approx(0.05)
         assert run.geoid_model == GEOID.id
 
+    @pytest.mark.dense_only
+
     def test_the_model_used_is_recorded_on_the_solution(self):
         """Item 3, and FR-203: which model, and that its priors were taken as
         independent between stations -- an approximation, so the solution

@@ -314,6 +314,8 @@ class TestTheSolution:
         assert len(back.adjusted_stations) == len(solution.adjusted_stations)
         assert len(back.observation_results) == len(solution.observation_results)
 
+    @pytest.mark.dense_only
+
     def test_the_covariance_is_bit_identical(self, stored):
         """specs/17 acceptance criterion 9, and the reason the matrix is stored
         as big-endian float64 rather than as text."""
@@ -918,6 +920,8 @@ class TestWritingDoesNotDiscardResults:
             store.write(project, keep_solutions=True)
             kept = store.read_solutions()
             assert [entry.id for entry in kept] == [solution.id]
+
+    @pytest.mark.dense_only
 
     def test_the_preserved_solution_is_intact_not_merely_present(self, stored):
         """A row that survived with its foreign keys broken is not preservation."""

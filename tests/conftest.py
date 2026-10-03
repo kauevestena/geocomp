@@ -148,3 +148,43 @@ requires_adjust_sources = pytest.mark.skipif(
     adjust_sources() is None,
     reason="GEOCOMP_ADJUST_DIR names no directory of .Adat files",
 )
+
+
+# -- the sparse path over the whole suite (NFR-008) --------------------------------
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--sparse",
+        action="store_true",
+        default=False,
+        help=(
+            "adjust every network on the sparse path (NFR-008), however small; needs SciPy. "
+            "Tests marked dense_only -- they read a matrix only the dense path forms, or rely "
+            "on the automatic choice -- skip."
+        ),
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "dense_only: reads what only the dense path forms (the full parameter covariance, a "
+        "dense design matrix), or relies on the automatic choice as shipped; skipped under --sparse",
+    )
+    if config.getoption("--sparse"):
+        from geocomp.core.adjustment import scale
+
+        if not scale.sparse_available():
+            raise pytest.UsageError("--sparse needs SciPy, and it is not importable here")
+        # Below any footprint: every automatic choice is the sparse path.
+        scale.SPARSE_ABOVE = -1
+
+
+def pytest_collection_modifyitems(config, items):
+    if not config.getoption("--sparse"):
+        return
+    skip = pytest.mark.skip(reason="reads what only the dense path forms (--sparse)")
+    for item in items:
+        if "dense_only" in item.keywords:
+            item.add_marker(skip)
