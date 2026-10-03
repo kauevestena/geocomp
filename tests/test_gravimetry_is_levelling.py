@@ -384,6 +384,8 @@ class TestTheSolutionSaysWhatItRestsOn:
         solution = self._solution(levelling, Frame.HEIGHT_1D)
         assert solution.uncertainty_mode is UncertaintyMode.RIGOROUS
 
+    @pytest.mark.dense_only
+
     def test_a_nominal_precision_makes_it_approximate_and_is_named(self):
         import dataclasses
 

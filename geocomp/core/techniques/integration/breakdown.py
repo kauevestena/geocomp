@@ -26,8 +26,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-import numpy as np
-
+from geocomp.core.adjustment.blocks import quadratic_form
 from geocomp.core.adjustment.normal_equations import CONSTRAINT_ROW_PREFIX
 from geocomp.core.adjustment.undulations import GEOID_OWNER_PREFIX
 from geocomp.core.models import Network
@@ -93,8 +92,7 @@ def technique_breakdown(run, network: Network) -> tuple[TechniqueSummary, ...]:
     summaries: list[TechniqueSummary] = []
     for group in order:
         rows = [i for i, g in enumerate(groups) if g == group]
-        block = np.ix_(rows, rows)
-        squares = float(residuals[rows] @ weight[block] @ residuals[rows])
+        squares = quadratic_form(weight, residuals, rows)
         redundancy = float(sum(run.redundancy[i] for i in rows))
         standardised = [
             abs(residuals[i]) / math.sqrt(sigma0_squared * run.cofactor_residuals[i, i])

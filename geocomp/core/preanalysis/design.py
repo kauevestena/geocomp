@@ -34,6 +34,7 @@ from geocomp.core.adjustment.datum import constraint_matrix, detect_defect
 from geocomp.core.adjustment.least_squares import AdjustmentOptions, starting_values
 from geocomp.core.adjustment.normal_equations import assemble, solve
 from geocomp.core.adjustment.parameters import Frame, ParameterLayout
+from geocomp.core.adjustment.scale import AUTO, SPARSE, choose_solver
 from geocomp.core.errors import ComputationError
 from geocomp.core.models import DatumDefinition, ErrorEllipse, Network
 from geocomp.core.statistics.ellipses import error_ellipse, positional_uncertainty
@@ -123,21 +124,33 @@ def simulate(
     values = starting_values(network, layout, options, None)
     x = np.array([values[slot.owner][slot.component] for slot in layout.slots])
 
-    system = assemble(observations, network.clusters, layout, x)
+    # NFR-008, as for an adjustment: a design is the same system before any
+    # observation exists, and as large.
+    rows = sum(len(observation.spec.components) for observation in observations)
+    sparse = choose_solver(AUTO, rows, layout.size).solver == SPARSE
+    if sparse:
+        from geocomp.core.adjustment import sparse as path
+
+        system = path.assemble(observations, network.clusters, layout, x)
+    else:
+        system = assemble(observations, network.clusters, layout, x)
 
     defect = detect_defect(observations, frame)
     constraints = None
     if datum in (DatumDefinition.INNER_CONSTRAINT, DatumDefinition.MINIMUM_CONSTRAINT) and defect.size:
         constraints = constraint_matrix(layout, values, defect, station_ids=datum_stations)
 
-    result = solve(system, layout, constraints=constraints)
+    if sparse:
+        result = path.solve(system, layout, constraints=constraints, statistics=True)
+        cofactor_residuals = result.cofactor.residuals
+    else:
+        result = solve(system, layout, constraints=constraints)
+        q_ll = np.linalg.inv(system.weight)
+        cofactor_residuals = q_ll - system.design @ result.cofactor @ system.design.T
     covariance = variance_factor * result.cofactor
     degrees_of_freedom = system.observation_count - layout.size + (
         defect.size if constraints is not None else 0
     )
-
-    q_ll = np.linalg.inv(system.weight)
-    cofactor_residuals = q_ll - system.design @ result.cofactor @ system.design.T
 
     stations: list[StationDesign] = []
     for station_id in layout.station_ids():

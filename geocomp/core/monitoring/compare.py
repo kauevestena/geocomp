@@ -93,7 +93,10 @@ class Finding:
 
     Codes: ``engines_differ`` (``first``, ``second``: engine and version),
     ``datums_both_free`` (``first``, ``second``: datum definitions),
-    ``stations_in_one_epoch`` (``stations``).
+    ``stations_in_one_epoch`` (``stations``), ``station_blocks_only``
+    (``solutions``: those carrying each station's covariance block and not the
+    matrix between stations -- a sparse adjustment, NFR-008, or DynAdjust
+    without ``--output-all-covariances``).
     """
 
     code: str
@@ -110,6 +113,11 @@ class Finding:
             )
         if self.code == "stations_in_one_epoch":
             return f"stations in one epoch only, not compared: {', '.join(c['stations'])}"
+        if self.code == "station_blocks_only":
+            return (
+                f"{', '.join(c['solutions'])}: each station's own covariance only, so its "
+                "stations were taken as uncorrelated with one another"
+            )
         return self.code
 
     def to_dict(self) -> dict[str, Any]:
@@ -265,6 +273,9 @@ def compare(
             second=second.id,
             expected="at least one station both epochs estimate",
         )
+    blocks_only = [s.id for s in (first, second) if s.parameter_covariance is None]
+    if blocks_only and len(common) > 1:
+        findings.append(Finding("station_blocks_only", {"solutions": blocks_only}))
 
     x1, s1 = _vector(first, common, components)
     x2, s2 = _vector(second, common, components)

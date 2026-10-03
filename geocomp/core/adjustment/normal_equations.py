@@ -33,13 +33,16 @@ from geocomp.core.units import Unit, wrap_to_pi
 
 __all__ = [
     "CONSTRAINT_ROW_PREFIX",
+    "Linearisation",
     "LinearisedSystem",
     "NullSpaceFinding",
     "SolveResult",
     "assemble",
     "build_weight_matrix",
     "diagnose_rank",
+    "linearise",
     "solve",
+    "weight_blocks",
 ]
 
 #: Below this ratio to the largest, an eigenvalue of the normal matrix counts as
@@ -96,9 +99,27 @@ def build_weight_matrix(
     """
     size = len(row_labels)
     weight = np.zeros((size, size))
+    for rows, block in weight_blocks(observations, clusters, row_labels):
+        weight[np.ix_(rows, rows)] = block
+    return weight
+
+
+def weight_blocks(
+    observations: list[Observation],
+    clusters: dict[str, Cluster],
+    row_labels: list[tuple[str, str]],
+) -> list[tuple[np.ndarray, np.ndarray]]:
+    """**P**'s diagonal blocks: each cluster's inverse covariance, and each other row's 1/sigma^2.
+
+    The dense weight matrix and the sparse path's block-diagonal one
+    (:mod:`geocomp.core.adjustment.sparse`) are both built from this, so the two
+    cannot weight an observation differently. Blocks come in row order of
+    their first row.
+    """
     row_of = {label: index for index, label in enumerate(row_labels)}
     by_id = {observation.id: observation for observation in observations}
     handled: set[int] = set()
+    blocks: list[tuple[np.ndarray, np.ndarray]] = []
 
     for cluster in clusters.values():
         members = [oid for oid in cluster.observation_ids if oid in by_id]
@@ -125,9 +146,7 @@ def build_weight_matrix(
                 expected="one active row per covariance component",
             )
 
-        block = np.linalg.inv(cluster.covariance.matrix)
-        index = np.array(rows)
-        weight[np.ix_(index, index)] = block
+        blocks.append((np.array(rows), np.linalg.inv(cluster.covariance.matrix)))
         handled.update(rows)
 
     for observation in observations:
@@ -147,9 +166,10 @@ def build_weight_matrix(
                         "because a fabricated one silently corrupts every statistic"
                     ),
                 )
-            weight[row, row] = 1.0 / variance
+            blocks.append((np.array([row]), np.array([[1.0 / variance]])))
 
-    return weight
+    blocks.sort(key=lambda item: int(item[0].min()))
+    return blocks
 
 
 def _misclosure(observed: float, computed: float, unit: Unit) -> float:
@@ -179,6 +199,81 @@ def _misclosure(observed: float, computed: float, unit: Unit) -> float:
 CONSTRAINT_ROW_PREFIX = "constraint:"
 
 
+@dataclass
+class Linearisation:
+    """The rows of one linearisation, before they are laid out as matrices.
+
+    The dense assembly here and the sparse one in
+    :mod:`geocomp.core.adjustment.sparse` both start from this, so the two paths
+    cannot linearise, label or weight a row differently -- they differ only in
+    how they store what this holds.
+    """
+
+    partials: list[dict[int, float]]
+    misclosure: list[float]
+    labels: list[tuple[str, str]]
+    #: **P**'s diagonal blocks: ``(rows, block)``, observations and constraints.
+    weight_blocks: list[tuple[np.ndarray, np.ndarray]]
+
+    @property
+    def size(self) -> int:
+        return len(self.partials)
+
+
+def linearise(
+    observations: list[Observation],
+    clusters: dict[str, Cluster],
+    layout: ParameterLayout,
+    x: np.ndarray,
+    *,
+    weighted: list[WeightedConstraint] | None = None,
+) -> Linearisation:
+    """Every row's partials, misclosure and label, and the weight blocks. See :func:`assemble`."""
+    partials: list[dict[int, float]] = []
+    misclosure: list[float] = []
+    labels: list[tuple[str, str]] = []
+
+    for observation in observations:
+        equations = evaluate(observation, layout, x)
+        components = observation.spec.components
+        units = observation.spec.units
+        for position, equation in enumerate(equations):
+            partials.append(equation.partials)
+            misclosure.append(
+                _misclosure(
+                    observation.values[position].value, equation.computed, units[position]
+                )
+            )
+            labels.append((observation.id, equation.component if len(components) > 1 else ""))
+
+    if not partials:
+        raise ComputationError(
+            "no_observations",
+            expected="at least one active observation to adjust",
+        )
+
+    blocks = weight_blocks(observations, clusters, labels)
+
+    for constraint in weighted or []:
+        start = len(partials)
+        for position, column in enumerate(constraint.columns):
+            # The observation equation of a constraint is the identity: the
+            # "computed" value of a coordinate is the parameter itself.
+            partials.append({column: 1.0})
+            misclosure.append(constraint.values[position] - float(x[column]))
+            labels.append(
+                (
+                    f"{CONSTRAINT_ROW_PREFIX}{constraint.station_id}",
+                    constraint.components[position],
+                )
+            )
+        blocks.append(
+            (np.arange(start, start + constraint.size), np.linalg.inv(constraint.covariance))
+        )
+
+    return Linearisation(partials, misclosure, labels, blocks)
+
+
 def assemble(
     observations: list[Observation],
     clusters: dict[str, Cluster],
@@ -198,58 +293,20 @@ def assemble(
             GeoComp did before phase P5 -- estimates the station as though it
             were free and discards the published value entirely.
     """
-    rows: list[np.ndarray] = []
-    misclosure: list[float] = []
-    labels: list[tuple[str, str]] = []
-
-    for observation in observations:
-        equations = evaluate(observation, layout, x)
-        components = observation.spec.components
-        units = observation.spec.units
-        for position, equation in enumerate(equations):
-            rows.append(equation.to_dense(layout.size))
-            misclosure.append(
-                _misclosure(
-                    observation.values[position].value, equation.computed, units[position]
-                )
-            )
-            labels.append((observation.id, equation.component if len(components) > 1 else ""))
-
-    if not rows:
-        raise ComputationError(
-            "no_observations",
-            expected="at least one active observation to adjust",
-        )
-
-    weight = build_weight_matrix(observations, clusters, labels)
-
-    constraint_rows = list(weighted or [])
-    if constraint_rows:
-        extra = sum(constraint.size for constraint in constraint_rows)
-        weight = np.pad(weight, ((0, extra), (0, extra)))
-        for constraint in constraint_rows:
-            start = len(rows)
-            for position, column in enumerate(constraint.columns):
-                row = np.zeros(layout.size)
-                # The observation equation of a constraint is the identity: the
-                # "computed" value of a coordinate is the parameter itself.
-                row[column] = 1.0
-                rows.append(row)
-                misclosure.append(constraint.values[position] - float(x[column]))
-                labels.append(
-                    (
-                        f"{CONSTRAINT_ROW_PREFIX}{constraint.station_id}",
-                        constraint.components[position],
-                    )
-                )
-            index = np.arange(start, start + constraint.size)
-            weight[np.ix_(index, index)] = np.linalg.inv(constraint.covariance)
+    rows = linearise(observations, clusters, layout, x, weighted=weighted)
+    design = np.zeros((rows.size, layout.size))
+    for row, partials in enumerate(rows.partials):
+        for column, value in partials.items():
+            design[row, column] = value
+    weight = np.zeros((rows.size, rows.size))
+    for index, block in rows.weight_blocks:
+        weight[np.ix_(index, index)] = block
 
     return LinearisedSystem(
-        design=np.vstack(rows),
-        misclosure=np.array(misclosure),
+        design=design,
+        misclosure=np.array(rows.misclosure),
         weight=weight,
-        row_labels=labels,
+        row_labels=rows.labels,
     )
 
 

@@ -153,6 +153,10 @@ Amiri-Simkooei, 2008) — `N θ = l` with `N_kl = ½ tr(M Q_k M Q_l)`, `l_k = ½
 clusters, which `vᵀPv/r` per group is not, and `D(θ) = N⁻¹` is the factors' own covariance. Groups are
 techniques by default (`technique_of`: an observation's recorded `meta["technique"]`, else its type's).
 
+It reads all of **Q**ᵥᵥ, which only the dense path forms, so it always runs dense (since P12c): a
+network too large for that is refused by name (`adjustment_too_large_for_dense`), and the sparse path asked
+for is refused too (`variance_components_need_dense`) — [`06`](./06-adjustment-core.md) §2.4.1.
+
 Rows that are no group's — a weighted benchmark, a geoid prior — are the **known part** `Q₀`: they keep their
 stated covariance and their expected contribution comes off the right-hand side,
 `l_k −= ½ tr(M Q_k M Q₀)`. (The first version looked every row up as an observation and would have failed on

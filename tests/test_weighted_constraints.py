@@ -95,6 +95,9 @@ def test_a_weighted_constraint_produces_a_row() -> None:
     assert found[0].values == (12.500,)
 
 
+@pytest.mark.dense_only
+
+
 def test_the_row_reaches_the_design_matrix() -> None:
     case = rd.levelling_loop()
     _weighted(case.network, "B", 12.500, 0.010)

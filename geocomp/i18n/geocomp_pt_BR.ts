@@ -3371,6 +3371,10 @@
             <translation>As soluções '%1' e '%2' não têm estações em comum, por isso não há nada a comparar. O mesmo marco deve ter o mesmo nome em todas as épocas.</translation>
         </message>
         <message>
+            <source>The sparse solver was asked for, but SciPy is not installed in QGIS's Python. Install SciPy, or let GeoComp choose the solver.</source>
+            <translation>Foi pedido o resolvedor esparso, mas o SciPy não está instalado no Python do QGIS. Instale o SciPy ou deixe o GeoComp escolher o resolvedor.</translation>
+        </message>
+        <message>
             <source>The station '%1' is held by two inputs (%2) at positions %3 m apart. Hold it in one input only, or correct the one that is wrong: two holds a distance apart force that distance into the residuals.</source>
             <translation>A estação '%1' é fixada por duas entradas (%2) em posições a %3 m uma da outra. Fixe-a em apenas uma entrada ou corrija a errada: duas fixações separadas por uma distância forçam essa distância nos resíduos.</translation>
         </message>
@@ -3423,6 +3427,10 @@
             <translation>Este arquivo JSON não é um documento de rede do GeoComp: não possui identificador de rede. Esperado: %1.</translation>
         </message>
         <message>
+            <source>This computation needs the whole network held densely, about %3 MiB for %1 observation rows and %2 unknowns, and this machine allows %4 MiB. Variance component estimation is such a computation: run the adjustment without it, or estimate the components on a part of the network.</source>
+            <translation>Este cálculo exige a rede inteira em matrizes densas, cerca de %3 MiB para %1 linhas de observação e %2 incógnitas, e esta máquina permite %4 MiB. A estimação de componentes de variância é um cálculo assim: execute o ajustamento sem ela ou estime os componentes em uma parte da rede.</translation>
+        </message>
+        <message>
             <source>This file does not hold a GeoComp network: its top level is %1, and a network document is a JSON object. Check that you chose the right file.</source>
             <translation>Este arquivo não contém uma rede do GeoComp: seu nível superior é %1, e um documento de rede é um objeto JSON. Verifique se escolheu o arquivo certo.</translation>
         </message>
@@ -3447,8 +3455,16 @@
             <translation>Não foi possível ler este documento de rede: %1. Ele pode ter sido gravado por outra versão do GeoComp, ou editado à mão.</translation>
         </message>
         <message>
+            <source>This network is too large to adjust without SciPy: %1 observation rows and %2 unknowns would need about %3 MiB held densely, and this machine allows %4 MiB. Install SciPy into QGIS's Python and run it again; the sparse solver it provides adjusts 10,000 stations in a few hundred MiB. Beyond about 10,000 stations, adjust the network with DynAdjust's segmentation.</source>
+            <translation>Esta rede é grande demais para ser ajustada sem o SciPy: %1 linhas de observação e %2 incógnitas exigiriam cerca de %3 MiB em matrizes densas, e esta máquina permite %4 MiB. Instale o SciPy no Python do QGIS e execute novamente; o resolvedor esparso que ele fornece ajusta 10.000 estações em algumas centenas de MiB. Acima de cerca de 10.000 estações, ajuste a rede com a segmentação do DynAdjust.</translation>
+        </message>
+        <message>
             <source>This project file holds %1 networks, so GeoComp cannot tell which one you mean. Export the network you want to analyse and choose that file instead.</source>
             <translation>Este arquivo de projeto contém %1 redes, de modo que o GeoComp não pode saber a qual delas você se refere. Exporte a rede que deseja analisar e escolha esse arquivo.</translation>
+        </message>
+        <message>
+            <source>Variance components cannot be estimated with the sparse solver: the estimator reads the whole residual cofactor matrix, which that solver never forms. Let GeoComp choose the solver.</source>
+            <translation>Os componentes de variância não podem ser estimados com o resolvedor esparso: o estimador lê a matriz cofatora dos resíduos inteira, que esse resolvedor nunca forma. Deixe o GeoComp escolher o resolvedor.</translation>
         </message>
     </context>
     <context>
@@ -3483,6 +3499,10 @@
         <message>
             <source>%1 (mm)</source>
             <translation>%1 (mm)</translation>
+        </message>
+        <message>
+            <source>%1 carries each station's own covariance and not the covariance between stations, so the stations of that epoch were taken as uncorrelated with one another. The test of a difference between stations, and of the reference block, leaves that correlation out.</source>
+            <translation>%1 traz a covariância própria de cada estação, e não a covariância entre estações; por isso as estações dessa época foram tomadas como não correlacionadas entre si. O teste de uma diferença entre estações, e o do bloco de referência, deixam essa correlação de fora.</translation>
         </message>
         <message>
             <source>(not recorded)</source>

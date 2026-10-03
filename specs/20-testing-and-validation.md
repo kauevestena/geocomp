@@ -251,7 +251,7 @@ a criterion a single known-bad hour can fail is measuring that hour rather than 
 | QGIS | The 4.x series: current 4.x LTR once one exists, current stable until then (NFR-001, [`adr/0007-qgis-4-minimum.md`](./adr/0007-qgis-4-minimum.md)) |
 | Python | As shipped by the targeted QGIS versions |
 | Engines | Present (T4, T5) and absent (asserting graceful degradation, FR-306) |
-| SciPy | Present and absent (asserting the NumPy-only fallback, [`03-architecture.md`](./03-architecture.md) §3.7) |
+| SciPy | Present and absent (asserting the NumPy-only fallback, [`03-architecture.md`](./03-architecture.md) §3.7). Present, the QGIS job runs the whole suite a second time with every adjustment on the sparse path (`pytest --sparse`, NFR-008) |
 
 The **engines-absent** and **SciPy-absent** rows are not optional. FR-306 and the fallback path are
 requirements, and an untested fallback is a fallback that does not work.
@@ -296,7 +296,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 116 met, 12 partly met, 5 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 117 met, 12 partly met, 5 open, 2 manual, of 136.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -315,6 +315,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 06 | 5 | Pre-analysis reproduces the adjusted Σₓ | **met** | `tests/test_statistics.py::TestPreAnalysis` |
 | 06 | 6 | In-house core and DynAdjust agree | **met** | Tier 4: `tests/test_dynadjust_crossvalidation.py::TestTheTwoEnginesAgree`, `tests/test_dynadjust_pipeline.py::TestAProjectedNetworkCrossValidates`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates` |
 | 06 | 7 | Every statistic with critical value, confidence and decision | **met** | `tests/test_statistics.py::TestGlobalTest::test_the_statistic_carries_both_critical_values`, `tests/test_statistics.py::TestDataSnooping::test_the_distribution_used_is_reported` |
+| 06 | 8 | Beyond the dense path, the sparse one agrees with it; without SciPy, a refusal naming it | **met** | Since P12c: `tests/test_sparse_adjustment.py::TestTheTwoPathsAgree`, `tests/test_network_scale.py::TestTheAdjustmentAsks::test_without_scipy_it_refuses_before_allocating`, and the whole suite again on the sparse path in CI (`--sparse`). Measured to 10,000 stations ([`06`](./06-adjustment-core.md) §2.4.1) |
 | 07 | 1 | DynaML validates and imports without warnings, every mapped type | **partly met** | Imports are checked against `dnaimport`'s own counts on three networks: GNSS, levelling, and directions, zenith angles and slope distances (`tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_an_unparsed_measurement_file_is_caught_despite_a_zero_exit`, `tests/test_dynadjust_pipeline.py::TestATerrestrialNetworkCrossValidates`). Not every type of §4.2 passes through `dnaimport`, and nothing validates against the schema |
 | 07 | 2 | A baseline cluster round-trips at full precision | **met** | `tests/test_dynaml_writer.py::test_the_covariance_survives_to_full_double_precision`, `tests/test_gnss_to_dynadjust.py::TestTwoBaselinesBecomeAnXCluster` |
 | 07 | 3 | The pipeline runs end to end to a Solution | **met** | Tier 4: `tests/test_dynadjust_pipeline.py::TestAgainstARealEngine::test_the_whole_pipeline_reaches_a_solution` |

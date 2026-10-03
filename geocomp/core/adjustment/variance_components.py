@@ -44,6 +44,7 @@ import numpy as np
 
 from geocomp.core.adjustment.least_squares import AdjustmentOptions, AdjustmentRun, adjust
 from geocomp.core.adjustment.normal_equations import CONSTRAINT_ROW_PREFIX
+from geocomp.core.adjustment.scale import DENSE, SPARSE
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.models import Cluster, Network, Observation
 from geocomp.core.uncertainty import Covariance, Quantity
@@ -141,9 +142,22 @@ def estimate_variance_components(
         ValidationError: a cluster whose members fall in different groups -- its
             covariance cannot be rescaled by two factors at once.
         ComputationError: a group with too little redundancy to estimate, a
-            negative estimate, or no convergence. Each names the group.
+            negative estimate, or no convergence. Each names the group. And a
+            network too large for the dense path (NFR-008): the estimator
+            needs all of Qvv, which only that path forms.
     """
     options = options or AdjustmentOptions()
+    if options.solver == SPARSE:
+        raise ComputationError(
+            "variance_components_need_dense",
+            expected=(
+                "the dense path: the estimator reads the whole of Qvv, which the sparse "
+                "path never forms"
+            ),
+        )
+    # The whole of Qvv, so the dense path; a network too large for it is
+    # refused there, by name, rather than taken sparsely and then refused here.
+    options = replace(options, solver=DENSE)
     group_of = group_of or _by_technique()
     groups = _groups(network, group_of)
     factors = dict.fromkeys(groups, 1.0)

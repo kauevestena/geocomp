@@ -90,6 +90,33 @@ against NFR-008". Writing it in P2 would mean writing it against no network larg
 helps, and a performance claim nobody has measured is exactly the kind of thing this specification set
 exists to avoid.
 
+## What phase P12c delivered
+
+**The sparse path and the refusal**, both measured; [`06`](../06-adjustment-core.md) §2.4.1 has the
+design and the table, and this records what it means for the decision.
+
+- **The size estimate was wrong in the dense path's favour.** P2 called it comfortable to roughly
+  2,000–3,000 stations. Measured, it holds about `8 (6m² + 4mn + 2n²)` bytes — the residual cofactor
+  matrix is m × m, and m is every observation row — so a braced plane grid of 900 stations peaked at
+  698 MiB and took 13 s, and 1,600 stations took 48 s. The automatic choice therefore moves to the sparse
+  path at a dense footprint of 1 GiB, about 1,050 such stations, not at 2,000. NFR-008's "beyond roughly
+  2,000–3,000 stations it MUST use a sparse factorisation" is met with room.
+- **10,000 stations** adjust on the sparse path in 84 s and under 600 MiB (97 s with inner constraints),
+  where the dense path would need some 77 GB. A geocentric network of that size has not been measured.
+- **The refusal** is `adjustment_needs_scipy`, raised before anything the size of the network is allocated,
+  when SciPy is absent and the dense footprint exceeds half the machine's physical memory. Between 1 GiB and
+  that limit a machine without SciPy keeps the dense path, slowly: correctness never depends on SciPy, only
+  speed and reach. `tests/test_network_scale.py` asserts the refusal, and runs where SciPy is absent.
+- **The two paths are tested against each other**, as point 1 of the decision requires: every statistic
+  on seven networks (`tests/test_sparse_adjustment.py`), and the whole suite a second time on the sparse
+  path in CI's QGIS job (`pytest --sparse`), so a consumer that only works on dense matrices fails there.
+  That run found one: the gravimetry report read its strategies from the full covariance, which a sparse
+  solution does not carry.
+
+**What the sparse path gives up**, recorded rather than implied: the full parameter covariance (each
+station's block is carried; a comparison of epochs says it took stations as uncorrelated), and variance
+component estimation, which reads the whole of **Q**ᵥᵥ and always runs dense.
+
 ## Consequences
 
 - **NFR-008 is reworded** from a flat "MUST handle at least 10,000 stations" to a statement that separates
@@ -102,9 +129,9 @@ exists to avoid.
   > SciPy present; beyond that, DynAdjust segmentation is the supported path.
 
 - **`metadata.txt` gains no hard SciPy requirement.** The plugin installs and runs without it.
-- **The refusal above is not yet implemented either**, and is listed with the sparse solver as P12 work. Until
-  then a very large network on the dense path will be slow or will exhaust memory, which is the behaviour
-  today and is recorded here rather than implied.
+- **The refusal above was not implemented in P2 either**, and was listed with the sparse solver as P12 work;
+  until then a very large network on the dense path was slow or exhausted memory. Both are delivered in
+  P12c (above).
 - **Every future numerical addition inherits the rule**: NumPy path first, SciPy as an accelerator. A module
   that only works with SciPy installed is a defect, not a trade-off.
 - Should QGIS begin shipping SciPy universally, this ADR is superseded rather than edited — the NumPy paths

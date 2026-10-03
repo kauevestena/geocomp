@@ -23,6 +23,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from geocomp.core.adjustment.blocks import inverse_diagonal, product_diagonal
 from geocomp.core.statistics.distributions import non_centrality
 
 __all__ = [
@@ -116,10 +117,16 @@ def reliability(
         dx_i = Qxx A^T P e_i * MDB_i
     """
     delta_zero = non_centrality(alpha, beta)
-    redundancy = np.diag(cofactor_residuals @ weight)
-    variances = np.diag(np.linalg.inv(weight))
+    redundancy = product_diagonal(cofactor_residuals, weight)
+    variances = inverse_diagonal(weight)
 
-    influence = cofactor_parameters @ design.T @ weight
+    # ||Qxx A^T P e_i|| for each row. The sparse path found these in the sweep
+    # that gave it Qxx's blocks (``core/adjustment/sparse.py``), without the
+    # n x m matrix this forms.
+    if isinstance(cofactor_parameters, np.ndarray):
+        influence = np.linalg.norm(cofactor_parameters @ design.T @ weight, axis=0)
+    else:
+        influence = cofactor_parameters.influence_norms
 
     results: list[ReliabilityResult] = []
     for row, (observation_id, component) in enumerate(row_labels):
@@ -133,7 +140,7 @@ def reliability(
             external = None
         else:
             mdb = delta_zero * sigma / np.sqrt(r)
-            external = float(np.linalg.norm(influence[:, row] * mdb))
+            external = float(influence[row] * mdb)
 
         results.append(
             ReliabilityResult(

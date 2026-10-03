@@ -146,6 +146,12 @@ def describe_finding(finding: dict[str, Any]) -> str:
         return _tr("Stations in one epoch only, not compared: %1.").replace(
             "%1", ", ".join(context.get("stations", []))
         )
+    if code == "station_blocks_only":
+        return _tr(
+            "%1 carries each station's own covariance and not the covariance between stations, so "
+            "the stations of that epoch were taken as uncorrelated with one another. The test of a "
+            "difference between stations, and of the reference block, leaves that correlation out."
+        ).replace("%1", ", ".join(context.get("solutions", [])))
     return code
 
 
