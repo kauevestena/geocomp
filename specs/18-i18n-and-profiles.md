@@ -91,7 +91,42 @@ instrument position the same name, while the total-station strings had always sa
 
 Reading the levelling strings also showed European Portuguese in the pt_BR catalogue. The vocabulary was
 replaced (*ficheiro*, *registo*, *folha de cálculo*, *partilhar*, *detetável*). Constructions such as *pelo
-que* and *tem de*, about twenty strings, are left for that review.
+que* and *tem de*, about twenty strings, were left for that review, and P12c-5 converted the ones that are
+European and not merely formal (§3.1).
+
+### 3.1 The native-speaker review (P12c-5)
+
+**Not yet held.** It needs people who speak the languages natively and know the subject, and none has been
+available to this project's development. P12's exit asks for it ([`ROADMAP.md`](./ROADMAP.md), P12c-5), and
+it moves to P13, where a release in three languages needs it anyway.
+
+**What was done to prepare it**, so that the review reads the language rather than chasing what a script
+can find:
+
+* The catalogues are complete — 2,212 strings in each — and every one passes the glossary check above.
+* In pt_BR, 23 strings had their European markers converted: the conclusive *pelo que* to *de modo que*;
+  *estar a* + infinitive to the gerund; *registar*, *registado* to *registrar*, *registrado*; *quilómetro*
+  to *quilômetro*; *rede de monitorização* to *rede de monitoramento*; *partes desligadas* to *partes
+  desconexas*. In es, the one *fichero* among 71 *archivo*.
+* Kept on purpose: *ter de*, standard in formal Brazilian writing too; *pelo que* as a relative ("*pelo
+  que esse valor ignora*"), valid in both variants; *injunção* and *injuncionar*, Brazilian geodesy's own
+  terms for a constraint.
+
+**What the reviewers should look at first**, because no pattern decides it:
+
+* pt_BR: enclitic pronouns (*introduzem-se*, *compara-o*, *exigem-na*, *cancela-se*) — correct, and stiffer
+  than Brazilian technical prose usually is; the register of the long help texts.
+* es: *pulsar* (Peninsular, beside *hacer clic*), and whether the catalogue reads as neutral Latin American
+  Spanish throughout, which is the audience FR-090 names first.
+* Both: whether the glossary's renderings are the ones the profession in each country actually uses.
+
+**The record.** A review is entered here when it happens, one row per language, against the catalogue's
+commit, so a later change to a string shows as unreviewed:
+
+| Language | Reviewer | Date | Catalogue at | Scope | Findings |
+|---|---|---|---|---|---|
+| pt_BR | — | — | — | — | not yet held |
+| es | — | — | — | — | not yet held |
 
 ## 4. Workflow
 

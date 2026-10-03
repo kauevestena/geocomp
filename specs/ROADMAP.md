@@ -1192,7 +1192,8 @@ on any new setting added without a consumer.
 ([`12`](./12-module-gravimetry.md) §4.2). It needs per-station coefficients from the Onsala loading service,
 unreachable from the development environment, and nothing reachable could check an implementation; written
 and unverified it would be a claim rather than a feature. If the service is still unreachable when P12 runs,
-the same rule applies again — it moves, and the move is recorded.
+the same rule applies again — it moves, and the move is recorded. **Moved to P13 on 3 October 2026** (P12c-5): the service
+still refuses the connection.
 
 **Closes.** FR-902, FR-931
 
@@ -1305,6 +1306,7 @@ each one updating the register:
 | **P12c-3** | The gaps that are features: cancellation that leaves no partial output, the locale's decimal separator (FR-094) and the locale round trip, the settings window showing a project override, the base-station frame transformation, and the assumed epochs P12a left to this audit |
 | **P12c-4** | NFR-008: the sparse path, and the refusal without SciPy, measured |
 | **P12c-5** | The records: ocean loading, the native-speaker review, and the remaining **[C]** claims; P12's exit |
+| **P12c-6** | The register rows P12c-5 found to be work in this repository: 07 1, 08 2, 16 7, 19 3, 20 6, 21 4, 21 5 |
 
 #### P12c-1 — the register
 
@@ -1507,6 +1509,42 @@ means. A criterion was added to make it checkable — specs/06 8 — and is met,
 **Not done here.** A geocentric network of 10,000 stations has not been measured. The sparse path's solution
 carries no full covariance, by design. Variance component estimation stays dense.
 
+#### P12c-5 — the records, and P12's exit assessed
+
+**Delivered.**
+
+| | |
+|---|---|
+| Ocean loading | The Onsala service still refuses the connection (403 on CONNECT, re-checked 3 October 2026), so it moves again, to P13, on the same condition: written when something can check it (W-11). [`12`](./12-module-gravimetry.md) §4.2 |
+| The native-speaker review | **Not held**: it needs people, and moves to P13. Prepared: 23 pt_BR strings had their European markers converted and one Spanish *fichero* became *archivo*; what is left for the reviewers, and the table that will record the review, are in [`18`](./18-i18n-and-profiles.md) §3.1 |
+| The **[C]** claims | 07's and 08's were discharged in P6 and P7. 22 §3 (JAG3D) is now checked against JAG3D's README at a pinned commit, and **corrected**: TraCIM verified its form-fitting module, not its network adjustment. The PTB report and the Zenodo datasets it cites stay unreachable and are marked so. 22 §5's published RD-08 stays a lead (W-01), its host still refusing the connection. Every **[C]** is now discharged, corrected or recorded as unresolvable from here, with the item that would resolve it |
+
+**P12's exit, assessed.**
+
+| Exit criterion | State |
+|---|---|
+| No untranslated string | **met**: 2,212 of 2,212 in pt_BR and in es |
+| …reviewed by native speakers | **not met**: needs people; P13 |
+| Every algorithm passes the Basic/Advanced identity check | **met** (P12a) |
+| Thematic maps render for every listed attribute, the redundancy-number map included | **met** (P12b) |
+| Every acceptance criterion has a passing test or a documented reason to be manual | **not met**: 17 of 136 rows, 12 partly met and 5 open |
+
+The 17 rows divide three ways:
+
+* **Nine wait on reference data this environment cannot reach** — 05 2, 06 1, 09 5, 10 1, 10 2, 10 4, 12 1,
+  14 3 and 20 3, each with its W- item in [`23`](./23-wanted-reference-data.md). They cannot be closed from
+  here at all, and P13's own exit — every reference dataset with a passing test — inherits them.
+* **One is P13's by definition**: 21 6, a tagged release.
+* **Seven are work in this repository**: 07 1 (the remaining DynaML types against the engine), 08 2 (a
+  configuration re-run and compared), 16 7 (inputs validated before computing, across the algorithms), 19 3
+  (a layer that draws relative ellipses), 20 6 (coverage measured), 21 4 (the engine manager on Windows and
+  macOS) and 21 5 (the QGIS tier beyond one image). They are **P12c-6**.
+
+**P12 does not exit with this pull request**, and saying so is the point of the assessment: a phase marked
+finished with seventeen rows behind it would be the kind of claim the register exists to prevent.
+
+**Not done here.** The review itself. Ocean loading, again.
+
 ---
 
 ## P13 — Validation, documentation and release
@@ -1520,6 +1558,11 @@ carries no full covariance, by design. Variance component estimation stays dense
 (RD-10); case studies comparing the integrated workflow against traditional CLI-and-script workflows; the
 commercial software comparison protocol executed and published; tutorials in three languages; the
 contribution guide; the upstream defect reporting path; v1.0 released.
+
+**Also delivers, moved from P12 on 3 October 2026 (P12c-5):** the native-speaker review of both
+catalogues ([`18`](./18-i18n-and-profiles.md) §3.1), and ocean loading on gravity
+([`12`](./12-module-gravimetry.md) §4.2) on the condition it has carried since P8 — written when W-11 can
+check it, and moved again, with the move recorded, if it cannot.
 
 **Closes.** FR-951, FR-952, FR-954, FR-955
 
