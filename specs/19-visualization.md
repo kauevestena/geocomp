@@ -17,6 +17,7 @@ the standard this module is held to.
 |---|---|---|
 | Adjusted stations | Point | Coordinates, uncertainties, positional uncertainty, ellipse parameters, constraint status |
 | Error ellipses | Polygon | Semi-axes, orientation, confidence level, exaggeration factor |
+| Relative ellipses | Polygon | The two stations, the line's length, semi-axes, orientation, confidence level, exaggeration factor, drawn at the middle of the line |
 | Residual vectors | Line | Residual, standardised residual, w-test decision, redundancy number |
 | Observations | Line | Type, value, uncertainty, status, residual |
 | GNSS baselines | Line | Components, covariance, solution status, quality indicators |
@@ -92,6 +93,17 @@ Real error ellipses are invisible at map scale: a 5 mm semi-axis on a 1:5000 map
    the horizontal projection of an ellipsoid hides the vertical component, which in geodetic work is
    typically the worst one.
 6. A scale reference — an ellipse of a stated true size — is available for the layout.
+
+**As built (P12c-6): relative ellipses.** One for every pair of stations an observation joins, both of them
+estimated, drawn at the middle of the line between them (`core/visualization/relative.py`). It is the ellipse
+of the difference of the two positions, Σ_d = J Σ Jᵀ with J = [−I +I], at the absolute ellipses' confidence
+and degrees of freedom and drawn at the same exaggeration, which its layer's name states. A line to a held
+station is not drawn: its ellipse would be the free station's own, already on the map. A geocentric solution's
+difference is turned into the horizon at the line's middle and then onto the display grid, as §1.1 turns the
+absolute ellipses. Relative ellipses need the covariance *between* stations: a solution that carries only each
+station's own block — the sparse path (NFR-008), or DynAdjust without `--output-all-covariances` — draws none,
+and the run warns that the layer is empty and why, rather than drawing ellipses that assume the stations
+uncorrelated.
 
 Displacement vectors carry the same treatment: an exaggeration factor stated in the legend, and the
 displacement's confidence ellipse drawn at the vector tip so the reader can see whether zero lies inside it
@@ -211,8 +223,10 @@ filled; a template with no `map` is refused.
 - The layout lands in the project's layout manager under the title, made unique, to edit, print or export as
   QGIS does; the footer names the GeoComp version and the map's CRS.
 
-**Not built.** The scale reference of §3 item 6 — an ellipse of a stated true size — is not in the templates;
-neither are the relative ellipses of §3 item 4, which no layer draws yet.
+**Not built.** The scale reference of §3 item 6 — an ellipse of a stated true size — is not in the templates.
+The relative ellipses of §3 item 4 have a layer since P12c-6 but no place of their own in a template: a layout
+shows them when the layer is on the map, and its notes state their factor as they do every layer's that
+records one.
 
 ---
 

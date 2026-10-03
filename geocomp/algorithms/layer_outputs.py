@@ -2,7 +2,7 @@
 """Result layers as Processing outputs (FR-900, FR-901, FR-905).
 
 Every algorithm that produces a :class:`~geocomp.core.models.Solution` offers
-the same five layers, declared and filled by the two functions here rather than
+the same six layers, declared and filled by the two functions here rather than
 by each algorithm separately. That is not only to avoid repetition: a user
 should get the same map whichever adjustment they ran, and two hand-written
 copies of this would diverge by the second change.
@@ -41,6 +41,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.core.models import Network, Solution
 from geocomp.core.visualization import default_exaggeration
 from geocomp.core.visualization.display import for_display
+from geocomp.core.visualization.relative import observed_pairs, relative_ellipses
 from geocomp.layers.builders import (
     correction_features,
     correction_layer_name,
@@ -48,6 +49,8 @@ from geocomp.layers.builders import (
     ellipse_layer_name,
     fields_for,
     observation_features,
+    relative_ellipse_features,
+    relative_ellipse_layer_name,
     residual_features,
     station_features,
 )
@@ -61,6 +64,7 @@ __all__ = [
     "OUTPUT_CORRECTION_LAYER",
     "OUTPUT_ELLIPSE_LAYER",
     "OUTPUT_OBSERVATION_LAYER",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER",
     "OUTPUT_RESIDUAL_LAYER",
     "OUTPUT_STATION_LAYER",
     "POINT_SOURCE_TYPE",
@@ -77,6 +81,7 @@ _CONTEXT = "GeoCompLayers"
 
 OUTPUT_STATION_LAYER = "OUTPUT_STATION_LAYER"
 OUTPUT_ELLIPSE_LAYER = "OUTPUT_ELLIPSE_LAYER"
+OUTPUT_RELATIVE_ELLIPSE_LAYER = "OUTPUT_RELATIVE_ELLIPSE_LAYER"
 OUTPUT_RESIDUAL_LAYER = "OUTPUT_RESIDUAL_LAYER"
 OUTPUT_OBSERVATION_LAYER = "OUTPUT_OBSERVATION_LAYER"
 OUTPUT_CORRECTION_LAYER = "OUTPUT_CORRECTION_LAYER"
@@ -140,6 +145,7 @@ POLYGON_SOURCE_TYPE = _POLYGON
 LAYER_OUTPUTS: tuple[tuple[str, str, Any, Any], ...] = (
     (OUTPUT_STATION_LAYER, "stations", _POINT, QgsWkbTypes.Type.Point),
     (OUTPUT_ELLIPSE_LAYER, "ellipses", _POLYGON, QgsWkbTypes.Type.Polygon),
+    (OUTPUT_RELATIVE_ELLIPSE_LAYER, "relative_ellipses", _POLYGON, QgsWkbTypes.Type.Polygon),
     (OUTPUT_RESIDUAL_LAYER, "residuals", _LINE, QgsWkbTypes.Type.LineString),
     (OUTPUT_OBSERVATION_LAYER, "observations", _LINE, QgsWkbTypes.Type.LineString),
     (OUTPUT_CORRECTION_LAYER, "corrections", _LINE, QgsWkbTypes.Type.LineString),
@@ -185,15 +191,16 @@ class _StyledLayer(QgsProcessingLayerPostProcessorInterface):
 
 
 def add_result_layer_parameters(algorithm) -> None:
-    """Declare the five result-layer sinks and the exaggeration factor.
+    """Declare the six result-layer sinks and the exaggeration factor.
 
     All optional and none created by default: an adjustment run from the
-    modeller to feed another algorithm should not silently write five layers,
+    modeller to feed another algorithm should not silently write six layers,
     while one run from the toolbox is a click away from all of them.
     """
     labels = {
         OUTPUT_STATION_LAYER: _tr("Adjusted stations (layer)"),
         OUTPUT_ELLIPSE_LAYER: _tr("Error ellipses (layer)"),
+        OUTPUT_RELATIVE_ELLIPSE_LAYER: _tr("Relative ellipses between observed stations (layer)"),
         OUTPUT_RESIDUAL_LAYER: _tr("Residuals (layer)"),
         OUTPUT_OBSERVATION_LAYER: _tr("Observations (layer)"),
         OUTPUT_CORRECTION_LAYER: _tr("Coordinate corrections (layer)"),
@@ -274,7 +281,29 @@ def write_result_layers(
     (:func:`~geocomp.core.visualization.display.for_display`): X, Y, Z are not a
     plane a map can show.
     """
+    # The relative ellipses are computed from the solution as adjusted -- its
+    # covariance is in the adjustment's own components -- and drawn where the
+    # display puts the stations.
+    computed = solution
+    pairs = observed_pairs(network) if network is not None else []
     solution, network, grid = for_display(solution, network)
+    relative = relative_ellipses(computed, pairs, shown=solution, grid=grid)
+    if parameters.get(OUTPUT_RELATIVE_ELLIPSE_LAYER) and feedback is not None and not relative:
+        estimated = {station.station_id for station in computed.adjusted_stations}
+        if not any(first in estimated and second in estimated for first, second in pairs):
+            feedback.pushWarning(
+                _tr(
+                    "No relative ellipses were drawn: no observation joins two stations "
+                    "this solution estimates."
+                )
+            )
+        else:
+            feedback.pushWarning(
+                _tr(
+                    "No relative ellipses were drawn: they need the covariance between stations, "
+                    "which this solution does not carry."
+                )
+            )
     if grid is not None and feedback is not None and _any_requested(parameters):
         feedback.pushInfo(
             _tr(
@@ -295,6 +324,7 @@ def write_result_layers(
     producers = {
         OUTPUT_STATION_LAYER: lambda: station_features(solution, network),
         OUTPUT_ELLIPSE_LAYER: lambda: ellipse_features(solution, exaggeration=exaggeration),
+        OUTPUT_RELATIVE_ELLIPSE_LAYER: lambda: relative_ellipse_features(relative, exaggeration=exaggeration),
         OUTPUT_RESIDUAL_LAYER: lambda: residual_features(solution, network),
         OUTPUT_OBSERVATION_LAYER: lambda: observation_features(network, solution),
         OUTPUT_CORRECTION_LAYER: lambda: correction_features(
@@ -303,6 +333,7 @@ def write_result_layers(
     }
     names = {
         OUTPUT_ELLIPSE_LAYER: ellipse_layer_name(solution, exaggeration=exaggeration),
+        OUTPUT_RELATIVE_ELLIPSE_LAYER: relative_ellipse_layer_name(relative, exaggeration=exaggeration),
         OUTPUT_CORRECTION_LAYER: correction_layer_name(exaggeration=exaggeration),
     }
 
@@ -344,7 +375,7 @@ def write_styled_sink(
     """Fill one optional sink with features, name it and register its style.
 
     The whole of what an algorithm has to do to produce a GeoComp result layer,
-    in one place so that the five adjustment layers and the GNSS baseline layer
+    in one place so that the six adjustment layers and the GNSS baseline layer
     cannot come out styled differently -- or, more likely, one of them unstyled.
 
     *features* is a callable rather than an iterable because **nothing is built

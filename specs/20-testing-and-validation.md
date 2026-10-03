@@ -300,7 +300,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 121 met, 9 partly met, 4 open, 2 manual, of 136.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 122 met, 8 partly met, 4 open, 2 manual, of 136.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -420,7 +420,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 18 | 8 | No concatenation inside a translation call | **met** | `tests/structural/test_i18n_strings.py::test_no_composed_string_inside_a_translation_call` |
 | 19 | 1 | Styled layers with no manual styling | **met** | `tests/qgis/test_result_layers.py::TestTheStylesLoad` |
 | 19 | 2 | Ellipses at the confidence, the exaggeration in the legend | **met** | `tests/qgis/test_result_layers.py::TestTheExaggerationReachesTheReader`, `tests/qgis/test_print_layouts.py` |
-| 19 | 3 | Relative ellipses match the joint covariance | **partly met** | The computation (`tests/test_statistics.py::TestEllipses::test_the_relative_ellipse_uses_the_cross_covariance`); no layer draws one |
+| 19 | 3 | Relative ellipses match the joint covariance | **met** | The computation (`tests/test_statistics.py::TestEllipses::test_the_relative_ellipse_uses_the_cross_covariance`); every observed pair's ellipse from the joint covariance, a held station's line left out, a geocentric difference turned into the horizon (`tests/test_relative_ellipses.py`); the layer, each feature against the joint covariance and drawn at the stated factor (`tests/qgis/test_result_layers.py::TestTheRelativeEllipses`, P12c-6) |
 | 19 | 4 | Styles are QML, editable, surviving a project save | **met** | `tests/structural/test_layer_styles.py`, `tests/qgis/test_thematic_maps.py::TestTheyLast` |
 | 19 | 5 | Every thematic map renders | **met** | `tests/qgis/test_thematic_maps.py::TestEachMapDrawsEachFeatureInItsClass` |
 | 19 | 6 | The time-series panel, both directions | **met** | `tests/qgis/test_time_series_panel.py` |
