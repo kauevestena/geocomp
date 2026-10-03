@@ -33,6 +33,7 @@ from qgis.PyQt.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QSpinBox,
     QStackedWidget,
     QVBoxLayout,
@@ -54,6 +55,7 @@ __all__ = [
     "GlobalSettingsDialog",
     "PathEditor",
     "TextEditor",
+    "open_algorithm_dialog",
     "section_label",
     "setting_label",
 ]
@@ -63,6 +65,13 @@ _TR_CONTEXT = "GeoCompSettings"
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate(_TR_CONTEXT, text)
+
+
+def open_algorithm_dialog(algorithm_id: str, parameters: dict[str, Any]) -> None:
+    """Open a Processing algorithm's own dialog. A function so a test can stand in for it."""
+    import processing
+
+    processing.execAlgorithmDialog(algorithm_id, parameters)
 
 
 def section_label(section_id: str) -> str:
@@ -150,6 +159,11 @@ def setting_label(key: str) -> str:
         "reference_systems.default_epoch": _tr("Default reference epoch"),
         "reference_systems.geoid_model": _tr("Default geoid model file"),
         "reference_systems.geoid_sigma": _tr("Stated accuracy of the geoid model (m)"),
+        # -- Paths and engines (P12c-6) ----------------------------------
+        "paths.dynadjust_directory": _tr(
+            "DynAdjust directory (empty: GeoComp's installation, then the system path)"
+        ),
+        "paths.rtklib_program": _tr("RTKLIB rnx2rtkp program (empty: the system path)"),
         # -- Base maps (P5) ----------------------------------------------
         "basemaps.offer_on_result_layers": _tr("Offer a base map when adding result layers"),
         "basemaps.default_service": _tr("Base map to offer"),
@@ -349,8 +363,62 @@ class GlobalSettingsDialog(QDialog):
                     row_layout.addWidget(override)
                 row_layout.addWidget(origin)
                 form.addRow(setting_label(definition.key), row)
+        if section.id == "paths":
+            form.addRow(self._engine_panel(page))
 
         self._pages.addWidget(page)
+
+    def _engine_panel(self, parent: QWidget) -> QWidget:
+        """What each engine is, where it was found, and the way to install one (FR-301).
+
+        specs/21 section 4 item 2 puts the engine manager here. The installing is
+        the *Install an engine* algorithm's, so it runs in a task with progress
+        and can be cancelled, and the same operation is reachable from the menu,
+        the toolbox and a script.
+        """
+        panel = QWidget(parent)
+        panel.setObjectName("geocompEnginePanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 12, 0, 0)
+        self._engine_states = QLabel("", panel)
+        self._engine_states.setObjectName("geocompEngineStates")
+        self._engine_states.setWordWrap(True)
+        self._engine_states.setTextFormat(Qt.TextFormat.RichText)
+        layout.addWidget(self._engine_states)
+        install = QPushButton(_tr("Install DynAdjust…"), panel)
+        install.setObjectName("geocompInstallDynAdjust")
+        install.setToolTip(
+            _tr(
+                "Downloads the DynAdjust release GeoComp was tested with, checks it against "
+                "the digest recorded in GeoComp, and installs it in the QGIS profile."
+            )
+        )
+        install.clicked.connect(self._install_dynadjust)
+        layout.addWidget(install, alignment=Qt.AlignmentFlag.AlignLeft)
+        self._show_engine_states()
+        return panel
+
+    def _show_engine_states(self) -> None:
+        import html
+
+        from geocomp.services.engines import engine_status
+
+        lines = []
+        for engine in engine_status():
+            if engine.version is None:
+                state = _tr("not found")
+            else:
+                state = (
+                    _tr("version %1, at %2")
+                    .replace("%1", html.escape(engine.version.version))
+                    .replace("%2", html.escape(str(engine.version.path)))
+                )
+            lines.append(f"<b>{html.escape(engine.name)}</b>: {state}")
+        self._engine_states.setText("<br>".join(lines))
+
+    def _install_dynadjust(self) -> None:
+        open_algorithm_dialog("geocomp:project_install_engine", {"ENGINE": 0})
+        self._show_engine_states()
 
     def _build_editor(self, definition: SettingDef, parent: QWidget) -> QWidget:
         if definition.type is SettingType.CHOICE:

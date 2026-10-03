@@ -126,7 +126,7 @@ class SystemReportAlgorithm(GeoCompAlgorithm):
         request attaches, which is where it most needed to be right. Found by
         P12c's audit.
         """
-        from geocomp.engines.status import engine_status
+        from geocomp.services.engines import engine_status
 
         rows = []
         for engine in engine_status():

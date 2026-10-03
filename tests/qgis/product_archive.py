@@ -3,7 +3,9 @@
 
 ``python product_archive.py ROOT USER PASSWORD`` serves the files under ROOT on
 an ephemeral port of 127.0.0.1 and prints the port. Paths under ``/private/``
-need HTTP Basic credentials; ``/fail/`` answers 500; anything else is anonymous.
+need HTTP Basic credentials; ``/fail/`` answers 500; ``/redirect/`` answers 302
+to the rest of the path, as GitHub does for a release download (P12c-6, the
+engine installer); anything else is anonymous.
 
 A process rather than a thread because the QGIS request blocks the interpreter
 that issues it: a server sharing that interpreter could not answer. A 401
@@ -28,6 +30,15 @@ def main() -> None:
         def _answer(self, body: bool) -> None:
             if self.path.startswith("/fail/"):
                 self._status(500)
+                return
+            if self.path.startswith("/redirect/"):
+                self.send_response(302)
+                # Absolute, as GitHub's is: QGIS's blocking request does not
+                # resolve a relative Location against the request.
+                host, port = self.server.server_address[:2]
+                self.send_header("Location", f"http://{host}:{port}{self.path[len('/redirect') :]}")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
                 return
             if self.path.startswith("/private/") and self.headers.get("Authorization") != expected:
                 self._status(401)

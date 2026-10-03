@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-6 — Install DynAdjust from GeoComp; engine paths in Global Settings
+
+#### Added
+
+- **Project ▸ Install an engine** downloads the DynAdjust release GeoComp was tested with for your operating
+  system, checks it against the digest recorded in GeoComp, installs it in the QGIS profile, records its
+  version and runs it once to show it works. Global Settings ▸ *Paths and engines* opens it.
+- **Paths and engines** holds the DynAdjust directory and the RTKLIB `rnx2rtkp` program, and shows where each
+  engine was found.
+
+#### Fixed
+
+- An installed DynAdjust is now found by every algorithm; before, nothing looked in the folder the installer
+  uses. RTKLIB can be given a path; before, it was found on the system path or not at all.
+- A missing engine, or an engine path that does not exist, is explained in words rather than shown as an
+  internal error code.
+
 ### P12c-6 — Relative error ellipses on the map
 
 #### Added

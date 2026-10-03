@@ -298,11 +298,13 @@ def require(version: EngineVersion | None, *, engine: str, operation: str) -> En
         "engine_not_available",
         engine=engine,
         operation=operation,
+        # Said of every engine, so it promises no download: DynAdjust has one
+        # (Project > Install an engine), RTKLIB has none on Linux or macOS
+        # (specs/21 section 4). Until P12c-6 it told RTKLIB's users to install
+        # it from a Global Settings page that had nothing on it.
         expected=(
-            f"{engine} installed. Install it from Global Settings > Paths and engines, "
-            f"which downloads the pinned release for your platform and verifies it, or "
-            f"set the path to an existing installation there. Everything in GeoComp that "
-            f"does not need {engine} continues to work without it"
+            f"{engine} installed: give its path in Global Settings, under Paths and "
+            f"engines, or put it on the system path"
         ),
     )
 

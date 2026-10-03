@@ -110,7 +110,9 @@ def test_require_names_what_to_do_about_it() -> None:
         require(None, engine="DynAdjust", operation="network adjustment")
     message = str(excinfo.value)
     assert "Global Settings" in message
-    assert "continues to work without it" in message
+    assert "system path" in message
+    # It promises no download: RTKLIB has none to offer (specs/21 section 4).
+    assert "download" not in message
 
 
 def test_require_passes_a_present_engine_through(tmp_path: Path) -> None:

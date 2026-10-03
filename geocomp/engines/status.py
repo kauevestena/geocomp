@@ -49,24 +49,32 @@ def _detected(probe: Callable[[], EngineVersion | None]) -> EngineVersion | None
         return None
 
 
-def engine_status() -> list[EngineStatus]:
-    """Every engine GeoComp runs, probed where the algorithms would find it."""
+def engine_status(*, dynadjust=None, rtklib=None) -> list[EngineStatus]:
+    """Every engine GeoComp runs, probed where the algorithms would find it.
+
+    Args:
+        dynadjust / rtklib: The engines as the plugin builds them
+            (:mod:`geocomp.services.engines`), with the configured path and the
+            managed installation; without them, the system path alone.
+    """
     from geocomp.engines.dynadjust.engine import DynAdjustEngine
     from geocomp.engines.rtklib.engine import RtklibEngine
 
+    dynadjust = dynadjust or DynAdjustEngine()
+    rtklib = rtklib or RtklibEngine()
     return [
         EngineStatus(
             name="DynAdjust",
             licence="Apache License 2.0",
             attribution="Geoscience Australia",
             url="https://github.com/GeoscienceAustralia/DynAdjust",
-            version=_detected(DynAdjustEngine().detect),
+            version=_detected(dynadjust.detect),
         ),
         EngineStatus(
             name="RTKLIB (rnx2rtkp)",
             licence="BSD-2-Clause",
             attribution="T. Takasu, and the RTKLIB-EX contributors",
             url="https://www.rtklib.com/",
-            version=_detected(RtklibEngine().version),
+            version=_detected(rtklib.version),
         ),
     ]

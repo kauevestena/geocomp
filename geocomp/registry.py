@@ -262,6 +262,20 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="project",
         menu_order=60,
     ),
+    # -- Phase P12c-6: the engine manager, reachable --------------------
+    #
+    # Under Project for the reason the system report is: installing a program
+    # belongs to no survey technique, and DynAdjust serves Analysis and
+    # Integration alike. Global Settings opens it from Paths and engines.
+    AlgorithmSpec(
+        operation="install_engine",
+        group="project",
+        module="geocomp.algorithms.engines.install_engine",
+        class_name="InstallEngineAlgorithm",
+        requirement="FR-301",
+        menu="project",
+        menu_order=70,
+    ),
     # -- Phase P5: what the persistence work made reachable --------------
     #
     # All four are toolbox-only. They belong to no survey technique, which is

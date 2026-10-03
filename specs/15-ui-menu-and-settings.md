@@ -57,7 +57,8 @@ See [`10-module-levelling.md`](./10-module-levelling.md).
 
 **Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
 project to PostGIS · Import project from PostGIS · Add base map · Create print layout · GeoComp system report ·
-Install tutorial dataset. *Create print layout* joined in P12b ([`19`](./19-visualization.md) §6).
+Install tutorial dataset · Install an engine. *Create print layout* joined in P12b ([`19`](./19-visualization.md)
+§6), *Install an engine* in P12c-6 ([`21`](./21-packaging-ci-release-licensing.md) §4).
 
 > **P11 added the two mode switches** of [`17`](./17-persistence-and-interoperability.md) §4, beside the store
 > they move a project into and out of, and gave *Save to project store* a database mode: a PostgreSQL connection
@@ -295,6 +296,17 @@ The geoid model's **accuracy** is a setting because no grid format carries it an
 `geocomp.core.geoid` will not build a model without one (FR-204) — the figure that most often limits a
 combined height solution is the user's to state, from the model's own documentation, not the reader's to
 invent.
+
+**Amendment (P12c-6): Paths & engines.** Declared in P0 and empty until P12c-6, while the window said its
+settings were "added by the development phase that implements this equipment type". It now holds the
+DynAdjust directory and the RTKLIB `rnx2rtkp` program, **global scope only** — where a program is installed
+is a fact about a machine, and a configured path is never fallen back from, so one carried in a project to
+another machine would refuse to run there. Empty, each engine is GeoComp's own installation, then the system
+path. Below them the page states what each engine is and where it was found, and offers *Install
+DynAdjust…*, which opens *Install an engine* ([`21`](./21-packaging-ci-release-licensing.md) §4). Working
+directories and report templates, the rest of FR-066's list, are not settings: each algorithm takes its
+working folder and its outputs as parameters, and the report its template (*Report template*,
+[`19`](./19-visualization.md) §7.3).
 
 ### 2.2 Instrument profiles (FR-069)
 

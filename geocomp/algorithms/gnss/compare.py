@@ -44,9 +44,10 @@ from geocomp.algorithms.gnss.common import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.comparison import DEFAULT_CONFIDENCE, compare_baselines
-from geocomp.engines.rtklib import RtklibEngine, RtklibJob
+from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import baseline_from_solution
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
+from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 MASKS = "MASKS"
@@ -178,7 +179,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
             feedback.setProgress(10 + 70 * index // len(masks))
             name = self.tr("mask %1°").replace("%1", f"{mask:g}")
             try:
-                result = RtklibEngine().run(
+                result = rtklib_engine().run(
                     RtklibJob(
                         rover=rover,
                         base=base,

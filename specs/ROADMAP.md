@@ -1598,6 +1598,50 @@ DynAdjust `.apu` written without `--output-all-covariances` — draws no relativ
 computing the cross blocks for the observed pairs alone on the sparse path is possible and not built. 21 4 and
 21 5 — the next pull request.
 
+
+#### P12c-6 — the in-repo rows (third pull request): the engine manager the user can reach
+
+**Delivered.** Row 21 4's DynAdjust half, and the plugin around it; the row stays **partly met** (RTKLIB,
+below), so the state is unchanged at **122 met, 8 partly met, 4 open, 2 manual, of 136**.
+
+- *Paths and engines* in Global Settings holds the DynAdjust directory and the RTKLIB program (global scope
+  only), shows each engine's state, and opens *Project ▸ Install an engine*.
+- *Install an engine* downloads the pinned release over the QGIS network stack, verifies it, installs it in
+  the profile, **records** what it installed (`installed.json`), and runs it.
+- Every algorithm that runs an engine, the About dialog and the system report find it the same way: the
+  configured path, then GeoComp's installation, then the system path (`services/engines.py`).
+- The `engine` workflow's `manager` job runs the real pinned archive on Linux, Windows and Apple-Silicon macOS:
+  downloaded, verified, every program found, run, overridden by a configured directory, and used to adjust a
+  network that agrees with the committed fixture to 0.1 mm.
+
+**Found.**
+
+- **Nothing in the plugin called the engine manager.** P6 recorded it as installing on Linux; it did, from a
+  Python prompt. No algorithm, setting or dialog reached it, and its docstring named a module
+  (`services/engine_downloads`) that never existed.
+- **No engine looked in the folder the manager installs into.** An installation that had downloaded and
+  verified would have been reported absent and never run.
+- **RTKLIB had no configurable path anywhere**, against FR-066 and FR-300: it was found on the system path
+  or not at all, and the three GNSS algorithms built it with no arguments.
+- **The *Paths and engines* page was empty**, and told whoever opened it that its settings were "added by
+  the development phase that implements this equipment type" — five phases after the engines arrived.
+- **An absent RTKLIB reached the user as a code**: "could not complete the operation
+  (computation.engine_not_available)". The error's own hint sent them to install it from that empty page,
+  which offers no RTKLIB download at all. A configured DynAdjust directory that did not exist was likewise a
+  code. Neither had a template; the engine package's other 80-odd codes still have none.
+- **QGIS's blocking request does not resolve a relative redirect.** GitHub's is absolute, so release
+  downloads work; a mirror answering with a relative `Location` would fail as a download error.
+
+**Not done here.**
+
+- **RTKLIB is not acquired.** Its upstream publishes executables for Windows only, from tag `v2.5.1`
+  (`62d4677`), which is not the build the parsers were checked against (`06e8644`). Pinning it means
+  checking that release's output first; Linux and macOS have nothing upstream to download, which needs
+  either upstream binaries or a decision to amend criterion 21 4.
+- **The engine package's error codes** — DynAdjust's stages and parsers, RTKLIB's — have no templates, and
+  `tests/structural/test_message_templates.py` reads only `engines/manager.py` and `engines/base.py`.
+- **Row 21 5**, the QGIS tier on Windows and macOS — the next pull request.
+
 ---
 
 ## P13 — Validation, documentation and release

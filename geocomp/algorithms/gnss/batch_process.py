@@ -40,9 +40,10 @@ from geocomp.algorithms.gnss.common import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.batch import run_batch
-from geocomp.engines.rtklib import RtklibEngine, RtklibJob
+from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import quality_from_solution
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
+from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -224,7 +225,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 raise unreachable[station_id]
             session = by_station[station_id]
             kwargs = {"base": base} if base is not None else {}
-            result = RtklibEngine().run(
+            result = rtklib_engine().run(
                 RtklibJob(
                     rover=session,
                     config=configuration,

@@ -6,3 +6,5 @@ the comparison all live in :mod:`geocomp.engines`, QGIS-free and tested
 wherever Python runs. What is here is the Processing face of them -- parameters,
 progress, and the failure messages a user acts on.
 """
+
+from geocomp.algorithms.engines import messages as _messages  # noqa: F401

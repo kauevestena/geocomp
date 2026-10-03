@@ -437,7 +437,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 21 | 1 | The ZIP installs into a clean QGIS and validates | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it |
 | 21 | 2 | Two builds byte-identical | **met** | `.github/workflows/build.yml`, *The archive must be reproducible* |
 | 21 | 3 | Loads with no engine; engine operations explained | **met** | As 07.7 |
-| 21 | 4 | The engine manager on every OS, with an override | **partly met** | Verified on Linux (P6); Windows and macOS are pinned and untested (`tests/test_engines.py`) |
+| 21 | 4 | The engine manager on every OS, with an override | **partly met** | DynAdjust: the pinned archive downloaded, verified, installed, recorded, run and overridden on Linux, Windows and macOS, and a network adjusted through it agreeing with the fixture (`tests/test_engine_manager_live.py`, the `engine` workflow's `manager` job); the plugin's own path through the QGIS network stack, Global Settings and *Install an engine* (`tests/qgis/test_engine_install.py`, P12c-6). RTKLIB is located, not acquired: upstream publishes Windows executables only, from a release that is not the build the parsers were checked against ([`21`](./21-packaging-ci-release-licensing.md) §4) |
 | 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **partly met** | The QGIS-free tier runs on all three (`.github/workflows/test.yml`); the QGIS tier runs on Linux against one QGIS image |
 | 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
 | 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
