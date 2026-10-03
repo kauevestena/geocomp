@@ -1,0 +1,148 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# A probe, not a test: how QGIS 4 can be installed on the Windows and macOS
+# runners, and how its Python is reached. download.qgis.org, the OSGeo4W index,
+# Homebrew and Chocolatey are all unreachable from the development environment,
+# so the facts have to come from a runner. Removed once the real job exists.
+name: qgis-platforms-probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/qgis-platforms-probe.yml"
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: What Chocolatey offers
+        continue-on-error: true
+        run: |
+          choco search qgis --exact --all-versions --limit-output | Select-Object -First 15
+          choco search qgis-ltr --exact --all-versions --limit-output | Select-Object -First 15
+
+      - name: What download.qgis.org offers
+        continue-on-error: true
+        shell: bash
+        run: |
+          curl -sSL https://download.qgis.org/downloads/ | grep -oE 'QGIS-OSGeo4W-[0-9.]+-[0-9]+\.msi' | sort -uV | tail -12
+
+      - name: What OSGeo4W offers
+        continue-on-error: true
+        shell: bash
+        run: |
+          curl -sSL -o setup.ini https://download.osgeo.org/osgeo4w/v2/x86_64/setup.ini
+          grep -n -A4 -E "^@ qgis(-ltr|-qt6|-dev|-full)?$" setup.ini | head -60
+          grep -E "^@ qgis" setup.ini | head -40
+
+      - name: Install the OSGeo4W qgis package
+        continue-on-error: true
+        run: |
+          Invoke-WebRequest https://download.osgeo.org/osgeo4w/v2/osgeo4w-setup.exe -OutFile osgeo4w-setup.exe
+          $p = Start-Process -FilePath .\osgeo4w-setup.exe -ArgumentList '-q','-k','-r','-A','-s','https://download.osgeo.org/osgeo4w/v2/','-R','C:\OSGeo4W','-l','C:\osgeo4w-cache','-P','qgis' -Wait -PassThru
+          "exit $($p.ExitCode)"
+          Get-ChildItem C:\OSGeo4W\bin -Filter *.bat | Select-Object -ExpandProperty Name
+          Get-ChildItem C:\OSGeo4W\apps | Select-Object -ExpandProperty Name
+          Get-ChildItem C:\OSGeo4W\apps\Python* -Directory | Select-Object -ExpandProperty Name
+
+      - name: Reach QGIS's Python
+        continue-on-error: true
+        shell: cmd
+        run: |
+          dir C:\OSGeo4W\bin\python*.bat
+          type C:\OSGeo4W\bin\python-qgis.bat
+          call C:\OSGeo4W\bin\python-qgis.bat -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION); import sys; print(sys.version); from qgis.PyQt.QtCore import QT_VERSION_STR; print('Qt', QT_VERSION_STR)"
+          call C:\OSGeo4W\bin\python-qgis.bat -c "import numpy, sys; print('numpy', numpy.__version__)"
+          call C:\OSGeo4W\bin\python-qgis.bat -c "import scipy; print('scipy', scipy.__version__)"
+          call C:\OSGeo4W\bin\python-qgis.bat -c "import psycopg2; print('psycopg2', psycopg2.__version__)"
+          call C:\OSGeo4W\bin\python-qgis.bat -m pip --version
+
+      - name: The tier-3 suite under QGIS's Python
+        continue-on-error: true
+        shell: cmd
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          call C:\OSGeo4W\bin\python-qgis.bat -m pip install pytest
+          call C:\OSGeo4W\bin\python-qgis.bat -m pytest -q --collect-only tests/qgis > collect.txt 2>&1
+          powershell -Command "Get-Content collect.txt -Tail 8"
+          call C:\OSGeo4W\bin\python-qgis.bat -m pytest -q -ra --tb=short -p no:cacheprovider tests/qgis > pytest-windows.log 2>&1
+          echo pytest exit %ERRORLEVEL%
+          powershell -Command "Get-Content pytest-windows.log -Tail 120"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-windows
+          path: pytest-windows.log
+          if-no-files-found: ignore
+
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The runner
+        run: |
+          uname -a
+          sw_vers
+
+      - name: What Homebrew offers
+        continue-on-error: true
+        run: |
+          brew info --cask qgis || true
+          brew info --cask qgis-ltr || true
+          brew search qgis || true
+
+      - name: What download.qgis.org offers
+        continue-on-error: true
+        run: |
+          curl -sSL https://download.qgis.org/downloads/macos/ | grep -oE 'href="[^"]+"' | head -40
+
+      - name: Install the cask
+        continue-on-error: true
+        run: |
+          brew install --cask qgis
+          ls /Applications | grep -i qgis
+          ls "/Applications/QGIS.app/Contents/MacOS" | head -40
+          find /Applications/QGIS*.app -maxdepth 4 -name "python3*" -type f -perm -u+x | head -20
+
+      - name: Reach QGIS's Python
+        continue-on-error: true
+        run: |
+          for py in $(find /Applications/QGIS*.app -maxdepth 5 -name "python3*" -type f -perm -u+x); do
+            echo "== $py"
+            QT_QPA_PLATFORM=offscreen "$py" -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION); import sys; print(sys.version); from qgis.PyQt.QtCore import QT_VERSION_STR; print('Qt', QT_VERSION_STR)" 2>&1 | tail -4
+            "$py" -c "import numpy; print('numpy', numpy.__version__)" 2>&1 | tail -1
+            "$py" -c "import scipy; print('scipy', scipy.__version__)" 2>&1 | tail -1
+            "$py" -c "import psycopg2; print('psycopg2', psycopg2.__version__)" 2>&1 | tail -1
+            "$py" -m pip --version 2>&1 | tail -1
+          done
+
+      - name: The tier-3 suite under QGIS's Python
+        continue-on-error: true
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          for py in $(find /Applications/QGIS*.app -maxdepth 5 -name "python3*" -type f -perm -u+x); do
+            if QT_QPA_PLATFORM=offscreen "$py" -c "import qgis.core" 2>/dev/null; then
+              echo "using $py"
+              "$py" -m pip install --user pytest 2>&1 | tail -2 || "$py" -m pip install --break-system-packages pytest 2>&1 | tail -2
+              "$py" -m pytest -q -ra --tb=short -p no:cacheprovider tests/qgis > pytest-macos.log 2>&1
+              echo "pytest exit $?"
+              tail -120 pytest-macos.log
+              break
+            fi
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-macos
+          path: pytest-macos.log
+          if-no-files-found: ignore
