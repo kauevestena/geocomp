@@ -79,6 +79,7 @@ from geocomp.core.models import (
     Station,
     StationType,
 )
+from geocomp.core.techniques.integration.techniques import TECHNIQUE_KEY
 from geocomp.core.techniques.levelling.closure import (
     ClosureCheck,
     line_closure,
@@ -93,6 +94,7 @@ __all__ = [
     "NO_CRS",
     "Benchmark",
     "LevellingNetworkResult",
+    "add_height_differences",
     "build_network",
     "build_setup_network",
     "harmonise_benchmarks",
@@ -345,6 +347,75 @@ def build_network(
             "geoid_model": geoid_model,
         },
     )
+
+
+def add_height_differences(
+    network: Network,
+    differences,
+    height_type: HeightType,
+    *,
+    technique: str = "total_station",
+) -> tuple[Finding, ...]:
+    """Add height differences measured by another technique to a levelling network (P12c).
+
+    ``specs/10`` criterion 5: geometric and trigonometric height differences
+    adjusted as one network, each technique able to take its own variance
+    component. Each difference is a ``HEIGHT_DIFFERENCE`` like a line's, told
+    apart by the *technique* it records (``meta["technique"]``), which is what
+    :func:`~geocomp.core.adjustment.variance_components.estimate_variance_components`
+    groups by. It keeps its own propagated uncertainty: there is no line length
+    or set-up count to weight it by.
+
+    Args:
+        differences: ``(from, to, Quantity)`` triples, metres.
+        height_type: The levelling's, which the differences are taken to share.
+            At the distances trigonometric levelling spans, a difference along
+            the plumb line and one along the normal differ by far less than
+            its uncertainty.
+
+    A point only the trigonometric differences reach is added as a mark: its
+    height comes from them, and the network's connectivity is checked before
+    the adjustment as for any other.
+    """
+    findings: list[Finding] = []
+    known = network.station_ids()
+    added: list[str] = []
+    count = 0
+    for count, (start, end, value) in enumerate(differences, start=1):
+        if value.unit is not Unit.METRE:
+            raise ValidationError(
+                "height_difference_wrong_unit",
+                received=value.unit.name,
+                expected="METRE",
+            )
+        for station in (start, end):
+            if station not in known and station not in added:
+                network.add_station(Station(id=station, station_type=StationType.MARK))
+                added.append(station)
+        network.add_observation(
+            Observation(
+                id=f"{technique}-{count}",
+                type=ObservationType.HEIGHT_DIFFERENCE,
+                stations=(start, end),
+                values=(value,),
+                meta={TECHNIQUE_KEY: technique, HEIGHT_TYPE_KEY: height_type.name},
+            )
+        )
+    if count:
+        findings.append(
+            Finding(
+                code="levelling_other_technique_added",
+                severity=Severity.INFO,
+                message=(
+                    f"{count} {technique} height difference(s) joined the network, each "
+                    "weighted by its own propagated uncertainty"
+                    + (f"; they reach {len(added)} point(s) no line did" if added else "")
+                ),
+                stations=tuple(added),
+            )
+        )
+    network.require_valid()
+    return tuple(findings)
 
 
 def network_closures(
