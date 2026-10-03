@@ -222,7 +222,7 @@ justification, because a QGIS plugin cannot assume the user can run `pip`.
 | Dependency | Status | Note |
 |---|---|---|
 | NumPy | Assumed present | Ships with QGIS |
-| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path, which is the reference implementation. See [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md); as of P2 the distributions use it and the sparse factorisation is not yet written |
+| SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path, which is the reference implementation. See [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md); the distributions use it since P2, and since P12c the sparse adjustment path does, beyond a 1 GiB dense footprint ([`06`](./06-adjustment-core.md) §2.4.1) |
 | GDAL/OGR, `qgis.core` | Assumed present | Ships with QGIS; used only in `io/` and above |
 | `openpyxl` | **Test-only** | Amended in P5 — see below. Not needed at runtime; used in the test suite to read GeoComp's own `.xlsx` back with an independent implementation |
 | `requests` | Avoided | Use Python's standard library plus the QGIS network stack, so proxy and authentication settings are honoured |

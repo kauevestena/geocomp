@@ -5,6 +5,29 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-4 — Networks of 10,000 stations
+
+#### Added
+
+- **A sparse adjustment path**, taken automatically when a network is too large to hold densely and SciPy is
+  installed. A 10,000-station network adjusts in about a minute and a half and 600 MiB, where the dense path
+  would need some 77 GB; 1,600 stations take 2.5 s instead of 48. The answer is the dense path's: coordinates,
+  covariances, ellipses, redundancy numbers, w-tests and reliability agree to 1e-9 or better.
+- Without SciPy, a network too large for the machine is **refused with a message naming SciPy**, before
+  anything is allocated, rather than exhausting memory.
+- The solution's provenance records which path computed it (`solver`).
+
+#### Changed
+
+- A solution from the sparse path carries each station's covariance, not the full matrix. A comparison of
+  epochs that has only the stations' blocks now says it took the stations as uncorrelated.
+- Variance component estimation always runs on the dense path, and refuses a network too large for it.
+
+#### Fixed
+
+- The redundancy numbers were computed through the full m × m product; now through its diagonal alone.
+- The gravimetry report named its uncertainty strategies from the full covariance; now from the solution.
+
 ### P12c-3 — The base station's frame, the epoch's origin, trigonometric heights in the network
 
 #### Fixed

@@ -1475,6 +1475,38 @@ assumed epochs settled:
 **Not done here.** *Build baselines* still takes the base's frame as a parameter rather than reading the run's
 summary.
 
+#### P12c-4 — network scale (NFR-008)
+
+**Delivered.** The sparse adjustment path, the solver choice and the refusal without SciPy, measured to
+10,000 stations; [`06`](./06-adjustment-core.md) §2.4.1 has the design and the table, and ADR-0008 what it
+means. A criterion was added to make it checkable — specs/06 8 — and is met, so the register stands at
+**117 met, 12 partly met, 5 open, 2 manual, of 136**.
+
+| | |
+|---|---|
+| The choice | `core/adjustment/scale.py`, before anything is allocated: dense to a 1 GiB footprint, then sparse with SciPy; without it dense to half the machine's memory, then `adjustment_needs_scipy` |
+| The sparse path | `core/adjustment/sparse.py`: SuperLU under a minimum-degree ordering, one sweep for each station's covariance, **Q**ᵥᵥ over **P**'s blocks and the external reliability; the rank examined by Lanczos beyond 2,000 unknowns |
+| Measured | 10,000 stations in 84 s and 578 MiB (97 s free); 1,600 stations in 2.5 s against the dense path's 48 s, agreeing to 1e-10 |
+| Tested | `tests/test_sparse_adjustment.py` (seven networks, every statistic), `tests/test_network_scale.py` (the choice and the refusal, where SciPy is absent too), and the whole suite again with `pytest --sparse` in CI's QGIS job, which now installs SciPy if its image lacks it |
+
+**Found.**
+
+- **The dense path's reach was overestimated by half.** P2 put it at 2,000–3,000 stations without measuring.
+  The residual cofactor matrix is m × m in the observation rows, and 900 stations already peaked at 698 MiB.
+- **The redundancy numbers cost O(m³) where O(m²) does.** `diag(Qvv P)` was formed as the full product. Both
+  paths now take the diagonal alone (`blocks.product_diagonal`).
+- **The gravimetry report read its strategies from the full covariance**, which a solution need not carry:
+  found by the `--sparse` run, and read from the solution's stations now.
+- **A comparison of epochs fell back silently** to each station's own block when a solution lacked the full
+  covariance, as a DynAdjust run without `--output-all-covariances` does. It now says so
+  (`station_blocks_only`).
+- **A free network's reported condition number is noise**, on both paths: it is that of **N**, which is
+  singular by construction, so it reports its largest eigenvalue over a rounding error (about 1e16). Recorded,
+  not fixed: the meaningful figure is over **N**'s range, and no criterion asks for it.
+
+**Not done here.** A geocentric network of 10,000 stations has not been measured. The sparse path's solution
+carries no full covariance, by design. Variance component estimation stays dense.
+
 ---
 
 ## P13 — Validation, documentation and release

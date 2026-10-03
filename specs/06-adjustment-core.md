@@ -118,6 +118,71 @@ matrix is available as an alternative with better numerical behaviour.
 > decision and what it means for NFR-008. SciPy is used today only for the statistical distributions, and
 > there too the NumPy path is the reference implementation.
 
+#### 2.4.1 Network scale, as built (P12c)
+
+**Which path.** `core/adjustment/scale.py` decides before anything the size of the network is allocated.
+The dense path holds **A**, **P**, **N**, **Q**ₓₓ and **Q**ᵥᵥ in full, about `8 (6m² + 4mn + 2n²)` bytes for
+m rows and n unknowns — the m² terms dominate, since **Q**ᵥᵥ is m × m. `AdjustmentOptions.solver` is
+`"auto"` by default:
+
+| Dense footprint | SciPy present | SciPy absent |
+|---|---|---|
+| ≤ 1 GiB (`SPARSE_ABOVE`, about 1,050 stations of a braced plane grid) | dense | dense |
+| above, within half the machine's physical memory | **sparse** | dense |
+| above half the machine's memory | **sparse** | refused: `adjustment_needs_scipy`, naming SciPy and, beyond 10,000 stations, DynAdjust's segmentation |
+
+The choice depends on the network and the machine, never on the memory free at the moment, and the
+solution's provenance records it (`solver`). `"dense"` and `"sparse"` force a path; forced dense beyond the
+machine's half is refused (`adjustment_too_large_for_dense`), as is forced sparse without SciPy. Pre-analysis
+(§5) takes the same decision.
+
+**The sparse path** (`core/adjustment/sparse.py`, imported only when chosen) assembles **A** compressed by
+row from the same linearisation as the dense path (`normal_equations.linearise`) and **P** as its diagonal
+blocks (`core/adjustment/blocks.py`), and factorises **N** — bordered by **G** for an inner or minimum
+constraint — with SuperLU under a minimum-degree ordering of **N**'s own pattern. COLAMD, SuperLU's default,
+filled the 10,000-station factor fifty times over and took 83 s where this takes 0.2 s. The inverse is never
+formed: one sweep over **Q**ₓₓ's columns keeps each owner's block (a station's components, a setup's
+orientation, a session's drift), **Q**ᵥᵥ over **P**'s blocks, and each row's ‖**Q**ₓₓ**A**ᵀ**P**eᵢ‖ for the
+external reliability (`(P A C)` row by row over column chunks C, since **Q**ₓₓ² = Σ CCᵀ). Any other entry of
+**Q**ₓₓ is solved for when asked. The rank is examined on the first and the final system — densely up to
+2,000 unknowns, as the dense path does; beyond, by Lanczos and shift-invert Lanczos on the same factorisation,
+reporting up to 12 undetermined directions with the same message.
+
+**What the sparse path does not give.** The full parameter covariance: its solution carries each station's
+block and `parameter_covariance` is empty, since a block-diagonal stand-in would assert that every two
+stations are uncorrelated. A comparison of epochs then takes each epoch's stations as uncorrelated with one
+another and says so (`station_blocks_only`, [`14`](./14-multi-epoch-monitoring.md) §8.1). Variance component
+estimation reads all of **Q**ᵥᵥ and is always dense ([`13`](./13-module-integration.md) §4.1).
+
+**Agreement.** `tests/test_sparse_adjustment.py` compares the two paths on held, weighted and free plane
+networks, a levelling loop and the geocentric combined survey with its correlated baseline cluster:
+coordinates, σ̂₀², every station's covariance and ellipse, **Q**ᵥᵥ within each block of **P**, the
+redundancy numbers, the w-tests, the MDBs and the external reliability, to 1e-9 relative or better. And
+`pytest --sparse`, run in CI's QGIS job, adjusts every network of the whole suite on the sparse path. On a
+1,600-station braced grid the two paths agree to 9e-13 m in the coordinates, 4e-11 relative in **Q**ₓₓ's
+diagonal and 1.3e-10 in the external reliability.
+
+**Measured** (P12c, on braced plane grids — every square's sides and both diagonals, two stations held —
+with 4 CPUs and 15 GB). Dense: Python's peak allocation by `tracemalloc`; sparse: the process's peak
+resident memory, interpreter included, so the two columns are not the same measure and the sparse one errs
+high.
+
+| Stations | Rows | Unknowns | Dense | Dense peak | Sparse | Sparse peak |
+|---|---|---|---|---|---|---|
+| 100 | 342 | 196 | 0.17 s | 7 MiB | — | — |
+| 400 | 1,482 | 796 | 2.0 s | 132 MiB | — | — |
+| 900 | 3,422 | 1,796 | 13.4 s | 698 MiB | — | — |
+| 1,600 | 6,162 | 3,196 | 48 s | (2.6 GB estimated) | 2.5 s | — |
+| 2,500 | 9,702 | 4,996 | (6.5 GB estimated) | | 6.1 s | 311 MiB |
+| 2,500, free | 9,702 | 5,000 | | | 6.7 s | 335 MiB |
+| 10,000 | 39,402 | 19,996 | (77 GB estimated) | | 84 s | 578 MiB |
+| 10,000, free | 39,402 | 20,000 | | | 97 s | 593 MiB |
+
+At 10,000 stations the sweep is most of the time: SuperLU's triangular solves for the 20,000 columns, 56 s;
+the products with **A**, 11 s; the linearisation, in Python, 7 s over four systems. NFR-008's 10,000
+stations are supported; a geocentric network of that size, with three unknowns a station and denser
+coupling, has not been measured.
+
 The condition number is computed and reported. A system that is rank-deficient or numerically singular
 produces a **diagnosis**, not a crash and not a meaningless answer (FR-226): the null-space vectors are
 examined and mapped back to the stations and components that are undetermined, and the message names them —
@@ -340,3 +405,7 @@ influence a numeric result.
    [`20-testing-and-validation.md`](./20-testing-and-validation.md).
 7. Every reported statistic is accompanied by its critical value, its confidence level and its decision —
    never a bare pass/fail.
+8. A network the dense path cannot hold is adjusted on the sparse path when SciPy is present, and agrees with
+   the dense path wherever both run — coordinates, σ̂₀², each station's covariance, redundancy numbers,
+   w-tests, MDBs and external reliability; without SciPy it is refused by a message naming SciPy (NFR-008,
+   §2.4.1).

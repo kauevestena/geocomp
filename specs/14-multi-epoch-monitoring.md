@@ -191,7 +191,10 @@ epoch — which is exactly what a monitoring programme needs.
   second into the first's frame at its own epoch; the transformation's stated accuracy enters as a **common
   translation** of every station, so it cancels in anything measured against the reference block and stays in
   an absolute displacement. Differences in engine or version, and stations one epoch lacks, are findings, not
-  refusals. Without a cross-covariance the result is `APPROXIMATE` with `INDEPENDENCE_ASSUMED` and states its
+  refusals. So is a solution that carries each station's covariance block and not the matrix between them
+  (`station_blocks_only`, since P12c): a sparse adjustment ([`06`](./06-adjustment-core.md) §2.4.1), or
+  DynAdjust without `--output-all-covariances`. Its stations are then taken as uncorrelated with one
+  another, and the finding says so where before the fallback was silent. Without a cross-covariance the result is `APPROXIMATE` with `INDEPENDENCE_ASSUMED` and states its
   bias (§4). Tests use each epoch's cofactors with the **pooled** a-posteriori variance factor over their joint
   degrees of freedom: F under the null hypothesis, chi-square when neither epoch had redundancy.
   A geocentric difference is turned into each station's east, north and up.
