@@ -114,13 +114,38 @@ jobs:
             exit 1
           fi
 
-  # Tier 3: the parts that need a real QGIS. Runs in the official container so
-  # the QGIS version is explicit rather than whatever the runner happens to have.
-  qgis:
-    name: qgis integration
+  # specs/21 criterion 5: the QGIS tier on the current stable and the current
+  # LTR -- of the 4.x series, ADR-0007. Which releases those are is read from
+  # the QGIS images' own tags each time this runs, not written here: on the day
+  # this was written ``ltr`` was 3.44, which the plugin's minimum refuses, and
+  # the LTR joins the matrix when it is a 4.x release. A channel that cannot be
+  # resolved fails this job; it does not quietly shrink the matrix.
+  qgis-versions:
+    name: QGIS releases under test
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.resolve.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Resolve stable and LTR to releases
+        id: resolve
+        run: python scripts/qgis_versions.py
+
+  # Tier 3: the parts that need a real QGIS. Runs in the official container,
+  # on the release tag rather than the moving one, so the QGIS version is
+  # explicit -- in the job's name too -- rather than whatever a tag pointed at.
+  qgis:
+    name: qgis integration (QGIS ${{ matrix.qgis }}, ${{ matrix.channel }})
+    needs: qgis-versions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.qgis-versions.outputs.matrix) }}
     container:
-      image: qgis/qgis:latest
+      image: qgis/qgis:${{ matrix.qgis }}
     # P11: a PostGIS for the database-mode tests, reached by its service name
     # from inside the container. Its password differs from every name the
     # tests use, so the leak assertions (NFR-010) cannot match by accident.
@@ -158,8 +183,19 @@ jobs:
       # spent ten runs failing in four seconds -- before a single test ran --
       # and reporting that as though the suite had run and failed.
       - name: Report the environment under test
+        env:
+          EXPECTED: ${{ matrix.qgis }}
         run: |
           python3 -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION)"
+          # The image is the release the matrix names, or this job tests
+          # something other than what its name says.
+          python3 - <<'PY'
+          import os, sys
+          from qgis.core import Qgis
+          running = Qgis.QGIS_VERSION.split("-")[0]
+          if running != os.environ["EXPECTED"]:
+              sys.exit(f"the image runs QGIS {running}, not {os.environ['EXPECTED']}")
+          PY
           python3 -c "import numpy; print('numpy', numpy.__version__)"
           python3 -c "import pytest; print('pytest', pytest.__version__)"
           python3 -c "import psycopg2; print('psycopg2', psycopg2.__version__)"
@@ -255,7 +291,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qgis-pytest-log
+          name: qgis-pytest-log-${{ matrix.qgis }}
           path: |
             pytest.log
             pytest-sparse.log

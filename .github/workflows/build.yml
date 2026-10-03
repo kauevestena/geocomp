@@ -61,8 +61,11 @@ jobs:
     name: installs into QGIS
     needs: package
     runs-on: ubuntu-latest
+    # The current stable release a user downloads, not the nightly build: the
+    # archive is checked against the QGIS it will be installed into. The test
+    # workflow's QGIS tier covers the LTR as well (specs/21 criterion 5).
     container:
-      image: qgis/qgis:latest
+      image: qgis/qgis:stable
     steps:
       - uses: actions/download-artifact@v4
         with:
