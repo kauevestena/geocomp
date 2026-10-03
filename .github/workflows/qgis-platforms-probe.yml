@@ -8,6 +8,10 @@
 # Round 1 found: OSGeo4W's ``qgis`` is 4.2.3 (Python 3.12.15, Qt 6.11) with
 # numpy and psycopg2 and without pip or SciPy; Homebrew's ``qgis`` cask is
 # 4.2.2, and its python3.12 starts without its standard library.
+# Round 2 found: OSGeo4W packages python3-pip, -pytest 9.1.1 and -scipy 1.18.1;
+# o4w_env.bat replaces PATH, so nothing outside OSGeo4W runs after it in the
+# same cmd step; and the macOS bundle keeps its standard library and
+# site-packages in Contents/Resources/python3.12, not under a PYTHONHOME.
 name: qgis-platforms-probe
 
 on:
@@ -61,27 +65,20 @@ jobs:
           call C:\OSGeo4W\bin\python-qgis.bat -c "import scipy; print('scipy', scipy.__version__)"
           call C:\OSGeo4W\bin\python-qgis.bat -c "import ensurepip; print('ensurepip present')"
 
-      # pytest is pure Python: installed into a directory of its own by the
-      # runner's pip, for QGIS's Python version, and put on PYTHONPATH. Works
-      # whether or not OSGeo4W offers pip.
-      - name: pytest beside QGIS's Python
-        continue-on-error: true
-        shell: bash
-        run: |
-          python -m pip install --target "$RUNNER_TEMP/pydeps" --python-version 3.12 --only-binary=:all: pytest
-          ls "$RUNNER_TEMP/pydeps"
-
       - name: The tier-3 suite under QGIS's Python
         continue-on-error: true
         shell: cmd
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          set PYTHONPATH=%RUNNER_TEMP%\pydeps
           call C:\OSGeo4W\bin\python-qgis.bat -m pytest --version
           call C:\OSGeo4W\bin\python-qgis.bat -m pytest -q -ra --tb=short -p no:cacheprovider tests/qgis > pytest-windows.log 2>&1
           echo pytest exit %ERRORLEVEL%
-          pwsh -Command "Get-Content pytest-windows.log -Tail 150"
+
+      - name: The tier-3 log
+        if: always()
+        shell: bash
+        run: tail -200 pytest-windows.log || true
 
       - name: The whole suite under QGIS's Python
         continue-on-error: true
@@ -89,10 +86,15 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          set PYTHONPATH=%RUNNER_TEMP%\pydeps
-          call C:\OSGeo4W\bin\python-qgis.bat -m pytest -q -p no:cacheprovider > pytest-windows-all.log 2>&1
+          call C:\OSGeo4W\bin\python-qgis.bat -m pytest -q -ra --tb=line -p no:cacheprovider > pytest-windows-all.log 2>&1
           echo pytest exit %ERRORLEVEL%
-          pwsh -Command "Get-Content pytest-windows-all.log -Tail 40"
+
+      - name: The whole-suite log
+        if: always()
+        shell: bash
+        run: |
+          grep -E "^(FAILED|ERROR)" pytest-windows-all.log | head -80 || true
+          tail -30 pytest-windows-all.log || true
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -128,35 +130,29 @@ jobs:
       - name: The bundle's layout
         continue-on-error: true
         run: |
-          ls "$APP/Contents"
-          ls "$APP/Contents/MacOS" | head -40
-          ls "$APP/Contents/Frameworks" | head -40
-          ls "$APP/Contents/Resources" | head -40
-          echo "-- encodings:"; find "$APP" -type d -name encodings | head
-          echo "-- qgis.core:"; find "$APP" -path "*/qgis/core/__init__.py" | head
-          echo "-- python executables:"; find "$APP" -name "python3*" -type f -perm -u+x | head
-          echo "-- numpy, scipy, psycopg2:"; find "$APP" -maxdepth 8 -type d \( -name numpy -o -name scipy -o -name psycopg2 \) | head
-          echo "-- launchers:"; file "$APP/Contents/MacOS/"* | head -20
-          echo "-- Info.plist environment:"; plutil -p "$APP/Contents/Info.plist" | grep -A20 -i environment | head -30
+          R="$APP/Contents/Resources/python3.12"
+          echo "-- os.py:"; find "$APP" -name os.py -path "*python3*" -not -path "*site-packages*" | head
+          echo "-- lib-dynload:"; find "$APP" -type d -name lib-dynload | head
+          echo "-- math extension:"; find "$APP" -name "math.cpython-312*" | head
+          echo "-- Contents/MacOS/lib:"; ls "$APP/Contents/MacOS/lib" | head -20
+          echo "-- site-packages, scientific:"; ls "$R/site-packages" | grep -iE "^(scipy|numpy|psycopg2|pytest|pip)" | head -20
+          echo "-- Frameworks with Python:"; ls "$APP/Contents/Frameworks" | grep -i python | head
 
       - name: Reach QGIS's Python
         continue-on-error: true
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          py=$(find "$APP" -name "python3.1*" -type f -perm -u+x | head -1)
-          enc=$(find "$APP" -type d -name encodings -path "*python3*" | head -1)
-          home=$(dirname "$(dirname "$(dirname "$enc")")")
-          core=$(find "$APP" -path "*/qgis/core/__init__.py" | head -1)
-          qpath=$(dirname "$(dirname "$(dirname "$core")")")
-          echo "py=$py home=$home qgis=$qpath"
+          py="$APP/Contents/MacOS/python3.12"
+          R="$APP/Contents/Resources/python3.12"
+          dynload=$(find "$APP" -type d -name lib-dynload | head -1)
+          qpath="$R:$R/site-packages${dynload:+:$dynload}"
           echo "QGIS_PY=$py" >> "$GITHUB_ENV"
-          echo "QGIS_PYTHONHOME=$home" >> "$GITHUB_ENV"
           echo "QGIS_PYTHONPATH=$qpath" >> "$GITHUB_ENV"
-          PYTHONHOME="$home" PYTHONPATH="$qpath" "$py" -c "import sys; print(sys.version); print(sys.path)"
-          PYTHONHOME="$home" PYTHONPATH="$qpath" "$py" -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION); from qgis.PyQt.QtCore import QT_VERSION_STR; print('Qt', QT_VERSION_STR)"
-          for m in numpy scipy psycopg2 pip; do
-            PYTHONHOME="$home" PYTHONPATH="$qpath" "$py" -c "import $m; print('$m', getattr($m, '__version__', '?'))" 2>&1 | tail -1
+          PYTHONPATH="$qpath" "$py" -c "import sys; print(sys.version); print(sys.prefix); print(sys.path)"
+          PYTHONPATH="$qpath" "$py" -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION); from qgis.PyQt.QtCore import QT_VERSION_STR; print('Qt', QT_VERSION_STR)"
+          for m in numpy scipy psycopg2 pip ssl sqlite3 ctypes; do
+            PYTHONPATH="$qpath" "$py" -c "import $m; print('$m', getattr($m, '__version__', 'ok'))" 2>&1 | tail -1
           done
 
       - name: pytest beside QGIS's Python
@@ -171,19 +167,20 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          export PYTHONHOME="$QGIS_PYTHONHOME" PYTHONPATH="$QGIS_PYTHONPATH:$RUNNER_TEMP/pydeps"
+          export PYTHONPATH="$QGIS_PYTHONPATH:$RUNNER_TEMP/pydeps"
           "$QGIS_PY" -m pytest --version
           "$QGIS_PY" -m pytest -q -ra --tb=short -p no:cacheprovider tests/qgis > pytest-macos.log 2>&1 && echo "pytest exit 0" || echo "pytest exit $?"
-          tail -150 pytest-macos.log
+          tail -200 pytest-macos.log
 
       - name: The whole suite under QGIS's Python
         continue-on-error: true
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          export PYTHONHOME="$QGIS_PYTHONHOME" PYTHONPATH="$QGIS_PYTHONPATH:$RUNNER_TEMP/pydeps"
-          "$QGIS_PY" -m pytest -q -p no:cacheprovider > pytest-macos-all.log 2>&1 && echo "pytest exit 0" || echo "pytest exit $?"
-          tail -40 pytest-macos-all.log
+          export PYTHONPATH="$QGIS_PYTHONPATH:$RUNNER_TEMP/pydeps"
+          "$QGIS_PY" -m pytest -q -ra --tb=line -p no:cacheprovider > pytest-macos-all.log 2>&1 && echo "pytest exit 0" || echo "pytest exit $?"
+          grep -E "^(FAILED|ERROR)" pytest-macos-all.log | head -80 || true
+          tail -30 pytest-macos-all.log
 
       - uses: actions/upload-artifact@v4
         if: always()
