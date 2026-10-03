@@ -64,10 +64,14 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     # templates reported as stale because only `core` was read.
     # And `services`, since P10c: the product fetcher on the QGIS network stack
     # raises the not-found, refused-login and network failures a user reads.
+    # And `algorithms`, since P12c-6: the project and monitoring algorithms read
+    # their solution and network documents through `algorithms/project/common`,
+    # whose refusals reached the user as a code until they had templates.
     sources = [
         *python_sources(PLUGIN_DIR / "core"),
         *python_sources(PLUGIN_DIR / "io"),
         *python_sources(PLUGIN_DIR / "services"),
+        *python_sources(PLUGIN_DIR / "algorithms"),
     ]
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

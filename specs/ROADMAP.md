@@ -1545,6 +1545,36 @@ finished with seventeen rows behind it would be the kind of claim the register e
 
 **Not done here.** The review itself. Ocean loading, again.
 
+#### P12c-6 — the in-repo rows (first pull request)
+
+**Delivered.** Four of the seven rows P12c-5 named, leaving **121 met, 9 partly met, 4 open, 2 manual, of
+136**:
+
+| Row | Now |
+|---|---|
+| 07 1: every mapped type, schema and `dnaimport` | One network writes all eighteen codes; both files validate against upstream's `DynaML.xsd`, vendored, and `dnaimport` reads all 28 rows with no warning. `tests/test_dynaml_every_type.py`, in the `engine` workflow with `lxml` installed so it cannot skip |
+| 08 2: `-k` reproduces the run | The written configuration, given to `rnx2rtkp -k` by hand, writes the same `.pos` byte for byte |
+| 16 7: inputs checked first, refusals naming them | `algorithms/inputs.py`, inherited by every algorithm; `tests/qgis/test_inputs_are_named.py` walks every algorithm and every input three ways |
+| 20 6: coverage, every public function reached | `scripts/check_coverage.py` after the QGIS job's full run: 95.6% of `core/`, all 685 public functions reached |
+
+**Found.**
+
+- **No refusal of a missing input file named the input.** Of 38, most gave the path alone; four gave a
+  traceback (*Gravimetry pre-processing*), an internal code with its context (*Export* and *Report*, which
+  showed `str(error)`), or "could not complete the operation" (*Compare two epochs*, *Import field book*:
+  their codes had no template). The project documents' codes clashed with the network document's template
+  of the same name, which interpolated a key they never supplied; they have their own now.
+- **QGIS names a bad value by the parameter's internal name**, which no dialog shows.
+- **A PyQGIS run never calls `checkParameterValues()`**, so a check placed only there misses scripts and
+  models; the wrapper around `processAlgorithm()` asks again.
+- **49 public functions of `core/` were reached by no test**, among them `RejectionRecord`'s serialisation:
+  the record of why an observation was rejected had never been written and read back.
+- **The message-template check read only `core/`, `io/` and `services/`** for raise sites, so codes raised in
+  `algorithms/` could never be checked against their templates.
+
+**Not done here.** 19 3 (a layer of relative ellipses), and 21 4 and 21 5 (the engine manager and the QGIS tier
+on Windows and macOS) — the next pull requests.
+
 ---
 
 ## P13 — Validation, documentation and release

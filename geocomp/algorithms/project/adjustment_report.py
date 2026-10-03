@@ -38,6 +38,7 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.project.common import read_network, read_solution
 from geocomp.core.errors import GeoCompError
+from geocomp.services.messages import message_for
 
 __all__ = ["ProjectReportAlgorithm"]
 
@@ -133,7 +134,7 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
             solution = read_solution(self.parameterAsFile(parameters, SOLUTION, context))
             network = read_network(self.parameterAsFile(parameters, NETWORK, context))
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         feedback.setProgress(30)
         template = self.parameterAsFile(parameters, TEMPLATE, context) or ""
@@ -150,7 +151,7 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
         try:
             html, omitted = render_adjustment_report(solution, report_context)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         feedback.setProgress(80)
         if omitted:

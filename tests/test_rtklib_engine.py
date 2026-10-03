@@ -517,6 +517,28 @@ class TestAgainstTheRealEngine:
             assert written["pos1-posmode"] == "static"
             assert written["ant2-postype"] == "rinexhead"
 
+    def test_the_written_configuration_fed_back_reproduces_the_run_bit_for_bit(self, sessions, tmp_path):
+        """specs/08 criterion 2 (NFR-007): the configuration GeoComp wrote, given
+        to ``rnx2rtkp -k`` by hand with the same inputs, writes the same file,
+        byte for byte.
+
+        The test above shows the file holds what GeoComp meant; this shows it
+        holds everything the run depended on. A setting the engine took from a
+        default the file does not state, or from anything outside the file and
+        the command line, would make the second run differ.
+        """
+        import subprocess
+
+        base, rover = sessions
+        result = RtklibEngine().run(RtklibJob(rover=rover, base=base), work_dir=tmp_path / "first")
+        command = list(result.run.command)
+        again = tmp_path / "again" / "again.pos"
+        again.parent.mkdir()
+        command[command.index("-o") + 1] = str(again)
+        replayed = subprocess.run(command, capture_output=True, text=True, check=False, cwd=again.parent)
+        assert replayed.returncode == 0, replayed.stderr
+        assert again.read_bytes() == result.output_file.read_bytes()
+
     def test_a_run_that_solves_nothing_is_not_a_success(self, sessions, tmp_path):
         """A run can exit zero having solved nothing. Judging success on the
         exit code would report an empty solution as a good one -- the same

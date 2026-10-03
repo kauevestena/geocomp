@@ -219,10 +219,13 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         network_path = self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context)
         if network_path and not frame:
             raise QgsProcessingException(
-                self.tr(
-                    "The network document needs the frame the base coordinates were given "
-                    "in. A .pos file does not state it and GeoComp does not assume one: a "
-                    "vector with no frame cannot be brought into another's."
+                self.about_input(
+                    FRAME,
+                    self.tr(
+                        "The network document needs the frame the base coordinates were given "
+                        "in. A .pos file does not state it and GeoComp does not assume one: a "
+                        "vector with no frame cannot be brought into another's."
+                    ),
                 )
             )
 

@@ -149,6 +149,9 @@ jobs:
           # and the --sparse run below need it. Installed only if the image
           # lacks it; the core jobs and the degraded job stay without it.
           python3 -c "import scipy" 2>/dev/null || pip3 install --break-system-packages scipy
+          # coverage, to measure core/ during the full suite below (specs/20
+          # criterion 6).
+          python3 -c "import coverage" 2>/dev/null || pip3 install --break-system-packages coverage
 
       # Each of these fails on its own line rather than inside the test run, so
       # a broken environment is distinguishable from a broken plugin. This job
@@ -191,13 +194,23 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           set -o pipefail
+          # Under coverage of core/: this is the run with QGIS, SciPy and PostGIS
+          # all present, so it is the one that reaches the most of the core.
           if command -v xvfb-run >/dev/null 2>&1; then
             echo "running under xvfb-run"
-            xvfb-run -a python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+            xvfb-run -a python3 -m coverage run --source=geocomp/core -m pytest -ra --tb=short 2>&1 | tee pytest.log
           else
             echo "xvfb-run not present; offscreen platform only"
-            python3 -m pytest -ra --tb=short 2>&1 | tee pytest.log
+            python3 -m coverage run --source=geocomp/core -m pytest -ra --tb=short 2>&1 | tee pytest.log
           fi
+
+      # specs/20 criterion 6: coverage of core/ measured and reported, and
+      # every public function in it reached by at least one test.
+      - name: Coverage of core/, and every public function reached
+        run: |
+          python3 -m coverage report --sort=cover | tail -25
+          python3 -m coverage report > coverage.txt
+          python3 scripts/check_coverage.py
 
       # The database-mode tests skip without a server; here there is one, so a
       # skip means the service or the driver failed, not that there was nothing
@@ -246,6 +259,7 @@ jobs:
           path: |
             pytest.log
             pytest-sparse.log
+            coverage.txt
           if-no-files-found: warn
 
   # NFR-005 and FR-306: the fallback paths are requirements, and an untested

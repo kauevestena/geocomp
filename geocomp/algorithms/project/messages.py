@@ -20,6 +20,36 @@ from geocomp.services.messages import MessageTemplate, register_template
 __all__ = ["TEMPLATES"]
 
 TEMPLATES: dict[str, MessageTemplate] = {
+    # -- the documents the project and monitoring algorithms read (P12c-6) ---
+    # Each carries the file's path, so the refusal is said against the input it
+    # came from (geocomp.algorithms.inputs). Before P12c-6 none had a template,
+    # and a run showed the code and its context instead.
+    "data.json_document_unreadable": MessageTemplate(
+        "'%1' could not be read as a JSON document (%2). Expected %3.",
+        "path",
+        "reason",
+        "expected",
+    ),
+    "data.json_document_not_an_object": MessageTemplate(
+        "'%1' is not a GeoComp document: its top level is not a JSON object. Expected %2.",
+        "path",
+        "expected",
+    ),
+    "data.network_given_where_a_solution_was_expected": MessageTemplate(
+        "'%1' is a network document, not a solution: it has stations but no adjusted "
+        "stations. Choose the solution an adjustment wrote.",
+        "path",
+    ),
+    "data.solution_document_malformed": MessageTemplate(
+        "'%1' is not a solution document as GeoComp writes it (%2).",
+        "path",
+        "reason",
+    ),
+    "data.network_document_malformed": MessageTemplate(
+        "'%1' is not a network document as GeoComp writes it (%2).",
+        "path",
+        "reason",
+    ),
     "data.project_store_not_found": MessageTemplate(
         "There is no GeoComp project at %1. Check the name, or choose to create it.",
         "path",

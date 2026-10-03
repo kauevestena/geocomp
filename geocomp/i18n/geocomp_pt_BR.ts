@@ -2119,6 +2119,26 @@
     <context>
         <name>GeoCompAlgorithm</name>
         <message>
+            <source>%1 is required, and none was given.</source>
+            <translation>%1 é obrigatório, e nenhum foi informado.</translation>
+        </message>
+        <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
+            <source>%1: the file '%2' does not exist.</source>
+            <translation>%1: o arquivo '%2' não existe.</translation>
+        </message>
+        <message>
+            <source>%1: the folder '%2' does not exist.</source>
+            <translation>%1: a pasta '%2' não existe.</translation>
+        </message>
+        <message>
+            <source>%1: this value cannot be used.</source>
+            <translation>%1: este valor não pode ser usado.</translation>
+        </message>
+        <message>
             <source>Analysis</source>
             <translation>Análise</translation>
         </message>
@@ -2975,12 +2995,32 @@
             <translation>%1 estação(ões) são alcançadas apenas por altitudes, então nada determina onde estão horizontalmente: %2. Ligue-as com um vetor GNSS ou uma observação de estação total, fixe-as horizontalmente ou ajuste o nivelamento sozinho.</translation>
         </message>
         <message>
+            <source>'%1' could not be read as a JSON document (%2). Expected %3.</source>
+            <translation>'%1' não pôde ser lido como documento JSON (%2). Esperava-se %3.</translation>
+        </message>
+        <message>
             <source>'%1' holds no readings: expected %2.</source>
             <translation>'%1' não contém leituras: esperava-se %2.</translation>
         </message>
         <message>
+            <source>'%1' is a network document, not a solution: it has stations but no adjusted stations. Choose the solution an adjustment wrote.</source>
+            <translation>'%1' é um documento de rede, não uma solução: tem estações, mas nenhuma estação ajustada. Escolha a solução que um ajustamento gravou.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a GeoComp document: its top level is not a JSON object. Expected %2.</source>
+            <translation>'%1' não é um documento do GeoComp: seu nível superior não é um objeto JSON. Esperava-se %2.</translation>
+        </message>
+        <message>
             <source>'%1' is not a datum GeoComp can refer displacements to. Choose one of: %2.</source>
             <translation>'%1' não é um datum ao qual o GeoComp possa referir deslocamentos. Escolha um de: %2.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a network document as GeoComp writes it (%2).</source>
+            <translation>'%1' não é um documento de rede como o GeoComp o grava (%2).</translation>
+        </message>
+        <message>
+            <source>'%1' is not a solution document as GeoComp writes it (%2).</source>
+            <translation>'%1' não é um documento de solução como o GeoComp o grava (%2).</translation>
         </message>
         <message>
             <source>(not set)</source>
@@ -3209,6 +3249,10 @@
         <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
             <translation>A deriva da sessão '%1' não pode ser estimada junto com os valores das estações: nenhuma estação foi lida novamente em instantes distintos suficientes para uma deriva de grau %2. Reocupe uma estação nessa sessão, reduza o grau ou divida a sessão.</translation>
+        </message>
+        <message>
+            <source>The field mapping supplies no column for %1, which every import needs: %2. Give a mapping that names them, or a field book whose header does.</source>
+            <translation>O mapeamento de campos não fornece coluna para %1, que toda importação exige: %2. Informe um mapeamento que as nomeie, ou uma caderneta de campo cujo cabeçalho o faça.</translation>
         </message>
         <message>
             <source>The frames %1 are related only at epoch %2, and the second solution is at another. Carrying a position between epochs along a velocity is exactly the motion being measured, so GeoComp will not do it here. Give both epochs in frames related at every epoch (the ITRFs), or in the same frame.</source>

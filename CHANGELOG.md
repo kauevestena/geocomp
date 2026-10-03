@@ -5,6 +5,22 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-6 — Refusals that name the input; every mapped DynAdjust type checked
+
+#### Fixed
+
+- **Every algorithm checks its inputs before it runs, and a refusal names the input** by the label the dialog
+  shows: a file that does not exist, a mandatory input left out, a document of the wrong kind. Before, a
+  missing file was reported by its path alone, and in four algorithms as a traceback, an internal error code,
+  or "could not complete the operation".
+- The project and monitoring algorithms' document errors have their own messages.
+
+#### Added
+
+- Coverage of the core measured on every CI run, with every public function required to be reached by a test.
+- Every DynAdjust measurement type GeoComp writes is validated against DynAdjust's own schema and imported by
+  `dnaimport` without warnings, and a GNSS run's configuration is shown to reproduce the run bit for bit.
+
 ### P12c-5 — The records, and P12's exit assessed
 
 #### Changed

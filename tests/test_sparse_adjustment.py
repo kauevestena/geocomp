@@ -182,6 +182,8 @@ class TestTheTwoPathsAgree:
         assert (dense.solver, sparse_run.solver) == ("dense", "sparse")
         assert sparse_run.method.startswith("sparse-")
         assert dense.method.endswith("bordered") == sparse_run.method.endswith("bordered")
+        assert sparse_run.system.parameter_count == dense.system.parameter_count
+        assert sparse_run.cofactor_parameters.shape == dense.cofactor_parameters.shape
 
     def test_coordinates_and_the_variance_factor(self, case, runs):
         _network, dense, sparse_run = runs

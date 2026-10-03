@@ -60,6 +60,11 @@ the parser.
 Apache-2.0 permits it; the attribution is here and in the test module that reads them. It is data rather
 than a binary, and like the Krumm corpus below it is test data that never enters the plugin package.
 
+`tests/data/dynadjust/DynaML.xsd` is **upstream's own DynaML schema**, `sampleData/DynaML.xsd` at commit
+`5cdb8971` (version 1.0.2 of the schema, SHA-256 `2d976d90…5fa0e873d`), copied unchanged under the same
+**Apache-2.0**. Every file GeoComp writes for DynAdjust is validated against it
+(`tests/test_dynaml_every_type.py`, specs/07 criterion 1); vendoring it lets that run without an engine.
+
 ### Test data redistributed from RTKLIB
 
 `tests/data/rtklib/07590920.05o`, `30400920.05o` and `brdc_0759.05n.gz` are
@@ -193,6 +198,7 @@ Development data, in the repository but **not** in the plugin package:
 |---|---|---|
 | `tests/data/krumm/` (RD-11) | GNU Gama `tests/krumm/input` at `963c309`; examples by F. Krumm | GPL-3.0-or-later |
 | `tests/data/dynadjust/sample*` | DynAdjust `sampleData/gnss-network` | Apache-2.0 |
+| `tests/data/dynadjust/DynaML.xsd` | DynAdjust `sampleData/DynaML.xsd` at `5cdb8971` | Apache-2.0 |
 
 ## Keeping this file current
 

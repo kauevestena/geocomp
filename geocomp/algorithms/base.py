@@ -50,17 +50,53 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
     TR_CONTEXT = "GeoCompAlgorithm"
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
-        """Every ``processAlgorithm`` writes all its outputs or none (specs/16 §7).
+        """Every ``processAlgorithm`` checks its inputs first, names the one it
+        refuses, and writes all its outputs or none (specs/16 §7).
 
         Wrapped here, when the class is defined, so that no algorithm can leave
-        the rule out: :mod:`geocomp.algorithms.transaction` says what it does.
+        a rule out: :mod:`geocomp.algorithms.inputs` and
+        :mod:`geocomp.algorithms.transaction` say what each does.
         """
         super().__init_subclass__(**kwargs)
         own = cls.__dict__.get("processAlgorithm")
         if own is not None:
+            from geocomp.algorithms.inputs import validated
             from geocomp.algorithms.transaction import transactional
 
-            cls.processAlgorithm = transactional(_in_the_display_locale(own))
+            cls.processAlgorithm = validated(transactional(_in_the_display_locale(own)))
+
+    def checkParameterValues(self, parameters, context):
+        """GeoComp's check, then QGIS's, each naming the input by its label (specs/16 §7).
+
+        The dialog and ``processing.run`` call this before a run starts, so a
+        missing file is refused with its parameter named before anything runs.
+        QGIS's own refusal names the parameter by its internal name ("Incorrect
+        parameter value for VELOCITIES"), which the dialog never shows; it is
+        said against the label instead.
+        """
+        from geocomp.algorithms.inputs import input_problem
+
+        problem = input_problem(self, parameters, context)
+        if problem is not None:
+            return False, problem
+        ok, message = super().checkParameterValues(parameters, context)
+        if ok:
+            return ok, message
+        for definition in self.parameterDefinitions():
+            if message.rstrip(". ").endswith(definition.name()):
+                return False, _tr("%1: this value cannot be used.").replace("%1", definition.description())
+        return ok, message
+
+    def about_input(self, name: str, message: str) -> str:
+        """*message*, said against input *name* by the label the dialog shows (specs/16 §7).
+
+        For a refusal that knows which input it is about but carries no path the
+        run's wrapper could recognise it by.
+        """
+        label = self.parameterDefinition(name).description()
+        if label in message:
+            return message
+        return _tr("%1: %2").replace("%1", label).replace("%2", message)
 
     @classmethod
     def spec(cls) -> AlgorithmSpec:

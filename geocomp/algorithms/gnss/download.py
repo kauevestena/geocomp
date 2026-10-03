@@ -285,7 +285,10 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
         days = days_of(spans)
         if not days:
             raise QgsProcessingException(
-                self.tr("Give a folder of observations with dated sessions, or a first day.")
+                self.about_input(
+                    FOLDER,
+                    self.tr("Give a folder of observations with dated sessions, or a first day."),
+                )
             )
         if len(days) > MAX_DAYS:
             raise QgsProcessingException(
