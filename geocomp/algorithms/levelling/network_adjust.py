@@ -44,7 +44,12 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.defaults import (
+    configured,
+    configured_epoch,
+    recorded_epoch,
+    run_epoch,
+)
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE
 from geocomp.algorithms.levelling.common import (
@@ -71,7 +76,7 @@ from geocomp.core.adjustment.least_squares import (
     to_solution,
 )
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import DatumDefinition, Epoch, Provenance
+from geocomp.core.models import DatumDefinition, Provenance
 from geocomp.core.number_format import localised
 from geocomp.core.settings_def import WEIGHTINGS
 from geocomp.core.statistics.reliability import reliability
@@ -282,10 +287,10 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 EPOCH,
-                self.tr("Epoch (decimal year)"),
+                self.tr("Reference epoch, decimal year (0 = the network's own)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=configured_epoch(2026.0),
-                minValue=1900.0,
+                defaultValue=configured_epoch(0.0),
+                minValue=0.0,
                 maxValue=2200.0,
             )
         )
@@ -400,28 +405,35 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             beta=self.parameterAsDouble(parameters, BETA, context),
         )
 
-        solution = to_solution(
-            run,
-            network,
-            solution_id="levelling-adjustment",
-            crs=network.crs,
-            epoch=Epoch.from_decimal_year(self.parameterAsDouble(parameters, EPOCH, context)),
-            datum=datum,
-            height_type=built.height_type,
-            provenance=self._provenance(
-                built,
-                options,
-                confidence,
-                coefficient=coefficient,
-                closures=closures,
-                adjust_failing=adjust_failing,
-                corrections=corrections,
+        epoch, epoch_origin = run_epoch(
+            self.parameterAsDouble(parameters, EPOCH, context), network, 2026.0
+        )
+        solution = recorded_epoch(
+            to_solution(
+                run,
+                network,
+                solution_id="levelling-adjustment",
+                crs=network.crs,
+                epoch=epoch,
+                datum=datum,
+                height_type=built.height_type,
+                provenance=self._provenance(
+                    built,
+                    options,
+                    confidence,
+                    coefficient=coefficient,
+                    closures=closures,
+                    adjust_failing=adjust_failing,
+                    corrections=corrections,
+                ),
+                observation_results=to_observation_results(
+                    run, snooping=snooping, reliability=reliability_report
+                ),
+                global_test=test,
+                confidence=confidence,
             ),
-            observation_results=to_observation_results(
-                run, snooping=snooping, reliability=reliability_report
-            ),
-            global_test=test,
-            confidence=confidence,
+            epoch_origin,
+            feedback,
         )
 
         feedback.setProgress(80)

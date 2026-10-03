@@ -43,7 +43,12 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.defaults import (
+    configured,
+    configured_epoch,
+    recorded_epoch,
+    run_epoch,
+)
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
@@ -70,7 +75,7 @@ from geocomp.core.adjustment.least_squares import (
 )
 from geocomp.core.adjustment.parameters import Frame
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import DatumDefinition, Epoch, HeightType, Provenance
+from geocomp.core.models import DatumDefinition, HeightType, Provenance
 from geocomp.core.preanalysis import inspect
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
@@ -216,9 +221,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 EPOCH,
-                self.tr("Reference epoch (decimal year)"),
+                self.tr("Reference epoch, decimal year (0 = the network's own)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=configured_epoch(2000.0),
+                defaultValue=configured_epoch(0.0),
             )
         )
         # Required, and not advanced. It was both, which was incoherent: the
@@ -345,30 +350,37 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
         self._push_summary(run, test, snooping, feedback)
 
-        solution = to_solution(
-            run,
-            network,
-            solution_id=f"{network.id}-adjustment",
-            crs=crs,
-            epoch=Epoch.from_decimal_year(self.parameterAsDouble(parameters, EPOCH, context)),
-            datum=datum,
-            height_type=HeightType.ORTHOMETRIC if dimension == 1 else HeightType.NONE,
-            provenance=Provenance.now(
-                algorithm_id=self.spec().id,
-                source=self.spec().id,
-                qgis_version=Qgis.QGIS_VERSION,
-                parameters={
-                    "dimension": dimension,
-                    "datum": datum.value,
-                    "fixed": list(fixed_names or ()),
-                    "confidence": confidence,
-                },
+        epoch, epoch_origin = run_epoch(
+            self.parameterAsDouble(parameters, EPOCH, context), network, 2000.0
+        )
+        solution = recorded_epoch(
+            to_solution(
+                run,
+                network,
+                solution_id=f"{network.id}-adjustment",
+                crs=crs,
+                epoch=epoch,
+                datum=datum,
+                height_type=HeightType.ORTHOMETRIC if dimension == 1 else HeightType.NONE,
+                provenance=Provenance.now(
+                    algorithm_id=self.spec().id,
+                    source=self.spec().id,
+                    qgis_version=Qgis.QGIS_VERSION,
+                    parameters={
+                        "dimension": dimension,
+                        "datum": datum.value,
+                        "fixed": list(fixed_names or ()),
+                        "confidence": confidence,
+                    },
+                ),
+                observation_results=to_observation_results(
+                    run, snooping=snooping, reliability=reliability_report
+                ),
+                global_test=test,
+                confidence=confidence,
             ),
-            observation_results=to_observation_results(
-                run, snooping=snooping, reliability=reliability_report
-            ),
-            global_test=test,
-            confidence=confidence,
+            epoch_origin,
+            feedback,
         )
 
         feedback.setProgress(90)

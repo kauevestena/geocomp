@@ -24,6 +24,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "assume one. Adjust the epoch's network again with its observation date.",
         "solution",
     ),
+    "validation.monitoring_solution_epoch_assumed": MessageTemplate(
+        "The solution '%1' carries the epoch %2 only because nothing stated one: the "
+        "adjustment used its own default. An assumed epoch is not when the network was "
+        "measured, so it cannot enter a comparison (FR-105). Adjust the epoch's network again "
+        "with its observation date as the reference epoch.",
+        "solution",
+        "received",
+    ),
     "validation.solution_without_epoch": MessageTemplate(
         "The solution '%1' states no epoch, and GeoComp does not assume one (FR-105). "
         "Adjust its network again with its observation date.",

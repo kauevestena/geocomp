@@ -53,7 +53,12 @@ from geocomp.algorithms.analysis.common import (
     station_list,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.defaults import (
+    configured,
+    configured_epoch,
+    recorded_epoch,
+    run_epoch,
+)
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
@@ -66,7 +71,7 @@ from geocomp.core.adjustment.least_squares import (
     to_solution,
 )
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import Epoch, HeightType, Provenance
+from geocomp.core.models import HeightType, Provenance
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 
@@ -147,7 +152,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             "minimal detectable bias.</p>"
             "<p><b>Reference epoch</b> &mdash; the decimal year the coordinates refer to. It "
             "is recorded on the solution because comparing two epochs is only meaningful "
-            "when both say which they are.</p>"
+            "when both say which they are. 0, the default unless Global Settings states "
+            "one, takes the network's own; where the network states none either, the "
+            "solution carries 2000.0 marked as assumed, and no comparison accepts it.</p>"
             "<h3>Outputs</h3>"
             "<p><b>Solution</b> &mdash; a JSON document holding the adjusted coordinates, the "
             "full covariance matrix, the per-observation results and the provenance. It is "
@@ -257,9 +264,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 EPOCH,
-                self.tr("Reference epoch (decimal year)"),
+                self.tr("Reference epoch, decimal year (0 = the network's own)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=configured_epoch(2000.0),
+                defaultValue=configured_epoch(0.0),
             )
         )
         self.addParameter(
@@ -370,22 +377,29 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(75)
         self._push_summary(run, test, snooping, reliability_report, feedback)
 
-        solution = to_solution(
-            run,
-            network,
-            solution_id=f"{network.id or 'network'}-adjustment",
-            crs=network.crs,
-            epoch=Epoch.from_decimal_year(self.parameterAsDouble(parameters, EPOCH, context)),
-            datum=options.datum,
-            height_type=(
-                HeightType.ORTHOMETRIC if options.frame.dimension == 1 else HeightType.NONE
+        epoch, epoch_origin = run_epoch(
+            self.parameterAsDouble(parameters, EPOCH, context), network, 2000.0
+        )
+        solution = recorded_epoch(
+            to_solution(
+                run,
+                network,
+                solution_id=f"{network.id or 'network'}-adjustment",
+                crs=network.crs,
+                epoch=epoch,
+                datum=options.datum,
+                height_type=(
+                    HeightType.ORTHOMETRIC if options.frame.dimension == 1 else HeightType.NONE
+                ),
+                provenance=self._provenance(parameters, options, confidence, alpha, beta),
+                observation_results=to_observation_results(
+                    run, snooping=snooping, reliability=reliability_report
+                ),
+                global_test=test,
+                confidence=confidence,
             ),
-            provenance=self._provenance(parameters, options, confidence, alpha, beta),
-            observation_results=to_observation_results(
-                run, snooping=snooping, reliability=reliability_report
-            ),
-            global_test=test,
-            confidence=confidence,
+            epoch_origin,
+            feedback,
         )
 
         feedback.setProgress(90)
