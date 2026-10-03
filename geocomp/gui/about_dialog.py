@@ -56,7 +56,7 @@ class AboutDialog(QDialog):
         dialog named the licences, no version, and said engine integration was
         still to come -- three phases after it had arrived.
         """
-        from geocomp.engines.status import engine_status
+        from geocomp.services.engines import engine_status
 
         items = []
         for engine in engine_status():

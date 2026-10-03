@@ -40,7 +40,8 @@ on:
       - "tests/combined_network.py"
       - "tests/test_dyna*.py"
       - "tests/test_dna_reader.py"
-      - "tests/test_engines.py"
+      - "tests/test_engine*.py"
+      - "geocomp/services/engines.py"
       - "tests/test_rtklib_*.py"
       - "tests/test_pos_reader.py"
       - "tests/test_rinex.py"
@@ -75,6 +76,48 @@ env:
   RTKLIB_COMMIT: 06e8644287ff07efc4c53bbf3e7f9dafb0355605
 
 jobs:
+  # specs/21 criterion 4: the engine manager downloads, verifies, installs and
+  # detects the engine on each supported operating system, and a configured
+  # path overrides it. P6 did this once, by hand, on Linux; the Windows and
+  # macOS archives were pinned and never run. This is the real archive upstream
+  # publishes for each runner's platform, fetched, checked against the digest
+  # committed in PINNED, installed, run, overridden -- and used to adjust a
+  # network that has to agree with the committed fixture, which a build that
+  # started but computed differently here would not.
+  manager:
+    name: engine manager (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos-latest is Apple Silicon, the one macOS build upstream publishes.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tooling
+        run: python -m pip install --upgrade pip pytest numpy
+
+      - name: Download, verify, install, detect and run the pinned DynAdjust
+        shell: bash
+        env:
+          GEOCOMP_ENGINE_DOWNLOAD: "1"
+        run: |
+          set -o pipefail
+          python -c "from geocomp.engines.manager import current_platform; print('platform', current_platform())"
+          python -m pytest -q -rs tests/test_engine_manager_live.py tests/test_engine_installation.py \
+            | tee manager.log
+          # The live tests skip without GEOCOMP_ENGINE_DOWNLOAD; here it is set,
+          # so a skip means the criterion was not checked on this system.
+          if grep -E "SKIPPED" manager.log; then
+            echo "::error::the engine manager tests skipped on ${{ matrix.os }}"
+            exit 1
+          fi
+
   fixtures:
     name: fixtures match a real DynAdjust
     runs-on: ubuntu-latest

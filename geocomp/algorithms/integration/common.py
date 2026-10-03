@@ -339,9 +339,12 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
             feedback.setProgress(30)
             if routing.engine == "dynadjust":
                 from geocomp.engines.dynadjust.combination import adjust_with_dynadjust
+                from geocomp.services.engines import dynadjust_engine
 
                 with tempfile.TemporaryDirectory(prefix="geocomp-combined-") as work_dir:
-                    result = adjust_with_dynadjust(combination, work_dir, confidence=confidence)
+                    result = adjust_with_dynadjust(
+                        combination, work_dir, confidence=confidence, engine=dynadjust_engine()
+                    )
             else:
                 result = adjust_combination(
                     combination,

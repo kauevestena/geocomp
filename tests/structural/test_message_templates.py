@@ -33,6 +33,7 @@ NAMESPACES = {
     "ComputationError": "computation",
     "EngineError": "engine",
     "EngineMissingError": "engine",
+    "EngineAbsentError": "computation",
     "StorageError": "storage",
 }
 
@@ -67,11 +68,18 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     # And `algorithms`, since P12c-6: the project and monitoring algorithms read
     # their solution and network documents through `algorithms/project/common`,
     # whose refusals reached the user as a code until they had templates.
+    # And the engine manager and program discovery, since P12c-6: *Install an
+    # engine* and the engine paths in Global Settings put their refusals in
+    # front of the user. The rest of `engines` -- 80-odd codes from the
+    # DynAdjust and RTKLIB adapters and parsers -- has no templates yet and is
+    # not read here; specs/ROADMAP.md records it.
     sources = [
         *python_sources(PLUGIN_DIR / "core"),
         *python_sources(PLUGIN_DIR / "io"),
         *python_sources(PLUGIN_DIR / "services"),
         *python_sources(PLUGIN_DIR / "algorithms"),
+        PLUGIN_DIR / "engines" / "manager.py",
+        PLUGIN_DIR / "engines" / "base.py",
     ]
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

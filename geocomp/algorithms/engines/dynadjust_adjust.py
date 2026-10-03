@@ -44,6 +44,7 @@ from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Epoch
 from geocomp.engines.base import EngineAbsentError
 from geocomp.engines.dynadjust.engine import DynAdjustEngine, DynAdjustJob
+from geocomp.services.engines import dynadjust_engine
 
 __all__ = ["DynAdjustAdjustAlgorithm"]
 
@@ -113,8 +114,10 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             "<p><b>Segmentation threshold</b> &mdash; above this many stations the network "
             "is segmented and adjusted in phases, which is rigorous: the block solutions "
             "and their variances equal the simultaneous ones.</p>"
-            "<p><b>DynAdjust directory</b> &mdash; where the programs are, when they are not "
-            "on the system path. <b>Timeout</b> &mdash; seconds before a stage is abandoned "
+            "<p><b>DynAdjust directory</b> &mdash; where the programs are, for this run. "
+            "Empty, GeoComp uses the directory set in Global Settings under Paths and "
+            "engines, then its own installation (Project &rsaquo; Install an engine), then "
+            "the system path. <b>Timeout</b> &mdash; seconds before a stage is abandoned "
             "and its process group killed.</p>"
             "<p><b>Keep the working files</b> &mdash; writes the generated input and the raw "
             "DynAdjust output to a folder instead of a temporary directory. An adjustment "
@@ -197,7 +200,10 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         self.addAdvancedParameter(
             QgsProcessingParameterFile(
                 ENGINE_DIRECTORY,
-                self.tr("DynAdjust directory (empty = search the system path)"),
+                self.tr(
+                    "DynAdjust directory (empty: Global Settings, then GeoComp's "
+                    "installation, then the system path)"
+                ),
                 behavior=QgsProcessingParameterFile.Folder,
                 optional=True,
             )
@@ -248,16 +254,16 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             self.parameterAsFile(parameters, NETWORK, context), parameter=NETWORK
         )
         directory = self.parameterAsFile(parameters, ENGINE_DIRECTORY, context)
-        engine = DynAdjustEngine(configured_directory=directory or None)
+        engine = dynadjust_engine(directory)
 
         version = engine.detect()
         if version is None:
             raise QgsProcessingException(
                 self.tr(
-                    "DynAdjust was not found. Install it and put its programs on the "
-                    "system path, or give the directory holding them in the "
-                    "'DynAdjust directory' parameter. GeoComp does not bundle it: it is "
-                    "a separate program under its own licence."
+                    "DynAdjust was not found. Install it with Project > Install an engine, "
+                    "or give the directory holding its programs in Global Settings under "
+                    "Paths and engines, or in the 'DynAdjust directory' parameter. GeoComp "
+                    "does not bundle it: it is a separate program under its own licence."
                 )
             )
         if not version.tested:

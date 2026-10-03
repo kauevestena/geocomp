@@ -24,7 +24,7 @@ def test_it_states_geocomps_licence(body):
 
 
 def test_each_engine_with_its_licence_and_what_is_installed(body):
-    from geocomp.engines.status import engine_status
+    from geocomp.services.engines import engine_status
 
     for engine in engine_status():
         assert engine.name in body and engine.licence in body
@@ -43,7 +43,7 @@ def test_the_system_report_says_the_same(qgis_app):
     """The report a support request attaches said both engines were "not
     integrated yet" until P12c."""
     from geocomp.algorithms.project.system_report import SystemReportAlgorithm
-    from geocomp.engines.status import engine_status
+    from geocomp.services.engines import engine_status
 
     rows = SystemReportAlgorithm()._collect_engines()
     assert [name for name, _state, _version in rows] == [e.name for e in engine_status()]

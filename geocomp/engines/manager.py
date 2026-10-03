@@ -22,16 +22,20 @@ inside the target directory before anything is written.
 configuration (ADR-0003 rule 7), which needs Qt -- but verification, extraction
 and installation are where the security lives, and they must be testable in the
 eight CI jobs that have no QGIS. So :func:`install` takes a ``fetch`` callable.
-The QGIS-backed one lives in :mod:`geocomp.services.engine_downloads`; the tests
+The QGIS-backed one lives in :mod:`geocomp.services.engines`; the tests
 pass a local file. What is tested is what runs, minus the socket.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
+import platform as _platform
+import sys
 import zipfile
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -39,14 +43,24 @@ from geocomp.core.errors import DataError, ValidationError
 from geocomp.engines.base import EngineVersion, discover
 
 __all__ = [
+    "MANIFEST",
     "PINNED",
     "EngineRelease",
     "Fetcher",
+    "Installation",
+    "current_platform",
     "install",
     "installation_root",
+    "installed",
+    "managed_directories",
     "program_directory",
     "verify",
 ]
+
+#: The record of what was installed, beside the installation (specs/21 section 4
+#: item 2: the manager *records the version*). One per engine, rewritten by each
+#: install: the plugin runs one managed version of an engine at a time.
+MANIFEST = "installed.json"
 
 #: Downloads *to* a destination path. Injected so the security-critical half of
 #: this module is testable without a network or Qt.
@@ -203,6 +217,102 @@ def releases_for(engine: str, platform: str) -> tuple[EngineRelease, ...]:
     return tuple(r for r in PINNED if r.engine == engine and r.platform == platform)
 
 
+def current_platform() -> str:
+    """This machine, named as :data:`PINNED` names platforms.
+
+    ``linux-x86_64``, ``macos-arm64`` or ``windows-x86_64`` where those apply.
+    Anything else is named the same way -- ``linux-arm64``, ``macos-x86_64`` --
+    so that :func:`install_pinned` refuses it by name rather than handing an
+    Intel Mac the Apple Silicon build because both are "macOS".
+    """
+    system = {"linux": "linux", "darwin": "macos", "win32": "windows"}.get(sys.platform, sys.platform)
+    machine = _platform.machine().lower()
+    machine = {"amd64": "x86_64", "x64": "x86_64", "aarch64": "arm64"}.get(machine, machine)
+    return f"{system}-{machine}"
+
+
+@dataclass(frozen=True)
+class Installation:
+    """What the manager installed for one engine, read back from its manifest.
+
+    Attributes:
+        directory: Where the programs are -- absolute, resolved from the path
+            the manifest stores relative to the engine's own folder, so a QGIS
+            profile that moves takes its engines with it.
+        installed: When, as an ISO 8601 UTC time.
+    """
+
+    engine: str
+    version: str
+    platform: str
+    url: str
+    sha256: str
+    directory: Path
+    installed: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "engine": self.engine,
+            "version": self.version,
+            "platform": self.platform,
+            "url": self.url,
+            "sha256": self.sha256,
+            "directory": str(self.directory),
+            "installed": self.installed,
+        }
+
+
+def _record(release: EngineRelease, directory: Path, root: Path) -> Installation:
+    home = root / release.engine
+    installation = Installation(
+        engine=release.engine,
+        version=release.version,
+        platform=release.platform,
+        url=release.url,
+        sha256=release.sha256,
+        directory=directory,
+        installed=datetime.now(UTC).replace(microsecond=0).isoformat(),
+    )
+    payload = installation.to_dict()
+    payload["directory"] = directory.resolve().relative_to(home.resolve()).as_posix()
+    (home / MANIFEST).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return installation
+
+
+def installed(engine: str, root: str | Path) -> Installation | None:
+    """The managed installation of *engine* under *root*, or ``None``.
+
+    ``None`` too when the manifest is unreadable or names a directory that is
+    no longer there: either way there is nothing to run, and the user is offered
+    an install rather than an error about a file GeoComp wrote itself.
+    """
+    home = Path(root) / engine
+    try:
+        payload = json.loads((home / MANIFEST).read_text(encoding="utf-8"))
+        directory = (home / payload["directory"]).resolve()
+        installation = Installation(
+            engine=str(payload["engine"]),
+            version=str(payload["version"]),
+            platform=str(payload["platform"]),
+            url=str(payload["url"]),
+            sha256=str(payload["sha256"]),
+            directory=directory,
+            installed=str(payload["installed"]),
+        )
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    inside = directory.is_relative_to(home.resolve())
+    if installation.engine != engine or not inside or not directory.is_dir():
+        return None
+    return installation
+
+
+def managed_directories(engine: str, root: str | Path) -> tuple[Path, ...]:
+    """Where :func:`~geocomp.engines.base.discover` should look for *engine*'s managed programs."""
+    installation = installed(engine, root)
+    return (installation.directory,) if installation is not None else ()
+
+
 def digest(path: str | Path) -> str:
     """The SHA-256 of a file, hex, lower case."""
     hasher = hashlib.sha256()
@@ -327,6 +437,11 @@ def install(
 
     The order is the whole point: **verify before extract**, always.
 
+    Then it **records what it installed** in :data:`MANIFEST` -- version, platform,
+    source, digest and where the programs are -- which is how the plugin finds a
+    managed engine again (:func:`managed_directories`) and how it states which
+    one it ran.
+
     Returns **the directory the programs are actually in**, which is not always
     the one they were extracted into: upstream's archives nest everything under
     a single folder, so ``dynadjust-linux-openblas-static.zip`` puts its
@@ -354,7 +469,11 @@ def install(
 
     if not keep_archive:
         archive_path.unlink(missing_ok=True)
-    return program_directory(written, release.members, fallback=destination)
+    directory = program_directory(written, release.members, fallback=destination)
+    # Recorded last, so a manifest only ever names an installation that
+    # verified, extracted and had every program it should.
+    _record(release, directory, root)
+    return directory
 
 
 def program_directory(
@@ -402,7 +521,7 @@ def install_pinned(engine: str, platform: str, *, root: str | Path, fetch: Fetch
             "engine_release_not_pinned",
             engine=engine,
             platform=platform,
-            available=sorted({(r.engine, r.platform) for r in PINNED}),
+            available=sorted({f"{r.engine} {r.platform}" for r in PINNED}),
             expected=(
                 "a pinned release for this engine and platform. Run "
                 "scripts/pin_engine_release.py on a machine that can reach the "

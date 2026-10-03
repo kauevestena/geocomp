@@ -559,6 +559,38 @@ SETTINGS: tuple[SettingDef, ...] = (
         requirement="FR-065",
     ),
 
+    # -- Paths and engines (FR-066, FR-300). Added in phase P12c-6. ----------
+    #
+    # Declared in P0 and empty until P12c-6, while the window told anyone who
+    # opened it that its settings were "added by the development phase that
+    # implements this equipment type". DynAdjust's directory was a parameter of
+    # one algorithm, and RTKLIB had no configurable path anywhere: the plugin
+    # found it on the system path or not at all.
+    #
+    # **Global only.** Where a program is installed is a fact about a machine,
+    # and a project carried to another machine would carry a path that is wrong
+    # there -- and, a configured path being one that is never fallen back from,
+    # would refuse to run rather than find the engine that machine has.
+    #
+    # Empty is the default and the common case: GeoComp's own installation, then
+    # the system path (geocomp.services.engines).
+    SettingDef(
+        key="paths.dynadjust_directory",
+        section="paths",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-066",
+        scopes=frozenset({Scope.GLOBAL}),
+    ),
+    SettingDef(
+        key="paths.rtklib_program",
+        section="paths",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-066",
+        scopes=frozenset({Scope.GLOBAL}),
+    ),
+
     # -- Base maps (FR-167). Added in phase P5. -------------------------------
     #
     # The *services* are not settings: they are named, structured records with

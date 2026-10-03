@@ -66,6 +66,33 @@ are separate C++ programs, so this needs a mechanism. Full reasoning in
    operations that do are disabled with an explanation and an offer to install.
 5. **Versions are pinned and recorded** (FR-302, FR-134).
 
+**As built (P12c-6).** Until P12c-6 the manager was a library that nothing in the plugin called: its
+download, verification and extraction had been run once, by hand, on Linux (P6); the *Paths and engines*
+page of Global Settings held no setting; no engine looked in the folder the manager installs into; and
+RTKLIB could be found only on the system path. Now:
+
+- **Where a program comes from**, in rule 3's order: a path in Global Settings (`paths.dynadjust_directory`,
+  `paths.rtklib_program`, global scope only, since where a program is installed is a fact about a machine)
+  or, for DynAdjust, the algorithm's own parameter for one run; then GeoComp's installation in the QGIS
+  profile; then the system path (`services/engines.py`). Every algorithm that runs an engine, the About
+  dialog and the system report build it the same way.
+- **Installing** is *Project ▸ Install an engine* (`geocomp:project_install_engine`), which the *Paths and
+  engines* page opens beside each engine's state. It downloads the pinned release for this machine
+  (`current_platform()`) over the QGIS network stack, verifies it, extracts it, **records** version,
+  platform, source, digest and directory in `installed.json`, and runs the installed `dnaadjust` to show
+  it works here. The record is written last, so it only ever names an installation that verified.
+- **Checked on each operating system** by the `engine` workflow's `manager` job, on Linux, Windows and
+  Apple-Silicon macOS: the real archive downloaded and verified, every program where the record says,
+  `dnaadjust --version` answering the pinned version, a configured directory winning, and a network
+  adjusted through the managed installation agreeing with the committed fixture to 0.1 mm.
+
+**RTKLIB is located, not acquired.** Its upstream (RTKLIB-EX) publishes executables for Windows only,
+and the release they come from (tag `v2.5.1`, commit `62d4677`) is not the build GeoComp's RTKLIB parsers
+were checked against (`06e8644`); on Linux and macOS there is nothing to download, and GeoComp does not
+redistribute engine binaries (ADR-0003, consequences). Criterion 4 is therefore met for DynAdjust and
+not for RTKLIB: pinning the Windows release needs its output checked against `scripts/check_rtklib_fixtures.py`
+first, and Linux and macOS need either upstream binaries or a decision to amend the criterion.
+
 ## 5. Continuous integration (FR-953)
 
 Per [`20-testing-and-validation.md`](./20-testing-and-validation.md) §7:

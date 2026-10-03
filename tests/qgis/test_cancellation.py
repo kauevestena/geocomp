@@ -109,7 +109,7 @@ def test_every_algorithm_runs_inside_the_transaction(geocomp_provider):
             False,
         )
     ]
-    assert len(ALGORITHMS) == 46
+    assert len(ALGORITHMS) == 47
     assert not outside
 
 

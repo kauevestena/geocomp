@@ -55,9 +55,10 @@ from geocomp.algorithms.gnss.common import (
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
 from geocomp.core.number_format import localised
-from geocomp.engines.rtklib import RtklibEngine, RtklibJob
+from geocomp.engines.rtklib import RtklibJob
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
+from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -278,7 +279,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
 
         work_dir = Path(self.parameterAsFileOutput(parameters, OUTPUT_POS, context) or ".").parent
         try:
-            result = RtklibEngine().run(
+            result = rtklib_engine().run(
                 RtklibJob(
                     rover=rover, config=configuration, products=products.paths, **job_kwargs
                 ),

@@ -876,8 +876,8 @@
             <translation>%1 observação(ões) não têm equivalente no DynAdjust e não foram escritas: %2</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Adjusts a geodetic network using &lt;b&gt;DynAdjust&lt;/b&gt;, Geoscience Australia's least-squares suite, and reads its output back into the same solution structure GeoComp's own adjustment produces. Everything downstream &amp;mdash; reports, map layers, storage, multi-epoch comparison &amp;mdash; works the same way whichever engine produced the result.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust must be installed separately.&lt;/b&gt; It is not bundled: it is a large native program under a different licence, and shipping a copy inside a QGIS plugin would make GeoComp responsible for its build. If it is not found, this algorithm says so and names what is missing.&lt;/p&gt;&lt;p&gt;DynAdjust is a suite, not one program. This runs, in order, &lt;code&gt;dnaimport&lt;/code&gt;, then &lt;code&gt;dnareftran&lt;/code&gt; if the target frame or epoch differs from the network's, then &lt;code&gt;dnageoid&lt;/code&gt; if orthometric heights take part, then &lt;code&gt;dnasegment&lt;/code&gt; for a network too large to adjust in one piece, then &lt;code&gt;dnaadjust&lt;/code&gt;. Which stages ran, and why each other one did not, is recorded in the solution's provenance.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference frame&lt;/b&gt; and &lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the frame and epoch to adjust in. Leave them empty to use the network's own. Neither is ever guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed into the residuals.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid grid&lt;/b&gt; &amp;mdash; an NTv2 file, required when the network has orthometric heights, because the height systems cannot be related without one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the chi-square test and the positional uncertainties. &lt;b&gt;Convergence threshold&lt;/b&gt; and &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; passed to DynAdjust unchanged.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Segmentation threshold&lt;/b&gt; &amp;mdash; above this many stations the network is segmented and adjusted in phases, which is rigorous: the block solutions and their variances equal the simultaneous ones.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust directory&lt;/b&gt; &amp;mdash; where the programs are, when they are not on the system path. &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; seconds before a stage is abandoned and its process group killed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Keep the working files&lt;/b&gt; &amp;mdash; writes the generated input and the raw DynAdjust output to a folder instead of a temporary directory. An adjustment that surprises you is answerable only from the files that produced it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON: adjusted coordinates, the full variance matrix, per-observation residuals, the statistics, and the provenance recording every command line that ran.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Ajusta uma rede geodésica usando o &lt;b&gt;DynAdjust&lt;/b&gt;, o conjunto de programas de mínimos quadrados da Geoscience Australia, e lê sua saída de volta na mesma estrutura de solução que o ajustamento próprio do GeoComp produz. Tudo a jusante &amp;mdash; relatórios, camadas de mapa, armazenamento, comparação multiépoca &amp;mdash; funciona da mesma maneira, qualquer que seja o motor que produziu o resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O DynAdjust precisa ser instalado separadamente.&lt;/b&gt; Ele não é distribuído junto: é um programa nativo grande, sob outra licença, e embarcar uma cópia dentro de um complemento do QGIS tornaria o GeoComp responsável pela compilação dele. Se não for encontrado, este algoritmo avisa e diz o que está faltando.&lt;/p&gt;&lt;p&gt;O DynAdjust é um conjunto de programas, não um só. Este algoritmo executa, nesta ordem, &lt;code&gt;dnaimport&lt;/code&gt;, depois &lt;code&gt;dnareftran&lt;/code&gt; se o referencial ou a época de destino diferirem dos da rede, depois &lt;code&gt;dnageoid&lt;/code&gt; se altitudes ortométricas participarem, depois &lt;code&gt;dnasegment&lt;/code&gt; para uma rede grande demais para ser ajustada de uma vez, e por fim &lt;code&gt;dnaadjust&lt;/code&gt;. Quais etapas foram executadas, e por que cada uma das outras não foi, fica registrado na proveniência da solução.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; um documento de rede do GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Referencial&lt;/b&gt; e &lt;b&gt;Época de referência&lt;/b&gt; &amp;mdash; o referencial e a época em que ajustar. Deixe vazios para usar os da própria rede. Nenhum dos dois é jamais adivinhado: um referencial que o GeoComp inferiu em vez de saber é um deslocamento de datum absorvido pelos resíduos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Grade geoidal&lt;/b&gt; &amp;mdash; um arquivo NTv2, obrigatório quando a rede tem altitudes ortométricas, porque os sistemas de altitudes não podem ser relacionados sem ele.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt; &amp;mdash; para o teste qui-quadrado e as incertezas posicionais. &lt;b&gt;Limiar de convergência&lt;/b&gt; e &lt;b&gt;Número máximo de iterações&lt;/b&gt; &amp;mdash; repassados ao DynAdjust sem alteração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiar de segmentação&lt;/b&gt; &amp;mdash; acima deste número de estações a rede é segmentada e ajustada em fases, o que é rigoroso: as soluções dos blocos e suas variâncias são iguais às simultâneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Diretório do DynAdjust&lt;/b&gt; &amp;mdash; onde estão os programas, quando não estão no caminho do sistema. &lt;b&gt;Tempo limite&lt;/b&gt; &amp;mdash; segundos antes de uma etapa ser abandonada e seu grupo de processos encerrado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Manter os arquivos de trabalho&lt;/b&gt; &amp;mdash; escreve a entrada gerada e a saída bruta do DynAdjust em uma pasta em vez de um diretório temporário. Um ajustamento que surpreende só pode ser respondido a partir dos arquivos que o produziram.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, a matriz de variâncias completa, resíduos por observação, as estatísticas e a proveniência registrando cada linha de comando executada.&lt;/p&gt;&lt;p&gt;Saídas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Adjusts a geodetic network using &lt;b&gt;DynAdjust&lt;/b&gt;, Geoscience Australia's least-squares suite, and reads its output back into the same solution structure GeoComp's own adjustment produces. Everything downstream &amp;mdash; reports, map layers, storage, multi-epoch comparison &amp;mdash; works the same way whichever engine produced the result.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust must be installed separately.&lt;/b&gt; It is not bundled: it is a large native program under a different licence, and shipping a copy inside a QGIS plugin would make GeoComp responsible for its build. If it is not found, this algorithm says so and names what is missing.&lt;/p&gt;&lt;p&gt;DynAdjust is a suite, not one program. This runs, in order, &lt;code&gt;dnaimport&lt;/code&gt;, then &lt;code&gt;dnareftran&lt;/code&gt; if the target frame or epoch differs from the network's, then &lt;code&gt;dnageoid&lt;/code&gt; if orthometric heights take part, then &lt;code&gt;dnasegment&lt;/code&gt; for a network too large to adjust in one piece, then &lt;code&gt;dnaadjust&lt;/code&gt;. Which stages ran, and why each other one did not, is recorded in the solution's provenance.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference frame&lt;/b&gt; and &lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the frame and epoch to adjust in. Leave them empty to use the network's own. Neither is ever guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed into the residuals.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid grid&lt;/b&gt; &amp;mdash; an NTv2 file, required when the network has orthometric heights, because the height systems cannot be related without one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the chi-square test and the positional uncertainties. &lt;b&gt;Convergence threshold&lt;/b&gt; and &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; passed to DynAdjust unchanged.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Segmentation threshold&lt;/b&gt; &amp;mdash; above this many stations the network is segmented and adjusted in phases, which is rigorous: the block solutions and their variances equal the simultaneous ones.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust directory&lt;/b&gt; &amp;mdash; where the programs are, for this run. Empty, GeoComp uses the directory set in Global Settings under Paths and engines, then its own installation (Project &amp;rsaquo; Install an engine), then the system path. &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; seconds before a stage is abandoned and its process group killed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Keep the working files&lt;/b&gt; &amp;mdash; writes the generated input and the raw DynAdjust output to a folder instead of a temporary directory. An adjustment that surprises you is answerable only from the files that produced it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON: adjusted coordinates, the full variance matrix, per-observation residuals, the statistics, and the provenance recording every command line that ran.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta uma rede geodésica usando o &lt;b&gt;DynAdjust&lt;/b&gt;, o conjunto de programas de mínimos quadrados da Geoscience Australia, e lê sua saída de volta na mesma estrutura de solução que o ajustamento próprio do GeoComp produz. Tudo a jusante &amp;mdash; relatórios, camadas de mapa, armazenamento, comparação multiépoca &amp;mdash; funciona da mesma maneira, qualquer que seja o motor que produziu o resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O DynAdjust precisa ser instalado separadamente.&lt;/b&gt; Ele não é distribuído junto: é um programa nativo grande, sob outra licença, e embarcar uma cópia dentro de um complemento do QGIS tornaria o GeoComp responsável pela compilação dele. Se não for encontrado, este algoritmo avisa e diz o que está faltando.&lt;/p&gt;&lt;p&gt;O DynAdjust é um conjunto de programas, não um só. Este algoritmo executa, nesta ordem, &lt;code&gt;dnaimport&lt;/code&gt;, depois &lt;code&gt;dnareftran&lt;/code&gt; se o referencial ou a época de destino diferirem dos da rede, depois &lt;code&gt;dnageoid&lt;/code&gt; se altitudes ortométricas participarem, depois &lt;code&gt;dnasegment&lt;/code&gt; para uma rede grande demais para ser ajustada de uma vez, e por fim &lt;code&gt;dnaadjust&lt;/code&gt;. Quais etapas foram executadas, e por que cada uma das outras não foi, fica registrado na proveniência da solução.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; um documento de rede do GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Referencial&lt;/b&gt; e &lt;b&gt;Época de referência&lt;/b&gt; &amp;mdash; o referencial e a época em que ajustar. Deixe vazios para usar os da própria rede. Nenhum dos dois é jamais adivinhado: um referencial que o GeoComp inferiu em vez de saber é um deslocamento de datum absorvido pelos resíduos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Grade geoidal&lt;/b&gt; &amp;mdash; um arquivo NTv2, obrigatório quando a rede tem altitudes ortométricas, porque os sistemas de altitudes não podem ser relacionados sem ele.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt; &amp;mdash; para o teste qui-quadrado e as incertezas posicionais. &lt;b&gt;Limiar de convergência&lt;/b&gt; e &lt;b&gt;Número máximo de iterações&lt;/b&gt; &amp;mdash; repassados ao DynAdjust sem alteração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiar de segmentação&lt;/b&gt; &amp;mdash; acima deste número de estações a rede é segmentada e ajustada em fases, o que é rigoroso: as soluções dos blocos e suas variâncias são iguais às simultâneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Diretório do DynAdjust&lt;/b&gt; &amp;mdash; onde estão os programas, para esta execução. Vazio, o GeoComp usa o diretório definido em Configurações Globais, na seção Caminhos e motores, depois a sua própria instalação (Projeto &amp;rsaquo; Instalar um motor), depois o caminho do sistema. &lt;b&gt;Tempo limite&lt;/b&gt; &amp;mdash; segundos antes de uma etapa ser abandonada e seu grupo de processos encerrado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Manter os arquivos de trabalho&lt;/b&gt; &amp;mdash; escreve a entrada gerada e a saída bruta do DynAdjust em uma pasta em vez de um diretório temporário. Um ajustamento que surpreende só pode ser respondido a partir dos arquivos que o produziram.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, a matriz de variâncias completa, resíduos por observação, as estatísticas e a proveniência registrando cada linha de comando executada.&lt;/p&gt;&lt;p&gt;Saídas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a suite, and a partial installation fails part way through.</source>
@@ -904,12 +904,12 @@
             <translation>O DynAdjust %1 não foi verificado com esta versão do GeoComp. Ele será usado, mas se o formato de saída tiver mudado o resultado pode ser recusado na leitura.</translation>
         </message>
         <message>
-            <source>DynAdjust directory (empty = search the system path)</source>
-            <translation>Diretório do DynAdjust (vazio = procurar no caminho do sistema)</translation>
+            <source>DynAdjust directory (empty: Global Settings, then GeoComp's installation, then the system path)</source>
+            <translation>Diretório do DynAdjust (vazio: Configurações Globais, depois a instalação do GeoComp, depois o caminho do sistema)</translation>
         </message>
         <message>
-            <source>DynAdjust was not found. Install it and put its programs on the system path, or give the directory holding them in the 'DynAdjust directory' parameter. GeoComp does not bundle it: it is a separate program under its own licence.</source>
-            <translation>O DynAdjust não foi encontrado. Instale-o e coloque seus programas no caminho do sistema, ou informe o diretório que os contém no parâmetro 'Diretório do DynAdjust'. O GeoComp não o distribui junto: é um programa separado, sob licença própria.</translation>
+            <source>DynAdjust was not found. Install it with Project &gt; Install an engine, or give the directory holding its programs in Global Settings under Paths and engines, or in the 'DynAdjust directory' parameter. GeoComp does not bundle it: it is a separate program under its own licence.</source>
+            <translation>O DynAdjust não foi encontrado. Instale-o com Projeto &gt; Instalar um motor, ou informe o diretório que contém seus programas em Configurações Globais, na seção Caminhos e motores, ou no parâmetro 'Diretório do DynAdjust'. O GeoComp não o distribui junto: é um programa separado, sob licença própria.</translation>
         </message>
         <message>
             <source>Geoid grid (NTv2), for orthometric heights</source>
@@ -3003,12 +3003,20 @@
             <translation>%1 já contém um projeto, e copiar para ele misturaria dois. Copie para um GeoPackage novo ou um esquema novo.</translation>
         </message>
         <message>
+            <source>%1 is needed for %2 and was not found. It needs %3. Everything in GeoComp that does not need it works without it.</source>
+            <translation>%1 é necessário para %2 e não foi encontrado. É preciso: %3. Tudo no GeoComp que não depende dele funciona sem ele.</translation>
+        </message>
+        <message>
             <source>%1 is not a GeoComp project store: it holds other tables (%2). GeoComp does not write into a store it did not create; choose a new file or schema.</source>
             <translation>%1 não é um repositório de projeto do GeoComp: contém outras tabelas (%2). O GeoComp não grava em um repositório que não criou; escolha um arquivo ou esquema novo.</translation>
         </message>
         <message>
             <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
             <translation>%1 estação(ões) são alcançadas apenas por altitudes, então nada determina onde estão horizontalmente: %2. Ligue-as com um vetor GNSS ou uma observação de estação total, fixe-as horizontalmente ou ajuste o nivelamento sozinho.</translation>
+        </message>
+        <message>
+            <source>%1 was installed in %2 but its record could not be written. Run the installation again.</source>
+            <translation>%1 foi instalado em %2, mas o seu registro não pôde ser gravado. Execute a instalação novamente.</translation>
         </message>
         <message>
             <source>'%1' could not be read as a JSON document (%2). Expected %3.</source>
@@ -3093,6 +3101,10 @@
         <message>
             <source>GeoComp could not complete the operation (%1). See the GeoComp tab of the Log Messages panel for details.</source>
             <translation>O GeoComp não conseguiu concluir a operação (%1). Consulte a aba GeoComp do painel Mensagens de Log para mais detalhes.</translation>
+        </message>
+        <message>
+            <source>GeoComp has no verified release of %1 for this computer (%2); it has one for: %3. Install the engine yourself and give its path in Global Settings, under Paths and engines.</source>
+            <translation>O GeoComp não tem uma versão verificada de %1 para este computador (%2); tem para: %3. Instale o motor por conta própria e informe o seu caminho em Configurações Globais, na seção Caminhos e motores.</translation>
         </message>
         <message>
             <source>In the input '%1', %2 must be moved to the combination's epoch, and no velocity was given for it. Supply one in the velocities file; zero is not assumed -- it is a decimetre a decade in most of Brazil.</source>
@@ -3247,6 +3259,10 @@
             <translation>As injunções de datum não removem a liberdade remanescente da rede (%1 injunção(ões) aplicada(s)). Verifique se as estações que definem o datum bastam para fixá-lo.</translation>
         </message>
         <message>
+            <source>The download of %1 from %2 produced no file. Run the installation again.</source>
+            <translation>O download de %1 a partir de %2 não produziu nenhum arquivo. Execute a instalação novamente.</translation>
+        </message>
+        <message>
             <source>The download service '%1' has a user name, password or token in a URL. Credentials are never written into a URL, a setting or a log: remove it, and name a QGIS authentication configuration in the service's 'authcfg' instead.</source>
             <translation>O serviço de download '%1' tem um nome de usuário, senha ou token numa URL. Credenciais nunca são escritas numa URL, numa configuração ou num log: remova-o e, em vez disso, indique uma configuração de autenticação do QGIS no 'authcfg' do serviço.</translation>
         </message>
@@ -3263,8 +3279,32 @@
             <translation>O id de serviço de download '%1' está vazio ou é o id de um serviço fornecido pelo GeoComp. Dê ao serviço um id próprio.</translation>
         </message>
         <message>
+            <source>The downloaded archive contains '%1', which would be written outside the installation folder. Nothing was extracted. Report this: the archive is not the one GeoComp expects.</source>
+            <translation>O arquivo compactado baixado contém '%1', que seria gravado fora da pasta de instalação. Nada foi extraído. Relate o ocorrido: o arquivo compactado não é o que o GeoComp espera.</translation>
+        </message>
+        <message>
+            <source>The downloaded archive contains a link, '%1', where only programs were expected. Nothing was extracted. Report this: the archive is not the one GeoComp expects.</source>
+            <translation>O arquivo compactado baixado contém um link, '%1', onde só se esperavam programas. Nada foi extraído. Relate o ocorrido: o arquivo compactado não é o que o GeoComp espera.</translation>
+        </message>
+        <message>
+            <source>The downloaded archive does not contain %1. The engine's release has probably changed shape, and GeoComp needs updating; meanwhile install it yourself and give its path in Global Settings.</source>
+            <translation>O arquivo compactado baixado não contém %1. A distribuição do motor provavelmente mudou de formato e o GeoComp precisa ser atualizado; enquanto isso, instale-o por conta própria e informe o seu caminho em Configurações Globais.</translation>
+        </message>
+        <message>
+            <source>The downloaded archive is not the one GeoComp was tested with: its SHA-256 is %1, and GeoComp expects %2. It was deleted and nothing was installed. Run the installation again; if it happens again, report it rather than working around it.</source>
+            <translation>O arquivo compactado baixado não é aquele com que o GeoComp foi testado: seu SHA-256 é %1, e o GeoComp espera %2. Ele foi apagado e nada foi instalado. Execute a instalação novamente; se acontecer de novo, relate o ocorrido em vez de contorná-lo.</translation>
+        </message>
+        <message>
+            <source>The downloaded archive puts the engine's programs in several folders (%1); GeoComp runs them from one. Install the engine yourself and give its path in Global Settings.</source>
+            <translation>O arquivo compactado baixado coloca os programas do motor em várias pastas (%1); o GeoComp os executa a partir de uma só. Instale o motor por conta própria e informe o seu caminho em Configurações Globais.</translation>
+        </message>
+        <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
             <translation>A deriva da sessão '%1' não pode ser estimada junto com os valores das estações: nenhuma estação foi lida novamente em instantes distintos suficientes para uma deriva de grau %2. Reocupe uma estação nessa sessão, reduza o grau ou divida a sessão.</translation>
+        </message>
+        <message>
+            <source>The engine could not be downloaded from %1 (HTTP status %2: %3). Check the network and QGIS's proxy settings, then run the installation again.</source>
+            <translation>Não foi possível baixar o motor de %1 (status HTTP %2: %3). Verifique a rede e as configurações de proxy do QGIS e execute a instalação novamente.</translation>
         </message>
         <message>
             <source>The field mapping supplies no column for %1, which every import needs: %2. Give a mapping that names them, or a field book whose header does.</source>
@@ -3333,6 +3373,10 @@
         <message>
             <source>The orthometric correction needs the latitude of every station a line ends at, and these have no position in the station positions layer: %1. Add them, check the station id field, or turn the correction off.</source>
             <translation>A correção ortométrica precisa da latitude de cada estação onde uma linha termina, e estas não têm posição na camada de posições das estações: %1. Adicione-as, verifique o campo do identificador da estação, ou desative a correção.</translation>
+        </message>
+        <message>
+            <source>The path given for %1 does not exist: '%2'. GeoComp does not fall back to another copy of the program when one is named. Correct the path in Global Settings, under Paths and engines, or clear it to use GeoComp's installation or the system path.</source>
+            <translation>O caminho informado para %1 não existe: '%2'. Quando um caminho é indicado, o GeoComp não recorre a outra cópia do programa. Corrija o caminho em Configurações Globais, na seção Caminhos e motores, ou apague-o para usar a instalação do GeoComp ou o caminho do sistema.</translation>
         </message>
         <message>
             <source>The planned network '%1' contains no observations, so there is no design to evaluate. Add the observations you intend to make, with their assumed precisions.</source>
@@ -4638,6 +4682,10 @@
             <translation>Serviços de download, em ordem de prioridade (vazio: nunca baixar)</translation>
         </message>
         <message>
+            <source>Downloads the DynAdjust release GeoComp was tested with, checks it against the digest recorded in GeoComp, and installs it in the QGIS profile.</source>
+            <translation>Baixa a versão do DynAdjust com que o GeoComp foi testado, confere-a com o resumo criptográfico registrado no GeoComp e a instala no perfil do QGIS.</translation>
+        </message>
+        <message>
             <source>Drift polynomial degree</source>
             <translation>Grau do polinômio de deriva</translation>
         </message>
@@ -4648,6 +4696,10 @@
         <message>
             <source>Dual-frequency (ionosphere-free)</source>
             <translation>Dupla frequência (livre de ionosfera)</translation>
+        </message>
+        <message>
+            <source>DynAdjust directory (empty: GeoComp's installation, then the system path)</source>
+            <translation>Diretório do DynAdjust (vazio: a instalação do GeoComp, depois o caminho do sistema)</translation>
         </message>
         <message>
             <source>Elevation mask (degrees)</source>
@@ -4736,6 +4788,10 @@
         <message>
             <source>Information</source>
             <translation>Informação</translation>
+        </message>
+        <message>
+            <source>Install DynAdjust…</source>
+            <translation>Instalar o DynAdjust…</translation>
         </message>
         <message>
             <source>Interface</source>
@@ -4856,6 +4912,10 @@
         <message>
             <source>Proportional to the number of setups</source>
             <translation>Proporcional ao número de estacionamentos</translation>
+        </message>
+        <message>
+            <source>RTKLIB rnx2rtkp program (empty: the system path)</source>
+            <translation>Programa rnx2rtkp do RTKLIB (vazio: o caminho do sistema)</translation>
         </message>
         <message>
             <source>Radian</source>
@@ -4982,12 +5042,20 @@
             <translation>mGal</translation>
         </message>
         <message>
+            <source>not found</source>
+            <translation>não encontrado</translation>
+        </message>
+        <message>
             <source>this project</source>
             <translation>este projeto</translation>
         </message>
         <message>
             <source>this run</source>
             <translation>esta execução</translation>
+        </message>
+        <message>
+            <source>version %1, at %2</source>
+            <translation>versão %1, em %2</translation>
         </message>
         <message>
             <source>µGal</source>
@@ -6104,6 +6172,61 @@
         <message>
             <source>yes</source>
             <translation>sim</translation>
+        </message>
+    </context>
+    <context>
+        <name>InstallEngineAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Downloads the DynAdjust release GeoComp was tested with, for this computer's operating system, from Geoscience Australia's release page. Before anything is extracted the download is checked against the SHA-256 digest recorded in GeoComp; a download that does not match is deleted and nothing is installed.&lt;/p&gt;&lt;p&gt;The programs go into GeoComp's folder in the QGIS profile, so no administrator rights are needed and removing the profile removes them. The version is recorded, and the installed program is run once to show that it works on this computer.&lt;/p&gt;&lt;p&gt;The download uses QGIS's network settings, including its proxy.&lt;/p&gt;&lt;p&gt;A DynAdjust directory set in Global Settings, under Paths and engines, is still used in preference to this installation; clear it to use this one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;RTKLIB&lt;/b&gt; is not offered: its authors publish executables for Windows only. Install it yourself and give the path to &lt;code&gt;rnx2rtkp&lt;/code&gt; in Global Settings.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Baixa a versão do DynAdjust com que o GeoComp foi testado, para o sistema operacional deste computador, da página de versões da Geoscience Australia. Antes de qualquer extração, o download é conferido com o resumo criptográfico SHA-256 registrado no GeoComp; um download que não confere é apagado e nada é instalado.&lt;/p&gt;&lt;p&gt;Os programas vão para a pasta do GeoComp no perfil do QGIS, então não são necessários direitos de administrador, e remover o perfil os remove. A versão é registrada, e o programa instalado é executado uma vez para mostrar que funciona neste computador.&lt;/p&gt;&lt;p&gt;O download usa as configurações de rede do QGIS, inclusive o proxy.&lt;/p&gt;&lt;p&gt;Um diretório do DynAdjust definido em Configurações Globais, na seção Caminhos e motores, continua tendo preferência sobre esta instalação; apague-o para usar esta.&lt;/p&gt;&lt;p&gt;O &lt;b&gt;RTKLIB&lt;/b&gt; não é oferecido: seus autores publicam executáveis apenas para Windows. Instale-o por conta própria e informe o caminho do &lt;code&gt;rnx2rtkp&lt;/code&gt; em Configurações Globais.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>A DynAdjust directory is set in Global Settings (%1), and the algorithms will keep using it. Clear it to use this installation.</source>
+            <translation>Há um diretório do DynAdjust definido em Configurações Globais (%1), e os algoritmos continuarão a usá-lo. Apague-o para usar esta instalação.</translation>
+        </message>
+        <message>
+            <source>Download, verify and install DynAdjust for this computer.</source>
+            <translation>Baixar, verificar e instalar o DynAdjust neste computador.</translation>
+        </message>
+        <message>
+            <source>Downloading DynAdjust %1 for %2 from %3</source>
+            <translation>Baixando o DynAdjust %1 para %2 de %3</translation>
+        </message>
+        <message>
+            <source>DynAdjust</source>
+            <translation>DynAdjust</translation>
+        </message>
+        <message>
+            <source>DynAdjust %1 runs: %2.</source>
+            <translation>O DynAdjust %1 funciona: %2.</translation>
+        </message>
+        <message>
+            <source>DynAdjust %1 was downloaded, verified and installed in %2, but it does not run on this computer. Install DynAdjust another way and give its directory in Global Settings, under Paths and engines.</source>
+            <translation>O DynAdjust %1 foi baixado, verificado e instalado em %2, mas não funciona neste computador. Instale o DynAdjust de outra forma e informe o seu diretório em Configurações Globais, na seção Caminhos e motores.</translation>
+        </message>
+        <message>
+            <source>Engine</source>
+            <translation>Motor</translation>
+        </message>
+        <message>
+            <source>Install an engine</source>
+            <translation>Instalar um motor</translation>
+        </message>
+        <message>
+            <source>Installed in</source>
+            <translation>Instalado em</translation>
+        </message>
+        <message>
+            <source>The program reports version %1 although release %2 was installed.</source>
+            <translation>O programa informa a versão %1, embora a versão %2 tenha sido instalada.</translation>
+        </message>
+        <message>
+            <source>Verified against the SHA-256 recorded in GeoComp (%1) and installed in %2.</source>
+            <translation>Verificado com o SHA-256 registrado no GeoComp (%1) e instalado em %2.</translation>
+        </message>
+        <message>
+            <source>Version installed</source>
+            <translation>Versão instalada</translation>
         </message>
     </context>
     <context>
