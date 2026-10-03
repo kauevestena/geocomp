@@ -78,6 +78,10 @@
             <translation>Pasta com observações RINEX</translation>
         </message>
         <message>
+            <source>Frame of the results (relative modes)</source>
+            <translation>Referencial dos resultados (modos relativos)</translation>
+        </message>
+        <message>
             <source>JSON files (*.json)</source>
             <translation>Arquivos JSON (*.json)</translation>
         </message>
@@ -2295,6 +2299,18 @@
             <translation>&lt;p&gt;&lt;b&gt;O processamento Absoluto (PPP) no RTKLIB é limitado.&lt;/b&gt; Seu posicionamento por ponto preciso não equivale a um serviço de PPP dedicado: a convergência é mais lenta, o tratamento de ambiguidades é mais simples e o resultado é tipicamente decimétrico em vez de centimétrico. Prefira o processamento Relativo quando houver uma estação base disponível, e trate uma solução Absoluta como indicativa a menos que a tenha verificado contra uma determinação independente.&lt;/p&gt;</translation>
         </message>
         <message>
+            <source>As the base station publishes it</source>
+            <translation>Como a estação base o publica</translation>
+        </message>
+        <message>
+            <source>Base %1 is not in the reference-station database, so RTKLIB holds it at the approximate position in its RINEX header, and the results are in no stated frame.</source>
+            <translation>A base %1 não está no banco de estações de referência, por isso o RTKLIB a mantém na posição aproximada do cabeçalho RINEX, e os resultados não estão em nenhum referencial declarado.</translation>
+        </message>
+        <message>
+            <source>Base %1: published in %2 at %3, transformed to %4 at %5 for this run.</source>
+            <translation>Base %1: publicada em %2 na época %3, transformada para %4 na época %5 para esta execução.</translation>
+        </message>
+        <message>
             <source>Could not read the download services file %1: %2</source>
             <translation>Não foi possível ler o arquivo de serviços de download %1: %2</translation>
         </message>
@@ -2313,6 +2329,14 @@
         <message>
             <source>The configured product directory does not exist: %1</source>
             <translation>O diretório de produtos configurado não existe: %1</translation>
+        </message>
+        <message>
+            <source>The project's: the preferred CRS's frame</source>
+            <translation>O do projeto: o referencial do SRC preferido</translation>
+        </message>
+        <message>
+            <source>The session of base %1 states no start time, so its published coordinates cannot be brought to the epoch it was observed at.</source>
+            <translation>A sessão da base %1 não declara hora de início, por isso as suas coordenadas publicadas não podem ser levadas à época em que foi observada.</translation>
         </message>
         <message>
             <source>Unknown download service: %1. Known services: %2</source>
@@ -2356,6 +2380,10 @@
         <message>
             <source>Folder of RINEX observations</source>
             <translation>Pasta com observações RINEX</translation>
+        </message>
+        <message>
+            <source>Frame of the results</source>
+            <translation>Referencial dos resultados</translation>
         </message>
         <message>
             <source>GNSS trajectory</source>

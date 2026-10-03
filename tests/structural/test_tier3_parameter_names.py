@@ -104,6 +104,10 @@ FOREIGN_KEYS: dict[str, str] = {
     "DGPS": "SolutionStatus member (Q=4); see FIXED.",
     "SINGLE": "SolutionStatus member (Q=5); see FIXED.",
     "PPP": "SolutionStatus member (Q=6); see FIXED.",
+    "GODN": (
+        "RD-06's base, an NGS CORS identifier: the station tests/qgis/"
+        "test_base_station_frame.py writes into a reference-station database."
+    ),
 }
 
 

@@ -296,7 +296,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 114 met, 14 partly met, 5 open, 2 manual, of 135.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 115 met, 13 partly met, 5 open, 2 manual, of 135.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -353,7 +353,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 11 | 4 | A baseline reaches a G measurement intact | **met** | As 08.4 |
 | 11 | 5 | Antenna height reduced twice is prevented | **met** | `tests/test_gnss_baselines.py::TestAntennaHeightIsRemovedOnce` |
 | 11 | 6 | Two configurations compared with significance | **met** | `tests/test_gnss_comparison.py` |
-| 11 | 7 | A base station in another frame is transformed, with a record | **partly met** | The mismatch is refused (`tests/test_gnss_stations.py`); the P9a transformation is not applied in the base-station path |
+| 11 | 7 | A base station in another frame is transformed, with a record | **met** | Since P12c: the core transformation and its refusals (`tests/test_gnss_stations.py::TestABaseInAnotherFrame`). The relative runs fetch the base from the database, hold it in the run's frame at the session's epoch, give RTKLIB the coordinates, and record it (`tests/qgis/test_base_station_frame.py`) |
 | 11 | 8 | An Absolute mode shows the FR-604 notice | **met** | As 08.8 |
 | 12 | 1 | Scale, tide and drift against worked examples | **partly met** | Tide against the CG-5 firmware (`tests/test_gravimetry_readings.py::TestTheTide`) and ETERNA (`tests/test_gravimetry_tides.py::TestAgainstEterna`); drift against pyGrav (`tests/test_rd07.py::TestGeoCompIsThePublishedModel`). Scale has no published example: W-02 |
 | 12 | 2 | Injected drift recovered with the truth | **met** | `tests/test_gravimetry_network.py::TestTheTruthIsRecovered` |
