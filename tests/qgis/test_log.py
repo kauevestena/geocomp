@@ -14,19 +14,27 @@ pytestmark = pytest.mark.qgis
 
 
 @pytest.fixture
-def received(qgis_app):
-    """Every message the QGIS log receives while the test runs, as (tag, text)."""
-    from qgis.core import QgsApplication
+def received(qgis_app, monkeypatch):
+    """Every message GeoComp hands the QGIS log while the test runs, as (tag, text).
+
+    The calls themselves, not ``messageReceived``: QGIS 4 delivers that signal
+    through the event loop and QGIS 3 at once, and what is GeoComp's to get
+    right is the tag, the level and what the threshold lets through.
+    """
+    from qgis.core import QgsMessageLog
+
+    from geocomp.services import logging as module
 
     seen: list[tuple[str, str]] = []
 
-    def record(message, tag, _level):
-        seen.append((tag, message))
+    class Recording:
+        @staticmethod
+        def logMessage(message, tag, level):  # noqa: N802 -- QGIS's name
+            seen.append((tag, message))
+            QgsMessageLog.logMessage(message, tag, level)
 
-    log = QgsApplication.messageLog()
-    log.messageReceived.connect(record)
-    yield seen
-    log.messageReceived.disconnect(record)
+    monkeypatch.setattr(module, "QgsMessageLog", Recording)
+    return seen
 
 
 def test_messages_go_under_the_geocomp_tab(received):
