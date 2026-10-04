@@ -45,6 +45,7 @@ from geocomp.core.models import Epoch
 from geocomp.engines.base import EngineAbsentError
 from geocomp.engines.dynadjust.engine import DynAdjustEngine, DynAdjustJob
 from geocomp.services.engines import dynadjust_engine
+from geocomp.services.messages import message_for
 
 __all__ = ["DynAdjustAdjustAlgorithm"]
 
@@ -340,7 +341,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         try:
             prepared = engine.prepare(job, work_dir)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         if prepared.skipped:
             feedback.pushWarning(
@@ -373,13 +374,13 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 ).replace("%1", str(error.context.get("program", "")))
             ) from error
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         feedback.setProgress(80)
         try:
             return engine.parse(runs, prepared)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
     def _write(
         self,

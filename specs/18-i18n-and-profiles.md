@@ -61,6 +61,22 @@ in English in every language:
 algorithm's words, every help and every menu entry, so a word that does not translate fails, whatever the
 reason.
 
+**Every code has its words (P12c-7).** The split above has a second failure mode, besides a template
+interpolating a key its raiser never supplies. A code may have **no template at all**. The user then reads
+"GeoComp could not complete the operation (data.some_code)", which says none of what NFR-006 requires. When
+P12c-7 counted, 457 of the codes GeoComp raises were in that state.
+
+- The 81 codes of the engine package now have templates. These are DynAdjust's and RTKLIB's: what GeoComp
+  cannot write for an engine, a run that failed, and an output file that does not read.
+- A template for a failed engine run shows the **engine's own message** (FR-305). Each engine failure carries
+  that message in its context, and the template must interpolate it.
+- The other 376 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
+  raises them, and that list may only shrink. `tests/structural/test_message_templates.py` reads all of
+  `geocomp/` and enforces three rules:
+  - a code raised without a template fails unless it is listed;
+  - a listed code that has gained a template, or is no longer raised, fails until its entry is removed;
+  - a code whose every raise site carries an engine's diagnostic fails unless its template shows it.
+
 ## 3. Terminology (FR-093)
 
 [`00-glossary.md`](./00-glossary.md) is **normative** for translators: its PT-BR and ES columns are the

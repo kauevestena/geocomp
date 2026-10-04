@@ -1686,6 +1686,64 @@ below), so the state is unchanged at **122 met, 8 partly met, 4 open, 2 manual, 
 With this, P12c-6's rows are done except 21 4's RTKLIB half, which needs upstream binaries or a decision on
 the criterion. The 11 rows not met are those nine waiting on reference data, 21 6 (P13's) and 21 4.
 
+#### P12c-7 — every error in words (first pull request): the engines
+
+NFR-006 is standing: an error says what failed, why, and what the user can do. Two P12c-6 records named the
+engine package's 80-odd codes as having no template. Counting all of `geocomp/` found **457** in that state,
+read by the user as "GeoComp could not complete the operation (data.some_code)". This is P12's own goal,
+"everything present, coherent, and finished", and it is work in this repository, so it is P12c-7.
+
+**Delivered.**
+
+- **The 81 codes of the engine package have templates**, with pt-BR and es. They cover:
+  - what GeoComp cannot write for DynAdjust;
+  - a stage that failed;
+  - DynAdjust's output, DynaML and DNA files that do not read;
+  - RTKLIB's job checks, its run failures and `.pos` files that do not read;
+  - the engine manager's malformed digest.
+- ***Adjust network (DynAdjust)*** uses them; it showed `str(error)`, the code and its context.
+- ***Batch GNSS processing*** phrases each failed session with its template. The batch's result now keeps the
+  error itself.
+- **A ratchet** (`tests/structural/test_message_templates.py`, specs/18 §2):
+  - it reads all of `geocomp/` where it read five places;
+  - a code raised without a template fails unless it is in `tests/structural/untemplated_codes.py`;
+  - that list may only shrink.
+
+**Found.**
+
+- ***GNSS processing* dropped RTKLIB's message** (FR-305; specs/08 §9). The engine adapter extracts
+  `rnx2rtkp`'s last word and puts it on the error. The algorithm rendered that error through a template that
+  did not exist, so a failed run read "could not complete the operation (engine.rtklib_run_failed)". A
+  structural rule now holds it: a code whose every raise site carries an engine's diagnostic must have a
+  template that shows it. `tests/qgis/test_engine_messages.py` reads it back for all five such codes.
+- **The template check scanned five places**, and every place it skipped held codes no template covered.
+  That was how 457 accumulated without a test failing.
+
+**Not done here.** The other 376 codes, by area:
+
+| Area | Codes |
+|---|---|
+| `io/` | 58 |
+| `core/` | 49 |
+| `core/models/` | 45 |
+| `core/instruments/` | 39 |
+| `core/techniques/levelling/` | 38 |
+| `core/techniques/gnss/` | 32 |
+| `core/adjustment/` | 30 |
+| `core/techniques/total_station/` | 30 |
+| `core/techniques/gravimetry/` | 14 |
+| `core/geodesy/` | 13 |
+| `core/statistics/` | 7 |
+| `core/preanalysis/` | 6 |
+| `core/visualization/` | 6 |
+| `core/techniques/integration/` | 4 |
+| `reports/` | 3 |
+| `services/` | 2 |
+
+Some are guards no user input reaches, such as a matrix of the wrong shape passed between two functions.
+They still need words, because a defect is exactly when they surface. The readers in `io/` come first:
+there a malformed file is the user's, and the message is all they have to find it.
+
 ---
 
 ## P13 — Validation, documentation and release

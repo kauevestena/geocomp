@@ -61,6 +61,10 @@ class BatchResult(Generic[T]):
     code: str = ""
     detail: str = ""
     seconds: float = 0.0
+    #: The failure itself, so the presentation layer can phrase it with its
+    #: template -- ``detail`` is the code and its context, which is a record and
+    #: not a message. Not compared and not serialised: ``code`` is the record.
+    error: GeoCompError | None = field(default=None, compare=False, repr=False)
 
     @property
     def ok(self) -> bool:
@@ -159,6 +163,7 @@ def run_batch(
                     code=error.code,
                     detail=str(error),
                     seconds=time.monotonic() - started,
+                    error=error,
                 )
             )
             continue

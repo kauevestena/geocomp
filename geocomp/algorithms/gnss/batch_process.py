@@ -263,8 +263,12 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                     .replace("%2", str(row.value["quality"]["epochs"] if row.value else 0))
                 )
             else:
+                # The template, with the engine's own message where it has one
+                # (FR-305); the code and its context only for a failure that
+                # did not come as an error.
+                reason = translate_error(row.error) if row.error is not None else row.detail
                 feedback.pushWarning(
-                    self.tr("%1 failed: %2").replace("%1", row.key).replace("%2", row.detail)
+                    self.tr("%1 failed: %2").replace("%1", row.key).replace("%2", reason)
                 )
         counts = outcome.summary()
         feedback.pushInfo(

@@ -104,6 +104,14 @@ class TestWhatIsDeliberatelyNotCaught:
         )
         assert report.failed[0].code == "engine.rtklib_produced_no_solution"
 
+    def test_the_failure_itself_travels_so_it_can_be_phrased(self):
+        """P12c-7: the algorithm phrases it with its template, the engine's message
+        included (FR-305); ``detail`` is the code and its context, a record."""
+        error = EngineError("rtklib_run_failed", message="error : no obs data")
+        report = run_batch(["a"], lambda k: (_ for _ in ()).throw(error))
+        assert report.failed[0].error is error
+        assert "error" not in report.failed[0].to_dict()
+
 
 class TestProgressAndReporting:
     def test_progress_runs_from_zero_to_one(self):

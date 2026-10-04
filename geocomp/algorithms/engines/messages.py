@@ -1,10 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""User-facing wording for what the engine manager and engine discovery refuse (P12c-6).
+"""User-facing wording for what the engine manager, engine discovery and DynAdjust refuse.
 
 Each says what happened and what to do about it (NFR-006). Until P12c-6 none of
-these codes had a template: nothing in the plugin installed an engine, and a
-DynAdjust directory that did not exist reached the user as
-"could not complete the operation (validation.engine_path_not_found)".
+the manager's codes had a template: nothing in the plugin installed an engine,
+and a DynAdjust directory that did not exist reached the user as
+"could not complete the operation (validation.engine_path_not_found)". Until
+P12c-7 none of DynAdjust's did either: what GeoComp could not write for it,
+a stage that failed, and an output file that did not read all reached the user
+as a code -- *Adjust network (DynAdjust)* showing it with its context, the
+integration algorithms without even that.
+
+A failed stage's template carries DynAdjust's own message (FR-305), which names
+the station or measurement it could not use better than GeoComp could.
 
 Importing this module registers the templates; :mod:`geocomp.algorithms.engines`
 imports it.
@@ -89,6 +96,345 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "again.",
         "engine",
         "root",
+    ),
+    "validation.engine_release_digest_malformed": MessageTemplate(
+        "GeoComp's record of the %1 release has a malformed SHA-256 digest ('%2'), so no "
+        "download of it could be verified. This is a defect in GeoComp: please report it, "
+        "and install the engine yourself meanwhile.",
+        "engine",
+        "received",
+    ),
+    # -- DynAdjust: the network GeoComp writes for it (P12c-7) -----------------
+    "validation.dynadjust_job_without_stations": MessageTemplate(
+        "The network '%1' has no stations, so DynAdjust has nothing to adjust. Choose a "
+        "network document with its stations and observations.",
+        "network",
+    ),
+    "validation.dynadjust_confidence_out_of_range": MessageTemplate(
+        "The confidence level must be a probability strictly between 0 and 1; %1 was given.",
+        "received",
+    ),
+    "validation.dynadjust_job_frame_or_epoch_missing": MessageTemplate(
+        "DynAdjust needs an explicit reference frame and epoch, and this run is missing one "
+        "or both. GeoComp will not guess either: a guessed frame is a datum shift hidden in "
+        "the residuals. Set the reference frame and epoch in the dialog, or record them on "
+        "the network.",
+    ),
+    "validation.dynadjust_frame_or_epoch_missing": MessageTemplate(
+        "The files for DynAdjust cannot be written without an explicit reference frame and "
+        "epoch, and one or both are missing. GeoComp will not guess either. Set them on the "
+        "run or record them on the network.",
+    ),
+    "validation.dynadjust_geoid_grid_required": MessageTemplate(
+        "The network '%1' has orthometric heights, and DynAdjust cannot relate them to "
+        "ellipsoidal heights without a geoid model. Give a geoid grid (NTv2) in the dialog, "
+        "or a geoid undulation for each station.",
+        "network",
+    ),
+    "validation.dynadjust_network_would_be_partial": MessageTemplate(
+        "%1 of the %2 observations in '%3' have no DynAdjust equivalent (%4). Adjusting the "
+        "rest would answer a different question, with a variance factor that looks healthy. "
+        "Adjust this network with GeoComp's own adjustment, or remove those observations.",
+        "skipped",
+        "of",
+        "network",
+        "reasons",
+    ),
+    "validation.dynadjust_cannot_express_weighted_constraint": MessageTemplate(
+        "Station '%1' has a weighted constraint, which DynAdjust cannot express: it holds a "
+        "coordinate fixed or leaves it free, nothing between. Adjust this network with "
+        "GeoComp's own adjustment, or make the constraint fixed or free.",
+        "station",
+    ),
+    "validation.dynadjust_cannot_write_projected_coordinates": MessageTemplate(
+        "Station '%1' has projected coordinates (%2, %3), and GeoComp cannot tell which "
+        "projection that coordinate system is, so it cannot give DynAdjust the latitude and "
+        "longitude it needs. Give the stations geodetic or geocentric coordinates.",
+        "station",
+        "received",
+        "crs",
+    ),
+    "validation.dynadjust_orthometric_height_needs_a_geoid_model": MessageTemplate(
+        "Station '%1' has an orthometric height, and DynAdjust needs a height above the "
+        "ellipsoid. Give a geoid grid (NTv2) in the dialog, or a geoid undulation for this "
+        "station.",
+        "station",
+    ),
+    "validation.dynadjust_cluster_covariance_shape": MessageTemplate(
+        "The GNSS cluster '%1' has a covariance matrix of shape %2, where %3 was expected, so "
+        "it cannot be written for DynAdjust. Check the file the cluster was imported from.",
+        "cluster",
+        "received",
+        "expected",
+    ),
+    "validation.gnss_baseline_not_geocentric": MessageTemplate(
+        "The GNSS baseline '%1' is recorded as %2, and DynAdjust's baselines are geocentric "
+        "(ECEF) vectors: written as it is, it would be read back as something else. Import "
+        "the baselines as ECEF X, Y and Z components.",
+        "observation",
+        "received",
+    ),
+    "validation.combination_not_for_dynadjust": MessageTemplate(
+        "This combined network cannot be sent to DynAdjust (%1). Adjust it with GeoComp's "
+        "own adjustment.",
+        "reason",
+    ),
+    "validation.angle_not_finite": MessageTemplate(
+        "An angle in the network is %1, which is not a number DynAdjust can be given. Check "
+        "the observation it belongs to.",
+        "received",
+    ),
+    # -- DynAdjust: the run ------------------------------------------------------
+    "computation.dynadjust_program_not_found": MessageTemplate(
+        "The DynAdjust program %1 was not found. Install DynAdjust from Project > Install an "
+        "engine, or give its directory in Global Settings, under Paths and engines.",
+        "program",
+    ),
+    "computation.dynadjust_stage_failed": MessageTemplate(
+        "DynAdjust's %1 stopped with exit code %2. DynAdjust's own message: %3",
+        "program",
+        "exit_code",
+        "diagnostic",
+    ),
+    "computation.dynadjust_import_incomplete": MessageTemplate(
+        "dnaimport reported success but did not take in everything GeoComp wrote: it counted "
+        "%1, where GeoComp wrote %2. Adjusting the rest would give a plausible answer for a "
+        "different network, so the run was stopped. dnaimport's own message: %3",
+        "received",
+        "expected",
+        "diagnostic",
+    ),
+    "computation.dynadjust_output_missing": MessageTemplate(
+        "dnaadjust reported success but wrote no adjustment file (%1). Run the adjustment "
+        "again with the generated input and raw output kept, and look at its messages there.",
+        "expected",
+    ),
+    # -- DynAdjust: reading what it wrote ----------------------------------------
+    "data.dynadjust_unsupported_output_version": MessageTemplate(
+        "'%1' was written by DynAdjust %2, whose output layout GeoComp does not read; it "
+        "reads the layouts of %3. Run one of those versions.",
+        "path",
+        "received",
+        "expected",
+    ),
+    "data.dynadjust_unrecognised_output_layout": MessageTemplate(
+        "The %1 table in DynAdjust's output has columns GeoComp does not recognise, so it "
+        "was probably written by a DynAdjust version GeoComp has not been checked against. "
+        "Expected the header '%2'; found '%3'.",
+        "table",
+        "expected",
+        "found",
+    ),
+    "data.dynadjust_unknown_station_in_output": MessageTemplate(
+        "DynAdjust's output names a station that is not in the network GeoComp wrote ('%1'), "
+        "so the output and the network are not from the same run.",
+        "line",
+    ),
+    "data.dynadjust_station_name_fills_its_column": MessageTemplate(
+        "A station name fills its whole %1-character column in DynAdjust's output, so it "
+        "cannot be told apart from the next field ('%2'). Shorten the station names, or read "
+        "the output together with the network it came from.",
+        "width",
+        "line",
+    ),
+    "data.dynadjust_output_column_overflowed": MessageTemplate(
+        "A value for station '%1' was wider than the column DynAdjust reserved for it (%2), "
+        "so the fields after it cannot be read: '%3'. A latitude and longitude precision "
+        "above 6 decimals does this; run DynAdjust with the default precision.",
+        "station",
+        "column",
+        "line",
+    ),
+    "data.dynadjust_output_not_a_number": MessageTemplate(
+        "DynAdjust's output has '%1' where the %2 should be a number, in the line '%3'.",
+        "received",
+        "field",
+        "line",
+    ),
+    "data.dynadjust_output_has_no_usable_coordinates": MessageTemplate(
+        "DynAdjust's coordinate table has no position GeoComp can read: it printed %1, and "
+        "none of X/Y/Z, latitude/longitude or easting/northing. Write the adjustment with "
+        "one of those coordinate outputs.",
+        "coordinate_types",
+    ),
+    "data.dynadjust_angular_format_unknown": MessageTemplate(
+        "GeoComp cannot tell whether the angles in this DynAdjust output are in DDD.MMSSsss "
+        "notation or decimal degrees: the file does not record the command that wrote it. "
+        "Use the output of a run that records it, as GeoComp's own runs do.",
+    ),
+    "data.dynadjust_angular_measurement_format_unsupported": MessageTemplate(
+        "This DynAdjust output writes angles in degrees, minutes and seconds with symbols "
+        "(%1), which GeoComp does not read. Run DynAdjust with its default angular format.",
+        "received",
+    ),
+    "data.dynadjust_unknown_measurement_component": MessageTemplate(
+        "DynAdjust's output has a component '%1' for measurement %2 that GeoComp does not "
+        "know to be angular or linear, in the line '%3'.",
+        "component",
+        "measurement",
+        "line",
+    ),
+    "data.dynadjust_output_has_no_solution": MessageTemplate(
+        "'%1' records no solution: the adjustment did not reach one. DynAdjust's messages in "
+        "the same folder say why.",
+        "path",
+    ),
+    "data.dynadjust_cor_angle_unreadable": MessageTemplate(
+        "An angle in DynAdjust's corrections file (.cor) could not be read: '%1', in the line "
+        "'%2'.",
+        "received",
+        "line",
+    ),
+    "data.dynadjust_observation_has_no_code": MessageTemplate(
+        "Observation '%1' is a %2, which DynAdjust has no measurement type for, so its "
+        "adjusted value cannot be found in the output.",
+        "observation",
+        "type",
+    ),
+    "data.dynadjust_measurement_count_mismatch": MessageTemplate(
+        "DynAdjust's adjusted-measurement table has %1 rows where the network has %2 "
+        "measurements, so the rows cannot be matched to the observations. The output and the "
+        "network are not from the same run.",
+        "received",
+        "expected",
+    ),
+    "data.dynadjust_measurement_type_mismatch": MessageTemplate(
+        "The adjusted measurement for observation '%1' is a %2 in DynAdjust's output, where "
+        "a %3 was written: the rows are not in the order of the network. The output and the "
+        "network are not from the same run.",
+        "observation",
+        "received",
+        "expected",
+    ),
+    "data.dynadjust_measurement_station_mismatch": MessageTemplate(
+        "The adjusted measurement for observation '%1' joins %2 in DynAdjust's output, where "
+        "it joins %3 in the network. The output and the network are not from the same run.",
+        "observation",
+        "received",
+        "expected",
+    ),
+    "data.dynadjust_apu_row_without_a_station": MessageTemplate(
+        "A row of DynAdjust's uncertainty file (.apu) does not name a station: '%1'. The "
+        "file is damaged or in a layout GeoComp does not read.",
+        "line",
+    ),
+    "data.dynadjust_apu_covariance_before_any_station": MessageTemplate(
+        "DynAdjust's uncertainty file (.apu) has a covariance row before any station row: "
+        "'%1'. The file is damaged or in a layout GeoComp does not read.",
+        "line",
+    ),
+    "data.dynadjust_uncertainty_for_an_unknown_station": MessageTemplate(
+        "DynAdjust's uncertainty file (.apu) names stations its adjustment file (.adj) does "
+        "not: %1. The two files are not from the same run.",
+        "stations",
+    ),
+    "data.dynadjust_covariance_for_an_unknown_station": MessageTemplate(
+        "DynAdjust's uncertainty file (.apu) gives a covariance between '%1' and '%2', and "
+        "the adjustment does not have both. The two files are not from the same run.",
+        "station",
+        "other",
+    ),
+    "data.dynadjust_output_without_an_epoch": MessageTemplate(
+        "'%1' records no epoch, and GeoComp will not assume one: a solution without an epoch "
+        "cannot be compared or transformed. Run the adjustment with an explicit epoch.",
+        "path",
+    ),
+    "data.dynadjust_output_versions_disagree": MessageTemplate(
+        "The adjustment file was written by DynAdjust %1 and the uncertainty file by "
+        "DynAdjust %2, so they are not from the same run. Give the files one run wrote.",
+        "adj",
+        "apu",
+    ),
+    "validation.hp_angle_empty": MessageTemplate(
+        "An angle in DynAdjust's output is empty where a value in DDD.MMSSsss notation was "
+        "expected.",
+    ),
+    "validation.hp_angle_malformed": MessageTemplate(
+        "'%1' is not an angle in DynAdjust's DDD.MMSSsss notation.",
+        "received",
+    ),
+    "validation.hp_angle_minutes_out_of_range": MessageTemplate(
+        "The angle '%1' has 60 or more minutes, which DDD.MMSSsss notation does not allow.",
+        "received",
+    ),
+    "validation.hp_angle_seconds_out_of_range": MessageTemplate(
+        "The angle '%1' has 60 or more seconds, which DDD.MMSSsss notation does not allow.",
+        "received",
+    ),
+    "validation.epoch_malformed": MessageTemplate(
+        "'%1' is not a date in DynAdjust's dd.mm.yyyy form.",
+        "received",
+    ),
+    "validation.epoch_out_of_range": MessageTemplate(
+        "'%1' is not a real date (dd.mm.yyyy).",
+        "received",
+    ),
+    # -- DynaML and DNA files read back ------------------------------------------
+    "data.dynaml_unreadable": MessageTemplate(
+        "'%1' could not be read as a DynaML (DynAdjust XML) file: %2.",
+        "path",
+        "reason",
+    ),
+    "data.dynaml_wrong_root": MessageTemplate(
+        "'%1' is not a DynaML file: its root element is '%2', where DnaXmlFormat was expected.",
+        "path",
+        "received",
+    ),
+    "data.dynaml_wrong_file_type": MessageTemplate(
+        "'%1' is a DynaML file of type '%2', where %3 was expected.",
+        "path",
+        "received",
+        "expected",
+    ),
+    "data.dynaml_station_without_coordinates": MessageTemplate(
+        "A station in the DynaML file has no coordinates (no StationCoord element); every "
+        "station needs them.",
+    ),
+    "data.dynaml_unknown_coordinate_type": MessageTemplate(
+        "Station '%1' in the DynaML file has the coordinate type '%2', which GeoComp does not "
+        "read; it reads %3.",
+        "station",
+        "received",
+        "expected",
+    ),
+    "data.dynaml_directional_variance_scale_unsupported": MessageTemplate(
+        "Measurement %1 scales its variances (%2), which GeoComp cannot represent: only a "
+        "scale of 1 can be read. Remove the scaling, or scale the standard deviations "
+        "themselves.",
+        "measurement",
+        "received",
+    ),
+    "data.dynaml_setup_height_on_an_unaffected_type": MessageTemplate(
+        "Measurement %1 is a %2 with a %3 of %4, but a height offset does not change this "
+        "kind of measurement. Remove the offset, or check the measurement type.",
+        "measurement",
+        "type",
+        "field",
+        "received",
+    ),
+    "data.dna_unreadable": MessageTemplate(
+        "'%1' could not be read as a DynAdjust DNA file: %2.",
+        "path",
+        "reason",
+    ),
+    "data.dna_header_missing": MessageTemplate(
+        "'%1' is not a DynAdjust DNA file: its first line does not begin with !#=DNA.",
+        "path",
+    ),
+    "data.dna_directional_variance_scale_unsupported": MessageTemplate(
+        "Measurement %1 scales its variances (%2), which GeoComp cannot represent: only a "
+        "scale of 1 can be read. Remove the scaling, or scale the standard deviations "
+        "themselves.",
+        "measurement",
+        "received",
+    ),
+    "data.dna_setup_height_on_an_unaffected_type": MessageTemplate(
+        "Measurement %1 is a %2 with a %3 of %4, but a height offset does not change this "
+        "kind of measurement. Remove the offset, or check the measurement type.",
+        "measurement",
+        "type",
+        "field",
+        "received",
     ),
 }
 
