@@ -464,7 +464,7 @@ same rules: a **met** row cites a test, directly or through "As NN.N" to a met a
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
 document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
 
-**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505 (P12c-13). State now: 113 met, 12 partly met, 0 open, 0 manual, of 125.**
+**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838 (P12c-13). State now: 136 met, 13 partly met, 0 open, 0 manual, of 149.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -593,3 +593,27 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-503 | **met** | Line and loop closures against the tolerance `level.tolerance_coefficient` sets (`tests/test_levelling.py::TestClosures`), and a failing line held back from the adjustment, As 10.8 |
 | FR-504 | **met** | By length and by setups, consistent (`tests/test_levelling.py::TestWeighting`, `tests/test_levelling.py::TestTheNetwork::test_length_and_setup_weighting_agree_on_the_heights`); a network published under both waits on W-06, row 10.4 |
 | FR-505 | **met** | As 10.7 |
+| FR-600 | **met** | `geocomp:gnss_absolute_static` and `gnss_absolute_kinematic` under *GNSS > Absolute* (`tests/test_registry.py::TestNesting`) |
+| FR-601 | **met** | `geocomp:gnss_relative_static` and `gnss_relative_kinematic` under *GNSS > Relative* (`tests/test_registry.py::TestNesting`) |
+| FR-602 | **met** | As 11.4; the cluster reaches an adjustment, `tests/test_gnss_baselines.py::TestTheClusterReachesAnAdjustment` |
+| FR-603 | **partly met** | Per session, the fixed fraction, satellite count and ratio (`tests/test_gnss_baselines.py::TestTheEngineBridgeRefusesWhatItCannotUse::test_the_quality_summary_carries_what_the_run_achieved`); per epoch, the trajectory layer's status and quality columns (`tests/qgis/test_gnss_layers.py::TestTheTrajectoryLayer`). Dilution of precision is always absent: `rnx2rtkp` does not write it, and `core/techniques/gnss/quality.py` leaves the field empty rather than put another quantity in it |
+| FR-604 | **met** | As 08.8 |
+| FR-700 | **met** | `tests/test_gravimetry_network.py::TestTheDatum`; absolute values weighted, not fixed, As 12.5 |
+| FR-701 | **met** | Tide (`tests/test_gravimetry_readings.py::TestTheTide`), scale (`tests/test_gravimetry_network.py::TestTheCalibrationUncertaintyReachesTheDifferences`), drift (As 12.2). Agreement with a published scale example waits on W-02, row 12.1 |
+| FR-702 | **met** | As 12.3 |
+| FR-703 | **met** | As 12.8 |
+| FR-800 | **met** | `tests/qgis/test_integration_algorithms.py::TestGnssAndTotalStation`; clusters intact, As 13.5 |
+| FR-801 | **met** | `tests/qgis/test_integration_algorithms.py::TestTotalStationAndLevel` |
+| FR-802 | **met** | `tests/qgis/test_integration_algorithms.py::TestGnssAndLevel`; no geoid refuses, As 13.2 |
+| FR-803 | **met** | As 13.8; `tests/qgis/test_integration_algorithms.py::TestMultiple` |
+| FR-804 | **met** | As 13.2 |
+| FR-805 | **met** | As 13.3; reported per technique, As 13.7 |
+| FR-830 | **met** | A solution without an epoch cannot be built (`tests/test_models.py::TestSolution`); campaigns are bound to an epoch (`tests/test_models.py::TestProjectSerialisation`); refused where missing, As 14.2 |
+| FR-831 | **met** | As 14.1 and 14.2 |
+| FR-832 | **met** | As 14.1 |
+| FR-833 | **met** | As 14.4, with the covariance FR-207 asks for |
+| FR-834 | **met** | As 14.4; not significant is not zero, As 14.7 |
+| FR-835 | **met** | As 14.5 |
+| FR-836 | **met** | `tests/test_monitoring.py::TestStrain` |
+| FR-837 | **met** | As 14.9 |
+| FR-838 | **met** | As 14.8 |
