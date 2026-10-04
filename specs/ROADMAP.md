@@ -1878,6 +1878,41 @@ settings window names that page.
 | `core/models/` | 45 |
 | `io/` (reference-corpus readers) | 31 |
 
+#### P12c-7 — every error in words (seventh pull request): the data model
+
+**Delivered.** Templates, with pt-BR and es, for 46 codes: the 45 of `core/models/`, plus the refusal to
+combine heights of different types, which the models and the geoid module share. That leaves **79** in the
+baseline.
+
+- **Stations and their constraints (14):** a station without an id, duplicate stations, observations and
+  clusters, and constraints that are free but carry detail, hold nothing, name components the position does
+  not have, or are weighted without an uncertainty. Gravity constraints are covered the same way.
+- **Observations and clusters (13):** the wrong number of stations or values for the type, a value without
+  its uncertainty or in the wrong unit, a correlated type outside a cluster, an active observation carrying a
+  rejection record, a setup height not in metres or one the type would silently ignore, a multi-component
+  observation read as one value, an unknown baseline frame, and clusters that are empty, list a member twice
+  or carry a covariance of the wrong size.
+- **Positions and heights (6):** the component count, uncertainty and unit, a position without a CRS, an
+  unknown component, and heights of two types without a geoid model.
+- **Epochs and solutions (6):** an epoch that is not finite or has no time zone, an operation that needs an
+  epoch it was not given, the adjusted gravity's unit, a solution without a CRS, and a station the solution
+  does not hold.
+- **GNSS sessions and the project document (7):** a session without an id or that ends before it starts, an
+  antenna height not in metres, duplicate sessions, networks and campaigns, and a project written by a newer
+  GeoComp.
+
+A refusal never lists a solution's stations: a network of 10,000 would put all of them in one message.
+
+**Found.** No defect. `Project.require_schema_version` has no caller. The store refuses a newer schema
+itself (`store_schema_too_new`, which already has words), so its template is for a check nothing makes yet.
+
+**Not done here.** 79 codes:
+
+| Area | Codes |
+|---|---|
+| `core/` (top level) | 48 |
+| `io/` (reference-corpus readers) | 31 |
+
 ---
 
 ## P13 — Validation, documentation and release

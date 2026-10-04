@@ -170,6 +170,27 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
         "expected",
     ),
+    # -- the project document (P12c-7) ------------------------------------------
+    "data.duplicate_network": MessageTemplate(
+        "The project '%2' already has a network '%1'. Give the new network another id, or "
+        "replace the existing one.",
+        "network",
+        "project",
+    ),
+    "data.duplicate_campaign": MessageTemplate(
+        "The project '%2' already has a campaign '%1'. Give the new campaign another id, or "
+        "replace the existing one.",
+        "campaign",
+        "project",
+    ),
+    "validation.schema_version_too_new": MessageTemplate(
+        "The project '%1' was written with storage schema %2, and this version of GeoComp reads "
+        "up to schema %3. Reading a schema it does not understand would corrupt the project; "
+        "update GeoComp to open it.",
+        "project",
+        "received",
+        "supported",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

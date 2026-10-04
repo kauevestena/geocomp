@@ -427,6 +427,27 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "components were expected.",
         "received",
     ),
+    # -- GNSS sessions in the project (P12c-7) ----------------------------------
+    "data.gnss_session_without_id": MessageTemplate(
+        "A GNSS session has no id; baselines refer to a session by it. Give every session one.",
+    ),
+    "data.gnss_session_ends_before_it_starts": MessageTemplate(
+        "The GNSS session '%1' ends at %3, before it starts at %2. Check the session's times.",
+        "session",
+        "start",
+        "end",
+    ),
+    "data.antenna_height_unit": MessageTemplate(
+        "The antenna height of the GNSS session '%1' is in %2; an antenna height is a length in "
+        "metres.",
+        "session",
+        "received",
+    ),
+    "data.duplicate_gnss_session": MessageTemplate(
+        "The project '%2' already has a GNSS session '%1'. Give each session its own id.",
+        "session",
+        "project",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

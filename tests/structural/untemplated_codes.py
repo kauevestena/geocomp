@@ -12,8 +12,10 @@ and their mappings, geoid grids, the tables export -- and its third the 67 of
 the levelling and total-station techniques, which a user's observations reach;
 its fourth the 51 of GNSS, gravimetry and integration, which finish the
 techniques; its fifth the 61 of the adjustment, geodesy, statistics,
-pre-analysis and the drawing of ellipses; and its sixth the 44 of the
-instrument profiles, the report templates and the settings service.
+pre-analysis and the drawing of ellipses; its sixth the 44 of the instrument
+profiles, the report templates and the settings service; and its seventh the 46
+of the data model -- stations, observations, clusters, positions, epochs,
+solutions and the project document.
 
 The list may only shrink. ``tests/structural/test_message_templates.py`` fails
 on a code raised without a template that is not listed here -- a new code
@@ -29,7 +31,7 @@ from __future__ import annotations
 
 UNTEMPLATED: frozenset[str] = frozenset(
     {
-        # core/ (49)
+        # core/ (48)
         "data.basemap_catalogue_unreadable",
         "data.covariance_duplicate_labels",
         "data.covariance_label_count",
@@ -62,7 +64,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.height_conversion_unsupported",
         "validation.height_wrong_unit",
         "validation.hypot_at_origin",
-        "validation.incompatible_height_types",
         "validation.incompatible_units",
         "validation.jacobian_not_2d",
         "validation.jacobian_shape_mismatch",
@@ -79,52 +80,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.sqrt_of_negative",
         "validation.unknown_covariance_label",
         "validation.value_count_mismatch",
-        # core/models/ (45)
-        "data.active_observation_with_rejection",
-        "data.antenna_height_unit",
-        "data.baseline_frame_unknown",
-        "data.cluster_duplicate_members",
-        "data.cluster_size_mismatch",
-        "data.cluster_without_members",
-        "data.constrained_station_without_position",
-        "data.duplicate_campaign",
-        "data.duplicate_cluster",
-        "data.duplicate_gnss_session",
-        "data.duplicate_network",
-        "data.duplicate_observation",
-        "data.duplicate_station",
-        "data.gnss_session_ends_before_it_starts",
-        "data.gnss_session_without_id",
-        "data.observation_arity",
-        "data.observation_component_count",
-        "data.observation_requires_cluster",
-        "data.observation_setup_height_unit",
-        "data.observation_type_ignores_setup_heights",
-        "data.observation_value_not_a_quantity",
-        "data.observation_value_unit",
-        "data.station_without_id",
-        "validation.adjusted_gravity_unit",
-        "validation.constraint_unknown_components",
-        "validation.constraint_without_components",
-        "validation.constraint_without_position",
-        "validation.epoch_instant_naive",
-        "validation.epoch_not_finite",
-        "validation.epoch_required",
-        "validation.free_constraint_with_detail",
-        "validation.gravity_constraint_unit",
-        "validation.gravity_constraint_without_value",
-        "validation.gravity_value_without_gravity_component",
-        "validation.observation_is_not_scalar",
-        "validation.position_component_count",
-        "validation.position_component_not_a_quantity",
-        "validation.position_component_unit",
-        "validation.position_without_crs",
-        "validation.schema_version_too_new",
-        "validation.solution_without_crs",
-        "validation.station_not_in_solution",
-        "validation.unknown_position_component",
-        "validation.weighted_constraint_without_covariance",
-        "validation.weighted_gravity_constraint_without_uncertainty",
         # io/ (31) -- all in krumm.py and adjust.py, which read the RD-11 and ADJUST
         # reference corpora for the tests and scripts; no algorithm reaches them.
         "data.adjust_angle_out_of_range",
