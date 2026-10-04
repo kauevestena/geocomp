@@ -2255,6 +2255,20 @@ FR-300 to FR-359: 19 met and 4 partly met, of 23.
 
 Six blocks remain.
 
+#### P12c-13 — every requirement held to a test (fifth pull request): total station and level
+
+FR-400 to FR-505: 18 met and 1 partly met, of 19. The computations are tested against constructed truth;
+the three rows that wait on published examples (09 5, 10 1, 10 4) are the acceptance register's, and are not
+counted again here.
+
+**Found, not fixed: the grid reduction (FR-405).** The reductions to the ellipsoid and to the projection
+plane propagate their uncertainty, but no algorithm applies them. *Classical network* adjusts measured
+distances in the plane of the approximate coordinates with no scale factor, so a network on a projected CRS
+takes ground distances as grid distances: 400 to 1000 ppm on UTM, plus the height term. That is design work, not an audit fix, and
+specs/09 §2 now records it. It is the most consequential gap the audit has found so far.
+
+Four blocks remain.
+
 ---
 
 ## P13 — Validation, documentation and release

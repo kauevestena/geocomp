@@ -176,6 +176,17 @@ worth doing quietly.
 Each carries the uncertainty of the heights and coordinates it used (FR-205) — the reduction of a distance to
 the ellipsoid is only as certain as the height it was reduced with.
 
+**Not applied by any algorithm (found by P12c-13's requirement audit).** The two reductions exist in
+`core/techniques/total_station/reductions.py` and propagate their uncertainty, but nothing calls them.
+*Preprocess* runs before coordinates are known, so it cannot take a station's height or its point scale
+factor. *Classical network* adjusts the measured distances in the plane of the approximate coordinates with
+no scale factor. On a projected CRS, ground distances are therefore taken as grid distances. On UTM the
+scale factor runs from 0.9996 at the central meridian to about 1.001 at a zone's edge, so the error is
+400 to 1000 ppm, plus about 157 ppm for each kilometre of height above the ellipsoid. Against grid control,
+it surfaces in the residuals and the variance factor. The reductions belong
+where the coordinates and the CRS are both known, in the network adjustment. FR-405 is partly met until
+they are applied there ([`20`](./20-testing-and-validation.md) §11).
+
 ---
 
 ## 3. The stochastic model
