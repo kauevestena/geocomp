@@ -88,7 +88,7 @@ def _field_mapping(parent: QWidget | None, _canvas: Any = None) -> dict[str, Any
         parent,
         _tr("Choose a field book"),
         "",
-        _tr("Field books (*.csv *.txt);;All files (*)"),
+        _tr("Field books (*.csv *.xlsx *.txt);;All files (*)"),
     )
     if not source:
         return None

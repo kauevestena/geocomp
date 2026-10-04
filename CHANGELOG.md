@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-13 — Field books and coordinates from Excel workbooks
+
+#### Added
+
+- *Import total station field book* and *Import levelling book* read `.xlsx` workbooks as well as CSV,
+  and so does the field-mapping dialog's preview. The first sheet is read; a number arrives exactly as it
+  was typed.
+- *Total station network* reads approximate coordinates from a CSV or `.xlsx` table, with a station, its
+  easting, northing and height on each row, as well as from a JSON document.
+- A project store now records each engine run of a stored solution in its run log table, which was always
+  empty before.
+
 ### P12c-13 — Every platform requirement checked; Basic mode, the toolbar, engine runs
 
 #### Changed

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Exporting networks and results to CSV and ``.xlsx`` (FR-162).
+"""Exporting networks and results to CSV and ``.xlsx`` (FR-162), and reading both (FR-160).
 
 ``specs/17-persistence-and-interoperability.md`` section 5.1.
 
@@ -18,9 +18,15 @@ formulas, no styling and no formats, and the whole writer is under a hundred
 lines of standard library. Requiring a dependency a QGIS user cannot ``pip
 install`` -- in order to produce a file GeoComp can perfectly well produce
 itself -- buys nothing and costs the feature on exactly the machines least able
-to fix it. So ``.xlsx`` export always works, everywhere, and ``openpyxl``
-remains optional for the day GeoComp needs to *read* one, which is a genuinely
-harder problem.
+to fix it. So ``.xlsx`` export always works, everywhere.
+
+**Reading one is built in too (P12c-13).** FR-160 asks for field books from
+``.xlsx`` as well as CSV, and until P12c-13 only CSV was read. What an importer
+needs from a workbook is the first sheet's cells as text, and that is the
+shared-strings table, the sheet's XML and the relationship between them --
+again standard library. Formulas are not evaluated: the value a spreadsheet
+program saved with them is what is read. Dates are read as the serial numbers
+they are stored as; no field book has a date column.
 
 Numbers are written at full precision, never formatted. A spreadsheet is
 somebody's next input, and a coordinate rounded on the way out is a coordinate
@@ -30,20 +36,25 @@ rounded for whatever they do next.
 from __future__ import annotations
 
 import csv
+import re
 import zipfile
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 from xml.sax.saxutils import escape
 
-from geocomp.core.errors import ValidationError
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models import Network, Solution
 
 __all__ = [
     "COMPARISON_FIELDS",
     "SHEETS",
     "Sheet",
+    "read_coordinates",
+    "read_rows",
+    "read_workbook_rows",
     "sheet_rows",
     "write_csv",
     "write_workbook",
@@ -521,3 +532,149 @@ def write_workbook(
             add(f"xl/worksheets/sheet{index}.xml", _sheet_xml(sheet.headers, rows))
 
     return target
+
+
+# -- reading: CSV, or the first sheet of an .xlsx (FR-160) ---------------
+
+_MAIN = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+_RELATIONSHIP = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+_PACKAGE = "{http://schemas.openxmlformats.org/package/2006/relationships}"
+_REFERENCE = re.compile(r"^([A-Z]+)\d*$")
+
+
+def read_rows(path: str | Path, *, encoding: str = "utf-8-sig") -> list[list[str]]:
+    """The rows of a CSV file, or of an ``.xlsx`` workbook's first sheet, as text.
+
+    One reader for every importer, so a field book is the same rows whichever
+    of the two it arrives as. ``utf-8-sig`` for CSV because spreadsheet
+    exporters routinely write a byte-order mark.
+    """
+    source = Path(path)
+    if source.suffix.lower() == ".xlsx":
+        return read_workbook_rows(source)
+    with open(source, encoding=encoding, newline="") as handle:
+        return list(csv.reader(handle))
+
+
+def read_workbook_rows(path: str | Path) -> list[list[str]]:
+    """The first worksheet of an ``.xlsx``, every row as wide as the widest.
+
+    A cell the sheet leaves out is ``""``, as an empty CSV field is. Numbers
+    are their shortest exact decimal: a spreadsheet stores ``45.302`` as
+    ``45.302000000000007``, and the field book said ``45.302``.
+    """
+    source = Path(path)
+    try:
+        with zipfile.ZipFile(source) as archive:
+            names = set(archive.namelist())
+            strings = (
+                _shared_strings(archive.read("xl/sharedStrings.xml"))
+                if "xl/sharedStrings.xml" in names
+                else []
+            )
+            sheet = ElementTree.fromstring(archive.read(_first_sheet(archive)))
+    except (zipfile.BadZipFile, KeyError, ElementTree.ParseError, ValueError) as error:
+        raise DataError("workbook_unreadable", path=str(source)) from error
+
+    rows: dict[int, dict[int, str]] = {}
+    for row in sheet.iter(f"{_MAIN}row"):
+        number = int(row.get("r") or (max(rows, default=0) + 1))
+        cells: dict[int, str] = {}
+        column = 0
+        for cell in row.findall(f"{_MAIN}c"):
+            reference = cell.get("r")
+            column = _column_index(reference) if reference else column + 1
+            cells[column] = _cell_text(cell, strings)
+        rows[number] = cells
+    if not rows:
+        return []
+    width = max((max(cells) for cells in rows.values() if cells), default=0)
+    return [
+        [rows.get(number, {}).get(column, "") for column in range(1, width + 1)]
+        for number in range(1, max(rows) + 1)
+    ]
+
+
+def _first_sheet(archive: zipfile.ZipFile) -> str:
+    """The part holding the workbook's first sheet, by its relationship."""
+    workbook = ElementTree.fromstring(archive.read("xl/workbook.xml"))
+    first = workbook.find(f"{_MAIN}sheets/{_MAIN}sheet")
+    if first is None:
+        raise ValueError("the workbook has no sheet")
+    identifier = first.get(f"{_RELATIONSHIP}id")
+    relationships = ElementTree.fromstring(archive.read("xl/_rels/workbook.xml.rels"))
+    for relationship in relationships.iter(f"{_PACKAGE}Relationship"):
+        if relationship.get("Id") == identifier:
+            target = relationship.get("Target", "")
+            return target.lstrip("/") if target.startswith("/") else f"xl/{target}"
+    raise ValueError("the first sheet has no part")
+
+
+def _shared_strings(xml: bytes) -> list[str]:
+    """The workbook's string table. Phonetic runs (``rPh``) are not the text."""
+    table = []
+    for item in ElementTree.fromstring(xml).findall(f"{_MAIN}si"):
+        parts = [item.find(f"{_MAIN}t"), *(run.find(f"{_MAIN}t") for run in item.findall(f"{_MAIN}r"))]
+        table.append("".join(part.text or "" for part in parts if part is not None))
+    return table
+
+
+def _column_index(reference: str) -> int:
+    """``A1`` -> 1, ``AA7`` -> 27."""
+    match = _REFERENCE.match(reference)
+    if match is None:
+        raise ValueError(f"not a cell reference: {reference}")
+    index = 0
+    for letter in match.group(1):
+        index = index * 26 + ord(letter) - ord("A") + 1
+    return index
+
+
+def _cell_text(cell: ElementTree.Element, strings: list[str]) -> str:
+    kind = cell.get("t", "n")
+    if kind == "inlineStr":
+        return "".join(node.text or "" for node in cell.iter(f"{_MAIN}t"))
+    value = cell.find(f"{_MAIN}v")
+    text = value.text or "" if value is not None else ""
+    if kind == "s":
+        return strings[int(text)] if text else ""
+    if kind == "b":
+        return "TRUE" if text == "1" else "FALSE"
+    if kind == "n" and text and any(mark in text for mark in ".eE"):
+        return repr(float(text))
+    return text
+
+
+def read_coordinates(path: str | Path) -> dict[str, tuple[float, float, float]]:
+    """Stations and their coordinates from a CSV or ``.xlsx`` table (FR-160).
+
+    One row per station: its name, then easting, northing and height in metres.
+    A first row whose coordinates are not numbers is a header and is skipped;
+    blank rows are skipped. A decimal comma is read as a decimal point, as in
+    a field book (:func:`geocomp.io.mapping.parse_number`).
+    """
+    from geocomp.io.mapping import parse_number
+
+    source = Path(path)
+    coordinates: dict[str, tuple[float, float, float]] = {}
+    first = True
+    for number, row in enumerate(read_rows(source), start=1):
+        cells = [cell.strip() for cell in row]
+        if not any(cells):
+            continue
+        try:
+            if len(cells) < 4 or not cells[0]:
+                raise ValueError("not a station and three coordinates")
+            values = tuple(parse_number(cell, "auto") for cell in cells[1:4])
+        except ValueError as error:
+            if first:
+                first = False
+                continue
+            raise DataError(
+                "coordinate_row_unreadable", path=str(source), row=number
+            ) from error
+        first = False
+        coordinates[cells[0]] = (values[0], values[1], values[2])
+    if not coordinates:
+        raise DataError("coordinate_table_empty", path=str(source))
+    return coordinates

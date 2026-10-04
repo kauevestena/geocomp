@@ -676,6 +676,21 @@ class ProjectStore:
                 "strategies": _dumps(payload.get("strategies")),
             },
         )
+        # FR-131's processing logs: one row per engine run the provenance
+        # carries (FR-036). The table was declared in P5 and written by nothing
+        # until P12c-13, so the store held no log however the result was made.
+        self._execute('DELETE FROM "gc_run" WHERE provenance_id = ?', (identifier,))
+        for index, run in enumerate((payload.get("parameters") or {}).get("runs") or ()):
+            self._insert(
+                "gc_run",
+                {
+                    "id": f"{identifier}-run-{index + 1}",
+                    "provenance_id": identifier,
+                    "kind": str(run.get("program") or payload.get("engine") or "engine"),
+                    "exit_code": run.get("exit_code"),
+                    "log": _dumps(run),
+                },
+            )
         return identifier
 
     def _write_solution(self, solution: Solution) -> None:

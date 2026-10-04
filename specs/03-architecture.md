@@ -242,6 +242,11 @@ omits it, and the export tests that need it skip there — which is what proves 
 `openpyxl` would return as an optional *runtime* dependency the day GeoComp needs to **read** an `.xlsx`,
 which is a genuinely harder problem than writing one.
 
+**Amendment (P12c-13): reading needed no dependency either.** What an importer needs is the first sheet's
+cells as text: the shared-string table, the sheet and the relationship between them, about eighty lines of
+standard library beside the writer ([`17`](./17-persistence-and-interoperability.md) §5.1). Formulas are not
+evaluated and dates stay serial numbers, neither of which a field book needs. `openpyxl` stays test-only.
+
 ---
 
 ## 4. Extension points
