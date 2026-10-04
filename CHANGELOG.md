@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-16 — Instrument profiles in a window
+
+#### Added
+
+- *Instrument profiles…*, on the Total Station, Level and Gravimeter pages of Global Settings, opens a window
+  that manages a profile library. Total stations, reflectors, levels, levelling classes and gravimeters can
+  be added, edited, duplicated, deleted, imported and exported, and a default chosen. It edits the same file
+  an algorithm's *Instrument profiles* input reads.
+- Values are edited in the units they are read in: angles in seconds of arc, cc or µrad as the interface is
+  set, constants in millimetres, EDM proportional terms in ppm. The file keeps radians and metres, as before.
+- Importing another library adds the profiles it does not already have and never replaces one.
+
 ### P12c-15 — The panels no longer freeze QGIS
 
 #### Fixed

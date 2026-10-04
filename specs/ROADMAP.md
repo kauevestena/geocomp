@@ -2377,6 +2377,24 @@ reading the 37 MB document and a quarter of a second filling the observation tab
 **Not done.** The pre-analysis dialog still evaluates the design on the GUI thread at each click: 177 ms at
 225 stations, which a design drawn by hand does not reach.
 
+#### P12c-16 — instrument profiles in a window (FR-069, FR-061)
+
+Until P12c-16 a total station, reflector, level, levelling class or gravimeter profile was edited as a JSON
+document. The library could add a profile and refuse a duplicate id, and no window did either.
+
+**Delivered** ([`15`](./15-ui-menu-and-settings.md) §2.2, *As built*).
+
+| | |
+|---|---|
+| The window | `gui/profiles_dialog.py`. It has one tab per kind and opens, saves and saves-as the same library file an algorithm's *Instrument profiles* input reads. It adds, edits, duplicates, deletes, imports and exports profiles, and chooses the default. Import adds only new ids and keeps this library's profile where an id is taken. Unsaved changes are asked about before they are discarded. The Total Station, Level and Gravimeter pages of Global Settings each open it on their own tab |
+| Units a surveyor reads | Angles are shown in the interface's small-angle unit (″, cc or µrad), constants in mm, EDM proportional terms in ppm, a level's σ in mm/√km and a gravimeter's in µGal. The file keeps radians, metres and ratios. `core/instruments/editing.py` holds the fields, the conversions and the operations, tested without QGIS |
+| Refusals in the profile's words | An edit is read back through the profile's own `from_dict`, so a negative σ is refused with the message a file would get, and the library is left as it was |
+
+**Not done.** No setting names the library a run reads, so FR-061 stays partly met. Each run is still given
+the file. Making a library every run's default needs a rule for a library that lacks the technique's kind,
+and that rule is the next step. The window does not edit a gravimeter's counter-to-milligal table: the table
+is kept as imported.
+
 ---
 
 ## P13 — Validation, documentation and release

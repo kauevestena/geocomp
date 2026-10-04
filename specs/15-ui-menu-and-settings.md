@@ -330,6 +330,39 @@ the observations it affects.
 Profiles export and import as files, so an organisation can distribute a calibrated instrument definition to
 its staff.
 
+**As built (P12c-16).** Until P12c-16 a profile was edited as a JSON document, and no window managed one.
+*Instrument profiles…*, on the Total Station, Level and Gravimeter pages of Global Settings, now opens
+`gui/profiles_dialog.py` on that technique's tab:
+
+- **One library, one file.** The window opens, saves and saves-as the same profile library file an
+  algorithm's *Instrument profiles* input reads. There is no second store of profiles that a run could fail
+  to see. It has one tab for each kind: total stations, reflectors, levels, levelling classes and gravimeters.
+- **Add, edit, duplicate, delete, default.** An id is fixed once given, because observations reference it
+  (§2.2 above): a profile is renamed by duplicating it. The first profile of a kind becomes its default, as
+  the library's own `add_instrument` makes it, so a library built in the window serves a run that names no
+  instrument. Deleting the default profile clears the default rather than leaving it naming nothing.
+- **Shown in a surveyor's units, stored in the profile's.** An angle is shown in the interface's small-angle
+  unit (″, cc or µrad, as *Angle format* is set), a prism or EDM constant in millimetres, an EDM's
+  proportional term in ppm, a levelling σ in mm/√km and a gravimeter's in µGal. The file keeps radians,
+  metres and ratios. A decimal comma is accepted. Constants are shown as a value and its σ.
+- **Refused in the profile's own words.** An edit is applied to the profile's serialised form and read back
+  through its `from_dict`. So a value the profile refuses, such as a negative σ or a counter-reading
+  gravimeter without its table, is refused with the same message as a file would be, and nothing is changed.
+- **Import adds and never replaces.** Importing another library adds the profiles whose ids are new and keeps
+  this library's where an id is already used, and it lists both. Export writes only the profiles selected.
+- **Unsaved changes are asked about** before *New*, *Open* or closing discards them.
+
+What the form does not edit it keeps. A gravimeter's counter-to-milligal table is the main case: it is long
+and is copied from the manufacturer's sheet, so it is imported with the profile and is not typed in.
+The operations and the units are `geocomp/core/instruments/editing.py`, tested without QGIS in
+`tests/test_profile_editing.py`. The window is tested in `tests/qgis/test_profiles_dialog.py`.
+
+**Not yet: a library every run reads.** Global Settings does not remember a library. Each run is given one
+through its *Instrument profiles* input, or uses the built-in default, and the window opens empty until a
+file is opened. A setting naming the library is the obvious step, but it would change what every technique
+reads. For example, a library holding only total stations, once made the levelling default, must not stop a
+levelling run that worked without one. So it is designed separately.
+
 ### 2.3 Layered settings (FR-068)
 
 Three scopes, resolving **run parameter → project → global → built-in default**.

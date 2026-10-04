@@ -776,6 +776,26 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "levelling_class",
         "expected",
     ),
+    # -- the profile window (FR-069, P12c-16) ------------------------------------
+    "data.profile_library_not_an_object": MessageTemplate(
+        "%1 holds JSON, but not a profile library: a library is an object with lists of "
+        "instruments, reflectors, levels and gravimeters.",
+        "path",
+    ),
+    "validation.duplicate_profile": MessageTemplate(
+        "A profile with the id '%1' is already in the library. Choose another id.",
+        "received",
+    ),
+    "validation.unknown_profile": MessageTemplate(
+        "The library has no profile with the id '%1'.",
+        "received",
+    ),
+    "validation.profile_value_not_a_number": MessageTemplate(
+        "The value given for %1 is not a number: '%2'. Enter a number, with a point or "
+        "a comma for the decimals.",
+        "parameter",
+        "received",
+    ),
     "validation.duplicate_instrument_profile": MessageTemplate(
         "Two instrument profiles share the id '%1'. Rename or replace one of them.",
         "instrument",

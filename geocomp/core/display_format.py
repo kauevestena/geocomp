@@ -135,17 +135,22 @@ class DisplayFormat:
             return "µrad"
         return "″"
 
+    @property
+    def small_angle_factor(self) -> float:
+        """How many :attr:`small_angle_symbol` units there are in a radian: what
+        an editor multiplies by to show a small angle and divides by to store it."""
+        if self.angle_format == "gon":
+            return _CC_PER_RADIAN
+        if self.angle_format == "radian":
+            return 1.0e6
+        return _ARCSECONDS_PER_RADIAN
+
     def small_angle(self, radians: float | None) -> str:
         """A misclosure, a residual, an index error: a number in :attr:`small_angle_symbol`."""
         missing = _missing(radians)
         if missing is not None:
             return missing
-        if self.angle_format == "gon":
-            value = radians * _CC_PER_RADIAN
-        elif self.angle_format == "radian":
-            value = radians * 1.0e6
-        else:
-            value = radians * _ARCSECONDS_PER_RADIAN
+        value = radians * self.small_angle_factor
         return localised(f"{value:.{self.angle_decimals}f}")
 
     # -- lengths -----------------------------------------------------------

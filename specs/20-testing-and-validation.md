@@ -468,7 +468,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 157 met, 18 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 158 met, 17 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -489,7 +489,7 @@ without a row.
 | FR-035 | **met** | As 16.7 |
 | FR-036 | **met** | DynAdjust: since P12c-13 each stage's command, exit code, wall time and the ends of stdout and stderr in the solution's provenance (`tests/test_dynadjust_pipeline.py::TestTheProvenance`); until then the command lines and one exit code. RTKLIB: since P12c-13 the run and the engine's version in every GNSS algorithm's JSON output (`tests/qgis/test_engine_runs.py::TestTheVersion`); until then neither |
 | FR-060 | **met** | As 15.4 |
-| FR-061 | **partly met** | The closure, face and sight tolerances are settings (`tests/test_settings_def.py`). The instrument constants — vertical index, EDM additive and scale, prism constants, nominal precisions — are kept in named profile documents, not in Global Settings, by [`15`](./15-ui-menu-and-settings.md) §2.2's decision, and no window manages them: see FR-069 |
+| FR-061 | **partly met** | The closure, face and sight tolerances are settings (`tests/test_settings_def.py`). The instrument constants — vertical index, EDM additive and scale, prism constants, nominal precisions — are named profiles, not single settings, by [`15`](./15-ui-menu-and-settings.md) §2.2's decision. Since P12c-16 they are managed from Global Settings, whose Total Station, Level and Gravimeter pages open the profiles window (`tests/qgis/test_profiles_dialog.py::TestFromGlobalSettings`). No setting names the library a run reads: each run is given it through its *Instrument profiles* input, or uses the built-in default |
 | FR-062 | **met** | The model and the default temperature, pressure and humidity are settings read by *Preprocess* (`tests/test_settings_def.py`, `tests/structural/test_settings_are_honoured.py`) |
 | FR-063 | **met** | The thirteen `gnss.*` settings, every one read (`tests/structural/test_settings_are_honoured.py`) |
 | FR-064 | **partly met** | The outlier parameters and the confidence level are settings, and the default sigmas of directions, zenith angles and slope distances (`tests/structural/test_settings_are_honoured.py`). No setting gives a default for the other seventeen observation types: their sigma must come from the data or an instrument profile, or the adjustment refuses rather than invent one ([`05`](./05-uncertainty-and-covariance.md) §5) |
@@ -497,7 +497,7 @@ without a row.
 | FR-066 | **partly met** | The DynAdjust and RTKLIB locations are settings (`tests/qgis/test_engine_install.py`). Working directories and report templates are each algorithm's parameters, not settings, by P12c-6's decision ([`15`](./15-ui-menu-and-settings.md) §2.1) |
 | FR-067 | **met** | Language (As 18.3), usage mode (`tests/qgis/test_basic_advanced_identity.py`), units and angle format (`tests/test_number_format.py`) |
 | FR-068 | **met** | As 15.6 |
-| FR-069 | **partly met** | Named profiles exported and imported as files and computing identically (As 15.5); the library adds and refuses duplicates by id (`geocomp/core/instruments/profiles.py`). There is no window to add, edit, duplicate or delete one: a profile is edited as a document |
+| FR-069 | **met** | Since P12c-16 the profiles window adds, edits, duplicates, deletes, imports and exports them, and chooses the default (`tests/qgis/test_profiles_dialog.py`); the operations and the units they are edited in are tested without QGIS (`tests/test_profile_editing.py`). Profiles exported and imported compute identically (As 15.5). Until then a profile was edited as a document |
 | FR-070 | **partly met** | Since P12c-13 Basic hides the advanced parameters and Advanced shows them (`tests/qgis/test_basic_advanced_identity.py::test_basic_mode_shows_the_reduced_set`). Until then both modes showed the same set and the setting changed nothing. A user-supplied engine configuration is FR-325's, in the engines block |
 | FR-071 | **met** | As 15.7 |
 | FR-090 | **met** | As 18.2 |
