@@ -1951,7 +1951,10 @@ single message.
 covered: what *Inspect network*, the field-book import and the pre-analysis dialog report as warnings. Each
 carries a code and an English sentence, and the presentation layer shows the sentence untranslated. That
 gap is outside NFR-006's error messages and is FR-091's to close. It needs a template per finding code, as
-errors have, and is recorded here rather than widened into this pull request.
+errors have, and is recorded here rather than widened into this pull request. One refusal still reaches the
+user as a diagnostic through that gap. The levelling-book import makes a refused setup or line into a
+finding whose text is `f"setup {id}: {error}"`, so the code and context reach the import report. It goes
+with the findings, as P12c-8.
 
 ---
 
