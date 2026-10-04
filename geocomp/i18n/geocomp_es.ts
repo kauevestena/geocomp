@@ -6613,6 +6613,10 @@
             <translation>%1 eliminado.</translation>
         </message>
         <message>
+            <source>%1 does not exist yet. It is written there when saved.</source>
+            <translation>%1 todavía no existe. La biblioteca se escribe en esa ubicación al guardar.</translation>
+        </message>
+        <message>
             <source>%1 is the default.</source>
             <translation>%1 es el predeterminado.</translation>
         </message>
@@ -7449,6 +7453,10 @@
             <translation>Gravímetro</translation>
         </message>
         <message>
+            <source>Gravimeter profile library</source>
+            <translation>Biblioteca de perfiles de gravímetro</translation>
+        </message>
+        <message>
             <source>Gravimetric factor (tide amplification)</source>
             <translation>Factor gravimétrico (amplificación de la marea)</translation>
         </message>
@@ -7471,6 +7479,10 @@
         <message>
             <source>Install DynAdjust…</source>
             <translation>Instalar DynAdjust…</translation>
+        </message>
+        <message>
+            <source>Instrument profile library</source>
+            <translation>Biblioteca de perfiles de instrumento</translation>
         </message>
         <message>
             <source>Instrument profiles…</source>
@@ -7503,6 +7515,10 @@
         <message>
             <source>Level</source>
             <translation>Nivel</translation>
+        </message>
+        <message>
+            <source>Level profile library</source>
+            <translation>Biblioteca de perfiles de nivel</translation>
         </message>
         <message>
             <source>Log verbosity</source>

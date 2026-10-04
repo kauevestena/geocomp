@@ -228,8 +228,8 @@ Each row below is a requirement, taken from `tex §Painel de Configuração Glob
 
 | Section | Contents | Req |
 |---|---|---|
-| **Total Station** | Instrument profiles (§2.2): vertical index correction, collimation, EDM additive constant and scale, cyclic error, nominal precisions for direction / zenith angle / distance. Reflector profiles with prism constants. Atmospheric model and default temperature, pressure, humidity. Refraction coefficient. Closure tolerances by traverse class | FR-061, FR-062 |
-| **Level** | Default weighting (length or setups). Permissible-misclosure coefficient *k*. Sight-length, per-setup and per-line imbalance limits. Reciprocal-sight variance inflation. Orthometric corrections on or off. Whether a line that failed its tolerance may be adjusted | FR-061, FR-503, FR-504 |
+| **Total Station** | Instrument profile library (§2.2): vertical index correction, collimation, EDM additive constant and scale, cyclic error, nominal precisions for direction / zenith angle / distance. Reflector profiles with prism constants. Atmospheric model and default temperature, pressure, humidity. Refraction coefficient. Closure tolerances by traverse class | FR-061, FR-062 |
+| **Level** | Level profile library (§2.2). Default weighting (length or setups). Permissible-misclosure coefficient *k*. Sight-length, per-setup and per-line imbalance limits. Reciprocal-sight variance inflation. Orthometric corrections on or off. Whether a line that failed its tolerance may be adjusted | FR-061, FR-503, FR-504 |
 
 **Level profiles and levelling classes are not settings**, for the same reason instrument profiles are not
 (§2.2): they are named, structured records with their own uncertainties and their own provenance, so they
@@ -265,7 +265,7 @@ Wiring the ANTEX file was where the distinction between naming a setting and hon
 practice: supplying `file-rcvantfile` without also setting `pos1-posopt2` loads a calibration model
 `rnx2rtkp` then ignores, which is the quietest possible way to believe a run is calibrated. All three keys
 are written together.
-| **Gravimeter** | Gravimeter profiles: calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
+| **Gravimeter** | Gravimeter profile library (§2.2): calibration table and factor, nominal precision, drift characteristics. Tidal model. Display unit (mGal / µGal) | FR-061 |
 
 **What P8b declared.** Six settings — tide model, gravimetric factor, drift treatment, drift degree, a reading
 precision floor (the section's default weighting) and the display unit — **all six read by the computation**,
@@ -357,11 +357,29 @@ and is copied from the manufacturer's sheet, so it is imported with the profile 
 The operations and the units are `geocomp/core/instruments/editing.py`, tested without QGIS in
 `tests/test_profile_editing.py`. The window is tested in `tests/qgis/test_profiles_dialog.py`.
 
-**Not yet: a library every run reads.** Global Settings does not remember a library. Each run is given one
-through its *Instrument profiles* input, or uses the built-in default, and the window opens empty until a
-file is opened. A setting naming the library is the obvious step, but it would change what every technique
-reads. For example, a library holding only total stations, once made the levelling default, must not stop a
-levelling run that worked without one. So it is designed separately.
+**As built (P12c-17): the library a run reads.** Until P12c-17 Global Settings did not remember a library.
+Each run was given one through its *Instrument profiles* input, or used the built-in default, and the window
+opened empty. Now each technique's page names its library: *Instrument profile library*
+(`total_station.profile_library`), *Level profile library* (`level.profile_library`) and *Gravimeter
+profile library* (`gravimeter.profile_library`).
+
+- **The default of every *Instrument profiles* input.** A run given no library reads the one its technique
+  names, through the run, project and global scopes like any setting (§2.3). This applies to *Import field
+  book* and *Generalised pre-processing* for the total station, to *Import levelling field book*, *Equal
+  sights* and *Extreme sights* for levelling, and to gravimetry's *Pre-processing (scale, tide, drift)*. A run that names its own library still reads that
+  one. Empty, the default, leaves every run as it was. The rows are in
+  `tests/qgis/test_settings_reach_the_computation.py`'s `WIRING`.
+- **One per technique, not one for all.** A department may keep one file for everything, and then names it
+  three times. One setting for all three would make a library holding only total stations the levelling
+  default, and stop a levelling run that worked without one. Each setting is read only by its own
+  technique's runs, which find what they need in it or are refused as they would be had the file been given
+  by hand.
+- **The window opens the library the page names**, as the page shows it, before OK. A library named but not
+  yet written is started empty there, and *Save* writes it. A library saved from the window while the page
+  names none is entered on the page, where OK keeps it and Cancel drops it. The window alone changes no
+  setting.
+- **A project can name its own**, so a project handed to a colleague reads the constants it was computed
+  with, as §2.3 asks.
 
 ### 2.3 Layered settings (FR-068)
 

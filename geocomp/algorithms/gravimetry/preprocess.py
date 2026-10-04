@@ -32,6 +32,7 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gravimetry.common import (
     DRIFT_DEGREE_KEY,
     PRECISION_FLOOR_KEY,
+    PROFILE_LIBRARY_KEY,
     TIDE_AMPLIFICATION_KEY,
     TIDE_MODEL_KEY,
     display_decimals,
@@ -157,7 +158,11 @@ class GravimetryPreprocessAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                PROFILES, self.tr("Gravimeter profiles"), extension="json", optional=True
+                PROFILES,
+                self.tr("Gravimeter profiles"),
+                extension="json",
+                defaultValue=gravimeter_setting(PROFILE_LIBRARY_KEY) or None,
+                optional=True,
             )
         )
         self.addParameter(

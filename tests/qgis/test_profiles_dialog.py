@@ -155,3 +155,92 @@ class TestFromGlobalSettings:
             opened.close()
         finally:
             settings.deleteLater()
+
+
+class TestTheLibraryARunReads:
+    """Each technique's page names the library its runs read (P12c-17)."""
+
+    @pytest.fixture
+    def settings_window(self, qgis_app):
+        from geocomp.gui.settings_dialog import GlobalSettingsDialog
+
+        settings = GlobalSettingsDialog()
+        yield settings
+        settings.deleteLater()
+
+    @staticmethod
+    def _named(settings, key: str) -> str:
+        from geocomp.gui.settings_dialog import _editor_value
+
+        return _editor_value(settings._editors[key])
+
+    @staticmethod
+    def _name(settings, key: str, path: str) -> None:
+        from geocomp.gui.settings_dialog import _set_editor_value
+
+        _set_editor_value(settings._editors[key], path)
+
+    def test_the_page_opens_the_library_it_names(self, settings_window, library_file):
+        """As the page shows it, before OK: the window is part of the same edit."""
+        self._name(settings_window, "level.profile_library", str(library_file))
+        opened = settings_window.open_profiles("levels")
+        try:
+            assert opened.path == str(library_file)
+            assert opened.pages["levels"].current_id() == "level-1"
+        finally:
+            opened.close()
+
+    def test_a_library_saved_where_none_was_named_is_entered_on_the_page(
+        self, settings_window, tmp_path
+    ):
+        self._name(settings_window, "gravimeter.profile_library", "")
+        opened = settings_window.open_profiles("gravimeters")
+        assert opened.pages["gravimeters"].add("CG-5")
+        path = tmp_path / "gravimeters.json"
+        assert opened.save(str(path))
+        opened.reject()
+        assert self._named(settings_window, "gravimeter.profile_library") == str(path)
+
+    def test_a_library_named_elsewhere_is_left_alone(self, settings_window, library_file, tmp_path):
+        """Saved as another file, it is a copy: the page keeps the one it named."""
+        self._name(settings_window, "total_station.profile_library", str(library_file))
+        opened = settings_window.open_profiles("instruments")
+        assert opened.save(str(tmp_path / "copy.json"))
+        opened.reject()
+        assert self._named(settings_window, "total_station.profile_library") == str(library_file)
+
+    def test_a_named_library_not_yet_written_is_started_there(self, qgis_app, tmp_path):
+        from geocomp.gui.profiles_dialog import ProfileLibraryDialog
+
+        path = tmp_path / "later.json"
+        dialog = ProfileLibraryDialog(str(path))
+        try:
+            assert dialog.path == str(path) and dialog.pages["instruments"].list.count() == 0
+            assert "does not exist yet" in dialog.status.text()
+            assert dialog.pages["instruments"].add("TS-9")
+            assert dialog.save()
+            assert list(_reload(path).instruments) == ["TS-9"]
+        finally:
+            dialog.dirty = False
+            dialog.deleteLater()
+
+    def test_a_run_given_no_library_reads_the_one_named(self, geocomp_provider, library_file, tmp_path):
+        """The field book names no instrument; the named library's default is used."""
+        from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingFeedback
+
+        from geocomp.services.settings_service import settings
+        from tests import reference_rd01 as rd01
+
+        with settings.run_overrides({"total_station.profile_library": str(library_file)}):
+            algorithm = QgsApplication.processingRegistry().algorithmById(
+                "geocomp:totalstation_import_fieldbook"
+            ).create({})
+            _results, ok = algorithm.run(
+                {"SOURCE": str(rd01.RAW), "OUTPUT_READINGS": str(tmp_path / "readings.json")},
+                QgsProcessingContext(),
+                QgsProcessingFeedback(),
+                catchExceptions=False,
+            )
+        assert ok
+        readings = json.loads((tmp_path / "readings.json").read_text(encoding="utf-8"))
+        assert {setup["instrument_id"] for setup in readings["setups"]} == {"TS-1"}

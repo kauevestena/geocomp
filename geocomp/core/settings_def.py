@@ -355,6 +355,17 @@ SETTINGS: tuple[SettingDef, ...] = (
         maximum=0.1,
         requirement="FR-406",
     ),
+    # The profile library a run reads when it is given none (FR-061, specs/15
+    # section 2.2, P12c-17). One per technique, so that a library holding only
+    # total stations is never what a levelling run reads. A project may name its
+    # own, and a project handed on then carries the constants it was computed with.
+    SettingDef(
+        key="total_station.profile_library",
+        section="total_station",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-061",
+    ),
     # -- Level (FR-061, FR-503, FR-504). Added in phase P4. -------------------
     #
     # Level profiles and levelling accuracy classes are not settings, for the
@@ -443,6 +454,14 @@ SETTINGS: tuple[SettingDef, ...] = (
         type=SettingType.BOOL,
         default=False,
         requirement="FR-503",
+    ),
+    # As total_station.profile_library, for the levels and levelling classes.
+    SettingDef(
+        key="level.profile_library",
+        section="level",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-061",
     ),
     # -- Stochastic model (FR-064). Added in phase P3. ------------------------
     #
@@ -889,6 +908,14 @@ SETTINGS: tuple[SettingDef, ...] = (
         default="mgal",
         choices=("mgal", "ugal"),
         requirement="FR-067",
+    ),
+    # As total_station.profile_library, for the gravimeters.
+    SettingDef(
+        key="gravimeter.profile_library",
+        section="gravimeter",
+        type=SettingType.PATH,
+        default="",
+        requirement="FR-061",
     ),
 )
 

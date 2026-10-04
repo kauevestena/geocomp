@@ -139,7 +139,11 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                PROFILES, self.tr("Instrument profiles"), extension="json", optional=True
+                PROFILES,
+                self.tr("Instrument profiles"),
+                extension="json",
+                defaultValue=configured("total_station.profile_library") or None,
+                optional=True,
             )
         )
         # The meteorology a run assumes when the book records none: Global

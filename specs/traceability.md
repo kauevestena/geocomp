@@ -46,7 +46,7 @@ From `tex §Painel de Configuração Global e Menu Principal` and `fig/menu_estr
 | 4. Gravimetry | FR-700…FR-703 | P8 |
 | 5. Integration | FR-800…FR-805 | P9 |
 | 6. Analysis | FR-220…FR-227, FR-250…FR-255, FR-270…FR-273, FR-830…FR-838 | P2, P3, P10b |
-| 7. Global Settings | FR-060…FR-069 | P0, P3, P6, P7, P12c-16 |
+| 7. Global Settings | FR-060…FR-069 | P0, P3, P6, P7, P12c-16, P12c-17 |
 
 The Analysis group is not in `fig/menu_estrutura.png`: the figure shows the five technique submenus and
 Global Settings. It was added in phase P2 for the operations belonging to no single technique, settling what
@@ -114,7 +114,7 @@ this group and refuses a submenu under any other at import.
 
 | Section (tex, item 6) | Requirement | Phase |
 |---|---|---|
-| Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3; P12a — the levelling tolerance, sight limits and face tolerances are the defaults of the parameters they govern ([`15`](./15-ui-menu-and-settings.md) §2.3); P12c-16 — the instrument constants are edited in the profiles window, reached from Global Settings (§2.2) |
+| Instrumental constants: vertical index, EDM calibration, nominal precisions, closure tolerances | FR-061 | P3; P12a — the levelling tolerance, sight limits and face tolerances are the defaults of the parameters they govern ([`15`](./15-ui-menu-and-settings.md) §2.3); P12c-16 — the instrument constants are edited in the profiles window, reached from Global Settings (§2.2); P12c-17 — each technique's page names the library its runs read |
 | Atmospheric parameters: correction models, default T / P / RH | FR-062 | P3; P12a — read by Preprocess and the generic instrument profile, which until then used literals of their own |
 | GNSS configuration: product directories, servers, defaults, antenna and reference station databases | FR-063 | P7c — nine `gnss.*` settings declared and read; P10c — the **servers** half: services in priority order, a services file, the cache and the rapid-orbit fallback, all read. Credential references are QGIS authentication configuration ids in the services file, never a setting (FR-353/NFR-010) |
 | Stochastic models: default weights per type, outlier detection parameters | FR-064 | P3; P12a — the default sigmas, α, β and the confidence level reach every algorithm that uses them |

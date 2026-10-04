@@ -441,10 +441,17 @@ class ProfileLibraryDialog(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-        if path:
+        if path and Path(path).exists():
             self.open_library(path)
         else:
+            # A library named in the settings but not written yet: it is
+            # started empty, and Save writes it where it is named.
+            self.path = path
             self._show_library()
+            if path:
+                self.status.setText(
+                    _tr("%1 does not exist yet. It is written there when saved.").replace("%1", path)
+                )
         if kind in self.pages:
             self.tabs.setCurrentWidget(self.pages[kind])
 
