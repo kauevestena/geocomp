@@ -12,17 +12,23 @@ Nothing raises, nothing is logged -- the user simply reads
 which is worse than the bare code, because it looks like a finished sentence.
 
 This test closes that gap without a QGIS runtime, by reading both sides as
-source: every ``*Error("code", key=...)`` call in ``geocomp/core``,
-``geocomp/io`` and ``geocomp/services``, and every
+source: every ``*Error("code", key=...)`` call in ``geocomp/``, and every
 ``MessageTemplate`` declared in the presentation layer.
+
+Since P12c-7 it also holds the opposite gap shut: a code with no template at
+all, which the user reads as "could not complete the operation (code)". The
+codes still in that state are frozen in ``untemplated_codes.py``, and the list
+may only shrink.
 """
 
 from __future__ import annotations
 
 import ast
+import functools
 from collections import defaultdict
 
 from tests.conftest import PLUGIN_DIR, python_sources
+from tests.structural.untemplated_codes import UNTEMPLATED
 
 #: ``GeoCompError`` subclass -> the namespace it prefixes bare codes with,
 #: mirroring ``code_namespace`` in :mod:`geocomp.core.errors`.
@@ -53,6 +59,7 @@ PLANNED_CODES = {
 }
 
 
+@functools.cache
 def _raised_codes() -> dict[str, list[set[str]]]:
     """Map ``namespace.code`` to the context keys supplied at each raising site.
 
@@ -60,27 +67,12 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     context is exactly the case a template can get wrong.
     """
     found: dict[str, list[set[str]]] = defaultdict(list)
-    # The readers in `io` raise errors a user causes -- a malformed line, a file
-    # of an unknown format -- as much as the core does; phase P8b found their
-    # templates reported as stale because only `core` was read.
-    # And `services`, since P10c: the product fetcher on the QGIS network stack
-    # raises the not-found, refused-login and network failures a user reads.
-    # And `algorithms`, since P12c-6: the project and monitoring algorithms read
-    # their solution and network documents through `algorithms/project/common`,
-    # whose refusals reached the user as a code until they had templates.
-    # And the engine manager and program discovery, since P12c-6: *Install an
-    # engine* and the engine paths in Global Settings put their refusals in
-    # front of the user. The rest of `engines` -- 80-odd codes from the
-    # DynAdjust and RTKLIB adapters and parsers -- has no templates yet and is
-    # not read here; specs/ROADMAP.md records it.
-    sources = [
-        *python_sources(PLUGIN_DIR / "core"),
-        *python_sources(PLUGIN_DIR / "io"),
-        *python_sources(PLUGIN_DIR / "services"),
-        *python_sources(PLUGIN_DIR / "algorithms"),
-        PLUGIN_DIR / "engines" / "manager.py",
-        PLUGIN_DIR / "engines" / "base.py",
-    ]
+    # The whole package. It grew a directory at a time -- `io` in P8b, whose
+    # templates were reported stale because only `core` was read; `services` in
+    # P10c; `algorithms` and the engine manager in P12c-6 -- and each time the
+    # directories left out held codes a user read as a code. Since P12c-7,
+    # when the engine package's 81 got templates, nothing is left out.
+    sources = python_sources(PLUGIN_DIR)
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
@@ -97,6 +89,7 @@ def _raised_codes() -> dict[str, list[set[str]]]:
     return dict(found)
 
 
+@functools.cache
 def _declared_templates() -> dict[str, tuple[str, tuple[str, ...], str]]:
     """Map code -> (source string, interpolated keys, file) from the sources.
 
@@ -196,3 +189,66 @@ def test_the_planned_list_does_not_outlive_its_reason():
         "These codes are now raised, so their PLANNED_CODES entries are obsolete: "
         + ", ".join(arrived)
     )
+
+
+def _raised_anywhere() -> set[str]:
+    return set(_raised_codes())
+
+
+def test_every_code_raised_has_words_or_is_in_the_shrinking_baseline():
+    """NFR-006: a code with no template reaches the user as the code itself.
+
+    A new code arrives with its template; the ones that did not, when P12c-7
+    counted, are listed in ``untemplated_codes.py`` and are the only exemption.
+    """
+    declared = _declared_templates()
+    without = sorted(code for code in _raised_anywhere() if code not in declared)
+    new = [code for code in without if code not in UNTEMPLATED]
+    assert not new, (
+        "Raised with no MessageTemplate, so a user would read the code itself (NFR-006). "
+        "Write its template beside the algorithms that show it:\n" + "\n".join(new)
+    )
+
+
+def test_the_baseline_only_shrinks():
+    """An entry whose code gained a template, or is no longer raised, must go."""
+    declared = _declared_templates()
+    raised = _raised_anywhere()
+    worded = sorted(code for code in UNTEMPLATED if code in declared)
+    gone = sorted(code for code in UNTEMPLATED if code not in raised)
+    assert not worded, "Templated now; remove from untemplated_codes.py: " + ", ".join(worded)
+    assert not gone, "No longer raised; remove from untemplated_codes.py: " + ", ".join(gone)
+
+
+#: Context keys that carry an engine's own last word.
+DIAGNOSTIC_KEYS = ("diagnostic", "message")
+
+
+def test_an_engine_failure_shows_the_engines_own_message():
+    """FR-305 and ``specs/08`` section 9: the engine's diagnostic reaches the user.
+
+    Until P12c-7 *GNSS processing* rendered RTKLIB's run failures through a
+    template that did not exist, and the message the engine adapter had
+    carefully extracted was on the error and nowhere on the screen. A code
+    whose every raise site carries one must have a template that shows it.
+    """
+    declared = _declared_templates()
+    problems = []
+    for code, sites in sorted(_raised_codes().items()):
+        carried = [key for key in DIAGNOSTIC_KEYS if all(key in site for site in sites)]
+        if not carried:
+            continue
+        template = declared.get(code)
+        if template is None or not any(key in template[1] for key in carried):
+            problems.append(f"{code}: carries {carried}, which its template does not show")
+    assert not problems, "\n".join(problems)
+
+
+def test_the_engine_failures_are_found():
+    """Guards the test above: it passes vacuously if it finds nothing."""
+    carriers = {
+        code
+        for code, sites in _raised_codes().items()
+        if any(all(key in site for site in sites) for key in DIAGNOSTIC_KEYS)
+    }
+    assert {"engine.rtklib_run_failed", "computation.dynadjust_stage_failed"} <= carriers

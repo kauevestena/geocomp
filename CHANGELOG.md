@@ -5,6 +5,17 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Engine failures in words
+
+#### Fixed
+
+- **GNSS processing shows RTKLIB's own message** when `rnx2rtkp` fails, finishes without a solution file, or
+  solves no epoch. Before, it showed only "could not complete the operation" and an internal code.
+- **DynAdjust's failures are explained.** The cases are what GeoComp cannot write for DynAdjust, a stage that
+  stops (with DynAdjust's own message), and an output file that does not read. Before, *Adjust network
+  (DynAdjust)* showed an internal code with its details, and the integration algorithms showed only the code.
+- **Batch GNSS processing** explains each failed session in a sentence, with the engine's message.
+
 ### P12c-6 — Tested on Windows and macOS, and on released QGIS
 
 #### Changed
