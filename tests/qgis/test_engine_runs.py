@@ -168,6 +168,16 @@ class TestTheVersion:
         assert summary["engine"]["version"] == "2.6.0"
         assert summary["engine"]["tested"] is False
 
+    def test_and_what_the_engine_was_asked_and_said(self, geocomp_provider, rtklib, tmp_path):
+        """FR-036: the command line, the exit code and both streams, as for
+        DynAdjust. Until P12c-13 the summary had none of them."""
+        rtklib()
+        _results, _feedback, out = _process(tmp_path)
+        run = json.loads((out / "summary.json").read_text(encoding="utf-8"))["run"]
+        assert run["command"] == ["rnx2rtkp"]
+        assert run["exit_code"] == 0
+        assert {"stdout", "stderr", "seconds", "version"} <= set(run)
+
 
 class TestTheTimeLimit:
     @pytest.mark.parametrize("algorithm_id", GNSS_IDS)

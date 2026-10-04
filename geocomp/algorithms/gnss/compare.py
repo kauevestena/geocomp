@@ -179,6 +179,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         engine = gnss_engine(feedback)
         timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
         baselines = {}
+        runs: dict[str, Any] = {}
         for index, mask in enumerate(masks):
             if feedback.isCanceled():
                 return {}
@@ -197,6 +198,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                     ),
                     work_dir=work_root / f"mask-{mask:g}",
                 )
+                runs[name] = result.run.to_dict()
                 baselines[name] = baseline_from_solution(
                     result.solution,
                     base_station=base.station_id,
@@ -245,6 +247,8 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                         "products": products.provenance(),
                         # FR-302: the engine version every configuration ran with.
                         "engine": engine_record(engine),
+                        # FR-036: each configuration's run, as for every engine.
+                        "runs": runs,
                     },
                     indent=2,
                 )

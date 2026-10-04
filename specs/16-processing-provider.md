@@ -96,6 +96,12 @@ input rather than for the one per algorithm a run-both-ways test could afford โ€
 construction instead of sampling its consequence. The defaults themselves are the Global Settings
 ([`15`](./15-ui-menu-and-settings.md) ยง2.3).
 
+**Amended (P12c-13).** The construction held, but it held for a mode that did nothing: an advanced parameter
+was flagged in both modes, and QGIS draws a flagged parameter, collapsed, whatever GeoComp's mode says.
+`addAdvancedParameter` now also hides it in Basic mode. The parameter set and every default are still
+identical in both modes, and no run reads the mode; what differs is only whether the dialog draws the
+parameter (`tests/qgis/test_basic_advanced_identity.py::test_basic_mode_shows_the_reduced_set`).
+
 ## 5. Outputs (FR-034)
 
 Formal Processing outputs, so algorithms chain:

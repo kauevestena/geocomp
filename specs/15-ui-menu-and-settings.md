@@ -180,6 +180,14 @@ Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-pari
 A GeoComp toolbar with a small set of frequent actions — open/create project, run last algorithm, network
 inspection, adjust, and the results panel — hideable through the standard QGIS toolbar controls.
 
+**As built (P12c-13).** Until P12c-13 the toolbar held one action, Global Settings. It now holds *Inspect
+network*, *Adjust network*, *Save to project store*, *Run the last GeoComp algorithm again*, the results panel
+and Global Settings, hidden by `interface.show_toolbar` as well as by QGIS's own controls. Each algorithm
+opens the same dialog its menu item does. *Run again* repeats the last algorithm opened from the menu or the
+toolbar, and is disabled until there is one. **Open/create project** is *Save to project store*, which creates
+the store when it does not exist. GeoComp has no *open*: a store is a GeoPackage or a PostGIS schema, and QGIS
+opens either as it opens any other (`tests/qgis/test_plugin_lifecycle.py::TestTheToolbar`).
+
 ### 1.4 Unload (FR-006)
 
 `unload()` removes the menu, the toolbar, the provider, every action, every dock panel and every signal
@@ -450,6 +458,11 @@ Set in Interface, switchable without restart.
 | Pipeline stages | Chosen automatically | Individually controllable |
 | Approximate uncertainty paths | Applied where needed, labelled | Selectable per operation |
 | Automatic outlier rejection | Not offered | Offered, with an explicit warning ([`06-adjustment-core.md`](./06-adjustment-core.md) §4.2) |
+
+**As built (P12c-13).** Basic hides the advanced parameters (QGIS's hidden flag) and Advanced shows them. A
+hidden parameter keeps its default, and a script or a model may still set it. Until P12c-13 both modes flagged
+the same parameters advanced and QGIS showed them in both, so the setting changed nothing a user could see. A
+change of mode refreshes the provider, so it takes effect without a restart.
 
 **FR-071 is the rule that makes this safe:** a parameter hidden in Basic mode uses exactly the value it would
 have had as the Advanced default. Switching modes without changing anything must not change results — a

@@ -5,6 +5,22 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-13 — Every platform requirement checked; Basic mode, the toolbar, engine runs
+
+#### Changed
+
+- **Basic mode now hides the advanced parameters**, and Advanced shows them. Before, both modes showed the same
+  dialog and switching between them changed nothing. A hidden parameter keeps its default, which is what
+  Advanced mode uses when it is left alone, so results do not depend on the mode. Scripts and models can still
+  set any parameter.
+
+#### Added
+
+- The GeoComp toolbar has *Inspect network*, *Adjust network*, *Save to project store*, *Run the last GeoComp
+  algorithm again* and the results panel, beside Global Settings.
+- A DynAdjust solution's provenance records each stage's command, exit code, duration and the start and end of
+  what it printed. The GNSS processing results record the RTKLIB run the same way.
+
 ### P12c-12 — Every algorithm option is used
 
 No change in behaviour: a test now fails if an algorithm offers an option that its run never reads, or

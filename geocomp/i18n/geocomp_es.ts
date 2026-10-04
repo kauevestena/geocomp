@@ -6316,6 +6316,14 @@
             <translation>Panel de resultados</translation>
         </message>
         <message>
+            <source>Run again: %1</source>
+            <translation>Ejecutar de nuevo: %1</translation>
+        </message>
+        <message>
+            <source>Run the last GeoComp algorithm again</source>
+            <translation>Ejecutar de nuevo el último algoritmo de GeoComp</translation>
+        </message>
+        <message>
             <source>Time series panel</source>
             <translation>Panel de series temporales</translation>
         </message>

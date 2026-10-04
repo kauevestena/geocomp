@@ -32,6 +32,24 @@ def _tr(text: str) -> str:
     return QCoreApplication.translate(_TR_CONTEXT, text)
 
 
+#: The algorithms on the toolbar (specs/15 section 1.3): object name, id, and
+#: the QGIS theme icon that says what it does.
+TOOLBAR_ALGORITHMS = (
+    ("geocompToolbarInspect", "geocomp:analysis_network_inspect", "/mActionIdentify.svg"),
+    ("geocompToolbarAdjust", "geocomp:analysis_network_adjust", "/processingAlgorithm.svg"),
+    ("geocompToolbarStore", "geocomp:project_store", "/mActionFileSave.svg"),
+)
+
+
+def _theme_icon(name: str) -> QIcon:
+    """A QGIS theme icon, or GeoComp's own where this QGIS has no such icon.
+
+    Theme icon names are not an API, and a missing one is an empty button.
+    """
+    icon = QgsApplication.getThemeIcon(name)
+    return QIcon(icon_path("geocomp.svg")) if icon.isNull() else icon
+
+
 class GeoCompPlugin:
     """Lifecycle for the GeoComp plugin.
 
@@ -46,6 +64,8 @@ class GeoCompPlugin:
         self._menu = None
         self._toolbar: QToolBar | None = None
         self._toolbar_actions: list[QAction] = []
+        self._run_again: QAction | None = None
+        self._last_algorithm: str | None = None
         self._plugin_menu_actions: list[QAction] = []
         self._series_panel = None
         self._basemap_offer = None
@@ -103,6 +123,7 @@ class GeoCompPlugin:
             action.setParent(None)
             action.deleteLater()
         self._toolbar_actions.clear()
+        self._run_again = None
 
         if self._toolbar is not None:
             self._toolbar.setParent(None)
@@ -150,15 +171,48 @@ class GeoCompPlugin:
     # -- construction ----------------------------------------------------
 
     def _build_toolbar(self) -> None:
-        """Create the GeoComp toolbar (FR-007).
+        """Create the GeoComp toolbar (FR-007, specs/15 section 1.3).
 
         Hidden when ``interface.show_toolbar`` is off. Created regardless, so
         toggling the setting does not require a restart.
+
+        Until P12c-13 it held one action, Global Settings, where specs/15 lists
+        the frequent ones: inspecting and adjusting a network, saving to the
+        project store, running the last algorithm again and the results panel.
+        Each algorithm opens the same dialog its menu item does (ADR-0005).
         """
         from geocomp.services.settings_service import settings
 
         self._toolbar = self.iface.addToolBar(_tr("GeoComp"))
         self._toolbar.setObjectName("geocompToolbar")
+        registry = QgsApplication.processingRegistry()
+
+        for name, algorithm_id, icon in TOOLBAR_ALGORITHMS:
+            algorithm = registry.algorithmById(algorithm_id)
+            label = algorithm.displayName() if algorithm is not None else algorithm_id
+            action = QAction(_theme_icon(icon), label, self.iface.mainWindow())
+            action.setObjectName(name)
+            action.triggered.connect(
+                lambda _checked=False, algorithm_id=algorithm_id: self.run_algorithm(algorithm_id)
+            )
+            self._add_to_toolbar(action)
+
+        self._run_again = QAction(
+            _theme_icon("/mActionRedo.svg"),
+            _tr("Run the last GeoComp algorithm again"),
+            self.iface.mainWindow(),
+        )
+        self._run_again.setObjectName("geocompToolbarRunAgain")
+        self._run_again.setEnabled(False)
+        self._run_again.triggered.connect(self.run_again)
+        self._add_to_toolbar(self._run_again)
+
+        results = QAction(
+            _theme_icon("/mActionOpenTable.svg"), _tr("Results panel"), self.iface.mainWindow()
+        )
+        results.setObjectName("geocompToolbarResults")
+        results.triggered.connect(self.open_results_panel)
+        self._add_to_toolbar(results)
 
         settings_action = QAction(
             QIcon(icon_path("geocomp.svg")),
@@ -167,10 +221,13 @@ class GeoCompPlugin:
         )
         settings_action.setObjectName("geocompToolbarSettings")
         settings_action.triggered.connect(self.open_settings)
-        self._toolbar.addAction(settings_action)
-        self._toolbar_actions.append(settings_action)
+        self._add_to_toolbar(settings_action)
 
         self._toolbar.setVisible(bool(settings.value("interface.show_toolbar")))
+
+    def _add_to_toolbar(self, action: QAction) -> None:
+        self._toolbar.addAction(action)
+        self._toolbar_actions.append(action)
 
     def _build_series_panel(self) -> None:
         """The time-series panel (FR-903), docked and hidden until wanted.
@@ -256,7 +313,27 @@ class GeoCompPlugin:
 
         A cancelled custom dialog stops here. Falling through to the Processing
         dialog would re-prompt for something the user has just declined.
+
+        The toolbar's *run again* repeats whatever was opened last, from the
+        menu or the toolbar.
         """
+        self._remember(algorithm_id)
+        self._open_dialog(algorithm_id)
+
+    def run_again(self) -> None:
+        if self._last_algorithm is not None:
+            self.run_algorithm(self._last_algorithm)
+
+    def _remember(self, algorithm_id: str) -> None:
+        self._last_algorithm = algorithm_id
+        if self._run_again is None:
+            return
+        algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id)
+        name = algorithm.displayName() if algorithm is not None else algorithm_id
+        self._run_again.setEnabled(True)
+        self._run_again.setToolTip(_tr("Run again: %1").replace("%1", name))
+
+    def _open_dialog(self, algorithm_id: str) -> None:
         from processing import execAlgorithmDialog
 
         from geocomp.gui.prompts import collect_parameters
@@ -270,13 +347,17 @@ class GeoCompPlugin:
 
     def open_settings(self) -> None:
         from geocomp.gui.settings_dialog import GlobalSettingsDialog
+        from geocomp.services.settings_service import settings
 
+        mode = settings.value("interface.mode")
         dialog = GlobalSettingsDialog(self.iface.mainWindow())
         dialog.exec()
         if self._toolbar is not None:
-            from geocomp.services.settings_service import settings
-
             self._toolbar.setVisible(bool(settings.value("interface.show_toolbar")))
+        # specs/15 section 3: the mode switches without a restart. A dialog
+        # builds its algorithm afresh, but the toolbox lists the provider's own.
+        if settings.value("interface.mode") != mode and self._provider is not None:
+            self._provider.refreshAlgorithms()
 
     def open_series_panel(self) -> None:
         if self._series_panel is not None:

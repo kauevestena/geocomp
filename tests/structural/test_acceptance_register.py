@@ -66,9 +66,13 @@ def _documents() -> dict[str, int]:
 
 @cache
 def _rows() -> list[dict[str, str]]:
+    return [match.groupdict() for line in _section().splitlines() if (match := ROW.match(line))]
+
+
+def _section() -> str:
+    """Section 10 alone: section 11, the requirement register, follows it."""
     text = REGISTER.read_text(encoding="utf-8")
-    section = text.split("## 10. Acceptance register", 1)[1]
-    return [match.groupdict() for line in section.splitlines() if (match := ROW.match(line))]
+    return text.split("## 10. Acceptance register", 1)[1].split("\n## 11. ", 1)[0]
 
 
 def _key(row: dict[str, str]) -> tuple[str, int]:
@@ -121,7 +125,7 @@ def test_the_summary_counts_the_table():
     It may keep the counts at the audit for the record; the last counts it
     states are the current ones, and those must be the table's.
     """
-    text = REGISTER.read_text(encoding="utf-8")
+    text = _section()
     counts = {state: sum(row["state"] == state for row in _rows()) for state in STATES}
     stated = re.findall(
         r"(\d+) met, (\d+) partly met, (\d+) open, (\d+) manual, of (\d+)\.", text
