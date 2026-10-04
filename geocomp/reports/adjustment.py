@@ -185,12 +185,17 @@ def _inputs(solution: Solution, network: Network | None) -> str:
         by_type[observation.type.value] = by_type.get(observation.type.value, 0) + 1
 
     constrained = network.constrained_stations()
+    set_aside = sorted(
+        (observation for observation in network.observations.values() if not observation.is_active),
+        key=lambda observation: observation.id,
+    )
     summary = render_table(
         [escape(_tr("Quantity")), escape(_tr("Count"))],
         [
             [escape(_tr("Stations")), str(len(network.stations))],
             [escape(_tr("Constrained stations")), str(len(constrained))],
             [escape(_tr("Active observations")), str(len(network.active_observations))],
+            [escape(_tr("Observations set aside")), str(len(set_aside))],
             [escape(_tr("Correlated clusters")), str(len(network.clusters))],
         ],
     )
@@ -218,8 +223,64 @@ def _inputs(solution: Solution, network: Network | None) -> str:
         + summary
         + f"<h3>{escape(_tr('Observations by type'))}</h3>"
         + types
+        + _set_aside(set_aside)
         + f"<h3>{escape(_tr('Constraints'))}</h3>"
         + constraints
+    )
+
+
+def _set_aside(observations: list) -> str:
+    """The observations this adjustment did not use, and why (FR-255).
+
+    A rejection that is recorded but not reported is silent where it matters: the
+    report is what a client reads. Until P12c-13 it counted the active
+    observations and said nothing of the others.
+    """
+    if not observations:
+        return ""
+    status = {
+        "rejected": _tr("Rejected by a test"),
+        "excluded": _tr("Excluded by hand"),
+    }
+    rows = []
+    for observation in observations:
+        record = observation.rejection
+        statistic = (
+            localised_if_number(f"{record.statistic:.2f}")
+            if record is not None and record.statistic is not None
+            else ""
+        )
+        rows.append(
+            [
+                escape(observation.id),
+                escape(observation.type.value),
+                escape(status.get(observation.status.value, observation.status.value)),
+                escape(record.reason if record is not None else ""),
+                escape(record.test if record is not None else ""),
+                statistic,
+            ]
+        )
+    return (
+        f"<h3>{escape(_tr('Observations set aside'))}</h3>"
+        + render_table(
+            [
+                escape(_tr("Observation")),
+                escape(_tr("Type")),
+                escape(_tr("Status")),
+                escape(_tr("Reason")),
+                escape(_tr("Test")),
+                escape(_tr("Statistic")),
+            ],
+            rows,
+        )
+        + render_note(
+            _tr(
+                "These observations are not in this adjustment. Each is kept with the "
+                "reason it was set aside, and returns to the adjustment when its status "
+                "is set back to active and the network is adjusted again."
+            ),
+            label=_tr("Observations set aside"),
+        )
     )
 
 

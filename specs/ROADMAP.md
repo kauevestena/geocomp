@@ -2215,6 +2215,24 @@ FR-100 to FR-167: 20 met and 2 partly met, of 22.
 
 Eight blocks remain.
 
+#### P12c-13 — every requirement held to a test (third pull request): uncertainty and adjustment
+
+FR-200 to FR-273: all 27 met, most through the acceptance rows of specs/05, 06, 14 and 19.
+
+**Found and fixed.**
+
+- **A rejection was silent in the report (FR-255).** An observation set aside in the network document left
+  the adjustment, and the report counted the active observations and said nothing of it. The report now
+  lists each one, with its status, reason, test and statistic, and says how it comes back.
+- **α and β were configurable and never exercised (FR-252).** Every test used the defaults. A test now
+  shows that a stricter α or a higher power enlarges every MDB by the same factor.
+- **specs/06 §4.2** said automatic rejection is offered in Advanced mode. It is offered in neither, and the
+  section now says so.
+
+**Not done here.** The reductions to the ellipsoid and to the projection plane propagate their uncertainty,
+and FR-205 holds, but no algorithm calls them. Whether a user can apply them is FR-405's question, in the
+total-station block. Seven blocks remain.
+
 ---
 
 ## P13 — Validation, documentation and release

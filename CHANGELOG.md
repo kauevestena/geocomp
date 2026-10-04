@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-13 — The adjustment report lists what was left out
+
+#### Fixed
+
+- An observation marked rejected or excluded in a network document was left out of the adjustment, and the
+  report did not mention it. The report now lists every observation set aside, with its status, the reason
+  recorded, and the test and statistic that rejected it, if any.
+
 ### P12c-13 — Field books and coordinates from Excel workbooks
 
 #### Added

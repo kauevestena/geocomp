@@ -344,6 +344,31 @@ class TestReliability:
         scaled = [r.minimal_detectable_bias * math.sqrt(r.redundancy) / r.std_dev for r in finite]
         assert all(value == pytest.approx(report.non_centrality, rel=1e-9) for value in scaled)
 
+    def test_alpha_and_beta_are_the_users_and_move_every_mdb(self, report):
+        """FR-252: internal reliability "for configurable alpha and beta". A
+        stricter test or a demand for more power can only enlarge the blunder
+        that could go undetected, and by the same factor everywhere."""
+        run = adjust(trilateration().network, constrained(Frame.PLANE_2D))
+        strict = reliability(
+            run.cofactor_residuals,
+            run.system.weight,
+            run.system.design,
+            run.cofactor_parameters,
+            run.system.row_labels,
+            alpha=0.001,
+            beta=0.10,
+        )
+        assert (strict.alpha, strict.beta) == (0.001, 0.10)
+        assert strict.non_centrality > report.non_centrality
+        ratio = strict.non_centrality / report.non_centrality
+        default = report.by_observation()
+        for result in strict.results:
+            if result.minimal_detectable_bias is None:
+                continue
+            assert result.minimal_detectable_bias == pytest.approx(
+                default[result.observation_id].minimal_detectable_bias * ratio, rel=1e-12
+            )
+
     def test_external_reliability_is_reported_alongside_internal(self, report):
         """specs/06 section 4.3: the MDB alone is the less useful half."""
         for result in report.results:

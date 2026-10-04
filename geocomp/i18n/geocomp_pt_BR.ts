@@ -1652,6 +1652,10 @@
             <translation>Todas as incertezas deste relatório foram propagadas rigorosamente: nenhuma estratégia aproximada foi usada em qualquer passo.</translation>
         </message>
         <message>
+            <source>Excluded by hand</source>
+            <translation>Excluída manualmente</translation>
+        </message>
+        <message>
             <source>Exit code</source>
             <translation>Código de saída</translation>
         </message>
@@ -1820,6 +1824,10 @@
             <translation>Observações por tipo</translation>
         </message>
         <message>
+            <source>Observations set aside</source>
+            <translation>Observações deixadas de fora</translation>
+        </message>
+        <message>
             <source>Orientation</source>
             <translation>Orientação</translation>
         </message>
@@ -1856,8 +1864,16 @@
             <translation>Grandeza</translation>
         </message>
         <message>
+            <source>Reason</source>
+            <translation>Motivo</translation>
+        </message>
+        <message>
             <source>Redundancy</source>
             <translation>Redundância</translation>
+        </message>
+        <message>
+            <source>Rejected by a test</source>
+            <translation>Rejeitada por um teste</translation>
         </message>
         <message>
             <source>Reliability</source>
@@ -1952,6 +1968,10 @@
             <translation>Estatísticas</translation>
         </message>
         <message>
+            <source>Status</source>
+            <translation>Situação</translation>
+        </message>
+        <message>
             <source>Steps</source>
             <translation>Etapas</translation>
         </message>
@@ -1992,6 +2012,10 @@
             <translation>A coluna do âmbito é o que torna uma execução reproduzível: o mesmo valor obtido a partir de uma substituição do projeto e a partir do valor predefinido são afirmações diferentes para quem repete o trabalho.</translation>
         </message>
         <message>
+            <source>These observations are not in this adjustment. Each is kept with the reason it was set aside, and returns to the adjustment when its status is set back to active and the network is adjusted again.</source>
+            <translation>Estas observações não estão neste ajustamento. Cada uma é mantida com o motivo pelo qual foi deixada de fora, e volta ao ajustamento quando sua situação é restaurada para ativa e a rede é ajustada de novo.</translation>
+        </message>
+        <message>
             <source>This solution adjusted no station.</source>
             <translation>Esta solução não ajustou nenhuma estação.</translation>
         </message>
@@ -2010,6 +2034,10 @@
         <message>
             <source>Total station</source>
             <translation>Estação total</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>Tipo</translation>
         </message>
         <message>
             <source>Uncertainty</source>

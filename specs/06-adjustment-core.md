@@ -275,6 +275,12 @@ says which was applied.
   in Advanced mode, with an explicit warning: in a monitoring network, the displacement being measured is
   exactly what an automatic outlier remover will delete.
 
+  *As built (P12c-13).* Automatic rejection is offered in neither mode. A user sets an observation aside by
+  giving it the status `REJECTED` or `EXCLUDED`, with a `RejectionRecord`, in the network document, and
+  restores it the same way. The adjustment report lists every observation set aside, with its status,
+  reason, test and statistic. Until P12c-13 the report counted only the active observations, so a rejection
+  was recorded in the document and silent in the report (`tests/qgis/test_adjustment_report.py`).
+
 ### 4.3 Reliability (FR-252, FR-253)
 
 **Internal** — the minimal detectable bias per observation, for configurable α (Type I) and β (Type II),
