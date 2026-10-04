@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — GNSS, gravimetry and integration refusals in words
+
+#### Fixed
+
+- GNSS, gravimetry and integration problems are now explained in a sentence that names the baseline, loop,
+  station, reading or setting. Examples are a slant antenna height, a loop leg that is not ECEF, a reference
+  station without a velocity, a gravity reading without a time zone, and an invalid drift model. Before, the
+  user saw "could not complete the operation" and an internal code.
+
 ### P12c-7 — Levelling and total-station refusals in words
 
 #### Fixed

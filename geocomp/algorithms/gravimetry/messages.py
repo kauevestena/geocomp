@@ -122,6 +122,80 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "The reading '%1' appears twice. Remove the duplicate line and run again.",
         "reading",
     ),
+    # -- readings, drift, tides and the network the core refuses (P12c-7) -------
+    "validation.gravity_reading_incomplete": MessageTemplate(
+        "The gravity reading '%1' lacks an id, a station or a session; every reading needs all "
+        "three.",
+        "reading",
+    ),
+    "validation.gravity_reading_instant_naive": MessageTemplate(
+        "The time of the gravity reading '%1' has no time zone. A time zone guessed an hour "
+        "wrong is tens of microgal of tide; give the time zone of the readings.",
+        "reading",
+    ),
+    "validation.gravity_reading_sensor_height_unit": MessageTemplate(
+        "The sensor height of the gravity reading '%1' is in %2; give it in metres.",
+        "reading",
+        "received",
+    ),
+    "validation.gravity_vertical_gradient_invalid": MessageTemplate(
+        "The vertical gradient %2 at the station '%1' cannot be used: it must be a finite "
+        "number in s^-2, with a non-negative uncertainty.",
+        "station",
+        "received",
+    ),
+    "validation.drift_degree_invalid": MessageTemplate(
+        "The degree of the drift polynomial must be 1 or more; %1 was given.",
+        "received",
+    ),
+    "validation.drift_time_scale_invalid": MessageTemplate(
+        "The drift time scale must be a positive number of seconds; %1 was given.",
+        "received",
+    ),
+    "validation.drift_occupation_mismatch": MessageTemplate(
+        "The drift model has occupations and elapsed times in different numbers (%1); each "
+        "occupation needs one elapsed time.",
+        "received",
+    ),
+    "validation.tide_instant_naive": MessageTemplate(
+        "The tide at %1 cannot be computed: the time has no time zone, and the tide depends "
+        "on the time to the minute.",
+        "received",
+    ),
+    "validation.tide_latitude_out_of_range": MessageTemplate(
+        "The latitude %1 (radians) lies outside -90 to 90 degrees, so the tide cannot be "
+        "computed. Check the station's position.",
+        "received",
+    ),
+    "validation.tide_amplification_invalid": MessageTemplate(
+        "The gravimetric factor must be positive, typically 1.16; %1 was given.",
+        "received",
+    ),
+    "validation.absolute_gravity_invalid": MessageTemplate(
+        "The absolute gravity value '%1' has no usable value or uncertainty. Without an "
+        "uncertainty it would be a fixed constraint under another name; give it in m/s^2 with "
+        "its uncertainty.",
+        "observation",
+    ),
+    "validation.gravity_network_without_readings": MessageTemplate(
+        "The gravity network has no readings, so there is nothing to adjust.",
+    ),
+    "validation.gravity_base_station_not_in_session": MessageTemplate(
+        "The base station '%2' was not read in the session '%1', which read %3.",
+        "session",
+        "received",
+        "expected",
+    ),
+    "validation.gravity_station_held_twice": MessageTemplate(
+        "The stations %1 are held twice: given with their own constraint, and held here as "
+        "well. Hold each one way only.",
+        "received",
+    ),
+    "validation.gravity_station_not_in_solution": MessageTemplate(
+        "The station '%1' is not a station of the adjusted gravity network; a held station has "
+        "no estimated value.",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

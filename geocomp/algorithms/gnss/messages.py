@@ -256,6 +256,177 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "file",
         "compression",
     ),
+    # -- baselines, loops, comparisons and reference stations (P12c-7) ---------
+    "data.baseline_between_one_station": MessageTemplate(
+        "The baseline '%1' starts and ends at the same station, '%2'. A baseline joins two "
+        "distinct stations.",
+        "baseline",
+        "station",
+    ),
+    "data.baseline_component_count": MessageTemplate(
+        "The baseline '%1' has %2 components, where three were expected.",
+        "baseline",
+        "received",
+    ),
+    "data.baseline_component_unit": MessageTemplate(
+        "The %2 component of the baseline '%1' is in %3; give it in metres.",
+        "baseline",
+        "component",
+        "received",
+    ),
+    "data.baseline_covariance_size": MessageTemplate(
+        "The baseline '%1' has a covariance of size %2, where a 3 by 3 over its components was "
+        "expected.",
+        "baseline",
+        "received",
+    ),
+    "data.antenna_offset_unit": MessageTemplate(
+        "The %1 antenna offset is in %2; give it in metres.",
+        "component",
+        "received",
+    ),
+    "validation.baseline_already_local": MessageTemplate(
+        "The baseline '%1' has already been rotated into local east, north and up; it is "
+        "rotated once, from ECEF.",
+        "baseline",
+    ),
+    "validation.antenna_height_already_reduced": MessageTemplate(
+        "The baseline '%1' already carries its antenna-height reduction; a second would "
+        "double the offset.",
+        "baseline",
+    ),
+    "validation.antenna_reduction_needs_ecef": MessageTemplate(
+        "The antenna heights of the baseline '%1' are reduced while it is ECEF, before it is "
+        "rotated; it is %2.",
+        "baseline",
+        "received",
+    ),
+    "validation.antenna_height_is_slant": MessageTemplate(
+        "The antenna height at %2 of the baseline '%1' is a slant height. Converting one needs "
+        "the antenna's dimensions, which GeoComp has no database of yet; give the vertical "
+        "height from the mark to the antenna reference point.",
+        "baseline",
+        "end",
+    ),
+    "data.baseline_cluster_empty": MessageTemplate(
+        "The GNSS cluster '%1' has no baselines.",
+        "cluster",
+    ),
+    "data.baseline_cluster_mixed_frames": MessageTemplate(
+        "The GNSS cluster '%1' mixes frames (%2); every baseline of a cluster is in one frame.",
+        "cluster",
+        "received",
+    ),
+    "validation.gnss_loop_too_short": MessageTemplate(
+        "A GNSS loop needs at least three stations, and %1 were given: a two-station loop "
+        "retraces one baseline and closes by construction.",
+        "received",
+    ),
+    "validation.gnss_loop_repeats_a_station": MessageTemplate(
+        "The GNSS loop %1 visits a station twice, which splits it into two loops. List each "
+        "station once.",
+        "loop",
+    ),
+    "validation.gnss_loop_leg_missing": MessageTemplate(
+        "No baseline joins %1 and %2, so the loop cannot be closed. Process that pair, or "
+        "choose a loop of baselines that exist.",
+        "base",
+        "rover",
+    ),
+    "data.gnss_loop_leg_not_ecef": MessageTemplate(
+        "The leg '%1' of a GNSS loop is in %2. A loop sums its legs, and local east, north and "
+        "up differ from station to station, so every leg must be ECEF.",
+        "baseline",
+        "frame",
+    ),
+    "data.gnss_loop_mixed_antenna_reduction": MessageTemplate(
+        "The GNSS loop %1 mixes baselines reduced to the marks with baselines that are not, so "
+        "its misclosure would measure the antenna heights. Reduce every leg, or none.",
+        "loop",
+    ),
+    "data.comparison_needs_two_configurations": MessageTemplate(
+        "A comparison needs at least two processing configurations, and %1 were given: a "
+        "configuration compared with itself says nothing.",
+        "received",
+    ),
+    "data.comparison_reference_not_found": MessageTemplate(
+        "'%1' is not one of the configurations compared; expected %2.",
+        "received",
+        "expected",
+    ),
+    "data.comparison_mixed_station_pairs": MessageTemplate(
+        "The configurations compared are of different station pairs (%1). Comparing "
+        "configurations needs one station pair in all of them; two different baselines "
+        "measure the network instead.",
+        "received",
+    ),
+    "data.comparison_mixed_frames": MessageTemplate(
+        "The configurations compared are in different frames (%1); compare them in one frame.",
+        "received",
+    ),
+    "data.reference_station_database_missing": MessageTemplate(
+        "The reference station database '%1' does not exist. Set its location in Global "
+        "Settings, under GNSS.",
+        "file",
+    ),
+    "data.reference_station_database_unreadable": MessageTemplate(
+        "The reference station database '%1' could not be read: %2.",
+        "file",
+        "received",
+    ),
+    "data.reference_station_without_id": MessageTemplate(
+        "A station in the reference station database has no id; every station needs one.",
+    ),
+    "data.duplicate_reference_station": MessageTemplate(
+        "The station '%1' appears more than once in the reference station database.",
+        "station",
+    ),
+    "data.reference_station_without_frame": MessageTemplate(
+        "The reference station '%1' does not say which reference frame its coordinates are "
+        "in; a coordinate without its frame is a number, not a position. Add the frame to the "
+        "reference station database.",
+        "station",
+    ),
+    "data.reference_station_position_count": MessageTemplate(
+        "The reference station '%1' has %2 coordinates, where three geocentric components "
+        "were expected.",
+        "station",
+        "received",
+    ),
+    "data.reference_station_position_unit": MessageTemplate(
+        "The %2 coordinate of the reference station '%1' is in %3; give it in metres.",
+        "station",
+        "component",
+        "received",
+    ),
+    "data.reference_station_not_found": MessageTemplate(
+        "The station '%1' is not in the reference station database; expected %2.",
+        "station",
+        "expected",
+    ),
+    "validation.reference_station_without_velocity": MessageTemplate(
+        "The reference station '%1' has no published velocity, and its coordinates must be "
+        "moved to another epoch. A velocity taken as zero is a decimetre-scale assumption "
+        "over a decade; give the velocity in the reference station database.",
+        "station",
+    ),
+    "validation.reference_station_frame_mismatch": MessageTemplate(
+        "The reference station '%1' is published in %2, a different frame from the one this "
+        "processing works in. Transform its coordinates first; GeoComp records the "
+        "transformation it applies.",
+        "station",
+        "received",
+    ),
+    "data.trajectory_point_frame": MessageTemplate(
+        "A trajectory point's covariance is over %1, where local east, north and up "
+        "components were expected.",
+        "received",
+    ),
+    "data.trajectory_covariance_not_local": MessageTemplate(
+        "A trajectory point's covariance is over %1, where local east, north and up "
+        "components were expected.",
+        "received",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

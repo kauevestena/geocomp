@@ -156,6 +156,29 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
         "received",
     ),
+    # -- the combination the core refuses (P12c-7) ------------------------------
+    "validation.combination_gravity_without_its_network": MessageTemplate(
+        "Gravity observations (%1) were merged into the geometric network, where they would be "
+        "adjusted as if free of drift. Give the gravity as its own network, built with its "
+        "drift model.",
+        "observations",
+    ),
+    "validation.combination_routed_to_dynadjust": MessageTemplate(
+        "This combination was routed to DynAdjust (%1) and cannot be adjusted here. Choose "
+        "GeoComp's own engine, or the DynAdjust path.",
+        "reason",
+    ),
+    "validation.engine_unknown": MessageTemplate(
+        "'%1' is not an adjustment engine; expected %2.",
+        "received",
+        "expected",
+    ),
+    "validation.combination_station_without_position": MessageTemplate(
+        "The station '%2' of '%1' has no approximate position, which the combination needs to "
+        "know which way is up there. Give it an approximate position.",
+        "input",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

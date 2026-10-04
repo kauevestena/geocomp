@@ -1792,6 +1792,38 @@ uses its existing equivalents.
 **Not done here.** 281 codes. In `core/` the largest groups are the top level (49), the models (45), the
 instruments (39), GNSS (32) and adjustment (30). The 31 in `io/` are the reference-corpus readers.
 
+#### P12c-7 — every error in words (fourth pull request): GNSS, gravimetry and integration
+
+**Delivered.** Templates, with pt-BR and es, for the 51 codes the three remaining techniques raise, which
+completes the techniques. That leaves **230** in the baseline.
+
+- **GNSS (32):** baselines and their antenna-height reductions, GNSS loops, comparisons of processing
+  configurations, the reference-station database, and trajectory points.
+- **Gravimetry (15):** readings, the drift model, the solid-Earth tide, and the gravity network.
+- **Integration (4):** the combination's routing and its stations.
+
+The setting a refusal sends the user to is named as the settings window shows it. For the reference-station
+database that is *Global Settings, under GNSS*.
+
+**Found.** No defect.
+
+**Not done here.** 230 codes, none of them a technique's:
+
+| Area | Codes |
+|---|---|
+| `core/` (top level) | 49 |
+| `core/models/` | 45 |
+| `core/instruments/` | 39 |
+| `core/adjustment/` | 29 |
+| `core/geodesy/` | 13 |
+| `core/statistics/` | 7 |
+| `core/preanalysis/` | 6 |
+| `core/visualization/` | 6 |
+| `reports/` | 3 |
+| `services/` | 2 |
+
+The 31 in `io/` are the reference-corpus readers.
+
 ---
 
 ## P13 — Validation, documentation and release
