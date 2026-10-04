@@ -55,6 +55,10 @@ horizon. The solution itself is untouched.
   edge, and every ellipse drawn without the turn would lean by that much.
 * **Held marks are placed from the network**, which is re-expressed too; their constraint mode still chooses
   their symbol.
+* **A frame GeoComp cannot transform is still drawn, under its own name** (P12c-13). Drawing transforms nothing,
+  so the frame is only a name in the grid's definition. Until P12c-13 the grid was refused for any frame
+  outside the transformation table, and a DynAdjust solution in GDA2020, the engine's home frame, could not
+  reach the map. A solution with no frame at all is still refused.
 
 ## 2. Styling (FR-904)
 

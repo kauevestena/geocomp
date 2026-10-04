@@ -2233,6 +2233,28 @@ FR-200 to FR-273: all 27 met, most through the acceptance rows of specs/05, 06, 
 and FR-205 holds, but no algorithm calls them. Whether a user can apply them is FR-405's question, in the
 total-station block. Seven blocks remain.
 
+#### P12c-13 — every requirement held to a test (fourth pull request): the engines
+
+FR-300 to FR-359: 19 met and 4 partly met, of 23.
+
+**Found and fixed.**
+
+- **A DynAdjust result never reached the map (FR-324).** *Adjust network (DynAdjust)* wrote its solution
+  document and offered no layer, though the in-house adjustment did. It now offers the same result layers.
+  Writing the test found the second half: the display grid refused any frame outside GeoComp's transformation
+  table, so a DynAdjust solution in GDA2020 could not be drawn even through a path that tried. Drawing
+  transforms nothing, and the grid now names any frame the solution states.
+
+**Not done here — the four partly met.**
+
+- FR-301: RTKLIB is located, not acquired (21 4, the maintainer's decision).
+- FR-320: DynAdjust's input is a network document, not a QGIS layer or the project store directly.
+- FR-325: no algorithm stops before execution for the generated input to be edited, and none takes a
+  user-supplied DynAdjust configuration.
+- FR-359: the configuration comparison is one table, not the side-by-side dialog specs/11 §6 describes.
+
+Six blocks remain.
+
 ---
 
 ## P13 — Validation, documentation and release

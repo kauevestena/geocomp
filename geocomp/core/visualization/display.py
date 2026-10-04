@@ -29,6 +29,7 @@ from dataclasses import dataclass, replace
 import numpy as np
 
 from geocomp.core.adjustment.geocentric import ELLIPSOID
+from geocomp.core.errors import ValidationError
 from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation, geodetic_to_cartesian
 from geocomp.core.geodesy.frames import canonical_frame
 from geocomp.core.geodesy.projection import (
@@ -67,8 +68,20 @@ class DisplayGrid:
 
 def display_grid(frame: str, latitude: float, longitude: float) -> DisplayGrid:
     """The UTM grid, on *frame*, of the zone containing *latitude*, *longitude*
-    (radians)."""
-    frame = canonical_frame(frame)
+    (radians).
+
+    Drawing transforms nothing: the coordinates stay in the solution's own frame,
+    and the frame is only a name in the grid's definition. So a frame GeoComp
+    holds no transformation for is drawn under its own name rather than refused.
+    Until P12c-13 it was refused, and a DynAdjust solution in GDA2020 -- the
+    engine's home frame -- could not reach the map at all.
+    """
+    try:
+        frame = canonical_frame(frame)
+    except ValidationError:
+        if not (frame or "").strip():
+            raise
+        frame = frame.strip()
     zone = utm_zone(longitude)
     south = latitude < 0.0
     projection = utm_parameters(zone, southern_hemisphere=south)

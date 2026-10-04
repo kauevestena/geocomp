@@ -654,6 +654,15 @@ The engine states all three and reads each table in its own (`engine.ANGULAR_FOR
 format for both, so every GeoComp-driven run containing an angle failed to parse on its first
 `1 21 44.7275` — unnoticed because every engine run until P9a carried GNSS baselines only.
 
+### 5.9 On the map (FR-324)
+
+*As built (P12c-13).* *Adjust network (DynAdjust)* offers the result layers the in-house adjustment offers:
+stations, absolute and relative ellipses, residuals, observations and corrections, written from the same
+`Solution` by the same code (`algorithms/layer_outputs.py`). Until P12c-13 it wrote its solution document and
+no layer. A GDA2020 solution is drawn in the UTM zone of its centroid, under GDA2020's own name
+([`19`](./19-visualization.md) §1.1). The test reads DynAdjust's own output files for the sample network
+rather than running the engine, so it runs wherever QGIS does (`tests/qgis/test_engine_runs.py`).
+
 ## 6. Cross-validation with the in-house core
 
 The exit criterion for roadmap phase P6: a network adjusted by both engines MUST agree within the tolerances

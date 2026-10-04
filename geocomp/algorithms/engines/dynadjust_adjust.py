@@ -41,6 +41,7 @@ from qgis.core import (
 from geocomp.algorithms.analysis.common import load_network
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.core.errors import GeoCompError
 from geocomp.core.models import Epoch
 from geocomp.engines.base import EngineAbsentError
@@ -243,6 +244,10 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 createByDefault=False,
             )
         )
+        # FR-324: the same result layers the in-house adjustment offers, from
+        # the same Solution. Until P12c-13 a DynAdjust adjustment wrote its
+        # solution document and no layer.
+        add_result_layer_parameters(self)
 
     # -- execution -------------------------------------------------------
 
@@ -315,6 +320,17 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             if feedback.isCanceled():
                 return {}
             results = self._write(solution, parameters, context)
+            results.update(
+                write_result_layers(
+                    self,
+                    parameters,
+                    context,
+                    solution,
+                    network,
+                    feedback=feedback,
+                    solution_path=results.get(OUTPUT_SOLUTION) or "",
+                )
+            )
         except QgsProcessingException as failure:
             retain = retain or _names_working_files(failure)
             raise

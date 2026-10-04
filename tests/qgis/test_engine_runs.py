@@ -25,6 +25,7 @@ from pathlib import Path
 import pytest
 
 from tests.conftest import REPO_ROOT
+from tests.qgis.conftest import requires_modern_field_api
 
 pytestmark = pytest.mark.qgis
 
@@ -303,3 +304,84 @@ class TestADynAdjustRefusal:
 
         _message, work_dir = _adjust(tmp_path, monkeypatch, refused)
         assert not work_dir.exists()
+
+
+# -- DynAdjust's result on the map (FR-324) ------------------------------
+
+
+class _SolvingDynAdjust(_DynAdjust):
+    """A DynAdjust that answers with the committed sample's own output files.
+
+    The solution is DynAdjust's -- parsed from the ``.adj`` and ``.apu`` it
+    wrote for this network -- so what reaches the layers is what the engine
+    would have produced.
+    """
+
+    def __init__(self, network) -> None:
+        super().__init__(failure=None)
+        self.network = network
+
+    def run(self, prepared, *, timeout, on_progress=None):
+        return []
+
+    def parse(self, runs, prepared):
+        from geocomp.engines.dynadjust.read_output import AngularFormat
+        from geocomp.engines.dynadjust.solution import read_solution
+
+        output = REPO_ROOT / "tests" / "data" / "dynadjust" / "output"
+        return read_solution(
+            output / "sample.adj",
+            network=self.network,
+            apu_path=output / "sample.apu",
+            cor_path=output / "sample.cor",
+            angular_format=AngularFormat.HP,
+        )
+
+
+@requires_modern_field_api
+class TestADynAdjustResultOnTheMap:
+    def test_its_stations_and_ellipses_arrive_as_layers(
+        self, geocomp_provider, tmp_path, monkeypatch
+    ):
+        """FR-324: until P12c-13 *Adjust network (DynAdjust)* wrote its solution
+        document and offered no layer, though the in-house adjustment did."""
+        from qgis.core import (
+            QgsApplication,
+            QgsProcessing,
+            QgsProcessingContext,
+            QgsProcessingUtils,
+        )
+
+        from geocomp.algorithms.engines import dynadjust_adjust
+        from geocomp.engines.dynadjust.read_dynaml import read_dynaml
+
+        data = REPO_ROOT / "tests" / "data" / "dynadjust"
+        network = read_dynaml(data / "sample-stn.xml", data / "sample-msr.xml").network
+        engine = _SolvingDynAdjust(network)
+        monkeypatch.setattr(dynadjust_adjust, "dynadjust_engine", lambda directory=None: engine)
+        document = tmp_path / "network.json"
+        document.write_text(json.dumps(network.to_dict()), encoding="utf-8")
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_adjust"
+        ).create({})
+        context = QgsProcessingContext()
+        results, ok = algorithm.run(
+            {
+                "NETWORK": str(document),
+                "FRAME": "GDA2020",
+                "EPOCH": 2020.0,
+                "OUTPUT_SOLUTION": str(tmp_path / "solution.json"),
+                "OUTPUT_STATION_LAYER": QgsProcessing.TEMPORARY_OUTPUT,
+                "OUTPUT_ELLIPSE_LAYER": QgsProcessing.TEMPORARY_OUTPUT,
+            },
+            context,
+            _feedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        stations = QgsProcessingUtils.mapLayerFromString(results["OUTPUT_STATION_LAYER"], context)
+        ellipses = QgsProcessingUtils.mapLayerFromString(results["OUTPUT_ELLIPSE_LAYER"], context)
+        assert stations is not None and ellipses is not None
+        assert stations.featureCount() == 11
+        assert ellipses.featureCount() > 0
