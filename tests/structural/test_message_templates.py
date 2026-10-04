@@ -20,6 +20,14 @@ all, which the user reads as "could not complete the operation (code)". When
 P12c-7 first counted, 457 codes were in that state; they were frozen in a list
 that could only shrink, and eight pull requests later it was empty and was
 removed. There is no exemption now: a new code arrives with its words.
+
+Since P12c-8 it reads findings too. A ``Finding`` is worded by the template
+``finding.<wording or code>``, from the keys of its ``context`` -- a dict
+literal, so this test can read them -- and from ``reason`` when it carries the
+refusal it reports. Until P12c-8 a finding carried only an English sentence,
+which every report and panel showed whatever the language. The codes still in
+that state are frozen in ``unworded_findings.py``, and that list may only
+shrink.
 """
 
 from __future__ import annotations
@@ -29,6 +37,7 @@ import functools
 from collections import defaultdict
 
 from tests.conftest import PLUGIN_DIR, python_sources
+from tests.structural.unworded_findings import UNWORDED
 
 #: ``GeoCompError`` subclass -> the namespace it prefixes bare codes with,
 #: mirroring ``code_namespace`` in :mod:`geocomp.core.errors`.
@@ -41,6 +50,8 @@ NAMESPACES = {
     "EngineMissingError": "engine",
     "EngineAbsentError": "computation",
     "StorageError": "storage",
+    # The field book's per-row refusal, a DataError reported as a finding.
+    "_RowError": "data",
 }
 
 PLACEHOLDERS = ("%1", "%2", "%3", "%4", "%5", "%6")
@@ -86,7 +97,73 @@ def _raised_codes() -> dict[str, list[set[str]]]:
                 continue
             code = first.value if "." in first.value else f"{namespace}.{first.value}"
             found[code].append({keyword.arg for keyword in node.keywords if keyword.arg})
+        for code, keys in _finding_sites(tree):
+            found[code].append(keys)
     return dict(found)
+
+
+def _imports_finding(tree: ast.AST) -> bool:
+    """Whether the module's ``Finding`` is :class:`geocomp.core.findings.Finding`.
+
+    The monitoring comparison has a ``Finding`` of its own, worded by
+    ``reports/monitoring.py``; it is not this one.
+    """
+    return any(
+        isinstance(node, ast.ImportFrom)
+        and node.module == "geocomp.core.findings"
+        and any(alias.name == "Finding" for alias in node.names)
+        for node in ast.walk(tree)
+    )
+
+
+def _finding_template(node: ast.Call) -> str | None:
+    """``finding.<wording or code>`` for a ``Finding(...)`` call, or ``None`` if unreadable."""
+    keywords = {keyword.arg: keyword.value for keyword in node.keywords if keyword.arg}
+    for candidate in (keywords.get("wording"), keywords.get("code"), *node.args[:1]):
+        if isinstance(candidate, ast.Constant) and isinstance(candidate.value, str):
+            return f"finding.{candidate.value}"
+    return None
+
+
+def _finding_keys(node: ast.Call) -> set[str] | None:
+    """The context keys a ``Finding(...)`` call supplies, or ``None`` if unreadable."""
+    keywords = {keyword.arg: keyword.value for keyword in node.keywords if keyword.arg}
+    context = keywords.get("context")
+    keys: set[str] = set()
+    if context is not None:
+        if not isinstance(context, ast.Dict) or not all(
+            isinstance(key, ast.Constant) and isinstance(key.value, str) for key in context.keys
+        ):
+            return None
+        keys = {key.value for key in context.keys}
+    if "error" in keywords:
+        keys.add("reason")
+    return keys
+
+
+def _finding_sites(tree: ast.AST):
+    if not _imports_finding(tree):
+        return
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Finding":
+            code, keys = _finding_template(node), _finding_keys(node)
+            if code is not None and keys is not None:
+                yield code, keys
+
+
+@functools.cache
+def _unreadable_findings() -> list[str]:
+    """``Finding(...)`` calls whose template or context keys the source does not show."""
+    problems = []
+    for path in python_sources(PLUGIN_DIR):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        if not _imports_finding(tree):
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Finding":
+                if _finding_template(node) is None or _finding_keys(node) is None:
+                    problems.append(f"{path.relative_to(PLUGIN_DIR.parent)}:{node.lineno}")
+    return problems
 
 
 @functools.cache
@@ -194,14 +271,42 @@ def test_the_planned_list_does_not_outlive_its_reason():
 def test_every_code_raised_has_words():
     """NFR-006: a code with no template reaches the user as the code itself.
 
-    No exemption remains. P12c-7 froze the 457 codes it found without words in
-    a list that could only shrink, and removed the list once it was empty.
+    No exemption remains for an error. P12c-7 froze the 457 codes it found
+    without words in a list that could only shrink, and removed the list once
+    it was empty. A finding's code is exempt only while it is in
+    ``unworded_findings.py``, P12c-8's own shrinking list.
     """
     declared = _declared_templates()
-    without = sorted(code for code in _raised_codes() if code not in declared)
+    without = sorted(
+        code for code in _raised_codes() if code not in declared and code not in UNWORDED
+    )
     assert not without, (
-        "Raised with no MessageTemplate, so a user would read the code itself (NFR-006). "
-        "Write its template beside the algorithms that show it:\n" + "\n".join(without)
+        "Raised or reported with no MessageTemplate, so a user would read the code itself, "
+        "or a finding's English (NFR-006, FR-091). Write its template beside the algorithms "
+        "that show it:\n" + "\n".join(without)
+    )
+
+
+def test_the_unworded_findings_only_shrink():
+    """An entry whose finding gained a template, or is no longer made, must go."""
+    declared = _declared_templates()
+    made = set(_raised_codes())
+    worded = sorted(code for code in UNWORDED if code in declared)
+    gone = sorted(code for code in UNWORDED if code not in made)
+    assert not worded, "Worded now; remove from unworded_findings.py: " + ", ".join(worded)
+    assert not gone, "No longer made; remove from unworded_findings.py: " + ", ".join(gone)
+
+
+def test_every_finding_shows_its_template_and_keys():
+    """The checks above read a finding's template and context from its source.
+
+    A code computed at run time, or a context built elsewhere and passed in,
+    would let a finding escape them. Name the template with ``wording=``, and
+    write the context as a dict literal.
+    """
+    assert not _unreadable_findings(), (
+        "Findings whose template or context keys this test cannot read:\n"
+        + "\n".join(_unreadable_findings())
     )
 
 

@@ -192,6 +192,7 @@ class MappingEditor:
                         "observation to import"
                     ),
                     observations=(field,),
+                    context={"field": field},
                 )
             )
 
@@ -215,6 +216,7 @@ class MappingEditor:
                             "would double-count the measurement"
                         ),
                         observations=tuple(fields),
+                        context={"column": column, "fields": fields},
                     )
                 )
 
@@ -227,6 +229,7 @@ class MappingEditor:
                         f"column '{column}' is not mapped to anything and will be ignored"
                     ),
                     observations=(column,),
+                    context={"column": column},
                 )
             )
 
@@ -246,6 +249,7 @@ class MappingEditor:
                         "another"
                     ),
                     observations=(column,),
+                    context={"column": column},
                 )
             )
 

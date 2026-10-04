@@ -21,6 +21,7 @@ from geocomp.core.models.epoch import Epoch, require_epoch
 from geocomp.core.models.network import (
     Campaign,
     GnssSession,
+    IntegrityProblem,
     Network,
     Project,
     network_from_document,
@@ -76,6 +77,7 @@ __all__ = [
     "ErrorEllipse",
     "GnssSession",
     "HeightType",
+    "IntegrityProblem",
     "MonitoringRole",
     "Network",
     "Observation",

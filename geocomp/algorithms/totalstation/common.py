@@ -29,6 +29,7 @@ from geocomp.core.techniques.total_station.readings import (
 )
 from geocomp.core.uncertainty import Quantity
 from geocomp.io import FieldMapping, infer_mapping
+from geocomp.services.messages import finding_text
 
 __all__ = [
     "default_library",
@@ -191,7 +192,7 @@ def findings_table(findings: tuple[Finding, ...]) -> str:
             [
                 marker,
                 f"<code>{escape(finding.code)}</code>",
-                escape(finding.message),
+                escape(finding_text(finding)),
                 escape(involves) or "—",
             ]
         )
@@ -215,7 +216,7 @@ def summarise_findings(findings: tuple[Finding, ...], feedback) -> tuple[int, in
     """
     blocking = warnings = 0
     for finding in findings:
-        line = f"[{finding.code}] {finding.message}"
+        line = f"[{finding.code}] {finding_text(finding)}"
         if finding.severity is Severity.BLOCKING:
             blocking += 1
             feedback.pushWarning(line)
@@ -392,6 +393,7 @@ def _unusable(target: str):
             f"the pointing to {target} was rejected during pre-processing and is not used here"
         ),
         observations=(target,),
+        context={"target": target},
     )
 
 

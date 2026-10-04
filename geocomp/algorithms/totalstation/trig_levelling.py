@@ -53,6 +53,7 @@ from geocomp.core.techniques.total_station import (
 from geocomp.core.techniques.total_station.reductions import DEFAULT_EARTH_RADIUS
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
+from geocomp.services.messages import finding_text
 
 __all__ = ["TrigonometricLevellingAlgorithm"]
 
@@ -247,7 +248,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
             )
 
         for finding in findings:
-            feedback.pushWarning(f"[{finding.code}] {finding.message}")
+            feedback.pushWarning(f"[{finding.code}] {finding_text(finding)}")
         feedback.pushInfo(
             self.tr("%1 height difference(s) computed.").replace("%1", str(len(rows)))
         )

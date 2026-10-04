@@ -1956,6 +1956,52 @@ user as a diagnostic through that gap. The levelling-book import makes a refused
 finding whose text is `f"setup {id}: {error}"`, so the code and context reach the import report. It goes
 with the findings, as P12c-8.
 
+#### P12c-8 — every finding in words (first pull request): the mechanism, the importers and inspection
+
+FR-091 and specs/18 §2: the core never phrases a sentence. A *finding* broke that rule. It is what an import,
+an inspection or a reduction reports rather than raises (FR-166), and it carried only an English sentence. A
+report, the Processing log, the field-mapping dialog and the pre-analysis dialog showed that sentence in
+every language. The P12c-7 records named this gap.
+
+**Delivered.**
+
+- **The mechanism.**
+  - `Finding` gains `context` (the values its sentence needs), `error` (the refusal it reports) and
+    `wording` (the frame a per-row, per-setup or per-line refusal is worded by).
+  - `services.messages.finding_text` words a finding from `finding.<wording or code>`, falling back to the
+    English only for a code still in the baseline.
+  - Every display site uses it: the levelling and total-station finding tables and log lines, *Inspect
+    network*, *Traverse*, *Intersection*, *Trigonometric levelling*, the total-station network's refusal,
+    and both dialogs. A findings CSV keeps the English, because the locale test requires such a file to be
+    the same in every language (FR-095).
+- **The ratchet.** `tests/structural/test_message_templates.py` reads every `Finding(...)` beside every
+  `*Error(...)`.
+  - A finding's template must exist, unless its code is in `tests/structural/unworded_findings.py`, and
+    must interpolate only the keys its `context` literal supplies.
+  - A construction whose template or keys cannot be read from the source fails.
+  - The specs/20 register row says so.
+- **Worded, with pt-BR and es: 31 findings and the 12 refusals of a field book's rows.**
+  - The field-mapping editor (4).
+  - The field book (3) and the levelling book (1).
+  - The frames of a refused row, setup or line (4).
+  - Network inspection (12), with the referential problems now structured as `Network.integrity_problems()`.
+  - The pre-analysis design (6).
+  - A pointing rejected in pre-processing (1).
+  - The book readers' per-row refusals are now `DataError`s, worded as any refusal is (12).
+
+**Found.**
+
+- **The levelling-book import still showed a refusal's developer diagnostic.** P12c-7 recorded it: a refused
+  setup or line became a finding whose text was `f"setup {id}: {error}"`. It now reads "Setup 3: …" followed
+  by the refusal's words.
+- **The pre-analysis refusal had two mechanisms.** P12c-7 added `SessionState.error` to word a refused
+  design. The finding now carries the refusal itself, and that field is gone.
+
+**Not done here.** 42 findings, all the techniques' own, are frozen in `unworded_findings.py`: levelling (25)
+and the total station (17). They are the misclosures, balances, collimation and index checks, the
+orthometric correction and the resection's geometry. Their sentences hold numbers the core formats in place,
+so each needs its values moved into a context.
+
 ---
 
 ## P13 — Validation, documentation and release

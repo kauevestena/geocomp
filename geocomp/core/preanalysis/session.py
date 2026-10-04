@@ -42,6 +42,7 @@ from geocomp.core.models import (
     Station,
     StationType,
 )
+from geocomp.core.number_format import localised
 from geocomp.core.preanalysis.design import DesignReport, simulate
 from geocomp.core.preanalysis.inspection import inspect
 from geocomp.core.uncertainty import Covariance, Quantity
@@ -83,16 +84,10 @@ class SessionState:
     ``report`` is ``None`` when the design could not be evaluated, and
     ``findings`` then says why. Both are always present, so a caller renders one
     shape rather than branching on which kind of answer arrived.
-
-    ``error`` is the refusal behind a design the arithmetic could not evaluate,
-    kept so the presentation layer can say it in words: its finding carries
-    only the developer's diagnostic, which is what the dialog showed until
-    P12c-7.
     """
 
     report: DesignReport | None
     findings: tuple[Finding, ...] = ()
-    error: GeoCompError | None = None
 
     @property
     def is_evaluable(self) -> bool:
@@ -336,9 +331,11 @@ class DesignSession:
                     code=exc.code if hasattr(exc, "code") else "design_not_evaluable",
                     severity=Severity.BLOCKING,
                     message=str(exc),
+                    error=exc,
+                    wording="design_not_evaluable",
                 )
             )
-            return SessionState(report=None, findings=tuple(findings), error=exc)
+            return SessionState(report=None, findings=tuple(findings))
 
         findings.extend(self._quality_findings(report))
         return SessionState(report=report, findings=tuple(findings))
@@ -405,6 +402,11 @@ class DesignSession:
                     stations=(worst.station_id,),
                     value=worst.positional_uncertainty,
                     threshold=self.tolerance,
+                    context={
+                        "station": worst.station_id,
+                        "expected": localised(f"{worst.positional_uncertainty * 1000:.1f}"),
+                        "required": localised(f"{self.tolerance * 1000:.1f}"),
+                    },
                 )
             )
         for result in report.reliability.uncheckable:
@@ -418,6 +420,7 @@ class DesignSession:
                     ),
                     observations=(result.observation_id,),
                     value=result.redundancy,
+                    context={"observation": result.observation_id},
                 )
             )
         return found

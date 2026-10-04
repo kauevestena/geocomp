@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 import json
+from html import escape
 from pathlib import Path
 
 from qgis.PyQt.QtCore import QCoreApplication, Qt
@@ -51,6 +52,7 @@ from geocomp.io.mapping_editor import (
     PreviewTable,
     field_is_required,
 )
+from geocomp.services.messages import finding_text
 
 __all__ = ["FieldMappingDialog", "angle_format_label", "field_label", "read_preview"]
 
@@ -308,7 +310,7 @@ class FieldMappingDialog(QDialog):
             self._findings.setText(
                 "<br>".join(
                     f"<span style='color:{_SEVERITY_COLOURS[finding.severity]}'>"
-                    f"{finding.message}</span>"
+                    f"{escape(finding_text(finding))}</span>"
                     for finding in findings
                 )
             )

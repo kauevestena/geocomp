@@ -25,6 +25,7 @@ every non-interactive run (ADR-0005).
 from __future__ import annotations
 
 import math
+from html import escape
 
 from qgis.core import QgsPointXY, QgsWkbTypes
 from qgis.gui import QgsMapTool, QgsRubberBand, QgsVertexMarker
@@ -52,6 +53,7 @@ from geocomp.core.models import ObservationType
 from geocomp.core.number_format import localised
 from geocomp.core.preanalysis.session import DesignSession
 from geocomp.core.visualization import default_exaggeration, ellipse_ring
+from geocomp.services.messages import finding_text
 
 __all__ = ["ADD_STATION", "CONNECT", "MOVE", "REMOVE", "DesignMapTool", "PreAnalysisDialog"]
 
@@ -72,17 +74,6 @@ _ELLIPSE_COLOUR = QColor(213, 94, 0)
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate(_TR_CONTEXT, text)
-
-
-def _finding_text(finding, error) -> str:
-    """The refusal behind an unevaluable design in words, else the finding's own text."""
-    if error is not None and finding.code == error.code:
-        from html import escape
-
-        from geocomp.services.messages import message_for
-
-        return escape(message_for(error))
-    return finding.message
 
 
 class DesignMapTool(QgsMapTool):
@@ -375,7 +366,7 @@ class PreAnalysisDialog(QDialog):
             self._findings.setText(
                 "<br>".join(
                     f"<span style='color:{'#d55e00' if f.is_blocking else '#e69f00'}'>"
-                    f"{_finding_text(f, state.error)}</span>"
+                    f"{escape(finding_text(f))}</span>"
                     for f in state.findings
                 )
             )

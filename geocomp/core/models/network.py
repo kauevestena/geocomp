@@ -22,7 +22,14 @@ from geocomp.core.models.station import Station
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 
-__all__ = ["Campaign", "GnssSession", "Network", "Project", "network_from_document"]
+__all__ = [
+    "Campaign",
+    "GnssSession",
+    "IntegrityProblem",
+    "Network",
+    "Project",
+    "network_from_document",
+]
 
 
 @dataclass(frozen=True)
@@ -161,6 +168,38 @@ class Campaign:
         )
 
 
+@dataclass(frozen=True)
+class IntegrityProblem:
+    """One referential problem in a network, as data a reader can be told in words.
+
+    ``kind`` is ``unknown_station`` and ``unknown_cluster`` (``subject`` an
+    observation, ``other`` the id it names), ``unknown_member`` (``subject`` a
+    cluster, ``other`` the observation it lists) or ``covariance_size``
+    (``subject`` a cluster, ``other`` its covariance's size, ``components``
+    its members' components). Until P12c-8 :meth:`Network.validate` returned
+    only English sentences, and *Inspect network* showed them as they were.
+    """
+
+    kind: str
+    subject: str
+    other: str
+    components: str = ""
+
+    @property
+    def message(self) -> str:
+        """Developer-facing English, for logs and :meth:`Network.validate`."""
+        if self.kind == "unknown_station":
+            return f"observation {self.subject} references unknown station {self.other}"
+        if self.kind == "unknown_cluster":
+            return f"observation {self.subject} references unknown cluster {self.other}"
+        if self.kind == "unknown_member":
+            return f"cluster {self.subject} references unknown observation {self.other}"
+        return (
+            f"cluster {self.subject} carries a {self.other}-component covariance for "
+            f"members with {self.components} components in total"
+        )
+
+
 @dataclass
 class Network:
     """A set of stations connected by observations, adjusted as one unit.
@@ -226,23 +265,28 @@ class Network:
     # -- integrity -------------------------------------------------------
 
     def validate(self) -> list[str]:
-        """Return referential problems, one message per problem.
+        """Return referential problems, one developer-facing message per problem.
 
         Returns a list rather than raising, because an importer must report
         every bad record rather than stopping at the first (FR-166). Callers
-        that want a hard failure check the list.
+        that want a hard failure check the list. What a user reads is worded
+        from :meth:`integrity_problems` instead (P12c-8).
         """
-        problems: list[str] = []
+        return [problem.message for problem in self.integrity_problems()]
+
+    def integrity_problems(self) -> list[IntegrityProblem]:
+        """The referential problems, each as a kind and the ids it concerns."""
+        problems: list[IntegrityProblem] = []
 
         for observation in self.observations.values():
             for station_id in observation.stations:
                 if station_id not in self.stations:
                     problems.append(
-                        f"observation {observation.id} references unknown station {station_id}"
+                        IntegrityProblem("unknown_station", observation.id, station_id)
                     )
             if observation.cluster_id and observation.cluster_id not in self.clusters:
                 problems.append(
-                    f"observation {observation.id} references unknown cluster {observation.cluster_id}"
+                    IntegrityProblem("unknown_cluster", observation.id, observation.cluster_id)
                 )
 
         for cluster in self.clusters.values():
@@ -250,7 +294,7 @@ class Network:
             for observation_id in cluster.observation_ids:
                 if observation_id not in self.observations:
                     problems.append(
-                        f"cluster {cluster.id} references unknown observation {observation_id}"
+                        IntegrityProblem("unknown_member", cluster.id, observation_id)
                     )
                 else:
                     resolved.append(self.observations[observation_id])
@@ -265,8 +309,12 @@ class Network:
                 components = sum(len(o.spec.components) for o in resolved)
                 if components != cluster.covariance.size:
                     problems.append(
-                        f"cluster {cluster.id} carries a {cluster.covariance.size}-component "
-                        f"covariance for members with {components} components in total"
+                        IntegrityProblem(
+                            "covariance_size",
+                            cluster.id,
+                            str(cluster.covariance.size),
+                            str(components),
+                        )
                     )
 
         return problems

@@ -18,8 +18,9 @@ from typing import Any
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
+from geocomp.core.findings import Finding
 
-__all__ = ["MessageTemplate", "message_for", "reason_for", "register_template"]
+__all__ = ["MessageTemplate", "finding_text", "message_for", "reason_for", "register_template"]
 
 _CONTEXT = "GeoCompMessages"
 
@@ -132,3 +133,24 @@ def reason_for(error: BaseException) -> str:
     if isinstance(error, GeoCompError):
         return message_for(error)
     return str(error)
+
+
+def finding_text(finding: Finding) -> str:
+    """Return the translated words for *finding*, from its code and context.
+
+    The finding's own ``message`` is developer-facing English, kept for logs
+    and tests; until P12c-8 every report and panel showed it, in English,
+    whatever the language. A finding that reports a refusal is given that
+    refusal's words as ``reason``. A finding whose code has no template yet --
+    the baseline ``tests/structural/unworded_findings.py`` holds, which
+    may only shrink -- falls back to the English.
+    """
+    template = _TEMPLATES.get(finding.template_code)
+    if template is None:
+        return finding.message
+    # Not localised here: a number in the context was written for the reader
+    # where it was made, and a station named "1.1" is not a number to rewrite.
+    context = dict(finding.context)
+    if finding.error is not None:
+        context["reason"] = message_for(finding.error)
+    return template.render(context)

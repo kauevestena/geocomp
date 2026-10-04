@@ -80,6 +80,7 @@ from geocomp.core.preanalysis import inspect
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.techniques.total_station import build_network
+from geocomp.services.messages import finding_text
 
 __all__ = ["ClassicalNetworkAlgorithm"]
 
@@ -303,7 +304,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         report = inspect(network, frame=frame)
         blocking = report.blocking
         for finding in report.findings:
-            line = f"[{finding.code}] {finding.message}"
+            line = f"[{finding.code}] {finding_text(finding)}"
             if finding.is_blocking:
                 feedback.pushWarning(line)
             else:
@@ -311,7 +312,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         if blocking:
             raise QgsProcessingException(
                 self.tr("The network cannot be adjusted: %1").replace(
-                    "%1", "; ".join(f.message for f in blocking)
+                    "%1", "; ".join(finding_text(f) for f in blocking)
                 )
             )
 

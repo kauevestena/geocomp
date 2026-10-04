@@ -44,6 +44,7 @@ from geocomp.core.statistics.ellipses import error_ellipse
 from geocomp.core.techniques.total_station import forward_intersection
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
+from geocomp.services.messages import finding_text
 
 __all__ = ["IntersectionAlgorithm"]
 
@@ -196,7 +197,7 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
             .replace("%4", format_number(ellipse.semi_minor * 1000.0, 1))
         )
         for finding in result.findings:
-            feedback.pushWarning(f"[{finding.code}] {finding.message}")
+            feedback.pushWarning(f"[{finding.code}] {finding_text(finding)}")
 
         outputs = self._write(parameters, context, target, result, ellipse, confidence)
         feedback.setProgress(100)
@@ -263,7 +264,7 @@ class IntersectionAlgorithm(GeoCompAlgorithm):
             ),
         ]
         for finding in result.findings:
-            body.append(render_note(finding.message, label=self.tr("Geometry")))
+            body.append(render_note(finding_text(finding), label=self.tr("Geometry")))
 
         return render_document(
             self.tr("Forward intersection report"),

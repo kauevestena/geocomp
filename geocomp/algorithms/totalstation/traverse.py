@@ -58,6 +58,7 @@ from geocomp.core.techniques.total_station import (
 )
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit, wrap_to_2pi
+from geocomp.services.messages import finding_text
 
 __all__ = ["TraverseAlgorithm"]
 
@@ -478,7 +479,7 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                 )
             )
         for finding in result.findings:
-            feedback.pushWarning(f"[{finding.code}] {finding.message}")
+            feedback.pushWarning(f"[{finding.code}] {finding_text(finding)}")
 
     # -- outputs ---------------------------------------------------------
 

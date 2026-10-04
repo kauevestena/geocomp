@@ -1349,6 +1349,193 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
         "received",
     ),
+    # -- a field book's rows (P12c-8) ---------------------------------------------
+    # A row the reader could not understand is reported as a finding, worded by
+    # "finding.field_book_row_refused" with one of these as its reason.
+    "data.missing_station": MessageTemplate(
+        "no occupied station is given.",
+    ),
+    "data.missing_target": MessageTemplate(
+        "no station is given for '%1', so the pointing has no target.",
+        "field",
+    ),
+    "data.missing_angle": MessageTemplate(
+        "the angle '%1' is empty.",
+        "field",
+    ),
+    "data.unparseable_number": MessageTemplate(
+        "'%2', given for '%1', is not a number.",
+        "field",
+        "received",
+    ),
+    "data.unparseable_angle": MessageTemplate(
+        "'%2', given for '%1', is not an angle.",
+        "field",
+        "received",
+    ),
+    "data.unparseable_set_number": MessageTemplate(
+        "the set number '%1' is not a whole number.",
+        "received",
+    ),
+    "data.sexagesimal_out_of_range": MessageTemplate(
+        "'%1' reads %2, but minutes and seconds must be below 60. The columns are probably in "
+        "the wrong order, or the angle is already decimal.",
+        "field",
+        "received",
+    ),
+    "data.unknown_face_value": MessageTemplate(
+        "'%1' is not one of the face values the mapping knows (%2).",
+        "received",
+        "expected",
+    ),
+    "data.unknown_sighted_value": MessageTemplate(
+        "'%1' is not one of the sighted values the mapping knows (%2).",
+        "received",
+        "expected",
+    ),
+    # -- findings: the field book, its mapping and pre-processing (P12c-8) -----
+    "finding.field_book_row_refused": MessageTemplate(
+        "Row %1: %2",
+        "row",
+        "reason",
+    ),
+    "finding.required_field_unmapped": MessageTemplate(
+        "Nothing supplies '%1', and without it there is no observation to import.",
+        "field",
+    ),
+    "finding.column_assigned_twice": MessageTemplate(
+        "The column '%1' is assigned to %2. One column cannot be two fields, and importing it "
+        "as both would count the measurement twice.",
+        "column",
+        "fields",
+    ),
+    "finding.column_unmapped": MessageTemplate(
+        "The column '%1' is not mapped to anything and will be ignored.",
+        "column",
+    ),
+    "finding.mapped_column_absent": MessageTemplate(
+        "The mapping expects a column '%1', which this file does not have. A mapping saved for "
+        "one export layout does not fit another.",
+        "column",
+    ),
+    "finding.inconsistent_instrument_height": MessageTemplate(
+        "Station %1 records %2 different instrument heights. The first was used; check the "
+        "field book.",
+        "station",
+        "count",
+    ),
+    "finding.missing_instrument_height": MessageTemplate(
+        "Station %1 records no instrument height. Zero was assumed, which is right only for a "
+        "leap-frog setup.",
+        "station",
+    ),
+    "finding.repeated_face": MessageTemplate(
+        "Row %1: a second pointing to %2 on the same face, in set %3. The first was kept; give "
+        "the repetition its own set number to use both.",
+        "row",
+        "target",
+        "set",
+    ),
+    "finding.rejected_in_preprocessing": MessageTemplate(
+        "The pointing to %1 was rejected during pre-processing and is not used here.",
+        "target",
+    ),
+    # -- findings: inspecting a network (P12c-8) -----------------------------------
+    "finding.observation_names_unknown_station": MessageTemplate(
+        "The observation %1 names the station %2, which the network does not have.",
+        "observation",
+        "station",
+    ),
+    "finding.observation_names_unknown_cluster": MessageTemplate(
+        "The observation %1 names the cluster %2, which the network does not have.",
+        "observation",
+        "cluster",
+    ),
+    "finding.cluster_names_unknown_observation": MessageTemplate(
+        "The cluster %1 lists the observation %2, which the network does not have.",
+        "cluster",
+        "observation",
+    ),
+    "finding.cluster_covariance_wrong_size": MessageTemplate(
+        "The cluster %1 carries a covariance of size %2 for members with %3 components in "
+        "all; it needs one row per component.",
+        "cluster",
+        "size",
+        "components",
+    ),
+    "finding.unsupported_observation_type": MessageTemplate(
+        "The observation %1 is a %2, which GeoComp's own adjustment does not yet implement.",
+        "observation",
+        "type",
+    ),
+    "finding.wrong_dimensionality": MessageTemplate(
+        "The observation %1, a %2, cannot contribute to a %3D adjustment.",
+        "observation",
+        "type",
+        "dimension",
+    ),
+    "finding.network_not_connected": MessageTemplate(
+        "The network falls into %1 disconnected parts. Each has its own datum, and they cannot "
+        "be adjusted together.",
+        "parts",
+    ),
+    "finding.isolated_stations": MessageTemplate(
+        "%1 station(s) take part in no active observation and cannot be determined: %2.",
+        "count",
+        "stations",
+    ),
+    "finding.insufficient_observations": MessageTemplate(
+        "Station %1 appears in only %2 observation component(s), but a %3D position needs at "
+        "least %4.",
+        "station",
+        "count",
+        "dimension",
+        "needed",
+    ),
+    "finding.repeated_observations": MessageTemplate(
+        "%1 observations of type %2 between %3: %4. Repeated measurements are expected; a "
+        "duplicated import is not.",
+        "count",
+        "type",
+        "stations",
+        "observations",
+    ),
+    "finding.missing_approximate_coordinates": MessageTemplate(
+        "%1 station(s) have no approximate position: %2. The linearised model needs a point "
+        "to linearise about; supply them, or generate them from the observations.",
+        "count",
+        "stations",
+    ),
+    "finding.no_active_observations": MessageTemplate(
+        "The network has no active observations, so there is nothing to adjust.",
+    ),
+    # -- findings: the pre-analysis design (P12c-8) --------------------------------
+    "finding.design_without_stations": MessageTemplate(
+        "The design has no stations yet; add one to begin.",
+    ),
+    "finding.design_without_observations": MessageTemplate(
+        "The design has stations but no planned observations, so there is nothing to "
+        "evaluate. Connect two stations to begin.",
+    ),
+    "finding.design_not_evaluable": MessageTemplate(
+        "The design cannot be evaluated: %1",
+        "reason",
+    ),
+    "finding.design_without_redundancy": MessageTemplate(
+        "The design has no redundancy, so nothing in it can be checked. A blunder anywhere "
+        "would be invisible and would pass into the coordinates unaltered.",
+    ),
+    "finding.design_misses_tolerance": MessageTemplate(
+        "Station %1 is expected to reach %2 mm, against a required %3 mm.",
+        "station",
+        "expected",
+        "required",
+    ),
+    "finding.planned_observation_uncheckable": MessageTemplate(
+        "The planned observation %1 would be uncheckable: no blunder in it could be detected "
+        "at all.",
+        "observation",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

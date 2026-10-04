@@ -3027,6 +3027,10 @@
             <translation>%1 precisa de ao menos 1 grau de liberdade, e tem %2: uma rede sem redundância não tem teste a aplicar. Acrescente observações.</translation>
         </message>
         <message>
+            <source>%1 observations of type %2 between %3: %4. Repeated measurements are expected; a duplicated import is not.</source>
+            <translation>%1 observações do tipo %2 entre %3: %4. Medições repetidas são esperadas; uma importação duplicada não é.</translation>
+        </message>
+        <message>
             <source>%1 of the %2 observations in '%3' have no DynAdjust equivalent (%4). Adjusting the rest would answer a different question, with a variance factor that looks healthy. Adjust this network with GeoComp's own adjustment, or remove those observations.</source>
             <translation>%1 das %2 observações em '%3' não têm equivalente no DynAdjust (%4). Ajustar o restante responderia a outra pergunta, com um fator de variância de aparência saudável. Ajuste esta rede com o ajustamento do próprio GeoComp, ou remova essas observações.</translation>
         </message>
@@ -3037,6 +3041,14 @@
         <message>
             <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
             <translation>%1 estação(ões) são alcançadas apenas por altitudes, então nada determina onde estão horizontalmente: %2. Ligue-as com um vetor GNSS ou uma observação de estação total, fixe-as horizontalmente ou ajuste o nivelamento sozinho.</translation>
+        </message>
+        <message>
+            <source>%1 station(s) have no approximate position: %2. The linearised model needs a point to linearise about; supply them, or generate them from the observations.</source>
+            <translation>%1 estação(ões) não têm posição aproximada: %2. O modelo linearizado precisa de um ponto em torno do qual linearizar; informe-as, ou gere-as a partir das observações.</translation>
+        </message>
+        <message>
+            <source>%1 station(s) take part in no active observation and cannot be determined: %2.</source>
+            <translation>%1 estação(ões) não participam de nenhuma observação ativa e não podem ser determinadas: %2.</translation>
         </message>
         <message>
             <source>%1 stopped with exit code %2. Its own message: %3. Its working files are in %4.</source>
@@ -3123,6 +3135,10 @@
             <translation>'%1' está compactado como %2, que o GeoComp não lê. Descompacte-o primeiro; o GeoComp lê RINEX não compactado e compactado com gzip.</translation>
         </message>
         <message>
+            <source>'%1' is empty.</source>
+            <translation>'%1' está vazio.</translation>
+        </message>
+        <message>
             <source>'%1' is empty: a RINEX file starts with a header.</source>
             <translation>'%1' está vazio: um arquivo RINEX começa com um cabeçalho.</translation>
         </message>
@@ -3181,6 +3197,10 @@
         <message>
             <source>'%1' is not a kind of observation GeoComp weights; expected %2.</source>
             <translation>'%1' não é um tipo de observação que o GeoComp pondera; esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a kind of sight the mapping knows (%2).</source>
+            <translation>'%1' não é um tipo de visada que o mapeamento conhece (%2).</translation>
         </message>
         <message>
             <source>'%1' is not a network document as GeoComp writes it (%2).</source>
@@ -3263,8 +3283,20 @@
             <translation>'%1' não é uma das configurações comparadas; esperava-se %2.</translation>
         </message>
         <message>
+            <source>'%1' is not one of the face values the mapping knows (%2).</source>
+            <translation>'%1' não é um dos valores de posição da luneta que o mapeamento conhece (%2).</translation>
+        </message>
+        <message>
+            <source>'%1' is not one of the sighted values the mapping knows (%2).</source>
+            <translation>'%1' não é um dos valores de ponto visado que o mapeamento conhece (%2).</translation>
+        </message>
+        <message>
             <source>'%1' observes stations that have no approximate coordinates (%2). An angle or azimuth to such a point defines a direction, not a position; reduce it before the network is adjusted.</source>
             <translation>'%1' observa estações sem coordenadas aproximadas (%2). Um ângulo ou azimute para tal ponto define uma direção, não uma posição; reduza-o antes de ajustar a rede.</translation>
+        </message>
+        <message>
+            <source>'%1' reads %2, but minutes and seconds must be below 60. The columns are probably in the wrong order, or the angle is already decimal.</source>
+            <translation>'%1' diz %2, mas minutos e segundos devem ficar abaixo de 60. As colunas provavelmente estão na ordem errada, ou o ângulo já é decimal.</translation>
         </message>
         <message>
             <source>'%1' records no epoch, and GeoComp will not assume one: a solution without an epoch cannot be compared or transformed. Run the adjustment with an explicit epoch.</source>
@@ -3285,6 +3317,14 @@
         <message>
             <source>'%2' has no reference epoch, which is needed to %1. GeoComp will not assume one, because an assumed epoch produces a confidently wrong displacement; give the epoch.</source>
             <translation>'%2' não tem época de referência, que é necessária para %1. O GeoComp não assume uma, porque uma época assumida produz um deslocamento errado com toda a confiança; informe a época.</translation>
+        </message>
+        <message>
+            <source>'%2', given for '%1', is not a number.</source>
+            <translation>'%2', dado para '%1', não é um número.</translation>
+        </message>
+        <message>
+            <source>'%2', given for '%1', is not an angle.</source>
+            <translation>'%2', dado para '%1', não é um ângulo.</translation>
         </message>
         <message>
             <source>(not set)</source>
@@ -3807,6 +3847,10 @@
             <translation>A linha %1 de '%2' informa o horário '%3' sem seu deslocamento em relação ao UTC. A maré depende do horário ao minuto, então um horário sem fuso é um palpite; escreva-o, por exemplo, como 2013-09-15T05:57:01Z ou 2013-09-15T02:57:01-03:00.</translation>
         </message>
         <message>
+            <source>Line %1: %2</source>
+            <translation>Linha de nivelamento %1: %2</translation>
+        </message>
+        <message>
             <source>Measurement %1 is a %2 with a %3 of %4, but a height offset does not change this kind of measurement. Remove the offset, or check the measurement type.</source>
             <translation>A medição %1 é um(a) %2 com %3 de %4, mas um deslocamento de altura não altera esse tipo de medição. Remova o deslocamento, ou verifique o tipo de medição.</translation>
         </message>
@@ -3853,6 +3897,10 @@
         <message>
             <source>No stations were given to define the datum on. %1</source>
             <translation>Nenhuma estação foi indicada para definir o datum. %1</translation>
+        </message>
+        <message>
+            <source>Nothing supplies '%1', and without it there is no observation to import.</source>
+            <translation>Nada fornece '%1', e sem isso não há observação a importar.</translation>
         </message>
         <message>
             <source>Observation '%1' between %2 has no horizontal separation at the approximate coordinates, so the zenith angle cannot be linearised there. Correct the approximate coordinates.</source>
@@ -3915,6 +3963,14 @@
             <translation>A linha %1 da tabela de calibração do gravímetro tem o fator de intervalo %2; ele deve ser positivo.</translation>
         </message>
         <message>
+            <source>Row %1: %2</source>
+            <translation>Linha %1 da caderneta: %2</translation>
+        </message>
+        <message>
+            <source>Row %1: a second pointing to %2 on the same face, in set %3. The first was kept; give the repetition its own set number to use both.</source>
+            <translation>Linha %1 da caderneta: uma segunda pontaria para %2 na mesma posição da luneta, na série %3. A primeira foi mantida; dê à repetição seu próprio número de série para usar as duas.</translation>
+        </message>
+        <message>
             <source>Session '%1' cannot be pre-corrected: its base station %2 was read %3 time(s), and a degree-%4 drift needs one more reading than its degree. Estimate the drift with the station values instead, or lower the degree.</source>
             <translation>A sessão '%1' não pode ser pré-corrigida: sua estação base %2 foi lida %3 vez(es), e uma deriva de grau %4 precisa de uma leitura a mais que seu grau. Estime a deriva junto com os valores das estações, ou reduza o grau.</translation>
         </message>
@@ -3923,12 +3979,36 @@
             <translation>A sessão '%1' contém leituras de vários instrumentos (%2). A deriva pertence a um instrumento, então cada um precisa de sua própria sessão.</translation>
         </message>
         <message>
+            <source>Setup %1 has %2 backsight(s) and %3 foresight(s); it needs exactly one backsight and at least one foresight.</source>
+            <translation>O estacionamento %1 tem %2 visada(s) de ré e %3 visada(s) de vante; ele precisa de exatamente uma visada de ré e pelo menos uma de vante.</translation>
+        </message>
+        <message>
+            <source>Setup %1: %2</source>
+            <translation>Estacionamento %1: %2</translation>
+        </message>
+        <message>
             <source>Someone else saved %1 since you opened it (revision %2 now; you read %3). Nothing was written. Open the project again and redo your change, so their save is not overwritten.</source>
             <translation>Outra pessoa gravou %1 desde que você o abriu (revisão %2 agora; você leu a %3). Nada foi gravado. Abra o projeto de novo e refaça sua alteração, para que a gravação dela não seja sobrescrita.</translation>
         </message>
         <message>
             <source>State the epoch of the combination (a decimal year). None of the inputs states one GeoComp could take, and it does not assume one.</source>
             <translation>Informe a época da combinação (um ano decimal). Nenhuma das entradas informa uma que o GeoComp possa usar, e ele não presume uma.</translation>
+        </message>
+        <message>
+            <source>Station %1 appears in only %2 observation component(s), but a %3D position needs at least %4.</source>
+            <translation>A estação %1 aparece em apenas %2 componente(s) de observação, mas uma posição %3D precisa de pelo menos %4.</translation>
+        </message>
+        <message>
+            <source>Station %1 is expected to reach %2 mm, against a required %3 mm.</source>
+            <translation>Espera-se que a estação %1 alcance %2 mm, contra %3 mm exigidos.</translation>
+        </message>
+        <message>
+            <source>Station %1 records %2 different instrument heights. The first was used; check the field book.</source>
+            <translation>A estação %1 registra %2 alturas do instrumento diferentes. A primeira foi usada; verifique a caderneta de campo.</translation>
+        </message>
+        <message>
+            <source>Station %1 records no instrument height. Zero was assumed, which is right only for a leap-frog setup.</source>
+            <translation>A estação %1 não registra altura do instrumento. Foi assumido zero, o que só é correto para um estacionamento leap-frog.</translation>
         </message>
         <message>
             <source>Station '%1' has a weighted constraint, which DynAdjust cannot express: it holds a coordinate fixed or leaves it free, nothing between. Adjust this network with GeoComp's own adjustment, or make the constraint fixed or free.</source>
@@ -4259,6 +4339,14 @@
             <translation>O fator de calibração do gravímetro '%1' é %2; ele deve ser um número positivo próximo de 1.</translation>
         </message>
         <message>
+            <source>The cluster %1 carries a covariance of size %2 for members with %3 components in all; it needs one row per component.</source>
+            <translation>O agrupamento %1 traz uma matriz variância-covariância de dimensão %2 para membros com %3 componentes ao todo; ela precisa de uma linha por componente.</translation>
+        </message>
+        <message>
+            <source>The cluster %1 lists the observation %2, which the network does not have.</source>
+            <translation>O agrupamento %1 lista a observação %2, que a rede não tem.</translation>
+        </message>
+        <message>
             <source>The cluster '%1' has %2 observation(s) and a covariance of size %3, which does not cover every component of every member. A GNSS baseline contributes three rows, so the size is a whole multiple of the number of members.</source>
             <translation>O agrupamento '%1' tem %2 observação(ões) e uma matriz variância-covariância de dimensão %3, que não cobre todas as componentes de todos os membros. Uma linha de base contribui com três linhas, então a dimensão é um múltiplo inteiro do número de membros.</translation>
         </message>
@@ -4269,6 +4357,14 @@
         <message>
             <source>The cluster '%1' lists an observation twice. Each member appears once, in the order of the covariance.</source>
             <translation>O agrupamento '%1' lista uma observação duas vezes. Cada membro aparece uma vez, na ordem da matriz variância-covariância.</translation>
+        </message>
+        <message>
+            <source>The column '%1' is assigned to %2. One column cannot be two fields, and importing it as both would count the measurement twice.</source>
+            <translation>A coluna '%1' está atribuída a %2. Uma coluna não pode ser dois campos, e importá-la como ambos contaria a medição duas vezes.</translation>
+        </message>
+        <message>
+            <source>The column '%1' is not mapped to anything and will be ignored.</source>
+            <translation>A coluna '%1' não está mapeada para nada e será ignorada.</translation>
         </message>
         <message>
             <source>The confidence level must be a probability strictly between 0 and 1; %1 was given.</source>
@@ -4335,12 +4431,28 @@
             <translation>O grau do polinômio de deriva deve ser 1 ou mais; foi dado %1.</translation>
         </message>
         <message>
+            <source>The design cannot be evaluated: %1</source>
+            <translation>O planejamento não pode ser avaliado: %1</translation>
+        </message>
+        <message>
             <source>The design has no observation '%1'.</source>
             <translation>O planejamento não tem a observação '%1'.</translation>
         </message>
         <message>
+            <source>The design has no redundancy, so nothing in it can be checked. A blunder anywhere would be invisible and would pass into the coordinates unaltered.</source>
+            <translation>O planejamento não tem redundância, então nada nele pode ser verificado. Um erro grosseiro em qualquer lugar seria invisível e passaria inalterado às coordenadas.</translation>
+        </message>
+        <message>
             <source>The design has no station '%1'.</source>
             <translation>O planejamento não tem a estação '%1'.</translation>
+        </message>
+        <message>
+            <source>The design has no stations yet; add one to begin.</source>
+            <translation>O planejamento ainda não tem estações; acrescente uma para começar.</translation>
+        </message>
+        <message>
+            <source>The design has stations but no planned observations, so there is nothing to evaluate. Connect two stations to begin.</source>
+            <translation>O planejamento tem estações, mas nenhuma observação planejada, então não há nada a avaliar. Ligue duas estações para começar.</translation>
         </message>
         <message>
             <source>The direction '%1' belongs to no setup or direction set, so it has no orientation unknown and would be adjusted as an absolute azimuth. Give it its setup.</source>
@@ -4679,6 +4791,10 @@
             <translation>O mapeamento '%1' mistura colunas de dois layouts de caderneta (%2). Mapeie station e sight (estação e visada) para uma caderneta com uma linha por leitura, ou backsight_station e foresight_station para uma linha por estacionamento, não ambos.</translation>
         </message>
         <message>
+            <source>The mapping expects a column '%1', which this file does not have. A mapping saved for one export layout does not fit another.</source>
+            <translation>O mapeamento espera uma coluna '%1', que este arquivo não tem. Um mapeamento salvo para um leiaute de exportação não serve para outro.</translation>
+        </message>
+        <message>
             <source>The mapping names %1, which GeoComp does not know as a field-book field. Expected %2.</source>
             <translation>O mapeamento nomeia %1, que o GeoComp não conhece como campo de caderneta de campo. Esperava-se %2.</translation>
         </message>
@@ -4723,6 +4839,14 @@
             <translation>A rede não determina %1 combinação(ões) de incógnitas: %2. Acrescente observações que as fixem, ou defina o datum com injunções internas ou mínimas, de modo que a liberdade remanescente seja removida deliberadamente.</translation>
         </message>
         <message>
+            <source>The network falls into %1 disconnected parts. Each has its own datum, and they cannot be adjusted together.</source>
+            <translation>A rede se divide em %1 partes desconectadas. Cada uma tem seu próprio datum, e elas não podem ser ajustadas juntas.</translation>
+        </message>
+        <message>
+            <source>The network has no active observations, so there is nothing to adjust.</source>
+            <translation>A rede não tem observações ativas, então não há nada a ajustar.</translation>
+        </message>
+        <message>
             <source>The number of rows to skip cannot be negative (%1).</source>
             <translation>O número de linhas a pular não pode ser negativo (%1).</translation>
         </message>
@@ -4737,6 +4861,22 @@
         <message>
             <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
             <translation>A observação %1 não pode ser excluída: as soluções armazenadas %2 foram calculadas a partir dela (FR-135). Substitua essas soluções antes, ou mantenha a observação.</translation>
+        </message>
+        <message>
+            <source>The observation %1 is a %2, which GeoComp's own adjustment does not yet implement.</source>
+            <translation>A observação %1 é um(a) %2, que o ajustamento próprio do GeoComp ainda não implementa.</translation>
+        </message>
+        <message>
+            <source>The observation %1 names the cluster %2, which the network does not have.</source>
+            <translation>A observação %1 nomeia o agrupamento %2, que a rede não tem.</translation>
+        </message>
+        <message>
+            <source>The observation %1 names the station %2, which the network does not have.</source>
+            <translation>A observação %1 nomeia a estação %2, que a rede não tem.</translation>
+        </message>
+        <message>
+            <source>The observation %1, a %2, cannot contribute to a %3D adjustment.</source>
+            <translation>A observação %1, um(a) %2, não pode contribuir para um ajustamento %3D.</translation>
         </message>
         <message>
             <source>The observation '%1' between %2 is a sight of zero length or exactly vertical, which determines no direction. Check the two stations' coordinates.</source>
@@ -4791,6 +4931,10 @@
             <translation>A rede planejada '%1' não contém observações, portanto não há projeto a avaliar. Acrescente as observações que pretende realizar, com suas precisões supostas.</translation>
         </message>
         <message>
+            <source>The planned observation %1 would be uncheckable: no blunder in it could be detected at all.</source>
+            <translation>A observação planejada %1 seria inverificável: nenhum erro grosseiro nela poderia ser detectado.</translation>
+        </message>
+        <message>
             <source>The point %1 lies too near the centre of the Earth to have geodetic coordinates. Check its cartesian coordinates.</source>
             <translation>O ponto %1 fica perto demais do centro da Terra para ter coordenadas geodésicas. Verifique suas coordenadas cartesianas.</translation>
         </message>
@@ -4809,6 +4953,10 @@
         <message>
             <source>The point scale factor is undefined at latitude %1 degrees, where a parallel has no length.</source>
             <translation>O fator de escala pontual não é definido na latitude %1 graus, onde um paralelo não tem comprimento.</translation>
+        </message>
+        <message>
+            <source>The pointing to %1 was rejected during pre-processing and is not used here.</source>
+            <translation>A pontaria para %1 foi rejeitada no pré-processamento e não é usada aqui.</translation>
         </message>
         <message>
             <source>The processing window %1 does not overlap the session '%2', which observed %3. Give a window inside the observations; both are in GPS time.</source>
@@ -5385,6 +5533,22 @@
         <message>
             <source>dnaimport reported success but did not take in everything GeoComp wrote: it counted %1, where GeoComp wrote %2. Adjusting the rest would give a plausible answer for a different network, so the run was stopped. dnaimport's own message: %3</source>
             <translation>O dnaimport informou sucesso mas não incorporou tudo o que o GeoComp gravou: contou %1, onde o GeoComp gravou %2. Ajustar o restante daria uma resposta plausível para outra rede, por isso a execução foi interrompida. A mensagem do próprio dnaimport: %3</translation>
+        </message>
+        <message>
+            <source>no occupied station is given.</source>
+            <translation>nenhuma estação ocupada é informada.</translation>
+        </message>
+        <message>
+            <source>no station is given for '%1', so the pointing has no target.</source>
+            <translation>nenhuma estação é informada para '%1', então a pontaria não tem alvo.</translation>
+        </message>
+        <message>
+            <source>the angle '%1' is empty.</source>
+            <translation>o ângulo '%1' está vazio.</translation>
+        </message>
+        <message>
+            <source>the set number '%1' is not a whole number.</source>
+            <translation>o número de série '%1' não é um número inteiro.</translation>
         </message>
     </context>
     <context>
