@@ -105,6 +105,16 @@ def input_problem(algorithm, parameters: dict[str, Any], context) -> str | None:
     return None
 
 
+def _carries(message: str, path: str) -> bool:
+    """Whether *message* carries *path* -- as written, or as ``repr()`` escapes it.
+
+    A code without a template is shown with its context through ``repr()``,
+    which doubles every backslash: on Windows the path is then in the message
+    but not as given, and the refusal was said against no input.
+    """
+    return path in message or repr(path)[1:-1] in message
+
+
 def naming_the_input(algorithm, parameters: dict[str, Any], context, message: str) -> str:
     """*message*, prefixed with the label of the one input whose path it carries.
 
@@ -115,7 +125,7 @@ def naming_the_input(algorithm, parameters: dict[str, Any], context, message: st
     for definition in algorithm.parameterDefinitions():
         if definition.isDestination() or not _given(parameters.get(definition.name())):
             continue
-        if any(path in message for path in _paths(algorithm, definition, parameters, context)):
+        if any(_carries(message, path) for path in _paths(algorithm, definition, parameters, context)):
             carried.append(definition.description())
     if len(carried) != 1 or carried[0] in message:
         return message

@@ -257,6 +257,15 @@ a criterion a single known-bad hour can fail is measuring that hour rather than 
 The **engines-absent** and **SciPy-absent** rows are not optional. FR-306 and the fallback path are
 requirements, and an untested fallback is a fallback that does not work.
 
+**As built (P12c-6).** The QGIS tier runs on all three operating systems, in the QGIS a user installs on
+each and in that QGIS's own Python: the `qgis/qgis` image on Linux, OSGeo4W on Windows, the official bundle
+on macOS. Which releases is decided when the workflow runs, from the images' `stable` and `ltr` tags
+(`scripts/qgis_versions.py`); a release below the plugin's `qgisMinimumVersion` is left out with a notice.
+On 4 October 2026 that is stable 4.2.3 alone, the `ltr` tag being 3.44. PostGIS is a Linux row only:
+service containers exist on Linux runners alone. The `--sparse` second pass is Linux's too. Before P12c-6
+the QGIS tier ran in `qgis/qgis:latest` on Linux, which is the nightly build, so no released QGIS was under
+test anywhere.
+
 ## 8. Documentation and community (FR-952…FR-955)
 
 - **Tutorials** for each module, each built on a reference dataset, in all three languages, published as
@@ -300,7 +309,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 122 met, 8 partly met, 4 open, 2 manual, of 136.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 123 met, 7 partly met, 4 open, 2 manual, of 136.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -438,7 +447,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 21 | 2 | Two builds byte-identical | **met** | `.github/workflows/build.yml`, *The archive must be reproducible* |
 | 21 | 3 | Loads with no engine; engine operations explained | **met** | As 07.7 |
 | 21 | 4 | The engine manager on every OS, with an override | **partly met** | DynAdjust: the pinned archive downloaded, verified, installed, recorded, run and overridden on Linux, Windows and macOS, and a network adjusted through it agreeing with the fixture (`tests/test_engine_manager_live.py`, the `engine` workflow's `manager` job); the plugin's own path through the QGIS network stack, Global Settings and *Install an engine* (`tests/qgis/test_engine_install.py`, P12c-6). RTKLIB is located, not acquired: upstream publishes Windows executables only, from a release that is not the build the parsers were checked against ([`21`](./21-packaging-ci-release-licensing.md) §4) |
-| 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **partly met** | The QGIS-free tier runs on all three (`.github/workflows/test.yml`); the QGIS tier runs on Linux against one QGIS image |
+| 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **met** | Since P12c-6 the whole suite runs on all three in the QGIS a user installs there, in its own Python: the `qgis/qgis` image on Linux, OSGeo4W on Windows, the official bundle on macOS (`.github/workflows/test.yml`, the three *qgis integration* jobs). The releases are read from the images' `stable` and `ltr` tags at each run and held to ADR-0007's reading of NFR-001: stable 4.2 today, the LTR added when its tag is a 4.x release (`scripts/qgis_versions.py`, `tests/test_qgis_versions.py`). Not covered: the LTR legs have not yet run; PostGIS runs on Linux only; the engine-installation tests skip on Windows ([`21`](./21-packaging-ci-release-licensing.md) §5) |
 | 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
 | 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
 | 21 | 8 | The About dialog shows the licences and engine versions | **met** | Since P12c: GeoComp's licence and each engine's, and the version installed or *not installed* (`tests/qgis/test_about_dialog.py`, `tests/test_engine_status.py`) |

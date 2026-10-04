@@ -18,6 +18,7 @@ worst (``geocomp/algorithms/inputs.py``).
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -28,6 +29,14 @@ pytestmark = [pytest.mark.qgis, requires_qgis]
 
 #: Algorithms that accept the placeholder of the wrong-kind test as a valid
 #: input, each with why: there is nothing to refuse.
+#: A refusal that reached the user as GeoComp's internal code -- with its
+#: context (``data.x (path=...)``) or inside "could not complete the operation
+#: (data.x)" -- rather than as a sentence. On Linux such a refusal still
+#: carried the input's path verbatim and was named after the input; on Windows
+#: the path is escaped in it, and that is how *Save to a project store* was
+#: found showing its code.
+CODE = re.compile(r"\b(?:geocomp|validation|data|computation|engine|storage)\.[a-z0-9_]+(?: \(|\))")
+
 ACCEPTS_ANY_CONTENT = {
     "geocomp:gnss_scan_sessions": "an empty folder is a folder with no sessions, which it reports",
     "geocomp:project_tutorial_dataset": "its only input is the folder it writes into",
@@ -185,6 +194,8 @@ def test_an_input_of_the_wrong_kind_is_refused_and_named(geocomp_provider, tmp_p
         except QgsProcessingException as error:
             if not any(label in str(error) for label in labels):
                 unnamed.append(f"{algorithm.id()}: {str(error)!r}")
+            elif CODE.search(str(error)):
+                unnamed.append(f"{algorithm.id()}: a code, not a sentence: {str(error)!r}")
             continue
         except Exception as error:  # noqa: BLE001 -- what is asserted is that this does not happen
             unnamed.append(f"{algorithm.id()}: {type(error).__name__} escaped: {error}")
@@ -211,3 +222,13 @@ def test_a_refusal_carrying_an_inputs_path_is_said_against_that_input(geocomp_pr
     label = algorithm.parameterDefinition("SOLUTION").description()
     assert str(caught.value).startswith(label)
     assert "network document, not a solution" in str(caught.value)
+
+
+def test_a_path_is_recognised_as_a_code_without_a_template_shows_it():
+    """``repr()`` doubles a Windows path's backslashes; the input is still named."""
+    from geocomp.algorithms.inputs import _carries
+
+    path = r"C:\Users\surveyor\network.json"
+    assert _carries(f"data.some_code (path={path!r})", path)
+    assert _carries(f"'{path}' could not be read as a JSON document", path)
+    assert not _carries(r"data.some_code (path='C:\\Users\\surveyor\\other.json')", path)

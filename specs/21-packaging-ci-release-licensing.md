@@ -107,6 +107,32 @@ Per [`20-testing-and-validation.md`](./20-testing-and-validation.md) §7:
 
 A pull request cannot merge with a failing `test` or `translations` workflow.
 
+**As built (P12c-6): the QGIS tier, for criterion 5.** The `test` workflow runs the whole suite three
+times more, once per operating system, each time in the Python of the QGIS a user installs there:
+
+| System | QGIS from | Its Python | Not run there |
+|---|---|---|---|
+| Linux | The `qgis/qgis` image at the release tag | The image's | — |
+| Windows | OSGeo4W, unattended: `qgis` (stable) or `qgis-ltr`, with `python3-pytest` and `python3-scipy` | OSGeo4W's, through `python-qgis.bat` | PostGIS; the engine-installation tests, whose stand-in engine is shell scripts |
+| macOS | The official bundle, through the Homebrew cask `qgis` or `qgis@ltr` | The bundle's, with `PYTHONPATH` naming its standard library | PostGIS |
+
+PostGIS service containers exist on Linux runners only, and the Linux job runs those tests against a real
+server; the `engine` workflow installs and runs DynAdjust's real Windows archive (§4).
+
+**Which QGIS** is decided at each run by `scripts/qgis_versions.py`. It resolves the images' moving `stable`
+and `ltr` tags, through Docker Hub's tag listing, to the release tags with the same digest, and leaves out a
+release below the plugin's `qgisMinimumVersion` with a notice: ADR-0007 reads NFR-001 as the 4.x series,
+its LTR once one exists and its stable until then. On 4 October 2026 that is stable 4.2.3 alone, the `ltr`
+tag being 3.44.15; the LTR joins the matrix when its tag is a 4.x release, with no change to the workflow. A
+channel that cannot be resolved fails the run rather than shrinking the matrix. Each job then checks that the
+QGIS it runs is the release line its name states (`--check`): exactly on Linux, where the image *is* the
+release tag; within the release line on Windows and macOS, whose packages can trail the image by a patch
+release (Homebrew's cask was 4.2.2 that day).
+
+Until P12c-6 the tier ran in `qgis/qgis:latest` on Linux alone. That tag is the **nightly build**
+(4.3.0-Master), so no released QGIS was under test anywhere; `build`'s install check used it too, and now
+uses `stable`.
+
 ## 6. Versioning and releases
 
 Semantic versioning. Breaking changes to storage schema, algorithm ids or public core interfaces are major.
