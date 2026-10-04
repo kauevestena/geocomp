@@ -259,6 +259,48 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "setup",
         "expected",
     ),
+    # -- level profiles and levelling classes (P12c-7) -------------------------
+    "validation.level_profile_without_id": MessageTemplate(
+        "A level profile has no id; observations refer to a profile by it. Give every profile "
+        "one.",
+    ),
+    "validation.levelling_class_without_id": MessageTemplate(
+        "A levelling class has no id; lines and reports refer to a class by it. Give every "
+        "class one.",
+    ),
+    "validation.level_stadia_factor_not_positive": MessageTemplate(
+        "The stadia constant of the level '%1' must be positive, usually 100; %2 was given.",
+        "level",
+        "received",
+    ),
+    "validation.level_sigma_negative": MessageTemplate(
+        "The %2 of the level '%1' is %3; a standard deviation cannot be negative.",
+        "level",
+        "parameter",
+        "received",
+    ),
+    "validation.level_without_reading_sigma": MessageTemplate(
+        "The level profile '%1' has no reading standard deviation, and GeoComp does not invent "
+        "one: a fabricated weight corrupts every statistic computed from it. Give the profile "
+        "its sigma_reading.",
+        "level",
+    ),
+    "validation.levelling_class_negative_limit": MessageTemplate(
+        "The %2 of the levelling class '%1' is %3; a limit cannot be negative, and zero means "
+        "unconstrained.",
+        "levelling_class",
+        "parameter",
+        "received",
+    ),
+    "validation.negative_line_length": MessageTemplate(
+        "A levelling line length cannot be negative; %1 km was given.",
+        "received",
+    ),
+    "validation.negative_setup_count": MessageTemplate(
+        "The number of setups for the level '%1' cannot be negative; %2 was given.",
+        "level",
+        "received",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

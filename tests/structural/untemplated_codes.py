@@ -11,8 +11,9 @@ DynAdjust or RTKLIB, and froze the rest here. Its second pull request wrote the
 and their mappings, geoid grids, the tables export -- and its third the 67 of
 the levelling and total-station techniques, which a user's observations reach;
 its fourth the 51 of GNSS, gravimetry and integration, which finish the
-techniques; and its fifth the 61 of the adjustment, geodesy, statistics,
-pre-analysis and the drawing of ellipses.
+techniques; its fifth the 61 of the adjustment, geodesy, statistics,
+pre-analysis and the drawing of ellipses; and its sixth the 44 of the
+instrument profiles, the report templates and the settings service.
 
 The list may only shrink. ``tests/structural/test_message_templates.py`` fails
 on a code raised without a template that is not listed here -- a new code
@@ -78,46 +79,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.sqrt_of_negative",
         "validation.unknown_covariance_label",
         "validation.value_count_mismatch",
-        # core/instruments/ (39)
-        "validation.calibration_table_factor_not_positive",
-        "validation.calibration_table_inconsistent",
-        "validation.calibration_table_not_increasing",
-        "validation.calibration_table_too_short",
-        "validation.counter_gravimeter_without_table",
-        "validation.counter_reading_unit",
-        "validation.cyclic_error_without_wavelength",
-        "validation.default_sigma_negative",
-        "validation.duplicate_gravimeter_profile",
-        "validation.duplicate_instrument_profile",
-        "validation.duplicate_level_profile",
-        "validation.duplicate_levelling_class",
-        "validation.duplicate_reflector_profile",
-        "validation.edm_specification_negative",
-        "validation.gravimeter_calibration_factor_invalid",
-        "validation.gravimeter_profile_without_id",
-        "validation.gravimeter_reading_unit",
-        "validation.gravimeter_sigma_negative",
-        "validation.gravity_gravimeter_with_table",
-        "validation.instrument_sigma_negative",
-        "validation.level_profile_without_id",
-        "validation.level_sigma_negative",
-        "validation.level_stadia_factor_not_positive",
-        "validation.level_without_reading_sigma",
-        "validation.levelling_class_negative_limit",
-        "validation.levelling_class_without_id",
-        "validation.missing_stochastic_model",
-        "validation.negative_line_length",
-        "validation.negative_setup_count",
-        "validation.no_instrument_profile",
-        "validation.no_level_profile",
-        "validation.non_positive_set_count",
-        "validation.profile_wrong_unit",
-        "validation.stated_sigma_negative",
-        "validation.unknown_instrument_profile",
-        "validation.unknown_level_profile",
-        "validation.unknown_levelling_class",
-        "validation.unknown_observation_kind",
-        "validation.unknown_reflector_profile",
         # core/models/ (45)
         "data.active_observation_with_rejection",
         "data.antenna_height_unit",
@@ -197,12 +158,5 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "data.krumm_section_unsupported",
         "data.krumm_setup_heights_incomplete",
         "data.krumm_value_not_a_number",
-        # reports/ (3)
-        "validation.template_name_not_bare",
-        "validation.template_not_found",
-        "validation.template_unknown_token",
-        # services/ (2)
-        "validation.no_project_open",
-        "validation.setting_scope_not_allowed",
     }
 )

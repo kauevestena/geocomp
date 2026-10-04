@@ -81,7 +81,10 @@ P12c-7 counted, 457 of the codes GeoComp raises were in that state.
 - The 61 codes of the adjustment and what surrounds it have templates too: weighting, variance components,
   the geocentric frame's constraints, ellipsoids, frames and projections, the statistics, the drawing of
   ellipses, and the pre-analysis design.
-- The other 169 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
+- The 44 codes of the instrument profiles, the report templates and the settings service follow. They
+  cover gravimeters and their calibration tables, levels and levelling classes, unknown or duplicate
+  profiles, and an observation with no standard deviation from anywhere.
+- The other 125 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
   raises them, and that list may only shrink. The 31 left in `io/` belong to the readers of the reference
   corpora (`krumm.py`, `adjust.py`), which no algorithm reaches. `tests/structural/test_message_templates.py` reads all of
   `geocomp/` and enforces three rules:

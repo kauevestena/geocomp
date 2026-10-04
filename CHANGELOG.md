@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Instrument-profile and settings refusals in words
+
+#### Fixed
+
+- Problems with instrument profiles, report templates and settings are now explained in a sentence that
+  names the profile, template or setting. Examples are an unknown or duplicate instrument profile, a
+  gravimeter calibration table that does not increase, an observation with no standard deviation, and a
+  report template that asks for a section GeoComp does not fill. Before, the user saw "could not complete
+  the operation" and an internal code.
+
 ### P12c-7 — Adjustment, geodesy and statistics refusals in words
 
 #### Fixed

@@ -196,6 +196,67 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "no estimated value.",
         "station",
     ),
+    # -- gravimeter profiles and their calibration tables (P12c-7) -------------
+    "validation.gravimeter_profile_without_id": MessageTemplate(
+        "A gravimeter profile has no id; readings refer to the instrument by it. Give every "
+        "profile one.",
+    ),
+    "validation.counter_gravimeter_without_table": MessageTemplate(
+        "The gravimeter '%1' reads counter units and has no calibration table, without which a "
+        "counter reading means nothing. Add the manufacturer's table to its profile.",
+        "gravimeter",
+    ),
+    "validation.gravity_gravimeter_with_table": MessageTemplate(
+        "The gravimeter '%1' reads gravity directly and has a calibration table too; converting "
+        "twice would be a silent error. Remove the table, or mark the instrument as reading "
+        "counter units.",
+        "gravimeter",
+    ),
+    "validation.gravimeter_calibration_factor_invalid": MessageTemplate(
+        "The calibration factor of the gravimeter '%1' is %2; it must be a positive number "
+        "close to 1.",
+        "gravimeter",
+        "received",
+    ),
+    "validation.gravimeter_sigma_negative": MessageTemplate(
+        "The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative.",
+        "gravimeter",
+        "received",
+    ),
+    "validation.gravimeter_reading_unit": MessageTemplate(
+        "A reading of the gravimeter '%1' is in %2, where %3 was expected.",
+        "gravimeter",
+        "received",
+        "expected",
+    ),
+    "validation.counter_reading_unit": MessageTemplate(
+        "A counter reading is in %1; counter units are dimensionless.",
+        "received",
+    ),
+    "validation.calibration_table_too_short": MessageTemplate(
+        "The gravimeter's calibration table has %1 row(s); it needs at least two, since one row "
+        "has no interval to interpolate over.",
+        "received",
+    ),
+    "validation.calibration_table_not_increasing": MessageTemplate(
+        "Row %1 of the gravimeter's calibration table does not increase; the counter readings "
+        "must increase strictly down the table.",
+        "row",
+    ),
+    "validation.calibration_table_factor_not_positive": MessageTemplate(
+        "Row %1 of the gravimeter's calibration table has the interval factor %2; it must be "
+        "positive.",
+        "row",
+        "received",
+    ),
+    "validation.calibration_table_inconsistent": MessageTemplate(
+        "Row %1 of the gravimeter's calibration table gives %2, where the previous row and its "
+        "factor imply %3. The rows disagree by more than printing explains, so one of them was "
+        "mistyped.",
+        "row",
+        "received",
+        "implied",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

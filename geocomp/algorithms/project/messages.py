@@ -153,6 +153,23 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
         "expected",
     ),
+    # -- report templates (P12c-7) ----------------------------------------------
+    "validation.template_name_not_bare": MessageTemplate(
+        "'%1' is not a bare template file name; give a name such as 'adjustment.html', with no "
+        "path.",
+        "received",
+    ),
+    "validation.template_not_found": MessageTemplate(
+        "There is no report template '%1'; expected %2.",
+        "received",
+        "expected",
+    ),
+    "validation.template_unknown_token": MessageTemplate(
+        "The report template %1 uses tokens GeoComp does not fill (%2); expected %3.",
+        "source",
+        "received",
+        "expected",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

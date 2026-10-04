@@ -3111,6 +3111,10 @@
             <translation>'%1' não é um arquivo RINEX: seu primeiro registro é '%2', onde se esperava RINEX VERSION / TYPE.</translation>
         </message>
         <message>
+            <source>'%1' is not a bare template file name; give a name such as 'adjustment.html', with no path.</source>
+            <translation>'%1' não é um nome simples de arquivo de modelo; informe um nome como 'adjustment.html', sem caminho.</translation>
+        </message>
+        <message>
             <source>'%1' is not a date in DynAdjust's dd.mm.yyyy form.</source>
             <translation>'%1' não é uma data na forma dd.mm.aaaa do DynAdjust.</translation>
         </message>
@@ -3133,6 +3137,10 @@
         <message>
             <source>'%1' is not a geoid grid format GeoComp reads. Give a GTX grid (.gtx) or an ESRI ASCII grid (.asc, .txt, .grd); QGIS or gdal_translate can convert one.</source>
             <translation>'%1' não está em um formato de grade geoidal que o GeoComp lê. Informe uma grade GTX (.gtx) ou uma grade ESRI ASCII (.asc, .txt, .grd); o QGIS ou o gdal_translate podem converter uma.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a kind of observation GeoComp weights; expected %2.</source>
+            <translation>'%1' não é um tipo de observação que o GeoComp pondera; esperava-se %2.</translation>
         </message>
         <message>
             <source>'%1' is not a network document as GeoComp writes it (%2).</source>
@@ -3243,6 +3251,10 @@
             <translation>Um coeficiente de correlação deve estar entre -1 e 1.</translation>
         </message>
         <message>
+            <source>A counter reading is in %1; counter units are dimensionless.</source>
+            <translation>Uma leitura de contador está em %1; unidades de contador são adimensionais.</translation>
+        </message>
+        <message>
             <source>A counter reading of %1 is outside the gravimeter's calibration table: expected %2.</source>
             <translation>Uma leitura de contador de %1 está fora da tabela de calibração do gravímetro: esperava-se %2.</translation>
         </message>
@@ -3261,6 +3273,10 @@
         <message>
             <source>A geometry in the project store could not be read (it begins %1). The store may be damaged; the numeric coordinates beside it are the record.</source>
             <translation>Uma geometria no repositório do projeto não pôde ser lida (começa com %1). O repositório pode estar danificado; as coordenadas numéricas ao lado são o registro.</translation>
+        </message>
+        <message>
+            <source>A gravimeter profile has no id; readings refer to the instrument by it. Give every profile one.</source>
+            <translation>Um perfil de gravímetro não tem id; as leituras se referem ao instrumento por ele. Dê um a cada perfil.</translation>
         </message>
         <message>
             <source>A height difference for the orthometric correction is in %1; give it in metres.</source>
@@ -3283,8 +3299,20 @@
             <translation>Um valor conhecido foi dado para '%1', que não é uma estação da rede. Verifique o nome.</translation>
         </message>
         <message>
+            <source>A level profile has no id; observations refer to a profile by it. Give every profile one.</source>
+            <translation>Um perfil de nível não tem id; as observações se referem a um perfil por ele. Dê um a cada perfil.</translation>
+        </message>
+        <message>
+            <source>A levelling class has no id; lines and reports refer to a class by it. Give every class one.</source>
+            <translation>Uma classe de nivelamento não tem id; linhas e relatórios se referem a uma classe por ele. Dê um a cada classe.</translation>
+        </message>
+        <message>
             <source>A levelling line has no id. Closures and findings refer to a line by its id; give every line one.</source>
             <translation>Uma linha de nivelamento não tem id. Os fechamentos e as constatações se referem a uma linha pelo id; dê um a cada linha.</translation>
+        </message>
+        <message>
+            <source>A levelling line length cannot be negative; %1 km was given.</source>
+            <translation>A extensão de uma linha de nivelamento não pode ser negativa; foi dado %1 km.</translation>
         </message>
         <message>
             <source>A pair of readings has the faces %1, where face left and then face right were expected.</source>
@@ -3313,6 +3341,10 @@
         <message>
             <source>A reading names no target. Every reading needs the station or point it sighted.</source>
             <translation>Uma leitura não nomeia alvo. Toda leitura precisa da estação ou do ponto visado.</translation>
+        </message>
+        <message>
+            <source>A reading of the gravimeter '%1' is in %2, where %3 was expected.</source>
+            <translation>Uma leitura do gravímetro '%1' está em %2, onde se esperava %3.</translation>
         </message>
         <message>
             <source>A reciprocal pair at setup '%1' reads the same station, '%2', on both banks. A reciprocal crossing needs one station on each bank.</source>
@@ -3543,6 +3575,14 @@
             <translation>Nenhum perfil de gravímetro foi indicado e a biblioteca de perfis não define um padrão. Adicione um à biblioteca, ou execute sem biblioteca para usar os nomes de instrumento do próprio arquivo.</translation>
         </message>
         <message>
+            <source>No instrument profile applies: none is named on the observation, and the library has no default. GeoComp does not invent instrument constants; give an Instrument profiles file, or name a profile.</source>
+            <translation>Nenhum perfil de instrumento se aplica: nenhum é nomeado na observação, e a biblioteca não tem padrão. O GeoComp não inventa constantes de instrumento; informe um arquivo de Perfis de instrumento, ou nomeie um perfil.</translation>
+        </message>
+        <message>
+            <source>No level profile applies: none is named on the line, and the library has no default. GeoComp does not invent instrument precisions; give an Instrument profiles file, or name a profile.</source>
+            <translation>Nenhum perfil de nível se aplica: nenhum é nomeado na linha, e a biblioteca não tem padrão. O GeoComp não inventa precisões de instrumento; informe um arquivo de Perfis de instrumento, ou nomeie um perfil.</translation>
+        </message>
+        <message>
             <source>No levelling line of '%1' reaches the benchmarks %2. A constraint on a station no line reaches does nothing, and would hide that the network is unconstrained; check their names, or remove them.</source>
             <translation>Nenhuma linha de nivelamento de '%1' alcança as referências de nível %2. Um vínculo em uma estação que nenhuma linha alcança não faz nada, e esconderia que a rede não está vinculada; verifique os nomes, ou remova-as.</translation>
         </message>
@@ -3609,6 +3649,18 @@
         <message>
             <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected %3. Each row is kind, limit, stations, group.</source>
             <translation>A linha %1 do arquivo de limiares de alerta não pode ser lida: '%2'. Esperado: %3. Cada linha é tipo, limite, estações, grupo.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the gravimeter's calibration table does not increase; the counter readings must increase strictly down the table.</source>
+            <translation>A linha %1 da tabela de calibração do gravímetro não aumenta; as leituras de contador devem aumentar estritamente ao longo da tabela.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the gravimeter's calibration table gives %2, where the previous row and its factor imply %3. The rows disagree by more than printing explains, so one of them was mistyped.</source>
+            <translation>A linha %1 da tabela de calibração do gravímetro dá %2, onde a linha anterior e seu fator implicam %3. As linhas discordam mais do que a impressão explica, de modo que uma delas foi digitada errado.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the gravimeter's calibration table has the interval factor %2; it must be positive.</source>
+            <translation>A linha %1 da tabela de calibração do gravímetro tem o fator de intervalo %2; ele deve ser positivo.</translation>
         </message>
         <message>
             <source>Session '%1' cannot be pre-corrected: its base station %2 was read %3 time(s), and a degree-%4 drift needs one more reading than its degree. Estimate the drift with the station values instead, or lower the degree.</source>
@@ -3695,6 +3747,10 @@
             <translation>O(a) %1 de uma redução está em %2, onde se esperava %3.</translation>
         </message>
         <message>
+            <source>The %1 of an instrument profile is in %2, where %3 was expected.</source>
+            <translation>O(a) %1 de um perfil de instrumento está em %2, onde se esperava %3.</translation>
+        </message>
+        <message>
             <source>The %1 of the atmosphere is in %2, where %3 was expected.</source>
             <translation>O(a) %1 da atmosfera está em %2, onde se esperava %3.</translation>
         </message>
@@ -3723,12 +3779,28 @@
             <translation>A leitura do fio %1 está em %2; informe-a em metros.</translation>
         </message>
         <message>
+            <source>The %2 '%1' has no standard deviation: none was imported, no instrument profile gives one, and no default is set. GeoComp does not invent one, because a fabricated weight corrupts every statistic computed from it. Set the default in Global Settings, under Stochastic model, or give an instrument profile.</source>
+            <translation>O(a) %2 '%1' não tem desvio-padrão: nenhum foi importado, nenhum perfil de instrumento fornece um, e nenhum padrão está definido. O GeoComp não inventa um, porque um peso fabricado corrompe toda estatística calculada a partir dele. Defina o padrão nas Configurações Globais, em Modelo estocástico, ou informe um perfil de instrumento.</translation>
+        </message>
+        <message>
             <source>The %2 component of the baseline '%1' is in %3; give it in metres.</source>
             <translation>A componente %2 da linha de base '%1' está em %3; informe-a em metros.</translation>
         </message>
         <message>
             <source>The %2 coordinate of the reference station '%1' is in %3; give it in metres.</source>
             <translation>A coordenada %2 da estação de referência '%1' está em %3; informe-a em metros.</translation>
+        </message>
+        <message>
+            <source>The %2 of the instrument '%1' is %3; a standard deviation cannot be negative.</source>
+            <translation>O(a) %2 do instrumento '%1' é %3; um desvio-padrão não pode ser negativo.</translation>
+        </message>
+        <message>
+            <source>The %2 of the level '%1' is %3; a standard deviation cannot be negative.</source>
+            <translation>O(a) %2 do nível '%1' é %3; um desvio-padrão não pode ser negativo.</translation>
+        </message>
+        <message>
+            <source>The %2 of the levelling class '%1' is %3; a limit cannot be negative, and zero means unconstrained.</source>
+            <translation>O(a) %2 da classe de nivelamento '%1' é %3; um limite não pode ser negativo, e zero significa sem restrição.</translation>
         </message>
         <message>
             <source>The '%1' engine is required for this operation but is not installed. Install it from Global Settings, under Paths and engines.</source>
@@ -3745,6 +3817,10 @@
         <message>
             <source>The DynAdjust program %1 was not found. Install DynAdjust from Project &gt; Install an engine, or give its directory in Global Settings, under Paths and engines.</source>
             <translation>O programa %1 do DynAdjust não foi encontrado. Instale o DynAdjust em Projeto &gt; Instalar um motor, ou informe seu diretório nas Configurações Globais, em Caminhos e motores.</translation>
+        </message>
+        <message>
+            <source>The EDM %1 is %2; a precision cannot be negative.</source>
+            <translation>O(a) %1 do MED é %2; uma precisão não pode ser negativa.</translation>
         </message>
         <message>
             <source>The EDM carrier wavelength must be positive, in micrometres; %1 was given. Check the instrument profile.</source>
@@ -3863,6 +3939,10 @@
             <translation>A referência de nível '%1' é um vínculo ponderado sem incerteza, o que é um vínculo fixo com outro nome. Dê uma incerteza à sua altitude, ou mantenha-a fixa.</translation>
         </message>
         <message>
+            <source>The calibration factor of the gravimeter '%1' is %2; it must be a positive number close to 1.</source>
+            <translation>O fator de calibração do gravímetro '%1' é %2; ele deve ser um número positivo próximo de 1.</translation>
+        </message>
+        <message>
             <source>The confidence level must be a probability strictly between 0 and 1; %1 was given.</source>
             <translation>O nível de confiança deve ser uma probabilidade estritamente entre 0 e 1; foi dado %1.</translation>
         </message>
@@ -3897,6 +3977,10 @@
         <message>
             <source>The datum constraints do not remove the network's remaining freedom (%1 constraint(s) applied). Check that the stations defining the datum are enough to fix it.</source>
             <translation>As injunções de datum não removem a liberdade remanescente da rede (%1 injunção(ões) aplicada(s)). Verifique se as estações que definem o datum bastam para fixá-lo.</translation>
+        </message>
+        <message>
+            <source>The default standard deviation for %1 is %2; it cannot be negative. Correct it in Global Settings, under Stochastic model.</source>
+            <translation>O desvio-padrão padrão para %1 é %2; ele não pode ser negativo. Corrija-o nas Configurações Globais, em Modelo estocástico.</translation>
         </message>
         <message>
             <source>The degree of the drift polynomial must be 1 or more; %1 was given.</source>
@@ -4043,6 +4127,18 @@
             <translation>O modelo geoidal '%1' é nomeado, mas sua grade não foi dada, e as referências de nível misturam tipos de altitude (%2). Um nome registra qual modelo foi usado, mas não calcula uma ondulação: informe a grade geoidal, ou converta as altitudes antes.</translation>
         </message>
         <message>
+            <source>The gravimeter '%1' reads counter units and has no calibration table, without which a counter reading means nothing. Add the manufacturer's table to its profile.</source>
+            <translation>O gravímetro '%1' lê unidades de contador e não tem tabela de calibração, sem a qual uma leitura de contador não significa nada. Acrescente a tabela do fabricante ao seu perfil.</translation>
+        </message>
+        <message>
+            <source>The gravimeter '%1' reads gravity directly and has a calibration table too; converting twice would be a silent error. Remove the table, or mark the instrument as reading counter units.</source>
+            <translation>O gravímetro '%1' lê gravidade diretamente e tem também uma tabela de calibração; converter duas vezes seria um erro silencioso. Remova a tabela, ou marque o instrumento como lendo unidades de contador.</translation>
+        </message>
+        <message>
+            <source>The gravimeter's calibration table has %1 row(s); it needs at least two, since one row has no interval to interpolate over.</source>
+            <translation>A tabela de calibração do gravímetro tem %1 linha(s); ela precisa de ao menos duas, pois uma linha não tem intervalo sobre o qual interpolar.</translation>
+        </message>
+        <message>
             <source>The gravimetric factor must be positive, typically 1.16; %1 was given.</source>
             <translation>O fator gravimétrico deve ser positivo, tipicamente 1,16; foi dado %1.</translation>
         </message>
@@ -4127,6 +4223,10 @@
             <translation>As entradas se dividem em %1 partes que não compartilham estação, então não podem ser ajustadas como uma rede. Uma combinação é ligada pelas estações que as técnicas têm em comum.</translation>
         </message>
         <message>
+            <source>The instrument profile '%1' gives a cyclic-error amplitude without its wavelength; the correction is periodic in the distance and means nothing without one.</source>
+            <translation>O perfil de instrumento '%1' dá uma amplitude de erro cíclico sem seu comprimento de onda; a correção é periódica na distância e não significa nada sem ele.</translation>
+        </message>
+        <message>
             <source>The intersected target falls on the station '%1' that sights it. The target must be distinct from every station sighting it.</source>
             <translation>O alvo da interseção à vante cai sobre a estação '%1' que o visa. O alvo deve ser distinto de toda estação que o visa.</translation>
         </message>
@@ -4149,6 +4249,10 @@
         <message>
             <source>The length of the levelling line '%1' is unknown, because it has no sight distances, and weighting by length needs it. Weight by setup count instead, or record the distances.</source>
             <translation>A extensão da linha de nivelamento '%1' é desconhecida, porque ela não tem distâncias de visada, e a ponderação por extensão precisa dela. Pondere pelo número de estacionamentos, ou registre as distâncias.</translation>
+        </message>
+        <message>
+            <source>The level profile '%1' has no reading standard deviation, and GeoComp does not invent one: a fabricated weight corrupts every statistic computed from it. Give the profile its sigma_reading.</source>
+            <translation>O perfil de nível '%1' não tem desvio-padrão de leitura, e o GeoComp não inventa um: um peso fabricado corrompe toda estatística calculada a partir dele. Informe o sigma_reading do perfil.</translation>
         </message>
         <message>
             <source>The levelling book has no data: it needs a header row and at least one row of readings.</source>
@@ -4235,6 +4339,14 @@
             <translation>O número de linhas a pular não pode ser negativo (%1).</translation>
         </message>
         <message>
+            <source>The number of sets must be at least 1; %1 was given.</source>
+            <translation>O número de séries deve ser ao menos 1; foi dado %1.</translation>
+        </message>
+        <message>
+            <source>The number of setups for the level '%1' cannot be negative; %2 was given.</source>
+            <translation>O número de estacionamentos do nível '%1' não pode ser negativo; foi dado %2.</translation>
+        </message>
+        <message>
             <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
             <translation>A observação %1 não pode ser excluída: as soluções armazenadas %2 foram calculadas a partir dela (FR-135). Substitua essas soluções antes, ou mantenha a observação.</translation>
         </message>
@@ -4245,6 +4357,10 @@
         <message>
             <source>The observation '%1' is a %2, which the geocentric adjustment cannot use; it takes %3.</source>
             <translation>A observação '%1' é um(a) %2, que o ajustamento geocêntrico não pode usar; ele usa %3.</translation>
+        </message>
+        <message>
+            <source>The observation '%1' states a standard deviation of %2; it cannot be negative.</source>
+            <translation>A observação '%1' declara um desvio-padrão de %2; ele não pode ser negativo.</translation>
         </message>
         <message>
             <source>The orthometric correction needs an approximate height for every station, and these have none: %1. Connect them to a benchmark, or turn the correction off.</source>
@@ -4327,6 +4443,10 @@
             <translation>A leitura em '%1' não tem incerteza; toda leitura precisa de uma.</translation>
         </message>
         <message>
+            <source>The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative.</source>
+            <translation>O desvio-padrão de leitura do gravímetro '%1' é %2; ele não pode ser negativo.</translation>
+        </message>
+        <message>
             <source>The readings name the gravimeter '%1', which the profile library does not hold: expected %2. Add a profile with that id, carrying the instrument's calibration.</source>
             <translation>As leituras indicam o gravímetro '%1', que a biblioteca de perfis não contém: esperava-se %2. Adicione um perfil com esse identificador, com a calibração do instrumento.</translation>
         </message>
@@ -4369,6 +4489,10 @@
         <message>
             <source>The relative humidity must lie between 0 and 1; %1 was given.</source>
             <translation>A umidade relativa deve estar entre 0 e 1; foi dado %1.</translation>
+        </message>
+        <message>
+            <source>The report template %1 uses tokens GeoComp does not fill (%2); expected %3.</source>
+            <translation>O modelo de relatório %1 usa marcadores que o GeoComp não preenche (%2); esperava-se %3.</translation>
         </message>
         <message>
             <source>The resection cannot determine the station: its equations are singular, and the known points are not on a common circle with it. Check the directions for a blunder.</source>
@@ -4419,12 +4543,20 @@
             <translation>A configuração '%1' não pode ser menor que %2 (recebido %3).</translation>
         </message>
         <message>
+            <source>The setting '%1' cannot be set at %2 scope; it can be set at %3.</source>
+            <translation>A configuração '%1' não pode ser definida no escopo %2; ela pode ser definida em %3.</translation>
+        </message>
+        <message>
             <source>The setting '%1' cannot be set to '%2'. Permitted values are: %3.</source>
             <translation>A configuração '%1' não pode ser definida como '%2'. Os valores permitidos são: %3.</translation>
         </message>
         <message>
             <source>The setting '%1' expects a value of type %2, but received %3. Correct it in Global Settings, or restore the default.</source>
             <translation>A configuração '%1' espera um valor do tipo %2, mas recebeu %3. Corrija-a em Configurações Globais ou restaure o padrão.</translation>
+        </message>
+        <message>
+            <source>The setting '%1' is a project setting, and no project is open. Open or create a GeoComp project first.</source>
+            <translation>A configuração '%1' é uma configuração de projeto, e nenhum projeto está aberto. Abra ou crie primeiro um projeto do GeoComp.</translation>
         </message>
         <message>
             <source>The setup '%1' has no foresight: a backsight alone gives no height difference.</source>
@@ -4473,6 +4605,10 @@
         <message>
             <source>The stadia constant must be positive, usually 100; %1 was given.</source>
             <translation>A constante estadimétrica deve ser positiva, normalmente 100; foi dado %1.</translation>
+        </message>
+        <message>
+            <source>The stadia constant of the level '%1' must be positive, usually 100; %2 was given.</source>
+            <translation>A constante estadimétrica do nível '%1' deve ser positiva, normalmente 100; foi dado %2.</translation>
         </message>
         <message>
             <source>The station '%1' appears more than once in the reference station database.</source>
@@ -4619,6 +4755,26 @@
             <translation>Não há conexão PostgreSQL chamada '%1' no QGIS. Adicione-a no painel Navegador em PostgreSQL, ou escolha uma que exista.</translation>
         </message>
         <message>
+            <source>There is no instrument profile '%1'; expected %2.</source>
+            <translation>Não há perfil de instrumento '%1'; esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>There is no level profile '%1'; expected %2.</source>
+            <translation>Não há perfil de nível '%1'; esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>There is no levelling class '%1'; expected %2.</source>
+            <translation>Não há classe de nivelamento '%1'; esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>There is no reflector profile '%1'; expected %2.</source>
+            <translation>Não há perfil de refletor '%1'; esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>There is no report template '%1'; expected %2.</source>
+            <translation>Não há modelo de relatório '%1'; esperava-se %2.</translation>
+        </message>
+        <message>
             <source>There is no solution %1 in this project store.</source>
             <translation>Não há solução %1 neste repositório de projeto.</translation>
         </message>
@@ -4689,6 +4845,26 @@
         <message>
             <source>This solution is in latitude, longitude and height (%1), whose components are not all metres, so they cannot be treated as one covariance. Use an ECEF or ENU solution.</source>
             <translation>Esta solução está em latitude, longitude e altitude (%1), cujos componentes não são todos metros, de modo que não podem ser tratados como uma única covariância. Use uma solução ECEF ou ENU.</translation>
+        </message>
+        <message>
+            <source>Two gravimeter profiles share the id '%1'. Rename or replace one of them.</source>
+            <translation>Dois perfis de gravímetro compartilham o id '%1'. Renomeie ou substitua um deles.</translation>
+        </message>
+        <message>
+            <source>Two instrument profiles share the id '%1'. Rename or replace one of them.</source>
+            <translation>Dois perfis de instrumento compartilham o id '%1'. Renomeie ou substitua um deles.</translation>
+        </message>
+        <message>
+            <source>Two level profiles share the id '%1'. Rename or replace one of them.</source>
+            <translation>Dois perfis de nível compartilham o id '%1'. Renomeie ou substitua um deles.</translation>
+        </message>
+        <message>
+            <source>Two levelling classes share the id '%1'. Rename or replace one of them.</source>
+            <translation>Duas classes de nivelamento compartilham o id '%1'. Renomeie ou substitua uma delas.</translation>
+        </message>
+        <message>
+            <source>Two reflector profiles share the id '%1'. Rename or replace one of them.</source>
+            <translation>Dois perfis de refletor compartilham o id '%1'. Renomeie ou substitua um deles.</translation>
         </message>
         <message>
             <source>UTM zone %1 does not exist; the zones run from 1 to 60.</source>
