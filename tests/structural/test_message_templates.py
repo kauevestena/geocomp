@@ -16,9 +16,10 @@ source: every ``*Error("code", key=...)`` call in ``geocomp/``, and every
 ``MessageTemplate`` declared in the presentation layer.
 
 Since P12c-7 it also holds the opposite gap shut: a code with no template at
-all, which the user reads as "could not complete the operation (code)". The
-codes still in that state are frozen in ``untemplated_codes.py``, and the list
-may only shrink.
+all, which the user reads as "could not complete the operation (code)". When
+P12c-7 first counted, 457 codes were in that state; they were frozen in a list
+that could only shrink, and eight pull requests later it was empty and was
+removed. There is no exemption now: a new code arrives with its words.
 """
 
 from __future__ import annotations
@@ -28,7 +29,6 @@ import functools
 from collections import defaultdict
 
 from tests.conftest import PLUGIN_DIR, python_sources
-from tests.structural.untemplated_codes import UNTEMPLATED
 
 #: ``GeoCompError`` subclass -> the namespace it prefixes bare codes with,
 #: mirroring ``code_namespace`` in :mod:`geocomp.core.errors`.
@@ -191,33 +191,18 @@ def test_the_planned_list_does_not_outlive_its_reason():
     )
 
 
-def _raised_anywhere() -> set[str]:
-    return set(_raised_codes())
-
-
-def test_every_code_raised_has_words_or_is_in_the_shrinking_baseline():
+def test_every_code_raised_has_words():
     """NFR-006: a code with no template reaches the user as the code itself.
 
-    A new code arrives with its template; the ones that did not, when P12c-7
-    counted, are listed in ``untemplated_codes.py`` and are the only exemption.
+    No exemption remains. P12c-7 froze the 457 codes it found without words in
+    a list that could only shrink, and removed the list once it was empty.
     """
     declared = _declared_templates()
-    without = sorted(code for code in _raised_anywhere() if code not in declared)
-    new = [code for code in without if code not in UNTEMPLATED]
-    assert not new, (
+    without = sorted(code for code in _raised_codes() if code not in declared)
+    assert not without, (
         "Raised with no MessageTemplate, so a user would read the code itself (NFR-006). "
-        "Write its template beside the algorithms that show it:\n" + "\n".join(new)
+        "Write its template beside the algorithms that show it:\n" + "\n".join(without)
     )
-
-
-def test_the_baseline_only_shrinks():
-    """An entry whose code gained a template, or is no longer raised, must go."""
-    declared = _declared_templates()
-    raised = _raised_anywhere()
-    worded = sorted(code for code in UNTEMPLATED if code in declared)
-    gone = sorted(code for code in UNTEMPLATED if code not in raised)
-    assert not worded, "Templated now; remove from untemplated_codes.py: " + ", ".join(worded)
-    assert not gone, "No longer raised; remove from untemplated_codes.py: " + ", ".join(gone)
 
 
 #: Context keys that carry an engine's own last word.

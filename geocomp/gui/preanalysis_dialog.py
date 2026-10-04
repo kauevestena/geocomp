@@ -74,6 +74,17 @@ def _tr(text: str) -> str:
     return QCoreApplication.translate(_TR_CONTEXT, text)
 
 
+def _finding_text(finding, error) -> str:
+    """The refusal behind an unevaluable design in words, else the finding's own text."""
+    if error is not None and finding.code == error.code:
+        from html import escape
+
+        from geocomp.services.messages import message_for
+
+        return escape(message_for(error))
+    return finding.message
+
+
 class DesignMapTool(QgsMapTool):
     """Clicks on the canvas, turned into design edits.
 
@@ -364,7 +375,7 @@ class PreAnalysisDialog(QDialog):
             self._findings.setText(
                 "<br>".join(
                     f"<span style='color:{'#d55e00' if f.is_blocking else '#e69f00'}'>"
-                    f"{f.message}</span>"
+                    f"{_finding_text(f, state.error)}</span>"
                     for f in state.findings
                 )
             )

@@ -284,10 +284,12 @@ def read_lines(path: str, *, parameter: str = "SETUPS") -> list[LevellingLine]:
             for line in payload["lines"]
         ]
     except (GeoCompError, KeyError, TypeError, ValueError) as exc:
+        from geocomp.services.messages import reason_for
+
         raise QgsProcessingException(
             _tr("'%1' could not be read as levelling lines: %2")
             .replace("%1", path)
-            .replace("%2", str(exc))
+            .replace("%2", reason_for(exc))
         ) from exc
 
 

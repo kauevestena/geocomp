@@ -33,7 +33,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Every menu item maps to a registered algorithm and vice versa | FR-005 |
 | Every algorithm has a translated `shortHelpString()` documenting every parameter with units | FR-090, [`16-processing-provider.md`](./16-processing-provider.md) §8 |
 | Every public core function returning a geodetic value returns a `Quantity`-bearing type | FR-200 |
-| Every message template interpolates only context keys its raising site supplies, has one `%n` per key, and names a code something raises | NFR-006, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §2 |
+| Every code raised has a message template; every template interpolates only context keys its raising site supplies, has one `%n` per key, and names a code something raises | NFR-006, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §2 |
 | Every requirement ID in `02-requirements.md` appears in exactly one `ROADMAP.md` phase | [`README.md`](./README.md) |
 | Relative links between spec documents resolve | — |
 | Locale round trip: every output format written under a comma-decimal locale reads back under a period-decimal one | FR-095 |

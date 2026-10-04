@@ -19,7 +19,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
 
-__all__ = ["MessageTemplate", "message_for", "register_template"]
+__all__ = ["MessageTemplate", "message_for", "reason_for", "register_template"]
 
 _CONTEXT = "GeoCompMessages"
 
@@ -119,3 +119,16 @@ def message_for(error: GeoCompError) -> str:
         "GeoComp could not complete the operation (%1). "
         "See the GeoComp tab of the Log Messages panel for details.",
     ).replace("%1", error.code)
+
+
+def reason_for(error: BaseException) -> str:
+    """Words for *error*: its template when it is GeoComp's own refusal, else its text.
+
+    For the handlers that catch GeoComp's refusals together with Python's own
+    (``OSError``, ``ValueError``) and put the reason into a sentence. ``str()``
+    of a refusal is the developer's diagnostic -- its code and context -- and
+    six such handlers showed that until P12c-7.
+    """
+    if isinstance(error, GeoCompError):
+        return message_for(error)
+    return str(error)

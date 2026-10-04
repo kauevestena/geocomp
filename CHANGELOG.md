@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Every refusal in words; a base-map key kept out of the log
+
+#### Fixed
+
+- A base map URL with an API key but without `{z}`, `{x}` and `{y}` was refused for the missing tokens, and
+  the refusal carried the URL. *Add base map* showed it, key included, in the Processing log. The key is now
+  checked first, and no refusal carries the URL.
+- Some refusals appeared as an internal code and its values: *Add base map*, the results panel, the
+  time-series panel, the pre-analysis dialog, and a refused field mapping, readings document or levelling
+  lines document. They now say them in a sentence.
+- The last problems that still showed "could not complete the operation" now explain themselves:
+  uncertainties and covariance matrices, geoid models, base maps, the display settings, and the readers of
+  the reference examples. Every error GeoComp raises now has words in English, Portuguese and Spanish, and a
+  test fails if a new one arrives without them.
+
 ### P12c-7 — Data-model refusals in words
 
 #### Fixed

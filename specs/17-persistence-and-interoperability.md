@@ -374,6 +374,11 @@ catalogue files and provenance records *cannot* emit a secret. A URL with an emb
 `apikey=` parameter is **refused at construction**, naming `auth_config_id` as the place it belongs: a key
 in a URL is copied into every export and every log the moment someone shares their configuration.
 
+That check runs **before every other check on the URL**, and **no refusal carries the URL**. A refusal is
+shown and logged, and the check is shallow by design, so a URL it passes may still hold a key under a name
+it does not know. Until P12c-7 the tile tokens were checked first, and that refusal carried the URL. A keyed
+URL without `{z}`, `{x}` and `{y}` therefore reached the Processing log through *Add base map*, key and all.
+
 **The user's project is honoured.** `basemaps.reuse_existing_layer` defaults to true, and a service already
 in the project is matched on its **URL** rather than its layer name — the name is the user's to change and
 often is. A base map is inserted at the bottom of the layer tree; above the results it hides what was just

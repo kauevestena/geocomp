@@ -272,6 +272,23 @@ class TestFailuresAreActionable:
                 catchExceptions=False,
             )
 
+    def test_a_refused_field_mapping_is_said_in_words(self, geocomp_provider, tmp_path):
+        """Found by P12c-7: the refusal reached the sentence as the developer's
+        diagnostic -- its code and context -- rather than its words."""
+        from qgis.core import QgsProcessingException
+
+        from geocomp.algorithms.totalstation.common import load_mapping
+
+        path = tmp_path / "mapping.json"
+        payload = {"name": "mine", "columns": [{"field": "not_a_field", "column": 0}]}
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(QgsProcessingException) as caught:
+            load_mapping(str(path), header=[])
+        text = str(caught.value)
+        assert "could not be read as a field mapping" in text
+        assert "not_a_field" in text
+        assert "validation." not in text
+
 
 class TestTheSyntheticSurvey:
     """Traverse, resection, intersection, radiation and trigonometric levelling.

@@ -1018,6 +1018,337 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "solution",
         "station",
     ),
+    # -- uncertainties and covariance matrices (P12c-7) --------------------------
+    "data.covariance_not_square": MessageTemplate(
+        "A covariance matrix has the shape %1; a covariance matrix is square. Check the matrix "
+        "the observations or the solution carry.",
+        "shape",
+    ),
+    "data.covariance_label_count": MessageTemplate(
+        "A covariance matrix of size %2 names %1 component(s); it must name one per row.",
+        "labels",
+        "size",
+    ),
+    "data.covariance_duplicate_labels": MessageTemplate(
+        "A covariance matrix names the same component twice, so its rows cannot be told apart. "
+        "Give each component its own name.",
+    ),
+    "data.covariance_unit_count": MessageTemplate(
+        "A covariance matrix of size %2 gives %1 unit(s); it must give one per row.",
+        "units",
+        "size",
+    ),
+    "data.covariance_not_symmetric": MessageTemplate(
+        "A covariance matrix is not symmetric: the entries for %2 differ by %1 from their mirror "
+        "images. A covariance matrix is symmetric, so the matrix was written or read wrongly.",
+        "asymmetry",
+        "at",
+    ),
+    "data.covariance_not_positive_semidefinite": MessageTemplate(
+        "A covariance matrix is not positive semi-definite: its smallest eigenvalue is %1. No set "
+        "of uncertainties produces such a matrix, so it was mistyped, truncated, or assembled "
+        "from parts that do not belong together.",
+        "smallest_eigenvalue",
+    ),
+    "validation.unknown_covariance_label": MessageTemplate(
+        "A covariance matrix has no component '%1'.",
+        "label",
+    ),
+    "validation.value_count_mismatch": MessageTemplate(
+        "%1 value(s) were given for a covariance matrix over %2 components; give one per "
+        "component.",
+        "received",
+        "expected",
+    ),
+    "validation.negative_variance": MessageTemplate(
+        "The value %1 has a variance of %2; a variance cannot be negative.",
+        "value",
+        "variance",
+    ),
+    "validation.rigorous_with_strategies": MessageTemplate(
+        "A value is marked rigorous but names approximations (%1). A value that used an "
+        "approximation is approximate; this is an internal error, please report it.",
+        "strategies",
+    ),
+    "validation.approximate_without_strategy": MessageTemplate(
+        "The value %1 is marked approximate without saying how its uncertainty was estimated. "
+        "This is an internal error; please report it.",
+        "value",
+    ),
+    "validation.relative_uncertainty_of_zero": MessageTemplate(
+        "A relative uncertainty was asked of a value of zero, where it is undefined.",
+    ),
+    "validation.correlated_scalar_path": MessageTemplate(
+        "Two correlated values were combined (%1) as if they were independent, which would "
+        "misstate the uncertainty of the result. This is an internal error; please report it "
+        "with the data that caused it.",
+        "operation",
+    ),
+    "validation.incompatible_units": MessageTemplate(
+        "%1 cannot be applied to values in %2: the units do not fit the operation.",
+        "operation",
+        "received",
+    ),
+    "validation.compound_unit_not_supported": MessageTemplate(
+        "Values in %2 cannot be combined (%1): the result would need a compound unit, which "
+        "GeoComp does not track.",
+        "operation",
+        "received",
+    ),
+    "validation.not_a_quantity": MessageTemplate(
+        "A %1 was given where a number or a value with its uncertainty was expected.",
+        "received",
+    ),
+    "validation.division_by_zero": MessageTemplate(
+        "A value (%1) was divided by zero. Check the input for a zero where a divisor is "
+        "expected, such as a zero distance.",
+        "numerator",
+    ),
+    "validation.power_of_dimensioned_quantity": MessageTemplate(
+        "A value in %1 cannot be raised to the power %2: the result would need a compound unit, "
+        "which GeoComp does not track.",
+        "unit",
+        "exponent",
+    ),
+    "validation.log_of_non_positive": MessageTemplate(
+        "The logarithm of %1 is undefined; it needs a positive value.",
+        "value",
+    ),
+    "validation.sqrt_of_negative": MessageTemplate(
+        "The square root of %1 is undefined; it needs a value that is not negative.",
+        "value",
+    ),
+    "validation.sqrt_at_zero": MessageTemplate(
+        "The uncertainty of a square root cannot be propagated at zero, where its derivative is "
+        "infinite.",
+    ),
+    "validation.atan2_at_origin": MessageTemplate(
+        "A direction was asked of two coincident points, where it is undefined. Check for two "
+        "stations with the same coordinates.",
+    ),
+    "validation.hypot_at_origin": MessageTemplate(
+        "The uncertainty of a length cannot be propagated between two coincident points. Check "
+        "for two stations with the same coordinates.",
+    ),
+    "validation.printed_half_width_not_positive": MessageTemplate(
+        "The rounding of a printed covariance matrix was given as %1; it is half the place value "
+        "of the last digit printed, which is positive. This is an internal error; please report "
+        "it.",
+        "half_width",
+    ),
+    "validation.jacobian_not_2d": MessageTemplate(
+        "A Jacobian of shape %1 was given to propagate an uncertainty; it must be a matrix. This "
+        "is an internal error; please report it.",
+        "shape",
+    ),
+    "validation.jacobian_shape_mismatch": MessageTemplate(
+        "A Jacobian of shape %1 cannot propagate a covariance matrix of size %2: it needs one "
+        "column per component. This is an internal error; please report it.",
+        "jacobian",
+        "covariance",
+    ),
+    "validation.output_label_count": MessageTemplate(
+        "A propagation produces %1 value(s) but names %2. This is an internal error; please "
+        "report it.",
+        "rows",
+        "labels",
+    ),
+    "validation.output_unit_count": MessageTemplate(
+        "A propagation gives %1 unit(s) for %2 named value(s). This is an internal error; please "
+        "report it.",
+        "units",
+        "labels",
+    ),
+    # -- the reference-corpus readers: ADJUST and Krumm's examples (P12c-7) -----
+    # Only the validation tests and scripts/ read these files, but a refusal is
+    # read by whoever runs them, so it says what is wrong as any other does.
+    "data.adjust_file_too_short": MessageTemplate(
+        "'%1' has %2 line(s); an Adjust file starts with a title line and a counts line.",
+        "path",
+        "received",
+    ),
+    "data.adjust_header_not_five_counts": MessageTemplate(
+        "The counts line of '%1' reads '%2'; an Adjust file gives five counts: distances, "
+        "angles, azimuths, control stations and total stations.",
+        "path",
+        "received",
+    ),
+    "data.adjust_header_not_integers": MessageTemplate(
+        "The counts line of '%1' reads '%2', which is not five whole numbers.",
+        "path",
+        "received",
+    ),
+    "data.adjust_azimuths_unsupported": MessageTemplate(
+        "'%1' declares %2 azimuth observation(s), which GeoComp does not read: no example of an "
+        "azimuth row exists to check its layout against, and a guessed layout reads a "
+        "plausible wrong number.",
+        "path",
+        "received",
+    ),
+    "data.adjust_fewer_stations_than_declared": MessageTemplate(
+        "'%1' has %2 line(s) after its header, fewer than the %3 stations it declares.",
+        "path",
+        "received",
+        "expected",
+    ),
+    "data.adjust_file_half_valued": MessageTemplate(
+        "'%1' gives values for %2 of its observation rows and not for the others. A file is "
+        "either a plan, with no values, or a set of measurements, with all of them.",
+        "path",
+        "received",
+    ),
+    "data.adjust_declared_counts_disagree": MessageTemplate(
+        "The counts line of '%1' declares %2, but the file holds %3. The counts are the "
+        "format's own check, so GeoComp cannot tell which was intended.",
+        "path",
+        "declared",
+        "found",
+    ),
+    "data.adjust_cannot_express_observation": MessageTemplate(
+        "The network cannot be written as the Adjust file '%1': it has observations of type "
+        "%2, and the format holds only horizontal distances and horizontal angles. Written "
+        "without them, the file would be a different network.",
+        "path",
+        "received",
+    ),
+    "data.adjust_not_a_number": MessageTemplate(
+        "In '%1', the %2 '%3' is not a number, on the line: %4",
+        "path",
+        "field",
+        "received",
+        "line",
+    ),
+    "data.adjust_station_row_too_short": MessageTemplate(
+        "A station row of '%1' is too short; it gives a name and two coordinates: %2",
+        "path",
+        "line",
+    ),
+    "data.adjust_observation_station_unknown": MessageTemplate(
+        "An observation row of '%1' names stations that are not in the coordinate block (%3): "
+        "%2",
+        "path",
+        "line",
+        "received",
+    ),
+    "data.adjust_control_without_sigmas": MessageTemplate(
+        "The control station '%2' in '%1' gives no standard deviations. A control station in "
+        "this format is weighted, not held, so two standard deviations follow its "
+        "coordinates: %3",
+        "path",
+        "station",
+        "line",
+    ),
+    "data.adjust_observation_row_unrecognised": MessageTemplate(
+        "An observation row of '%1' has %3 value(s), which is neither a distance (2 or 4) nor "
+        "an angle (3 or 7): %2",
+        "path",
+        "line",
+        "received",
+    ),
+    "data.adjust_control_without_covariance": MessageTemplate(
+        "The station '%2' cannot be written to '%1' as control: the format gives a control "
+        "station two standard deviations and has no way to say it is held exactly. Give it a "
+        "weighted constraint with its covariance.",
+        "path",
+        "station",
+    ),
+    "data.adjust_angle_out_of_range": MessageTemplate(
+        "An angle in '%1' has minutes or seconds of 60 or more (%3): %2",
+        "path",
+        "line",
+        "received",
+    ),
+    "data.krumm_angle_unreadable": MessageTemplate(
+        "'%1' is not an angle in degrees, minutes and seconds, such as 12°34'56\", on the "
+        "line: %2",
+        "received",
+        "line",
+    ),
+    "data.krumm_value_not_a_number": MessageTemplate(
+        "'%1' is not a number, on the line: %2",
+        "received",
+        "line",
+    ),
+    "data.krumm_coordinate_row_too_short": MessageTemplate(
+        "A coordinate row is too short: %1",
+        "line",
+    ),
+    "data.krumm_row_too_short": MessageTemplate(
+        "A row of the %1 section has %3 value(s), where %2 are needed: %4",
+        "section",
+        "expected",
+        "received",
+        "line",
+    ),
+    "data.krumm_setup_heights_incomplete": MessageTemplate(
+        "A row of the %1 section gives one setup height without the other (%3); give "
+        "instrument and target heights together, or neither: %2",
+        "section",
+        "line",
+        "received",
+    ),
+    "data.krumm_baseline_antenna_heights": MessageTemplate(
+        "A baseline states antenna heights (%2). Reducing it to the marks needs each mark's "
+        "vertical, which this file does not give: %1",
+        "line",
+        "received",
+    ),
+    "data.krumm_levelling_length_not_positive": MessageTemplate(
+        "'%1' is not a positive line length in metres; the length weights the levelled line.",
+        "received",
+    ),
+    "data.krumm_section_unknown": MessageTemplate(
+        "'%2' has a section %1 that GeoComp does not know.",
+        "section",
+        "path",
+    ),
+    "data.krumm_section_unsupported": MessageTemplate(
+        "The section %1 of '%2' holds %3. GeoComp reads none of the file rather than read it "
+        "without that section: without one of its observations it would be a different "
+        "example.",
+        "section",
+        "path",
+        "reason",
+    ),
+    "data.krumm_handler_unimplemented": MessageTemplate(
+        "The section %1 is listed as read but has no reader. This is an internal error; "
+        "please report it.",
+        "handler",
+    ),
+    "data.krumm_datum_unknown": MessageTemplate(
+        "'%1' is not a datum GeoComp reads; expected %2.",
+        "received",
+        "expected",
+    ),
+    "data.krumm_dynamic_datum_unsupported": MessageTemplate(
+        "'%1' has a dynamic datum, which weights the held coordinates by a covariance matrix. "
+        "GeoComp does not read it: reading it as fixed would claim a certainty the example "
+        "does not.",
+        "path",
+    ),
+    "data.krumm_free_datum_partial": MessageTemplate(
+        "The free datum of '%1' names different components for different stations (%2); an "
+        "inner constraint names the same components for every station.",
+        "path",
+        "received",
+    ),
+    "data.krumm_datum_token_unreadable": MessageTemplate(
+        "'%1' in the datum section is neither a station nor an axis letter and a station, such "
+        "as xA.",
+        "received",
+    ),
+    "data.krumm_mixed_dimensionality": MessageTemplate(
+        "No one dimension of adjustment, 1D, 2D or 3D, takes every observation of the network "
+        "'%1'.",
+        "network",
+    ),
+    "data.krumm_observation_station_unknown": MessageTemplate(
+        "'%1' observes stations that have no approximate coordinates (%2). An angle or azimuth "
+        "to such a point defines a direction, not a position; reduce it before the network is "
+        "adjusted.",
+        "path",
+        "received",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():
