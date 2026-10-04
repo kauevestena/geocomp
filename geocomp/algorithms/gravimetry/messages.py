@@ -13,19 +13,22 @@ __all__ = ["TEMPLATES"]
 
 TEMPLATES: dict[str, MessageTemplate] = {
     "data.gravimeter_format_unknown": MessageTemplate(
-        "This file is not a gravimeter export GeoComp can read. Expected %1.",
-        "expected",
+        "This file is not a gravimeter export GeoComp can read. Expected a Scintrex CG-5 export "
+        "(a header of '/' lines), a ZLS Burris export (16 space-separated columns, the date as "
+        "YYYY/MM/DD), or a CSV whose header names %1.",
+        "columns",
     ),
     "data.gravimeter_line_unreadable": MessageTemplate(
-        "Line %1 of '%2' could not be read: %3. Correct or remove the line and run again.",
+        "Line %1 of '%2' could not be read as a %3 line; compare it with the export's layout, "
+        "then correct or remove it and run again.",
         "line",
         "source",
-        "expected",
+        "format",
     ),
     "data.gravimeter_file_empty": MessageTemplate(
-        "'%1' holds no readings: expected %2.",
+        "'%1' holds no %2 readings.",
         "source",
-        "expected",
+        "format",
     ),
     "data.gravimeter_csv_naive_time": MessageTemplate(
         "Line %1 of '%2' gives the time '%3' without its offset from UTC. The tide depends "
@@ -113,10 +116,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.gravimeter_reading_outside_table": MessageTemplate(
-        "A counter reading of %1 is outside the gravimeter's calibration table: expected "
-        "%2.",
+        "A counter reading of %1 is outside the gravimeter's calibration table, which runs from "
+        "%2 to %3. The table cannot be extrapolated, because the next interval's factor is not "
+        "in it.",
         "received",
-        "expected",
+        "low",
+        "high",
     ),
     "validation.duplicate_gravity_reading": MessageTemplate(
         "The reading '%1' appears twice. Remove the duplicate line and run again.",

@@ -124,6 +124,7 @@ def read_gtx(
             "geoid_file_truncated",
             path=str(path),
             received=len(raw),
+            needed=_GTX_HEADER.size,
             expected=f"at least {_GTX_HEADER.size} bytes of GTX header",
         )
 
@@ -148,6 +149,7 @@ def read_gtx(
             "geoid_file_truncated",
             path=str(path),
             received=len(body),
+            needed=wanted,
             expected=f"{wanted} bytes for a {rows}x{columns} grid of float32",
         )
 
@@ -223,6 +225,7 @@ def read_esri_ascii(
             "geoid_header_incomplete",
             path=str(path),
             received=sorted(header),
+            missing=sorted(set(missing)),
             expected=f"an ESRI ASCII header; missing {sorted(set(missing))}",
         )
 
@@ -240,6 +243,9 @@ def read_esri_ascii(
             "geoid_cell_count",
             path=str(path),
             received=len(numbers),
+            cells=rows * columns,
+            rows=rows,
+            columns=columns,
             expected=f"{rows * columns} values for a {rows}x{columns} grid",
         )
 

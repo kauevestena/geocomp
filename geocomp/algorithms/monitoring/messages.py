@@ -153,9 +153,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.monitoring_strain_configuration": MessageTemplate(
-        "Strain cannot be computed here: %1. It needs three object points at least, "
-        "spread over an area.",
-        "expected",
+        "Strain cannot be computed here. It needs east and north components, and three object "
+        "points at least, spread over an area rather than along a line.",
     ),
     "validation.monitoring_alert_limit": MessageTemplate(
         "The %1 threshold's limit is %2; it must be positive.",
@@ -163,11 +162,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.monitoring_threshold_row": MessageTemplate(
-        "Row %1 of the alert thresholds file cannot be read: '%2'. Expected %3. Each row "
-        "is kind, limit, stations, group.",
+        "Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in "
+        "metres, or in metres a year for a velocity. Each row is kind, limit, stations, group.",
         "row",
         "received",
-        "expected",
     ),
     "validation.monitoring_document_kind": MessageTemplate(
         "This file is a '%1', not a '%2'. Give the document the monitoring algorithm "

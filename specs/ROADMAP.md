@@ -2041,6 +2041,38 @@ caller (`"{station} in setup {id}"`); `check()` now takes the station and the se
 - the `problems` of `network_integrity` (an error), interpolated into its translated sentence;
 - the `expected` text some errors carry from the core.
 
+#### P12c-9 — no English inside a translated sentence
+
+The two English remnants P12c-8 recorded both came from the same pattern. A template is translated, but the
+values it interpolates are not. 29 templates interpolated a key that a raise site filled with an English
+sentence, so a Portuguese message carried an English clause:
+
+- `expected="a whole number from 0 to 6"`;
+- `expected="a line starting or ending at B"`;
+- the gravimeter formats GeoComp reads, spelled out in English;
+- `network_integrity`'s list of problem sentences.
+
+**Delivered.**
+
+- **The 29 templates say their own sentence**, with pt-BR and es. The raise sites pass the data the sentence
+  needs under keys of their own, such as `maximum`, `at`, `start`, `station`, `previous`, `low`, `high`,
+  `south`… `east`, `needed`, `missing`, `available` and `format`. Their `expected` stays, for the developer's
+  diagnostic and the provenance record, but no template reads it.
+- **Codes that cover several situations keep one code**, and their sentence covers every case. Strain names
+  all it needs; a gravimeter line names its format, CG-5, Burris or CSV.
+- **`network_integrity` says the number of problems**, and *Inspect network* words each one.
+- **The rule.** `test_no_template_interpolates_english_from_the_core` fails on a template that interpolates a
+  key some raise site, or a finding's context, fills with a phrase of three words or more. Run against the
+  templates as they were, it flags four in `project/messages.py` alone. The specs/20 register row says so.
+
+**Found.** No defect beyond the English itself. One template quoted a JSON key (`'stations'`) inside its
+sentence. The glossary check caught it, because the key was read as the word it spells, and the template now
+says "its list of stations".
+
+**Not done here.** The rule reads values written at the raise site. A value computed elsewhere and passed in
+cannot be judged from the source, as `network_integrity`'s list was. Each of those is found by reading, and
+none is known to remain.
+
 ---
 
 ## P13 — Validation, documentation and release

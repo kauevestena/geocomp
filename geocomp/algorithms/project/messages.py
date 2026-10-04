@@ -25,15 +25,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # came from (geocomp.algorithms.inputs). Before P12c-6 none had a template,
     # and a run showed the code and its context instead.
     "data.json_document_unreadable": MessageTemplate(
-        "'%1' could not be read as a JSON document (%2). Expected %3.",
+        "'%1' could not be read as a JSON document (%2).",
         "path",
         "reason",
-        "expected",
     ),
     "data.json_document_not_an_object": MessageTemplate(
-        "'%1' is not a GeoComp document: its top level is not a JSON object. Expected %2.",
+        "'%1' is not a GeoComp document: its top level is not a JSON object.",
         "path",
-        "expected",
     ),
     "data.network_given_where_a_solution_was_expected": MessageTemplate(
         "'%1' is a network document, not a solution: it has stations but no adjusted "
@@ -160,9 +158,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.template_not_found": MessageTemplate(
-        "There is no report template '%1'; expected %2.",
+        "There is no report template '%1' in the configured directory or among the shipped "
+        "ones: %2.",
         "received",
-        "expected",
+        "available",
     ),
     "validation.template_unknown_token": MessageTemplate(
         "The report template %1 uses tokens GeoComp does not fill (%2); expected %3.",
@@ -256,11 +255,11 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "expected",
     ),
     "validation.display_decimals_out_of_range": MessageTemplate(
-        "The setting %1 is %2, which is out of range; expected %3. Correct it in Global "
-        "Settings, under Interface.",
+        "The setting %1 is %2, which is out of range; expected a whole number from 0 to %3. "
+        "Correct it in Global Settings, under Interface.",
         "parameter",
         "received",
-        "expected",
+        "maximum",
     ),
 }
 

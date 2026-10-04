@@ -437,6 +437,7 @@ def reduce_reciprocal(
         raise ValidationError(
             "reciprocal_second_pair_reversed",
             received=second.near.station,
+            station=to_station,
             expected=(
                 f"{to_station}; the second pair is observed from the far bank, so its "
                 "near reading is onto the station the difference runs to"

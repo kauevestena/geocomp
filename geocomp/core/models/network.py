@@ -323,7 +323,11 @@ class Network:
         """Raise if :meth:`validate` found anything."""
         problems = self.validate()
         if problems:
-            raise DataError("network_integrity", network=self.id, problems=problems)
+            # ``problems`` is English, for the developer's diagnostic; what the
+            # reader is told is the count, and Inspect network words each one.
+            raise DataError(
+                "network_integrity", network=self.id, count=len(problems), problems=problems
+            )
 
     # -- serialisation ---------------------------------------------------
 

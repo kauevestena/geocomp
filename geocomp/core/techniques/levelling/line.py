@@ -101,6 +101,8 @@ class LevellingLine:
                     line=self.id,
                     setup=following.id,
                     received=following.backsight.station,
+                    station=expected,
+                    previous=previous.id,
                     expected=(
                         f"{expected}, the first foresight of setup {previous.id}; the "
                         "line advances through the first foresight and the rest are "

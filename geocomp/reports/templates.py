@@ -92,6 +92,7 @@ def load_template(name: str, *, directory: str | Path | None = None) -> Template
         raise ValidationError(
             "template_not_found",
             received=name,
+            available=sorted(p.name for p in TEMPLATE_DIR.glob("*.html")),
             expected=(
                 f"a template in the configured directory or among the shipped ones: "
                 f"{', '.join(sorted(p.name for p in TEMPLATE_DIR.glob('*.html'))) or '(none)'}"

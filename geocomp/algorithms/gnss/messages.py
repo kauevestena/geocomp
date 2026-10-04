@@ -178,10 +178,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.pos_record_too_short": MessageTemplate(
-        "A record of '%1' has %2, where %3 were expected. The file is truncated or damaged.",
+        "A record of '%1' has %2 columns, where at least %3 were expected for the %4 format. "
+        "The file is truncated or damaged.",
         "file",
-        "received",
-        "expected",
+        "columns",
+        "required",
+        "layout",
     ),
     "data.pos_epoch_time_unreadable": MessageTemplate(
         "A record of '%1' has a time GeoComp cannot read: '%2'. RTKLIB writes either a GPS "

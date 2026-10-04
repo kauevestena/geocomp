@@ -33,8 +33,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.document_not_a_network": MessageTemplate(
         "This JSON file is not a GeoComp network document: it has no network identifier. "
-        "Expected %1.",
-        "expected",
+        "Expected a network document, with its identifier and its list of stations.",
     ),
     "data.document_holds_several_networks": MessageTemplate(
         "This project file holds %1 networks, so GeoComp cannot tell which one you mean. "
@@ -47,10 +46,11 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.network_integrity": MessageTemplate(
-        "The network '%1' is not internally consistent: %2. Run Inspect network to see "
-        "every problem at once.",
+        "The network '%1' is not internally consistent: %2 observation(s) or cluster(s) name "
+        "something it does not have, or a cluster's covariance does not fit its members. Run "
+        "Inspect network to see each problem.",
         "network",
-        "problems",
+        "count",
     ),
     # -- what the network is missing --------------------------------------
     "computation.no_active_observations": MessageTemplate(
@@ -60,8 +60,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "network",
     ),
     "computation.no_observations": MessageTemplate(
-        "No observations were supplied. %1",
-        "expected",
+        "No observations were supplied; the adjustment needs at least one active observation.",
     ),
     "computation.no_planned_observations": MessageTemplate(
         "The planned network '%1' contains no observations, so there is no design to "
@@ -69,8 +68,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "network",
     ),
     "validation.no_estimable_parameters": MessageTemplate(
-        "Every station in this network is held fixed, so there is nothing to estimate. %1",
-        "expected",
+        "Every station in this network is held fixed, so there is nothing to estimate. Free at "
+        "least one station, or one of its components.",
     ),
     "validation.missing_approximate_coordinates": MessageTemplate(
         "Station '%1' has no approximate %2, and the linearised adjustment needs a point to "
@@ -85,13 +84,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "validation.no_stations_for_datum": MessageTemplate(
-        "No stations were given to define the datum on. %1",
-        "expected",
+        "No stations were given to define the datum on; give at least one estimated station.",
     ),
     "data.observation_without_uncertainty": MessageTemplate(
-        "Observation '%1' carries no uncertainty, so it cannot be weighted. %2",
+        "Observation '%1' carries no uncertainty, so it cannot be weighted. GeoComp does not "
+        "invent a weight, because a fabricated one silently corrupts every statistic; give the "
+        "observation its standard deviation.",
         "observation",
-        "expected",
     ),
     "data.cluster_rows_mismatch": MessageTemplate(
         "Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. "
@@ -161,10 +160,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     # -- importing a field book (P12c-6) -------------------------------------
     "validation.mapping_missing_required_fields": MessageTemplate(
-        "The field mapping supplies no column for %1, which every import needs: %2. "
-        "Give a mapping that names them, or a field book whose header does.",
+        "The field mapping supplies no column for %1, which every import needs: at least the "
+        "station and the two angles. Give a mapping that names them, or a field book whose "
+        "header does.",
         "received",
-        "expected",
     ),
     # -- scale (NFR-008) ----------------------------------------------------
     "computation.adjustment_needs_scipy": MessageTemplate(

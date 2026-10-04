@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-9 — No English inside a translated message
+
+#### Fixed
+
+- 29 messages were translated but still carried an English phrase from the core, such as "expected a whole
+  number from 0 to 6" or "a line starting or ending at B". They are now entirely in the reader's language;
+  only names and numbers are filled in.
+
 ### P12c-8 — Levelling and total-station findings in the reader's language
 
 #### Fixed

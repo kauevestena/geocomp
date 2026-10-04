@@ -149,6 +149,7 @@ def _root(path: str | Path, expected: str) -> ET.Element:
             "dynaml_wrong_file_type",
             path=str(path),
             received=kind,
+            wanted=expected,
             expected=f"a {expected} (or a Combined File)",
         )
     return root

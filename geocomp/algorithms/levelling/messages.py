@@ -54,10 +54,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.level_mapping_incomplete": MessageTemplate(
-        "The mapping '%1' maps %2, and needs %3.",
+        "The mapping '%1' maps %2, and also needs %3.",
         "mapping",
         "received",
-        "expected",
+        "missing",
     ),
     "validation.level_book_empty": MessageTemplate(
         "The levelling book has no data: it needs a header row and at least one row of "
@@ -120,11 +120,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.levelling_line_discontinuous": MessageTemplate(
         "The levelling line '%1' breaks at setup '%2': its backsight is on %3, where %4 was "
-        "expected.",
+        "expected, the first foresight of setup %5. A line advances through each setup's first "
+        "foresight; the others are side shots.",
         "line",
         "setup",
         "received",
-        "expected",
+        "station",
+        "previous",
     ),
     "validation.known_difference_wrong_unit": MessageTemplate(
         "A known height difference is in %1; give it in metres.",
@@ -141,17 +143,18 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.loop_discontinuous": MessageTemplate(
         "The loop '%1' is broken at line '%2', which joins %3 and does not continue from the "
-        "line before it: expected %4.",
+        "line before it: expected a line starting or ending at %4.",
         "loop",
         "line",
         "received",
-        "expected",
+        "at",
     ),
     "validation.loop_does_not_close": MessageTemplate(
-        "The loop '%1' ends at %2 and does not return to where it began: expected %3.",
+        "The loop '%1' ends at %2 and does not return to %3, where it began. A loop must return "
+        "to the station it began at.",
         "loop",
         "received",
-        "expected",
+        "start",
     ),
     "validation.section_runs_disagree": MessageTemplate(
         "The two runs of a double-run section join different stations (%1). Both runs of a "
@@ -249,9 +252,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.reciprocal_second_pair_reversed": MessageTemplate(
         "The second pair of a reciprocal crossing is reversed: its near reading is on %1, "
-        "where %2 was expected.",
+        "where %2 was expected. The second pair is observed from the far bank, so its near "
+        "reading is onto the station the difference runs to.",
         "received",
-        "expected",
+        "station",
     ),
     "validation.station_not_foresighted": MessageTemplate(
         "Station '%1' is not foresighted from setup '%2', which foresights %3.",

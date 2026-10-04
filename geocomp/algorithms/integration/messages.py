@@ -129,7 +129,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3.",
         "path",
         "received",
-        "expected",
+        "needed",
     ),
     "data.geoid_header_not_usable": MessageTemplate(
         "The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at "
@@ -138,16 +138,18 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.geoid_header_incomplete": MessageTemplate(
-        "The header of the geoid grid '%1' is incomplete. Expected %2.",
+        "The header of the geoid grid '%1' is not a complete ESRI ASCII header: it lacks %2.",
         "path",
-        "expected",
+        "missing",
     ),
     "data.geoid_cell_count": MessageTemplate(
-        "The geoid grid '%1' has %2 values where its header promises %3. The file is "
-        "truncated or damaged.",
+        "The geoid grid '%1' has %2 values where its header promises %3, for a grid of %4 by "
+        "%5. The file is truncated or damaged.",
         "path",
         "received",
-        "expected",
+        "cells",
+        "rows",
+        "columns",
     ),
     "data.geoid_grid_has_no_data": MessageTemplate(
         "The geoid grid '%1' has cells without data (value %2). Such a cell would be "
@@ -204,12 +206,15 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.geoid_outside_coverage": MessageTemplate(
-        "The point at latitude, longitude %2 lies outside the coverage of the geoid model '%1'; "
-        "expected %3. A geoid model quoted beyond its coverage gives a confidently wrong height; "
-        "use a model that covers the point.",
+        "The point at latitude, longitude %2 lies outside the coverage of the geoid model '%1', "
+        "which spans latitudes %3 to %4 and longitudes %5 to %6. A geoid model quoted beyond "
+        "its coverage gives a confidently wrong height; use a model that covers the point.",
         "geoid",
         "received",
-        "expected",
+        "south",
+        "north",
+        "west",
+        "east",
     ),
     "validation.coverage_not_ordered": MessageTemplate(
         "The coverage of a geoid model is not in order: its south bound must lie below its north "
