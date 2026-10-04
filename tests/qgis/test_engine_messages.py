@@ -53,6 +53,10 @@ FAILURES = [
             "base": "3040",
             "message": "no common epoch with base",
             "work_dir": "/work/relative-static-0759",
+            "spans": [
+                "0759 2024-05-01T10:00:00+00:00/2024-05-01T12:00:00+00:00",
+                "3040 2024-05-02T10:00:00+00:00/2024-05-02T12:00:00+00:00",
+            ],
             "expected": "at least one solution epoch",
         },
         "no common epoch with base",

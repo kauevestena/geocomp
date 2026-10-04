@@ -3059,8 +3059,8 @@
             <translation>%1 das %2 observações em '%3' não têm equivalente no DynAdjust (%4). Ajustar o restante responderia a outra pergunta, com um fator de variância de aparência saudável. Ajuste esta rede com o ajustamento do próprio GeoComp, ou remova essas observações.</translation>
         </message>
         <message>
-            <source>%1 ran on '%2' but solved no epoch; finishing without an error does not mean it solved anything. Its own message: %3. Check that the observations, the base station's and the products cover the same time. Its working files are in %4.</source>
-            <translation>%1 foi executado em '%2' mas não resolveu nenhuma época; terminar sem erro não significa que resolveu algo. A mensagem do próprio motor: %3. Verifique se as observações, as da estação base e os produtos cobrem o mesmo período. Os arquivos de trabalho estão em %4.</translation>
+            <source>%1 ran on '%2' but solved no epoch; finishing without an error does not mean it solved anything. Its own message: %3. The sessions observed %5; check that they and the products cover the same time. Its working files are in %4.</source>
+            <translation>%1 rodou em '%2', mas não resolveu nenhuma época; terminar sem erro não significa que tenha resolvido algo. Sua própria mensagem: %3. As sessões observaram %5; verifique se elas e os produtos cobrem o mesmo período. Seus arquivos de trabalho estão em %4.</translation>
         </message>
         <message>
             <source>%1 setup(s) carried several foresights and entered the network as correlated clusters. They share their backsight, so it cancels in every difference the adjustment forms between two points of one setup, which makes those differences better determined, not worse.</source>

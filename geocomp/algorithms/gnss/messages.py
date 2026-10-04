@@ -99,12 +99,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "engine.rtklib_produced_no_solution": MessageTemplate(
         "%1 ran on '%2' but solved no epoch; finishing without an error does not mean it "
-        "solved anything. Its own message: %3. Check that the observations, the base "
-        "station's and the products cover the same time. Its working files are in %4.",
+        "solved anything. Its own message: %3. The sessions observed %5; check that they "
+        "and the products cover the same time. Its working files are in %4.",
         "engine",
         "rover",
         "message",
         "work_dir",
+        "spans",
     ),
     "computation.rtklib_relative_mode_needs_a_base": MessageTemplate(
         "The %1 mode differences two receivers, and no base station was given for '%2'. "

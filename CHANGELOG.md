@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-10 — A GNSS session that solved nothing says when it observed
+
+#### Fixed
+
+- When RTKLIB ran on a session and solved nothing, the message gave the engine's own reason but not when the
+  rover and the base station observed. It now shows each session's span, so a rover and base that barely
+  overlap are visible at once.
+
 ### P12c-9 — No English inside a translated message
 
 #### Fixed

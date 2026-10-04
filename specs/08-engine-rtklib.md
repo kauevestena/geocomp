@@ -519,7 +519,7 @@ not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
 | Product unavailable | Reported before the batch starts, with the option to use a lower-latency class, recorded — the option is `gnss.product_fallback`, named in the refusal (P10c) |
 | Download failure | Retried with backoff, then reported per session; the batch continues |
 | Authentication failure | Distinguished from a network failure and reported as such, pointing to the credential configuration |
-| No solution for a session | Reported with the engine's own message and the session's data span; the batch continues |
+| No solution for a session | Reported with the engine's own message and the session's data span, each session's as `id start/end` (an ISO 8601 interval, the same in every language; an end not stated is `?`); the batch continues |
 | Solution quality below a configured threshold | Flagged in results, not silently accepted |
 | Timeout | Process terminated, working directory retained, elapsed and limit reported |
 

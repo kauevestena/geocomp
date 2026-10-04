@@ -686,3 +686,48 @@ class TestABaselineFromALiveRun:
         assert quality.fixed_fraction > 0.9
         assert quality.interval == pytest.approx(30.0)
         assert quality.dilution_of_precision is None
+
+
+class TestARunThatSolvesNothingSaysWhen:
+    """``specs/08`` section 9: a session with no solution is reported with the
+    engine's own message *and the session's data span*. Until P12c-10 the span
+    was missing. Sessions that do not overlap at all are refused before the run
+    (``rtklib_sessions_do_not_overlap``); these overlap, and the spans side by
+    side show by how little, beside RTKLIB's own word."""
+
+    def test_the_spans_of_rover_and_base_are_in_the_refusal(self):
+        from datetime import UTC, datetime
+
+        from geocomp.core.models import GnssSession
+        from geocomp.engines.base import EngineRun
+        from geocomp.engines.rtklib.engine import _no_solution
+
+        hour = timedelta(hours=1)
+        start = datetime(2024, 5, 1, 10, tzinfo=UTC)
+        rover = GnssSession(id="0759", station_id="P1", start=start, end=start + 2 * hour)
+        base = GnssSession(id="3040", station_id="B1", start=start + hour, end=start + 3 * hour)
+        run = EngineRun(
+            program="rnx2rtkp",
+            command=("rnx2rtkp",),
+            exit_code=0,
+            stdout="",
+            stderr="no common epoch with base",
+            seconds=0.1,
+            work_dir=Path("/work"),
+        )
+        refusal = _no_solution(RtklibJob(rover=rover, base=base), run, Path("/work"))
+        assert refusal.code == "engine.rtklib_produced_no_solution"
+        assert refusal.context["spans"] == [
+            "0759 2024-05-01T10:00:00+00:00/2024-05-01T12:00:00+00:00",
+            "3040 2024-05-01T11:00:00+00:00/2024-05-01T13:00:00+00:00",
+        ]
+        assert refusal.context["message"]
+
+    def test_an_end_the_session_does_not_state_is_marked_not_guessed(self):
+        from datetime import UTC, datetime
+
+        from geocomp.core.models import GnssSession
+        from geocomp.engines.rtklib.engine import session_span
+
+        session = GnssSession(id="0759", station_id="P1", start=datetime(2024, 5, 1, tzinfo=UTC))
+        assert session_span(session) == "0759 2024-05-01T00:00:00+00:00/?"
