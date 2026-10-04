@@ -1642,6 +1642,50 @@ below), so the state is unchanged at **122 met, 8 partly met, 4 open, 2 manual, 
   `tests/structural/test_message_templates.py` reads only `engines/manager.py` and `engines/base.py`.
 - **Row 21 5**, the QGIS tier on Windows and macOS — the next pull request.
 
+#### P12c-6 — the in-repo rows (fourth pull request): the QGIS tier on every system
+
+**Delivered.** Row 21 5, leaving **123 met, 7 partly met, 4 open, 2 manual, of 136**
+([`21`](./21-packaging-ci-release-licensing.md) §5, as built).
+
+- **Released QGIS, not nightly.** The QGIS tier ran in `qgis/qgis:latest`, which is the nightly build
+  (4.3.0-Master): no released QGIS was under test. It now runs on the releases the images' `stable` and `ltr`
+  tags name, resolved when the workflow runs (`scripts/qgis_versions.py`). Today that is 4.2.3 alone: the `ltr`
+  tag is 3.44.15, which ADR-0007 excludes, and a 4.x LTR joins the matrix with no change.
+- **Windows and macOS**, each in the QGIS a user installs there and that QGIS's own Python: OSGeo4W's 4.2.3
+  (Python 3.12.15, Qt 6.11.0) and the official bundle through Homebrew, 4.2.2 (Python 3.12.11, Qt 6.11.1).
+  The whole suite runs, not tier 3 alone: tier 1 had run on these systems since P0, but on python.org's Python
+  and PyPI's NumPy. First green run: 4,705 passed on Windows and 4,719 on macOS, none failed; the skips are
+  reference data, tier 4 and PostGIS, and on Windows the engine-installation tests.
+- **How was found by asking the runners.** Every installer's host is unreachable from the development
+  environment, so three probe rounds ran there first: OSGeo4W installs unattended in under three minutes and
+  carries pytest and SciPy as packages; its launcher replaces `PATH`; the macOS bundle keeps its standard
+  library in `Contents/Resources/python3.12`, which only `PYTHONPATH` can name.
+
+**Found.**
+
+- ***Save to project store* showed a code.** Given a file that is not JSON, it raised `str(error)` where its
+  siblings raise the template, so the user read `data.json_document_unreadable (expected=…, path=…)`. On Linux
+  the path inside that matched the input's, the input's label was put in front, and
+  `tests/qgis/test_inputs_are_named.py` passed. On Windows `repr()` doubles a path's backslashes, nothing
+  matched, and the test failed — the first run there. Fixed both ways, and the test now refuses a code where a
+  sentence belongs, which fails on Linux too against the old algorithm.
+- **No released QGIS was under test** (above), in the `test` workflow or in `build`'s install check.
+
+**Not done here.**
+
+- **The LTR legs have not run.** OSGeo4W's `qgis-ltr` and the `qgis@ltr` cask are named in the workflow and
+  will first run when the `ltr` tag is a 4.x release; until then the row is met on ADR-0007's reading of
+  NFR-001, stable alone.
+- **PostGIS runs on Linux only**: service containers exist on Linux runners alone.
+- **On Windows the engine-installation tests skip**: their stand-in engine is shell scripts, and DynAdjust's
+  Windows programs would need a stand-in `.exe`. The `engine` workflow's `manager` job installs and runs the
+  real Windows archive; the QGIS fetcher and *Install an engine* on Windows are unexercised.
+- *Add base map* and *Adjust network (DynAdjust)* still raise `str(error)`: their codes have no templates, so the
+  template path would say less, not more. The templates are the engine-code follow-up named above.
+
+With this, P12c-6's rows are done except 21 4's RTKLIB half, which needs upstream binaries or a decision on
+the criterion. The 11 rows not met are those nine waiting on reference data, 21 6 (P13's) and 21 4.
+
 ---
 
 ## P13 — Validation, documentation and release

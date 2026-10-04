@@ -63,8 +63,9 @@ ruff check . && pytest -q
 ```
 
 **Tier 3 needs a real QGIS**, and is where every "does it actually register, render and run" question is
-answered. CI runs it in the official `qgis/qgis:latest` container. To run it locally, install QGIS with its
-Python bindings and point pytest at the interpreter those bindings were built for:
+answered. CI runs it on Linux, Windows and macOS, each in the QGIS a user installs there, on the current
+stable release ([`specs/21`](specs/21-packaging-ci-release-licensing.md) §5). To run it locally, install
+QGIS with its Python bindings and point pytest at the interpreter those bindings were built for:
 
 ```sh
 sudo apt-get install -y qgis python3-qgis xvfb        # Debian/Ubuntu

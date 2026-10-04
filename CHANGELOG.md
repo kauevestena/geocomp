@@ -5,6 +5,20 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-6 — Tested on Windows and macOS, and on released QGIS
+
+#### Changed
+
+- The tests that need QGIS now run on **Windows and macOS** as well as Linux, each in the QGIS a user installs
+  there (OSGeo4W, and the official macOS bundle) and in that QGIS's own Python.
+- They run on the **current stable QGIS**, 4.2, where they ran on the nightly build. The LTR is added when it
+  is a 4.x release.
+
+#### Fixed
+
+- *Save to project store*, given a file that is not a GeoComp document, now says so in a sentence naming the input;
+  before, it showed an internal error code.
+
 ### P12c-6 — Install DynAdjust from GeoComp; engine paths in Global Settings
 
 #### Added
