@@ -771,6 +771,14 @@ says so rather than inventing them.
 | Timeout | Terminate the process group, retain the working directory, report elapsed time and the configured limit (FR-304) |
 | Non-zero exit with no message | Report exit code, full command line and working directory, and point the user to the retained input files |
 
+*P12c-11.* Until then the adapter never looked at `EngineRun.timed_out`: a stage killed at its limit was
+reported as `dynadjust_stage_failed` with the signal's exit code, and neither that refusal nor any other named
+the working directory. *Adjust network (DynAdjust)* also ran in a `TemporaryDirectory` unless the user kept the
+files, so the directory was deleted as the refusal propagated. Now a stage that runs out of time raises
+`dynadjust_stage_timed_out` with the elapsed time, the limit and the working directory; a failed stage carries
+its command line and working directory; and the algorithm keeps its temporary directory whenever the refusal
+names it, removing it otherwise (`tests/test_engine_timeouts.py`, `tests/qgis/test_engine_runs.py`).
+
 ---
 
 ## 8. Acceptance criteria

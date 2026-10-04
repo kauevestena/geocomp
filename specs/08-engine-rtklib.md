@@ -523,6 +523,23 @@ not exist yet. Assuming vertical is wrong by centimetres in height, quietly.
 | Solution quality below a configured threshold | Flagged in results, not silently accepted |
 | Timeout | Process terminated, working directory retained, elapsed and limit reported |
 
+*P12c-11.* Until then a run killed at its limit was reported as `rtklib_run_failed`, "stopped with exit code
+-9", and the limit was the adapter's fixed 600 s: FR-304 asks for a configurable one, and no algorithm let the
+user change it. Now the refusal is `rtklib_timed_out`, with the elapsed time, the limit, the engine's last
+message and the working directory, and every algorithm that runs `rnx2rtkp` -- the four modes, *Batch GNSS
+processing* and *Compare configurations* -- has an advanced *Timeout per run (s)*, 600 s by default. The same
+algorithms now warn when the engine's version is outside the tested range and record the version in their JSON
+output, as FR-302 requires; until P12c-11 only DynAdjust's adjustment did. The four modes' *Keep the engine's
+working directory* was read by nothing; it now removes the directory after a successful run when unchecked,
+and a failed run's is always kept.
+
+**The quality-threshold row has no threshold to apply.** The configured threshold that exists is the ambiguity
+ratio (`gnss.ambiguity_threshold`), which RTKLIB applies epoch by epoch to choose a fixed or a float solution;
+each epoch's status reaches the quality summary and the trajectory layer. A threshold on a session as a whole --
+a fixed fraction, or a precision -- that flags the session is not set anywhere. What it measures and its
+default are the maintainer's decision, as [`11`](./11-module-gnss.md) §8 criterion 2 already records for the
+GNSS acceptance threshold; it is not invented here.
+
 ---
 
 ## 10. Acceptance criteria

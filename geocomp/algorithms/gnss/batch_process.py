@@ -32,10 +32,13 @@ from geocomp.algorithms.gnss.common import (
     SessionProducts,
     base_coordinates,
     configured_profile,
+    engine_record,
     frame_choices,
     gather_products,
+    gnss_engine,
     missing_products_message,
     run_frame,
+    timeout_parameter,
     translate_error,
 )
 from geocomp.core.errors import GeoCompError
@@ -43,7 +46,6 @@ from geocomp.core.techniques.gnss.batch import run_batch
 from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import quality_from_solution
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
-from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -51,6 +53,7 @@ FRAME = "FRAME"
 PROFILE = "PROFILE"
 OUTPUT_DIR = "OUTPUT_DIR"
 OUTPUT_JSON = "OUTPUT_JSON"
+TIMEOUT = "TIMEOUT"
 
 _PROFILES = ("relative-static", "relative-kinematic", "absolute-static", "absolute-kinematic")
 
@@ -119,6 +122,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 defaultValue=0,
             )
         )
+        self.addAdvancedParameter(timeout_parameter(TIMEOUT))
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 OUTPUT_JSON,
@@ -220,16 +224,20 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         if lacking:
             raise QgsProcessingException(missing_products_message(lacking))
 
+        engine = gnss_engine(feedback)
+        timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
+
         def process(station_id: str):
             if station_id in unreachable:
                 raise unreachable[station_id]
             session = by_station[station_id]
             kwargs = {"base": base} if base is not None else {}
-            result = rtklib_engine().run(
+            result = engine.run(
                 RtklibJob(
                     rover=session,
                     config=configuration,
                     products=products[station_id].paths,
+                    timeout=timeout,
                     **kwargs,
                 ),
                 work_dir=work_root / station_id,
@@ -287,6 +295,8 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                         "profile": profile_name,
                         **({"base": base.station_id} if base else {}),
                         **({"base_coordinates": base_record} if base_record else {}),
+                        # FR-302: the engine version every session was run with.
+                        "engine": engine_record(engine),
                         **outcome.to_dict(),
                         "sessions": [r.value for r in outcome.succeeded if r.value],
                     },

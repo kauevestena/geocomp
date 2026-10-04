@@ -2097,6 +2097,40 @@ names them.
 **Not done here.** The products' own span is not in the refusal. A run receives product file paths, and their
 coverage is resolved when they are fetched (P10c), not carried to the engine.
 
+#### P12c-11 — an engine that runs out of time says so
+
+The rest of the specs/07 §7 and specs/08 §9 failure tables, read against the code. Every integration code
+they name is raised, but four rows were not what they say.
+
+**Delivered.**
+
+- **Timeouts.** Both adapters now check `EngineRun.timed_out` before the exit code. `rtklib_timed_out` and
+  `dynadjust_stage_timed_out` give the elapsed time, the limit and the working directory, and say how to raise
+  the limit. Until now both were reported as a failure with exit code -9, which sends a user looking at their
+  data when what ran out was the time.
+- **A configurable RTKLIB limit (FR-304).** The six algorithms that run `rnx2rtkp` have an advanced *Timeout
+  per run (s)*, 600 s by default. Until now the limit was the adapter's fixed ten minutes.
+- **The RTKLIB version (FR-302).** The same six warn when the version is outside the tested range, log which
+  one they use, and record it under `engine` in their JSON output. DynAdjust's adjustment already warned;
+  nothing that runs RTKLIB did.
+- **The working directory is kept when a refusal points at it.** *Adjust network (DynAdjust)* ran in a
+  `TemporaryDirectory`, which deleted the files as the refusal propagated. It now keeps the directory whenever
+  the refusal names it and removes it otherwise. `dynadjust_stage_failed` now carries the command line and the
+  working directory, which the "non-zero exit with no message" row requires.
+
+**Found.**
+
+- *Keep the engine's working directory*, on the four GNSS modes, was read by nothing. Unchecking it changed
+  nothing. It now removes the directory after a successful run, and the run says where a kept one is.
+- A GNSS run with no solution file to save put its working directory in QGIS's own current directory. It now
+  uses a temporary one.
+
+**Not done here.** specs/08's "solution quality below a configured threshold — flagged" has no threshold to
+apply. The one configured threshold is the ambiguity ratio, which RTKLIB applies per epoch. A threshold that
+flags a whole session (a fixed fraction, or a precision) is the maintainer's decision, as specs/11 §8
+criterion 2 records for the GNSS acceptance threshold. specs/08 §9 records the gap rather than inventing a
+default.
+
 ---
 
 ## P13 — Validation, documentation and release

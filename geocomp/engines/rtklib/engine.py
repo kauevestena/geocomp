@@ -361,8 +361,9 @@ class RtklibEngine:
 
         Raises:
             EngineAbsentError: if ``rnx2rtkp`` cannot be found (FR-306).
-            EngineError: if the run failed, or if it succeeded and solved
-                nothing -- with the engine's own message, not an exit code.
+            EngineError: if the run failed or timed out, or if it succeeded
+                and solved nothing -- with the engine's own message, not an
+                exit code.
         """
         from geocomp.engines.base import require
 
@@ -384,6 +385,20 @@ class RtklibEngine:
             version=version,
         )
 
+        if run.timed_out:
+            # specs/08 section 9: a timeout is not a failure of the data, and
+            # an exit code -- the signal that ended it -- sends the user looking
+            # in the wrong place. How long it ran and what the limit was are
+            # what decide whether to raise the limit or shorten the job.
+            raise EngineError(
+                "rtklib_timed_out",
+                engine=PROGRAM,
+                elapsed=f"{run.seconds:.0f}",
+                limit=f"{job.timeout:.0f}",
+                command=" ".join(run.command),
+                message=_diagnostic(run),
+                work_dir=str(work_dir),
+            )
         if not run.ok:
             raise EngineError(
                 "rtklib_run_failed",

@@ -5,6 +5,26 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-11 — An engine that runs out of time says so
+
+#### Added
+
+- Every algorithm that runs RTKLIB has an advanced *Timeout per run (s)*, 600 s by default. Before, RTKLIB was
+  always stopped after ten minutes and nothing could change that.
+- The GNSS processing algorithms record which RTKLIB produced a result, and its version, in their JSON output.
+
+#### Fixed
+
+- When RTKLIB or a DynAdjust stage ran out of time, GeoComp said it "stopped with exit code -9". It now says the
+  run reached its time limit, how long it ran, what the limit was and how to raise it.
+- The GNSS processing algorithms now warn when the installed RTKLIB is a version GeoComp has not been checked
+  against, as *Adjust network (DynAdjust)* already did.
+- *Adjust network (DynAdjust)* deleted its working files when a stage failed or timed out, unless asked to keep
+  them, so the message could not point at them. It now keeps them whenever the message names them. A failed
+  stage's message also gives the command that was run.
+- Unchecking *Keep the engine's working directory* in GNSS processing had no effect. It now removes the
+  directory after a successful run; a failed run's is always kept.
+
 ### P12c-10 — A GNSS session that solved nothing says when it observed
 
 #### Fixed

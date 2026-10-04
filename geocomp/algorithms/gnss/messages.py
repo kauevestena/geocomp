@@ -90,6 +90,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "message",
         "work_dir",
     ),
+    "engine.rtklib_timed_out": MessageTemplate(
+        "%1 was stopped at its time limit of %3 s, after running for %2 s, before it "
+        "finished. Raise the timeout among the algorithm's advanced parameters. Its last "
+        "message: %4. Its working files are in %5.",
+        "engine",
+        "elapsed",
+        "limit",
+        "message",
+        "work_dir",
+    ),
     "engine.rtklib_wrote_no_output": MessageTemplate(
         "%1 finished without writing a solution file. Its own message: %2. Its working "
         "files are in %3.",
