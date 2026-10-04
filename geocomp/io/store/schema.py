@@ -697,11 +697,19 @@ def index_ddl(entry: Table, backend: str = SQLITE) -> list[str]:
 #: Per-type observation views. ``specs/17`` section 2 asks for "observações (por
 #: tipo)" as convenient querying, and a view gives exactly that without the
 #: table-per-type schema that would need a migration for every new type.
-def view_ddl(observation_types: list[str], backend: str = SQLITE) -> list[str]:
-    """One view per observation type, over the single observation table."""
-    del backend
+def view_ddl(
+    observation_types: list[str], backend: str = SQLITE, *, replace: bool = False
+) -> list[str]:
+    """One view per observation type, over the single observation table.
+
+    *replace* is a migration's, on PostgreSQL only: it expands a view's ``*``
+    when the view is created, so a column added to ``gc_observation`` reaches
+    the views only when they are made again. SQLite expands it each time the
+    view is read, and has no ``OR REPLACE``.
+    """
+    verb = "CREATE OR REPLACE VIEW" if replace and backend == POSTGRES else "CREATE VIEW"
     return [
-        f"CREATE VIEW {quoted('gc_observation_' + name.lower())} AS "
+        f"{verb} {quoted('gc_observation_' + name.lower())} AS "
         f"SELECT * FROM {quoted('gc_observation')} WHERE {quoted('type')} = '{name}'"
         for name in observation_types
     ]

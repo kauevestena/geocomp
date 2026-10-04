@@ -729,9 +729,11 @@ class TestVersioning:
         connection = sqlite3.connect(path)
         report = migrate(connection, path, found=5)
         stored_provenance = list(connection.execute('SELECT provenance FROM "gc_observation"'))
+        in_view = {row[1] for row in connection.execute('PRAGMA table_info("gc_observation_direction")')}
         connection.close()
 
         assert report.steps == ["6: gc_observation gains provenance"]
+        assert "provenance" in in_view  # SQLite expands a view's * when it is read
         assert stored_provenance and all(row == (None,) for row in stored_provenance)
         with open_store(path) as store:
             reopened = store.read()

@@ -40,6 +40,7 @@ from geocomp.core.models import (
     GnssSession,
     HeightType,
     Network,
+    ObservationType,
     Position,
     Project,
     Station,
@@ -57,6 +58,7 @@ from geocomp.io.store import (
     open_postgis_store,
     open_store,
 )
+from geocomp.io.store.schema import POSTGRES, view_ddl
 from geocomp.io.store.transfer import logical_rows
 
 try:
@@ -392,7 +394,11 @@ class TestVersioning:
             store._execute('ALTER TABLE "gc_project" DROP COLUMN "revision"')
             store._execute('ALTER TABLE "gc_network_member" DROP COLUMN "ordinal"')
             store._execute('ALTER TABLE "gc_provenance" DROP COLUMN "strategies"')
-            store._execute('ALTER TABLE "gc_observation" DROP COLUMN "provenance"')
+            # The per-type views select every column, so the column goes with
+            # them, and they are made again as a store before schema 6 had them.
+            store._execute('ALTER TABLE "gc_observation" DROP COLUMN "provenance" CASCADE')
+            for statement in view_ddl([kind.name for kind in ObservationType], POSTGRES):
+                store._execute(statement)
             store._execute('UPDATE "gc_project" SET schema_version = 3')
 
         with pytest.raises(DataError) as caught:
@@ -405,6 +411,14 @@ class TestVersioning:
             backup = report.backup
             kept = store._execute(f'SELECT schema_version FROM "{backup}"."gc_project"').fetchone()
             revision = store._stored_revision()
+            in_view = {
+                row[0]
+                for row in store._execute(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_schema = ? AND table_name = 'gc_observation_direction'",
+                    (schema,),
+                ).fetchall()
+            }
         assert report.steps == [
             "4: gc_project gains revision; gc_network_member gains ordinal",
             "5: gc_provenance gains strategies",
@@ -413,6 +427,9 @@ class TestVersioning:
         assert backup.startswith(schema + "_backup_")
         assert kept[0] == 3
         assert revision == 0
+        # PostgreSQL fixed the views' columns when they were made; schema 6's
+        # migration makes them again, so a migrated store shows what a new one does.
+        assert "provenance" in in_view
         assert set(back.networks) == set(project.networks)
 
 
