@@ -508,7 +508,7 @@ without a row.
 | FR-095 | **met** | As 18.5 |
 | FR-100 | **met** | `tests/test_models.py::TestProjectSerialisation`, `tests/test_models.py::TestGnssSession` |
 | FR-101 | **met** | `tests/test_models.py::TestStation` |
-| FR-102 | **partly met** | Type, stations, values with their uncertainty, epoch and instrument (`tests/test_models.py::TestObservation`). No `provenance`: [`04`](./04-data-model.md) §2.5 lists it, `Observation` has no such field and the store no such column, and only the levelling book records the source row, in `meta`. Adding it needs a schema migration |
+| FR-102 | **partly met** | Type, stations, values with their uncertainty, epoch and instrument (`tests/test_models.py::TestObservation`). Since P12c-19 an observation also carries its provenance: the reader or reduction, the file and the records, in network documents and in both stores, schema 6 (`tests/test_observation_provenance.py`, `tests/test_project_store.py`). It is recorded by the four file readers, checked against the line each one names, and by the total-station chain through its files to the field book's rows (`tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain::test_each_observation_names_its_field_book_rows`), and by GNSS, design and benchmark observations. Levelling and gravimetry observations do not carry it yet: their documents do not carry their source (P12c-20) |
 | FR-103 | **met** | `tests/test_models.py::TestObservationTypeRegistry` |
 | FR-104 | **met** | `tests/test_models.py::TestCluster`; stored and reloaded bit-identical, As 17.9 |
 | FR-105 | **met** | `tests/test_models.py::TestEpoch`; refused where needed rather than assumed, e.g. `tests/test_dynadjust_pipeline.py::TestTheJob::test_a_job_without_a_frame_or_epoch_is_refused` |

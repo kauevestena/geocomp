@@ -34,6 +34,7 @@ __all__ = [
     "Cluster",
     "ClusterKind",
     "Observation",
+    "ObservationSource",
     "ObservationStatus",
     "ObservationType",
     "ObservationTypeSpec",
@@ -316,6 +317,59 @@ class RejectionRecord:
 
 
 @dataclass(frozen=True)
+class ObservationSource:
+    """Where one observation came from (FR-102; ``specs/04`` section 2.5).
+
+    An adjusted network is only as explicable as its observations: a residual
+    that stands out has to lead back to the line of the field book or the
+    record of the file it came from, or nobody can check it. Until P12c-19 an
+    observation recorded none of this, except a levelling reading's row in its
+    ``meta``.
+
+    Attributes:
+        reader: What made it. Either the format it was read from (``"dna"``,
+            ``"dynaml"``, ``"krumm"``, ``"adjust"``), or the reduction that made
+            it from field readings (``"total_station"``, ``"levelling"``,
+            ``"gravimetry"``, ``"gnss"``), or ``"design"`` for one a pre-analysis
+            planned rather than measured.
+        file: The name of the file it was read from, or of the field file its
+            readings were. Empty when it came from no file.
+        records: Where in that file, in the reader's own words: rows of a
+            field book, lines of a text file, setups, occupations, sessions.
+    """
+
+    reader: str
+    file: str = ""
+    records: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.reader:
+            raise DataError(
+                "observation_source_without_reader",
+                expected="what made the observation: a file format or a reduction",
+            )
+        object.__setattr__(self, "records", tuple(str(record) for record in self.records))
+
+    def to_dict(self) -> dict[str, Any]:
+        """The JSON form, as a network document and the store's column keep it."""
+        payload: dict[str, Any] = {"reader": self.reader}
+        if self.file:
+            payload["file"] = self.file
+        if self.records:
+            payload["records"] = list(self.records)
+        return payload
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> ObservationSource:
+        """Read back what :meth:`to_dict` wrote."""
+        return cls(
+            reader=payload["reader"],
+            file=payload.get("file", ""),
+            records=tuple(payload.get("records", ())),
+        )
+
+
+@dataclass(frozen=True)
 class Observation:
     """One measurement relating one or more stations (FR-102).
 
@@ -331,6 +385,9 @@ class Observation:
             instrument rather than from the mark.
         target_height: Height of the reflector or target above the mark it
             stands on.
+        provenance: Where it came from (:class:`ObservationSource`). ``None``
+            for an observation read from a store or a document written before
+            P12c-19, which recorded none: absent, not invented.
 
     **The two heights are geometry, not a correction the reader can apply.** A
     slope distance runs from the trunnion axis to the reflector, and reducing it
@@ -358,6 +415,7 @@ class Observation:
     status: ObservationStatus = ObservationStatus.ACTIVE
     rejection: RejectionRecord | None = None
     meta: dict[str, Any] = field(default_factory=dict)
+    provenance: ObservationSource | None = None
 
     def __post_init__(self) -> None:
         spec = OBSERVATION_TYPES[self.type]
@@ -501,6 +559,7 @@ class Observation:
             ("target_height", self.target_height.to_dict() if self.target_height else None),
             ("rejection", self.rejection.to_dict() if self.rejection else None),
             ("meta", dict(self.meta) if self.meta else None),
+            ("provenance", self.provenance.to_dict() if self.provenance else None),
         ):
             if value is not None:
                 payload[key] = value
@@ -512,6 +571,7 @@ class Observation:
         rejection = payload.get("rejection")
         instrument_height = payload.get("instrument_height")
         target_height = payload.get("target_height")
+        provenance = payload.get("provenance")
         return cls(
             id=payload["id"],
             type=ObservationType[payload["type"]],
@@ -528,6 +588,7 @@ class Observation:
             status=ObservationStatus[payload["status"]],
             rejection=RejectionRecord.from_dict(rejection) if rejection else None,
             meta=dict(payload.get("meta", {})),
+            provenance=ObservationSource.from_dict(provenance) if provenance else None,
         )
 
 

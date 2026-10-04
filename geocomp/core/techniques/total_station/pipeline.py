@@ -38,6 +38,7 @@ from geocomp.core.models import (
     HeightType,
     Network,
     Observation,
+    ObservationSource,
     ObservationType,
     Position,
     Station,
@@ -114,6 +115,9 @@ class ProcessedPointing:
             sight ran mark to mark (``specs/09`` section 2.5).
         target_height: The reflector's, for the same reason. Per pointing, since
             a setup may sight targets at different heights.
+        records: The field-book records of the readings it was reduced from,
+            both faces of a pair: the observations it becomes name them as
+            their provenance (FR-102).
     """
 
     station: str
@@ -124,6 +128,7 @@ class ProcessedPointing:
     findings: tuple[Finding, ...] = ()
     instrument_height: Quantity | None = None
     target_height: Quantity | None = None
+    records: tuple[str, ...] = ()
 
     @property
     def is_usable(self) -> bool:
@@ -212,7 +217,14 @@ def preprocess_setup(
         reductions.append(reduction)
         pointings.append(
             _finish_pointing(
-                setup, reduction, instrument, reflector, conditions, options, pair.direct.target_height
+                setup,
+                reduction,
+                instrument,
+                reflector,
+                conditions,
+                options,
+                pair.direct.target_height,
+                _records(pair.direct, pair.reverse),
             )
         )
 
@@ -221,7 +233,14 @@ def preprocess_setup(
         reductions.append(reduction)
         pointings.append(
             _finish_pointing(
-                setup, reduction, instrument, reflector, conditions, options, single.target_height
+                setup,
+                reduction,
+                instrument,
+                reflector,
+                conditions,
+                options,
+                single.target_height,
+                _records(single),
             )
         )
 
@@ -235,6 +254,10 @@ def preprocess_setup(
     )
 
 
+def _records(*readings) -> tuple[str, ...]:
+    return tuple(reading.record for reading in readings if reading.record)
+
+
 def _finish_pointing(
     setup: Setup,
     reduction: FaceReduction,
@@ -243,6 +266,7 @@ def _finish_pointing(
     atmosphere: Atmosphere | None,
     options: PreprocessingOptions,
     target_height: Quantity | None,
+    records: tuple[str, ...] = (),
 ) -> ProcessedPointing:
     """Instrument corrections, then EDM, then atmosphere, then basic reduction."""
     corrected = apply_instrument_corrections(reduction, instrument)
@@ -291,11 +315,12 @@ def _finish_pointing(
         findings=tuple(findings),
         instrument_height=setup.instrument_height,
         target_height=target_height,
+        records=records,
     )
 
 
 def to_observations(
-    result: SetupResult, *, prefix: str = "", dimension: int = 2
+    result: SetupResult, *, prefix: str = "", dimension: int = 2, source_file: str = ""
 ) -> tuple[list[Observation], list[Cluster]]:
     """Turn a processed setup into observations an adjustment can take.
 
@@ -323,6 +348,9 @@ def to_observations(
     Only usable pointings are converted. A pair with a blocking finding is left
     out, so a known-bad number cannot acquire a residual and a standard
     deviation as though it were real.
+
+    Each observation records where it came from (FR-102): *source_file*, the
+    field book the readings were imported from, and the rows of its pointing.
     """
     if dimension not in (1, 2, 3):
         raise ValidationError(
@@ -345,6 +373,13 @@ def to_observations(
 
     for pointing in result.usable:
         target = pointing.target
+        # FR-102: the rows of the field book the pointing was reduced from, or,
+        # for readings that carried none, the setup and target that name it.
+        source = ObservationSource(
+            "total_station",
+            source_file,
+            pointing.records or (f"station {result.station}", f"target {target}"),
+        )
 
         if dimension in (2, 3):
             direction_id = f"{tag}-dir-{target}"
@@ -353,6 +388,7 @@ def to_observations(
                     id=direction_id,
                     type=ObservationType.DIRECTION,
                     stations=(result.station, target),
+                    provenance=source,
                     values=(pointing.reduction.horizontal,),
                     cluster_id=cluster_id,
                     # The setup owns the orientation unknown these directions
@@ -381,6 +417,7 @@ def to_observations(
                     id=f"{tag}-zen-{target}",
                     type=ObservationType.ZENITH_ANGLE,
                     stations=(result.station, target),
+                    provenance=source,
                     values=(pointing.reduction.zenith,),
                     **heights,
                 )
@@ -391,6 +428,7 @@ def to_observations(
                         id=f"{tag}-sd-{target}",
                         type=ObservationType.SLOPE_DISTANCE,
                         stations=(result.station, target),
+                        provenance=source,
                         values=(pointing.reduction.distance,),
                         **heights,
                     )
@@ -401,6 +439,7 @@ def to_observations(
                     id=f"{tag}-hd-{target}",
                     type=ObservationType.HORIZONTAL_DISTANCE,
                     stations=(result.station, target),
+                    provenance=source,
                     values=(pointing.basic.horizontal_distance.detached(),),
                 )
             )
@@ -410,6 +449,7 @@ def to_observations(
                     id=f"{tag}-dh-{target}",
                     type=ObservationType.HEIGHT_DIFFERENCE,
                     stations=(result.station, target),
+                    provenance=source,
                     values=(pointing.basic.height_difference.detached(),),
                 )
             )
@@ -444,6 +484,7 @@ def build_network(
     dimension: int = 2,
     fixed: dict[str, tuple[float, float, float]] | None = None,
     coordinate_sigma: float = 1.0,
+    source_file: str = "",
 ) -> Network:
     """Assemble processed setups into a network the P2 core can adjust (FR-409).
 
@@ -465,6 +506,8 @@ def build_network(
         coordinate_sigma: Standard deviation attached to the approximate
             coordinates. It affects nothing in a fixed-or-free adjustment; it is
             here so that a weighted-constraint solution has something to weight.
+        source_file: The field book the readings were imported from, which
+            every observation names as its provenance (FR-102).
 
     Returns:
         The network. **Not adjusted** -- that is
@@ -491,7 +534,9 @@ def build_network(
         )
 
     for result in results:
-        observations, clusters = to_observations(result, dimension=dimension)
+        observations, clusters = to_observations(
+            result, dimension=dimension, source_file=source_file
+        )
         for observation in observations:
             if all(station in network.stations for station in observation.stations):
                 network.add_observation(observation)

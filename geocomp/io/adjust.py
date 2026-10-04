@@ -105,8 +105,8 @@ class AdjustReport:
         return self.declared == self.found
 
 
-def _lines(path: Path) -> list[str]:
-    """The file's non-blank lines, decoded and stripped of line endings.
+def _lines(path: Path) -> list[tuple[int, str]]:
+    """The file's non-blank lines, decoded and stripped, each with its number from 1.
 
     The corpus is CRLF and Latin-1 -- Portuguese network names carry accents --
     so neither is assumed. UTF-8 is tried first because a file written today
@@ -117,7 +117,11 @@ def _lines(path: Path) -> list[str]:
         text = raw.decode("utf-8")
     except UnicodeDecodeError:
         text = raw.decode("latin-1")
-    return [line.strip() for line in text.replace("\r\n", "\n").split("\n") if line.strip()]
+    return [
+        (number, line.strip())
+        for number, line in enumerate(text.replace("\r\n", "\n").split("\n"), start=1)
+        if line.strip()
+    ]
 
 
 def _number(token: str, *, what: str, line: str, path: Path) -> float:
@@ -150,7 +154,8 @@ def read_adjust(path: str | Path, *, accept_count_mismatch: bool = False) -> Adj
     an independent test rather than a restatement of the input.
     """
     path = Path(path)
-    lines = _lines(path)
+    numbered = _lines(path)
+    lines = [line for _number, line in numbered]
     if len(lines) < 2:
         raise DataError(
             "adjust_file_too_short",
@@ -254,11 +259,14 @@ def read_adjust(path: str | Path, *, accept_count_mismatch: bool = False) -> Adj
 
     known = set(network.stations)
     rows = body[n_total:]
+    row_numbers = [number for number, _line in numbered[2 + n_total :]]
     plan: list[tuple[str, tuple[str, ...]]] = []
     distances = angles = 0
     valued = 0
+    spans: list[tuple[int, int, tuple[str, ...]]] = []
 
-    for row in rows:
+    for number, row in zip(row_numbers, rows, strict=True):
+        held = len(network.observations)
         tokens = row.split()
         if len(tokens) in (2, 4):
             kind, names, distances = "distance", tuple(tokens[:2]), distances + 1
@@ -333,6 +341,7 @@ def read_adjust(path: str | Path, *, accept_count_mismatch: bool = False) -> Adj
                     ),
                 )
             )
+        spans.append((held, len(network.observations), (f"line {number}",)))
 
     if valued not in (0, len(rows)):
         raise DataError(
@@ -362,6 +371,7 @@ def read_adjust(path: str | Path, *, accept_count_mismatch: bool = False) -> Adj
             ),
         )
 
+    network.record_provenance(spans, reader="adjust", file=path.name)
     return AdjustReport(
         network=network,
         title=title,

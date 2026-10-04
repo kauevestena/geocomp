@@ -51,6 +51,7 @@ from geocomp.core.models import (
     Cluster,
     ClusterKind,
     Observation,
+    ObservationSource,
     ObservationType,
 )
 from geocomp.core.models.observation import BASELINE_FRAME_KEY
@@ -653,6 +654,7 @@ def to_cluster(baselines: list[Baseline], *, cluster_id: str) -> tuple[list[Obse
                 values=baseline.components,
                 cluster_id=cluster_id,
                 meta={**baseline.meta, BASELINE_FRAME_KEY: frame.value},
+                provenance=_source(baseline),
             )
         )
 
@@ -710,3 +712,18 @@ def _weakest(baselines: list[Baseline]) -> UncertaintyMode:
     if UncertaintyMode.APPROXIMATE in modes:
         return UncertaintyMode.APPROXIMATE
     return next(iter(modes))
+
+
+def _source(baseline: Baseline) -> ObservationSource:
+    """Where a baseline came from (FR-102): the engine's solution file and the
+    two sessions it joins, or the baseline's own id where neither is known."""
+    sessions = tuple(
+        f"session {session}"
+        for session in (baseline.base_session, baseline.rover_session)
+        if session
+    )
+    return ObservationSource(
+        "gnss",
+        str(baseline.meta.get("solution_file", "") or ""),
+        sessions or (f"baseline {baseline.id}",),
+    )

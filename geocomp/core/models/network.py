@@ -11,13 +11,20 @@ network can draw on several campaigns.
 
 from __future__ import annotations
 
+import dataclasses
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
 from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.epoch import Epoch
-from geocomp.core.models.observation import BaselineFrame, Cluster, Observation
+from geocomp.core.models.observation import (
+    BaselineFrame,
+    Cluster,
+    Observation,
+    ObservationSource,
+)
 from geocomp.core.models.station import Station
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -246,6 +253,30 @@ class Network:
         if cluster.id in self.clusters:
             raise DataError("duplicate_cluster", cluster=cluster.id, network=self.id)
         self.clusters[cluster.id] = cluster
+
+    def record_provenance(
+        self,
+        spans: Iterable[tuple[int, int, tuple[str, ...]]],
+        *,
+        reader: str,
+        file: str = "",
+    ) -> None:
+        """Say where observations came from, by the order they were added (FR-102).
+
+        A reader knows which record of its file it is reading, and how many
+        observations the network held before and after it. Each span is
+        ``(first, end, records)``: the observations added at positions *first*
+        to *end* - 1 came from *records*. They are assigned in one pass at the
+        end, so a reader of a large file does not search the network once per
+        record.
+        """
+        identifiers = list(self.observations)
+        for first, end, records in spans:
+            source = ObservationSource(reader, file, records)
+            for identifier in identifiers[first:end]:
+                self.observations[identifier] = dataclasses.replace(
+                    self.observations[identifier], provenance=source
+                )
 
     # -- queries ---------------------------------------------------------
 

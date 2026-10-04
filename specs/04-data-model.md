@@ -116,16 +116,36 @@ gravity is there.
 | `target_height` | `Quantity` \| None | Reflector or target above the mark |
 | `status` | enum | `ACTIVE`, `REJECTED`, `EXCLUDED` |
 | `rejection` | `RejectionRecord` \| None | Why, by which test, when, by whom (FR-255) |
-| `provenance` | `Provenance` | Where this observation came from |
+| `provenance` | `ObservationSource` \| None | Where it came from: the reader or reduction, the file, the records. See below |
 | `meta` | mapping | Weather, target type, notes |
 
 `REJECTED` means a statistical test rejected it (FR-251); `EXCLUDED` means a human removed it. Both are
 reversible and neither deletes the record (FR-255, FR-135).
 
-**Not built: `provenance`.** The table above lists it, and P12c-13's requirement audit found that
-`Observation` has no such field and the store no such column. What an observation records of its origin is
-the source row, in `meta`, and only from the levelling book. FR-102 is partly met until it exists, which
-needs a schema migration ([`20`](./20-testing-and-validation.md) §11).
+**As built (P12c-19): `provenance`.** P12c-13's requirement audit found that `Observation` had no such field
+and the store no such column. Only a levelling reading recorded its source row, in `meta`. Now an observation
+carries an `ObservationSource`:
+
+| Field | Meaning |
+|---|---|
+| `reader` | What made it: the format it was read from (`dna`, `dynaml`, `krumm`, `adjust`), the reduction that made it from field readings (`total_station`, `levelling`, `gravimetry`, `gnss`), `design` for one a pre-analysis planned, or `integration` for a benchmark height the combination made from a constraint |
+| `file` | The name of the file it was read from, or of the field file its readings were. Empty when there is none |
+| `records` | Where in that file, in the reader's words: `line 40` or `lines 12-24` of a text format, `DnaMeasurement 7` of DynaML, `row 12` and `row 13` of a field book (both faces of a pair), `session …` for a GNSS baseline |
+
+It travels in a network document's JSON and in `gc_observation.provenance` (schema 6,
+[`17`](./17-persistence-and-interoperability.md) §3). It is `None`, never invented, for an observation read
+from a document or a store written before it existed.
+
+**Through the files.** A total-station observation is made three algorithms after its field book was read.
+*Import field book* writes each reading's row and the book's name into the readings document. *Generalised
+pre-processing* writes each pointing's rows and the name into the reductions document. *Classical network*
+puts them on the observation. The four file readers record the line or record each observation came from, in
+one pass after reading, so a large file costs no more to read.
+
+**Not yet: levelling and gravimetry.** Their observations are made from documents that do not yet carry
+their source: a line from its level book's rows, and a gravity difference from its readings. That is P12c-20,
+together with a test, for each technique, that the network built through the files equals the one built in
+memory. The 3D defect P12c-18 found was of exactly that kind.
 
 #### 2.5.1 The frame of a GNSS baseline **[V]**
 

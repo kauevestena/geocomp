@@ -413,4 +413,6 @@ def _reading_dict(reading) -> dict[str, Any]:
         payload["target_height"] = reading.target_height.to_dict()
     if reading.extra:
         payload["extra"] = dict(reading.extra)
+    if reading.record:
+        payload["record"] = reading.record
     return payload

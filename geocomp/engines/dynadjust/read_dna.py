@@ -129,11 +129,20 @@ def _header(lines: list[str], path: str | Path) -> DnaHeader:
 
 def _content(lines: list[str]) -> list[str]:
     """Data lines: not the header, not a ``*`` comment, not blank."""
-    return [
-        line
-        for line in lines
-        if line.strip() and not line.startswith("*") and not line.startswith("!#=")
-    ]
+    return [line for line in lines if _is_content(line)]
+
+
+def _content_line_numbers(lines: list[str]) -> list[int]:
+    """The file's own line number of each line :func:`_content` keeps, from 1."""
+    return [number for number, line in enumerate(lines, start=1) if _is_content(line)]
+
+
+def _is_content(line: str) -> bool:
+    return bool(line.strip()) and not line.startswith("*") and not line.startswith("!#=")
+
+
+def _lines_label(first: int, last: int) -> str:
+    return f"line {first}" if first == last else f"lines {first}-{last}"
 
 
 def read_dna_stations(
@@ -204,12 +213,15 @@ def read_dna_measurements(
     report.epoch = report.epoch or header.epoch
 
     rows = _content(lines)
+    numbers = _content_line_numbers(lines)
+    spans: list[tuple[int, int, tuple[str, ...]]] = []
     index = 0
     counter = 0
     while index < len(rows):
         line = rows[index]
         code = _field(line, 1, 1).upper()
         label = f"{code or '?'}#{counter}"
+        start, held = index, len(network.observations)
 
         if code in UNMAPPED:
             report.skipped.append((label, UNMAPPED[code]))
@@ -233,7 +245,11 @@ def read_dna_measurements(
             index += 1
         report.counts[code] = report.counts.get(code, 0) + 1
         counter += 1
+        spans.append(
+            (held, len(network.observations), (_lines_label(numbers[start], numbers[index - 1]),))
+        )
 
+    network.record_provenance(spans, reader="dna", file=Path(path).name)
     return report
 
 

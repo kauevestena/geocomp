@@ -37,6 +37,7 @@ from geocomp.core.models import (
     HeightType,
     Network,
     Observation,
+    ObservationSource,
     ObservationType,
     Position,
     Station,
@@ -238,6 +239,7 @@ class DesignSession:
                 values=(Quantity.from_std_dev(0.0, precision, unit),),
                 cluster_id=cluster_id,
                 meta={"planned": True},
+                provenance=ObservationSource("design"),
             )
         )
         if cluster_id is not None:

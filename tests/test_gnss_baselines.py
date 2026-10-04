@@ -355,6 +355,18 @@ class TestTheClusterReachesAnAdjustment:
         assert cluster.covariance.size == 3
         assert cluster.covariance.labels == ("m0.x", "m0.y", "m0.z")
 
+    def test_each_baseline_names_the_solution_it_was_formed_from(self, ecef_baseline):
+        """FR-102: the engine's solution file, and the sessions when they are known."""
+        from dataclasses import replace
+
+        (observation,), _cluster = to_cluster([ecef_baseline], cluster_id="c1")
+        assert observation.provenance.reader == "gnss"
+        assert observation.provenance.file == "xyz.pos"
+        assert observation.provenance.records == ("baseline b1",)
+        sessions = replace(ecef_baseline, base_session="3040-277", rover_session="0759-277")
+        (observation,), _cluster = to_cluster([sessions], cluster_id="c1")
+        assert observation.provenance.records == ("session 3040-277", "session 0759-277")
+
     def test_two_baselines_carry_a_six_by_six(self, ecef_baseline):
         second = _synthetic("b2", "3040", "9999")
         observations, cluster = to_cluster([ecef_baseline, second], cluster_id="c1")

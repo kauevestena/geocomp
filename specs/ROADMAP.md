@@ -2425,6 +2425,23 @@ and carries both heights. A 3D network refuses a version 1 document and says to 
 **Not done.** Documents written before P12c-18 are not upgraded. They are refused for 3D, and pre-processing
 again is all that a 3D network needs.
 
+#### P12c-19 — where an observation came from (FR-102, first part)
+
+P12c-13's audit found that an observation recorded none of its origin, except a levelling reading's row in
+`meta`. Specs/04 §2.5 listed a `provenance` field that did not exist.
+
+**Delivered** ([`04`](./04-data-model.md) §2.5, *As built (P12c-19)*).
+
+| | |
+|---|---|
+| The record | `ObservationSource`: the reader or reduction that made the observation, the file, and the records in it. It is carried in network documents and in `gc_observation.provenance`, schema 6, with its migration on both backends. It is `None`, never invented, for anything written before |
+| The file readers | DNA, DynaML, Krumm and Adjust record the line or record of each observation, assigned in one pass after reading. The test checks every one against the file: the line it names holds the observation's first station |
+| The total station, through the files | Each field-book row reaches the observation: reading, pointing, readings document, reductions document, network. A face pair names both of its rows. Checked in memory against RD-01's rows and in QGIS through the three algorithms |
+| GNSS, design, benchmarks | A baseline names the engine's solution file and its two sessions. A pre-analysis observation is `design`. A benchmark height the combination makes from a constraint is `integration` |
+
+**Not done.** Levelling and gravimetry observations carry no provenance yet. Their documents do not carry
+their source, so FR-102 stays partly met until P12c-20.
+
 ---
 
 ## P13 — Validation, documentation and release

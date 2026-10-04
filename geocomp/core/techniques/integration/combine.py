@@ -97,6 +97,7 @@ from geocomp.core.models import (
     HeightType,
     Network,
     Observation,
+    ObservationSource,
     ObservationType,
     Position,
     Station,
@@ -694,6 +695,8 @@ class _Context:
             stations=(station.id,),
             values=(replace(height, variance=variance),),
             meta={TECHNIQUE_KEY: "levelling", "benchmark": True},
+            # Made here from the benchmark's own constraint, not read from a file.
+            provenance=ObservationSource("integration", records=(f"benchmark {station.id}",)),
         )
 
     def _approximate(self, station_id: str, position: Position) -> Position | None:

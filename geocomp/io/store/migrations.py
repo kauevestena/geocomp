@@ -34,7 +34,14 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from geocomp.core.errors import DataError, ValidationError
-from geocomp.io.store.schema import POSTGRES, SCHEMA_VERSION, SQLITE, physical_type, table
+from geocomp.io.store.schema import (
+    POSTGRES,
+    SCHEMA_VERSION,
+    SQLITE,
+    physical_type,
+    table,
+    view_ddl,
+)
 
 __all__ = [
     "MIGRATIONS",
@@ -319,3 +326,32 @@ def _provenance_strategies(target: MigrationTarget) -> None:
     provenance as it is read.
     """
     _add_column(target, "gc_provenance", "strategies")
+
+
+@register(6, "gc_observation gains provenance")
+def _observation_provenance(target: MigrationTarget) -> None:
+    """Record where each observation came from (FR-102; P12c-19).
+
+    The column is added empty and nothing is back-filled. An observation stored
+    before it was read from a file or reduced from readings that the store
+    never knew, and a provenance made up afterwards would point a user at the
+    wrong line of the wrong field book.
+    """
+    _add_column(target, "gc_observation", "provenance")
+    _refresh_observation_views(target)
+
+
+def _refresh_observation_views(target: MigrationTarget) -> None:
+    """Make the per-type observation views again, on PostgreSQL (P12c-19).
+
+    PostgreSQL expands a view's ``SELECT *`` when the view is created, so the
+    views of a migrated store would not show a column added to
+    ``gc_observation`` after them, and the store would differ from a new one.
+    SQLite expands it each time the view is read, so its views already do.
+    """
+    if target.backend != POSTGRES:
+        return
+    from geocomp.core.models import ObservationType
+
+    for statement in view_ddl([kind.name for kind in ObservationType], POSTGRES, replace=True):
+        target.execute(statement)

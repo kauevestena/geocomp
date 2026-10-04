@@ -3883,6 +3883,10 @@
             <translation>Una observación con %1 de %2 queda sin incertidumbre y, por tanto, con peso infinito, lo que dominaría la red. Compruebe su extensión.</translation>
         </message>
         <message>
+            <source>An observation's provenance names no reader. It must say what made the observation: a file format or a reduction.</source>
+            <translation>La procedencia de una observación no indica ningún lector. Debe decir qué produjo la observación: un formato de archivo o una reducción.</translation>
+        </message>
+        <message>
             <source>Another planned station is already named '%1'; give this one a different name.</source>
             <translation>Otra estación planificada ya se llama '%1'; dé a esta un nombre distinto.</translation>
         </message>

@@ -496,6 +496,7 @@ def _reading(
         ),
         set_number=record.set_number,
         extra=dict(record.extra),
+        record=f"row {record.row}",
     )
 
 

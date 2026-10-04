@@ -250,9 +250,11 @@ def read_measurement_file(
     report.frame = report.frame or root.get("referenceframe", "")
     report.epoch = report.epoch or root.get("epoch", "")
 
+    spans: list[tuple[int, int, tuple[str, ...]]] = []
     for index, element in enumerate(root.findall("DnaMeasurement")):
         code = (element.findtext("Type") or "").strip().upper()
         label = f"{code or '?'}#{index}"
+        held = len(network.observations)
 
         if code in UNMAPPED:
             report.skipped.append((label, UNMAPPED[code]))
@@ -267,7 +269,9 @@ def read_measurement_file(
         else:
             _read_scalar(element, code, observation_type, network, index, report)
         report.counts[code] = report.counts.get(code, 0) + 1
+        spans.append((held, len(network.observations), (f"DnaMeasurement {index + 1}",)))
 
+    network.record_provenance(spans, reader="dynaml", file=Path(path).name)
     return report
 
 

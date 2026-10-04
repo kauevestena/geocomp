@@ -630,6 +630,9 @@ class ProjectStore:
                 "target_height": _dumps(
                     observation.target_height.to_dict() if observation.target_height else None
                 ),
+                "provenance": _dumps(
+                    observation.provenance.to_dict() if observation.provenance else None
+                ),
                 "meta": _dumps(
                     {
                         **dict(observation.meta),
@@ -1086,7 +1089,11 @@ class ProjectStore:
         )
 
     def _read_observation(self, row) -> Observation:
-        from geocomp.core.models.observation import ObservationStatus, RejectionRecord
+        from geocomp.core.models.observation import (
+            ObservationSource,
+            ObservationStatus,
+            RejectionRecord,
+        )
         from geocomp.core.uncertainty import Quantity
 
         meta = _loads(row["meta"]) or {}
@@ -1095,6 +1102,7 @@ class ProjectStore:
         instrument_height = _loads(row["instrument_height"])
         target_height = _loads(row["target_height"])
         rejection = _loads(row["rejection"])
+        provenance = _loads(row["provenance"])
         return Observation(
             id=row["id"],
             type=ObservationType[row["type"]],
@@ -1111,6 +1119,7 @@ class ProjectStore:
             status=ObservationStatus[row["status"]],
             rejection=RejectionRecord.from_dict(rejection) if rejection else None,
             meta=meta,
+            provenance=ObservationSource.from_dict(provenance) if provenance else None,
         )
 
     def _read_solution(self, row) -> Solution:
