@@ -1770,6 +1770,28 @@ user as QGIS's Python error window. It now says why the file was refused, in a w
 **Not done here.** The 317 codes raised in `core/`, `reports/` and `services/`. They are next, technique by
 technique, starting with the levelling and total-station codes a user's observations reach.
 
+#### P12c-7 — every error in words (third pull request): levelling and total station
+
+**Delivered.** Templates, with pt-BR and es, for the 67 codes the levelling and total-station techniques
+raise. That leaves **281** in the baseline.
+
+- **Levelling (37).** The readings and setups of a book; lines that break or loops that do not close;
+  double-run sections and reciprocal crossings whose runs disagree; benchmarks no line reaches, or that
+  carry no height type; and a geoid model named without its grid. They reach the user through the levelling
+  algorithms.
+- **Total station (30).** Readings and face pairs; atmospheric and geometric reductions; and traverses,
+  resections and intersections that cannot be determined or do not converge. They reach the user through
+  the total-station algorithms.
+
+They follow the catalogue's existing words for survey terms. In pt-BR these are *referência de nível*,
+*circuito*, *travessia recíproca*, *interseção à ré* and *interseção à vante*, with PD/PI for the faces; es
+uses its existing equivalents.
+
+**Found.** No defect. This was writing words for codes whose checks already worked.
+
+**Not done here.** 281 codes. In `core/` the largest groups are the top level (49), the models (45), the
+instruments (39), GNSS (32) and adjustment (30). The 31 in `io/` are the reference-corpus readers.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -238,6 +238,147 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
         "expected",
     ),
+    # -- total-station readings, reductions and surveys (P12c-7) ----------------
+    "validation.setup_without_station": MessageTemplate(
+        "A setup names no station. Every setup needs the station the instrument occupied.",
+    ),
+    "validation.reading_without_target": MessageTemplate(
+        "A reading names no target. Every reading needs the station or point it sighted.",
+    ),
+    "validation.non_positive_set_number": MessageTemplate(
+        "The set number must be at least 1; %1 was given.",
+        "received",
+    ),
+    "validation.reading_wrong_unit": MessageTemplate(
+        "The %1 of a reading is in %2, where %3 was expected.",
+        "parameter",
+        "received",
+        "expected",
+    ),
+    "validation.face_pair_wrong_faces": MessageTemplate(
+        "A pair of readings has the faces %1, where face left and then face right were "
+        "expected.",
+        "received",
+    ),
+    "validation.face_pair_different_targets": MessageTemplate(
+        "The two faces of a pair point at different targets (%1); both faces of a pair sight "
+        "the same target.",
+        "received",
+    ),
+    "validation.sight_wrong_unit": MessageTemplate(
+        "The %1 of the sight to '%2' is in %3, where %4 was expected.",
+        "parameter",
+        "station",
+        "received",
+        "expected",
+    ),
+    "validation.atmosphere_wrong_unit": MessageTemplate(
+        "The %1 of the atmosphere is in %2, where %3 was expected.",
+        "parameter",
+        "received",
+        "expected",
+    ),
+    "validation.temperature_wrong_unit": MessageTemplate(
+        "The temperature is in %1; the atmospheric correction takes kelvin.",
+        "received",
+    ),
+    "validation.temperature_not_absolute": MessageTemplate(
+        "%1 is not an absolute temperature: in kelvin it must be above zero. Check the "
+        "temperature readings.",
+        "received",
+    ),
+    "validation.humidity_out_of_range": MessageTemplate(
+        "The relative humidity must lie between 0 and 1; %1 was given.",
+        "received",
+    ),
+    "validation.non_positive_wavelength": MessageTemplate(
+        "The EDM carrier wavelength must be positive, in micrometres; %1 was given. Check the "
+        "instrument profile.",
+        "received",
+    ),
+    "validation.reduction_wrong_unit": MessageTemplate(
+        "The %1 of a reduction is in %2, where %3 was expected.",
+        "parameter",
+        "received",
+        "expected",
+    ),
+    "validation.scale_factor_wrong_unit": MessageTemplate(
+        "The point scale factor is in %1; it is a dimensionless number.",
+        "received",
+    ),
+    "validation.height_below_earth_centre": MessageTemplate(
+        "A height of %1 m is below the centre of the Earth, so the reduction is impossible. "
+        "Check the station's height.",
+        "received",
+    ),
+    "validation.correlation_out_of_range": MessageTemplate(
+        "A correlation coefficient must lie between -1 and 1.",
+    ),
+    "validation.unsupported_observation_dimension": MessageTemplate(
+        "A %1-dimensional adjustment is not supported; GeoComp adjusts in 1, 2 or 3 "
+        "dimensions.",
+        "received",
+    ),
+    "validation.traverse_without_legs": MessageTemplate(
+        "The traverse has no legs. A traverse needs at least one leg between two stations.",
+    ),
+    "validation.connected_traverse_without_closing_point": MessageTemplate(
+        "A connected traverse needs the known point it arrives at, and none was given.",
+    ),
+    "validation.leg_angle_wrong_unit": MessageTemplate(
+        "The angle of the leg %1 is in %2; give it in radians.",
+        "leg",
+        "received",
+    ),
+    "validation.leg_distance_wrong_unit": MessageTemplate(
+        "The distance of the leg %1 is in %2; give it in metres.",
+        "leg",
+        "received",
+    ),
+    "validation.resection_needs_three_points": MessageTemplate(
+        "A resection needs at least three known points, and %1 were sighted: fewer cannot "
+        "fix both a position and an orientation.",
+        "received",
+    ),
+    "validation.resection_direction_to_unknown_point": MessageTemplate(
+        "The resection sights %1, which have no known position. Every point sighted in a "
+        "resection needs one.",
+        "received",
+    ),
+    "computation.resection_on_a_known_point": MessageTemplate(
+        "The resection's station falls on the known point '%1' it sights. The occupied "
+        "station must be distinct from every point sighted.",
+        "point",
+    ),
+    "computation.resection_indeterminate": MessageTemplate(
+        "The resection cannot determine the station: its equations are singular, and the "
+        "known points are not on a common circle with it. Check the directions for a "
+        "blunder.",
+    ),
+    "computation.resection_did_not_converge": MessageTemplate(
+        "The resection did not converge in %1 iterations. Check the approximate coordinates, "
+        "and the directions for a blunder.",
+        "iterations",
+    ),
+    "validation.intersection_needs_two_stations": MessageTemplate(
+        "An intersection needs at least two stations sighting the target, and %1 did.",
+        "received",
+    ),
+    "computation.intersection_on_a_station": MessageTemplate(
+        "The intersected target falls on the station '%1' that sights it. The target must be "
+        "distinct from every station sighting it.",
+        "station",
+    ),
+    "computation.intersection_indeterminate": MessageTemplate(
+        "The intersection cannot determine the point: the sightings are nearly parallel, and "
+        "rays that do not cross determine nothing however many there are. Sight it from a "
+        "station at a wider angle.",
+    ),
+    "computation.intersection_did_not_converge": MessageTemplate(
+        "The intersection did not converge in %1 iterations. Check the azimuths for a "
+        "blunder.",
+        "iterations",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

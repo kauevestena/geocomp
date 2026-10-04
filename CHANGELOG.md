@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Levelling and total-station refusals in words
+
+#### Fixed
+
+- Levelling and total-station problems in the observations are now explained in a sentence that names the
+  line, setup, loop or station. Examples are a levelling line whose backsight does not follow the last
+  foresight, a loop that does not return to its start, a benchmark no line reaches, and a resection with
+  fewer than three known points. Before, the user saw "could not complete the operation" and an internal
+  code.
+
 ### P12c-7 — File readers' refusals in words
 
 #### Fixed
