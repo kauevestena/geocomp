@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-8 — Levelling and total-station findings in the reader's language
+
+#### Fixed
+
+- What a levelling or total-station computation reports is now in Portuguese and Spanish as well as
+  English. That covers misclosures, sight balance, reciprocal crossings, the orthometric correction,
+  collimation and index checks, traverse closures and resection geometry. Its numbers are in the language's
+  decimal separator. Before, it was English with a decimal point whatever the language.
+
 ### P12c-8 — Import and inspection findings in the reader's language
 
 #### Fixed

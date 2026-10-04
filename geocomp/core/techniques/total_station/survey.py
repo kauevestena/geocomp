@@ -28,6 +28,7 @@ import numpy as np
 
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.number_format import localised
 from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import Unit, wrap_to_2pi, wrap_to_pi
 
@@ -265,6 +266,11 @@ def adjust_traverse(
                     ),
                     value=abs(angular_misclosure),
                     threshold=allowed,
+                    context={
+                        "misclosure": localised(f"{math.degrees(angular_misclosure) * 3600:.1f}"),
+                        "stations": str(len(legs)),
+                        "tolerance": localised(f"{math.degrees(allowed) * 3600:.1f}"),
+                    },
                 )
             )
         # Distribute the angular misclosure equally before the linear one, which
@@ -296,6 +302,11 @@ def adjust_traverse(
                         ),
                         value=relative_precision,
                         threshold=relative_precision_limit,
+                        context={
+                            "precision": f"{relative_precision:.0f}",
+                            "perimeter": localised(f"{perimeter.value:.1f}"),
+                            "required": f"{relative_precision_limit:.0f}",
+                        },
                     )
                 )
     else:
@@ -609,6 +620,7 @@ def _danger_circle_findings(
                         "circle and cannot fix a resection between them"
                     ),
                     stations=triple,
+                    context={"stations": list(triple)},
                 )
             )
             continue
@@ -629,6 +641,7 @@ def _danger_circle_findings(
                     stations=triple,
                     value=departure,
                     threshold=DANGER_CIRCLE_TOLERANCE,
+                    context={"stations": list(triple)},
                 )
             )
     return findings
@@ -786,6 +799,7 @@ def forward_intersection(
                     stations=tuple(sorted(sightings)),
                     value=elongation,
                     threshold=10.0,
+                    context={"target": target, "elongation": f"{elongation:.0f}"},
                 )
             )
 

@@ -195,6 +195,7 @@ def preprocess_setup(
                     "immaterial; over a kilometre a 10 degree error is 10 mm"
                 ),
                 stations=(setup.station,),
+                context={"station": setup.station},
             )
         )
 

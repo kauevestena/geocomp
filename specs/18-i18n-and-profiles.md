@@ -123,9 +123,9 @@ the core never phrases a sentence. A finding is now worded as an error is:
 
 The structural test reads findings as it reads errors. Every `Finding(...)` must name its template and
 context keys where the test can read them: a literal code or `wording`, and a dict literal for `context`. Its
-template must interpolate only those keys. The findings still without words are frozen in
-`tests/structural/unworded_findings.py`, which may only shrink. They are the techniques' own: levelling and
-the total station.
+template must interpolate only those keys. P12c-8 froze the 65 findings it found without words in a list that
+could only shrink. Two pull requests later the list was empty and was removed, so **a finding has no exemption
+either**: it arrives with its words, as an error does.
 
 ## 3. Terminology (FR-093)
 

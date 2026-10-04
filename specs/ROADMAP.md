@@ -1976,7 +1976,7 @@ every language. The P12c-7 records named this gap.
     the same in every language (FR-095).
 - **The ratchet.** `tests/structural/test_message_templates.py` reads every `Finding(...)` beside every
   `*Error(...)`.
-  - A finding's template must exist, unless its code is in `tests/structural/unworded_findings.py`, and
+  - A finding's template must exist, unless its code is in a baseline list that may only shrink, and
     must interpolate only the keys its `context` literal supplies.
   - A construction whose template or keys cannot be read from the source fails.
   - The specs/20 register row says so.
@@ -1997,10 +1997,49 @@ every language. The P12c-7 records named this gap.
 - **The pre-analysis refusal had two mechanisms.** P12c-7 added `SessionState.error` to word a refused
   design. The finding now carries the refusal itself, and that field is gone.
 
-**Not done here.** 42 findings, all the techniques' own, are frozen in `unworded_findings.py`: levelling (25)
+**Not done here.** 42 findings, all the techniques' own, are frozen in the baseline: levelling (25)
 and the total station (17). They are the misclosures, balances, collimation and index checks, the
 orthometric correction and the resection's geometry. Their sentences hold numbers the core formats in place,
 so each needs its values moved into a context.
+
+#### P12c-8 — every finding in words (second pull request): the techniques
+
+**Delivered.** The last 42 findings get context and templates, with pt-BR and es. The baseline is empty and
+removed, and the structural test now fails on **any** finding without a template, as on any error (specs/18
+§2).
+
+- **Levelling (25).**
+  - Closures: out of tolerance; not judged, with three sentences for its three reasons and one code; beyond
+    or within their own precision.
+  - Lines: length unknown, accumulated imbalance, exactly balanced, very short.
+  - Setups and sights: no distances, too long, out of balance, imbalance with no level profile.
+  - Reciprocal crossings: variance inflated or not; banks that disagree.
+  - The network: side shots, the weighting, a free network, trigonometric differences joined, a benchmark
+    converted through the geoid, setups clustered.
+  - The orthometric correction, applied or negligible; and the three-wire half-sum.
+- **The total station (17).**
+  - Face pairs: collimation and vertical index beyond tolerance or drifting, distance discrepancy, single
+    face.
+  - The near-vertical sight, and the instrument applying the EDM or prism constant itself.
+  - Leap-frog imbalance and missing atmospheric data.
+  - Traverses: angular misclosure, relative precision, open traverse.
+  - Resection and intersection geometry: collinear points, the danger circle, weak geometry.
+
+Every number in a finding's sentence is now in its context, written for the reader with the display
+locale's separator (FR-094). Until now the core formatted these numbers with a point inside its English.
+
+A word the core cannot translate is no longer interpolated. A closure's "line", "loop" or "section" and the
+type a geoid conversion went to are now said in the sentence. Where they vary, a separate wording carries
+them. The structural test's placeholders went from `%6` to `%9`, because the geoid conversion's sentence
+needs seven.
+
+**Found.** No defect beyond the English itself. The `three_wire_half_sum` label was English assembled by the
+caller (`"{station} in setup {id}"`); `check()` now takes the station and the setup apart.
+
+**Not done here.** Nothing of P12c-8 remains. Two smaller English remnants, recorded rather than widened in:
+
+- the `problems` of `network_integrity` (an error), interpolated into its translated sentence;
+- the `expected` text some errors carry from the core.
 
 ---
 

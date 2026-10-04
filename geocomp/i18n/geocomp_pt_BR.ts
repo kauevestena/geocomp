@@ -3023,6 +3023,30 @@
             <translation>%1 não é uma temperatura absoluta: em kelvin ela deve ser maior que zero. Verifique as leituras de temperatura.</translation>
         </message>
         <message>
+            <source>%1 misclosed by %2 mm over %3 km, beyond the %4 mm permitted by class %5. GeoComp will not adjust a line that failed its tolerance without an explicit acknowledgement.</source>
+            <translation>%1 tem erro de fechamento de %2 mm em %3 km, além dos %4 mm permitidos pela classe %5. O GeoComp não ajusta uma linha que falhou na tolerância sem uma confirmação explícita.</translation>
+        </message>
+        <message>
+            <source>%1 misclosed by %2 mm, %3 times its own propagated standard deviation. That is consistent with accumulated random error, which is the case proportional distribution is correct for.</source>
+            <translation>%1 tem erro de fechamento de %2 mm, %3 vezes o seu próprio desvio-padrão propagado. Isso é compatível com erro aleatório acumulado, que é o caso para o qual a distribuição proporcional é correta.</translation>
+        </message>
+        <message>
+            <source>%1 misclosed by %2 mm, which has not been judged against a tolerance because no levelling class was given. The misclosure is reported; whether it is acceptable is not.</source>
+            <translation>%1 tem erro de fechamento de %2 mm, que não foi julgado contra uma tolerância porque nenhuma classe de nivelamento foi informada. O erro de fechamento é relatado; se é aceitável, não.</translation>
+        </message>
+        <message>
+            <source>%1 misclosed by %2 mm, which has not been judged against a tolerance because no sight distances were recorded, so its length is unknown. The misclosure is reported; whether it is acceptable is not.</source>
+            <translation>%1 tem erro de fechamento de %2 mm, que não foi julgado contra uma tolerância porque nenhuma distância de visada foi registrada, então seu comprimento é desconhecido. O erro de fechamento é relatado; se é aceitável, não.</translation>
+        </message>
+        <message>
+            <source>%1 misclosed by %2 mm, which has not been judged against a tolerance because the class states no tolerance coefficient. The misclosure is reported; whether it is acceptable is not.</source>
+            <translation>%1 tem erro de fechamento de %2 mm, que não foi julgado contra uma tolerância porque a classe não declara coeficiente de tolerância. O erro de fechamento é relatado; se é aceitável, não.</translation>
+        </message>
+        <message>
+            <source>%1 misclosed by %2 mm, which is %3 times its own propagated standard deviation. That is not accumulated random error, so distributing it proportionally would spread one mistake evenly along the line and make it harder to find. Adjust the network and let data snooping locate it instead.</source>
+            <translation>%1 tem erro de fechamento de %2 mm, que é %3 vezes o seu próprio desvio-padrão propagado. Isso não é erro aleatório acumulado, então distribuí-lo proporcionalmente espalharia um único engano ao longo da linha e o tornaria mais difícil de achar. Ajuste a rede e deixe o data snooping localizá-lo.</translation>
+        </message>
+        <message>
             <source>%1 needs at least 1 degree of freedom, and has %2: a network with no redundancy has no test to apply. Add observations.</source>
             <translation>%1 precisa de ao menos 1 grau de liberdade, e tem %2: uma rede sem redundância não tem teste a aplicar. Acrescente observações.</translation>
         </message>
@@ -3037,6 +3061,14 @@
         <message>
             <source>%1 ran on '%2' but solved no epoch; finishing without an error does not mean it solved anything. Its own message: %3. Check that the observations, the base station's and the products cover the same time. Its working files are in %4.</source>
             <translation>%1 foi executado em '%2' mas não resolveu nenhuma época; terminar sem erro não significa que resolveu algo. A mensagem do próprio motor: %3. Verifique se as observações, as da estação base e os produtos cobrem o mesmo período. Os arquivos de trabalho estão em %4.</translation>
+        </message>
+        <message>
+            <source>%1 setup(s) carried several foresights and entered the network as correlated clusters. They share their backsight, so it cancels in every difference the adjustment forms between two points of one setup, which makes those differences better determined, not worse.</source>
+            <translation>%1 estacionamento(s) tiveram várias visadas de vante e entraram na rede como agrupamentos correlacionados. Eles compartilham a visada de ré, que se cancela em toda diferença que o ajustamento forma entre dois pontos de um mesmo estacionamento, o que torna essas diferenças mais bem determinadas, não pior.</translation>
+        </message>
+        <message>
+            <source>%1 side shot(s) were levelled from these lines and are not in the network: %2. A spur observed once has no redundancy, so adjusting it would change nothing; their heights follow from the adjusted line. Adjust the network from its setups to include every point.</source>
+            <translation>%1 ponto(s) irradiado(s) foram nivelados a partir destas linhas e não estão na rede: %2. Um ramal observado uma vez não tem redundância, então ajustá-lo não mudaria nada; suas altitudes seguem da linha ajustada. Ajuste a rede a partir dos estacionamentos para incluir todos os pontos.</translation>
         </message>
         <message>
             <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
@@ -3055,12 +3087,24 @@
             <translation>%1 parou com o código de saída %2. A mensagem do próprio motor: %3. Os arquivos de trabalho estão em %4.</translation>
         </message>
         <message>
+            <source>%1 trigonometric height difference(s) joined the network, each weighted by its own propagated uncertainty.</source>
+            <translation>%1 desnível(eis) trigonométrico(s) entraram na rede, cada um ponderado pela sua própria incerteza propagada.</translation>
+        </message>
+        <message>
+            <source>%1 trigonometric height difference(s) joined the network, each weighted by its own propagated uncertainty; they reach %2 point(s) no line did.</source>
+            <translation>%1 desnível(eis) trigonométrico(s) entraram na rede, cada um ponderado pela sua própria incerteza propagada; eles alcançam %2 ponto(s) que nenhuma linha alcançou.</translation>
+        </message>
+        <message>
             <source>%1 value(s) were given for a covariance matrix over %2 components; give one per component.</source>
             <translation>Foram dados %1 valor(es) para uma matriz variância-covariância de %2 componentes; dê um por componente.</translation>
         </message>
         <message>
             <source>%1 was installed in %2 but its record could not be written. Run the installation again.</source>
             <translation>%1 foi instalado em %2, mas o seu registro não pôde ser gravado. Execute a instalação novamente.</translation>
+        </message>
+        <message>
+            <source>%1: the ellipsoidal height %2 m was converted to the orthometric height %3 m through %4 (N = %5 m). The model's uncertainty is in the result, which is now +/- %6 mm rather than %7 mm.</source>
+            <translation>%1: a altitude elipsoidal %2 m foi convertida na altitude ortométrica %3 m por meio de %4 (N = %5 m). A incerteza do modelo está no resultado, que agora é +/- %6 mm em vez de %7 mm.</translation>
         </message>
         <message>
             <source>'%1' contains no solution epoch. Check that the observations, the base station's and the products cover the same time.</source>
@@ -3863,6 +3907,10 @@
             <translation>Nenhuma linha de base liga %1 e %2, de modo que o circuito não pode ser fechado. Processe esse par, ou escolha um circuito de linhas de base existentes.</translation>
         </message>
         <message>
+            <source>No benchmark was supplied, so the network is free: it has one datum defect, and determines every height difference but no height. Adjust it with an inner or minimum constraint.</source>
+            <translation>Nenhuma referência de nível foi informada, então a rede é livre: ela tem uma deficiência de datum e determina todos os desníveis, mas nenhuma altitude. Ajuste-a com uma injunção interna ou mínima.</translation>
+        </message>
+        <message>
             <source>No gravimeter profile was named and the profile library sets no default. Add one to the library, or run without a library to use the file's own instrument names.</source>
             <translation>Nenhum perfil de gravímetro foi indicado e a biblioteca de perfis não define um padrão. Adicione um à biblioteca, ou execute sem biblioteca para usar os nomes de instrumento do próprio arquivo.</translation>
         </message>
@@ -3983,6 +4031,18 @@
             <translation>O estacionamento %1 tem %2 visada(s) de ré e %3 visada(s) de vante; ele precisa de exatamente uma visada de ré e pelo menos uma de vante.</translation>
         </message>
         <message>
+            <source>Setup %1 is out of balance by %2 m and no level profile was supplied, so no collimation correction was applied. Supply the two-peg test result to correct it, or balance the sights so it does not matter.</source>
+            <translation>O estacionamento %1 está desequilibrado em %2 m e nenhum perfil de nível foi informado, então nenhuma correção de colimação foi aplicada. Informe o resultado do ensaio das duas estacas para corrigi-lo, ou equilibre as visadas para que isso não importe.</translation>
+        </message>
+        <message>
+            <source>Setup %1 is out of balance by %2 m on the sight to %3, beyond the %4 m its class permits.</source>
+            <translation>O estacionamento %1 está desequilibrado em %2 m na visada para %3, além dos %4 m que sua classe permite.</translation>
+        </message>
+        <message>
+            <source>Setup %1 recorded no sight distances, so its balance cannot be checked and no collimation correction can be applied. Record the distances, or read three wires and let them be derived.</source>
+            <translation>O estacionamento %1 não registrou distâncias de visada, então seu equilíbrio não pode ser verificado e nenhuma correção de colimação pode ser aplicada. Registre as distâncias, ou leia os três fios e deixe que elas sejam derivadas.</translation>
+        </message>
+        <message>
             <source>Setup %1: %2</source>
             <translation>Estacionamento %1: %2</translation>
         </message>
@@ -4009,6 +4069,10 @@
         <message>
             <source>Station %1 records no instrument height. Zero was assumed, which is right only for a leap-frog setup.</source>
             <translation>A estação %1 não registra altura do instrumento. Foi assumido zero, o que só é correto para um estacionamento leap-frog.</translation>
+        </message>
+        <message>
+            <source>Station %1 records no temperature or pressure, so the first-velocity correction was not applied. On short sights this is immaterial; over a kilometre a 10 degree error is 10 mm.</source>
+            <translation>A estação %1 não registra temperatura nem pressão, então a correção de primeira velocidade não foi aplicada. Em visadas curtas isso é irrelevante; em um quilômetro, um erro de 10 graus dá 10 mm.</translation>
         </message>
         <message>
             <source>Station '%1' has a weighted constraint, which DynAdjust cannot express: it holds a coordinate fixed or leaves it free, nothing between. Adjust this network with GeoComp's own adjustment, or make the constraint fixed or free.</source>
@@ -4263,6 +4327,10 @@
             <translation>O ângulo do lado %1 está em %2; informe-o em radianos.</translation>
         </message>
         <message>
+            <source>The angular misclosure is %1 arcsec over %2 station(s), against a tolerance of %3 arcsec.</source>
+            <translation>O erro de fechamento angular é de %1 segundos de arco em %2 estação(ões), contra uma tolerância de %3 segundos de arco.</translation>
+        </message>
+        <message>
             <source>The antenna height at %2 of the baseline '%1' is a slant height. Converting one needs the antenna's dimensions, which GeoComp has no database of yet; give the vertical height from the mark to the antenna reference point.</source>
             <translation>A altura de antena em %2 da linha de base '%1' é uma altura inclinada. Convertê-la exige as dimensões da antena, das quais o GeoComp ainda não tem banco de dados; informe a altura vertical da marca ao ponto de referência da antena.</translation>
         </message>
@@ -4359,6 +4427,10 @@
             <translation>O agrupamento '%1' lista uma observação duas vezes. Cada membro aparece uma vez, na ordem da matriz variância-covariância.</translation>
         </message>
         <message>
+            <source>The collimation implied by the %1 face pairs at station %2 varies by %3 arcsec. A collimation that is constant across a setup is instrumental and harmless; one that drifts means the instrument was disturbed, and face pairing does not fix that.</source>
+            <translation>A colimação implicada pelos %1 pares PD/PI na estação %2 varia %3 segundos de arco. Uma colimação constante ao longo de um estacionamento é instrumental e inofensiva; uma que varia significa que o instrumento foi perturbado, e o par de posições não corrige isso.</translation>
+        </message>
+        <message>
             <source>The column '%1' is assigned to %2. One column cannot be two fields, and importing it as both would count the measurement twice.</source>
             <translation>A coluna '%1' está atribuída a %2. Uma coluna não pode ser dois campos, e importá-la como ambos contaria a medição duas vezes.</translation>
         </message>
@@ -4381,6 +4453,10 @@
         <message>
             <source>The configurations compared are of different station pairs (%1). Comparing configurations needs one station pair in all of them; two different baselines measure the network instead.</source>
             <translation>As configurações comparadas são de pares de estações diferentes (%1). Comparar configurações exige o mesmo par de estações em todas elas; duas linhas de base diferentes medem, em vez disso, a rede.</translation>
+        </message>
+        <message>
+            <source>The constant of the reflector %1 is applied by the instrument, so GeoComp did not apply it again.</source>
+            <translation>A constante do refletor %1 é aplicada pelo instrumento, então o GeoComp não a aplicou novamente.</translation>
         </message>
         <message>
             <source>The control station '%2' in '%1' gives no standard deviations. A control station in this format is weighted, not held, so two standard deviations follow its coordinates: %3</source>
@@ -4551,6 +4627,14 @@
             <translation>O fator de exagero %1 não é finito; um fator infinito não dá tamanho às elipses.</translation>
         </message>
         <message>
+            <source>The face pair to %1 implies a horizontal collimation of %2 arcsec, beyond the %3 arcsec tolerance. The pair still cancels it; a value this large means the instrument needs adjustment, or the pointings were not to the same target.</source>
+            <translation>O par PD/PI para %1 implica uma colimação horizontal de %2 segundos de arco, além da tolerância de %3 segundos de arco. O par ainda a cancela; um valor tão grande significa que o instrumento precisa de ajuste, ou que as pontarias não foram para o mesmo alvo.</translation>
+        </message>
+        <message>
+            <source>The face pair to %1 implies a vertical index error of %2 arcsec, beyond the %3 arcsec tolerance.</source>
+            <translation>O par PD/PI para %1 implica um erro de índice vertical de %2 segundos de arco, além da tolerância de %3 segundos de arco.</translation>
+        </message>
+        <message>
             <source>The field '%1' has neither a source column nor a constant value. Choose a column, or give a value for every row.</source>
             <translation>O campo '%1' não tem coluna de origem nem valor constante. Escolha uma coluna, ou informe um valor para todas as linhas.</translation>
         </message>
@@ -4703,6 +4787,10 @@
             <translation>As entradas se dividem em %1 partes que não compartilham estação, então não podem ser ajustadas como uma rede. Uma combinação é ligada pelas estações que as técnicas têm em comum.</translation>
         </message>
         <message>
+            <source>The instrument %1 applies its additive constant internally, so GeoComp did not apply it again.</source>
+            <translation>O instrumento %1 aplica internamente a sua constante aditiva, então o GeoComp não a aplicou novamente.</translation>
+        </message>
+        <message>
             <source>The instrument profile '%1' gives a cyclic-error amplitude without its wavelength; the correction is periodic in the distance and means nothing without one.</source>
             <translation>O perfil de instrumento '%1' dá uma amplitude de erro cíclico sem seu comprimento de onda; a correção é periódica na distância e não significa nada sem ele.</translation>
         </message>
@@ -4717,6 +4805,10 @@
         <message>
             <source>The intersection did not converge in %1 iterations. Check the azimuths for a blunder.</source>
             <translation>A interseção à vante não convergiu em %1 iterações. Verifique os azimutes quanto a um erro grosseiro.</translation>
+        </message>
+        <message>
+            <source>The known points %1 are collinear, so they define no circle and cannot fix a resection between them.</source>
+            <translation>Os pontos conhecidos %1 são colineares, então não definem círculo e não podem fixar uma interseção à ré entre eles.</translation>
         </message>
         <message>
             <source>The latitude %1 (radians) lies outside -90 to 90 degrees, so the tide cannot be computed. Check the station's position.</source>
@@ -4757,6 +4849,22 @@
         <message>
             <source>The levelling network '%1' has no reduced setups, so there is nothing to adjust.</source>
             <translation>A rede de nivelamento '%1' não tem estacionamentos reduzidos, de modo que não há nada a ajustar.</translation>
+        </message>
+        <message>
+            <source>The line %1 accumulated %2 m of sight imbalance, beyond the %3 m its class permits. It is the accumulated figure, not the per-setup one, that multiplies the collimation error over a line.</source>
+            <translation>A linha %1 acumulou %2 m de desequilíbrio de visadas, além dos %3 m que sua classe permite. É o valor acumulado, não o de cada estacionamento, que multiplica o erro de colimação ao longo de uma linha.</translation>
+        </message>
+        <message>
+            <source>The line %1 is %2 m long, so a length-weighted standard deviation for it is almost zero, and its weight almost infinite.</source>
+            <translation>A linha %1 tem %2 m de comprimento, então um desvio-padrão ponderado pelo comprimento é quase zero para ela, e seu peso quase infinito.</translation>
+        </message>
+        <message>
+            <source>The line %1 is exactly balanced, so the collimation error contributes neither a correction nor an uncertainty, whatever its value. This is what makes equal sights the preferred method.</source>
+            <translation>A linha %1 está exatamente equilibrada, então o erro de colimação não contribui nem com correção nem com incerteza, qualquer que seja o seu valor. É isso que faz das visadas iguais o método preferencial.</translation>
+        </message>
+        <message>
+            <source>The line %1 recorded no sight distances, so its length is unknown. Length weighting and the k*sqrt(L) tolerance both need it, and will refuse rather than assume a length of zero.</source>
+            <translation>A linha %1 não registrou distâncias de visada, então seu comprimento é desconhecido. A ponderação pelo comprimento e a tolerância k*sqrt(L) precisam dele, e recusarão em vez de assumir um comprimento zero.</translation>
         </message>
         <message>
             <source>The logarithm of %1 is undefined; it needs a positive value.</source>
@@ -4847,6 +4955,22 @@
             <translation>A rede não tem observações ativas, então não há nada a ajustar.</translation>
         </message>
         <message>
+            <source>The network was weighted by %1, replacing each line's propagated reading uncertainty.</source>
+            <translation>A rede foi ponderada por %1, substituindo a incerteza de leitura propagada de cada linha.</translation>
+        </message>
+        <message>
+            <source>The network was weighted by each line's propagated reading uncertainty, since no k*sqrt(L) or k*sqrt(n) model was configured. That figure knows nothing of refraction, staff calibration or a tripod settling, so expect a variance factor above one.</source>
+            <translation>A rede foi ponderada pela incerteza de leitura propagada de cada linha, já que nenhum modelo k*sqrt(L) ou k*sqrt(n) foi configurado. Esse valor nada sabe de refração, calibração das miras ou do assentamento de um tripé, então espere um fator de variância acima de um.</translation>
+        </message>
+        <message>
+            <source>The normal orthometric correction for this section is %1 mm, at mean latitude %2 degrees and mean height %3 m. This is the normal correction, from the ellipsoid's gravity field; the rigorous one needs observed gravity along the line.</source>
+            <translation>A correção ortométrica normal desta seção é %1 mm, na latitude média de %2 graus e altitude média de %3 m. Esta é a correção normal, a partir do campo de gravidade do elipsoide; a rigorosa precisa da gravidade observada ao longo da linha.</translation>
+        </message>
+        <message>
+            <source>The normal orthometric correction for this section is %1 mm, below the %2 mm at which it could matter to any levelling. Applying it changes nothing.</source>
+            <translation>A correção ortométrica normal desta seção é %1 mm, abaixo dos %2 mm a partir dos quais poderia importar a algum nivelamento. Aplicá-la não muda nada.</translation>
+        </message>
+        <message>
             <source>The number of rows to skip cannot be negative (%1).</source>
             <translation>O número de linhas a pular não pode ser negativo (%1).</translation>
         </message>
@@ -4915,6 +5039,10 @@
             <translation>A observação '%1' declara um desvio-padrão de %2; ele não pode ser negativo.</translation>
         </message>
         <message>
+            <source>The occupied station lies on the danger circle through %1: every point on that circle sees the three in the same directions, so they do not determine a position. Add a fourth point off the circle, or a distance.</source>
+            <translation>A estação ocupada está sobre o círculo perigoso que passa por %1: todo ponto desse círculo vê os três nas mesmas direções, então eles não determinam uma posição. Acrescente um quarto ponto fora do círculo, ou uma distância.</translation>
+        </message>
+        <message>
             <source>The orthometric correction needs an approximate height for every station, and these have none: %1. Connect them to a benchmark, or turn the correction off.</source>
             <translation>A correção ortométrica precisa de uma altitude aproximada para cada estação, e estas não têm nenhuma: %1. Ligue-as a uma referência de nível, ou desative a correção.</translation>
         </message>
@@ -4957,6 +5085,10 @@
         <message>
             <source>The pointing to %1 was rejected during pre-processing and is not used here.</source>
             <translation>A pontaria para %1 foi rejeitada no pré-processamento e não é usada aqui.</translation>
+        </message>
+        <message>
+            <source>The pointing to %1 was taken on one face only, so the instrumental errors were corrected from the profile rather than cancelled. Their uncertainties are included in the result.</source>
+            <translation>A pontaria para %1 foi feita em uma só posição, então os erros instrumentais foram corrigidos pelo perfil em vez de cancelados. Suas incertezas estão incluídas no resultado.</translation>
         </message>
         <message>
             <source>The processing window %1 does not overlap the session '%2', which observed %3. Give a window inside the observations; both are in GPS time.</source>
@@ -5013,6 +5145,10 @@
         <message>
             <source>The project store %1 was written by a newer GeoComp (schema %2; this version reads up to %3). Update the plugin to open it: GeoComp does not read a schema it does not understand, because what it cannot see would be lost on the next save.</source>
             <translation>O repositório de projeto %1 foi gravado por um GeoComp mais novo (esquema %2; esta versão lê até o %3). Atualize o plugin para abri-lo: o GeoComp não lê um esquema que não entende, porque o que não consegue ver se perderia na próxima gravação.</translation>
+        </message>
+        <message>
+            <source>The rays to %1 are close to parallel: the error ellipse is %2 times longer than it is wide, so the point is poorly determined along one direction however precise the individual sightings are.</source>
+            <translation>Os raios para %1 são quase paralelos: a elipse de erro é %2 vezes mais longa que larga, então o ponto é mal determinado ao longo de uma direção, por mais precisas que sejam as visadas individuais.</translation>
         </message>
         <message>
             <source>The reading '%1' appears twice. Remove the duplicate line and run again.</source>
@@ -5167,6 +5303,14 @@
             <translation>A distância de visada para '%1' é negativa (%2). Verifique a coluna de distâncias da caderneta.</translation>
         </message>
         <message>
+            <source>The sight to %1 from setup %2 is %3 m, beyond the %4 m its class permits. Long sights magnify both refraction and the residual collimation error.</source>
+            <translation>A visada para %1 a partir do estacionamento %2 tem %3 m, além dos %4 m que sua classe permite. Visadas longas ampliam tanto a refração quanto o erro de colimação residual.</translation>
+        </message>
+        <message>
+            <source>The sight to %1 is within one degree of vertical, where the horizontal circle reading carries almost no directional information and the trunnion-tilt correction is unbounded. It was not applied.</source>
+            <translation>A visada para %1 está a menos de um grau da vertical, onde a leitura do círculo horizontal quase não traz informação de direção e a correção da inclinação do eixo secundário é ilimitada. Ela não foi aplicada.</translation>
+        </message>
+        <message>
             <source>The solution %1 cannot supersede itself; name the earlier solution it replaces.</source>
             <translation>A solução %1 não pode substituir a si mesma; indique a solução anterior que ela substitui.</translation>
         </message>
@@ -5275,6 +5419,14 @@
             <translation>A temperatura está em %1; a correção atmosférica usa kelvin.</translation>
         </message>
         <message>
+            <source>The three wires read at %1 from setup %2 give (upper + lower) / 2 - middle = %3 m, which should be zero. One of the three was misread, or they were entered in the wrong columns.</source>
+            <translation>Os três fios lidos em %1 a partir do estacionamento %2 dão (superior + inferior) / 2 - médio = %3 m, que deveria ser zero. Um dos três foi mal lido, ou eles foram lançados nas colunas erradas.</translation>
+        </message>
+        <message>
+            <source>The three wires read at %1 give (upper + lower) / 2 - middle = %2 m, which should be zero. One of the three was misread, or they were entered in the wrong columns.</source>
+            <translation>Os três fios lidos em %1 dão (superior + inferior) / 2 - médio = %2 m, que deveria ser zero. Um dos três foi mal lido, ou eles foram lançados nas colunas erradas.</translation>
+        </message>
+        <message>
             <source>The three-wire readings %1 are not in the order lower, middle, upper. A staff is read upwards, so the values were probably entered in the wrong columns.</source>
             <translation>As leituras dos três fios %1 não estão na ordem inferior, médio, superior. Uma mira é lida de baixo para cima, de modo que os valores provavelmente foram digitados nas colunas erradas.</translation>
         </message>
@@ -5291,12 +5443,24 @@
             <translation>A transformação %1 vale apenas em sua própria época, e as coordenadas estão em %2. Leve-as primeiro a essa época com uma velocidade.</translation>
         </message>
         <message>
+            <source>The traverse closes to 1:%1 over %2 m, against a required 1:%3.</source>
+            <translation>A poligonal fecha com 1:%1 em %2 m, contra os 1:%3 exigidos.</translation>
+        </message>
+        <message>
             <source>The traverse has no legs. A traverse needs at least one leg between two stations.</source>
             <translation>A poligonal não tem lados. Uma poligonal precisa de ao menos um lado entre duas estações.</translation>
         </message>
         <message>
+            <source>The two banks give height differences that differ by %1 m. The method assumes the refraction was the same for both, and a discrepancy this size says it was not.</source>
+            <translation>As duas margens dão desníveis que diferem em %1 m. O método supõe que a refração foi a mesma para ambas, e uma discrepância desse tamanho diz que não foi.</translation>
+        </message>
+        <message>
             <source>The two faces of a pair point at different targets (%1); both faces of a pair sight the same target.</source>
             <translation>As duas posições de um par visam alvos diferentes (%1); as duas posições de um par visam o mesmo alvo.</translation>
+        </message>
+        <message>
+            <source>The two faces to %1 disagree on the distance by %2 m, against a tolerance of %3 m. The mean of the two is not a measurement of anything; check the field book before using this pair.</source>
+            <translation>As duas posições para %1 discordam na distância em %2 m, contra uma tolerância de %3 m. A média das duas não é medida de coisa alguma; verifique a caderneta de campo antes de usar este par.</translation>
         </message>
         <message>
             <source>The two pairs of a reciprocal crossing join different stations: the second joins %1, where %2 was expected.</source>
@@ -5305,6 +5469,10 @@
         <message>
             <source>The two runs of a double-run section join different stations (%1). Both runs of a section go between the same two stations, in either direction.</source>
             <translation>Os dois percursos de uma seção nivelada e contranivelada ligam estações diferentes (%1). Os dois percursos de uma seção vão entre as mesmas duas estações, em qualquer sentido.</translation>
+        </message>
+        <message>
+            <source>The two sights differ by %1 m over %2 m. Leap-frog cancels refraction in proportion to how equal the sights are, so an imbalanced pair gets much less of the method's benefit.</source>
+            <translation>As duas visadas diferem em %1 m em %2 m. O leap-frog cancela a refração na proporção em que as visadas são iguais, então um par desequilibrado recebe muito menos do benefício do método.</translation>
         </message>
         <message>
             <source>The two solutions (%1) define their datum differently: %2. A free solution compares with a free one, and a held solution with one held the same way; a held one carries its constraint in its coordinates, and no transformation takes it out. Adjust both epochs with the same datum definition.</source>
@@ -5363,8 +5531,16 @@
             <translation>A inflação de variância de uma travessia recíproca deve ser pelo menos 1; foi dado %1. Um fator menor afirmaria que o método é melhor que suas leituras.</translation>
         </message>
         <message>
+            <source>The variance of this crossing was multiplied by %1. Refraction over water varies rapidly and asymmetrically, and the two reciprocal observations were not simultaneous, so the symmetry the method relies on holds only approximately.</source>
+            <translation>A variância desta travessia foi multiplicada por %1. A refração sobre a água varia rápida e assimetricamente, e as duas observações recíprocas não foram simultâneas, então a simetria em que o método se apoia só vale aproximadamente.</translation>
+        </message>
+        <message>
             <source>The vertical gradient %2 at the station '%1' cannot be used: it must be a finite number in s^-2, with a non-negative uncertainty.</source>
             <translation>O gradiente vertical %2 na estação '%1' não pode ser usado: ele deve ser um número finito em s^-2, com uma incerteza não negativa.</translation>
+        </message>
+        <message>
+            <source>The vertical index error at station %1 varies by %2 arcsec across its face pairs.</source>
+            <translation>O erro de índice vertical na estação %1 varia %2 segundos de arco entre seus pares PD/PI.</translation>
         </message>
         <message>
             <source>The weighted constraint on '%1' (%2) has a singular covariance: a direction in it is infinitely precise, which is a fixed constraint written as a weighted one. Fix those components instead, or correct the covariance.</source>
@@ -5451,6 +5627,10 @@
             <translation>Este cálculo exige a rede inteira em matrizes densas, cerca de %3 MiB para %1 linhas de observação e %2 incógnitas, e esta máquina permite %4 MiB. A estimação de componentes de variância é um cálculo assim: execute o ajustamento sem ela ou estime os componentes em uma parte da rede.</translation>
         </message>
         <message>
+            <source>This crossing was reduced with no variance inflation, so its uncertainty assumes the two reciprocal observations saw identical refraction. They were not simultaneous, so they did not.</source>
+            <translation>Esta travessia foi reduzida sem inflação de variância, então sua incerteza supõe que as duas observações recíprocas viram refração idêntica. Elas não foram simultâneas, então não viram.</translation>
+        </message>
+        <message>
             <source>This file does not hold a GeoComp network: its top level is %1, and a network document is a JSON object. Check that you chose the right file.</source>
             <translation>Este arquivo não contém uma rede do GeoComp: seu nível superior é %1, e um documento de rede é um objeto JSON. Verifique se escolheu o arquivo certo.</translation>
         </message>
@@ -5485,6 +5665,10 @@
         <message>
             <source>This solution is in latitude, longitude and height (%1), whose components are not all metres, so they cannot be treated as one covariance. Use an ECEF or ENU solution.</source>
             <translation>Esta solução está em latitude, longitude e altitude (%1), cujos componentes não são todos metros, de modo que não podem ser tratados como uma única covariância. Use uma solução ECEF ou ENU.</translation>
+        </message>
+        <message>
+            <source>This traverse does not close on a known point, so no misclosure exists and nothing about it can be checked. A blunder anywhere in it would be invisible.</source>
+            <translation>Esta poligonal não fecha em um ponto conhecido, então não existe erro de fechamento e nada nela pode ser verificado. Um erro grosseiro em qualquer lugar seria invisível.</translation>
         </message>
         <message>
             <source>Two correlated values were combined (%1) as if they were independent, which would misstate the uncertainty of the result. This is an internal error; please report it with the data that caused it.</source>

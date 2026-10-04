@@ -1536,6 +1536,113 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "at all.",
         "observation",
     ),
+    # -- what a total-station reduction or survey reports (P12c-8) -------------
+    "finding.near_vertical_sight": MessageTemplate(
+        "The sight to %1 is within one degree of vertical, where the horizontal circle reading "
+        "carries almost no directional information and the trunnion-tilt correction is "
+        "unbounded. It was not applied.",
+        "target",
+    ),
+    "finding.edm_constant_applied_by_instrument": MessageTemplate(
+        "The instrument %1 applies its additive constant internally, so GeoComp did not apply "
+        "it again.",
+        "instrument",
+    ),
+    "finding.prism_constant_applied_by_instrument": MessageTemplate(
+        "The constant of the reflector %1 is applied by the instrument, so GeoComp did not "
+        "apply it again.",
+        "reflector",
+    ),
+    "finding.collimation_beyond_tolerance": MessageTemplate(
+        "The face pair to %1 implies a horizontal collimation of %2 arcsec, beyond the %3 "
+        "arcsec tolerance. The pair still cancels it; a value this large means the instrument "
+        "needs adjustment, or the pointings were not to the same target.",
+        "target",
+        "collimation",
+        "tolerance",
+    ),
+    "finding.vertical_index_beyond_tolerance": MessageTemplate(
+        "The face pair to %1 implies a vertical index error of %2 arcsec, beyond the %3 arcsec "
+        "tolerance.",
+        "target",
+        "index",
+        "tolerance",
+    ),
+    "finding.face_distance_discrepancy": MessageTemplate(
+        "The two faces to %1 disagree on the distance by %2 m, against a tolerance of %3 m. The "
+        "mean of the two is not a measurement of anything; check the field book before using "
+        "this pair.",
+        "target",
+        "difference",
+        "tolerance",
+    ),
+    "finding.single_face_pointing": MessageTemplate(
+        "The pointing to %1 was taken on one face only, so the instrumental errors were "
+        "corrected from the profile rather than cancelled. Their uncertainties are included in "
+        "the result.",
+        "target",
+    ),
+    "finding.collimation_drift": MessageTemplate(
+        "The collimation implied by the %1 face pairs at station %2 varies by %3 arcsec. A "
+        "collimation that is constant across a setup is instrumental and harmless; one that "
+        "drifts means the instrument was disturbed, and face pairing does not fix that.",
+        "pairs",
+        "station",
+        "spread",
+    ),
+    "finding.vertical_index_drift": MessageTemplate(
+        "The vertical index error at station %1 varies by %2 arcsec across its face pairs.",
+        "station",
+        "spread",
+    ),
+    "finding.angular_misclosure_beyond_tolerance": MessageTemplate(
+        "The angular misclosure is %1 arcsec over %2 station(s), against a tolerance of %3 "
+        "arcsec.",
+        "misclosure",
+        "stations",
+        "tolerance",
+    ),
+    "finding.relative_precision_beyond_tolerance": MessageTemplate(
+        "The traverse closes to 1:%1 over %2 m, against a required 1:%3.",
+        "precision",
+        "perimeter",
+        "required",
+    ),
+    "finding.open_traverse_unchecked": MessageTemplate(
+        "This traverse does not close on a known point, so no misclosure exists and nothing "
+        "about it can be checked. A blunder anywhere in it would be invisible.",
+    ),
+    "finding.collinear_known_points": MessageTemplate(
+        "The known points %1 are collinear, so they define no circle and cannot fix a "
+        "resection between them.",
+        "stations",
+    ),
+    "finding.danger_circle": MessageTemplate(
+        "The occupied station lies on the danger circle through %1: every point on that circle "
+        "sees the three in the same directions, so they do not determine a position. Add a "
+        "fourth point off the circle, or a distance.",
+        "stations",
+    ),
+    "finding.weak_intersection_geometry": MessageTemplate(
+        "The rays to %1 are close to parallel: the error ellipse is %2 times longer than it is "
+        "wide, so the point is poorly determined along one direction however precise the "
+        "individual sightings are.",
+        "target",
+        "elongation",
+    ),
+    "finding.leapfrog_sights_imbalanced": MessageTemplate(
+        "The two sights differ by %1 m over %2 m. Leap-frog cancels refraction in proportion to "
+        "how equal the sights are, so an imbalanced pair gets much less of the method's "
+        "benefit.",
+        "imbalance",
+        "length",
+    ),
+    "finding.no_atmospheric_data": MessageTemplate(
+        "Station %1 records no temperature or pressure, so the first-velocity correction was "
+        "not applied. On short sights this is immaterial; over a kilometre a 10 degree error is "
+        "10 mm.",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

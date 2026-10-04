@@ -40,6 +40,7 @@ import numpy as np
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.level import LevelProfile
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.levelling.readings import LevelSetup, StaffReading
 from geocomp.core.uncertainty import Covariance, Quantity, Strategy
 from geocomp.core.units import Unit
@@ -251,6 +252,7 @@ def _geometry_findings(
                     "Record the distances, or read three wires and let them be derived"
                 ),
                 stations=(setup.backsight.station,),
+                context={"setup": setup.id},
             )
         )
         return findings
@@ -271,6 +273,12 @@ def _geometry_findings(
                         stations=(sight.station,),
                         value=sight.distance_value,
                         threshold=max_sight_length,
+                        context={
+                            "station": sight.station,
+                            "setup": setup.id,
+                            "length": localised(f"{sight.distance_value:.1f}"),
+                            "permitted": localised(f"{max_sight_length:.1f}"),
+                        },
                     )
                 )
 
@@ -289,6 +297,12 @@ def _geometry_findings(
                         stations=(setup.foresights[index].station,),
                         value=abs(imbalance),
                         threshold=max_sight_imbalance,
+                        context={
+                            "setup": setup.id,
+                            "imbalance": localised(f"{imbalance:+.2f}"),
+                            "station": setup.foresights[index].station,
+                            "permitted": localised(f"{max_sight_imbalance:.2f}"),
+                        },
                     )
                 )
 
@@ -307,6 +321,7 @@ def _geometry_findings(
                     ),
                     stations=(setup.backsight.station,),
                     value=abs(worst),
+                    context={"setup": setup.id, "imbalance": localised(f"{worst:+.2f}")},
                 )
             )
 
@@ -470,6 +485,7 @@ def reduce_reciprocal(
             ),
             stations=(from_station, to_station),
             value=variance_inflation,
+            context={"factor": localised(f"{variance_inflation:g}")},
         )
         if variance_inflation > 1.0
         else Finding(
@@ -498,6 +514,7 @@ def reduce_reciprocal(
                 stations=(from_station, to_station),
                 value=abs(discrepancy),
                 threshold=discrepancy_tolerance,
+                context={"discrepancy": localised(f"{discrepancy:+.4f}")},
             )
         )
 

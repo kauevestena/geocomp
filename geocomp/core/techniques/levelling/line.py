@@ -45,6 +45,7 @@ import numpy as np
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.level import LevelProfile
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.levelling.readings import LevelSetup
 from geocomp.core.techniques.levelling.schemes import SetupReduction, reduce_setup
 from geocomp.core.uncertainty import Covariance, Quantity
@@ -302,6 +303,7 @@ def reduce_line(
                     "it and will refuse rather than assume a length of zero"
                 ),
                 stations=(line.from_station, line.to_station),
+                context={"line": line.id},
             )
         )
     elif max_accumulated_imbalance > 0.0 and abs(accumulated) > max_accumulated_imbalance:
@@ -318,6 +320,11 @@ def reduce_line(
                 stations=(line.from_station, line.to_station),
                 value=abs(accumulated),
                 threshold=max_accumulated_imbalance,
+                context={
+                    "line": line.id,
+                    "imbalance": localised(f"{accumulated:+.2f}"),
+                    "permitted": localised(f"{max_accumulated_imbalance:.2f}"),
+                },
             )
         )
     elif accumulated == 0.0 and collimation is not None:
@@ -332,6 +339,7 @@ def reduce_line(
                 ),
                 stations=(line.from_station, line.to_station),
                 value=0.0,
+                context={"line": line.id},
             )
         )
 

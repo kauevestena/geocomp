@@ -44,6 +44,7 @@ from typing import Any
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.level import LevellingClass
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.levelling.line import LineReduction
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -449,6 +450,7 @@ def _closure_findings(
 ) -> tuple[Finding, ...]:
     findings: list[Finding] = []
     millimetres = misclosure * 1000.0
+    misclosed = localised(f"{millimetres:+.1f}")
 
     if passed is False:
         findings.append(
@@ -464,6 +466,13 @@ def _closure_findings(
                 ),
                 value=abs(misclosure),
                 threshold=permissible,
+                context={
+                    "subject": identifier,
+                    "misclosure": misclosed,
+                    "length": localised(f"{length_km:.3f}"),
+                    "permitted": localised(f"{float(permissible) * 1000.0:.1f}"),
+                    "class": levelling_class.label if levelling_class else "",
+                },
             )
         )
     elif passed is None:
@@ -476,18 +485,40 @@ def _closure_findings(
                 else "the line recorded no sight distances, so its length is unknown"
             )
         )
-        findings.append(
-            Finding(
+        message = (
+            f"{kind} {identifier} misclosed by {millimetres:+.1f} mm, which has "
+            f"not been judged against a tolerance because {reason}. The "
+            "misclosure is reported; whether it is acceptable is not"
+        )
+        # One code, which filters use; three sentences, one per reason.
+        if levelling_class is None:
+            finding = Finding(
                 code="closure_not_judged",
                 severity=Severity.WARNING,
-                message=(
-                    f"{kind} {identifier} misclosed by {millimetres:+.1f} mm, which has "
-                    f"not been judged against a tolerance because {reason}. The "
-                    "misclosure is reported; whether it is acceptable is not"
-                ),
+                message=message,
                 value=abs(misclosure),
+                context={"subject": identifier, "misclosure": misclosed},
+                wording="closure_not_judged_without_class",
             )
-        )
+        elif not levelling_class.has_tolerance:
+            finding = Finding(
+                code="closure_not_judged",
+                severity=Severity.WARNING,
+                message=message,
+                value=abs(misclosure),
+                context={"subject": identifier, "misclosure": misclosed},
+                wording="closure_not_judged_without_coefficient",
+            )
+        else:
+            finding = Finding(
+                code="closure_not_judged",
+                severity=Severity.WARNING,
+                message=message,
+                value=abs(misclosure),
+                context={"subject": identifier, "misclosure": misclosed},
+                wording="closure_not_judged_without_length",
+            )
+        findings.append(finding)
 
     if standardised is not None and abs(standardised) > BLUNDER_THRESHOLD:
         findings.append(
@@ -504,6 +535,11 @@ def _closure_findings(
                 ),
                 value=abs(standardised),
                 threshold=BLUNDER_THRESHOLD,
+                context={
+                    "subject": identifier,
+                    "misclosure": misclosed,
+                    "ratio": localised(f"{abs(standardised):.1f}"),
+                },
             )
         )
     elif standardised is not None:
@@ -518,6 +554,11 @@ def _closure_findings(
                     "case proportional distribution is correct for"
                 ),
                 value=abs(standardised),
+                context={
+                    "subject": identifier,
+                    "misclosure": misclosed,
+                    "ratio": localised(f"{abs(standardised):.1f}"),
+                },
                 threshold=BLUNDER_THRESHOLD,
             )
         )

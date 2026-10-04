@@ -97,6 +97,7 @@ def apply_instrument_corrections(
                 ),
                 observations=(reduction.target,),
                 value=abs(math.degrees(zenith - math.pi / 2.0)),
+                context={"target": reduction.target},
             )
         )
         return _replace_findings(reduction, tuple(findings))
@@ -186,6 +187,7 @@ def _additive_constant(
                     f"instrument {instrument.label} applies its additive constant internally, "
                     "so GeoComp did not apply it again"
                 ),
+                context={"instrument": instrument.label},
             )
         )
     else:
@@ -202,6 +204,7 @@ def _additive_constant(
                         f"the constant of reflector {reflector.label} is applied by the "
                         "instrument, so GeoComp did not apply it again"
                     ),
+                    context={"reflector": reflector.label},
                 )
             )
         else:

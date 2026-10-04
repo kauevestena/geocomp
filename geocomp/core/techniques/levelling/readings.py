@@ -24,6 +24,7 @@ from typing import Any
 
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.number_format import localised
 from geocomp.core.uncertainty import Quantity, Strategy, UncertaintyMode, combine_modes
 from geocomp.core.units import Unit
 
@@ -141,22 +142,42 @@ class ThreeWireReading:
             Strategy.NOMINAL_PRECISION,
         )
 
-    def check(self, tolerance: float, *, label: str = "") -> Finding | None:
-        """The half-sum check, as a finding or ``None`` when it passes."""
+    def check(self, tolerance: float, *, label: str = "", setup: str = "") -> Finding | None:
+        """The half-sum check, as a finding or ``None`` when it passes.
+
+        *label* names the sighted station and *setup* the setup it was read from,
+        each for the reader's sentence rather than as words of it.
+        """
         residual = self.half_sum_residual
         if abs(residual) <= tolerance:
             return None
+        message = (
+            f"the three wires of {label or 'a reading'}{f' in setup {setup}' if setup else ''} "
+            f"give (upper + lower) / 2 - middle = {residual:+.4f} m, which should be "
+            "zero. One of the three was misread, or they were entered in the "
+            "wrong columns"
+        )
+        if setup:
+            return Finding(
+                code="three_wire_half_sum",
+                severity=Severity.WARNING,
+                message=message,
+                value=abs(residual),
+                threshold=tolerance,
+                context={
+                    "station": label,
+                    "setup": setup,
+                    "residual": localised(f"{residual:+.4f}"),
+                },
+            )
         return Finding(
             code="three_wire_half_sum",
             severity=Severity.WARNING,
-            message=(
-                f"the three wires of {label or 'a reading'} give "
-                f"(upper + lower) / 2 - middle = {residual:+.4f} m, which should be "
-                "zero. One of the three was misread, or they were entered in the "
-                "wrong columns"
-            ),
+            message=message,
             value=abs(residual),
             threshold=tolerance,
+            context={"station": label or "?", "residual": localised(f"{residual:+.4f}")},
+            wording="three_wire_half_sum_outside_a_setup",
         )
 
     def to_dict(self) -> dict[str, Any]:

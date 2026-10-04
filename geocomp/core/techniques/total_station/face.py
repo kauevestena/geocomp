@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.profiles import InstrumentProfile
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.total_station.readings import Face, FacePair, FaceReading, Setup
 from geocomp.core.uncertainty import Quantity, combine_modes
 from geocomp.core.units import Unit, wrap_to_2pi, wrap_to_pi
@@ -160,6 +161,11 @@ def reduce_face_pair(
                 observations=(pair.target,),
                 value=abs(collimation.value),
                 threshold=collimation_tolerance,
+                context={
+                    "target": pair.target,
+                    "collimation": localised(f"{math.degrees(collimation.value) * 3600:.1f}"),
+                    "tolerance": localised(f"{math.degrees(collimation_tolerance) * 3600:.1f}"),
+                },
             )
         )
 
@@ -176,6 +182,11 @@ def reduce_face_pair(
                 observations=(pair.target,),
                 value=abs(vertical_index.value),
                 threshold=collimation_tolerance,
+                context={
+                    "target": pair.target,
+                    "index": localised(f"{math.degrees(vertical_index.value) * 3600:.1f}"),
+                    "tolerance": localised(f"{math.degrees(collimation_tolerance) * 3600:.1f}"),
+                },
             )
         )
 
@@ -200,6 +211,11 @@ def reduce_face_pair(
                     observations=(pair.target,),
                     value=abs(difference),
                     threshold=threshold,
+                    context={
+                        "target": pair.target,
+                        "difference": localised(f"{difference:+.4f}"),
+                        "tolerance": localised(f"{threshold:.4f}"),
+                    },
                 )
             )
 
@@ -268,6 +284,7 @@ def reduce_single_face(
                     "cancelled. Their uncertainties are included in the result"
                 ),
                 observations=(reading.target,),
+                context={"target": reading.target},
             ),
         ),
     )
@@ -321,6 +338,11 @@ def setup_diagnostics(
                 stations=(setup.station,),
                 value=collimation_spread,
                 threshold=collimation_drift_tolerance,
+                context={
+                    "pairs": str(len(pairs)),
+                    "station": setup.station,
+                    "spread": localised(f"{math.degrees(collimation_spread) * 3600:.1f}"),
+                },
             )
         )
 
@@ -336,6 +358,10 @@ def setup_diagnostics(
                 stations=(setup.station,),
                 value=index_spread,
                 threshold=collimation_drift_tolerance,
+                context={
+                    "station": setup.station,
+                    "spread": localised(f"{math.degrees(index_spread) * 3600:.1f}"),
+                },
             )
         )
 

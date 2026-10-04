@@ -654,7 +654,7 @@ def _assemble(
                 continue
             wires = _wire_quantities(record, instrument, defaults)
             problem = wires.check(
-                _half_sum_tolerance(instrument), label=f"{record.station} in setup {setup_id}"
+                _half_sum_tolerance(instrument), label=record.station, setup=setup_id
             )
             if problem is not None:
                 findings.append(problem)

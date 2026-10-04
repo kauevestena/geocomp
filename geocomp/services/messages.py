@@ -141,9 +141,9 @@ def finding_text(finding: Finding) -> str:
     The finding's own ``message`` is developer-facing English, kept for logs
     and tests; until P12c-8 every report and panel showed it, in English,
     whatever the language. A finding that reports a refusal is given that
-    refusal's words as ``reason``. A finding whose code has no template yet --
-    the baseline ``tests/structural/unworded_findings.py`` holds, which
-    may only shrink -- falls back to the English.
+    refusal's words as ``reason``. Every finding GeoComp makes has a template
+    (``tests/structural/test_message_templates.py``); the English fallback is
+    for one that does not, which that test fails on.
     """
     template = _TEMPLATES.get(finding.template_code)
     if template is None:

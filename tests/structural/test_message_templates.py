@@ -25,9 +25,9 @@ Since P12c-8 it reads findings too. A ``Finding`` is worded by the template
 ``finding.<wording or code>``, from the keys of its ``context`` -- a dict
 literal, so this test can read them -- and from ``reason`` when it carries the
 refusal it reports. Until P12c-8 a finding carried only an English sentence,
-which every report and panel showed whatever the language. The codes still in
-that state are frozen in ``unworded_findings.py``, and that list may only
-shrink.
+which every report and panel showed whatever the language. The findings in that
+state were frozen in a list that could only shrink; two pull requests later it
+was empty and was removed. A finding, like an error, arrives with its words.
 """
 
 from __future__ import annotations
@@ -37,7 +37,6 @@ import functools
 from collections import defaultdict
 
 from tests.conftest import PLUGIN_DIR, python_sources
-from tests.structural.unworded_findings import UNWORDED
 
 #: ``GeoCompError`` subclass -> the namespace it prefixes bare codes with,
 #: mirroring ``code_namespace`` in :mod:`geocomp.core.errors`.
@@ -54,7 +53,7 @@ NAMESPACES = {
     "_RowError": "data",
 }
 
-PLACEHOLDERS = ("%1", "%2", "%3", "%4", "%5", "%6")
+PLACEHOLDERS = tuple(f"%{index}" for index in range(1, 10))
 
 #: Templates written ahead of the code that raises them, with the phase that
 #: will. Deliberately narrow: a template with no raiser is usually a typo in the
@@ -269,32 +268,20 @@ def test_the_planned_list_does_not_outlive_its_reason():
 
 
 def test_every_code_raised_has_words():
-    """NFR-006: a code with no template reaches the user as the code itself.
+    """NFR-006 and FR-091: a code with no template reaches the user as the code
+    itself, and a finding with none as the core's English.
 
-    No exemption remains for an error. P12c-7 froze the 457 codes it found
-    without words in a list that could only shrink, and removed the list once
-    it was empty. A finding's code is exempt only while it is in
-    ``unworded_findings.py``, P12c-8's own shrinking list.
+    No exemption remains. P12c-7 froze the 457 error codes it found without
+    words, and P12c-8 the 65 findings, each in a list that could only shrink;
+    both lists were removed once empty.
     """
     declared = _declared_templates()
-    without = sorted(
-        code for code in _raised_codes() if code not in declared and code not in UNWORDED
-    )
+    without = sorted(code for code in _raised_codes() if code not in declared)
     assert not without, (
         "Raised or reported with no MessageTemplate, so a user would read the code itself, "
         "or a finding's English (NFR-006, FR-091). Write its template beside the algorithms "
         "that show it:\n" + "\n".join(without)
     )
-
-
-def test_the_unworded_findings_only_shrink():
-    """An entry whose finding gained a template, or is no longer made, must go."""
-    declared = _declared_templates()
-    made = set(_raised_codes())
-    worded = sorted(code for code in UNWORDED if code in declared)
-    gone = sorted(code for code in UNWORDED if code not in made)
-    assert not worded, "Worded now; remove from unworded_findings.py: " + ", ".join(worded)
-    assert not gone, "No longer made; remove from unworded_findings.py: " + ", ".join(gone)
 
 
 def test_every_finding_shows_its_template_and_keys():

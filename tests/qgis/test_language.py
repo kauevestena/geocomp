@@ -248,3 +248,26 @@ def test_a_refused_field_book_row_says_why_in_words():
     text = finding_text(finding)
     assert text.startswith("Row 2: 'horizontal' reads 12.0 75.0 0.0"), text
     assert "data." not in text
+
+
+@pytest.mark.parametrize("locale", LANGUAGES)
+def test_a_technique_finding_speaks_the_language_and_its_numbers(locale):
+    """P12c-8: a levelling finding is worded in the language, and its number is
+    written in the language's separator rather than the core's point."""
+    from geocomp.core.number_format import numbers_for
+    from geocomp.core.techniques.levelling.readings import ThreeWireReading
+    from geocomp.core.uncertainty import Quantity
+    from geocomp.core.units import Unit
+    from geocomp.services.messages import finding_text
+
+    def metres(value):
+        return Quantity.exact(value, Unit.METRE)
+
+    wires = ThreeWireReading(metres(1.6000), metres(1.4000), metres(1.2050))
+    with numbers_for(locale):
+        finding = wires.check(0.002, label="Rn1", setup="Sa3")
+    with _Installed(locale):
+        text = finding_text(finding)
+    assert "Rn1" in text and "Sa3" in text
+    assert "0,0025" in text, text
+    assert "three wires" not in text, text
