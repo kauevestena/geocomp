@@ -44,6 +44,8 @@ condition away matrices that are indefinite for a real reason.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
 from geocomp.core.errors import DataError
@@ -177,6 +179,9 @@ def baseline_from_solution(
         meta={
             "engine": "rtklib",
             "program": solution.program,
+            # The solution file the baseline was formed from: what its
+            # observation names as its provenance (FR-102).
+            "solution_file": Path(solution.path).name if solution.path else "",
             "solution_status": epoch.status.name,
             "satellites": epoch.satellites,
             "ratio": epoch.ratio,

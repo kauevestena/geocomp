@@ -261,6 +261,19 @@ class TestTheWholeChain:
         assert inspection["CAN_ADJUST"] is True
         assert inspection["COMPONENT_COUNT"] == 1
 
+    def test_each_observation_names_its_field_book_rows(self, adjusted):
+        """FR-102 through the files: readings, reductions and network each carry
+        the field book's name and every pointing's rows of it (P12c-19)."""
+        _directory, results = adjusted
+        network = json.loads(Path(results["OUTPUT_NETWORK"]).read_text(encoding="utf-8"))
+        assert network["observations"]
+        for observation in network["observations"]:
+            source = observation["provenance"]
+            assert source["reader"] == "total_station"
+            assert source["file"] == rd01.RAW.name
+            assert len(source["records"]) == 2
+            assert all(record.startswith("row ") for record in source["records"])
+
     def test_the_stations_csv_matches_the_solution(self, adjusted):
         from geocomp.core.models import Solution
 

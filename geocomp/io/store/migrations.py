@@ -319,3 +319,15 @@ def _provenance_strategies(target: MigrationTarget) -> None:
     provenance as it is read.
     """
     _add_column(target, "gc_provenance", "strategies")
+
+
+@register(6, "gc_observation gains provenance")
+def _observation_provenance(target: MigrationTarget) -> None:
+    """Record where each observation came from (FR-102; P12c-19).
+
+    The column is added empty and nothing is back-filled. An observation stored
+    before it was read from a file or reduced from readings that the store
+    never knew, and a provenance made up afterwards would point a user at the
+    wrong line of the wrong field book.
+    """
+    _add_column(target, "gc_observation", "provenance")

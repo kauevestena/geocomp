@@ -67,6 +67,9 @@ class FaceReading:
     #: round-trip a column it did not interpret rather than discarding it
     #: (``specs/09`` section 5).
     extra: dict[str, str] = field(default_factory=dict)
+    #: Where in the field book it was read, in the reader's words ("row 12"):
+    #: what the observation it becomes names as its provenance (FR-102).
+    record: str = ""
 
     def __post_init__(self) -> None:
         _require_unit(self.horizontal, Unit.RADIAN, "horizontal")

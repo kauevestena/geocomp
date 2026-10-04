@@ -5,6 +5,17 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-19 — Observations say where they came from
+
+#### Added
+
+- Every observation read from a DNA, DynaML, Krumm or Adjust file records the file and the line or record it
+  came from. Every total-station observation records the field book and the rows of both faces it was reduced
+  from, through *Import field book*, *Generalised pre-processing* and *Classical network*. A GNSS baseline
+  records its solution file and sessions.
+- Project stores keep it (schema 6). A store from an earlier version is migrated when it is opened, and its
+  observations read back with no provenance rather than an invented one.
+
 ### P12c-18 — 3D networks use the instrument and target heights
 
 #### Fixed

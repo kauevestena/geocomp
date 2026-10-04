@@ -43,6 +43,7 @@ from geocomp.algorithms.reporting import (
 )
 from geocomp.algorithms.totalstation.common import (
     REDUCTIONS_VERSION,
+    document_source,
     findings_table,
     load_profiles,
     read_readings,
@@ -386,7 +387,12 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         reduced = self.parameterAsFileOutput(parameters, OUTPUT_REDUCED, context)
         if reduced:
             with open(reduced, "w", encoding="utf-8") as handle:
-                json.dump(_reductions_document(results), handle, indent=2, sort_keys=True)
+                source = document_source(
+                    self.parameterAsFile(parameters, READINGS, context), parameter=READINGS
+                )
+                json.dump(
+                    _reductions_document(results, source), handle, indent=2, sort_keys=True
+                )
                 handle.write("\n")
 
         html_target = self.parameterAsFileOutput(parameters, OUTPUT_HTML, context)
@@ -525,7 +531,7 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
         )
 
 
-def _reductions_document(results) -> dict[str, Any]:
+def _reductions_document(results, source: str = "") -> dict[str, Any]:
     """Reduced pointings, for the network algorithm to consume.
 
     Version 2 (P12c-18) carries each pointing's instrument and target heights.
@@ -536,6 +542,9 @@ def _reductions_document(results) -> dict[str, Any]:
     return {
         "kind": "geocomp.reductions",
         "version": REDUCTIONS_VERSION,
+        # The field book the readings came from, and each pointing's rows of
+        # it: what the network's observations name as their provenance (FR-102).
+        "source": source,
         "setups": [
             {
                 "station": result.station,
@@ -560,6 +569,7 @@ def _reductions_document(results) -> dict[str, Any]:
                             else None
                         ),
                         "usable": pointing.is_usable,
+                        "records": list(pointing.records),
                         **_heights(pointing),
                     }
                     for pointing in result.pointings

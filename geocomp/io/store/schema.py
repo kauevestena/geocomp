@@ -72,7 +72,10 @@ __all__ = [
 #:
 #: Schema 5 (phase P12c) added ``gc_provenance.strategies``: which
 #: approximations a result rests on, which its provenance had never recorded.
-SCHEMA_VERSION = 5
+#:
+#: Schema 6 (P12c-19) added ``gc_observation.provenance``: where each
+#: observation came from, the reader, the file and the records (FR-102).
+SCHEMA_VERSION = 6
 
 
 class ColumnKind(Enum):
@@ -333,6 +336,14 @@ SCHEMA: tuple[Table, ...] = (
                 ),
             ),
             _json("target_height", note="A Quantity document, or null."),
+            _json(
+                "provenance",
+                note=(
+                    "An ObservationSource document, or null: what read or reduced "
+                    "the observation, from which file, and which records (FR-102). "
+                    "Null for one stored before schema 6, which recorded none."
+                ),
+            ),
         ),
         geometry=GeometryKind.LINESTRING,
         indexes=(("type",), ("station_from",), ("cluster_id",)),

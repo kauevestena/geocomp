@@ -65,6 +65,7 @@ from geocomp.algorithms.reporting import (
     render_table,
 )
 from geocomp.algorithms.totalstation.common import (
+    document_source,
     findings_table,
     load_json,
     read_reductions,
@@ -366,6 +367,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             crs=crs,
             dimension=dimension,
             fixed={name: approximate[name] for name in (fixed_names or ())},
+            source_file=document_source(
+                self.parameterAsFile(parameters, REDUCTIONS, context), parameter=REDUCTIONS
+            ),
         )
         undulation = self.parameterAsDouble(parameters, GEOID_UNDULATION, context)
         network, grid = self._to_grid(

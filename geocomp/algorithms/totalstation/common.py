@@ -34,6 +34,7 @@ from geocomp.services.messages import finding_text
 __all__ = [
     "REDUCTIONS_VERSION",
     "default_library",
+    "document_source",
     "findings_table",
     "load_json",
     "load_mapping",
@@ -240,6 +241,15 @@ def note(text: str) -> str:
     return render_note(text)
 
 
+def document_source(path: str, *, parameter: str) -> str:
+    """The field book a readings or reductions document came from, by name.
+
+    What the observations made from it name as their provenance (FR-102).
+    Empty for a document written before it was recorded, or with no field book.
+    """
+    return str(load_json(path, parameter=parameter).get("source", "") or "")
+
+
 def read_readings(path: str, *, parameter: str = "READINGS") -> list[Setup]:
     """Read the document :mod:`~geocomp.algorithms.totalstation.import_fieldbook` writes.
 
@@ -300,6 +310,7 @@ def _reading(payload: dict) -> FaceReading:
         ),
         set_number=int(payload.get("set_number", 1)),
         extra=dict(payload.get("extra", {})),
+        record=payload.get("record", ""),
     )
 
 
@@ -394,6 +405,7 @@ def read_reductions(
                     findings=() if item.get("usable", True) else (_unusable(item["target"]),),
                     instrument_height=_height(item, "instrument_height"),
                     target_height=_height(item, "target_height"),
+                    records=tuple(item.get("records", ())),
                 )
             )
         results.append(

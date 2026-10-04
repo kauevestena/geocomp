@@ -69,6 +69,7 @@ ADDED_IN = {
     3: [("gc_adjusted_station", "gravity")],
     4: [("gc_project", "revision"), ("gc_network_member", "ordinal")],
     5: [("gc_provenance", "strategies")],
+    6: [("gc_observation", "provenance")],
 }
 
 
@@ -249,6 +250,35 @@ class TestARoundTrip:
         assert back.instrument_height.value == 1.600
         assert back.target_height.value == 1.500
         assert back.height_offset == pytest.approx(-0.100)
+        assert back.meta == {}
+
+    def test_an_observation_s_provenance_survives(self, tmp_path):
+        """FR-102: where it came from, a column of its own (schema 6)."""
+        from geocomp.core.models import ObservationSource
+
+        project = Project(id="p")
+        network = Network(id="n", crs="EPSG:31982")
+        for name in ("A", "B"):
+            network.add_station(Station(id=name, approx_position=None))
+        source = ObservationSource("total_station", "book.csv", ("row 12", "row 13"))
+        network.add_observation(
+            Observation(
+                id="d1",
+                type=ObservationType.HORIZONTAL_DISTANCE,
+                stations=("A", "B"),
+                values=(Quantity.from_std_dev(115.876, 0.005, Unit.METRE),),
+                provenance=source,
+            )
+        )
+        project.add_network(network)
+
+        path = tmp_path / "provenance.gpkg"
+        with open_store(path, create=True) as store:
+            store.write(project)
+        with open_store(path) as store:
+            back = store.read().networks["n"].observations["d1"]
+
+        assert back.provenance == source
         assert back.meta == {}
 
     def test_a_constraint_survives(self, stored):
@@ -679,6 +709,7 @@ class TestVersioning:
         assert report.steps == [
             "4: gc_project gains revision; gc_network_member gains ordinal",
             "5: gc_provenance gains strategies",
+            "6: gc_observation gains provenance",
         ]
         assert ordinals and None not in ordinals
         assert revision == 0
@@ -687,6 +718,28 @@ class TestVersioning:
         for identifier, network in before.networks.items():
             assert list(after.networks[identifier].stations) == list(network.stations)
             assert list(after.networks[identifier].observations) == list(network.observations)
+
+    def test_a_schema_five_store_gains_observation_provenance_and_invents_none(self, stored):
+        """P12c-19's migration (FR-102). An observation stored before it was
+        read or reduced from records the store never knew, so the column
+        arrives empty and every observation reads back with no provenance."""
+        path, *_ = stored
+        downgrade(path, 5)
+
+        connection = sqlite3.connect(path)
+        report = migrate(connection, path, found=5)
+        stored_provenance = list(connection.execute('SELECT provenance FROM "gc_observation"'))
+        connection.close()
+
+        assert report.steps == ["6: gc_observation gains provenance"]
+        assert stored_provenance and all(row == (None,) for row in stored_provenance)
+        with open_store(path) as store:
+            reopened = store.read()
+        assert all(
+            observation.provenance is None
+            for network in reopened.networks.values()
+            for observation in network.observations.values()
+        )
 
     def test_a_failed_step_leaves_the_store_as_it_was(self, stored, monkeypatch):
         """Each migration chain is one transaction, including its first

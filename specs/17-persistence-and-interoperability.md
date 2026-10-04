@@ -103,7 +103,10 @@ starts at 0, and its ordinals are taken from SQLite's row order -- the order the
 migrated network reads back exactly as it did. Schema 5 (phase P12c) added `gc_provenance.strategies`: which
 approximations a result rests on (FR-203), which the provenance had recorded only as a mode. It is added empty
 and left so: a solution's strategies are in its covariance, and a solution puts them in its provenance as it is
-read ([`05`](./05-uncertainty-and-covariance.md) criterion 5).
+read ([`05`](./05-uncertainty-and-covariance.md) criterion 5). Schema 6 (P12c-19) added
+`gc_observation.provenance`: where each observation came from (FR-102, [`04`](./04-data-model.md) §2.5). It
+too is added empty and left so. An observation stored before it existed was read from a file the store never
+knew, and a provenance made up afterwards would point a user at the wrong line.
 
 **Migrations run on both backends since P11.** A migration writes the physical type the schema declares *on
 that backend* (`io/store/migrations.py`, `MigrationTarget`), and a PostGIS store's backup is a copy of its

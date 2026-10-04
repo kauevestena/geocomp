@@ -254,8 +254,9 @@ def read_krumm(path: str | Path, *, network_id: str = "") -> KrummReport:
     source: list[str] = []
     datum: list[str] = []
     heights: dict[str, float] = {}
+    spans: list[tuple[int, int, tuple[str, ...]]] = []
 
-    for raw in text.splitlines():
+    for number, raw in enumerate(text.splitlines(), start=1):
         line = _strip_comment(raw)
         stripped = line.strip()
 
@@ -302,8 +303,11 @@ def read_krumm(path: str | Path, *, network_id: str = "") -> KrummReport:
         elif handler == "coordinates":
             _coordinate(network, heights, stripped)
         else:
+            held = len(network.observations)
             _observation(network, state, handler, units, stripped)
+            spans.append((held, len(network.observations), (f"line {number}",)))
 
+    network.record_provenance(spans, reader="krumm", file=path.name)
     _direction_sets(network)
     _require_known_stations(network, path=path)
     report.title = " ".join(project)

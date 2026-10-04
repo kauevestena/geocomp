@@ -934,6 +934,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "A weighted gravity constraint has no variance. Without an uncertainty it is a fixed "
         "constraint under another name: give its variance, or make it fixed.",
     ),
+    "data.observation_source_without_reader": MessageTemplate(
+        "An observation's provenance names no reader. It must say what made the observation: a "
+        "file format or a reduction.",
+    ),
     "data.observation_arity": MessageTemplate(
         "The observation '%1' is a %2 and joins %3 station(s), where that type joins %4.",
         "observation",
