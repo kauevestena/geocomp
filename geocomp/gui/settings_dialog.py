@@ -74,6 +74,10 @@ def open_algorithm_dialog(algorithm_id: str, parameters: dict[str, Any]) -> None
     processing.execAlgorithmDialog(algorithm_id, parameters)
 
 
+#: The settings page that leads to the instrument profiles, and the tab it opens.
+_PROFILE_TABS = {"total_station": "instruments", "level": "levels", "gravimeter": "gravimeters"}
+
+
 def section_label(section_id: str) -> str:
     """Translated label for a settings section."""
     return {
@@ -365,8 +369,37 @@ class GlobalSettingsDialog(QDialog):
                 form.addRow(setting_label(definition.key), row)
         if section.id == "paths":
             form.addRow(self._engine_panel(page))
+        if section.id in _PROFILE_TABS:
+            form.addRow(self._profiles_button(page, _PROFILE_TABS[section.id]))
 
         self._pages.addWidget(page)
+
+    def _profiles_button(self, parent: QWidget, kind: str) -> QPushButton:
+        """The way to the instrument profiles (FR-069, specs/15 §2.2).
+
+        Instrument constants are named profiles rather than settings, so that a
+        department's several instruments each keep their own; the page of each
+        technique leads to them, on that technique's tab.
+        """
+        button = QPushButton(_tr("Instrument profiles…"), parent)
+        button.setObjectName(f"geocompProfiles_{kind}")
+        button.setToolTip(
+            _tr(
+                "Total stations, reflectors, levels, levelling classes and gravimeters, as "
+                "named profiles: add, edit, duplicate, delete, import and export them."
+            )
+        )
+        button.clicked.connect(lambda _checked=False, kind=kind: self.open_profiles(kind))
+        return button
+
+    def open_profiles(self, kind: str = "") -> QDialog:
+        """Open the instrument profiles window on *kind*'s tab, and return it."""
+        from geocomp.gui.profiles_dialog import ProfileLibraryDialog
+
+        dialog = ProfileLibraryDialog(parent=self, kind=kind)
+        dialog.setModal(True)
+        dialog.show()
+        return dialog
 
     def _engine_panel(self, parent: QWidget) -> QWidget:
         """What each engine is, where it was found, and the way to install one (FR-301).

@@ -3107,6 +3107,10 @@
             <translation>%1 terminou sem gravar um arquivo de solução. A mensagem do próprio motor: %2. Os arquivos de trabalho estão em %3.</translation>
         </message>
         <message>
+            <source>%1 holds JSON, but not a profile library: a library is an object with lists of instruments, reflectors, levels and gravimeters.</source>
+            <translation>%1 contém JSON, mas não uma biblioteca de perfis: uma biblioteca é um objeto com listas de instrumentos, refletores, níveis e gravímetros.</translation>
+        </message>
+        <message>
             <source>%1 is needed for %2 and was not found. Give its path in Global Settings, under Paths and engines, or put it on the system path. Everything in GeoComp that does not need it works without it.</source>
             <translation>%1 é necessário para %2 e não foi encontrado. Informe o seu caminho em Configurações Globais, em Caminhos e motores, ou coloque-o no caminho do sistema. Tudo no GeoComp que não precisa dele funciona sem ele.</translation>
         </message>
@@ -3685,6 +3689,10 @@
         <message>
             <source>A probability for %1 must lie between 0 and 1; %2 was given.</source>
             <translation>Uma probabilidade para %1 deve estar entre 0 e 1; foi dado %2.</translation>
+        </message>
+        <message>
+            <source>A profile with the id '%1' is already in the library. Choose another id.</source>
+            <translation>Um perfil com o id '%1' já está na biblioteca. Escolha outro id.</translation>
         </message>
         <message>
             <source>A project store at schema %1 cannot be brought forward by this version of GeoComp: a migration step is missing. Report this; do not edit the store by hand.</source>
@@ -4979,6 +4987,10 @@
             <translation>A rede de nivelamento '%1' não tem estacionamentos reduzidos, de modo que não há nada a ajustar.</translation>
         </message>
         <message>
+            <source>The library has no profile with the id '%1'.</source>
+            <translation>A biblioteca não tem perfil com o id '%1'.</translation>
+        </message>
+        <message>
             <source>The line %1 accumulated %2 m of sight imbalance, beyond the %3 m its class permits. It is the accumulated figure, not the per-setup one, that multiplies the collimation error over a line.</source>
             <translation>A linha %1 acumulou %2 m de desequilíbrio de visadas, além dos %3 m que sua classe permite. É o valor acumulado, não o de cada estacionamento, que multiplica o erro de colimação ao longo de uma linha.</translation>
         </message>
@@ -5641,6 +5653,10 @@
         <message>
             <source>The value %1 is marked approximate without saying how its uncertainty was estimated. This is an internal error; please report it.</source>
             <translation>O valor %1 está marcado como aproximado sem dizer como sua incerteza foi estimada. Este é um erro interno; por favor, relate-o.</translation>
+        </message>
+        <message>
+            <source>The value given for %1 is not a number: '%2'. Enter a number, with a point or a comma for the decimals.</source>
+            <translation>O valor informado para %1 não é um número: '%2'. Digite um número, com ponto ou vírgula para os decimais.</translation>
         </message>
         <message>
             <source>The variance component of the group '%1' cannot be estimated: its redundancy is only %2, so its residuals barely depend on its own weights. Fix its weights, or merge it with another group.</source>
@@ -6575,6 +6591,357 @@
         </message>
     </context>
     <context>
+        <name>GeoCompProfiles</name>
+        <message>
+            <source>%1 (default)</source>
+            <translation>%1 (padrão)</translation>
+        </message>
+        <message>
+            <source>%1 added.</source>
+            <translation>%1 adicionado.</translation>
+        </message>
+        <message>
+            <source>%1 copied to %2.</source>
+            <translation>%1 copiado para %2.</translation>
+        </message>
+        <message>
+            <source>%1 could not be read as instrument profiles: %2</source>
+            <translation>%1 não pôde ser lido como perfis de instrumento: %2</translation>
+        </message>
+        <message>
+            <source>%1 deleted.</source>
+            <translation>%1 excluído.</translation>
+        </message>
+        <message>
+            <source>%1 is the default.</source>
+            <translation>%1 é o padrão.</translation>
+        </message>
+        <message>
+            <source>%1 profile(s) exported to %2.</source>
+            <translation>%1 perfil(is) exportado(s) para %2.</translation>
+        </message>
+        <message>
+            <source>%1 profile(s) imported.</source>
+            <translation>%1 perfil(is) importado(s).</translation>
+        </message>
+        <message>
+            <source>%1 profile(s) imported. Already in the library, and not replaced: %2.</source>
+            <translation>%1 perfil(is) importado(s). Já estavam na biblioteca e não foram substituídos: %2.</translation>
+        </message>
+        <message>
+            <source>%1 updated.</source>
+            <translation>%1 atualizado.</translation>
+        </message>
+        <message>
+            <source>%1 — %2</source>
+            <translation>%1 — %2</translation>
+        </message>
+        <message>
+            <source>(not saved)</source>
+            <translation>(não salvo)</translation>
+        </message>
+        <message>
+            <source>Add…</source>
+            <translation>Adicionar…</translation>
+        </message>
+        <message>
+            <source>Apply</source>
+            <translation>Aplicar</translation>
+        </message>
+        <message>
+            <source>Atmospheric model</source>
+            <translation>Modelo atmosférico</translation>
+        </message>
+        <message>
+            <source>Calibration certificate</source>
+            <translation>Certificado de calibração</translation>
+        </message>
+        <message>
+            <source>Calibration date</source>
+            <translation>Data de calibração</translation>
+        </message>
+        <message>
+            <source>Calibration factor</source>
+            <translation>Fator de calibração</translation>
+        </message>
+        <message>
+            <source>Collimation error (%1)</source>
+            <translation>Erro de colimação (%1)</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Excluir</translation>
+        </message>
+        <message>
+            <source>Direction, one set (%1)</source>
+            <translation>Direção, uma série (%1)</translation>
+        </message>
+        <message>
+            <source>Duplicate profile</source>
+            <translation>Duplicar perfil</translation>
+        </message>
+        <message>
+            <source>Duplicate…</source>
+            <translation>Duplicar…</translation>
+        </message>
+        <message>
+            <source>EDM additive constant (mm)</source>
+            <translation>Constante aditiva do MED (mm)</translation>
+        </message>
+        <message>
+            <source>EDM cyclic error amplitude (mm)</source>
+            <translation>Amplitude do erro cíclico do MED (mm)</translation>
+        </message>
+        <message>
+            <source>EDM cyclic error wavelength (m)</source>
+            <translation>Comprimento de onda do erro cíclico do MED (m)</translation>
+        </message>
+        <message>
+            <source>EDM precision, constant part (mm)</source>
+            <translation>Precisão do MED, parte constante (mm)</translation>
+        </message>
+        <message>
+            <source>EDM precision, factor on the specification</source>
+            <translation>Precisão do MED, fator sobre a especificação</translation>
+        </message>
+        <message>
+            <source>EDM precision, proportional part (ppm)</source>
+            <translation>Precisão do MED, parte proporcional (ppm)</translation>
+        </message>
+        <message>
+            <source>EDM scale error (ppm)</source>
+            <translation>Erro de escala do MED (ppm)</translation>
+        </message>
+        <message>
+            <source>Export profiles</source>
+            <translation>Exportar perfis</translation>
+        </message>
+        <message>
+            <source>Export selected…</source>
+            <translation>Exportar selecionados…</translation>
+        </message>
+        <message>
+            <source>GeoComp instrument profiles</source>
+            <translation>Perfis de instrumento do GeoComp</translation>
+        </message>
+        <message>
+            <source>GeoComp instrument profiles (*.json)</source>
+            <translation>Perfis de instrumento do GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Gravimeters</source>
+            <translation>Gravímetros</translation>
+        </message>
+        <message>
+            <source>Height difference, per root kilometre (mm)</source>
+            <translation>Desnível, por raiz de quilômetro (mm)</translation>
+        </message>
+        <message>
+            <source>Height difference, per setup (mm)</source>
+            <translation>Desnível, por estacionamento (mm)</translation>
+        </message>
+        <message>
+            <source>Import profiles</source>
+            <translation>Importar perfis</translation>
+        </message>
+        <message>
+            <source>Import…</source>
+            <translation>Importar…</translation>
+        </message>
+        <message>
+            <source>Instrument height (mm)</source>
+            <translation>Altura do instrumento (mm)</translation>
+        </message>
+        <message>
+            <source>Its standard deviation, in the same unit</source>
+            <translation>Seu desvio-padrão, na mesma unidade</translation>
+        </message>
+        <message>
+            <source>Largest imbalance along a line (m)</source>
+            <translation>Maior desbalanceamento ao longo de uma linha (m)</translation>
+        </message>
+        <message>
+            <source>Largest imbalance per setup (m)</source>
+            <translation>Maior desbalanceamento por estacionamento (m)</translation>
+        </message>
+        <message>
+            <source>Levelling classes</source>
+            <translation>Classes de nivelamento</translation>
+        </message>
+        <message>
+            <source>Levels</source>
+            <translation>Níveis</translation>
+        </message>
+        <message>
+            <source>Line-of-sight tilt (%1)</source>
+            <translation>Inclinação da linha de visada (%1)</translation>
+        </message>
+        <message>
+            <source>Longest sight (m)</source>
+            <translation>Maior visada (m)</translation>
+        </message>
+        <message>
+            <source>Manufacturer</source>
+            <translation>Fabricante</translation>
+        </message>
+        <message>
+            <source>Misclosure tolerance k, in k√L (mm)</source>
+            <translation>Tolerância de erro de fechamento k, em k√L (mm)</translation>
+        </message>
+        <message>
+            <source>Model</source>
+            <translation>Modelo</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Nome</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Novo</translation>
+        </message>
+        <message>
+            <source>New profile</source>
+            <translation>Novo perfil</translation>
+        </message>
+        <message>
+            <source>One outer-wire reading (mm)</source>
+            <translation>Uma leitura de fio extremo (mm)</translation>
+        </message>
+        <message>
+            <source>One reading (µGal)</source>
+            <translation>Uma leitura (µGal)</translation>
+        </message>
+        <message>
+            <source>One staff reading (mm)</source>
+            <translation>Uma leitura de mira (mm)</translation>
+        </message>
+        <message>
+            <source>Open instrument profiles</source>
+            <translation>Abrir perfis de instrumento</translation>
+        </message>
+        <message>
+            <source>Open…</source>
+            <translation>Abrir…</translation>
+        </message>
+        <message>
+            <source>Prism constant (mm)</source>
+            <translation>Constante do prisma (mm)</translation>
+        </message>
+        <message>
+            <source>Profile id</source>
+            <translation>Id do perfil</translation>
+        </message>
+        <message>
+            <source>Readings are</source>
+            <translation>As leituras são</translation>
+        </message>
+        <message>
+            <source>Reference refractive index</source>
+            <translation>Índice de refração de referência</translation>
+        </message>
+        <message>
+            <source>Reflectors</source>
+            <translation>Refletores</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Salvar</translation>
+        </message>
+        <message>
+            <source>Save as…</source>
+            <translation>Salvar como…</translation>
+        </message>
+        <message>
+            <source>Save instrument profiles</source>
+            <translation>Salvar perfis de instrumento</translation>
+        </message>
+        <message>
+            <source>Saved to %1.</source>
+            <translation>Salvo em %1.</translation>
+        </message>
+        <message>
+            <source>Serial number</source>
+            <translation>Número de série</translation>
+        </message>
+        <message>
+            <source>Source document</source>
+            <translation>Documento de origem</translation>
+        </message>
+        <message>
+            <source>Stadia factor</source>
+            <translation>Constante estadimétrica</translation>
+        </message>
+        <message>
+            <source>Target height (mm)</source>
+            <translation>Altura do alvo (mm)</translation>
+        </message>
+        <message>
+            <source>The instrument applies its EDM constant</source>
+            <translation>O instrumento aplica sua constante do MED</translation>
+        </message>
+        <message>
+            <source>The instrument applies the atmospheric correction</source>
+            <translation>O instrumento aplica a correção atmosférica</translation>
+        </message>
+        <message>
+            <source>The instrument applies this constant</source>
+            <translation>O instrumento aplica esta constante</translation>
+        </message>
+        <message>
+            <source>The level removes its own tilt</source>
+            <translation>O nível remove sua própria inclinação</translation>
+        </message>
+        <message>
+            <source>The profiles have changes that are not saved. Discard them?</source>
+            <translation>Os perfis têm alterações não salvas. Descartá-las?</translation>
+        </message>
+        <message>
+            <source>The readings have the tide removed</source>
+            <translation>As leituras já têm a maré removida</translation>
+        </message>
+        <message>
+            <source>Total stations</source>
+            <translation>Estações totais</translation>
+        </message>
+        <message>
+            <source>Trunnion axis tilt (%1)</source>
+            <translation>Inclinação do eixo secundário (%1)</translation>
+        </message>
+        <message>
+            <source>Unsaved changes</source>
+            <translation>Alterações não salvas</translation>
+        </message>
+        <message>
+            <source>Use as default</source>
+            <translation>Usar como padrão</translation>
+        </message>
+        <message>
+            <source>Vertical index error (%1)</source>
+            <translation>Erro de índice vertical (%1)</translation>
+        </message>
+        <message>
+            <source>Zenith angle, one set (%1)</source>
+            <translation>Ângulo zenital, uma série (%1)</translation>
+        </message>
+        <message>
+            <source>Zenith angle, refraction term (%1 per km)</source>
+            <translation>Ângulo zenital, termo de refração (%1 por km)</translation>
+        </message>
+        <message>
+            <source>counter units, through a calibration table</source>
+            <translation>unidades do contador, por uma tabela de calibração</translation>
+        </message>
+        <message>
+            <source>gravity</source>
+            <translation>gravidade</translation>
+        </message>
+        <message>
+            <source>± </source>
+            <translation>± </translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompPrompts</name>
         <message>
             <source>Choose a field book</source>
@@ -7106,6 +7473,10 @@
             <translation>Instalar o DynAdjust…</translation>
         </message>
         <message>
+            <source>Instrument profiles…</source>
+            <translation>Perfis de instrumento…</translation>
+        </message>
+        <message>
             <source>Interface</source>
             <translation>Interface</translation>
         </message>
@@ -7280,6 +7651,10 @@
         <message>
             <source>Total Station</source>
             <translation>Estação Total</translation>
+        </message>
+        <message>
+            <source>Total stations, reflectors, levels, levelling classes and gravimeters, as named profiles: add, edit, duplicate, delete, import and export them.</source>
+            <translation>Estações totais, refletores, níveis, classes de nivelamento e gravímetros, como perfis nomeados: adicione, edite, duplique, exclua, importe e exporte.</translation>
         </message>
         <message>
             <source>Transit rule</source>
