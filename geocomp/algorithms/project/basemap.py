@@ -34,6 +34,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.core.errors import GeoCompError
+from geocomp.services.messages import message_for
 
 __all__ = ["ProjectBaseMapAlgorithm"]
 
@@ -112,7 +113,7 @@ class ProjectBaseMapAlgorithm(GeoCompAlgorithm):
                 else catalogue.default(settings.value("basemaps.default_service"))
             )
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         if service is None:
             feedback.pushWarning(

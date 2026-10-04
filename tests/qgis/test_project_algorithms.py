@@ -301,3 +301,6 @@ def test_an_unknown_service_names_the_ones_that_exist(qgis_app) -> None:
     with pytest.raises(QgsProcessingException) as excinfo:
         _run("geocomp:project_basemap", {"SERVICE": "ortofoto-2023"})
     assert "osm" in str(excinfo.value)
+    # In words, not the developer diagnostic it showed until P12c-7.
+    assert "There is no base map service 'ortofoto-2023'" in str(excinfo.value)
+    assert "basemap_not_configured" not in str(excinfo.value)

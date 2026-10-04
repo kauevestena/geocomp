@@ -133,6 +133,19 @@ class TestTheRunHistory:
         assert panel.run_table.rowCount() == 0
         assert str(bad) in panel.status.text()
 
+    def test_a_refused_solution_is_said_in_words(self, panel, tmp_path, solution, geocomp_provider):
+        """Found by P12c-7: the panel showed the refusal's developer diagnostic,
+        code and context, rather than its sentence. The provider registers the
+        templates, and the plugin loads it before it builds the panel."""
+        payload = solution.to_dict()
+        payload["crs"] = ""
+        refused = tmp_path / "no_crs.json"
+        refused.write_text(json.dumps(payload), encoding="utf-8")
+        assert panel.add_solution_file(str(refused)) is None
+        text = panel.status.text()
+        assert "has no coordinate reference system" in text
+        assert "solution_without_crs" not in text
+
 
 class TestTheObservationTable:
     def test_each_filter_narrows_the_table(self, panel, solution):

@@ -86,13 +86,24 @@ P12c-7 counted, 457 of the codes GeoComp raises were in that state.
   profiles, and an observation with no standard deviation from anywhere.
 - The 46 codes of the data model follow: stations and their constraints, observations and clusters,
   positions and heights, epochs, solutions, GNSS sessions, and the project document.
-- The other 79 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
-  raises them, and that list may only shrink. The 31 left in `io/` belong to the readers of the reference
-  corpora (`krumm.py`, `adjust.py`), which no algorithm reaches. `tests/structural/test_message_templates.py` reads all of
-  `geocomp/` and enforces three rules:
-  - a code raised without a template fails unless it is listed;
-  - a listed code that has gained a template, or is no longer raised, fails until its entry is removed;
-  - a code whose every raise site carries an engine's diagnostic fails unless its template shows it.
+- The last 79 complete it. They are the 48 of the core's own modules (uncertainty and covariance matrices,
+  geoid models, base maps and display formats) and the 31 of the readers of the reference corpora
+  (`krumm.py`, `adjust.py`). Only the tests and `scripts/` reach those readers, but whoever runs them reads
+  the refusal.
+
+The codes without words were frozen, while P12c-7 worked through them, in a list that could only shrink. It is
+empty and has been removed, and **there is no exemption**. `tests/structural/test_message_templates.py`
+reads all of `geocomp/` and enforces two rules:
+
+- a code raised without a template fails;
+- a code whose every raise site carries an engine's diagnostic fails unless its template shows it.
+
+A template is only reached through `message_for`. A refusal shown with `str(error)` gives the developer's
+diagnostic, which is the code and its context, so no window, panel or algorithm shows one that way. A handler
+that catches GeoComp's refusals together with Python's own (`OSError`, `ValueError`) says the reason with
+`reason_for`, which words the first and passes the second through. Until P12c-7 these showed `str(error)`:
+*Add base map*, the results panel, the time-series panel, the pre-analysis dialog, the total-station field
+mapping and readings, and the levelling field mapping and lines.
 
 ## 3. Terminology (FR-093)
 

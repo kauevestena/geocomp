@@ -274,10 +274,12 @@ class ResultsPanel(QgsDockWidget):
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
             solution = Solution.from_dict(payload)
         except (OSError, ValueError, KeyError, TypeError, GeoCompError) as error:
+            from geocomp.services.messages import reason_for
+
             self.status.setText(
                 _tr("The solution %1 could not be read: %2")
                 .replace("%1", path)
-                .replace("%2", str(error))
+                .replace("%2", reason_for(error))
             )
             return None
         return self.add_solution(solution, path)

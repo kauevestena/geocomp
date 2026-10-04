@@ -1706,8 +1706,8 @@ read by the user as "GeoComp could not complete the operation (data.some_code)".
   error itself.
 - **A ratchet** (`tests/structural/test_message_templates.py`, specs/18 §2):
   - it reads all of `geocomp/` where it read five places;
-  - a code raised without a template fails unless it is in `tests/structural/untemplated_codes.py`;
-  - that list may only shrink.
+  - a code raised without a template fails unless it is in a baseline list of the codes still without words;
+  - that list may only shrink. The eighth pull request emptied it and removed it.
 
 **Found.**
 
@@ -1912,6 +1912,46 @@ itself (`store_schema_too_new`, which already has words), so its template is for
 |---|---|
 | `core/` (top level) | 48 |
 | `io/` (reference-corpus readers) | 31 |
+
+#### P12c-7 — every error in words (eighth pull request): the last 79, and no exemption
+
+**Delivered.** Templates, with pt-BR and es, for the last 79 codes. That leaves **none**. The baseline list
+of codes without words is removed, and the structural test now fails on **any** code raised without a
+template (specs/18 §2). The register row in specs/20 says so.
+
+- **Uncertainty and covariance matrices (28):** matrices that are not square, not symmetric or not positive
+  semi-definite; labels and units that do not match the size; units that cannot be combined; values outside
+  a function's domain; and the guards of propagation. Several are internal errors, and their words say so and
+  ask for a report.
+- **Geoid models and heights (8):** a grid too small or with no-data nodes, no stated accuracy, a point outside
+  the coverage, bounds out of order, and a conversion a geoid cannot make.
+- **Base maps (9) and the display settings (3):** each sends the user to the settings page that fixes it,
+  *Global Settings, under Base maps* or *under Interface*.
+- **The reference-corpus readers (31):** the ADJUST files and Krumm's examples. Only the tests and `scripts/`
+  read them, but whoever runs them reads the refusal.
+
+No refusal lists a covariance matrix's labels: one over a network's stations would put every station in a
+single message.
+
+**Found.**
+
+- **A base-map key could reach the Processing log** (NFR-010). The tile tokens were checked before the
+  credential, and that refusal carried the URL. A keyed XYZ URL without `{z}`, `{x}` and `{y}` was refused for
+  the tokens, and *Add base map* showed the refusal with `str(error)`, key and all. Now the credential is
+  checked first and no refusal carries the URL, because the check is shallow and may miss a key under an
+  unfamiliar name (specs/17 §5.6). Tests hold both.
+- **Eight places showed `str(error)`**, the developer's diagnostic, instead of the refusal's words. They
+  were *Add base map*, the results panel, the time-series panel, the pre-analysis dialog, the
+  total-station field mapping and readings, and the levelling field mapping and lines. All now word it.
+  Where a handler also catches Python's own errors, it goes through the new `reason_for`, which words a
+  refusal and passes anything else through. For the pre-analysis dialog, the session's state now keeps the
+  refusal, because the finding it made carries only the diagnostic.
+
+**Not done here.** The core's inspection *findings* are a separate set from errors, and they are not
+covered: what *Inspect network*, the field-book import and the pre-analysis dialog report as warnings. Each
+carries a code and an English sentence, and the presentation layer shows the sentence untranslated. That
+gap is outside NFR-006's error messages and is FR-091's to close. It needs a template per finding code, as
+errors have, and is recorded here rather than widened into this pull request.
 
 ---
 

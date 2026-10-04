@@ -331,9 +331,9 @@ class FieldMappingDialog(QDialog):
             # A mapping GeoComp refuses -- an unknown field, no name -- raises a
             # ValidationError, which is not a ValueError: until P12c-7 it escaped
             # this slot and reached the user as a Python traceback.
-            from geocomp.services.messages import message_for
+            from geocomp.services.messages import reason_for
 
-            reason = message_for(exc) if isinstance(exc, GeoCompError) else str(exc)
+            reason = reason_for(exc)
             QMessageBox.warning(
                 self,
                 _tr("Mapping not loaded"),

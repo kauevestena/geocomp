@@ -222,10 +222,12 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
             payload.setdefault("stadia_factor", stadia_factor)
             return LevelMapping.from_dict(payload)
         except (GeoCompError, KeyError, TypeError, ValueError) as exc:
+            from geocomp.services.messages import reason_for
+
             raise QgsProcessingException(
                 self.tr("'%1' could not be read as a levelling field mapping: %2")
                 .replace("%1", path)
-                .replace("%2", str(exc))
+                .replace("%2", reason_for(exc))
             ) from exc
 
     def _write_report(self, parameters, context, result, level, mapping) -> None:

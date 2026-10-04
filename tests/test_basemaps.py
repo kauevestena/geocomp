@@ -96,6 +96,31 @@ def test_ordinary_urls_are_not_flagged(url: str) -> None:
     assert service(url=url).url == url
 
 
+def test_a_key_in_a_url_without_tile_tokens_is_refused_as_a_key() -> None:
+    """Found by P12c-7: the tile tokens were checked first, and that refusal held
+    the URL, so the key reached the Processing log through *Add base map*."""
+    with pytest.raises(ValidationError) as excinfo:
+        service(url="https://tiles.example.org/map.png?apikey=s3cret")
+    assert excinfo.value.code == "validation.basemap_url_carries_a_credential"
+    assert "s3cret" not in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"url": "https://tiles.example.org/map.png?key=s3cret"},
+        {"url": "https://tiles.example.org/{z}/{x}/{y}.png?key=s3cret", "maximum_zoom": -1},
+    ],
+    ids=["without tile tokens", "impossible zoom range"],
+)
+def test_no_refusal_repeats_the_url(fields: dict[str, object]) -> None:
+    """The credential check is shallow by design, so a refused URL may still
+    hold a key it does not recognise -- and a refusal is shown and logged."""
+    with pytest.raises(ValidationError) as excinfo:
+        service(**fields)
+    assert "s3cret" not in str(excinfo.value)
+
+
 def test_authentication_goes_through_an_auth_config_reference() -> None:
     authenticated = service(auth_config_id="qgis_auth_7f2a1c")
     assert authenticated.needs_authentication

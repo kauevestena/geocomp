@@ -177,6 +177,20 @@ class TestThePanelKeepsUp:
         assert "Nothing to evaluate" in dialog._summary.text()
         assert not dialog._buttons.button(QDialogButtonBox.StandardButton.Ok).isEnabled()
 
+    def test_a_design_the_arithmetic_refuses_is_said_in_words(self, dialog, geocomp_provider):
+        """Found by P12c-7: the panel showed the refusal's developer diagnostic
+        -- its code and context -- where the user reads the findings."""
+        from geocomp.core.errors import ComputationError
+        from geocomp.core.findings import Finding, Severity
+        from geocomp.core.preanalysis.session import SessionState
+
+        error = ComputationError("adjustment_did_not_run", network="design")
+        finding = Finding(code=error.code, severity=Severity.BLOCKING, message=str(error))
+        dialog._render_panel(SessionState(report=None, findings=(finding,), error=error))
+        text = dialog._findings.text()
+        assert "produced no iterations" in text
+        assert "adjustment_did_not_run" not in text
+
     def test_a_complete_design_fills_the_table_and_enables_ok(self, dialog):
         from qgis.PyQt.QtWidgets import QDialogButtonBox
 

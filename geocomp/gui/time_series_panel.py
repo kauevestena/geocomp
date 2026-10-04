@@ -281,7 +281,11 @@ class TimeSeriesPanel(QgsDockWidget):
         try:
             document = read_series_document(json.loads(Path(path).read_text(encoding="utf-8")))
         except (OSError, ValueError, GeoCompError) as error:
-            self.status.setText(_tr("The series document could not be read: %1").replace("%1", str(error)))
+            from geocomp.services.messages import reason_for
+
+            self.status.setText(
+                _tr("The series document could not be read: %1").replace("%1", reason_for(error))
+            )
             return
         self.path = path
         self.set_document(document)

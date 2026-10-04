@@ -179,6 +179,53 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "input",
         "station",
     ),
+    # -- geoid models and the heights they relate (P12c-7) -----------------------
+    "validation.geoid_without_id": MessageTemplate(
+        "A geoid model has no id; a solution records which model produced its heights by it. "
+        "Give the model one.",
+    ),
+    "data.geoid_grid_too_small": MessageTemplate(
+        "The geoid model '%1' has a grid of shape %2; interpolation needs a two-dimensional grid "
+        "of at least 2 by 2 nodes.",
+        "geoid",
+        "shape",
+    ),
+    "data.geoid_grid_not_finite": MessageTemplate(
+        "The geoid model '%1' has nodes without a value. A no-data value in the grid would be "
+        "interpolated into a plausible-looking height; fill the grid, or use one that covers the "
+        "area completely.",
+        "geoid",
+    ),
+    "validation.geoid_without_sigma": MessageTemplate(
+        "The geoid model '%1' states an accuracy of %2. A geoid model is not exact, and its "
+        "uncertainty often limits a combined height solution; give its stated accuracy in "
+        "metres, as a positive number.",
+        "geoid",
+        "received",
+    ),
+    "validation.geoid_outside_coverage": MessageTemplate(
+        "The point at latitude, longitude %2 lies outside the coverage of the geoid model '%1'; "
+        "expected %3. A geoid model quoted beyond its coverage gives a confidently wrong height; "
+        "use a model that covers the point.",
+        "geoid",
+        "received",
+        "expected",
+    ),
+    "validation.coverage_not_ordered": MessageTemplate(
+        "The coverage of a geoid model is not in order: its south bound must lie below its north "
+        "bound, and its west bound west of its east. Check the bounds the grid declares.",
+    ),
+    "validation.height_conversion_unsupported": MessageTemplate(
+        "Heights cannot be converted between %1. A geoid relates ellipsoidal and orthometric "
+        "heights only; normal heights need a quasi-geoid, which is a different model.",
+        "received",
+    ),
+    "validation.height_wrong_unit": MessageTemplate(
+        "The %1 is in %2, where %3 was expected.",
+        "parameter",
+        "received",
+        "expected",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

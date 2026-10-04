@@ -83,10 +83,16 @@ class SessionState:
     ``report`` is ``None`` when the design could not be evaluated, and
     ``findings`` then says why. Both are always present, so a caller renders one
     shape rather than branching on which kind of answer arrived.
+
+    ``error`` is the refusal behind a design the arithmetic could not evaluate,
+    kept so the presentation layer can say it in words: its finding carries
+    only the developer's diagnostic, which is what the dialog showed until
+    P12c-7.
     """
 
     report: DesignReport | None
     findings: tuple[Finding, ...] = ()
+    error: GeoCompError | None = None
 
     @property
     def is_evaluable(self) -> bool:
@@ -332,7 +338,7 @@ class DesignSession:
                     message=str(exc),
                 )
             )
-            return SessionState(report=None, findings=tuple(findings))
+            return SessionState(report=None, findings=tuple(findings), error=exc)
 
         findings.extend(self._quality_findings(report))
         return SessionState(report=report, findings=tuple(findings))

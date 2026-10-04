@@ -112,22 +112,11 @@ class BaseMapService:
                     "puts the user in breach of the licence without telling them"
                 ),
             )
-        if self.kind is ServiceKind.XYZ and not all(
-            token in self.url for token in ("{z}", "{x}", "{y}")
-        ):
-            raise ValidationError(
-                "basemap_url_without_tile_tokens",
-                service=self.id,
-                received=self.url,
-                expected="{z}, {x} and {y} in an XYZ tile URL",
-            )
-        if self.minimum_zoom < 0 or self.maximum_zoom < self.minimum_zoom:
-            raise ValidationError(
-                "basemap_zoom_range",
-                service=self.id,
-                received=[self.minimum_zoom, self.maximum_zoom],
-                expected="0 <= minimum_zoom <= maximum_zoom",
-            )
+        # The credential is looked for first, and no refusal carries the URL.
+        # Until P12c-7 the tile tokens were checked first and that refusal held
+        # the URL, so a keyed URL without them reached the Processing log key
+        # and all. The check below is shallow by design, and a URL it passes may
+        # still hold a key it does not recognise.
         if _looks_like_a_credential(self.url):
             raise ValidationError(
                 "basemap_url_carries_a_credential",
@@ -137,6 +126,21 @@ class BaseMapService:
                     "an entry in the QGIS authentication database; a key in the URL is "
                     "copied into every export and every log (NFR-010)"
                 ),
+            )
+        if self.kind is ServiceKind.XYZ and not all(
+            token in self.url for token in ("{z}", "{x}", "{y}")
+        ):
+            raise ValidationError(
+                "basemap_url_without_tile_tokens",
+                service=self.id,
+                expected="{z}, {x} and {y} in an XYZ tile URL",
+            )
+        if self.minimum_zoom < 0 or self.maximum_zoom < self.minimum_zoom:
+            raise ValidationError(
+                "basemap_zoom_range",
+                service=self.id,
+                received=[self.minimum_zoom, self.maximum_zoom],
+                expected="0 <= minimum_zoom <= maximum_zoom",
             )
 
     @property

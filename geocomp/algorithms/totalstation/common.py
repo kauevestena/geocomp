@@ -159,10 +159,12 @@ def load_mapping(path: str, header: list[str]) -> FieldMapping:
     try:
         return FieldMapping.from_dict(load_json(path, parameter="MAPPING"))
     except (GeoCompError, KeyError, TypeError, ValueError) as exc:
+        from geocomp.services.messages import reason_for
+
         raise QgsProcessingException(
             _tr("'%1' could not be read as a field mapping: %2")
             .replace("%1", path)
-            .replace("%2", str(exc))
+            .replace("%2", reason_for(exc))
         ) from exc
 
 
@@ -264,10 +266,12 @@ def read_readings(path: str, *, parameter: str = "READINGS") -> list[Setup]:
             for single in entry.get("singles", ()):
                 setup.singles.append(_reading(single))
         except (GeoCompError, KeyError, TypeError, ValueError) as exc:
+            from geocomp.services.messages import reason_for
+
             raise QgsProcessingException(
                 _tr("'%1' could not be read as readings: %2")
                 .replace("%1", path)
-                .replace("%2", str(exc))
+                .replace("%2", reason_for(exc))
             ) from exc
         setups.append(setup)
 

@@ -191,6 +191,77 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
         "supported",
     ),
+    # -- base maps (P12c-7) ------------------------------------------------------
+    # None of these carries the service's URL: one may hold a key the credential
+    # check does not recognise, and a refusal is shown and logged (NFR-010).
+    "data.basemap_catalogue_unreadable": MessageTemplate(
+        "The base map catalogue '%1' could not be read (%2). Correct the file, or clear the "
+        "catalogue in Global Settings, under Base maps, to use the built-in services.",
+        "path",
+        "reason",
+    ),
+    "validation.basemap_without_id": MessageTemplate(
+        "A base map service in the catalogue has no id; the default service is named by it. Give "
+        "every service one.",
+    ),
+    "validation.basemap_without_url": MessageTemplate(
+        "The base map service '%1' has no URL. Give it the address of its tiles.",
+        "service",
+    ),
+    "validation.basemap_without_attribution": MessageTemplate(
+        "The base map service '%1' has no attribution. Adding a base map without the attribution "
+        "its licence requires breaches that licence; give it, or write none if the service "
+        "genuinely requires none.",
+        "service",
+    ),
+    "validation.basemap_url_without_tile_tokens": MessageTemplate(
+        "The URL of the base map service '%1' is an XYZ tile URL without {z}, {x} and {y}, so no "
+        "tile could be requested. Add them where the service expects them.",
+        "service",
+    ),
+    "validation.basemap_zoom_range": MessageTemplate(
+        "The zoom range of the base map service '%1' runs from %2; the minimum zoom must be 0 or "
+        "more, and no greater than the maximum.",
+        "service",
+        "received",
+    ),
+    "validation.basemap_url_carries_a_credential": MessageTemplate(
+        "The URL of the base map service '%1' carries a key or password, which would be copied "
+        "into every export and every log. Remove it, and name a QGIS authentication "
+        "configuration in the service's auth_config_id instead.",
+        "service",
+    ),
+    "validation.basemap_duplicate_id": MessageTemplate(
+        "The base map catalogue has more than one service with the id %1. Give each service its "
+        "own id.",
+        "received",
+    ),
+    "validation.basemap_not_configured": MessageTemplate(
+        "There is no base map service '%1' in the catalogue; expected %2. Choose one of them, or "
+        "add the service to the catalogue in Global Settings, under Base maps.",
+        "received",
+        "expected",
+    ),
+    # -- how numbers are written (P12c-7) ------------------------------------------
+    "validation.display_angle_format_unknown": MessageTemplate(
+        "'%1' is not an angle format GeoComp writes; expected %2. Correct it in Global Settings, "
+        "under Interface.",
+        "received",
+        "expected",
+    ),
+    "validation.display_distance_unit_unknown": MessageTemplate(
+        "'%1' is not a distance unit GeoComp writes; expected %2. Correct it in Global Settings, "
+        "under Interface.",
+        "received",
+        "expected",
+    ),
+    "validation.display_decimals_out_of_range": MessageTemplate(
+        "The setting %1 is %2, which is out of range; expected %3. Correct it in Global "
+        "Settings, under Interface.",
+        "parameter",
+        "received",
+        "expected",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():
