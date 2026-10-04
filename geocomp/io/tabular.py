@@ -556,45 +556,75 @@ def read_rows(path: str | Path, *, encoding: str = "utf-8-sig") -> list[list[str
         return list(csv.reader(handle))
 
 
-def read_workbook_rows(path: str | Path) -> list[list[str]]:
+def read_workbook_rows(path: str | Path, *, limit: int | None = None) -> list[list[str]]:
     """The first worksheet of an ``.xlsx``, every row as wide as the widest.
 
     A cell the sheet leaves out is ``""``, as an empty CSV field is. Numbers
     are their shortest exact decimal: a spreadsheet stores ``45.302`` as
     ``45.302000000000007``, and the field book said ``45.302``.
+
+    With *limit*, only the sheet's first *limit* rows are read. The sheet is
+    streamed and left as soon as they are, and the string table is read only
+    as far as they reach into it, so a preview costs what it shows rather than
+    what the workbook holds: the mapping dialog reads on the GUI thread
+    (NFR-004), and until P12c-13 a 5,000-row workbook held it for 0.4 s.
     """
     source = Path(path)
     try:
         with zipfile.ZipFile(source) as archive:
             names = set(archive.namelist())
+            with archive.open(_first_sheet(archive)) as part:
+                rows = _sheet_cells(part, limit)
+            needed = max(
+                (
+                    int(text)
+                    for cells in rows.values()
+                    for kind, text in cells.values()
+                    if kind == "s" and text
+                ),
+                default=-1,
+            )
             strings = (
-                _shared_strings(archive.read("xl/sharedStrings.xml"))
-                if "xl/sharedStrings.xml" in names
+                _shared_strings(archive, through=needed)
+                if needed >= 0 and "xl/sharedStrings.xml" in names
                 else []
             )
-            sheet = ElementTree.fromstring(archive.read(_first_sheet(archive)))
     except (zipfile.BadZipFile, KeyError, ElementTree.ParseError, ValueError) as error:
         raise DataError("workbook_unreadable", path=str(source)) from error
 
-    rows: dict[int, dict[int, str]] = {}
-    for row in sheet.iter(f"{_MAIN}row"):
-        number = int(row.get("r") or (max(rows, default=0) + 1))
-        cells: dict[int, str] = {}
-        column = 0
-        for cell in row.findall(f"{_MAIN}c"):
-            reference = cell.get("r")
-            column = _column_index(reference) if reference else column + 1
-            cells[column] = _cell_text(cell, strings)
-        rows[number] = cells
     if not rows:
         return []
     width = max((max(cells) for cells in rows.values() if cells), default=0)
     return [
-        [rows.get(number, {}).get(column, "") for column in range(1, width + 1)]
+        [
+            _decode(*rows[number][column], strings)
+            if column in rows.get(number, {})
+            else ""
+            for column in range(1, width + 1)
+        ]
         for number in range(1, max(rows) + 1)
     ]
 
 
+def _sheet_cells(stream, limit: int | None) -> dict[int, dict[int, tuple[str, str]]]:
+    """Each row's cells as (type, raw text), by row and column number, read
+    one row at a time and no further than row *limit*."""
+    rows: dict[int, dict[int, tuple[str, str]]] = {}
+    for _event, element in ElementTree.iterparse(stream, events=("end",)):
+        if element.tag != f"{_MAIN}row":
+            continue
+        number = int(element.get("r") or (max(rows, default=0) + 1))
+        if limit is not None and number > limit:
+            break
+        cells: dict[int, tuple[str, str]] = {}
+        column = 0
+        for cell in element.findall(f"{_MAIN}c"):
+            reference = cell.get("r")
+            column = _column_index(reference) if reference else column + 1
+            cells[column] = _cell_raw(cell)
+        rows[number] = cells
+        element.clear()
+    return rows
 def _first_sheet(archive: zipfile.ZipFile) -> str:
     """The part holding the workbook's first sheet, by its relationship."""
     workbook = ElementTree.fromstring(archive.read("xl/workbook.xml"))
@@ -610,12 +640,22 @@ def _first_sheet(archive: zipfile.ZipFile) -> str:
     raise ValueError("the first sheet has no part")
 
 
-def _shared_strings(xml: bytes) -> list[str]:
-    """The workbook's string table. Phonetic runs (``rPh``) are not the text."""
-    table = []
-    for item in ElementTree.fromstring(xml).findall(f"{_MAIN}si"):
-        parts = [item.find(f"{_MAIN}t"), *(run.find(f"{_MAIN}t") for run in item.findall(f"{_MAIN}r"))]
-        table.append("".join(part.text or "" for part in parts if part is not None))
+def _shared_strings(archive: zipfile.ZipFile, *, through: int) -> list[str]:
+    """The workbook's string table, as far as entry *through*. Phonetic runs
+    (``rPh``) are not the text."""
+    table: list[str] = []
+    with archive.open("xl/sharedStrings.xml") as part:
+        for _event, item in ElementTree.iterparse(part, events=("end",)):
+            if item.tag != f"{_MAIN}si":
+                continue
+            parts = [
+                item.find(f"{_MAIN}t"),
+                *(run.find(f"{_MAIN}t") for run in item.findall(f"{_MAIN}r")),
+            ]
+            table.append("".join(part.text or "" for part in parts if part is not None))
+            item.clear()
+            if len(table) > through:
+                break
     return table
 
 
@@ -630,12 +670,17 @@ def _column_index(reference: str) -> int:
     return index
 
 
-def _cell_text(cell: ElementTree.Element, strings: list[str]) -> str:
+def _cell_raw(cell: ElementTree.Element) -> tuple[str, str]:
+    """A cell's type and its text as stored: an index into the string table
+    for a shared string, the text itself for an inline one."""
     kind = cell.get("t", "n")
     if kind == "inlineStr":
-        return "".join(node.text or "" for node in cell.iter(f"{_MAIN}t"))
+        return kind, "".join(node.text or "" for node in cell.iter(f"{_MAIN}t"))
     value = cell.find(f"{_MAIN}v")
-    text = value.text or "" if value is not None else ""
+    return kind, (value.text or "" if value is not None else "")
+
+
+def _decode(kind: str, text: str, strings: list[str]) -> str:
     if kind == "s":
         return strings[int(text)] if text else ""
     if kind == "b":

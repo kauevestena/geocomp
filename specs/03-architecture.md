@@ -193,6 +193,13 @@ is actually met. The one computation the plugin runs on the main thread is the p
 algorithm declares Processing's no-threading flag: *Create print layout* (P12b), which adds a layout to the
 project — the mutation the third rule keeps on the main thread — and computes nothing.
 
+**As found in P12c-13: not the one.** Three panels read a user's file on the main thread, and one of them was
+unbounded. The field-mapping dialog previewed a workbook by reading all of it, 0.4 s at 5,000 rows; it now
+reads only the rows it shows ([`17`](./17-persistence-and-interoperability.md) §5.1). The results panel reads
+a solution document, and the time-series panel a series, on the main thread still: a 625-station solution with
+its full covariance is 37 MB and took 0.85 s to read, four times NFR-004's bound. Moving those reads into a
+task is the remaining work, and the requirement register records NFR-004 as partly met until it is done.
+
 The module stays, because the first thing that does need it (a long import, a multi-session GNSS batch in
 P7, a monitoring run in P10) should not have to write it under deadline. It was at **0% coverage** until the
 review; `tests/qgis/test_task_service.py` now exercises the cancellation adapter, the progress clamping, the
@@ -223,7 +230,10 @@ justification, because a QGIS plugin cannot assume the user can run `pip`.
 |---|---|---|
 | NumPy | Assumed present | Ships with QGIS |
 | SciPy | **Preferred present, not required** | Used for sparse factorisation and distribution quantiles when available; the core MUST provide a NumPy-only fallback path, which is the reference implementation. See [`adr/0008-scipy-and-network-scale.md`](./adr/0008-scipy-and-network-scale.md); the distributions use it since P2, and since P12c the sparse adjustment path does, beyond a 1 GiB dense footprint ([`06`](./06-adjustment-core.md) §2.4.1) |
-| GDAL/OGR, `qgis.core` | Assumed present | Ships with QGIS; used only in `io/` and above |
+| GDAL/OGR | Assumed present | Ships with QGIS; used only in `io/` and above |
+| `qgis.core` | Assumed present | Ships with QGIS; never under `core/` (NFR-002) |
+| `processing` | Assumed present | QGIS's own Processing plugin, which every QGIS installs; the plugin and the settings window open its dialogs |
+| `psycopg2` | **Needed for PostGIS only** | The driver QGIS's own database tools use. QGIS's installers carry it and GeoComp does not bundle it; it is imported only when a PostGIS store is opened, and where it is absent the refusal names it ([`17`](./17-persistence-and-interoperability.md) §4) |
 | `openpyxl` | **Test-only** | Amended in P5 — see below. Not needed at runtime; used in the test suite to read GeoComp's own `.xlsx` back with an independent implementation |
 | `requests` | Avoided | Use Python's standard library plus the QGIS network stack, so proxy and authentication settings are honoured |
 

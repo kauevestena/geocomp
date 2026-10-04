@@ -23,7 +23,7 @@ import pytest
 
 from geocomp.core.errors import DataError
 from geocomp.io import infer_mapping, read_field_book_csv
-from geocomp.io.tabular import read_coordinates, read_rows
+from geocomp.io.tabular import read_coordinates, read_rows, read_workbook_rows
 from tests import reference_rd01 as rd01
 from tests.test_fieldbook_import import library
 
@@ -233,3 +233,62 @@ class TestStationCoordinates:
         with pytest.raises(DataError) as refused:
             read_coordinates(path)
         assert refused.value.code == "data.coordinate_table_empty"
+
+
+class TestAPreviewReadsOnlyWhatItShows:
+    """NFR-004: the mapping dialog previews on the GUI thread. Until P12c-13 a
+    workbook was read whole to show twelve rows -- 0.4 s at 5,000 rows, 2 s at
+    20,000. Shown here by what is never read: a sheet and a string table that
+    are broken well past the rows the preview asks for still preview.
+
+    "Well past": the parser reads a part in 16 KiB pieces, and a piece is
+    parsed whole, so the break is put a few pieces on.
+    """
+
+    PADDING = 3000
+
+    @staticmethod
+    def _inline_row(number: int, row: list[str]) -> str:
+        return f'<row r="{number}">' + "".join(
+            f'<c r="{_column(index)}{number}" t="inlineStr"><is><t>{text}</t></is></c>'
+            for index, text in enumerate(row, start=1)
+        ) + "</row>"
+
+    def test_the_sheet_is_left_after_the_rows_asked_for(self, tmp_path):
+        rows = [["Station", "HZ"], *([f"S{n}", f"{n}.5"] for n in range(self.PADDING))]
+        data = "".join(self._inline_row(n, row) for n, row in enumerate(rows, start=1))
+        path = workbook(tmp_path / "long.xlsx", [], sheet_data=data + '<row r="0"><c r="A')
+        assert read_workbook_rows(path, limit=3) == rows[:3]
+        with pytest.raises(DataError):
+            read_workbook_rows(path)
+
+    def test_the_string_table_is_read_only_as_far_as_those_rows_reach(self, tmp_path):
+        """Row 3 names the broken entry past the padding; rows 1 and 2 do not.
+        Without a limit the table is still read only as far as the rows
+        reach, which here is into the break."""
+        far = 4 + self.PADDING
+        table = (
+            "".join(f"<si><t>{text}</t></si>" for text in ("Station", "HZ", "A", "unused"))
+            + "".join(f"<si><t>unused {n}</t></si>" for n in range(self.PADDING))
+            + "<si><t>never"
+        )
+        data = (
+            '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>'
+            '<row r="2"><c r="A2" t="s"><v>2</v></c><c r="B2"><v>1.5</v></c></row>'
+            f'<row r="3"><c r="A3" t="s"><v>{far}</v></c><c r="B3"><v>2.5</v></c></row>'
+        )
+        path = workbook(tmp_path / "strings.xlsx", [], extra_strings=table, sheet_data=data)
+        assert read_workbook_rows(path, limit=2) == [["Station", "HZ"], ["A", "1.5"]]
+        with pytest.raises(DataError):
+            read_workbook_rows(path)
+
+    def test_the_dialog_previews_a_workbook_that_way(self, tmp_path):
+        pytest.importorskip("qgis")
+        from geocomp.gui.mapping_dialog import read_preview
+
+        rows = [["Station", "HZ"], *([f"S{n}", f"{n}.5"] for n in range(self.PADDING))]
+        data = "".join(self._inline_row(n, row) for n, row in enumerate(rows, start=1))
+        path = workbook(tmp_path / "book.xlsx", [], sheet_data=data + '<row r="0"><c r="A')
+        preview = read_preview(path, rows=12)
+        assert preview.header == ("Station", "HZ")
+        assert [list(row) for row in preview.rows] == rows[1:13]
