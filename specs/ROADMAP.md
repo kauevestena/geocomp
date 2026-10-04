@@ -2308,6 +2308,39 @@ able to show it.
 All four partly met and the open one are P13's deliverables, as its plan already states. One block remains: the
 non-functional requirements (NFR-001 to NFR-012).
 
+#### P12c-13 — every requirement held to a test (eighth pull request): the non-functional requirements
+
+NFR-001 to NFR-012: 9 met and 3 partly met, of 12. **Every requirement now has a row**: 155 met, 20 partly
+met and 1 open, of 176. The list of blocks still to audit is gone, and the register test now asks for a row
+for every requirement in specs/02.
+
+**Found and fixed.**
+
+- **The field-mapping dialog stalled on a large workbook (NFR-004).** Its preview read the whole `.xlsx` on
+  the GUI thread to show twelve rows: 0.1 s at 1,000 rows, 0.4 s at 5,000, 2 s at 20,000. The defect came in
+  with P12c-13's own `.xlsx` reader. The sheet is now streamed, and the reader stops after the rows asked for;
+  the string table is read only as far as those rows reach. A preview takes 3 to 5 ms at any size.
+- **Two runtime dependencies had no recorded decision (NFR-005).** `psycopg2` was justified only in specs/17,
+  and QGIS's `processing` nowhere. Both are now in specs/03 §3.7. `tests/structural/test_dependencies.py`
+  holds every package the plugin imports to that table.
+- **Nothing measured whether a module outside `core/` was tested at all (NFR-011).** CI's coverage run now
+  measures the whole plugin, and `scripts/check_coverage.py` fails if a module defines functions and the suite
+  runs none of them. Locally the only modules it names are the two PostGIS ones, which need the server the QGIS
+  job provides. `classFactory` is exempt, with its reason: it runs in a QGIS of its own.
+- **Nothing held public interfaces to being documented and annotated (NFR-012).** Of the 1,347 classes,
+  functions and methods one module imports from another, 399 have no docstring and 51 are not fully annotated.
+  `tests/structural/test_public_interfaces.py` freezes both lists and lets them only shrink, as P12c-7 did for
+  unworded error codes.
+
+**Not done here — the three partly met.**
+
+- NFR-004: the results panel and the time-series panel read their documents on the GUI thread. A 625-station
+  solution with full covariance (37 MB) takes 0.85 s, so those reads need to move into a task. Nothing
+  measures the 200 ms bound.
+- NFR-006: every error has words and none reaches the user as a traceback, but nothing checks that each
+  message says what the user can do.
+- NFR-012: the 399 and the 51 above.
+
 ---
 
 ## P13 — Validation, documentation and release

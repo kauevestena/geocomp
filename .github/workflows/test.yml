@@ -221,19 +221,20 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           set -o pipefail
-          # Under coverage of core/: this is the run with QGIS, SciPy and PostGIS
-          # all present, so it is the one that reaches the most of the core.
+          # Under coverage of the whole plugin: this is the run with QGIS, SciPy
+          # and PostGIS all present, so it is the one that reaches the most.
           if command -v xvfb-run >/dev/null 2>&1; then
             echo "running under xvfb-run"
-            xvfb-run -a python3 -m coverage run --source=geocomp/core -m pytest -ra --tb=short 2>&1 | tee pytest.log
+            xvfb-run -a python3 -m coverage run --source=geocomp -m pytest -ra --tb=short 2>&1 | tee pytest.log
           else
             echo "xvfb-run not present; offscreen platform only"
-            python3 -m coverage run --source=geocomp/core -m pytest -ra --tb=short 2>&1 | tee pytest.log
+            python3 -m coverage run --source=geocomp -m pytest -ra --tb=short 2>&1 | tee pytest.log
           fi
 
       # specs/20 criterion 6: coverage of core/ measured and reported, and
-      # every public function in it reached by at least one test.
-      - name: Coverage of core/, and every public function reached
+      # every public function in it reached by at least one test; NFR-011:
+      # every module of the plugin run by one.
+      - name: Coverage, every public function of core/ reached, every module run
         run: |
           python3 -m coverage report --sort=cover | tail -25
           python3 -m coverage report > coverage.txt

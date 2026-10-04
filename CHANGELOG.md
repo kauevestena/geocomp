@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-13 — A large workbook no longer stalls the field-mapping dialog
+
+#### Fixed
+
+- Opening the field-mapping dialog on a large `.xlsx` field book froze QGIS while the whole workbook was read,
+  only to show its first rows: 0.4 s at 5,000 rows, 2 s at 20,000. The dialog now reads just the rows it
+  previews, in a few milliseconds whatever the workbook's size.
+
 ### P12c-13 — DynAdjust results on the map
 
 #### Added

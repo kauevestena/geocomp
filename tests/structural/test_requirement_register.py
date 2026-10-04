@@ -9,9 +9,9 @@ requirement, a test behind every **met** -- directly, or through "As NN.N" to a
 met acceptance row -- a reason behind everything else, and no citation of a test
 that does not exist.
 
-The register is written a block at a time. :data:`UNAUDITED` lists the blocks
-still to come, and **may only shrink**: a block leaves it in the pull request
-that audits it.
+The register was written a block at a time, against a list of the blocks still
+to come that could only shrink. Seven pull requests emptied it, and since then
+every requirement has a row.
 """
 
 from __future__ import annotations
@@ -34,10 +34,6 @@ from tests.structural.test_acceptance_register import (
 )
 
 REQUIREMENTS = SPECS / "02-requirements.md"
-
-#: The blocks of specs/02 with no rows yet. Each leaves in the pull request that
-#: audits it, and nothing is ever added.
-UNAUDITED = frozenset({"NFR"})
 
 #: A row: | FR-001 | **state** | evidence |
 ROW = re.compile(
@@ -68,22 +64,15 @@ def _rows() -> tuple[dict[str, str], ...]:
 def test_the_requirements_are_found():
     """Guards the parser: a changed table layout would make every other test vacuous."""
     assert len(_requirements()) > 150
-    assert {_block(r) for r in _requirements()} >= UNAUDITED | {f"{n}xx" for n in range(10)}
+    assert {_block(r) for r in _requirements()} == {f"{n}xx" for n in range(10)} | {"NFR"}
 
 
-def test_every_audited_requirement_has_exactly_one_row():
+def test_every_requirement_has_exactly_one_row():
     ids = [row["id"] for row in _rows()]
     duplicated = sorted({i for i in ids if ids.count(i) > 1})
     assert not duplicated, f"requirements with more than one row: {duplicated}"
-    expected = {r for r in _requirements() if _block(r) not in UNAUDITED}
-    assert sorted(expected - set(ids)) == [], "audited requirements with no row"
+    assert sorted(set(_requirements()) - set(ids)) == [], "requirements with no row"
     assert sorted(set(ids) - set(_requirements())) == [], "rows for requirements that do not exist"
-
-
-def test_no_unaudited_block_has_rows():
-    """A block with rows is audited, and leaves UNAUDITED in the same change."""
-    early = sorted(row["id"] for row in _rows() if _block(row["id"]) in UNAUDITED)
-    assert not early, f"rows for a block still listed as unaudited: {early}"
 
 
 def test_every_state_is_one_of_the_four():

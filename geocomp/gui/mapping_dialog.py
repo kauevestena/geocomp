@@ -52,7 +52,7 @@ from geocomp.io.mapping_editor import (
     PreviewTable,
     field_is_required,
 )
-from geocomp.io.tabular import read_rows
+from geocomp.io.tabular import read_workbook_rows
 from geocomp.services.messages import finding_text
 
 __all__ = ["FieldMappingDialog", "angle_format_label", "field_label", "read_preview"]
@@ -116,12 +116,12 @@ def angle_format_label(value: AngleFormat) -> str:
 def read_preview(path: str | Path, *, rows: int = PREVIEW_ROWS) -> PreviewTable:
     """The header and first rows of a CSV or ``.xlsx``, for the preview pane.
 
-    A CSV is read only as far as it shows: a field book can be large, and a
-    dialog that loaded all of it to display twelve rows would stall on opening.
-    A workbook is one compressed part and is read whole.
+    Either is read only as far as it shows: a field book can be large, and a
+    dialog that loaded all of it to display twelve rows would stall on opening
+    (NFR-004). Until P12c-13 a workbook was read whole.
     """
     if Path(path).suffix.lower() == ".xlsx":
-        table = read_rows(path)
+        table = read_workbook_rows(path, limit=rows + 1)
     else:
         with open(path, encoding="utf-8-sig", newline="") as handle:
             table = [row for _index, row in zip(range(rows + 1), csv.reader(handle), strict=False)]

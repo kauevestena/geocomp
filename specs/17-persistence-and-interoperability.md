@@ -225,6 +225,9 @@ the spreadsheet saved with them is read. A date cell arrives as its serial numbe
 a date column. **Stations as well as observations:** *Total station network*'s approximate coordinates are
 also read from a CSV or `.xlsx` table — a station, its easting, its northing and its height on each row —
 where until P12c-13 only a JSON document was accepted (`tests/test_spreadsheet_import.py`).
+**The preview reads only what it shows.** The mapping dialog runs on the GUI thread, so a workbook is
+streamed there and left after the rows the preview displays, and its string table is read only as far as
+they reach into it (NFR-004). As first built it read the whole workbook: 0.4 s at 5,000 rows, 2 s at 20,000.
 
 ### 5.2 The *Adjust* format (FR-161) **[V]**
 

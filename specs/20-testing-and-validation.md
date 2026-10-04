@@ -40,10 +40,13 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | No credential appears in any log, config, provenance record or export | NFR-010 |
 | Basic and Advanced modes produce identical numeric results with defaults, for every algorithm | FR-071 |
 | Every acceptance criterion of every specification has one row in §10's register, and every test a row cites exists | §9 criterion 8 |
-| Every requirement of an audited block has one row in §11's register, and every test a row cites exists (P12c-13) | FR-302 and FR-304's lesson: a requirement with no criterion of its own was held to nothing |
+| Every requirement has one row in §11's register, and every test a row cites exists (P12c-13) | FR-302 and FR-304's lesson: a requirement with no criterion of its own was held to nothing |
 | Every parameter an algorithm declares is read by the run, and every output it declares is returned (P12c-12) | [`16-processing-provider.md`](./16-processing-provider.md) §4 |
 | Every translated string that uses a glossary term uses the glossary's rendering of it (`scripts/check_glossary.py`) | FR-093, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §3 |
 | Coverage of `core/` measured on every run of the QGIS job, and every public function and method of `core/` reached by at least one test (`scripts/check_coverage.py`) | §9 criterion 6 |
+| Every module of the plugin has a function the suite runs, measured in the same run (`scripts/check_coverage.py`, P12c-13) | NFR-011 |
+| Every package the plugin imports has a recorded decision in [`03`](./03-architecture.md) §3.7 (P12c-13) | NFR-005 |
+| Every interface one module imports from another is documented and annotated, against a frozen list that may only shrink (P12c-13) | NFR-012 |
 
 ## 3. Reference datasets (FR-950)
 
@@ -462,9 +465,10 @@ version (FR-302), and its time limit could not be configured (FR-304). Neither r
 own. This table gives every requirement of [`02`](./02-requirements.md) a row with the same four states and the
 same rules: a **met** row cites a test, directly or through "As NN.N" to a met acceptance row, and a row that
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
-document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
+document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
+without a row.
 
-**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955 (P12c-13). State now: 146 met, 17 partly met, 1 open, 0 manual, of 164.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 155 met, 20 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -632,3 +636,15 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-953 | **met** | Public, with CI on every push (`.github/workflows/test.yml`, `.github/workflows/build.yml`), every algorithm's help held to its parameters (`tests/qgis/test_algorithm_help.py`), and the specifications in `specs/`. Teaching material is FR-952's row |
 | FR-954 | **open** | No contribution guide. §8 says what it must cover and P13 writes it; how companies and public bodies take part is the maintainer's to decide, not an audit's to draft |
 | FR-955 | **partly met** | What a report needs is kept: a DynAdjust failure that names its files leaves them and says where (`tests/qgis/test_engine_runs.py::TestADynAdjustRefusal`), an RTKLIB working directory is kept on request with its configuration (`tests/qgis/test_engine_runs.py::TestTheWorkingDirectory`), and the command and what the engine said are in the result (`tests/qgis/test_engine_runs.py::TestTheVersion`). Nothing packages them into one report for upstream, as §8 describes: P13's |
+| NFR-001 | **met** | `metadata.txt` declares 4.0 (`tests/structural/test_version_consistency.py::test_minimum_qgis_is_the_targeted_series`); the releases under test are read from QGIS's own channels and held to this requirement's reading, stable until a 4.x LTR exists (`tests/test_qgis_versions.py`), As 21.5 |
+| NFR-002 | **met** | `tests/structural/test_no_qgis_in_core.py` |
+| NFR-003 | **met** | As 21.5. How far each engine is installed on each system is FR-301's row |
+| NFR-004 | **partly met** | Processing runs every algorithm off the GUI thread (FR-008's row). Since P12c-13 the field-mapping dialog's preview of a workbook reads only the rows it shows (`tests/test_spreadsheet_import.py::TestAPreviewReadsOnlyWhatItShows`); it had read the whole workbook on the GUI thread, 0.4 s at 5,000 rows. Not met: the results panel reads a solution, and the time-series panel a series, on the GUI thread, and a 625-station solution with its full covariance, 37 MB, took 0.85 s. Nothing measures the 200 ms bound |
+| NFR-005 | **met** | Since P12c-13, every package the plugin imports is one [`03`](./03-architecture.md) §3.7 records (`tests/structural/test_dependencies.py`). The first run found two that it did not: `psycopg2`, recorded only in specs/17, and QGIS's `processing` |
+| NFR-006 | **partly met** | Every code and finding has words naming what failed, with the values that failed (`tests/structural/test_message_templates.py`), and a core error that leaves an algorithm reaches the user as those words, not as a traceback or a code (`tests/qgis/test_inputs_are_named.py::test_an_input_of_the_wrong_kind_is_refused_and_named`). That each also says what the user can do is not checked: most do, and some say what and why and stop |
+| NFR-007 | **met** | As 08.2; the solution identical by every route, provenance aside (`tests/qgis/test_model_chain.py::TestEveryWayGivesOneAnswer`), and its report byte for byte (`tests/qgis/test_adjustment_report.py::TestItIsDeterministic`) |
+| NFR-008 | **met** | As 06.8 |
+| NFR-009 | **met** | As 21.7; `tests/structural/test_version_consistency.py::test_licence_is_declared_as_gpl` |
+| NFR-010 | **met** | As 08.7; a PostGIS login reaches no log, result, copy or setting (`tests/qgis/test_postgis_project.py`) |
+| NFR-011 | **met** | Since P12c-13 every module of the plugin has a function the suite runs, checked after the QGIS job (`scripts/check_coverage.py`, `tests/test_coverage_check.py`); the one exemption, `classFactory`, runs in a QGIS of its own. Until then only `core/` was measured. The core runs with no QGIS and no engine in the `core` jobs (`.github/workflows/test.yml`), every public function reached, As 20.6 |
+| NFR-012 | **partly met** | Held since P12c-13 by `tests/structural/test_public_interfaces.py`: of the 1,347 classes, functions and methods one module imports from another, 399 have no docstring and 51 are not fully annotated, frozen in lists that may only shrink |
