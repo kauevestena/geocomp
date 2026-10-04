@@ -34,6 +34,7 @@ from geocomp.core.techniques.levelling import (
 )
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
+from geocomp.services.messages import finding_text
 
 __all__ = [
     "default_level",
@@ -366,7 +367,7 @@ def findings_table(findings: tuple[Finding, ...]) -> str:
             [
                 marker,
                 f"<code>{escape(finding.code)}</code>",
-                escape(finding.message),
+                escape(finding_text(finding)),
                 escape(involves) or "—",
             ]
         )
@@ -385,7 +386,7 @@ def summarise_findings(findings: tuple[Finding, ...], feedback) -> tuple[int, in
     """Push every finding to the log and return the blocking and warning counts."""
     blocking = warnings = 0
     for finding in findings:
-        line = f"[{finding.code}] {finding.message}"
+        line = f"[{finding.code}] {finding_text(finding)}"
         if finding.severity is Severity.BLOCKING:
             blocking += 1
             feedback.pushWarning(line)

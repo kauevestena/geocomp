@@ -185,8 +185,14 @@ class TestThePanelKeepsUp:
         from geocomp.core.preanalysis.session import SessionState
 
         error = ComputationError("adjustment_did_not_run", network="design")
-        finding = Finding(code=error.code, severity=Severity.BLOCKING, message=str(error))
-        dialog._render_panel(SessionState(report=None, findings=(finding,), error=error))
+        finding = Finding(
+            code=error.code,
+            severity=Severity.BLOCKING,
+            message=str(error),
+            error=error,
+            wording="design_not_evaluable",
+        )
+        dialog._render_panel(SessionState(report=None, findings=(finding,)))
         text = dialog._findings.text()
         assert "produced no iterations" in text
         assert "adjustment_did_not_run" not in text

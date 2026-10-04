@@ -28,7 +28,7 @@ import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from geocomp.core.errors import ValidationError
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.profiles import InstrumentProfile, ProfileLibrary
 from geocomp.core.instruments.stochastic import (
@@ -187,10 +187,13 @@ def read_field_book(
         except _RowError as error:
             findings.append(
                 Finding(
-                    code=error.code,
+                    code=error.code.removeprefix("data."),
                     severity=Severity.BLOCKING,
                     message=f"row {offset}: {error}",
                     value=float(offset),
+                    context={"row": str(offset)},
+                    error=error,
+                    wording="field_book_row_refused",
                 )
             )
 
@@ -208,12 +211,13 @@ def read_field_book(
     )
 
 
-class _RowError(Exception):
-    """A problem with one record. Carries a code so the finding is stable."""
+class _RowError(DataError):
+    """A problem with one record, reported as a finding rather than raised (FR-166).
 
-    def __init__(self, code: str, message: str) -> None:
-        super().__init__(message)
-        self.code = code
+    A :class:`DataError` so it is worded as any refusal is; its own class so
+    that only the row's problems are caught as the row's, and a defect deeper
+    down is not reported as a bad record.
+    """
 
 
 def _parse_row(row_number: int, row: dict[str, str], mapping: FieldMapping) -> FieldBookRecord:
@@ -236,14 +240,11 @@ def _parse_row(row_number: int, row: dict[str, str], mapping: FieldMapping) -> F
         try:
             return mapping.parse_number(value, unit=column.unit if column else "")
         except ValueError as error:
-            raise _RowError(
-                "unparseable_number",
-                f"column for {name} holds {value!r}, which is not a number ({error})",
-            ) from error
+            raise _RowError("unparseable_number", field=name, received=value) from error
 
     station = text("station")
     if not station:
-        raise _RowError("missing_station", "no occupied station")
+        raise _RowError("missing_station")
 
     target = _resolve_target(row, mapping, text)
     face = _resolve_face(text("face"), mapping)
@@ -255,9 +256,7 @@ def _parse_row(row_number: int, row: dict[str, str], mapping: FieldMapping) -> F
     try:
         set_number = int(set_text) if set_text else 1
     except ValueError as error:
-        raise _RowError(
-            "unparseable_set_number", f"set number {set_text!r} is not a whole number"
-        ) from error
+        raise _RowError("unparseable_set_number", received=set_text) from error
 
     known = mapping.source_columns
     return FieldBookRecord(
@@ -299,18 +298,18 @@ def _resolve_target(row, mapping: FieldMapping, text) -> str:
         if role is None:
             raise _RowError(
                 "unknown_sighted_value",
-                f"{sighted!r} is not one of the configured sighted values "
-                f"({', '.join(sorted(mapping.sighted_values))})",
+                received=sighted,
+                expected=sorted(mapping.sighted_values),
             )
         target = text("backsight") if role == "backsight" else text("foresight")
         if not target:
-            raise _RowError("missing_target", f"no {role} station on this row")
+            raise _RowError("missing_target", field=role)
         return target
 
     foresight = text("foresight")
     if foresight:
         return foresight
-    raise _RowError("missing_target", "no target, foresight or sighted column supplies a target")
+    raise _RowError("missing_target", field="target")
 
 
 def _resolve_face(value: str | None, mapping: FieldMapping) -> Face:
@@ -326,9 +325,7 @@ def _resolve_face(value: str | None, mapping: FieldMapping) -> Face:
     name = mapping.face_values.get(value.strip().upper()) or mapping.face_values.get(value.strip())
     if name is None:
         raise _RowError(
-            "unknown_face_value",
-            f"{value!r} is not one of the configured face values "
-            f"({', '.join(sorted(mapping.face_values))})",
+            "unknown_face_value", received=value, expected=sorted(mapping.face_values)
         )
     return Face.DIRECT if name == "direct" else Face.REVERSE
 
@@ -338,33 +335,28 @@ def _angle(mapping: FieldMapping, name: str, text, number) -> float:
     if mapping.angle_format is AngleFormat.SEXAGESIMAL_TRIPLE:
         parts = [number(f"{name}_{part}") for part in ("degrees", "minutes", "seconds")]
         if all(part is None for part in parts):
-            raise _RowError("missing_angle", f"no {name} angle on this row")
+            raise _RowError("missing_angle", field=name)
         degrees, minutes, seconds = (part or 0.0 for part in parts)
         if not 0.0 <= minutes < 60.0 or not 0.0 <= seconds < 60.0:
             raise _RowError(
-                "sexagesimal_out_of_range",
-                f"{name} reads {degrees} {minutes} {seconds}: minutes and seconds must be "
-                "below 60. A value above it usually means the columns are in the wrong "
-                "order or the angle is already decimal",
+                "sexagesimal_out_of_range", field=name, received=f"{degrees} {minutes} {seconds}"
             )
         sign = -1.0 if degrees < 0 else 1.0
         return math.radians(sign * (abs(degrees) + minutes / 60.0 + seconds / 3600.0))
 
     raw = text(name)
     if raw is None or raw == "":
-        raise _RowError("missing_angle", f"no {name} angle on this row")
+        raise _RowError("missing_angle", field=name)
 
     if mapping.angle_format is AngleFormat.SEXAGESIMAL_TEXT:
         try:
             return parse_angle(raw)
         except ValueError as error:
-            raise _RowError(
-                "unparseable_angle", f"{name} reads {raw!r}, which is not an angle ({error})"
-            ) from error
+            raise _RowError("unparseable_angle", field=name, received=raw) from error
 
     value = number(name)
     if value is None:
-        raise _RowError("missing_angle", f"no {name} angle on this row")
+        raise _RowError("missing_angle", field=name)
     if mapping.angle_format is AngleFormat.DECIMAL_DEGREES:
         return math.radians(value)
     if mapping.angle_format is AngleFormat.GON:
@@ -405,6 +397,7 @@ def _assemble(
                         "instrument heights. The first was used; check the field book"
                     ),
                     stations=(station,),
+                    context={"station": station, "count": str(len(instrument_heights))},
                 )
             )
         height = next(iter(sorted(instrument_heights)), None)
@@ -418,6 +411,7 @@ def _assemble(
                         "which is right only for a leap-frog setup"
                     ),
                     stations=(station,),
+                    context={"station": station},
                 )
             )
             height = 0.0
@@ -458,6 +452,11 @@ def _add_readings(
                     ),
                     observations=(record.target,),
                     value=float(record.row),
+                    context={
+                        "row": str(record.row),
+                        "target": record.target,
+                        "set": str(record.set_number),
+                    },
                 )
             )
             continue

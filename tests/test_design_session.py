@@ -168,8 +168,9 @@ class TestWhatItRefuses:
             default_sigma_for(ObservationType.GNSS_BASELINE)
 
     def test_a_design_the_arithmetic_refuses_keeps_the_refusal(self, monkeypatch):
-        """So the dialog can word it; the finding carries only the developer's
-        diagnostic, which is what it showed until P12c-7."""
+        """So the dialog can word it: the finding carries the refusal itself, not
+        only its developer diagnostic, which is what the dialog showed until
+        P12c-7."""
         from geocomp.core.errors import ComputationError
         from geocomp.core.preanalysis import session as module
 
@@ -181,8 +182,10 @@ class TestWhatItRefuses:
         monkeypatch.setattr(module, "simulate", refuse)
         state = _quadrilateral().evaluate()
         assert not state.is_evaluable
-        assert state.error is refusal
-        assert state.blocking[-1].code == refusal.code
+        finding = state.blocking[-1]
+        assert finding.code == refusal.code
+        assert finding.error is refusal
+        assert finding.template_code == "finding.design_not_evaluable"
 
     def test_a_refused_edit_leaves_no_undo_point_behind(self):
         """Otherwise undo would step through edits that never happened."""

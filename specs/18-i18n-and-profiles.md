@@ -103,11 +103,29 @@ diagnostic, which is the code and its context, so no window, panel or algorithm 
 that catches GeoComp's refusals together with Python's own (`OSError`, `ValueError`) says the reason with
 `reason_for`, which words the first and passes the second through. Until P12c-7 these showed `str(error)`:
 *Add base map*, the results panel, the time-series panel, the pre-analysis dialog, the total-station field
-mapping and readings, and the levelling field mapping and lines. **One way remains**, and it goes through
-findings rather than errors. The levelling-book import turns a refused setup or line into a finding
-(`f"setup {id}: {error}"`), so the diagnostic reaches the import report. Findings are not yet worded at all.
-The core's inspection findings carry an English sentence, which every report and panel shows as it is. That
-breaks this section's own rule that the core never phrases a sentence. P12c-8 closes both.
+mapping and readings, and the levelling field mapping and lines.
+
+**Every finding has its words too (P12c-8).** A finding is returned rather than raised (FR-166), but the
+reader meets it in the same places: a report, the Processing log, a dialog. Until P12c-8 it carried only an
+English sentence, and everything showed that sentence whatever the language. That broke the rule above that
+the core never phrases a sentence. A finding is now worded as an error is:
+
+- It carries a `context`: the ids and values its sentence needs. A number in the context is already written
+  for the reader, rounded and in the display locale's separator (FR-094), because the template only places
+  it. `finding_text` does not localise, so a station named `1.1` is not rewritten as a number.
+- Its template is `finding.<code>`. The English `message` stays, for logs and tests only.
+- A finding that reports a refusal carries it as `error`, and its template says it through `reason`. A
+  refusal reported per row, setup or line keeps the refusal's code, which filters and tests use, and names
+  the frame it is worded by with `wording`: "Row %1: %2". The levelling-book import showed such a refusal's
+  developer diagnostic (`f"setup {id}: {error}"`) until P12c-8; it now shows its words.
+- A file keeps the English: a findings CSV is the same in every language, as FR-095 requires of anything a
+  person does not read on the screen.
+
+The structural test reads findings as it reads errors. Every `Finding(...)` must name its template and
+context keys where the test can read them: a literal code or `wording`, and a dict literal for `context`. Its
+template must interpolate only those keys. The findings still without words are frozen in
+`tests/structural/unworded_findings.py`, which may only shrink. They are the techniques' own: levelling and
+the total station.
 
 ## 3. Terminology (FR-093)
 

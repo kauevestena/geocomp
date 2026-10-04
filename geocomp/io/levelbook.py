@@ -37,7 +37,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from geocomp.core.errors import ValidationError
+from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.instruments.level import LevelProfile
 from geocomp.core.instruments.profiles import ProfileLibrary
@@ -427,10 +427,13 @@ def read_level_book(
         except _RowError as error:
             findings.append(
                 Finding(
-                    code=error.code,
+                    code=error.code.removeprefix("data."),
                     severity=Severity.BLOCKING,
                     message=f"row {offset}: {error}",
                     value=float(offset),
+                    context={"row": str(offset)},
+                    error=error,
+                    wording="level_book_row_refused",
                 )
             )
 
@@ -447,12 +450,12 @@ def read_level_book(
     )
 
 
-class _RowError(Exception):
-    """One row could not be understood. Carries a code for the finding."""
+class _RowError(DataError):
+    """One row could not be understood, reported as a finding rather than raised.
 
-    def __init__(self, code: str, message: str) -> None:
-        super().__init__(message)
-        self.code = code
+    A :class:`DataError` so it is worded as any refusal is; its own class so
+    that only the row's problems are caught as the row's.
+    """
 
 
 def _value(row: dict[str, str], mapping: LevelMapping, name: str) -> str | None:
@@ -471,15 +474,13 @@ def _number(
     text = _value(row, mapping, name)
     if text is None:
         if required:
-            raise _RowError("level_missing_value", f"{name} is empty")
+            raise _RowError("level_missing_value", field=name)
         return None
     column = mapping.for_field(name)
     try:
         return mapping.parse_number(text, unit=column.unit if column else "")
-    except ValueError as error:
-        raise _RowError(
-            "level_unreadable_number", f"{name} is not a number: {text!r} ({error})"
-        ) from None
+    except ValueError:
+        raise _RowError("level_unreadable_number", field=name, received=text) from None
 
 
 def _three_wire(
@@ -510,14 +511,12 @@ def _parse_row(
         setup = _value(row, mapping, "setup")
         station = _value(row, mapping, "station")
         if not setup or not station:
-            raise _RowError("level_missing_value", "setup and station are both required")
+            raise _RowError("level_missing_value", field="setup" if not setup else "station")
         token = _value(row, mapping, "sight") or ""
         sight = mapping.sight_values.get(token, mapping.sight_values.get(token.upper()))
         if sight is None:
             raise _RowError(
-                "level_unknown_sight",
-                f"{token!r} is not a kind of sight; expected one of "
-                f"{', '.join(sorted(mapping.sight_values))}",
+                "level_unknown_sight", received=token, expected=sorted(mapping.sight_values)
             )
         wires = _three_wire(row, mapping, "")
         reading = (
@@ -543,7 +542,8 @@ def _parse_row(
     foresight_station = _value(row, mapping, "foresight_station")
     if not backsight_station or not foresight_station:
         raise _RowError(
-            "level_missing_value", "backsight_station and foresight_station are required"
+            "level_missing_value",
+            field="backsight_station" if not backsight_station else "foresight_station",
         )
     setup = _value(row, mapping, "setup") or f"setup-{number}"
 
@@ -612,6 +612,11 @@ def _assemble(
                         "backsight and at least one foresight"
                     ),
                     value=float(members[0].row),
+                    context={
+                        "setup": setup_id,
+                        "backsights": str(len(backsights)),
+                        "foresights": str(len(foresights)),
+                    },
                 )
             )
             continue
@@ -636,6 +641,9 @@ def _assemble(
                     severity=Severity.BLOCKING,
                     message=f"setup {setup_id}: {error}",
                     value=float(members[0].row),
+                    context={"setup": setup_id},
+                    error=error,
+                    wording="level_setup_refused",
                 )
             )
             continue
@@ -684,6 +692,9 @@ def _lines(
                     code=error.code.split(".")[-1],
                     severity=Severity.BLOCKING,
                     message=f"line {name}: {error}",
+                    context={"line": name},
+                    error=error,
+                    wording="level_line_refused",
                 )
             )
     return lines

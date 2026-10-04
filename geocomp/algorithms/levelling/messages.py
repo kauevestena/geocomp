@@ -301,6 +301,45 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "level",
         "received",
     ),
+    # -- a levelling book's rows, setups and lines (P12c-8) -----------------------
+    # Each refusal is reported as a finding, worded by the frame it is reported
+    # in with the refusal's own words as the reason.
+    "data.level_missing_value": MessageTemplate(
+        "'%1' is empty.",
+        "field",
+    ),
+    "data.level_unreadable_number": MessageTemplate(
+        "'%2', given for '%1', is not a number.",
+        "field",
+        "received",
+    ),
+    "data.level_unknown_sight": MessageTemplate(
+        "'%1' is not a kind of sight the mapping knows (%2).",
+        "received",
+        "expected",
+    ),
+    "finding.level_book_row_refused": MessageTemplate(
+        "Row %1: %2",
+        "row",
+        "reason",
+    ),
+    "finding.level_setup_refused": MessageTemplate(
+        "Setup %1: %2",
+        "setup",
+        "reason",
+    ),
+    "finding.level_line_refused": MessageTemplate(
+        "Line %1: %2",
+        "line",
+        "reason",
+    ),
+    "finding.level_setup_malformed": MessageTemplate(
+        "Setup %1 has %2 backsight(s) and %3 foresight(s); it needs exactly one backsight and "
+        "at least one foresight.",
+        "setup",
+        "backsights",
+        "foresights",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

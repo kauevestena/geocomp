@@ -89,11 +89,52 @@ def inspect(network: Network, *, frame: Frame = Frame.PLANE_2D) -> InspectionRep
 
 
 def _referential_findings(network: Network) -> list[Finding]:
-    """Reuse the model's own integrity check rather than duplicating it."""
-    return [
-        Finding("referential_integrity", Severity.BLOCKING, problem)
-        for problem in network.validate()
-    ]
+    """Reuse the model's own integrity check rather than duplicating it.
+
+    One code for all of them, which filters use; each kind is worded by its own
+    template, because "names a station that does not exist" and "a covariance
+    of the wrong size" are different sentences.
+    """
+    findings: list[Finding] = []
+    for problem in network.integrity_problems():
+        if problem.kind == "unknown_station":
+            finding = Finding(
+                "referential_integrity",
+                Severity.BLOCKING,
+                problem.message,
+                context={"observation": problem.subject, "station": problem.other},
+                wording="observation_names_unknown_station",
+            )
+        elif problem.kind == "unknown_cluster":
+            finding = Finding(
+                "referential_integrity",
+                Severity.BLOCKING,
+                problem.message,
+                context={"observation": problem.subject, "cluster": problem.other},
+                wording="observation_names_unknown_cluster",
+            )
+        elif problem.kind == "unknown_member":
+            finding = Finding(
+                "referential_integrity",
+                Severity.BLOCKING,
+                problem.message,
+                context={"cluster": problem.subject, "observation": problem.other},
+                wording="cluster_names_unknown_observation",
+            )
+        else:
+            finding = Finding(
+                "referential_integrity",
+                Severity.BLOCKING,
+                problem.message,
+                context={
+                    "cluster": problem.subject,
+                    "size": problem.other,
+                    "components": problem.components,
+                },
+                wording="cluster_covariance_wrong_size",
+            )
+        findings.append(finding)
+    return findings
 
 
 def _support_findings(active, frame: Frame) -> list[Finding]:
@@ -107,6 +148,7 @@ def _support_findings(active, frame: Frame) -> list[Finding]:
                     f"observation {observation.id} is of type {observation.type.value}, "
                     "which the in-house adjustment does not yet implement",
                     observations=(observation.id,),
+                    context={"observation": observation.id, "type": observation.type.value},
                 )
             )
         elif frame.dimension not in observation.spec.dimensionality:
@@ -117,6 +159,11 @@ def _support_findings(active, frame: Frame) -> list[Finding]:
                     f"observation {observation.id} of type {observation.type.value} cannot "
                     f"contribute to a {frame.dimension}D adjustment",
                     observations=(observation.id,),
+                    context={
+                        "observation": observation.id,
+                        "type": observation.type.value,
+                        "dimension": str(frame.dimension),
+                    },
                 )
             )
     return findings
@@ -165,6 +212,7 @@ def _connectivity_findings(
                 f"the network falls into {len(components)} disconnected parts; each has its "
                 "own datum and they cannot be adjusted together",
                 stations=tuple(component[0] for component in components),
+                context={"parts": str(len(components))},
             )
         )
 
@@ -180,6 +228,7 @@ def _connectivity_findings(
                 f"{len(isolated)} station(s) take part in no active observation and cannot "
                 "be determined: " + ", ".join(isolated),
                 stations=tuple(isolated),
+                context={"count": str(len(isolated)), "stations": isolated},
             )
         )
     return findings
@@ -211,6 +260,12 @@ def _observation_count_findings(network: Network, active, frame: Frame) -> list[
                     f"station {station_id} appears in only {count} observation component(s), "
                     f"but a {frame.dimension}D position needs at least {needed}",
                     stations=(station_id,),
+                    context={
+                        "station": station_id,
+                        "count": str(count),
+                        "dimension": str(frame.dimension),
+                        "needed": str(needed),
+                    },
                 )
             )
     return findings
@@ -239,6 +294,12 @@ def _duplicate_findings(active) -> list[Finding]:
                     "expected; a duplicated import is not",
                     stations=tuple(stations),
                     observations=tuple(ids),
+                    context={
+                        "count": str(len(ids)),
+                        "type": observation_type.value,
+                        "stations": list(stations),
+                        "observations": ids,
+                    },
                 )
             )
     return findings
@@ -261,5 +322,6 @@ def _approximate_coordinate_findings(network: Network) -> list[Finding]:
             + ". The linearised model needs a point to linearise about; supply them, or "
             "generate them from the observations",
             stations=tuple(missing),
+            context={"count": str(len(missing)), "stations": missing},
         )
     ]

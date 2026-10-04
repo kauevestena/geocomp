@@ -194,3 +194,57 @@ def test_geocomps_language_overrides_qgiss():
                 settings.remove(key)
             else:
                 settings.setValue(key, value)
+
+
+@pytest.mark.parametrize("locale", LANGUAGES)
+def test_a_finding_speaks_the_language(locale):
+    """P12c-8: a finding is worded from its code and context, not its English.
+
+    Until then every report, log line and dialog showed the core's English
+    sentence whatever the language. The levelling book's refused setup also
+    showed the refusal's developer diagnostic, ``validation.missing_...``.
+    """
+    from geocomp.io.levelbook import read_level_book
+    from geocomp.services.messages import finding_text
+    from tests.test_levelbook_import import SETUP_MAPPING, SETUP_ROWS
+
+    result = read_level_book(SETUP_ROWS, SETUP_MAPPING)
+    (refused, *_) = [f for f in result.findings if f.code == "missing_stochastic_model"]
+    english = finding_text(refused)
+    with _Installed(locale) as catalogue:
+        translated = finding_text(refused)
+    frame = catalogue["GeoCompMessages"]["Setup %1: %2"]
+    assert translated.startswith(frame.split("%1")[0]), translated
+    assert translated != english
+    for text in (english, translated):
+        assert "validation." not in text and "(not set)" not in text, text
+
+
+def test_a_refused_field_book_row_says_why_in_words():
+    from geocomp.io import AngleFormat, ColumnMapping, FieldMapping, read_field_book
+    from geocomp.services.messages import finding_text
+
+    mapping = FieldMapping(
+        name="m",
+        angle_format=AngleFormat.SEXAGESIMAL_TRIPLE,
+        columns=(
+            ColumnMapping("station", column="E"),
+            ColumnMapping("target", column="V"),
+            ColumnMapping("horizontal_degrees", column="HG"),
+            ColumnMapping("horizontal_minutes", column="HM"),
+            ColumnMapping("horizontal_seconds", column="HS"),
+            ColumnMapping("zenith_degrees", column="VG"),
+            ColumnMapping("zenith_minutes", column="VM"),
+            ColumnMapping("zenith_seconds", column="VS"),
+        ),
+    )
+    rows = [
+        ["E", "V", "HG", "HM", "HS", "VG", "VM", "VS"],
+        ["A", "B", "12", "75", "0", "90", "0", "0"],
+    ]
+    (finding,) = [
+        f for f in read_field_book(rows, mapping).findings if f.code == "sexagesimal_out_of_range"
+    ]
+    text = finding_text(finding)
+    assert text.startswith("Row 2: 'horizontal' reads 12.0 75.0 0.0"), text
+    assert "data." not in text

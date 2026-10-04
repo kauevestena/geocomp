@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-8 — Import and inspection findings in the reader's language
+
+#### Fixed
+
+- What *Inspect network*, the field-book and levelling-book imports, the field-mapping dialog and the
+  pre-analysis dialog report is now in Portuguese and Spanish as well as English. Before, they reported it
+  in English whatever the language.
+- A levelling book's refused setup or line showed an internal code and its values in the import report. It
+  now says what was wrong in a sentence.
+
 ### P12c-7 — Every refusal in words; a base-map key kept out of the log
 
 #### Fixed

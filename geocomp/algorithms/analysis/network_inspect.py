@@ -42,6 +42,7 @@ from geocomp.algorithms.analysis.common import (
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.core.preanalysis.inspection import Severity, inspect
+from geocomp.services.messages import finding_text
 
 __all__ = ["NetworkInspectAlgorithm"]
 
@@ -204,7 +205,7 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
         looked at.
         """
         for finding in report.findings:
-            line = f"[{finding.code}] {finding.message}"
+            line = f"[{finding.code}] {finding_text(finding)}"
             if finding.severity is Severity.BLOCKING:
                 feedback.pushWarning(line)
             else:
@@ -275,7 +276,7 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
                     [
                         marker,
                         f"<code>{escape(finding.code)}</code>",
-                        escape(finding.message),
+                        escape(finding_text(finding)),
                         escape(", ".join(finding.stations + finding.observations)) or "—",
                     ]
                 )
