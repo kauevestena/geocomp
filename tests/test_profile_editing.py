@@ -176,6 +176,38 @@ class TestTheLibrary:
         assert library.levels == {}
         assert library.default_level == ""
 
+    @pytest.mark.parametrize("kind", [kind.key for kind in KINDS])
+    def test_the_first_profile_of_a_kind_is_its_default(self, kind):
+        """As the library's own ``add_instrument`` has it. Without this, a
+        library built in the window had no default, and a run that named no
+        instrument refused it."""
+        library = ProfileLibrary()
+        attribute = next(each.default for each in KINDS if each.key == kind)
+        add_profile(library, kind, "first")
+        add_profile(library, kind, "second")
+        assert getattr(library, attribute) == "first"
+        duplicate_profile(library, kind, "second", "third")
+        assert getattr(library, attribute) == "first"
+
+    def test_the_library_a_run_reads_resolves_its_first_instrument(self):
+        library = ProfileLibrary()
+        add_profile(library, "instruments", "TS-1")
+        again = ProfileLibrary.from_dict(json.loads(json.dumps(library.to_dict())))
+        assert again.instrument(None).id == "TS-1"
+
+    def test_an_import_brings_its_default_where_there_was_none(self):
+        library = ProfileLibrary()
+        other = ProfileLibrary()
+        add_profile(other, "levels", "A")
+        add_profile(other, "levels", "B")
+        set_default(other, "levels", "B")
+        import_profiles(library, other)
+        assert library.default_level == "B"
+        # And never replaces one already chosen.
+        mine = _library()
+        import_profiles(mine, other)
+        assert mine.default_level == "levels-1"
+
     def test_a_default_must_be_in_the_library(self):
         with pytest.raises(ValidationError) as refused:
             set_default(_library(), "levels", "nowhere")

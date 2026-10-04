@@ -303,12 +303,25 @@ def add_profile(library: ProfileLibrary, kind: str, profile_id: str) -> Any:
     if profile_id in profiles:
         raise ValidationError("duplicate_profile", received=profile_id)
     profile = _blank(kind, profile_id)
-    profiles[profile.id] = profile
+    _place(library, kind, profile)
     return profile
 
 
 def _blank(kind: str, profile_id: str) -> Any:
     return _KINDS[kind].profile(id=profile_id.strip())
+
+
+def _place(library: ProfileLibrary, kind: str, profile: Any) -> None:
+    """Put *profile* in the library; where its kind has no default, it becomes it.
+
+    The library's own ``add_instrument`` and its siblings do the same. A library
+    built in the window without it had profiles and no default, and every run
+    that named no instrument refused it.
+    """
+    _profiles(library, kind)[profile.id] = profile
+    attribute = _KINDS[kind].default
+    if not getattr(library, attribute):
+        setattr(library, attribute, profile.id)
 
 
 def duplicate_profile(library: ProfileLibrary, kind: str, source_id: str, new_id: str) -> Any:
@@ -320,7 +333,7 @@ def duplicate_profile(library: ProfileLibrary, kind: str, source_id: str, new_id
     payload = profiles[source_id].to_dict()
     payload["id"] = new_id.strip()
     profile = _KINDS[kind].profile.from_dict(payload)
-    profiles[profile.id] = profile
+    _place(library, kind, profile)
     return profile
 
 
@@ -344,7 +357,8 @@ def import_profiles(library: ProfileLibrary, other: ProfileLibrary) -> tuple[lis
 
     A profile whose id is already in the library is **not** replaced: a
     calibration someone distributed does not silently overwrite the one in use.
-    It is listed instead, so the window can say which were left.
+    It is listed instead, so the window can say which were left. Where this
+    library has no default of a kind, the other's default comes with it.
 
     Returns:
         The ids added and the ids left, each as ``kind/id``.
@@ -353,12 +367,16 @@ def import_profiles(library: ProfileLibrary, other: ProfileLibrary) -> tuple[lis
     kept: list[str] = []
     for kind in KINDS:
         mine, theirs = _profiles(library, kind.key), _profiles(other, kind.key)
+        had_default = bool(getattr(library, kind.default))
         for profile_id, profile in theirs.items():
             if profile_id in mine:
                 kept.append(f"{kind.key}/{profile_id}")
             else:
-                mine[profile_id] = profile
+                _place(library, kind.key, profile)
                 added.append(f"{kind.key}/{profile_id}")
+        their_default = getattr(other, kind.default)
+        if not had_default and f"{kind.key}/{their_default}" in added:
+            setattr(library, kind.default, their_default)
     return added, kept
 
 

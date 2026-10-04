@@ -338,8 +338,9 @@ its staff.
   algorithm's *Instrument profiles* input reads. There is no second store of profiles that a run could fail
   to see. It has one tab for each kind: total stations, reflectors, levels, levelling classes and gravimeters.
 - **Add, edit, duplicate, delete, default.** An id is fixed once given, because observations reference it
-  (§2.2 above): a profile is renamed by duplicating it. Deleting the default profile clears the default
-  rather than leaving it naming nothing.
+  (§2.2 above): a profile is renamed by duplicating it. The first profile of a kind becomes its default, as
+  the library's own `add_instrument` makes it, so a library built in the window serves a run that names no
+  instrument. Deleting the default profile clears the default rather than leaving it naming nothing.
 - **Shown in a surveyor's units, stored in the profile's.** An angle is shown in the interface's small-angle
   unit (″, cc or µrad, as *Angle format* is set), a prism or EDM constant in millimetres, an EDM's
   proportional term in ppm, a levelling σ in mm/√km and a gravimeter's in µGal. The file keeps radians,
