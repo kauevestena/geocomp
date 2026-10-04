@@ -69,6 +69,8 @@ FAILURES = [
             "exit_code": 1,
             "diagnostic": "- Error: station BM12 has no coordinates (line 14)",
             "completed": [],
+            "command": "/opt/dynadjust/dnaimport run-stn.xml run-msr.xml -n run",
+            "work_dir": "/work/geocomp-dynadjust-x1",
         },
         "station BM12 has no coordinates",
     ),
@@ -101,6 +103,49 @@ def test_a_failed_run_shows_the_engines_own_message(kind, code, context, own_wor
     assert own_words in text
     assert "could not complete the operation" not in text
     assert "(not set)" not in text
+
+
+#: A run that ran out of time, as each adapter reports it (P12c-11).
+TIMEOUTS = [
+    (
+        "EngineError",
+        "rtklib_timed_out",
+        {
+            "engine": "rnx2rtkp",
+            "elapsed": "601",
+            "limit": "600",
+            "command": "rnx2rtkp -k rnx2rtkp.conf -o 0759.pos 0759.obs",
+            "message": "processing : 2005/04/02 03:12:30.0 Q=0",
+            "work_dir": "/work/relative-static-0759",
+        },
+    ),
+    (
+        "ComputationError",
+        "dynadjust_stage_timed_out",
+        {
+            "program": "dnaadjust",
+            "elapsed": "601",
+            "limit": "600",
+            "completed": ["dnaimport", "dnasegment"],
+            "work_dir": "/work/geocomp-dynadjust-x1",
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize(("kind", "code", "context"), TIMEOUTS, ids=[t[1] for t in TIMEOUTS])
+def test_a_timeout_says_how_long_and_what_the_limit_was(kind, code, context):
+    """``specs/07`` section 7 and ``specs/08`` section 9: elapsed time and the
+    configured limit, and where the retained files are -- not an exit code,
+    which for a killed process is the signal's and says nothing."""
+    from geocomp.algorithms.gnss.common import translate_error
+    from geocomp.core import errors
+
+    text = translate_error(getattr(errors, kind)(code, **context))
+    assert "601" in text
+    assert "600" in text
+    assert context["work_dir"] in text
+    assert "exit code" not in text
 
 
 def test_a_failed_batch_session_is_said_in_words(tmp_path):

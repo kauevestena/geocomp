@@ -2322,6 +2322,10 @@
     <context>
         <name>GeoCompGnss</name>
         <message>
+            <source>%1 %2 has not been checked against this GeoComp release. It will be used, but if its output format has changed the solution may be refused when it is read back.</source>
+            <translation>%1 %2 não foi verificado com esta versão do GeoComp. Ele será usado, mas se o formato de saída tiver mudado a solução pode ser recusada na leitura.</translation>
+        </message>
+        <message>
             <source>%1: used the %2 orbit, as Global Settings allow; recorded in provenance.</source>
             <translation>%1: usada a órbita %2, como as Configurações Globais permitem; registrado na proveniência.</translation>
         </message>
@@ -2370,12 +2374,20 @@
             <translation>A sessão da base %1 não declara hora de início, por isso as suas coordenadas publicadas não podem ser levadas à época em que foi observada.</translation>
         </message>
         <message>
+            <source>Timeout per run (s)</source>
+            <translation>Tempo limite por execução (s)</translation>
+        </message>
+        <message>
             <source>Unknown download service: %1. Known services: %2</source>
             <translation>Serviço de download desconhecido: %1. Serviços conhecidos: %2</translation>
         </message>
         <message>
             <source>Unknown processing profile: %1</source>
             <translation>Perfil de processamento desconhecido: %1</translation>
+        </message>
+        <message>
+            <source>Using %1 %2 from %3.</source>
+            <translation>Usando %1 %2 de %3.</translation>
         </message>
     </context>
     <context>
@@ -2467,6 +2479,10 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas da solução (camada)</translation>
+        </message>
+        <message>
+            <source>The engine's working files are in %1.</source>
+            <translation>Os arquivos de trabalho do motor estão em %1.</translation>
         </message>
     </context>
     <context>
@@ -3101,6 +3117,10 @@
         <message>
             <source>%1 was installed in %2 but its record could not be written. Run the installation again.</source>
             <translation>%1 foi instalado em %2, mas o seu registro não pôde ser gravado. Execute a instalação novamente.</translation>
+        </message>
+        <message>
+            <source>%1 was stopped at its time limit of %3 s, after running for %2 s, before it finished. Raise the timeout among the algorithm's advanced parameters. Its last message: %4. Its working files are in %5.</source>
+            <translation>%1 foi interrompido no seu tempo limite de %3 s, após executar por %2 s, antes de terminar. Aumente o tempo limite nos parâmetros avançados do algoritmo. Sua última mensagem: %4. Os arquivos de trabalho estão em %5.</translation>
         </message>
         <message>
             <source>%1: the ellipsoidal height %2 m was converted to the orthometric height %3 m through %4 (N = %5 m). The model's uncertainty is in the result, which is now +/- %6 mm rather than %7 mm.</source>
@@ -3791,8 +3811,12 @@
             <translation>O DynAdjust precisa de um referencial e de uma época explícitos, e esta execução não tem um deles ou ambos. O GeoComp não adivinha nenhum dos dois: um referencial adivinhado é uma translação de datum escondida nos resíduos. Defina o referencial e a época no diálogo, ou registre-os na rede.</translation>
         </message>
         <message>
-            <source>DynAdjust's %1 stopped with exit code %2. DynAdjust's own message: %3</source>
-            <translation>O %1 do DynAdjust parou com o código de saída %2. A mensagem do próprio DynAdjust: %3</translation>
+            <source>DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its working files and the input GeoComp wrote are kept. DynAdjust's own message: %3</source>
+            <translation>O %1 do DynAdjust parou com o código de saída %2. O comando foi %5, executado em %4, onde são mantidos os arquivos de trabalho e a entrada que o GeoComp gravou. A mensagem do próprio DynAdjust: %3</translation>
+        </message>
+        <message>
+            <source>DynAdjust's %1 was stopped at its time limit of %3 s, after running for %2 s, before it finished. Raise the timeout per stage among the algorithm's advanced parameters. Its working files are kept in %4.</source>
+            <translation>O %1 do DynAdjust foi interrompido no seu tempo limite de %3 s, após executar por %2 s, antes de terminar. Aumente o tempo limite por etapa nos parâmetros avançados do algoritmo. Os arquivos de trabalho são mantidos em %4.</translation>
         </message>
         <message>
             <source>DynAdjust's adjusted-measurement table has %1 rows where the network has %2 measurements, so the rows cannot be matched to the observations. The output and the network are not from the same run.</source>

@@ -21,6 +21,7 @@ surprises its author is answerable only from the files that produced it, and
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -298,12 +299,28 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
 
         keep = self.parameterAsBoolean(parameters, KEEP_WORKING_FILES, context)
         requested = self.parameterAsString(parameters, OUTPUT_WORK_DIR, context)
-        with tempfile.TemporaryDirectory(prefix="geocomp-dynadjust-") as temporary:
-            work_dir = Path(requested) if (keep and requested) else Path(temporary)
+        work_dir = (
+            Path(requested)
+            if (keep and requested)
+            else Path(tempfile.mkdtemp(prefix="geocomp-dynadjust-"))
+        )
+        # Removed afterwards unless the user keeps it -- or unless the refusal
+        # names it. specs/07 section 7 retains the working directory when a
+        # stage times out or fails, so the user can see what DynAdjust was given
+        # and what it wrote. Until P12c-11 the refusal propagated out of a
+        # TemporaryDirectory block, which deleted the files it pointed at.
+        retain = keep
+        try:
             solution = self._run(job, engine, work_dir, parameters, context, feedback)
             if feedback.isCanceled():
                 return {}
             results = self._write(solution, parameters, context)
+        except QgsProcessingException as failure:
+            retain = retain or _names_working_files(failure)
+            raise
+        finally:
+            if not retain:
+                shutil.rmtree(work_dir, ignore_errors=True)
 
         statistics = solution.statistics
         return {
@@ -394,3 +411,9 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 json.dump(solution.to_dict(), handle, indent=2, sort_keys=True)
                 handle.write("\n")
         return {OUTPUT_SOLUTION: target}
+
+
+def _names_working_files(failure: BaseException) -> bool:
+    """Whether the refusal points the user at the working directory."""
+    cause = failure.__cause__
+    return isinstance(cause, GeoCompError) and "work_dir" in cause.context

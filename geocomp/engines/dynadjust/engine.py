@@ -667,6 +667,19 @@ class DynAdjustEngine:
                 version=version,
             )
             runs.append(run)
+            completed = [finished.program for finished in runs[:-1]]
+            if run.timed_out:
+                # specs/07 section 7: elapsed time and the configured limit,
+                # not the exit code of the signal that stopped it. Checked
+                # first because a killed stage's exit code is not zero either.
+                raise ComputationError(
+                    "dynadjust_stage_timed_out",
+                    program=stage.program,
+                    elapsed=f"{run.seconds:.0f}",
+                    limit=f"{timeout:.0f}",
+                    completed=completed,
+                    work_dir=str(prepared.work_dir),
+                )
             if run.exit_code == 0 and stage.program == "dnaimport":
                 check_import(run, prepared)
             if run.exit_code != 0:
@@ -677,7 +690,9 @@ class DynAdjustEngine:
                     # ``diagnostic`` already prefers stderr and falls back to
                     # stdout; the tail keeps a long build log out of the message.
                     diagnostic=run.diagnostic[-2000:],
-                    completed=[completed.program for completed in runs[:-1]],
+                    completed=completed,
+                    command=" ".join(run.command),
+                    work_dir=str(prepared.work_dir),
                 )
         return runs
 

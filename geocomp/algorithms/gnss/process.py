@@ -23,6 +23,8 @@ the user who already suspected something.
 
 from __future__ import annotations
 
+import shutil
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -46,10 +48,13 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     base_coordinates,
     configured_profile,
+    engine_record,
     frame_choices,
+    gnss_engine,
     ppp_limitation_notice,
     run_frame,
     session_products,
+    timeout_parameter,
     translate_error,
 )
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
@@ -58,7 +63,6 @@ from geocomp.core.number_format import localised
 from geocomp.engines.rtklib import RtklibJob
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
-from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -66,6 +70,7 @@ FRAME = "FRAME"
 ROVER_STATION = "ROVER_STATION"
 ELEVATION_MASK = "ELEVATION_MASK"
 KEEP_WORK_DIR = "KEEP_WORK_DIR"
+TIMEOUT = "TIMEOUT"
 OUTPUT_POS = "OUTPUT_POS"
 OUTPUT_JSON = "OUTPUT_JSON"
 OUTPUT_LAYER = "OUTPUT_LAYER"
@@ -153,6 +158,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 maxValue=45.0,
             )
         )
+        self.addAdvancedParameter(timeout_parameter(TIMEOUT))
         self.addAdvancedParameter(
             QgsProcessingParameterBoolean(
                 KEEP_WORK_DIR,
@@ -277,15 +283,29 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(35)
 
-        work_dir = Path(self.parameterAsFileOutput(parameters, OUTPUT_POS, context) or ".").parent
+        # Beside the solution when there is one; a run whose solution is not
+        # saved used to put it in QGIS's own working directory.
+        destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
+        temporary = None if destination else Path(tempfile.mkdtemp(prefix="geocomp-gnss-"))
+        work_dir = (temporary or Path(destination).parent) / (
+            f"{self.profile_name}-{rover.station_id}"
+        )
+        engine = gnss_engine(feedback)
         try:
-            result = rtklib_engine().run(
+            result = engine.run(
                 RtklibJob(
-                    rover=rover, config=configuration, products=products.paths, **job_kwargs
+                    rover=rover,
+                    config=configuration,
+                    products=products.paths,
+                    timeout=self.parameterAsDouble(parameters, TIMEOUT, context),
+                    **job_kwargs,
                 ),
-                work_dir=work_dir / f"{self.profile_name}-{rover.station_id}",
+                work_dir=work_dir,
             )
         except GeoCompError as exc:
+            # Kept whatever KEEP_WORK_DIR says: the refusal names it, and the
+            # engine's configuration and output are what the user diagnoses
+            # from (specs/08 section 9).
             raise QgsProcessingException(translate_error(exc)) from exc
         feedback.setProgress(80)
 
@@ -297,7 +317,6 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         )
 
         outputs: dict[str, Any] = {}
-        destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
         if destination:
             Path(destination).write_bytes(result.output_file.read_bytes())
             outputs[OUTPUT_POS] = destination
@@ -313,6 +332,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         # the transformation that put it there.
                         **({"base_coordinates": base_record} if "base" in job_kwargs else {}),
                         "quality": quality.to_dict(),
+                        # FR-302: which engine, at which version, and whether
+                        # this release was tested against it.
+                        "engine": engine_record(engine),
                         "configuration": configuration.to_dict(),
                         # FR-134: a GNSS solution is not reproducible without
                         # knowing which orbit produced it (specs/08 section 5).
@@ -344,6 +366,14 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             layer_name=_tr("GNSS trajectory"),
         )
 
+        # Until P12c-11 this parameter was read by nothing, and the directory
+        # was kept whatever it said. A failed run never reaches here.
+        if self.parameterAsBoolean(parameters, KEEP_WORK_DIR, context):
+            feedback.pushInfo(
+                _tr("The engine's working files are in %1.").replace("%1", str(work_dir))
+            )
+        else:
+            shutil.rmtree(temporary or work_dir, ignore_errors=True)
         feedback.setProgress(100)
         return outputs
 

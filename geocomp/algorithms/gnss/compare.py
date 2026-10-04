@@ -39,7 +39,10 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     configured_profile,
+    engine_record,
+    gnss_engine,
     session_products,
+    timeout_parameter,
     translate_error,
 )
 from geocomp.core.errors import GeoCompError
@@ -47,13 +50,13 @@ from geocomp.core.techniques.gnss.comparison import DEFAULT_CONFIDENCE, compare_
 from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import baseline_from_solution
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
-from geocomp.services.engines import rtklib_engine
 
 FOLDER = "FOLDER"
 MASKS = "MASKS"
 CONFIDENCE = "CONFIDENCE"
 OUTPUT_CSV = "OUTPUT_CSV"
 OUTPUT_JSON = "OUTPUT_JSON"
+TIMEOUT = "TIMEOUT"
 
 #: The sweep that attributed RD-06. Straddles the point where the answer stops
 #: depending on which satellites were used.
@@ -112,6 +115,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                 maxValue=0.999,
             )
         )
+        self.addAdvancedParameter(timeout_parameter(TIMEOUT))
         for name, label, filter_text in (
             (OUTPUT_CSV, self.tr("Comparison table"), self.tr("CSV files (*.csv)")),
             (OUTPUT_JSON, self.tr("Comparison"), self.tr("JSON files (*.json)")),
@@ -172,6 +176,8 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         )
 
         work_root = Path(tempfile.mkdtemp(prefix="geocomp-compare-"))
+        engine = gnss_engine(feedback)
+        timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
         baselines = {}
         for index, mask in enumerate(masks):
             if feedback.isCanceled():
@@ -179,7 +185,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
             feedback.setProgress(10 + 70 * index // len(masks))
             name = self.tr("mask %1°").replace("%1", f"{mask:g}")
             try:
-                result = rtklib_engine().run(
+                result = engine.run(
                     RtklibJob(
                         rover=rover,
                         base=base,
@@ -187,6 +193,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                             "relative-static", output_format="xyz", elevation_mask=mask
                         ),
                         products=products.paths,
+                        timeout=timeout,
                     ),
                     work_dir=work_root / f"mask-{mask:g}",
                 )
@@ -232,7 +239,15 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         json_path = self.parameterAsFileOutput(parameters, OUTPUT_JSON, context)
         if json_path:
             Path(json_path).write_text(
-                json.dumps({**comparison.to_dict(), "products": products.provenance()}, indent=2)
+                json.dumps(
+                    {
+                        **comparison.to_dict(),
+                        "products": products.provenance(),
+                        # FR-302: the engine version every configuration ran with.
+                        "engine": engine_record(engine),
+                    },
+                    indent=2,
+                )
                 + "\n",
                 encoding="utf-8",
             )

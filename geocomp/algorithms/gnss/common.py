@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from qgis.core import QgsProcessingException
+from qgis.core import QgsProcessingException, QgsProcessingParameterNumber
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
@@ -37,6 +37,7 @@ from geocomp.core.techniques.gnss.products import (
     resolve,
 )
 from geocomp.core.techniques.gnss.stations import StationDatabase
+from geocomp.engines.base import DEFAULT_TIMEOUT
 from geocomp.engines.rtklib.config import PROFILES, RtklibConfig
 
 __all__ = [
@@ -44,8 +45,10 @@ __all__ = [
     "SessionProducts",
     "base_coordinates",
     "configured_profile",
+    "engine_record",
     "frame_choices",
     "gather_products",
+    "gnss_engine",
     "gnss_setting",
     "missing_products_message",
     "ppp_limitation_notice",
@@ -55,6 +58,7 @@ __all__ = [
     "reference_stations",
     "run_frame",
     "session_products",
+    "timeout_parameter",
     "translate_error",
 ]
 
@@ -515,6 +519,60 @@ def ppp_limitation_notice() -> str:
         "Prefer Relative processing where a base station is available, and "
         "treat an Absolute solution as indicative unless you have checked it "
         "against an independent determination.</p>"
+    )
+
+
+def gnss_engine(feedback) -> Any:
+    """The RTKLIB the algorithms run, warned about when it is untested (FR-302).
+
+    The engine detects its version and caches it; warning is the plugin's job,
+    because a warning nothing shows is not one. Until P12c-11 DynAdjust's
+    adjustment warned and nothing that runs RTKLIB did. The engine's absence is
+    not handled here: the run refuses it, in words (FR-306).
+    """
+    from geocomp.services.engines import rtklib_engine
+
+    engine = rtklib_engine()
+    version = engine.version()
+    if version is not None:
+        if not version.tested:
+            feedback.pushWarning(
+                _tr(
+                    "%1 %2 has not been checked against this GeoComp release. It will "
+                    "be used, but if its output format has changed the solution may be "
+                    "refused when it is read back."
+                )
+                .replace("%1", version.name)
+                .replace("%2", version.version)
+            )
+        feedback.pushInfo(
+            _tr("Using %1 %2 from %3.")
+            .replace("%1", version.name)
+            .replace("%2", version.version)
+            .replace("%3", str(version.path))
+        )
+    return engine
+
+
+def engine_record(engine) -> dict[str, Any] | None:
+    """The engine version that produced a result, for its summary (FR-302)."""
+    version = engine.version()
+    return version.to_dict() if version is not None else None
+
+
+def timeout_parameter(name: str):
+    """The time limit on each ``rnx2rtkp`` run, which FR-304 requires be configurable.
+
+    Until P12c-11 it was the engine layer's fixed ten minutes: a long session at
+    a high rate could not be processed at all, and the refusal could not say
+    what to change.
+    """
+    return QgsProcessingParameterNumber(
+        name,
+        _tr("Timeout per run (s)"),
+        type=QgsProcessingParameterNumber.Type.Double,
+        defaultValue=DEFAULT_TIMEOUT,
+        minValue=1.0,
     )
 
 

@@ -193,10 +193,22 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "program",
     ),
     "computation.dynadjust_stage_failed": MessageTemplate(
-        "DynAdjust's %1 stopped with exit code %2. DynAdjust's own message: %3",
+        "DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its "
+        "working files and the input GeoComp wrote are kept. DynAdjust's own message: %3",
         "program",
         "exit_code",
         "diagnostic",
+        "work_dir",
+        "command",
+    ),
+    "computation.dynadjust_stage_timed_out": MessageTemplate(
+        "DynAdjust's %1 was stopped at its time limit of %3 s, after running for %2 s, "
+        "before it finished. Raise the timeout per stage among the algorithm's advanced "
+        "parameters. Its working files are kept in %4.",
+        "program",
+        "elapsed",
+        "limit",
+        "work_dir",
     ),
     "computation.dynadjust_import_incomplete": MessageTemplate(
         "dnaimport reported success but did not take in everything GeoComp wrote: it counted "
