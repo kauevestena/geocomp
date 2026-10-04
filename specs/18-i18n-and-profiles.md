@@ -84,7 +84,9 @@ P12c-7 counted, 457 of the codes GeoComp raises were in that state.
 - The 44 codes of the instrument profiles, the report templates and the settings service follow. They
   cover gravimeters and their calibration tables, levels and levelling classes, unknown or duplicate
   profiles, and an observation with no standard deviation from anywhere.
-- The other 125 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
+- The 46 codes of the data model follow: stations and their constraints, observations and clusters,
+  positions and heights, epochs, solutions, GNSS sessions, and the project document.
+- The other 79 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
   raises them, and that list may only shrink. The 31 left in `io/` belong to the readers of the reference
   corpora (`krumm.py`, `adjust.py`), which no algorithm reaches. `tests/structural/test_message_templates.py` reads all of
   `geocomp/` and enforces three rules:

@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Data-model refusals in words
+
+#### Fixed
+
+- Problems with stations, observations, clusters, positions, epochs and solutions are now explained in a
+  sentence that names the station, observation, cluster or solution. Examples are a duplicate station id, a
+  weighted constraint without an uncertainty, a GNSS baseline outside a cluster, a covariance of the wrong
+  size, a time without its time zone, and heights of two types combined without a geoid model. Before, the
+  user saw "could not complete the operation" and an internal code.
+
 ### P12c-7 — Instrument-profile and settings refusals in words
 
 #### Fixed

@@ -805,6 +805,219 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "observation",
         "received",
     ),
+    # -- the data model: stations, observations, clusters, positions (P12c-7) ---
+    "data.station_without_id": MessageTemplate(
+        "A station has no id; observations and solutions refer to a station by it. Give every "
+        "station one.",
+    ),
+    "data.constrained_station_without_position": MessageTemplate(
+        "The station '%1' is constrained but has no coordinates to be held at. Give them, or "
+        "make the station free.",
+        "station",
+    ),
+    "data.duplicate_station": MessageTemplate(
+        "The network '%2' has two stations with the id '%1'. Give each station its own id, or "
+        "merge the two.",
+        "station",
+        "network",
+    ),
+    "data.duplicate_observation": MessageTemplate(
+        "The network '%2' has two observations with the id '%1'. Give each observation its "
+        "own id.",
+        "observation",
+        "network",
+    ),
+    "data.duplicate_cluster": MessageTemplate(
+        "The network '%2' has two clusters with the id '%1'. Give each cluster its own id.",
+        "cluster",
+        "network",
+    ),
+    "validation.free_constraint_with_detail": MessageTemplate(
+        "A free station carries a position, components or a gravity value to be held at. "
+        "Remove them, or constrain the station as fixed or weighted.",
+    ),
+    "validation.constraint_without_position": MessageTemplate(
+        "A station constrained as %1 has no coordinates to be held at. Give them, or make the "
+        "station free.",
+        "mode",
+    ),
+    "validation.constraint_without_components": MessageTemplate(
+        "A station constrained as %1 does not say which components the constraint holds. Name "
+        "them, such as height, or make the station free.",
+        "mode",
+    ),
+    "validation.constraint_unknown_components": MessageTemplate(
+        "A constraint names components its position does not have (%1); expected among %2.",
+        "received",
+        "expected",
+    ),
+    "validation.weighted_constraint_without_covariance": MessageTemplate(
+        "A weighted constraint has no covariance. Without an uncertainty it is a fixed "
+        "constraint under another name: give its covariance, or make it fixed.",
+    ),
+    "validation.gravity_value_without_gravity_component": MessageTemplate(
+        "A constraint gives a gravity value but does not hold gravity, so the value would be "
+        "silently ignored. Add gravity to its components, or remove the value.",
+    ),
+    "validation.gravity_constraint_without_value": MessageTemplate(
+        "A station's gravity is constrained as %1, but no known gravity is given. Give it in "
+        "m/s², or remove gravity from the constrained components.",
+        "mode",
+    ),
+    "validation.gravity_constraint_unit": MessageTemplate(
+        "A gravity constraint is in %1, where %2 was expected.",
+        "received",
+        "expected",
+    ),
+    "validation.weighted_gravity_constraint_without_uncertainty": MessageTemplate(
+        "A weighted gravity constraint has no variance. Without an uncertainty it is a fixed "
+        "constraint under another name: give its variance, or make it fixed.",
+    ),
+    "data.observation_arity": MessageTemplate(
+        "The observation '%1' is a %2 and joins %3 station(s), where that type joins %4.",
+        "observation",
+        "type",
+        "received",
+        "expected",
+    ),
+    "data.observation_component_count": MessageTemplate(
+        "The observation '%1' is a %2 with %3 value(s), where that type has %4.",
+        "observation",
+        "type",
+        "received",
+        "expected",
+    ),
+    "data.observation_value_not_a_quantity": MessageTemplate(
+        "The %2 of the observation '%1' carries no uncertainty. Every observation in GeoComp "
+        "carries its standard deviation; give one.",
+        "observation",
+        "component",
+    ),
+    "data.observation_value_unit": MessageTemplate(
+        "The %2 of the observation '%1' is in %3, where %4 was expected.",
+        "observation",
+        "component",
+        "received",
+        "expected",
+    ),
+    "data.observation_requires_cluster": MessageTemplate(
+        "The observation '%1' is a %2, whose components are correlated, but it belongs to no "
+        "cluster. Treating them as independent falsifies the adjustment; give it the cluster "
+        "that carries its covariance.",
+        "observation",
+        "type",
+    ),
+    "data.active_observation_with_rejection": MessageTemplate(
+        "The observation '%1' is active but carries a rejection record. Mark it rejected, or "
+        "remove the record.",
+        "observation",
+    ),
+    "data.observation_setup_height_unit": MessageTemplate(
+        "The %2 of the observation '%1' is %3, where a length in metres was expected.",
+        "observation",
+        "field",
+        "received",
+    ),
+    "data.observation_type_ignores_setup_heights": MessageTemplate(
+        "The observation '%1' is a %2 and gives %3, which that type does not use. GeoComp "
+        "would ignore it, and an ignored instrument height is a metre-scale error that looks "
+        "like nothing. Remove it, or use %4.",
+        "observation",
+        "type",
+        "field",
+        "expected",
+    ),
+    "validation.observation_is_not_scalar": MessageTemplate(
+        "The observation '%1' has %2 components, where one was expected.",
+        "observation",
+        "components",
+    ),
+    "data.baseline_frame_unknown": MessageTemplate(
+        "The baseline '%1' records its frame as '%2', which GeoComp does not know; expected %3.",
+        "observation",
+        "received",
+        "expected",
+    ),
+    "data.cluster_without_members": MessageTemplate(
+        "The cluster '%1' has no member observations. Give it its observations, or remove it.",
+        "cluster",
+    ),
+    "data.cluster_duplicate_members": MessageTemplate(
+        "The cluster '%1' lists an observation twice. Each member appears once, in the order "
+        "of the covariance.",
+        "cluster",
+    ),
+    "data.cluster_size_mismatch": MessageTemplate(
+        "The cluster '%1' has %2 observation(s) and a covariance of size %3, which does not "
+        "cover every component of every member. A GNSS baseline contributes three rows, so the "
+        "size is a whole multiple of the number of members.",
+        "cluster",
+        "observations",
+        "covariance",
+    ),
+    "validation.position_component_count": MessageTemplate(
+        "A position has %1 component(s), where three were expected.",
+        "received",
+    ),
+    "validation.position_component_not_a_quantity": MessageTemplate(
+        "The %1 of a position carries no uncertainty (it is a %2). Every coordinate in GeoComp "
+        "carries its standard deviation; give one.",
+        "component",
+        "received",
+    ),
+    "validation.position_component_unit": MessageTemplate(
+        "The %1 of a position is in %2, where %3 was expected.",
+        "component",
+        "received",
+        "expected",
+    ),
+    "validation.position_without_crs": MessageTemplate(
+        "A position has no coordinate reference system, and GeoComp does not infer one. Give "
+        "it, such as EPSG:4674.",
+    ),
+    "validation.unknown_position_component": MessageTemplate(
+        "A position has no component '%1'; expected %2.",
+        "component",
+        "expected",
+    ),
+    "validation.incompatible_height_types": MessageTemplate(
+        "Heights of different types (%1) cannot be combined without a geoid model: the result "
+        "would be wrong by the geoid undulation and still look reasonable. Give a geoid model, "
+        "or heights of one type.",
+        "received",
+    ),
+    # -- epochs and solutions (P12c-7) -----------------------------------------
+    "validation.epoch_not_finite": MessageTemplate(
+        "The epoch %1 is not a finite decimal year; give one such as 2024.5.",
+        "received",
+    ),
+    "validation.epoch_instant_naive": MessageTemplate(
+        "A time was given without its time zone. GeoComp stores times in UTC and will not guess "
+        "the zone; give the time with its offset, such as +00:00.",
+    ),
+    "validation.epoch_required": MessageTemplate(
+        "'%2' has no reference epoch, which is needed to %1. GeoComp will not assume one, "
+        "because an assumed epoch produces a confidently wrong displacement; give the epoch.",
+        "operation",
+        "subject",
+    ),
+    "validation.adjusted_gravity_unit": MessageTemplate(
+        "The adjusted gravity of the station '%1' is in %2, where %3 was expected.",
+        "station",
+        "received",
+        "expected",
+    ),
+    "validation.solution_without_crs": MessageTemplate(
+        "The solution '%1' has no coordinate reference system, and GeoComp does not infer one. "
+        "Give the solution its CRS.",
+        "solution",
+    ),
+    "validation.station_not_in_solution": MessageTemplate(
+        "The solution '%1' has no station '%2'. Check the station's id, and that this is the "
+        "solution that adjusted it.",
+        "solution",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():
