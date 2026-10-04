@@ -340,6 +340,204 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "backsights",
         "foresights",
     ),
+    # -- what a levelling reduction or network reports (P12c-8) -----------------
+    "finding.closure_out_of_tolerance": MessageTemplate(
+        "%1 misclosed by %2 mm over %3 km, beyond the %4 mm permitted by class %5. GeoComp "
+        "will not adjust a line that failed its tolerance without an explicit acknowledgement.",
+        "subject",
+        "misclosure",
+        "length",
+        "permitted",
+        "class",
+    ),
+    "finding.closure_not_judged_without_class": MessageTemplate(
+        "%1 misclosed by %2 mm, which has not been judged against a tolerance because no "
+        "levelling class was given. The misclosure is reported; whether it is acceptable is not.",
+        "subject",
+        "misclosure",
+    ),
+    "finding.closure_not_judged_without_coefficient": MessageTemplate(
+        "%1 misclosed by %2 mm, which has not been judged against a tolerance because the class "
+        "states no tolerance coefficient. The misclosure is reported; whether it is acceptable "
+        "is not.",
+        "subject",
+        "misclosure",
+    ),
+    "finding.closure_not_judged_without_length": MessageTemplate(
+        "%1 misclosed by %2 mm, which has not been judged against a tolerance because no sight "
+        "distances were recorded, so its length is unknown. The misclosure is reported; whether "
+        "it is acceptable is not.",
+        "subject",
+        "misclosure",
+    ),
+    "finding.closure_exceeds_its_own_precision": MessageTemplate(
+        "%1 misclosed by %2 mm, which is %3 times its own propagated standard deviation. That "
+        "is not accumulated random error, so distributing it proportionally would spread one "
+        "mistake evenly along the line and make it harder to find. Adjust the network and let "
+        "data snooping locate it instead.",
+        "subject",
+        "misclosure",
+        "ratio",
+    ),
+    "finding.closure_consistent_with_its_precision": MessageTemplate(
+        "%1 misclosed by %2 mm, %3 times its own propagated standard deviation. That is "
+        "consistent with accumulated random error, which is the case proportional distribution "
+        "is correct for.",
+        "subject",
+        "misclosure",
+        "ratio",
+    ),
+    "finding.levelling_line_length_unknown": MessageTemplate(
+        "The line %1 recorded no sight distances, so its length is unknown. Length weighting "
+        "and the k*sqrt(L) tolerance both need it, and will refuse rather than assume a length "
+        "of zero.",
+        "line",
+    ),
+    "finding.levelling_line_accumulated_imbalance": MessageTemplate(
+        "The line %1 accumulated %2 m of sight imbalance, beyond the %3 m its class permits. It "
+        "is the accumulated figure, not the per-setup one, that multiplies the collimation "
+        "error over a line.",
+        "line",
+        "imbalance",
+        "permitted",
+    ),
+    "finding.levelling_line_balanced": MessageTemplate(
+        "The line %1 is exactly balanced, so the collimation error contributes neither a "
+        "correction nor an uncertainty, whatever its value. This is what makes equal sights the "
+        "preferred method.",
+        "line",
+    ),
+    "finding.levelling_side_shots_not_adjusted": MessageTemplate(
+        "%1 side shot(s) were levelled from these lines and are not in the network: %2. A spur "
+        "observed once has no redundancy, so adjusting it would change nothing; their heights "
+        "follow from the adjusted line. Adjust the network from its setups to include every "
+        "point.",
+        "count",
+        "stations",
+    ),
+    "finding.levelling_weighted_by_propagation": MessageTemplate(
+        "The network was weighted by each line's propagated reading uncertainty, since no "
+        "k*sqrt(L) or k*sqrt(n) model was configured. That figure knows nothing of refraction, "
+        "staff calibration or a tripod settling, so expect a variance factor above one.",
+    ),
+    "finding.levelling_weighted_by_model": MessageTemplate(
+        "The network was weighted by %1, replacing each line's propagated reading uncertainty.",
+        "model",
+    ),
+    "finding.levelling_network_is_free": MessageTemplate(
+        "No benchmark was supplied, so the network is free: it has one datum defect, and "
+        "determines every height difference but no height. Adjust it with an inner or minimum "
+        "constraint.",
+    ),
+    "finding.levelling_other_technique_added": MessageTemplate(
+        "%1 trigonometric height difference(s) joined the network, each weighted by its own "
+        "propagated uncertainty.",
+        "count",
+    ),
+    "finding.levelling_other_technique_added_new_points": MessageTemplate(
+        "%1 trigonometric height difference(s) joined the network, each weighted by its own "
+        "propagated uncertainty; they reach %2 point(s) no line did.",
+        "count",
+        "added",
+    ),
+    "finding.height_converted_through_geoid": MessageTemplate(
+        "%1: the ellipsoidal height %2 m was converted to the orthometric height %3 m through "
+        "%4 (N = %5 m). The model's uncertainty is in the result, which is now +/- %6 mm "
+        "rather than %7 mm.",
+        "station",
+        "from",
+        "to",
+        "geoid",
+        "undulation",
+        "now",
+        "before",
+    ),
+    "finding.levelling_line_very_short": MessageTemplate(
+        "The line %1 is %2 m long, so a length-weighted standard deviation for it is almost "
+        "zero, and its weight almost infinite.",
+        "line",
+        "length",
+    ),
+    "finding.levelling_setups_clustered": MessageTemplate(
+        "%1 setup(s) carried several foresights and entered the network as correlated "
+        "clusters. They share their backsight, so it cancels in every difference the "
+        "adjustment forms between two points of one setup, which makes those differences "
+        "better determined, not worse.",
+        "count",
+    ),
+    "finding.level_setup_without_distances": MessageTemplate(
+        "Setup %1 recorded no sight distances, so its balance cannot be checked and no "
+        "collimation correction can be applied. Record the distances, or read three wires and "
+        "let them be derived.",
+        "setup",
+    ),
+    "finding.level_sight_too_long": MessageTemplate(
+        "The sight to %1 from setup %2 is %3 m, beyond the %4 m its class permits. Long sights "
+        "magnify both refraction and the residual collimation error.",
+        "station",
+        "setup",
+        "length",
+        "permitted",
+    ),
+    "finding.level_setup_imbalanced": MessageTemplate(
+        "Setup %1 is out of balance by %2 m on the sight to %3, beyond the %4 m its class "
+        "permits.",
+        "setup",
+        "imbalance",
+        "station",
+        "permitted",
+    ),
+    "finding.level_imbalance_without_instrument": MessageTemplate(
+        "Setup %1 is out of balance by %2 m and no level profile was supplied, so no "
+        "collimation correction was applied. Supply the two-peg test result to correct it, or "
+        "balance the sights so it does not matter.",
+        "setup",
+        "imbalance",
+    ),
+    "finding.reciprocal_variance_inflated": MessageTemplate(
+        "The variance of this crossing was multiplied by %1. Refraction over water varies "
+        "rapidly and asymmetrically, and the two reciprocal observations were not simultaneous, "
+        "so the symmetry the method relies on holds only approximately.",
+        "factor",
+    ),
+    "finding.reciprocal_variance_not_inflated": MessageTemplate(
+        "This crossing was reduced with no variance inflation, so its uncertainty assumes the "
+        "two reciprocal observations saw identical refraction. They were not simultaneous, so "
+        "they did not.",
+    ),
+    "finding.reciprocal_determinations_disagree": MessageTemplate(
+        "The two banks give height differences that differ by %1 m. The method assumes the "
+        "refraction was the same for both, and a discrepancy this size says it was not.",
+        "discrepancy",
+    ),
+    "finding.orthometric_correction_negligible": MessageTemplate(
+        "The normal orthometric correction for this section is %1 mm, below the %2 mm at which "
+        "it could matter to any levelling. Applying it changes nothing.",
+        "correction",
+        "threshold",
+    ),
+    "finding.orthometric_correction_applied": MessageTemplate(
+        "The normal orthometric correction for this section is %1 mm, at mean latitude %2 "
+        "degrees and mean height %3 m. This is the normal correction, from the ellipsoid's "
+        "gravity field; the rigorous one needs observed gravity along the line.",
+        "correction",
+        "latitude",
+        "height",
+    ),
+    "finding.three_wire_half_sum": MessageTemplate(
+        "The three wires read at %1 from setup %2 give (upper + lower) / 2 - middle = %3 m, "
+        "which should be zero. One of the three was misread, or they were entered in the wrong "
+        "columns.",
+        "station",
+        "setup",
+        "residual",
+    ),
+    "finding.three_wire_half_sum_outside_a_setup": MessageTemplate(
+        "The three wires read at %1 give (upper + lower) / 2 - middle = %2 m, which should be "
+        "zero. One of the three was misread, or they were entered in the wrong columns.",
+        "station",
+        "residual",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

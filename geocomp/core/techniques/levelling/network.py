@@ -79,6 +79,7 @@ from geocomp.core.models import (
     Station,
     StationType,
 )
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.integration.techniques import TECHNIQUE_KEY
 from geocomp.core.techniques.levelling.closure import (
     ClosureCheck,
@@ -292,6 +293,7 @@ def build_network(
                     "adjusted line. Use build_setup_network to adjust every point"
                 ),
                 stations=tuple(orphans),
+                context={"count": str(len(orphans)), "stations": orphans},
             )
         )
 
@@ -318,6 +320,7 @@ def build_network(
                     f"the network was weighted by {weighting.describe}, replacing each "
                     "line's propagated reading uncertainty"
                 ),
+                context={"model": weighting.describe},
             )
         )
 
@@ -401,17 +404,29 @@ def add_height_differences(
                 meta={TECHNIQUE_KEY: technique, HEIGHT_TYPE_KEY: height_type.name},
             )
         )
-    if count:
+    message = (
+        f"{count} {technique} height difference(s) joined the network, each "
+        "weighted by its own propagated uncertainty"
+        + (f"; they reach {len(added)} point(s) no line did" if added else "")
+    )
+    if count and added:
         findings.append(
             Finding(
                 code="levelling_other_technique_added",
                 severity=Severity.INFO,
-                message=(
-                    f"{count} {technique} height difference(s) joined the network, each "
-                    "weighted by its own propagated uncertainty"
-                    + (f"; they reach {len(added)} point(s) no line did" if added else "")
-                ),
+                message=message,
                 stations=tuple(added),
+                context={"count": str(count), "added": str(len(added))},
+                wording="levelling_other_technique_added_new_points",
+            )
+        )
+    elif count:
+        findings.append(
+            Finding(
+                code="levelling_other_technique_added",
+                severity=Severity.INFO,
+                message=message,
+                context={"count": str(count)},
             )
         )
     network.require_valid()
@@ -578,20 +593,32 @@ def harmonise_benchmarks(
             )
         )
         undulation = geoid.undulation(benchmark.latitude, benchmark.longitude)
+        message = (
+            f"{benchmark.station}: {benchmark.height_type.value} height "
+            f"{benchmark.height.value:.4f} m converted to {target.value} "
+            f"{height.value:.4f} m through {geoid.label} "
+            f"(N = {undulation.value:.4f} m); the model's uncertainty is in the "
+            f"result, which is now +/- {height.std_dev * 1000.0:.1f} mm rather "
+            f"than {benchmark.height.std_dev * 1000.0:.1f} mm"
+        )
+        # Always to orthometric: the target is fixed above, and a normal height is
+        # refused by combine_height, so the sentence names both types itself.
         findings.append(
             Finding(
                 code="height_converted_through_geoid",
                 severity=Severity.INFO,
-                message=(
-                    f"{benchmark.station}: {benchmark.height_type.value} height "
-                    f"{benchmark.height.value:.4f} m converted to {target.value} "
-                    f"{height.value:.4f} m through {geoid.label} "
-                    f"(N = {undulation.value:.4f} m); the model's uncertainty is in the "
-                    f"result, which is now +/- {height.std_dev * 1000.0:.1f} mm rather "
-                    f"than {benchmark.height.std_dev * 1000.0:.1f} mm"
-                ),
+                message=message,
                 stations=(benchmark.station,),
                 value=undulation.value,
+                context={
+                    "station": benchmark.station,
+                    "from": localised(f"{benchmark.height.value:.4f}"),
+                    "to": localised(f"{height.value:.4f}"),
+                    "geoid": geoid.label,
+                    "undulation": localised(f"{undulation.value:.4f}"),
+                    "now": localised(f"{height.std_dev * 1000.0:.1f}"),
+                    "before": localised(f"{benchmark.height.std_dev * 1000.0:.1f}"),
+                },
             )
         )
     return converted, target, findings
@@ -733,6 +760,10 @@ def _weighted(
                 ),
                 stations=(reduction.from_station, reduction.to_station),
                 value=float(reduction.length_km),
+                context={
+                    "line": reduction.line_id,
+                    "length": localised(f"{reduction.length_km * 1000.0:.1f}"),
+                },
             )
         )
 
@@ -845,6 +876,7 @@ def build_setup_network(
                     "points of one setup -- which makes those differences better "
                     "determined, not worse"
                 ),
+                context={"count": str(clustered)},
             )
         )
 

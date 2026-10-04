@@ -35,6 +35,7 @@ import numpy as np
 
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.total_station.reductions import (
     DEFAULT_EARTH_RADIUS,
     DEFAULT_REFRACTION_COEFFICIENT,
@@ -249,6 +250,10 @@ def leapfrog_height_difference(
                 stations=(backward.station, forward.station),
                 value=abs(imbalance) / longer,
                 threshold=imbalance_tolerance,
+                context={
+                    "imbalance": localised(f"{imbalance:+.2f}"),
+                    "length": localised(f"{longer:.1f}"),
+                },
             )
         )
 

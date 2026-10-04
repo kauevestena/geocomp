@@ -64,6 +64,7 @@ from dataclasses import dataclass
 
 from geocomp.core.errors import ValidationError
 from geocomp.core.findings import Finding, Severity
+from geocomp.core.number_format import localised
 from geocomp.core.techniques.levelling.line import LineReduction
 from geocomp.core.uncertainty import Quantity, Strategy
 from geocomp.core.units import Unit
@@ -189,6 +190,10 @@ def normal_orthometric_correction(
                 ),
                 value=abs(value),
                 threshold=NEGLIGIBLE,
+                context={
+                    "correction": localised(f"{value * 1000.0:+.3f}"),
+                    "threshold": localised(f"{NEGLIGIBLE * 1000.0:.1f}"),
+                },
             )
         )
     else:
@@ -205,6 +210,11 @@ def normal_orthometric_correction(
                     "along the line and arrives with the gravimetry module"
                 ),
                 value=abs(value),
+                context={
+                    "correction": localised(f"{value * 1000.0:+.2f}"),
+                    "latitude": localised(f"{math.degrees(mean_latitude):.4f}"),
+                    "height": localised(f"{mean_height:.0f}"),
+                },
             )
         )
 
