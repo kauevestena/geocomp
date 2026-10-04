@@ -5,6 +5,19 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-13 — DynAdjust results on the map
+
+#### Added
+
+- *Adjust network (DynAdjust)* can write the same map layers as *Adjust network*: adjusted stations, error
+  ellipses (absolute and relative), residuals, observations and corrections. Before, it wrote only its
+  solution file.
+
+#### Fixed
+
+- A solution in a reference frame GeoComp has no transformation for, such as GDA2020, could not be drawn on
+  the map at all. It is now drawn in its UTM zone under its own frame's name; drawing transforms nothing.
+
 ### P12c-13 — The adjustment report lists what was left out
 
 #### Fixed

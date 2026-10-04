@@ -66,6 +66,21 @@ class TestTheGrid:
         assert '"Longitude of natural origin",-51,' in grid.crs
         assert '"False northing",10000000,' in grid.crs
 
+    def test_a_frame_geocomp_cannot_transform_is_still_drawn_under_its_name(self):
+        """Drawing transforms nothing. Until P12c-13 the grid was refused for a
+        frame GeoComp holds no transformation for, and a DynAdjust solution in
+        GDA2020 never reached the map (FR-324)."""
+        grid = display_grid("GDA2020", math.radians(-27.5), math.radians(153.0))
+        assert grid.name == "GDA2020 / UTM zone 56S"
+        assert grid.crs.startswith('PROJCRS["GDA2020 / UTM zone 56S"')
+        assert 'DATUM["GDA2020"' in grid.crs
+
+    def test_a_frame_with_no_name_is_still_refused(self):
+        from geocomp.core.errors import ValidationError
+
+        with pytest.raises(ValidationError):
+            display_grid("  ", LATITUDE, LONGITUDE)
+
     def test_geodetic_north_leans_by_the_convergence(self):
         """gamma = atan(tan(dlambda) sin(phi)) on the sphere; the ellipsoid adds
         a few arc-seconds at most this close to the central meridian."""

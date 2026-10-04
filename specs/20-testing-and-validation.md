@@ -464,7 +464,7 @@ same rules: a **met** row cites a test, directly or through "As NN.N" to a met a
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
 document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
 
-**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273 (P12c-13). State now: 76 met, 7 partly met, 0 open, 0 manual, of 83.**
+**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359 (P12c-13). State now: 95 met, 11 partly met, 0 open, 0 manual, of 106.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -551,3 +551,26 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-271 | **met** | `tests/test_statistics.py::TestPreAnalysis::test_a_design_reports_expected_reliability_not_only_precision` |
 | FR-272 | **met** | `tests/qgis/test_preanalysis_dialog.py` |
 | FR-273 | **met** | `tests/test_statistics.py::TestInspection` |
+| FR-300 | **met** | `tests/test_engines.py::test_a_configured_path_wins`, `tests/test_engines.py::test_a_configured_directory_is_searched_for_the_program`; set in Global Settings, `tests/qgis/test_engine_install.py` |
+| FR-301 | **partly met** | As 21.4: DynAdjust is acquired from *Install an engine*; RTKLIB is located, not acquired |
+| FR-302 | **met** | Detected and recorded (`tests/test_rtklib_engine.py::TestVersion`, `tests/test_dynadjust_pipeline.py::TestVersionDetection`); warned about, by every algorithm that runs an engine since P12c-11 (`tests/qgis/test_engine_runs.py::TestTheVersion`) |
+| FR-303 | **met** | One runner, version record and discovery for both engines (`geocomp/engines/base.py`, `tests/test_engines.py`); the RTKLIB adapter was added in P7 without changing it ([`08`](./08-engine-rtklib.md) §2) |
+| FR-304 | **met** | Captured (`tests/test_engines.py`); a timeout told from a failure (`tests/test_engines.py::test_a_timeout_is_distinguished_from_a_failure`) and reported with elapsed time and limit since P12c-11 (`tests/test_engine_timeouts.py`); the limit configurable on every algorithm that runs an engine (`tests/qgis/test_engine_runs.py::TestTheTimeLimit`) |
+| FR-305 | **met** | `tests/qgis/test_engine_messages.py`; every engine failure's template shows the engine's own words, `tests/structural/test_message_templates.py::test_an_engine_failure_shows_the_engines_own_message` |
+| FR-306 | **met** | As 07.7 and 21.3; `tests/test_rtklib_engine.py::TestGracefulAbsence` |
+| FR-320 | **partly met** | From a GeoComp network document (`tests/test_dynadjust_pipeline.py::TestPrepare`), which the field-book imports make from CSV and `.xlsx` and the GNSS and integration algorithms make from their results. Not from a QGIS layer or from the project store directly: a network is exported to a document first |
+| FR-321 | **met** | As 07.3; which stages ran and why, `tests/test_dynadjust_pipeline.py::TestThePlan`. `dnaplot` is not driven: GeoComp draws the result itself (FR-324) |
+| FR-322 | **met** | As 07.4 |
+| FR-323 | **met** | `tests/test_dynadjust_solution.py`; cross-validated against the in-house Solution, As 06.6 |
+| FR-324 | **met** | Since P12c-13, *Adjust network (DynAdjust)* offers the in-house adjustment's result layers, and a GDA2020 solution is drawn under its own frame's name (`tests/qgis/test_engine_runs.py::TestADynAdjustResultOnTheMap`, `tests/test_display.py::TestTheGrid`). Until then it wrote its solution document and no layer, and the display grid refused a frame GeoComp holds no transformation for. Displacements and thematic maps follow from the Solution, as for the in-house one |
+| FR-325 | **partly met** | The generated input is kept when asked, and a refused run keeps it whatever is asked (`tests/qgis/test_engine_runs.py::TestADynAdjustRefusal`); the engine's prepare, run and parse are separate steps an API caller can stop between. No algorithm stops before execution for the input to be edited, and none takes a user-supplied DynAdjust configuration |
+| FR-350 | **met** | `tests/test_models.py::TestGnssSession`, As 08.1 |
+| FR-351 | **met** | As 08.1 |
+| FR-352 | **met** | As 08.6 |
+| FR-353 | **met** | As 08.7 |
+| FR-354 | **met** | `tests/test_rtklib_engine.py::TestConfiguration`; fed back to the engine, As 08.2 |
+| FR-355 | **met** | As 08.5; the run's time limit and its record since P12c-11 and P12c-13 (`tests/qgis/test_engine_runs.py`) |
+| FR-356 | **met** | As 08.3 and 08.4 |
+| FR-357 | **met** | Baselines and trajectories as layers, and the network document for a joint adjustment (`tests/qgis/test_gnss_layers.py`) |
+| FR-358 | **met** | Static and kinematic profiles, precise ephemerides and the atmospheric models as configuration (`tests/test_rtklib_engine.py::TestConfiguration`); quality indicators read back, As 08.3; the products, As 08.6 |
+| FR-359 | **partly met** | The comparison and its significance test, As 11.6, written as one table with a row per configuration. The side-by-side dialog [`11`](./11-module-gnss.md) §6 describes is not built |
