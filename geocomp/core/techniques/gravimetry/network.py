@@ -69,6 +69,7 @@ from geocomp.core.models import (
     HeightType,
     Network,
     Observation,
+    ObservationSource,
     ObservationType,
     Position,
     Provenance,
@@ -324,6 +325,7 @@ def build_gravity_network(
                 stations=(absolute.station,),
                 values=(absolute.value,),
                 meta={"tide_system": absolute.tide_system, "source": absolute.source},
+                provenance=ObservationSource("gravimetry", records=(f"absolute {absolute.id}",)),
             )
         )
 
@@ -568,6 +570,7 @@ def _add_instrument(
                 instrument_id=instrument,
                 cluster_id=None if independent or len(rows) == 1 else f"gravimeter:{instrument}",
                 meta=dict(row.meta),
+                provenance=_source(members),
             )
         )
     if independent or len(rows) == 1:
@@ -992,3 +995,23 @@ def _apriori(result: GravityNetworkResult) -> dict[str, Quantity]:
             unit=Unit.ACCELERATION,
         )
     return found
+
+
+
+def _source(visits: list[Occupation]) -> ObservationSource:
+    """Where a gravity difference came from (FR-102): every reading it averages.
+
+    A reading's id is ``<file>:<line>`` as the gravimeter file readers name it,
+    so a difference whose readings share a file names it once and lists their
+    lines. Readings from more than one file, or named some other way, are
+    listed by id.
+    """
+    ids = [reading for visit in visits for reading in visit.readings]
+    files = {identifier.rpartition(":")[0] for identifier in ids}
+    if len(files) == 1 and all(":" in identifier for identifier in ids):
+        return ObservationSource(
+            "gravimetry",
+            files.pop(),
+            tuple(f"line {identifier.rpartition(':')[2]}" for identifier in ids),
+        )
+    return ObservationSource("gravimetry", "", tuple(ids))

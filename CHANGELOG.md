@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-20 — Levelling and gravity observations say where they came from
+
+#### Added
+
+- A levelling line's observation names the level book and the rows of all its setups. A trigonometric
+  height difference names the field book and the rows of its sights. A gravity difference names the
+  gravimeter file and the lines of its readings.
+
 ### P12c-19 — Observations say where they came from
 
 #### Added

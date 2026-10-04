@@ -87,6 +87,14 @@ def load_json(path: str, *, parameter: str) -> dict:
     return payload
 
 
+def document_source(path: str, *, parameter: str) -> str:
+    """The level book a levelling document came from, by name (FR-102).
+
+    Empty for a document written before it was recorded.
+    """
+    return str(load_json(path, parameter=parameter).get("source", "") or "")
+
+
 def write_document(path: str, payload: dict[str, Any]) -> None:
     """Write a GeoComp JSON document, reproducibly (NFR-007)."""
     if not path:
@@ -306,6 +314,7 @@ def reduction_to_dict(reduction: LineReduction) -> dict[str, Any]:
         "accumulated_imbalance": reduction.accumulated_imbalance,
         "collimation": _quantity(reduction.collimation),
         "setup_ids": [setup.setup_id for setup in reduction.setups],
+        "records": list(reduction.records),
         "side_shots": [
             {
                 "setup_id": shot.setup_id,
@@ -435,4 +444,5 @@ def reduction_from_dict(payload: dict[str, Any]) -> LineReduction:
         length_km=payload.get("length_km"),
         setup_count=int(payload.get("setup_count", len(setups))),
         accumulated_imbalance=payload.get("accumulated_imbalance"),
+        records=tuple(payload.get("records", ())),
     )

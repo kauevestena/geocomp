@@ -171,3 +171,94 @@ class TestTheTotalStationChain:
                     assert (row["E"], sighted) == observation.stations
                 seen += 1
         assert seen
+
+
+class TestTheLevellingChain:
+    def test_a_line_names_the_rows_of_the_book_it_was_reduced_from(self, tmp_path):
+        """Every reading of the line is in one of the runs it names, and nothing else is."""
+        import csv
+
+        import tests.reference_levelling as rd
+        from geocomp.core.techniques.levelling import build_network
+        from geocomp.core.techniques.levelling.line import reduce_line
+        from geocomp.io.levelbook import ColumnMapping, LevelMapping, read_level_book_csv
+
+        book = rd.balanced_line()
+        rows = [["setup", "point", "kind", "reading", "distance"]]
+        for setup in book.line.setups:
+            for kind, sight in (("BS", setup.backsight), ("FS", setup.foresights[0])):
+                reading, distance = f"{sight.reading.value:.5f}", f"{sight.distance_value:.2f}"
+                rows.append([setup.id, sight.station, kind, reading, distance])
+        path = tmp_path / "book.csv"
+        with path.open("w", encoding="utf-8", newline="") as handle:
+            csv.writer(handle).writerows(rows)
+        mapping = LevelMapping(
+            name="m",
+            columns=tuple(
+                ColumnMapping(field, column=column)
+                for field, column in (
+                    ("setup", "setup"),
+                    ("station", "point"),
+                    ("sight", "kind"),
+                    ("reading", "reading"),
+                    ("distance", "distance"),
+                )
+            ),
+            decimal_separator=".",
+        )
+        read = read_level_book_csv(path, mapping, level=rd.profile())
+        (line,) = read.lines
+        reduction = reduce_line(line, rd.profile())
+        assert reduction.records == (f"rows 2-{len(rows)}",)
+
+        network = build_network([reduction], [], source_file=path.name).network
+        (observation,) = network.observations.values()
+        assert observation.provenance == ObservationSource("levelling", "book.csv", reduction.records)
+
+    def test_rows_are_gathered_into_runs(self):
+        from geocomp.core.techniques.levelling.line import row_runs
+
+        assert row_runs(["row 3", "row 4", "row 5", "row 9", "row 11", "row 12"]) == (
+            "rows 3-5",
+            "row 9",
+            "rows 11-12",
+        )
+        assert row_runs([]) == ()
+
+
+class TestTheGravimetryChain:
+    def test_a_difference_names_the_lines_its_readings_were_on(self):
+        """Each line named holds a reading at one of the difference's two stations."""
+        from geocomp.core.instruments import ProfileLibrary
+        from geocomp.core.instruments.gravimeter import GravimeterProfile
+        from geocomp.core.techniques.gravimetry import (
+            DriftOptions,
+            ReductionOptions,
+            build_gravity_network,
+            reduce_readings,
+        )
+        from geocomp.core.uncertainty import Quantity
+        from geocomp.core.units import Unit
+        from geocomp.io.gravimeter_files import read_gravimeter_file
+
+        source = DATA / "rd07" / "gsadjust" / "Test2.txt"
+        loaded = read_gravimeter_file(source, source=source.name, additive_sigma=5.0e-8)
+        library = ProfileLibrary()
+        for instrument in loaded.instruments:
+            library.add_gravimeter(
+                GravimeterProfile(id=instrument, calibration_factor=Quantity.exact(1.0, Unit.DIMENSIONLESS))
+            )
+        network = build_gravity_network(
+            reduce_readings(loaded.readings, library, ReductionOptions()),
+            library,
+            drift=DriftOptions(),
+        ).network
+        text = source.read_text(encoding="utf-8", errors="replace").splitlines()
+        differences = [o for o in network.observations.values() if len(o.stations) == 2]
+        assert differences
+        for observation in differences:
+            source_record = observation.provenance
+            assert source_record.reader == "gravimetry" and source_record.file == source.name
+            for record in source_record.records:
+                line = text[int(record.removeprefix("line ")) - 1]
+                assert any(station in line.split() for station in observation.stations), record

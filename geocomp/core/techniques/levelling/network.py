@@ -74,6 +74,7 @@ from geocomp.core.models import (
     HeightType,
     Network,
     Observation,
+    ObservationSource,
     ObservationType,
     Position,
     Station,
@@ -219,6 +220,7 @@ def build_network(
     weighting: DifferenceWeighting | None = None,
     geoid: GeoidModel | None = None,
     geoid_model: str | None = None,
+    source_file: str = "",
 ) -> LevellingNetworkResult:
     """Turn reduced lines into a network the adjustment core can solve.
 
@@ -239,6 +241,8 @@ def build_network(
             merely declared: every benchmark is converted to orthometric, the
             model's uncertainty is propagated in (FR-204), and the model is
             recorded (FR-804). See :func:`harmonise_benchmarks`.
+        source_file: The level book the lines were read from, which each
+            observation names with its rows as its provenance (FR-102).
         geoid_model: The model's name, when the grid itself is not to hand.
             Recorded on a network that needs no conversion; a mixture that does
             need one is refused, because a name cannot compute an undulation.
@@ -274,7 +278,7 @@ def build_network(
         )
 
     for reduction in reductions:
-        _add_line(network, reduction, weighting, findings)
+        _add_line(network, reduction, weighting, findings, source_file)
 
     orphans = sorted(
         shot.to_station
@@ -358,6 +362,8 @@ def add_height_differences(
     height_type: HeightType,
     *,
     technique: str = "total_station",
+    source_file: str = "",
+    records: list[tuple[str, ...]] | None = None,
 ) -> tuple[Finding, ...]:
     """Add height differences measured by another technique to a levelling network (P12c).
 
@@ -379,6 +385,10 @@ def add_height_differences(
     A point only the trigonometric differences reach is added as a mark: its
     height comes from them, and the network's connectivity is checked before
     the adjustment as for any other.
+
+    *source_file* and *records*, one tuple per difference, are what each
+    observation names as its provenance (FR-102): the field book and the rows
+    of the sights the difference was formed from.
     """
     findings: list[Finding] = []
     known = network.station_ids()
@@ -395,6 +405,7 @@ def add_height_differences(
             if station not in known and station not in added:
                 network.add_station(Station(id=station, station_type=StationType.MARK))
                 added.append(station)
+        named = records[count - 1] if records is not None else ()
         network.add_observation(
             Observation(
                 id=f"{technique}-{count}",
@@ -402,6 +413,9 @@ def add_height_differences(
                 stations=(start, end),
                 values=(value,),
                 meta={TECHNIQUE_KEY: technique, HEIGHT_TYPE_KEY: height_type.name},
+                provenance=ObservationSource(
+                    technique, source_file, named or (f"difference {count}",)
+                ),
             )
         )
     message = (
@@ -693,6 +707,7 @@ def _add_line(
     reduction: LineReduction,
     weighting: DifferenceWeighting | None,
     findings: list[Finding],
+    source_file: str = "",
 ) -> None:
     """Add one line's height difference as a single observation."""
     network.add_observation(
@@ -701,6 +716,9 @@ def _add_line(
             type=ObservationType.HEIGHT_DIFFERENCE,
             stations=(reduction.from_station, reduction.to_station),
             values=(_weighted(reduction, weighting, findings),),
+            provenance=ObservationSource(
+                "levelling", source_file, reduction.records or (f"line {reduction.line_id}",)
+            ),
             meta={
                 "line": reduction.line_id,
                 "setups": reduction.setup_count,
@@ -780,6 +798,7 @@ def build_setup_network(
     crs: str = "",
     geoid: GeoidModel | None = None,
     geoid_model: str | None = None,
+    source_file: str = "",
 ) -> LevellingNetworkResult:
     """Turn reduced *setups* into a network, one observation per foresight.
 
@@ -844,6 +863,11 @@ def build_setup_network(
                     setup_id=reduction.setup_id,
                     cluster_id=cluster_id,
                     meta={"setup": reduction.setup_id},
+                    provenance=ObservationSource(
+                        "levelling",
+                        source_file,
+                        reduction.records or (f"setup {reduction.setup_id}",),
+                    ),
                 )
             )
 

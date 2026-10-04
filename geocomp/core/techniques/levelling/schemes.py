@@ -70,6 +70,8 @@ class SetupReduction:
             an empty tuple when the distances were not recorded.
         collimation: The correction applied per foresight, for the report. Zero
             where the sights were balanced or the instrument applies its own.
+        records: The level book's rows of its readings, backsight first: what
+            the observations it becomes name as their provenance (FR-102).
     """
 
     setup_id: str
@@ -80,6 +82,7 @@ class SetupReduction:
     imbalances: tuple[float, ...] = ()
     collimation: tuple[Quantity, ...] = ()
     findings: tuple[Finding, ...] = ()
+    records: tuple[str, ...] = ()
 
     @property
     def is_clustered(self) -> bool:
@@ -215,6 +218,7 @@ def reduce_setup(
         imbalances=tuple(imbalances),
         collimation=tuple(corrections),
         findings=tuple(findings),
+        records=reading_records(backsight, *foresights),
     )
 
 
@@ -537,3 +541,12 @@ def reduce_reciprocal(
         inflation=variance_inflation,
         findings=tuple(findings),
     )
+
+
+def reading_records(*readings: StaffReading) -> tuple[str, ...]:
+    """The level book's rows of *readings*, as their provenance names them (FR-102).
+
+    A reading read from a book carries its row in ``meta``; one made in code
+    carries none, and names none.
+    """
+    return tuple(f"row {reading.meta['row']}" for reading in readings if "row" in reading.meta)

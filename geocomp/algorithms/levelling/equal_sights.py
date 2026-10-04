@@ -34,6 +34,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
+    document_source,
     findings_table,
     level_from_parameters,
     read_lines,
@@ -238,6 +239,9 @@ class EqualSightsAlgorithm(GeoCompAlgorithm):
             {
                 "kind": "levelling_reductions",
                 "level_id": level.id,
+                "source": document_source(
+                    self.parameterAsFile(parameters, SETUPS, context), parameter=SETUPS
+                ),
                 "lines": [reduction_to_dict(reduction) for reduction in reductions],
             },
         )

@@ -341,3 +341,64 @@ class TestTheLayers:
         assert {f["decision"] for f in features} <= {"accepted", "rejected", "uncheckable"}
         assert all(abs(f["residual"]) < 50.0 for f in features)
         assert "µGal" in differences.name()
+
+
+class TestTheDocumentAndTheMemoryAgree:
+    def test_the_network_from_the_document_is_the_one_built_in_memory(self, tmp_path):
+        """Nothing the network needs is lost in *Pre-processing*'s document (P12c-20).
+
+        The network algorithm builds from the reduced readings document. Built
+        from it, and built from the file read again in memory with the same
+        reduction, the two networks must be the same, observation by observation:
+        values, uncertainties, instruments and provenance, each difference
+        naming the lines of the file its readings were on.
+        """
+        from geocomp.algorithms.defaults import configured
+        from geocomp.algorithms.gravimetry.common import (
+            gravimeter_library,
+            read_readings_document,
+            tide_model_from,
+        )
+        from geocomp.core.techniques.gravimetry import (
+            DriftOptions,
+            ReductionOptions,
+            build_gravity_network,
+            reduce_readings,
+        )
+        from geocomp.io.gravimeter_files import read_gravimeter_file
+
+        source = USGS / "Test2.txt"
+        profiles = _burris_profiles(tmp_path / "profiles.json")
+        document = tmp_path / "reduced.json"
+        _run(
+            PREPROCESS,
+            {
+                "READINGS": str(source),
+                "PROFILES": str(profiles),
+                "PRECISION_FLOOR": 0.0,
+                "OUTPUT_READINGS": str(document),
+            },
+        )
+        reduced, library, _payload = read_readings_document(str(document))
+        through_files = build_gravity_network(reduced, library, drift=DriftOptions()).network
+
+        loaded = read_gravimeter_file(source, source=source.name)
+        memory_library = gravimeter_library(str(profiles), loaded.instruments, 0.0, [])
+        options = ReductionOptions(
+            tide_model=tide_model_from(configured("gravimeter.tide_model")),
+            amplification=configured("gravimeter.tide_amplification"),
+        )
+        in_memory = build_gravity_network(
+            reduce_readings(loaded.readings, memory_library, options),
+            memory_library,
+            drift=DriftOptions(),
+        ).network
+
+        assert through_files.observations
+        assert set(through_files.observations) == set(in_memory.observations)
+        for identifier, observation in in_memory.observations.items():
+            assert through_files.observations[identifier].to_dict() == observation.to_dict()
+        for observation in through_files.observations.values():
+            assert observation.provenance.reader == "gravimetry"
+            assert observation.provenance.file == source.name
+            assert all(record.startswith("line ") for record in observation.provenance.records)

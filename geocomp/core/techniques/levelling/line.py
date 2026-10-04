@@ -180,6 +180,9 @@ class LineReduction:
         collimation: The total correction applied, for the report.
         raw_height_difference: Before the collimation correction, so a report
             can show what the correction changed.
+        records: The level book's rows the line was reduced from, as runs:
+            ``rows 12-51``. What its observation names as its provenance
+            (FR-102).
     """
 
     line_id: str
@@ -194,6 +197,7 @@ class LineReduction:
     accumulated_imbalance: float | None = None
     collimation: Quantity | None = None
     findings: tuple[Finding, ...] = ()
+    records: tuple[str, ...] = ()
 
     @property
     def is_balanced(self) -> bool:
@@ -358,7 +362,27 @@ def reduce_line(
         accumulated_imbalance=accumulated,
         collimation=correction if collimation is not None else None,
         findings=tuple(findings),
+        records=row_runs(record for reduction in reductions for record in reduction.records),
     )
+
+
+def row_runs(records) -> tuple[str, ...]:
+    """``row N`` records gathered into runs: ``rows 12-51``, or ``row 7`` alone.
+
+    A line of forty setups is eighty rows of the book, almost always one block
+    of them; written as runs, its provenance stays one line long.
+    """
+    rows = sorted({int(record.removeprefix("row ")) for record in records if record.startswith("row ")})
+    runs: list[str] = []
+    start = previous = None
+    for row in [*rows, None]:
+        if previous is not None and row == previous + 1:
+            previous = row
+            continue
+        if start is not None:
+            runs.append(f"row {start}" if start == previous else f"rows {start}-{previous}")
+        start = previous = row
+    return tuple(runs)
 
 
 def reverse_height_difference(reduction: LineReduction) -> Quantity:

@@ -626,6 +626,59 @@ class TestClosuresAndTheNetwork:
         assert benchmark.constraint.components == {"up"}
         assert benchmark.constraint.position.values[2].value == pytest.approx(rd.HEIGHTS["BM1"])
 
+    def test_the_network_through_the_files_is_the_one_built_in_memory(
+        self, tmp_path, loop_reductions
+    ):
+        """Nothing the network needs is lost between the book and the network (P12c-20).
+
+        The book is read again in memory, reduced and built by the same core
+        functions, and compared, observation by observation, with the network
+        the three algorithms made through their documents: values,
+        uncertainties, meta and provenance. P12c-18 found a 3D total-station
+        network that had lost its sights' heights between two documents; this
+        is the same check for levelling.
+        """
+        from geocomp.core.models import network_from_document
+        from geocomp.core.techniques.levelling import build_network, weighting_for
+        from geocomp.core.techniques.levelling.line import reduce_line
+        from geocomp.io.levelbook import LevelMapping, read_level_book_csv
+
+        results = _run(
+            "geocomp:levelling_network",
+            {
+                "REDUCTIONS": loop_reductions,
+                "FREE": True,
+                "WEIGHTING": 0,
+                "SIGMA_PER_KM": 0.0007,
+                "OUTPUT_NETWORK": str(tmp_path / "network.json"),
+            },
+        )
+        through_files = network_from_document(
+            json.loads(Path(results["OUTPUT_NETWORK"]).read_text(encoding="utf-8"))
+        )
+
+        directory = Path(loop_reductions).parent
+        mapping = LevelMapping.from_dict(
+            json.loads((directory / "mapping.json").read_text(encoding="utf-8"))
+        )
+        book = read_level_book_csv(directory / "loop.csv", mapping, level=rd.profile())
+        reductions = [reduce_line(line, rd.profile()) for line in book.lines]
+        in_memory = build_network(
+            reductions,
+            [],
+            network_id="levelling",
+            weighting=weighting_for("length", sigma_per_km=0.0007),
+            source_file="loop.csv",
+        ).network
+
+        assert set(through_files.observations) == set(in_memory.observations)
+        for identifier, observation in in_memory.observations.items():
+            assert through_files.observations[identifier].to_dict() == observation.to_dict()
+        for observation in through_files.observations.values():
+            source = observation.provenance
+            assert source.reader == "levelling" and source.file == "loop.csv"
+            assert source.records and all(r.startswith("rows ") for r in source.records)
+
 
 class TestTheToleranceGateAndTheOrthometricCorrection:
     """P12a: ``level.adjust_failing_lines`` and ``level.apply_orthometric_correction``.

@@ -55,6 +55,7 @@ from geocomp.algorithms.defaults import (
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE
 from geocomp.algorithms.levelling.common import (
+    document_source,
     findings_table,
     levelling_class_from_parameters,
     read_reductions,
@@ -367,7 +368,13 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(15)
         try:
             built = build_network(
-                reductions, benchmarks, network_id="levelling", weighting=weighting
+                reductions,
+                benchmarks,
+                network_id="levelling",
+                weighting=weighting,
+                source_file=document_source(
+                    self.parameterAsFile(parameters, REDUCTIONS, context), parameter=REDUCTIONS
+                ),
             )
         except GeoCompError as exc:
             from geocomp.services.messages import message_for
@@ -378,8 +385,13 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         trigonometric = self.parameterAsFile(parameters, TRIGONOMETRIC, context)
         if trigonometric:
             try:
+                differences, records, source = self._height_differences(trigonometric)
                 added = add_height_differences(
-                    network, self._height_differences(trigonometric), built.height_type
+                    network,
+                    differences,
+                    built.height_type,
+                    source_file=source,
+                    records=records,
                 )
             except GeoCompError as exc:
                 from geocomp.services.messages import message_for
@@ -1047,10 +1059,13 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                     "%1 is not the height-difference document Trigonometric levelling writes."
                 ).replace("%1", path)
             )
-        return [
-            (row["from"], row["to"], Quantity.from_dict(row["value"]))
-            for row in payload.get("differences", [])
-        ]
+        rows = payload.get("differences", [])
+        return (
+            [(row["from"], row["to"], Quantity.from_dict(row["value"])) for row in rows],
+            # Where each came from (FR-102): the field book's rows of its sights.
+            [tuple(row.get("records", ())) for row in rows],
+            str(payload.get("source", "") or ""),
+        )
 
     def _push_components(self, components, feedback) -> None:
         for component in components.components:
