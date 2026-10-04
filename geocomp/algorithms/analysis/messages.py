@@ -327,6 +327,31 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "Check the station's height.",
         "received",
     ),
+    # -- the grid reduction (FR-405, P12c-14) -----------------------------------
+    "validation.grid_reduction_without_position": MessageTemplate(
+        "Reducing distances to the grid needs an approximate position for every station a "
+        "distance ends at, and these have none: %1. Give them approximate coordinates, or "
+        "turn the reduction off.",
+        "received",
+    ),
+    "validation.grid_reduction_without_height": MessageTemplate(
+        "Reducing distances to the ellipsoid needs a height for every station a distance ends "
+        "at, and the positions of these do not say what their height is measured from: %1. "
+        "Give the heights, or turn the reduction off.",
+        "received",
+    ),
+    "validation.grid_reduction_without_undulation": MessageTemplate(
+        "The approximate heights of these stations are orthometric: %1. Reducing a distance "
+        "to the ellipsoid needs the ellipsoidal height, so give the geoid undulation, or turn "
+        "the reduction off.",
+        "received",
+    ),
+    "validation.grid_reduction_of_clustered_distance": MessageTemplate(
+        "These distances are part of a correlated cluster, whose covariance describes them "
+        "as measured, and reducing them would leave it describing other values: %1. Reduce "
+        "them before they are clustered, or turn the reduction off.",
+        "received",
+    ),
     "validation.correlation_out_of_range": MessageTemplate(
         "A correlation coefficient must lie between -1 and 1.",
     ),

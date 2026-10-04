@@ -468,7 +468,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 155 met, 20 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 156 met, 19 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -533,7 +533,7 @@ without a row.
 | FR-202 | **met** | As 05.5 |
 | FR-203 | **met** | As 05.5; in the report, As 19.8 |
 | FR-204 | **met** | As 05.3 |
-| FR-205 | **met** | Curvature and refraction, the reductions to the ellipsoid and to the projection plane, each carrying the uncertainty of the heights and scale it used (`tests/test_total_station.py::TestGeometricReductions`). Whether an algorithm offers the reductions is FR-405's, in the total-station block |
+| FR-205 | **met** | Curvature and refraction, the reductions to the ellipsoid and to the projection plane, each carrying the uncertainty of the heights and scale it used (`tests/test_total_station.py::TestGeometricReductions`). Applied by *Classical network* since P12c-14, FR-405's row |
 | FR-206 | **met** | A baseline cluster kept whole through a combined adjustment (`tests/test_integration.py::TestCriterion5Clusters::test_the_baseline_cluster_survives_whole`) and through DynaML, As 07.2 |
 | FR-207 | **met** | As 14.4; not significant is not zero, As 14.7 |
 | FR-208 | **met** | As 05.6 |
@@ -583,7 +583,7 @@ without a row.
 | FR-402 | **met** | `tests/test_total_station.py::TestInstrumentCorrections`; injected errors recovered, As 09.4 |
 | FR-403 | **met** | `tests/test_total_station.py::TestEdmCorrections` |
 | FR-404 | **met** | `tests/test_total_station.py::TestBasicReduction` |
-| FR-405 | **partly met** | Curvature and refraction are applied in trigonometric heighting (`tests/test_total_station.py::TestGeometricReductions`, `tests/test_trigonometric_levelling.py`). The reductions to the ellipsoid and to the projection plane exist and propagate their uncertainty, but no algorithm applies them. *Preprocess* runs before coordinates are known, and *Classical network* adjusts measured distances in the plane of the approximate coordinates with no scale factor, so a network adjusted on a projected CRS takes ground distances as grid distances, 400 to 1000 ppm wrong on UTM ([`09`](./09-module-total-station.md) §2) |
+| FR-405 | **met** | Curvature and refraction in trigonometric heighting (`tests/test_total_station.py::TestGeometricReductions`, `tests/test_trigonometric_levelling.py`). Since P12c-14 the reductions to the ellipsoid and to the grid are applied by *Classical network*, in a 2D adjustment on a projected CRS: a network observed on the ground at a UTM zone's edge fails to fit its grid control as measured and fits it to 0.1 mm reduced (`tests/test_grid_reduction.py::TestANetworkAtTheEdgeOfAZone`), through the algorithm with QGIS's scale factor (`tests/qgis/test_grid_reduction.py`). Not in a 3D adjustment, whose frame is not a grid ([`09`](./09-module-total-station.md) §2.6) |
 | FR-406 | **met** | Open, closed and connected, with closure against tolerance, against constructed truth (`tests/test_survey_computations.py::TestTraverse`); a published example waits on W-07, row 09.5 |
 | FR-407 | **met** | `tests/test_survey_computations.py::TestResection`; the danger circle refused, As 09.6 |
 | FR-408 | **met** | `tests/test_survey_computations.py::TestForwardIntersection` |

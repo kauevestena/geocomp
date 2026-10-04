@@ -170,6 +170,10 @@ class TestDeclaredTypes:
 #: reason each is not a measurement. Same discipline as DELIBERATE_PLAIN_FLOATS
 #: above and the same force: a new float field fails until someone decides.
 TECHNIQUE_PLAIN_FLOATS = {
+    ("GridReduction", "scale_factor"): (
+        "evaluated at the approximate coordinates and exact for the purpose: 0.007 ppm per "
+        "metre of position at a UTM zone's edge (core/techniques/total_station/grid.py)"
+    ),
     ("EdmSpecification", "constant"): "the constant term of a precision model, not a measurement",
     ("EdmSpecification", "proportional"): "the ppm term of a precision model",
     ("EdmSpecification", "scale"): "a user factor on a precision model",

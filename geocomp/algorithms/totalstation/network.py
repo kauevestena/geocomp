@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import csv
 import json
+from dataclasses import dataclass
 from typing import Any
 
 from qgis.core import (
@@ -29,6 +30,7 @@ from qgis.core import (
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
@@ -80,6 +82,9 @@ from geocomp.core.preanalysis import inspect
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.techniques.total_station import build_network
+from geocomp.core.techniques.total_station.grid import GridReduction, reduce_distances_to_grid
+from geocomp.core.uncertainty import Quantity
+from geocomp.core.units import Unit
 from geocomp.io.tabular import read_coordinates
 from geocomp.services.messages import finding_text, message_for
 
@@ -93,6 +98,8 @@ FIXED_STATIONS = "FIXED_STATIONS"
 CONFIDENCE = "CONFIDENCE"
 EPOCH = "EPOCH"
 CRS = "CRS"
+REDUCE_TO_GRID = "REDUCE_TO_GRID"
+GEOID_UNDULATION = "GEOID_UNDULATION"
 OUTPUT_NETWORK = "OUTPUT_NETWORK"
 OUTPUT_SOLUTION = "OUTPUT_SOLUTION"
 OUTPUT_HTML = "OUTPUT_HTML"
@@ -106,6 +113,31 @@ OUTLIER_COUNT = "OUTLIER_COUNT"
 #: permanent as an algorithm id.
 _DIMENSIONS = (2, 3, 1)
 _FRAMES = {1: Frame.HEIGHT_1D, 2: Frame.PLANE_2D, 3: Frame.SPACE_3D}
+
+
+@dataclass(frozen=True)
+class _GridOutcome:
+    """What became of the reduction to the grid, for the summary, the report and
+    the provenance: every distance it reduced, or why it reduced none."""
+
+    records: tuple[GridReduction, ...] = ()
+    reason: str = ""
+    note: str = ""
+
+    @property
+    def applied(self) -> bool:
+        return bool(self.records)
+
+    def provenance(self, undulation: float) -> dict[str, Any]:
+        if not self.applied:
+            return {"applied": False, "reason": self.reason}
+        ppm = [record.parts_per_million for record in self.records]
+        return {
+            "applied": True,
+            "distances": len(self.records),
+            "geoid_undulation": undulation,
+            "ppm": [min(ppm), max(ppm)],
+        }
 
 
 class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
@@ -156,6 +188,19 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             "exactly.</p>"
             "<p><b>Confidence level</b>, <b>reference epoch</b> and <b>CRS</b> &mdash; "
             "recorded on the solution.</p>"
+            "<p><b>Reduce measured distances to the grid</b> &mdash; a total station "
+            "measures a distance on the ground, and a plane adjustment computes one from "
+            "grid coordinates. On a projected CRS the two differ by the reduction to the "
+            "ellipsoid, about 157 ppm for each kilometre of height, and by the projection's "
+            "scale factor, on UTM from &minus;400 ppm at the central meridian to about "
+            "+1000 ppm at a zone's edge. In a 2D adjustment each horizontal distance is "
+            "reduced by both, at the mean height of its ends and the scale factor of its "
+            "line, and the report states the range applied. Coordinates that lie outside "
+            "the area the CRS is defined for are read as a local plane and are not "
+            "reduced; neither is a network in a CRS that is not projected.</p>"
+            "<p><b>Geoid undulation N</b> (m) &mdash; the approximate heights are "
+            "orthometric, and the reduction to the ellipsoid needs ellipsoidal ones, "
+            "<i>h = H + N</i>. Each 10 m of N left out is 1.6 ppm.</p>"
             "<h3>Outputs</h3>"
             "<p><b>Network</b> and <b>Solution</b> &mdash; JSON documents; the first feeds "
             "the Analysis algorithms, the second holds the adjusted coordinates with their "
@@ -243,6 +288,23 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 defaultValue=configured("reference_systems.preferred_crs"),
             )
         )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                REDUCE_TO_GRID,
+                self.tr("Reduce measured distances to the grid"),
+                defaultValue=True,
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterNumber(
+                GEOID_UNDULATION,
+                self.tr("Geoid undulation N (m)"),
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=0.0,
+                minValue=-150.0,
+                maxValue=150.0,
+            )
+        )
         for name, label, filter_text, by_default in (
             (OUTPUT_NETWORK, self.tr("Network"), self.tr("GeoComp network (*.json)"), True),
             (OUTPUT_SOLUTION, self.tr("Solution"), self.tr("GeoComp solution (*.json)"), True),
@@ -302,6 +364,16 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             crs=crs,
             dimension=dimension,
             fixed={name: approximate[name] for name in (fixed_names or ())},
+        )
+        undulation = self.parameterAsDouble(parameters, GEOID_UNDULATION, context)
+        network, grid = self._to_grid(
+            network,
+            crs,
+            dimension=dimension,
+            wanted=self.parameterAsBool(parameters, REDUCE_TO_GRID, context),
+            undulation=undulation,
+            context=context,
+            feedback=feedback,
         )
 
         frame = _FRAMES[dimension]
@@ -374,6 +446,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                         "datum": datum.value,
                         "fixed": list(fixed_names or ()),
                         "confidence": confidence,
+                        "grid_reduction": grid.provenance(undulation),
                     },
                 ),
                 observation_results=to_observation_results(
@@ -388,7 +461,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(90)
         outputs = self._write(
-            parameters, context, network, solution, run, test, snooping, report
+            parameters, context, network, solution, run, test, snooping, report, grid
         )
         layers = write_result_layers(
             self,
@@ -439,6 +512,117 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
     # -- feedback --------------------------------------------------------
 
+    def _to_grid(
+        self, network, crs_code, *, dimension, wanted, undulation, context, feedback
+    ) -> tuple[Any, _GridOutcome]:
+        """Carry the measured distances to the grid of the CRS, if it has one (FR-405).
+
+        The scale factor is QGIS's, from the CRS at a point: ``core`` reduces,
+        and the projection is QGIS's business. Coordinates outside the area the
+        CRS is defined for are a local plane -- which is what RD-01 is, in
+        EPSG:31982 -- and are left as they are, saying so.
+        """
+        from qgis.core import (
+            QgsCoordinateReferenceSystem,
+            QgsCoordinateTransform,
+            QgsCsException,
+            QgsPoint,
+            QgsPointXY,
+        )
+
+        def not_reduced(reason: str, note: str) -> tuple[Any, _GridOutcome]:
+            feedback.pushInfo(note)
+            return network, _GridOutcome(reason=reason, note=note)
+
+        if not wanted:
+            return not_reduced("not_asked", self.tr("No: the reduction was turned off."))
+        if dimension != 2:
+            return not_reduced(
+                "not_planimetric",
+                self.tr(
+                    "No: distances are reduced to the grid in a 2D adjustment only, and this "
+                    "one is not 2D."
+                ),
+            )
+        crs = QgsCoordinateReferenceSystem(crs_code)
+        if not crs.isValid() or crs.isGeographic():
+            return not_reduced(
+                "not_projected",
+                self.tr("No: %1 is not a projected CRS, so there is no grid to reduce to.").replace(
+                    "%1", crs_code
+                ),
+            )
+        to_geographic = QgsCoordinateTransform(
+            crs, crs.toGeographicCrs(), context.transformContext()
+        )
+        area = crs.bounds()
+        outside = []
+        for station in sorted(network.stations.values(), key=lambda item: item.id):
+            position = station.approx_position
+            if position is None:
+                continue
+            try:
+                point = to_geographic.transform(
+                    QgsPointXY(position.values[0].value, position.values[1].value)
+                )
+            except QgsCsException:
+                outside.append(station.id)
+                continue
+            if not area.isEmpty() and not area.contains(point):
+                outside.append(station.id)
+        if outside:
+            note = (
+                self.tr(
+                    "No: these stations lie outside the area %1 is defined for, so the "
+                    "coordinates are read as a local plane: %2."
+                )
+                .replace("%1", crs_code)
+                .replace("%2", ", ".join(outside))
+            )
+            feedback.pushWarning(note)
+            return network, _GridOutcome(reason="outside_area", note=note)
+
+        def scale_factor(easting: float, northing: float) -> float:
+            point = to_geographic.transform(QgsPointXY(easting, northing))
+            factors = crs.factors(QgsPoint(point.x(), point.y()))
+            if not factors.isValid():
+                raise QgsProcessingException(
+                    self.tr("QGIS gives no scale factor for %1 at %2, %3.")
+                    .replace("%1", crs_code)
+                    .replace("%2", format_number(easting, 3))
+                    .replace("%3", format_number(northing, 3))
+                )
+            if abs(factors.meridionalScale() - factors.parallelScale()) > 1e-8:
+                raise QgsProcessingException(
+                    self.tr(
+                        "%1 is not a conformal projection: its scale differs between the "
+                        "meridian and the parallel, so a distance's reduction would depend on "
+                        "its direction. Adjust in a conformal projection, such as UTM, or turn "
+                        "the reduction off."
+                    ).replace("%1", crs_code)
+                )
+            return factors.meridionalScale()
+
+        try:
+            reduced, records = reduce_distances_to_grid(
+                network,
+                scale_factor=scale_factor,
+                undulation=Quantity.exact(undulation, Unit.METRE),
+            )
+        except GeoCompError as exc:
+            raise QgsProcessingException(message_for(exc)) from exc
+        if not records:
+            return not_reduced("no_distances", self.tr("No: the network has no distance to reduce."))
+        ppm = [record.parts_per_million for record in records]
+        note = (
+            self.tr("%1 distance(s), from %2 to %3 ppm.")
+            .replace("%1", str(len(records)))
+            .replace("%2", format_number(min(ppm), 1))
+            .replace("%3", format_number(max(ppm), 1))
+        )
+        feedback.pushInfo(self.tr("Reduced to the grid: %1").replace("%1", note))
+        return reduced, _GridOutcome(records=records, note=note)
+
     def _push_summary(self, run, test, snooping, feedback) -> None:
         feedback.pushInfo(
             self.tr("Converged in %1 iteration(s); %2 degree(s) of freedom.")
@@ -464,7 +648,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
     # -- outputs ---------------------------------------------------------
 
     def _write(
-        self, parameters, context, network, solution, run, test, snooping, inspection
+        self, parameters, context, network, solution, run, test, snooping, inspection, grid
     ) -> dict[str, Any]:
         network_path = self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context)
         if network_path:
@@ -481,7 +665,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         html_path = self.parameterAsFileOutput(parameters, OUTPUT_HTML, context)
         if html_path:
             with open(html_path, "w", encoding="utf-8") as handle:
-                handle.write(self._render(network, solution, run, test, snooping, inspection))
+                handle.write(
+                    self._render(network, solution, run, test, snooping, inspection, grid)
+                )
 
         stations_path = self.parameterAsFileOutput(parameters, OUTPUT_STATIONS, context)
         if stations_path:
@@ -526,7 +712,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             OUTPUT_STATIONS: stations_path,
         }
 
-    def _render(self, network, solution, run, test, snooping, inspection) -> str:
+    def _render(self, network, solution, run, test, snooping, inspection, grid) -> str:
         summary = [
             [escape(self.tr("Network")), escape(network.id)],
             [escape(self.tr("Stations")), escape(len(network.stations))],
@@ -538,6 +724,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 escape(self.tr("Variance factor")),
                 format_number(run.variance_factor_aposteriori),
             ],
+            [escape(self.tr("Distances reduced to the grid")), escape(grid.note)],
         ]
 
         shown = display_format()

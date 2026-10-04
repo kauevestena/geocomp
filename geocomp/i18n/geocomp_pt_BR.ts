@@ -208,6 +208,14 @@
     <context>
         <name>ClassicalNetworkAlgorithm</name>
         <message>
+            <source>%1 distance(s), from %2 to %3 ppm.</source>
+            <translation>%1 distância(s), de %2 a %3 ppm.</translation>
+        </message>
+        <message>
+            <source>%1 is not a conformal projection: its scale differs between the meridian and the parallel, so a distance's reduction would depend on its direction. Adjust in a conformal projection, such as UTM, or turn the reduction off.</source>
+            <translation>%1 não é uma projeção conforme: sua escala difere entre o meridiano e o paralelo, de modo que a redução de uma distância dependeria de sua direção. Ajuste numa projeção conforme, como a UTM, ou desligue a redução.</translation>
+        </message>
+        <message>
             <source>%1 observation(s) exceed the w-test critical value; none was rejected.</source>
             <translation>%1 observação(ões) excede(m) o valor crítico do teste w; nenhuma foi rejeitada.</translation>
         </message>
@@ -224,8 +232,8 @@
             <translation>3D</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Assembles the reduced pointings into a geodetic network and adjusts it by least squares, with the global test, data snooping and reliability analysis.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulation, trilateration and triangulateration are not three different computations.&lt;/b&gt; They are one adjustment over three different observation sets, and which one a survey is depends on what was measured. This algorithm adjusts whatever the pointings contain.&lt;/p&gt;&lt;p&gt;Free and constrained solutions are both available, which is the comparison between &lt;i&gt;redes livres&lt;/i&gt; and &lt;i&gt;redes amarradas&lt;/i&gt; the research project names as a teaching goal. A free network is adjusted with inner constraints and is the honest choice when nothing external orients or positions the survey.&lt;/p&gt;&lt;p&gt;The network document is written out as well as the solution, so the chain &lt;i&gt;pre-process &amp;rarr; build &amp;rarr; inspect &amp;rarr; adjust&lt;/i&gt; can be assembled in the graphical modeller using the Analysis algorithms.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No observation is rejected automatically.&lt;/b&gt; Data snooping reports candidates and the decision is yours.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Approximate coordinates&lt;/b&gt; &amp;mdash; a JSON object mapping each station to &lt;code&gt;[easting, northing, up]&lt;/code&gt;, or a CSV or .xlsx table with a station, its easting, its northing and its height on each row. Required, not derived: the linearised model needs a point to linearise about, and a traverse or a resection is how a surveyor obtains one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimension&lt;/b&gt; &amp;mdash; which of 2D, 3D and 1D to adjust in. It decides which reduced quantities become observations: a 2D adjustment takes directions and horizontal distances, a 3D one takes directions, zenith angles and slope distances. Emitting all of them would use the same measurement twice.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum definition&lt;/b&gt; &amp;mdash; how the datum defect is removed. &lt;b&gt;Fixed stations&lt;/b&gt; &amp;mdash; comma-separated; their approximate coordinates are held exactly.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt;, &lt;b&gt;reference epoch&lt;/b&gt; and &lt;b&gt;CRS&lt;/b&gt; &amp;mdash; recorded on the solution.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; and &lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON documents; the first feeds the Analysis algorithms, the second holds the adjusted coordinates with their full covariance and provenance. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Adjusted stations&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Result layers&lt;/b&gt; &amp;mdash; five optional map layers, arriving styled and ready to read (FR-905): adjusted stations sized by their positional uncertainty, error ellipses, observations coloured by what the w-test decided about them, the measured network by observation type, and the coordinate correction vectors. None is created unless asked for, so an adjustment run to feed another algorithm writes nothing extra.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ellipse exaggeration&lt;/b&gt; &amp;mdash; real ellipses are invisible at map scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to the network's own extent. Whatever factor is used is stated in the layer's name, which is what reaches the legend: an unstated exaggeration turns a quality visualisation into a misrepresentation.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Reúne as visadas reduzidas em uma rede geodésica e a ajusta por mínimos quadrados, com o teste global, o data snooping e a análise de confiabilidade.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulação, trilateração e triangulateração não são três cálculos diferentes.&lt;/b&gt; São um único ajustamento sobre três conjuntos de observações diferentes, e qual deles um levantamento é depende do que foi medido. Este algoritmo ajusta o que quer que as visadas contenham.&lt;/p&gt;&lt;p&gt;Soluções livres e amarradas estão ambas disponíveis, que é a comparação entre &lt;i&gt;redes livres&lt;/i&gt; e &lt;i&gt;redes amarradas&lt;/i&gt; que o projeto de pesquisa nomeia como objetivo pedagógico. Uma rede livre é ajustada com injunções internas e é a escolha honesta quando nada externo orienta ou posiciona o levantamento.&lt;/p&gt;&lt;p&gt;O documento da rede é gravado além da solução, de modo que a cadeia &lt;i&gt;pré-processar &amp;rarr; construir &amp;rarr; inspecionar &amp;rarr; ajustar&lt;/i&gt; possa ser montada no modelador gráfico usando os algoritmos de Análise.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nenhuma observação é rejeitada automaticamente.&lt;/b&gt; O data snooping relata candidatas e a decisão é sua.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observações reduzidas&lt;/b&gt; &amp;mdash; o documento produzido pelo Pré-processamento generalizado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordenadas aproximadas&lt;/b&gt; &amp;mdash; um objeto JSON associando cada estação a &lt;code&gt;[E, N, altitude]&lt;/code&gt;, ou uma tabela CSV ou .xlsx com uma estação, seu E, seu N e sua altitude em cada linha. Exigidas, não derivadas: o modelo linearizado precisa de um ponto em torno do qual linearizar, e uma poligonal ou uma interseção à ré é como um topógrafo o obtém.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimensão&lt;/b&gt; &amp;mdash; em qual de 2D, 3D e 1D ajustar. Isso decide quais grandezas reduzidas se tornam observações: um ajustamento 2D toma direções e distâncias horizontais, um 3D toma direções, ângulos zenitais e distâncias inclinadas. Emitir todas elas usaria a mesma medida duas vezes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definição do datum&lt;/b&gt; &amp;mdash; como a deficiência de datum é removida. &lt;b&gt;Estações fixas&lt;/b&gt; &amp;mdash; separadas por vírgula; suas coordenadas aproximadas são mantidas exatamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt;, &lt;b&gt;época de referência&lt;/b&gt; e &lt;b&gt;SRC&lt;/b&gt; &amp;mdash; registrados na solução.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; e &lt;b&gt;Solução&lt;/b&gt; &amp;mdash; documentos JSON; o primeiro alimenta os algoritmos de Análise, o segundo contém as coordenadas ajustadas com sua matriz de covariâncias completa e a proveniência. &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estações ajustadas&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Camadas de resultado&lt;/b&gt; &amp;mdash; cinco camadas opcionais, que chegam estilizadas e prontas para leitura (FR-905): estações ajustadas dimensionadas pela sua incerteza posicional, elipses de erro, observações coloridas conforme a decisão do teste w, a rede medida por tipo de observação e os vetores de correção de coordenadas. Nenhuma é criada sem ser solicitada, de modo que um ajustamento executado para alimentar outro algoritmo não escreve nada a mais.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero das elipses&lt;/b&gt; &amp;mdash; elipses reais são invisíveis na escala do mapa, por isso são desenhadas ampliadas. Deixe em 0 e um fator é ajustado à própria extensão da rede. Qualquer que seja o fator usado, ele é declarado no nome da camada, que é o que chega à legenda: um exagero não declarado transforma uma visualização de qualidade em uma representação enganosa.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Assembles the reduced pointings into a geodetic network and adjusts it by least squares, with the global test, data snooping and reliability analysis.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulation, trilateration and triangulateration are not three different computations.&lt;/b&gt; They are one adjustment over three different observation sets, and which one a survey is depends on what was measured. This algorithm adjusts whatever the pointings contain.&lt;/p&gt;&lt;p&gt;Free and constrained solutions are both available, which is the comparison between &lt;i&gt;redes livres&lt;/i&gt; and &lt;i&gt;redes amarradas&lt;/i&gt; the research project names as a teaching goal. A free network is adjusted with inner constraints and is the honest choice when nothing external orients or positions the survey.&lt;/p&gt;&lt;p&gt;The network document is written out as well as the solution, so the chain &lt;i&gt;pre-process &amp;rarr; build &amp;rarr; inspect &amp;rarr; adjust&lt;/i&gt; can be assembled in the graphical modeller using the Analysis algorithms.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No observation is rejected automatically.&lt;/b&gt; Data snooping reports candidates and the decision is yours.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced observations&lt;/b&gt; &amp;mdash; the document Generalised pre-processing produced.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Approximate coordinates&lt;/b&gt; &amp;mdash; a JSON object mapping each station to &lt;code&gt;[easting, northing, up]&lt;/code&gt;, or a CSV or .xlsx table with a station, its easting, its northing and its height on each row. Required, not derived: the linearised model needs a point to linearise about, and a traverse or a resection is how a surveyor obtains one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimension&lt;/b&gt; &amp;mdash; which of 2D, 3D and 1D to adjust in. It decides which reduced quantities become observations: a 2D adjustment takes directions and horizontal distances, a 3D one takes directions, zenith angles and slope distances. Emitting all of them would use the same measurement twice.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Datum definition&lt;/b&gt; &amp;mdash; how the datum defect is removed. &lt;b&gt;Fixed stations&lt;/b&gt; &amp;mdash; comma-separated; their approximate coordinates are held exactly.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt;, &lt;b&gt;reference epoch&lt;/b&gt; and &lt;b&gt;CRS&lt;/b&gt; &amp;mdash; recorded on the solution.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reduce measured distances to the grid&lt;/b&gt; &amp;mdash; a total station measures a distance on the ground, and a plane adjustment computes one from grid coordinates. On a projected CRS the two differ by the reduction to the ellipsoid, about 157 ppm for each kilometre of height, and by the projection's scale factor, on UTM from &amp;minus;400 ppm at the central meridian to about +1000 ppm at a zone's edge. In a 2D adjustment each horizontal distance is reduced by both, at the mean height of its ends and the scale factor of its line, and the report states the range applied. Coordinates that lie outside the area the CRS is defined for are read as a local plane and are not reduced; neither is a network in a CRS that is not projected.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid undulation N&lt;/b&gt; (m) &amp;mdash; the approximate heights are orthometric, and the reduction to the ellipsoid needs ellipsoidal ones, &lt;i&gt;h = H + N&lt;/i&gt;. Each 10 m of N left out is 1.6 ppm.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; and &lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON documents; the first feeds the Analysis algorithms, the second holds the adjusted coordinates with their full covariance and provenance. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Adjusted stations&lt;/b&gt; &amp;mdash; CSV. Scalars: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Result layers&lt;/b&gt; &amp;mdash; five optional map layers, arriving styled and ready to read (FR-905): adjusted stations sized by their positional uncertainty, error ellipses, observations coloured by what the w-test decided about them, the measured network by observation type, and the coordinate correction vectors. None is created unless asked for, so an adjustment run to feed another algorithm writes nothing extra.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ellipse exaggeration&lt;/b&gt; &amp;mdash; real ellipses are invisible at map scale, so they are drawn enlarged. Leave it at 0 and a factor is fitted to the network's own extent. Whatever factor is used is stated in the layer's name, which is what reaches the legend: an unstated exaggeration turns a quality visualisation into a misrepresentation.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Reúne as visadas reduzidas em uma rede geodésica e a ajusta por mínimos quadrados, com o teste global, o data snooping e a análise de confiabilidade.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulação, trilateração e triangulateração não são três cálculos diferentes.&lt;/b&gt; São um único ajustamento sobre três conjuntos de observações diferentes, e qual deles um levantamento é depende do que foi medido. Este algoritmo ajusta o que quer que as visadas contenham.&lt;/p&gt;&lt;p&gt;Soluções livres e amarradas estão ambas disponíveis, que é a comparação entre &lt;i&gt;redes livres&lt;/i&gt; e &lt;i&gt;redes amarradas&lt;/i&gt; que o projeto de pesquisa nomeia como objetivo pedagógico. Uma rede livre é ajustada com injunções internas e é a escolha honesta quando nada externo orienta ou posiciona o levantamento.&lt;/p&gt;&lt;p&gt;O documento da rede é gravado além da solução, de modo que a cadeia &lt;i&gt;pré-processar &amp;rarr; construir &amp;rarr; inspecionar &amp;rarr; ajustar&lt;/i&gt; possa ser montada no modelador gráfico usando os algoritmos de Análise.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nenhuma observação é rejeitada automaticamente.&lt;/b&gt; O data snooping relata candidatas e a decisão é sua.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observações reduzidas&lt;/b&gt; &amp;mdash; o documento produzido pelo Pré-processamento generalizado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordenadas aproximadas&lt;/b&gt; &amp;mdash; um objeto JSON associando cada estação a &lt;code&gt;[E, N, altitude]&lt;/code&gt;, ou uma tabela CSV ou .xlsx com uma estação, seu E, seu N e sua altitude em cada linha. Exigidas, não derivadas: o modelo linearizado precisa de um ponto em torno do qual linearizar, e uma poligonal ou uma interseção à ré é como um topógrafo o obtém.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimensão&lt;/b&gt; &amp;mdash; em qual de 2D, 3D e 1D ajustar. Isso decide quais grandezas reduzidas se tornam observações: um ajustamento 2D toma direções e distâncias horizontais, um 3D toma direções, ângulos zenitais e distâncias inclinadas. Emitir todas elas usaria a mesma medida duas vezes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definição do datum&lt;/b&gt; &amp;mdash; como a deficiência de datum é removida. &lt;b&gt;Estações fixas&lt;/b&gt; &amp;mdash; separadas por vírgula; suas coordenadas aproximadas são mantidas exatamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt;, &lt;b&gt;época de referência&lt;/b&gt; e &lt;b&gt;SRC&lt;/b&gt; &amp;mdash; registrados na solução.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reduzir as distâncias medidas à quadrícula&lt;/b&gt; &amp;mdash; uma estação total mede uma distância no terreno, e um ajustamento plano a calcula a partir de coordenadas da quadrícula. Num SRC projetado as duas diferem pela redução ao elipsoide, cerca de 157 ppm por quilômetro de altitude, e pelo fator de escala da projeção, no UTM de &amp;minus;400 ppm no meridiano central a cerca de +1000 ppm na borda de um fuso. Num ajustamento 2D cada distância horizontal é reduzida pelos dois, na altitude média de suas extremidades e com o fator de escala de sua linha, e o relatório informa o intervalo aplicado. Coordenadas fora da área para a qual o SRC é definido são lidas como um plano local e não são reduzidas; nem uma rede num SRC que não é projetado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ondulação geoidal N&lt;/b&gt; (m) &amp;mdash; as altitudes aproximadas são ortométricas, e a redução ao elipsoide precisa de altitudes elipsoidais, &lt;i&gt;h = H + N&lt;/i&gt;. Cada 10 m de N omitidos são 1,6 ppm.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; e &lt;b&gt;Solução&lt;/b&gt; &amp;mdash; documentos JSON; o primeiro alimenta os algoritmos de Análise, o segundo contém as coordenadas ajustadas com sua matriz de covariâncias completa e a proveniência. &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estações ajustadas&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Camadas de resultado&lt;/b&gt; &amp;mdash; cinco camadas opcionais, que chegam estilizadas e prontas para leitura (FR-905): estações ajustadas dimensionadas pela sua incerteza posicional, elipses de erro, observações coloridas conforme a decisão do teste w, a rede medida por tipo de observação e os vetores de correção de coordenadas. Nenhuma é criada sem ser solicitada, de modo que um ajustamento executado para alimentar outro algoritmo não escreve nada a mais.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero das elipses&lt;/b&gt; &amp;mdash; elipses reais são invisíveis na escala do mapa, por isso são desenhadas ampliadas. Deixe em 0 e um fator é ajustado à própria extensão da rede. Qualquer que seja o fator usado, ele é declarado no nome da camada, que é o que chega à legenda: um exagero não declarado transforma uma visualização de qualidade em uma representação enganosa.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>A CRS authority code is required, for example 'EPSG:31982'. GeoComp does not infer one: the adjusted coordinates are meaningless without knowing what they are coordinates in, and a guess would be recorded on the solution as though it had been chosen. For a local survey with no datum, use the projected CRS of the area it sits in.</source>
@@ -304,6 +312,10 @@
             <translation>Dimensão</translation>
         </message>
         <message>
+            <source>Distances reduced to the grid</source>
+            <translation>Distâncias reduzidas à quadrícula</translation>
+        </message>
+        <message>
             <source>Fixed stations (comma-separated)</source>
             <translation>Estações fixas (separadas por vírgula)</translation>
         </message>
@@ -318,6 +330,10 @@
         <message>
             <source>GeoComp solution (*.json)</source>
             <translation>Solução GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Geoid undulation N (m)</source>
+            <translation>Ondulação geoidal N (m)</translation>
         </message>
         <message>
             <source>Global test</source>
@@ -344,6 +360,26 @@
             <translation>Rede</translation>
         </message>
         <message>
+            <source>No: %1 is not a projected CRS, so there is no grid to reduce to.</source>
+            <translation>Não: %1 não é um SRC projetado, então não há quadrícula à qual reduzir.</translation>
+        </message>
+        <message>
+            <source>No: distances are reduced to the grid in a 2D adjustment only, and this one is not 2D.</source>
+            <translation>Não: as distâncias são reduzidas à quadrícula apenas num ajustamento 2D, e este não é 2D.</translation>
+        </message>
+        <message>
+            <source>No: the network has no distance to reduce.</source>
+            <translation>Não: a rede não tem distância a reduzir.</translation>
+        </message>
+        <message>
+            <source>No: the reduction was turned off.</source>
+            <translation>Não: a redução foi desligada.</translation>
+        </message>
+        <message>
+            <source>No: these stations lie outside the area %1 is defined for, so the coordinates are read as a local plane: %2.</source>
+            <translation>Não: estas estações estão fora da área para a qual %1 é definido, então as coordenadas são lidas como um plano local: %2.</translation>
+        </message>
+        <message>
             <source>Observation</source>
             <translation>Observação</translation>
         </message>
@@ -360,12 +396,24 @@
             <translation>Propriedade</translation>
         </message>
         <message>
+            <source>QGIS gives no scale factor for %1 at %2, %3.</source>
+            <translation>O QGIS não fornece fator de escala para %1 em %2, %3.</translation>
+        </message>
+        <message>
             <source>Quantity</source>
             <translation>Grandeza</translation>
         </message>
         <message>
+            <source>Reduce measured distances to the grid</source>
+            <translation>Reduzir as distâncias medidas à quadrícula</translation>
+        </message>
+        <message>
             <source>Reduced observations</source>
             <translation>Observações reduzidas</translation>
+        </message>
+        <message>
+            <source>Reduced to the grid: %1</source>
+            <translation>Reduzidas à quadrícula: %1</translation>
         </message>
         <message>
             <source>Redundancy</source>
@@ -4059,6 +4107,14 @@
             <translation>A leitura '%1' precisa de uma correção de maré e não tem latitude e longitude para calculá-la. Adicione a localização ao arquivo, ou mantenha a maré aplicada pelo instrumento.</translation>
         </message>
         <message>
+            <source>Reducing distances to the ellipsoid needs a height for every station a distance ends at, and the positions of these do not say what their height is measured from: %1. Give the heights, or turn the reduction off.</source>
+            <translation>Reduzir distâncias ao elipsoide exige uma altitude para cada estação em que uma distância termina, e as posições destas não dizem a partir de que superfície sua altitude é medida: %1. Informe as altitudes, ou desligue a redução.</translation>
+        </message>
+        <message>
+            <source>Reducing distances to the grid needs an approximate position for every station a distance ends at, and these have none: %1. Give them approximate coordinates, or turn the reduction off.</source>
+            <translation>Reduzir distâncias à quadrícula exige uma posição aproximada para cada estação em que uma distância termina, e estas não têm nenhuma: %1. Dê a elas coordenadas aproximadas, ou desligue a redução.</translation>
+        </message>
+        <message>
             <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in metres, or in metres a year for a velocity. Each row is kind, limit, stations, group.</source>
             <translation>A linha %1 do arquivo de limiares de alerta não pode ser lida: '%2'. Esperava-se um limite positivo em metros, ou em metros por ano para uma velocidade. Cada linha é tipo, limite, estações, grupo.</translation>
         </message>
@@ -4409,6 +4465,10 @@
         <message>
             <source>The antenna heights of the baseline '%1' are reduced while it is ECEF, before it is rotated; it is %2.</source>
             <translation>As alturas de antena da linha de base '%1' são reduzidas enquanto ela é ECEF, antes de ser rotacionada; ela é %2.</translation>
+        </message>
+        <message>
+            <source>The approximate heights of these stations are orthometric: %1. Reducing a distance to the ellipsoid needs the ellipsoidal height, so give the geoid undulation, or turn the reduction off.</source>
+            <translation>As altitudes aproximadas destas estações são ortométricas: %1. Reduzir uma distância ao elipsoide exige a altitude elipsoidal, então informe a ondulação geoidal, ou desligue a redução.</translation>
         </message>
         <message>
             <source>The archive refused the login for %1 (HTTP %2). Check the QGIS authentication configuration named for this service in the download services file.</source>
@@ -5665,6 +5725,10 @@
         <message>
             <source>There is nothing to export: every sheet came out empty. Choose a network or a solution with content; a workbook of empty sheets would say the data was zero rather than absent.</source>
             <translation>Não há nada a exportar: todas as planilhas ficaram vazias. Escolha uma rede ou uma solução com conteúdo; uma pasta de trabalho de planilhas vazias diria que os dados eram zero em vez de ausentes.</translation>
+        </message>
+        <message>
+            <source>These distances are part of a correlated cluster, whose covariance describes them as measured, and reducing them would leave it describing other values: %1. Reduce them before they are clustered, or turn the reduction off.</source>
+            <translation>Estas distâncias fazem parte de um agrupamento correlacionado, cuja covariância as descreve como medidas, e reduzi-las a deixaria descrevendo outros valores: %1. Reduza-as antes de agrupá-las, ou desligue a redução.</translation>
         </message>
         <message>
             <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2.</source>
