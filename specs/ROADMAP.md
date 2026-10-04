@@ -1824,6 +1824,27 @@ database that is *Global Settings, under GNSS*.
 
 The 31 in `io/` are the reference-corpus readers.
 
+#### P12c-7 — every error in words (fifth pull request): the adjustment and what surrounds it
+
+**Delivered.** Templates, with pt-BR and es, for 61 codes. That leaves **169** in the baseline.
+
+- **Adjustment (29):** directions without a setup, and a GNSS baseline in the wrong frame; drift terms
+  without their times; constraints the geocentric frame cannot hold; weighted constraints that are singular
+  or incomplete; extent weighting; and variance components that are negative, cannot be estimated,
+  cannot be told apart or do not settle.
+- **Geodesy (13):** unknown ellipsoids and frames, transformations GeoComp does not hold or that hold at one
+  epoch only, and projections outside their domain.
+- **Statistics (7) and the drawing of ellipses (6):** probabilities, degrees of freedom, confidence, ellipse
+  blocks, and exaggeration factors.
+- **Pre-analysis (6):** the design session's stations and observations.
+
+**Found.** No defect. One path was checked and is safe: the pre-analysis dialog calls its session from
+canvas slots, with no handler. A planned observation of a type with no assumed precision would raise there.
+Every type the dialog offers has one, so no user can reach that error.
+
+**Not done here.** 169 codes. They are in the core's top level (49), the models (45) and the instruments
+(39), in `reports/` (3) and `services/` (2), and the 31 reference-corpus codes in `io/`.
+
 ---
 
 ## P13 — Validation, documentation and release

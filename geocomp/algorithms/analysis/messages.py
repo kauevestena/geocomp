@@ -379,6 +379,331 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "blunder.",
         "iterations",
     ),
+    # -- the adjustment, its weights and variance components (P12c-7) -----------
+    "validation.direction_without_setup": MessageTemplate(
+        "The direction '%1' belongs to no setup or direction set, so it has no orientation "
+        "unknown and would be adjusted as an absolute azimuth. Give it its setup.",
+        "observation",
+    ),
+    "validation.gnss_baseline_frame_mismatch": MessageTemplate(
+        "The GNSS baseline '%1' is in %2, not in the network's own frame. Differenced against "
+        "coordinates in another frame it would be wrong by a rotation, with nothing to say so; "
+        "rotate it into the network's frame first.",
+        "observation",
+        "received",
+    ),
+    "validation.gravity_drift_times_missing": MessageTemplate(
+        "The gravity observation '%1' has a drift term (%2) but not the times it depends on, so "
+        "the drift cannot be evaluated. Build the gravity network from its readings, which "
+        "records them.",
+        "observation",
+        "owner",
+    ),
+    "validation.gravity_drift_scale_invalid": MessageTemplate(
+        "The drift time scale of the gravity observation '%1' must be a positive number of "
+        "seconds; %2 was given.",
+        "observation",
+        "received",
+    ),
+    "computation.degenerate_sight": MessageTemplate(
+        "The observation '%1' between %2 is a sight of zero length or exactly vertical, which "
+        "determines no direction. Check the two stations' coordinates.",
+        "observation",
+        "stations",
+    ),
+    "validation.observation_type_not_geocentric": MessageTemplate(
+        "The observation '%1' is a %2, which the geocentric adjustment cannot use; it takes %3.",
+        "observation",
+        "type",
+        "expected",
+    ),
+    "validation.height_type_unsupported": MessageTemplate(
+        "The height observation '%1' is %2; the geocentric adjustment takes ellipsoidal or "
+        "orthometric heights.",
+        "observation",
+        "received",
+    ),
+    "validation.geocentric_frame_projected_position": MessageTemplate(
+        "The station '%1' has a %2 position, which the geocentric adjustment cannot hold. Give "
+        "it cartesian or geodetic coordinates.",
+        "station",
+        "received",
+    ),
+    "validation.geocentric_frame_partial_geodetic_constraint": MessageTemplate(
+        "The station '%1' holds only %2 of its geodetic coordinates. Hold latitude, longitude "
+        "and height together, or use a cartesian constraint; a height alone is entered as a "
+        "height observation.",
+        "station",
+        "received",
+    ),
+    "validation.geocentric_frame_orthometric_constraint": MessageTemplate(
+        "The station '%1' holds an orthometric height on its position, and the geocentric "
+        "adjustment holds ellipsoidal heights. Enter the orthometric height as an "
+        "orthometric-height observation, which the geoid relates to the frame.",
+        "station",
+    ),
+    "validation.fixed_station_without_gravity": MessageTemplate(
+        "The station '%1' is held fixed in gravity but has no gravity value to hold. Give its "
+        "gravity value.",
+        "station",
+    ),
+    "data.weighted_constraint_components_missing": MessageTemplate(
+        "The weighted constraint on '%1' has a covariance over %2, which does not cover the "
+        "constrained components %3.",
+        "station",
+        "received",
+        "expected",
+    ),
+    "data.weighted_constraint_singular": MessageTemplate(
+        "The weighted constraint on '%1' (%2) has a singular covariance: a direction in it is "
+        "infinitely precise, which is a fixed constraint written as a weighted one. Fix those "
+        "components instead, or correct the covariance.",
+        "station",
+        "components",
+    ),
+    "validation.undulation_without_position": MessageTemplate(
+        "The station '%1' needs a geoid undulation and has no approximate position to look it "
+        "up at. Give it one.",
+        "station",
+    ),
+    "validation.unknown_defect_component": MessageTemplate(
+        "'%1' is not a datum-defect component GeoComp knows.",
+        "received",
+    ),
+    "validation.unknown_solver": MessageTemplate(
+        "'%1' is not a solver; expected %2.",
+        "received",
+        "expected",
+    ),
+    "validation.not_a_difference_frame": MessageTemplate(
+        "A difference network is one of heights or of gravity values; %1 is neither.",
+        "received",
+    ),
+    "validation.known_value_for_unknown_station": MessageTemplate(
+        "A known value is given for '%1', which is not a station of the network. Check its name.",
+        "station",
+    ),
+    "validation.weighting_coefficient_not_positive": MessageTemplate(
+        "The weighting coefficient must be positive; %1 was given. A zero would claim every "
+        "difference is exact and give it an infinite weight.",
+        "received",
+    ),
+    "validation.weighting_unsupported_unit": MessageTemplate(
+        "Weighting by extent is defined for height and gravity differences, not for %1.",
+        "received",
+    ),
+    "validation.weighting_unit_mismatch": MessageTemplate(
+        "An observation in %1 cannot be weighted by a model for %2.",
+        "received",
+        "expected",
+    ),
+    "validation.negative_extent": MessageTemplate(
+        "A %1 of %2 cannot weight an observation; the extent must not be negative.",
+        "kind",
+        "received",
+    ),
+    "validation.weighting_gave_zero_sigma": MessageTemplate(
+        "An observation with a %1 of %2 gets no uncertainty and so an infinite weight, which "
+        "would dominate the network. Check its extent.",
+        "kind",
+        "extent",
+    ),
+    "validation.variance_component_group_unknown": MessageTemplate(
+        "'%1' is not a variance-component group of this adjustment; the groups are %2.",
+        "received",
+        "expected",
+    ),
+    "validation.variance_component_cluster_split": MessageTemplate(
+        "The correlated cluster '%1' has members in different variance-component groups (%2), "
+        "and a covariance cannot be rescaled by two factors at once. Put the whole cluster in "
+        "one group.",
+        "cluster",
+        "received",
+    ),
+    "computation.variance_component_negative": MessageTemplate(
+        "The variance factor of the group '%1' came out negative (%2): its residuals are "
+        "smaller than its model allows. The group has too little redundancy, or its "
+        "stochastic model is wrong in shape rather than in scale.",
+        "group",
+        "received",
+    ),
+    "computation.variance_component_unestimable": MessageTemplate(
+        "The variance component of the group '%1' cannot be estimated: its redundancy is only "
+        "%2, so its residuals barely depend on its own weights. Fix its weights, or merge it "
+        "with another group.",
+        "group",
+        "received",
+    ),
+    "computation.variance_components_singular": MessageTemplate(
+        "The residuals cannot tell the variance-component groups %1 apart. Merge them, or fix "
+        "the weights of one.",
+        "received",
+    ),
+    "computation.variance_components_not_converged": MessageTemplate(
+        "The variance components did not settle in %1 iterations (last factors: %2). A group "
+        "with little redundancy can oscillate; merge it with another, or fix its weights.",
+        "iterations",
+        "received",
+    ),
+    # -- geodesy: ellipsoids, frames, projections (P12c-7) -----------------------
+    "computation.geodetic_angle_wrong_unit": MessageTemplate(
+        "The %1 is in %2; give it in radians.",
+        "component",
+        "received",
+    ),
+    "computation.geodetic_length_wrong_unit": MessageTemplate(
+        "The %1 is in %2; give it in metres.",
+        "component",
+        "received",
+    ),
+    "computation.cartesian_to_geodetic_degenerate": MessageTemplate(
+        "The point %1 lies too near the centre of the Earth to have geodetic coordinates. Check "
+        "its cartesian coordinates.",
+        "received",
+    ),
+    "validation.ellipsoid_unknown": MessageTemplate(
+        "'%1' is not an ellipsoid GeoComp knows; it knows %2.",
+        "received",
+        "expected",
+    ),
+    "validation.ellipsoid_semi_major_axis_not_positive": MessageTemplate(
+        "The ellipsoid '%1' has a semi-major axis of %2; it must be positive.",
+        "ellipsoid",
+        "received",
+    ),
+    "validation.ellipsoid_inverse_flattening_invalid": MessageTemplate(
+        "The ellipsoid '%1' has an inverse flattening of %2; it must be greater than 1, and a "
+        "sphere's is infinite.",
+        "ellipsoid",
+        "received",
+    ),
+    "validation.frame_unknown": MessageTemplate(
+        "'%1' is not a reference frame GeoComp holds transformations for; it holds %2. WGS 84 "
+        "is not one: its realisations differ by decimetres, and the name does not say which.",
+        "received",
+        "expected",
+    ),
+    "validation.frame_transformation_unavailable": MessageTemplate(
+        "GeoComp holds no transformation between the frames %1.",
+        "received",
+    ),
+    "validation.transformation_time_specific": MessageTemplate(
+        "The transformation %1 holds only at its own epoch, and the coordinates are at %2. "
+        "Move them to that epoch with a velocity first.",
+        "transformation",
+        "received",
+    ),
+    "validation.utm_zone_out_of_range": MessageTemplate(
+        "UTM zone %1 does not exist; the zones run from 1 to 60.",
+        "received",
+    ),
+    "computation.inverse_projection_did_not_converge": MessageTemplate(
+        "The grid coordinate %1 could not be converted back to latitude and longitude; it lies "
+        "outside the projection's domain.",
+        "received",
+    ),
+    "computation.projection_outside_domain": MessageTemplate(
+        "The point is %1 degrees from the central meridian of %2, beyond where the projection "
+        "is accurate; GeoComp refuses rather than give a coordinate with an error nobody can "
+        "see. Use a projection centred nearer the point.",
+        "received",
+        "projection",
+    ),
+    "computation.point_scale_factor_undefined_at_the_pole": MessageTemplate(
+        "The point scale factor is undefined at latitude %1 degrees, where a parallel has no "
+        "length.",
+        "received",
+    ),
+    # -- statistics and error ellipses (P12c-7) ----------------------------------
+    "validation.probability_out_of_range": MessageTemplate(
+        "A probability for %1 must lie between 0 and 1; %2 was given.",
+        "operation",
+        "received",
+    ),
+    "validation.degrees_of_freedom_out_of_range": MessageTemplate(
+        "%1 needs at least 1 degree of freedom, and has %2: a network with no redundancy has no "
+        "test to apply. Add observations.",
+        "operation",
+        "received",
+    ),
+    "validation.incomplete_gamma_domain": MessageTemplate(
+        "The incomplete gamma function is undefined for a = %1, x = %2.",
+        "a",
+        "x",
+    ),
+    "validation.incomplete_beta_domain": MessageTemplate(
+        "The incomplete beta function is undefined for a = %1, b = %2, x = %3.",
+        "a",
+        "b",
+        "x",
+    ),
+    "validation.confidence_out_of_range": MessageTemplate(
+        "The confidence level must lie strictly between 0 and 1; %1 was given.",
+        "received",
+    ),
+    "validation.ellipse_wrong_dimension": MessageTemplate(
+        "An error ellipse needs a 2 by 2 or 3 by 3 covariance block, and was given one of shape "
+        "%1.",
+        "shape",
+    ),
+    "validation.relative_ellipse_dimension_mismatch": MessageTemplate(
+        "A relative ellipse needs the same number of components for both stations, and was "
+        "given %1 and %2.",
+        "first",
+        "second",
+    ),
+    # -- drawing ellipses on the map (P12c-7) ------------------------------------
+    "validation.ellipse_too_few_vertices": MessageTemplate(
+        "An ellipse needs at least 8 vertices to be drawn as an ellipse; %1 was given.",
+        "received",
+    ),
+    "validation.scale_reference_not_positive": MessageTemplate(
+        "The scale reference must be a positive radius, in the map's units; %1 was given.",
+        "received",
+    ),
+    "validation.extent_not_positive": MessageTemplate(
+        "The map extent %1 has no area; it needs a positive width and height.",
+        "received",
+    ),
+    "validation.target_fraction_out_of_range": MessageTemplate(
+        "The ellipse size, as a fraction of the map extent, must be above 0 and at most 1; %1 "
+        "was given.",
+        "received",
+    ),
+    "validation.exaggeration_not_finite": MessageTemplate(
+        "The exaggeration factor %1 is not finite; an infinite factor gives the ellipses no "
+        "size.",
+        "received",
+    ),
+    "validation.exaggeration_not_positive": MessageTemplate(
+        "The ellipse exaggeration must be a positive, finite factor; %1 was given. Every drawn "
+        "result states the factor it was drawn with.",
+        "received",
+    ),
+    # -- the pre-analysis design (P12c-7) ----------------------------------------
+    "geocomp.no_default_sigma": MessageTemplate(
+        "GeoComp has no assumed precision for a planned %1, and will not invent one. State its "
+        "precision.",
+        "observation_type",
+    ),
+    "geocomp.station_without_id": MessageTemplate(
+        "A planned station has no name; give it one.",
+    ),
+    "geocomp.duplicate_station": MessageTemplate(
+        "Another planned station is already named '%1'; give this one a different name.",
+        "station",
+    ),
+    "geocomp.observation_without_stations": MessageTemplate(
+        "A planned observation names no stations; it connects two.",
+    ),
+    "geocomp.unknown_observation": MessageTemplate(
+        "The design has no observation '%1'.",
+        "observation",
+    ),
+    "geocomp.unknown_station": MessageTemplate(
+        "The design has no station '%1'.",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():
