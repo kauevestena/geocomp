@@ -5,6 +5,12 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-12 — Every algorithm option is used
+
+No change in behaviour: a test now fails if an algorithm offers an option that its run never reads, or
+declares a result it never returns. P12c-11 found and fixed one such option, *Keep the engine's working
+directory*, and this test found no others.
+
 ### P12c-11 — An engine that runs out of time says so
 
 #### Added

@@ -2131,6 +2131,31 @@ flags a whole session (a fixed fraction, or a precision) is the maintainer's dec
 criterion 2 records for the GNSS acceptance threshold. specs/08 §9 records the gap rather than inventing a
 default.
 
+#### P12c-12 — every parameter an algorithm declares is read
+
+P12c-11 found *Keep the engine's working directory* on the GNSS modes. It had been offered since P7 and was
+read by nothing. That is the defect the pre-P7 review found in 36 settings, one level down, and the settings
+have had a structural check since P12a. The parameters had none.
+
+**Delivered.** `tests/structural/test_parameters_are_read.py`, which reads the sources without QGIS:
+
+- every parameter an `initAlgorithm` declares is read by the run;
+- every output it adds is returned;
+- every parameter name is upper snake case.
+
+The test checks itself in two ways. It must find more than 150 declared parameters, and a planted module
+with a key that is declared, logged and never read must fail it. Run against `main` before P12c-11, it fails
+on `gnss.process` alone.
+
+**Found.** No other unread parameter, and no unreturned output: KEEP_WORK_DIR was the only one. specs/16 §4
+said parameter names are `snake_case`. None of the 162 is: every one is upper snake case, like QGIS's own. The
+spec was corrected to the code rather than the reverse, because a renamed key breaks every saved model that
+names it.
+
+**Not done here.** The check proves a run asks for a parameter's value, not that it uses the value correctly.
+A parameter whose constant does not follow `NAME = "NAME"` would escape it. None does today, and the name rule
+would not catch one that broke the pattern by its value.
+
 ---
 
 ## P13 — Validation, documentation and release
