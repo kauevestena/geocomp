@@ -11,7 +11,8 @@ DynAdjust or RTKLIB, and froze the rest here. Its second pull request wrote the
 and their mappings, geoid grids, the tables export -- and its third the 67 of
 the levelling and total-station techniques, which a user's observations reach;
 its fourth the 51 of GNSS, gravimetry and integration, which finish the
-techniques.
+techniques; and its fifth the 61 of the adjustment, geodesy, statistics,
+pre-analysis and the drawing of ellipses.
 
 The list may only shrink. ``tests/structural/test_message_templates.py`` fails
 on a code raised without a template that is not listed here -- a new code
@@ -77,50 +78,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.sqrt_of_negative",
         "validation.unknown_covariance_label",
         "validation.value_count_mismatch",
-        # core/adjustment/ (29)
-        "computation.degenerate_sight",
-        "computation.variance_component_negative",
-        "computation.variance_component_unestimable",
-        "computation.variance_components_not_converged",
-        "computation.variance_components_singular",
-        "data.weighted_constraint_components_missing",
-        "data.weighted_constraint_singular",
-        "validation.direction_without_setup",
-        "validation.fixed_station_without_gravity",
-        "validation.geocentric_frame_orthometric_constraint",
-        "validation.geocentric_frame_partial_geodetic_constraint",
-        "validation.geocentric_frame_projected_position",
-        "validation.gnss_baseline_frame_mismatch",
-        "validation.gravity_drift_scale_invalid",
-        "validation.gravity_drift_times_missing",
-        "validation.height_type_unsupported",
-        "validation.known_value_for_unknown_station",
-        "validation.negative_extent",
-        "validation.not_a_difference_frame",
-        "validation.observation_type_not_geocentric",
-        "validation.undulation_without_position",
-        "validation.unknown_defect_component",
-        "validation.unknown_solver",
-        "validation.variance_component_cluster_split",
-        "validation.variance_component_group_unknown",
-        "validation.weighting_coefficient_not_positive",
-        "validation.weighting_gave_zero_sigma",
-        "validation.weighting_unit_mismatch",
-        "validation.weighting_unsupported_unit",
-        # core/geodesy/ (13)
-        "computation.cartesian_to_geodetic_degenerate",
-        "computation.geodetic_angle_wrong_unit",
-        "computation.geodetic_length_wrong_unit",
-        "computation.inverse_projection_did_not_converge",
-        "computation.point_scale_factor_undefined_at_the_pole",
-        "computation.projection_outside_domain",
-        "validation.ellipsoid_inverse_flattening_invalid",
-        "validation.ellipsoid_semi_major_axis_not_positive",
-        "validation.ellipsoid_unknown",
-        "validation.frame_transformation_unavailable",
-        "validation.frame_unknown",
-        "validation.transformation_time_specific",
-        "validation.utm_zone_out_of_range",
         # core/instruments/ (39)
         "validation.calibration_table_factor_not_positive",
         "validation.calibration_table_inconsistent",
@@ -207,28 +164,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.unknown_position_component",
         "validation.weighted_constraint_without_covariance",
         "validation.weighted_gravity_constraint_without_uncertainty",
-        # core/preanalysis/ (6)
-        "geocomp.duplicate_station",
-        "geocomp.no_default_sigma",
-        "geocomp.observation_without_stations",
-        "geocomp.station_without_id",
-        "geocomp.unknown_observation",
-        "geocomp.unknown_station",
-        # core/statistics/ (7)
-        "validation.confidence_out_of_range",
-        "validation.degrees_of_freedom_out_of_range",
-        "validation.ellipse_wrong_dimension",
-        "validation.incomplete_beta_domain",
-        "validation.incomplete_gamma_domain",
-        "validation.probability_out_of_range",
-        "validation.relative_ellipse_dimension_mismatch",
-        # core/visualization/ (6)
-        "validation.ellipse_too_few_vertices",
-        "validation.exaggeration_not_finite",
-        "validation.exaggeration_not_positive",
-        "validation.extent_not_positive",
-        "validation.scale_reference_not_positive",
-        "validation.target_fraction_out_of_range",
         # io/ (31) -- all in krumm.py and adjust.py, which read the RD-11 and ADJUST
         # reference corpora for the tests and scripts; no algorithm reaches them.
         "data.adjust_angle_out_of_range",

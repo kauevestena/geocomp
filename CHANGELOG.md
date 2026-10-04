@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — Adjustment, geodesy and statistics refusals in words
+
+#### Fixed
+
+- Problems in the adjustment itself are now explained in a sentence: a negative or inestimable variance
+  component, a singular weighted constraint, an unknown reference frame or ellipsoid, a point outside a
+  projection's domain, and too few degrees of freedom for a test. Before, the user saw "could not complete
+  the operation" and an internal code.
+
 ### P12c-7 — GNSS, gravimetry and integration refusals in words
 
 #### Fixed
