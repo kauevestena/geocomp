@@ -704,6 +704,107 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "The design has no station '%1'.",
         "station",
     ),
+    # -- instrument profiles and the stochastic model (P12c-7) -----------------
+    "validation.no_instrument_profile": MessageTemplate(
+        "No instrument profile applies: none is named on the observation, and the library has "
+        "no default. GeoComp does not invent instrument constants; give an Instrument profiles "
+        "file, or name a profile.",
+    ),
+    "validation.no_level_profile": MessageTemplate(
+        "No level profile applies: none is named on the line, and the library has no default. "
+        "GeoComp does not invent instrument precisions; give an Instrument profiles file, or "
+        "name a profile.",
+    ),
+    "validation.unknown_instrument_profile": MessageTemplate(
+        "There is no instrument profile '%1'; expected %2.",
+        "instrument",
+        "expected",
+    ),
+    "validation.unknown_reflector_profile": MessageTemplate(
+        "There is no reflector profile '%1'; expected %2.",
+        "reflector",
+        "expected",
+    ),
+    "validation.unknown_level_profile": MessageTemplate(
+        "There is no level profile '%1'; expected %2.",
+        "level",
+        "expected",
+    ),
+    "validation.unknown_levelling_class": MessageTemplate(
+        "There is no levelling class '%1'; expected %2.",
+        "levelling_class",
+        "expected",
+    ),
+    "validation.duplicate_instrument_profile": MessageTemplate(
+        "Two instrument profiles share the id '%1'. Rename or replace one of them.",
+        "instrument",
+    ),
+    "validation.duplicate_reflector_profile": MessageTemplate(
+        "Two reflector profiles share the id '%1'. Rename or replace one of them.",
+        "reflector",
+    ),
+    "validation.duplicate_level_profile": MessageTemplate(
+        "Two level profiles share the id '%1'. Rename or replace one of them.",
+        "level",
+    ),
+    "validation.duplicate_levelling_class": MessageTemplate(
+        "Two levelling classes share the id '%1'. Rename or replace one of them.",
+        "levelling_class",
+    ),
+    "validation.duplicate_gravimeter_profile": MessageTemplate(
+        "Two gravimeter profiles share the id '%1'. Rename or replace one of them.",
+        "gravimeter",
+    ),
+    "validation.profile_wrong_unit": MessageTemplate(
+        "The %1 of an instrument profile is in %2, where %3 was expected.",
+        "parameter",
+        "received",
+        "expected",
+    ),
+    "validation.edm_specification_negative": MessageTemplate(
+        "The EDM %1 is %2; a precision cannot be negative.",
+        "parameter",
+        "received",
+    ),
+    "validation.instrument_sigma_negative": MessageTemplate(
+        "The %2 of the instrument '%1' is %3; a standard deviation cannot be negative.",
+        "instrument",
+        "parameter",
+        "received",
+    ),
+    "validation.cyclic_error_without_wavelength": MessageTemplate(
+        "The instrument profile '%1' gives a cyclic-error amplitude without its wavelength; the "
+        "correction is periodic in the distance and means nothing without one.",
+        "instrument",
+    ),
+    "validation.non_positive_set_count": MessageTemplate(
+        "The number of sets must be at least 1; %1 was given.",
+        "received",
+    ),
+    "validation.unknown_observation_kind": MessageTemplate(
+        "'%1' is not a kind of observation GeoComp weights; expected %2.",
+        "kind",
+        "expected",
+    ),
+    "validation.missing_stochastic_model": MessageTemplate(
+        "The %2 '%1' has no standard deviation: none was imported, no instrument profile gives "
+        "one, and no default is set. GeoComp does not invent one, because a fabricated weight "
+        "corrupts every statistic computed from it. Set the default in Global Settings, under "
+        "Stochastic model, or give an instrument profile.",
+        "observation",
+        "kind",
+    ),
+    "validation.default_sigma_negative": MessageTemplate(
+        "The default standard deviation for %1 is %2; it cannot be negative. Correct it in "
+        "Global Settings, under Stochastic model.",
+        "kind",
+        "received",
+    ),
+    "validation.stated_sigma_negative": MessageTemplate(
+        "The observation '%1' states a standard deviation of %2; it cannot be negative.",
+        "observation",
+        "received",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

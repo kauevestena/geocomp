@@ -81,6 +81,17 @@ _TEMPLATES: dict[str, MessageTemplate] = {
         "Install it from Global Settings, under Paths and engines.",
         "engine",
     ),
+    "validation.no_project_open": MessageTemplate(
+        "The setting '%1' is a project setting, and no project is open. Open or create a "
+        "GeoComp project first.",
+        "key",
+    ),
+    "validation.setting_scope_not_allowed": MessageTemplate(
+        "The setting '%1' cannot be set at %2 scope; it can be set at %3.",
+        "key",
+        "scope",
+        "expected",
+    ),
 }
 
 

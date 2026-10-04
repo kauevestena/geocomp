@@ -1845,6 +1845,39 @@ Every type the dialog offers has one, so no user can reach that error.
 **Not done here.** 169 codes. They are in the core's top level (49), the models (45) and the instruments
 (39), in `reports/` (3) and `services/` (2), and the 31 reference-corpus codes in `io/`.
 
+#### P12c-7 — every error in words (sixth pull request): instruments, report templates and the settings service
+
+**Delivered.** Templates, with pt-BR and es, for 44 codes. That leaves **125** in the baseline.
+
+- **Gravimeters (11):** a profile without an id, a counter gravimeter without its calibration table (and a
+  gravity-reading one with a table), calibration factors, standard deviations, reading units, and
+  calibration tables that are too short, do not increase, carry a factor that is not positive or are
+  inconsistent.
+- **Levels and levelling classes (8):** a profile or class without an id, stadia constants, standard
+  deviations, a level without its reading precision, a class's negative limits, and negative line lengths
+  and setup counts.
+- **Instrument profiles and the stochastic model (20):** no profile that applies, unknown and duplicate
+  profiles and classes, a parameter in the wrong unit, negative EDM specifications and standard deviations,
+  a cyclic error without its wavelength, set counts, unknown observation kinds, and an observation with no
+  standard deviation from anywhere.
+- **Report templates (3):** a template name with a path in it, a template that does not exist, and one that
+  asks for a section GeoComp does not fill.
+- **Settings service (2):** a project setting with no project open, and a setting at a scope it does not
+  allow.
+
+A refusal about the stochastic model sends the user to *Global Settings, under Stochastic model*, as the
+settings window names that page.
+
+**Found.** No defect.
+
+**Not done here.** 125 codes:
+
+| Area | Codes |
+|---|---|
+| `core/` (top level) | 49 |
+| `core/models/` | 45 |
+| `io/` (reference-corpus readers) | 31 |
+
 ---
 
 ## P13 — Validation, documentation and release
