@@ -107,3 +107,21 @@ def shipped_renderer(style: str) -> str:
     _message, ok = reference.loadNamedStyle(str(style_path(style)))
     assert ok, f"QGIS rejected {style}.qml"
     return reference.renderer().dump()
+
+
+def settle(panel, timeout: float = 30.0) -> None:
+    """Let a panel's background reads finish and their results arrive (NFR-004).
+
+    The task manager runs a read on a worker thread and delivers ``finished``
+    through the event loop, so the loop is turned until the panel says it is
+    no longer busy.
+    """
+    import time
+
+    from qgis.PyQt.QtCore import QCoreApplication
+
+    deadline = time.monotonic() + timeout
+    while panel.busy and time.monotonic() < deadline:
+        QCoreApplication.processEvents()
+        time.sleep(0.01)
+    assert not panel.busy, "a background read did not finish"

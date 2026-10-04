@@ -182,3 +182,45 @@ class TestSubmission:
         task = task_service.GeoCompTask("compute", lambda cancellation, progress: 1)
         assert task_service.run_task(task) is task
         task.cancel()
+
+
+class TestRunInBackground:
+    """What the panels read files with (NFR-004): the task is kept until it has
+    finished, and released before the caller hears of it."""
+
+    @staticmethod
+    def _wait(keep, timeout: float = 30.0) -> None:
+        import time
+
+        from qgis.PyQt.QtCore import QCoreApplication
+
+        deadline = time.monotonic() + timeout
+        while keep and time.monotonic() < deadline:
+            QCoreApplication.processEvents()
+            time.sleep(0.01)
+
+    def test_kept_until_done_then_released_before_the_result_arrives(self, task_service):
+        keep, seen = [], []
+        task = task_service.run_in_background(
+            "read",
+            lambda cancellation, progress: 7,
+            on_success=lambda value: seen.append((value, list(keep))),
+            on_error=seen.append,
+            keep=keep,
+        )
+        assert keep == [task]
+        self._wait(keep)
+        assert seen == [(7, [])]
+
+    def test_a_failure_reaches_the_error_handler_and_is_released(self, task_service):
+        keep, errors = [], []
+
+        def fail(cancellation, progress):
+            raise ComputationError("tested_failure")
+
+        task_service.run_in_background(
+            "read", fail, on_success=errors.append, on_error=errors.append, keep=keep
+        )
+        self._wait(keep)
+        assert keep == []
+        assert [error.code for error in errors] == ["computation.tested_failure"]

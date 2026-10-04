@@ -25,7 +25,7 @@ from geocomp.core.cancellation import Cancelled
 from geocomp.core.errors import GeoCompError
 from geocomp.services.logging import log
 
-__all__ = ["GeoCompTask", "TaskCancellation", "run_task"]
+__all__ = ["GeoCompTask", "TaskCancellation", "run_in_background", "run_task"]
 
 T = TypeVar("T")
 
@@ -131,3 +131,44 @@ def run_task(task: GeoCompTask[Any]) -> GeoCompTask[Any]:
     """
     QgsApplication.taskManager().addTask(task)
     return task
+
+
+def run_in_background(
+    description: str,
+    work: Callable[[TaskCancellation, Callable[[float | None, str | None], None]], T],
+    *,
+    on_success: Callable[[T], None],
+    on_error: Callable[[BaseException], None],
+    keep: list[GeoCompTask[Any]],
+) -> GeoCompTask[T]:
+    """Run *work* as a task and hold it in *keep* until it has finished.
+
+    What a panel needs to read a file without holding the GUI (NFR-004): the
+    reference :func:`run_task` asks the caller to keep is kept here, in the
+    caller's own list, and released on the main thread just before *on_success*
+    or *on_error* runs -- or when the task is cancelled. A caller that wants to
+    know whether anything is still being read looks at the list.
+    """
+    task: GeoCompTask[T]
+
+    def released(handler: Callable[[Any], None]) -> Callable[[Any], None]:
+        def finish(value: Any) -> None:
+            if task in keep:
+                keep.remove(task)
+            handler(value)
+
+        return finish
+
+    def cancelled() -> None:
+        if task in keep:
+            keep.remove(task)
+
+    task = GeoCompTask(
+        description,
+        work,
+        on_success=released(on_success),
+        on_error=released(on_error),
+        on_cancel=cancelled,
+    )
+    keep.append(task)
+    return run_task(task)
