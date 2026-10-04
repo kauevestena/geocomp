@@ -56,7 +56,8 @@ Consistency here is what makes twenty algorithms feel like one plugin.
 
 | Convention | Rule |
 |---|---|
-| Parameter names | English, `snake_case`, stable like algorithm ids; descriptions translated |
+| Parameter names | English, upper snake case (`FOLDER`, `KEEP_WORK_DIR`) as QGIS's own algorithms name theirs, each a module constant `NAME = "NAME"`; stable like algorithm ids; descriptions translated |
+| Read | Every declared parameter is read by the run, and every declared output returned |
 | Ordering | Required inputs → required options → optional options → advanced → outputs |
 | Advanced flag | Parameters hidden in Basic mode are marked advanced (FR-070); see §4.1 |
 | Layer inputs | Accept a layer *or* a stored network reference, so algorithms chain from either source |
@@ -65,6 +66,16 @@ Consistency here is what makes twenty algorithms feel like one plugin.
 | Uncertainty | Where an algorithm needs a σ it takes one or resolves it per [`05-uncertainty-and-covariance.md`](./05-uncertainty-and-covariance.md) §5, and reports the source |
 | Engine selection | Where more than one engine can perform an operation, engine choice is a parameter with a sensible default |
 | Units | Stated in every parameter description; values are in the project unit, converted once at the boundary |
+
+**As built (P12c-12).** The table said `snake_case` until P12c-12. No parameter was ever named that way:
+all 162 are upper snake case, like Processing's own `INPUT` and `OUTPUT`. Renaming them would break every saved
+model and script that names one, so the table was corrected to match the code, not the other way round. The
+*Read* row was added because P12c-11 found a parameter that had been read by nothing since P7: the GNSS modes'
+*Keep the engine's working directory* ([`08`](./08-engine-rtklib.md) §9). `tests/structural/test_parameters_are_read.py`
+now holds both rules, and the name rule with them. It reads the sources, so it runs without QGIS. A parameter
+counts as read only when the run asks for its value: through `parameterAs...`, as a key of `parameters`, or by
+handing it to a helper together with `parameters`. A key that appears only in a log line or a result
+dictionary does not count.
 
 ### 4.1 Basic / Advanced gating (FR-070, FR-071)
 
