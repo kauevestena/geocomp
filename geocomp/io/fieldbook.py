@@ -23,7 +23,6 @@ adjustment, and the whole point of FR-200 is that it cannot.
 
 from __future__ import annotations
 
-import csv
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,6 +46,7 @@ from geocomp.core.techniques.total_station.readings import (
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import parse_angle
 from geocomp.io.mapping import AngleFormat, FieldMapping
+from geocomp.io.tabular import read_rows
 
 __all__ = [
     "FieldBookRecord",
@@ -131,10 +131,9 @@ def read_field_book_csv(
         raise ValidationError(
             "field_book_not_found",
             received=str(source),
-            expected="a readable CSV file",
+            expected="a readable CSV or .xlsx file",
         )
-    with open(source, encoding=encoding, newline="") as handle:
-        rows = list(csv.reader(handle))
+    rows = read_rows(source, encoding=encoding)
     return read_field_book(rows, mapping, library=library, defaults=defaults)
 
 

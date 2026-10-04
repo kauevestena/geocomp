@@ -204,8 +204,25 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # -- the field book and its mapping (P12c-7) --------------------------------
     # Shared with the levelling book, whose mapping refuses the same things.
     "validation.field_book_not_found": MessageTemplate(
-        "The field book '%1' could not be read. Choose an existing, readable CSV file.",
+        "The field book '%1' could not be read. Choose an existing, readable CSV or .xlsx "
+        "file.",
         "received",
+    ),
+    "data.coordinate_row_unreadable": MessageTemplate(
+        "Row %2 of '%1' is not a station followed by its easting, northing and height, in "
+        "metres. Correct the row, or remove it.",
+        "path",
+        "row",
+    ),
+    "data.coordinate_table_empty": MessageTemplate(
+        "'%1' holds no station coordinates. Each row gives a station, then its easting, "
+        "northing and height, in metres.",
+        "path",
+    ),
+    "data.workbook_unreadable": MessageTemplate(
+        "'%1' could not be read as an .xlsx workbook: it is damaged, or it has no "
+        "worksheet. Save it again from the spreadsheet program, or export it as CSV.",
+        "path",
     ),
     "validation.mapping_without_name": MessageTemplate(
         "The field mapping has no name. Give it one: a mapping is saved and reused by its "

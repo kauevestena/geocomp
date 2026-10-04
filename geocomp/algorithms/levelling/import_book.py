@@ -97,7 +97,11 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
-            QgsProcessingParameterFile(BOOK, self.tr("Field book"), extension="csv")
+            QgsProcessingParameterFile(
+                BOOK,
+                self.tr("Field book"),
+                fileFilter=self.tr("Field books (*.csv *.xlsx);;All files (*)"),
+            )
         )
         self.addParameter(
             QgsProcessingParameterFile(

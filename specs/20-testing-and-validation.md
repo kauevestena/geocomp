@@ -464,7 +464,7 @@ same rules: a **met** row cites a test, directly or through "As NN.N" to a met a
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
 document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
 
-**Audited: the platform block, FR-001 to FR-095 (P12c-13). State now: 29 met, 5 partly met, 0 open, 0 manual, of 34.**
+**Audited: the platform block, FR-001 to FR-095, and data, persistence and interoperability, FR-100 to FR-167 (P12c-13). State now: 49 met, 7 partly met, 0 open, 0 manual, of 56.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -502,3 +502,25 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-093 | **met** | As 18.4 |
 | FR-094 | **met** | As 18.6 |
 | FR-095 | **met** | As 18.5 |
+| FR-100 | **met** | `tests/test_models.py::TestProjectSerialisation`, `tests/test_models.py::TestGnssSession` |
+| FR-101 | **met** | `tests/test_models.py::TestStation` |
+| FR-102 | **partly met** | Type, stations, values with their uncertainty, epoch and instrument (`tests/test_models.py::TestObservation`). No `provenance`: [`04`](./04-data-model.md) §2.5 lists it, `Observation` has no such field and the store no such column, and only the levelling book records the source row, in `meta`. Adding it needs a schema migration |
+| FR-103 | **met** | `tests/test_models.py::TestObservationTypeRegistry` |
+| FR-104 | **met** | `tests/test_models.py::TestCluster`; stored and reloaded bit-identical, As 17.9 |
+| FR-105 | **met** | `tests/test_models.py::TestEpoch`; refused where needed rather than assumed, e.g. `tests/test_dynadjust_pipeline.py::TestTheJob::test_a_job_without_a_frame_or_epoch_is_refused` |
+| FR-106 | **met** | `tests/test_models.py::TestSolution`; the covariance stored whole, As 17.9 |
+| FR-107 | **met** | `tests/structural/test_no_qgis_in_core.py` |
+| FR-130 | **met** | `tests/test_project_store.py::TestARoundTrip` |
+| FR-131 | **met** | `tests/test_postgis_store.py`, in the `postgis store` job. One observation table with per-type views, by [`17`](./17-persistence-and-interoperability.md) §2's first rule. The processing logs since P12c-13 (`tests/test_project_store.py::TestTheProcessingLog`): `gc_run` was declared in P5 and written by nothing until then |
+| FR-132 | **met** | As 17.1 |
+| FR-133 | **met** | As 17.2 |
+| FR-134 | **met** | `tests/test_project_store.py::TestProvenance` |
+| FR-135 | **met** | As 17.3 |
+| FR-160 | **met** | Since P12c-13, `.xlsx` as well as CSV, for both field books and for stations' coordinates (`tests/test_spreadsheet_import.py`, `tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain`); until then CSV alone. The mapping saved by name and reused, As 17.4 |
+| FR-161 | **met** | As 17.7 |
+| FR-162 | **met** | `tests/test_export.py::TestCsv`, `tests/test_export.py::TestTheWorkbook` |
+| FR-163 | **met** | As 07.1, and the cluster at full precision As 07.2 |
+| FR-164 | **met** | `tests/test_rinex.py` |
+| FR-165 | **partly met** | Geoid models imported, applied, recorded and propagated (As 17.8). The deflection of the vertical is not estimated: it needs the undulation's horizontal gradient and a case to check it against, and none is available ([`17`](./17-persistence-and-interoperability.md) §5.5) |
+| FR-166 | **met** | As 17.5; a cancelled import leaves the target unchanged, As 17.6 |
+| FR-167 | **met** | `tests/qgis/test_basemap_offer.py` |

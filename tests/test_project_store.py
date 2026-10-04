@@ -445,6 +445,44 @@ class TestProvenance:
         assert back.provenance.created == solution.provenance.created
 
 
+class TestTheProcessingLog:
+    """FR-131: the processing logs are a table. ``gc_run`` was declared in P5 and
+    written by nothing until P12c-13; now each engine run a provenance carries
+    is a row of it."""
+
+    def test_each_engine_run_is_a_row(self, tmp_path, reference):
+        import dataclasses
+        import json
+        import sqlite3
+
+        project, solution, _network = reference
+        runs = [
+            {"program": "dnaimport", "command": ["dnaimport"], "exit_code": 0, "stdout": "ok"},
+            {"program": "dnaadjust", "command": ["dnaadjust"], "exit_code": 0, "stdout": "done"},
+        ]
+        provenance = dataclasses.replace(
+            solution.provenance, parameters={**solution.provenance.parameters, "runs": runs}
+        )
+        path = tmp_path / "logged.gpkg"
+        with open_store(path, create=True) as store:
+            store.write(project)
+            store.write_solution(dataclasses.replace(solution, provenance=provenance))
+            store.write_solution(dataclasses.replace(solution, provenance=provenance))
+        with sqlite3.connect(path) as connection:
+            rows = connection.execute(
+                'SELECT kind, exit_code, log FROM "gc_run" ORDER BY id'
+            ).fetchall()
+        assert [(kind, code) for kind, code, _log in rows] == [("dnaimport", 0), ("dnaadjust", 0)]
+        assert json.loads(rows[1][2])["stdout"] == "done"
+
+    def test_a_result_with_no_engine_has_no_rows(self, stored):
+        import sqlite3
+
+        path, *_ = stored
+        with sqlite3.connect(path) as connection:
+            assert connection.execute('SELECT COUNT(*) FROM "gc_run"').fetchone() == (0,)
+
+
 class TestNothingThatProducedAResultIsDeleted:
     def test_deleting_an_observation_a_solution_used_is_refused(self, stored):
         """specs/17 acceptance criterion 3, FR-135."""

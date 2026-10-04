@@ -52,6 +52,7 @@ from geocomp.io.mapping_editor import (
     PreviewTable,
     field_is_required,
 )
+from geocomp.io.tabular import read_rows
 from geocomp.services.messages import finding_text
 
 __all__ = ["FieldMappingDialog", "angle_format_label", "field_label", "read_preview"]
@@ -113,23 +114,22 @@ def angle_format_label(value: AngleFormat) -> str:
 
 
 def read_preview(path: str | Path, *, rows: int = PREVIEW_ROWS) -> PreviewTable:
-    """The header and first rows of a CSV, for the preview pane.
+    """The header and first rows of a CSV or ``.xlsx``, for the preview pane.
 
-    Reads only what it shows. A field book can be large, and a dialog that
-    loaded all of it to display twelve rows would stall on opening.
+    A CSV is read only as far as it shows: a field book can be large, and a
+    dialog that loaded all of it to display twelve rows would stall on opening.
+    A workbook is one compressed part and is read whole.
     """
-    with open(path, encoding="utf-8-sig", newline="") as handle:
-        reader = csv.reader(handle)
-        try:
-            header = next(reader)
-        except StopIteration:
-            return PreviewTable(header=(), rows=())
-        collected = []
-        for index, row in enumerate(reader):
-            if index >= rows:
-                break
-            collected.append(tuple(row))
-    return PreviewTable(header=tuple(header), rows=tuple(collected))
+    if Path(path).suffix.lower() == ".xlsx":
+        table = read_rows(path)
+    else:
+        with open(path, encoding="utf-8-sig", newline="") as handle:
+            table = [row for _index, row in zip(range(rows + 1), csv.reader(handle), strict=False)]
+    if not table:
+        return PreviewTable(header=(), rows=())
+    return PreviewTable(
+        header=tuple(table[0]), rows=tuple(tuple(row) for row in table[1 : rows + 1])
+    )
 
 
 class FieldMappingDialog(QDialog):

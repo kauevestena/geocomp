@@ -111,6 +111,31 @@ class TestTheWholeChain:
         assert results["SETUP_COUNT"] == 3
         assert results["REJECTED_COUNT"] == 0
 
+    def test_the_import_reads_the_same_book_saved_as_a_workbook(self, imported, tmp_path):
+        """FR-160: ``.xlsx`` as well as CSV. Until P12c-13 only CSV was read."""
+        from tests.test_spreadsheet_import import _csv_rows, workbook
+
+        book = workbook(tmp_path / "rd01.xlsx", _csv_rows(rd01.RAW))
+        results = _run(
+            "geocomp:totalstation_import_fieldbook",
+            {
+                "SOURCE": str(book),
+                "SIGMA_DIRECTION": rd01.SIGMA_ANGLE,
+                "SIGMA_ZENITH": rd01.SIGMA_ANGLE,
+                "SIGMA_DISTANCE": 0.002,
+                "OUTPUT_READINGS": str(tmp_path / "readings.json"),
+            },
+        )
+        _directory, from_csv = imported
+        assert results["RECORD_COUNT"] == from_csv["RECORD_COUNT"] == 12
+        assert results["SETUP_COUNT"] == from_csv["SETUP_COUNT"]
+        workbook_readings = json.loads(Path(results["OUTPUT_READINGS"]).read_text(encoding="utf-8"))
+        csv_readings = json.loads(Path(from_csv["OUTPUT_READINGS"]).read_text(encoding="utf-8"))
+        # Everything but the name of the file it came from.
+        assert workbook_readings.pop("source") == "rd01.xlsx"
+        csv_readings.pop("source")
+        assert workbook_readings == csv_readings
+
     def test_the_import_writes_a_readable_report_and_findings_table(self, imported):
         _directory, results = imported
         report = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
@@ -169,6 +194,35 @@ class TestTheWholeChain:
                 "OUTPUT_STATIONS": str(directory / "stations.csv"),
             },
         )
+
+    def test_approximate_coordinates_from_a_table_give_the_same_answer(
+        self, reduced, adjusted, tmp_path
+    ):
+        """FR-160: stations from a CSV as well as observations from a book."""
+        _directory, results = reduced
+        table = tmp_path / "approximate.csv"
+        table.write_text(
+            "station,easting,northing,height\n"
+            + "".join(
+                f"{name},{e!r},{n!r},{u!r}\n"
+                for name, (e, n, u) in rd01.approximate_coordinates().items()
+            ),
+            encoding="utf-8",
+        )
+        from_table = _run(
+            "geocomp:totalstation_network",
+            {
+                "REDUCTIONS": results["OUTPUT_REDUCED"],
+                "APPROXIMATE": str(table),
+                "DIMENSION": 0,
+                "DATUM": 1,
+                "CRS": "EPSG:31982",
+                "OUTPUT_SOLUTION": str(tmp_path / "solution.json"),
+            },
+        )
+        _directory, from_json = adjusted
+        assert from_table["VARIANCE_FACTOR"] == from_json["VARIANCE_FACTOR"]
+        assert from_table["DEGREES_OF_FREEDOM"] == from_json["DEGREES_OF_FREEDOM"]
 
     def test_the_network_adjusts(self, adjusted):
         _directory, results = adjusted

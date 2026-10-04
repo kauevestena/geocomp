@@ -80,7 +80,8 @@ from geocomp.core.preanalysis import inspect
 from geocomp.core.statistics.reliability import reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
 from geocomp.core.techniques.total_station import build_network
-from geocomp.services.messages import finding_text
+from geocomp.io.tabular import read_coordinates
+from geocomp.services.messages import finding_text, message_for
 
 __all__ = ["ClassicalNetworkAlgorithm"]
 
@@ -142,9 +143,10 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             "<p><b>Reduced observations</b> &mdash; the document Generalised pre-processing "
             "produced.</p>"
             "<p><b>Approximate coordinates</b> &mdash; a JSON object mapping each station to "
-            "<code>[easting, northing, up]</code>. Required, not derived: the linearised "
-            "model needs a point to linearise about, and a traverse or a resection is how a "
-            "surveyor obtains one.</p>"
+            "<code>[easting, northing, up]</code>, or a CSV or .xlsx table with a station, "
+            "its easting, its northing and its height on each row. Required, not derived: "
+            "the linearised model needs a point to linearise about, and a traverse or a "
+            "resection is how a surveyor obtains one.</p>"
             "<p><b>Dimension</b> &mdash; which of 2D, 3D and 1D to adjust in. It decides "
             "which reduced quantities become observations: a 2D adjustment takes directions "
             "and horizontal distances, a 3D one takes directions, zenith angles and slope "
@@ -182,7 +184,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                APPROXIMATE, self.tr("Approximate coordinates"), extension="json"
+                APPROXIMATE,
+                self.tr("Approximate coordinates"),
+                fileFilter=self.tr("Coordinates (*.json *.csv *.xlsx);;All files (*)"),
             )
         )
         self.addParameter(
@@ -322,8 +326,6 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         try:
             run = adjust(network, options)
         except GeoCompError as exc:
-            from geocomp.services.messages import message_for
-
             raise QgsProcessingException(message_for(exc)) from exc
 
         feedback.setProgress(70)
@@ -411,6 +413,12 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
     # -- inputs ----------------------------------------------------------
 
     def _approximate(self, path: str) -> dict[str, tuple[float, float, float]]:
+        if path.lower().endswith((".csv", ".xlsx")):
+            # FR-160: stations from a table as well as observations from a book.
+            try:
+                return read_coordinates(path)
+            except GeoCompError as exc:
+                raise QgsProcessingException(message_for(exc)) from exc
         payload = load_json(path, parameter=APPROXIMATE)
         coordinates: dict[str, tuple[float, float, float]] = {}
         for station, values in payload.items():

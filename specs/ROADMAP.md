@@ -2191,6 +2191,30 @@ test's list of blocks not yet audited may only shrink.
 
 The other nine blocks are still to be audited.
 
+#### P12c-13 — every requirement held to a test (second pull request): data, persistence, interoperability
+
+FR-100 to FR-167: 20 met and 2 partly met, of 22.
+
+**Found and fixed.**
+
+- **`.xlsx` was never read (FR-160).** The requirement names CSV and `.xlsx`, and every import read CSV alone.
+  `io/tabular.py` now reads a workbook's first sheet with the standard library, beside the writer that has
+  been there since P5. Both book imports and the mapping dialog's preview go through it.
+- **Stations could not come from a table (FR-160).** *Total station network* took approximate coordinates only
+  as a JSON document. It now also reads a CSV or `.xlsx` table, a station and three coordinates a row.
+- **The processing-log table was empty (FR-131).** `gc_run` was declared in P5 and written by nothing. It now
+  gets one row per engine run a stored solution's provenance carries.
+- **specs/17 §5.1 contradicted specs/03.** It still said `.xlsx` export needs `openpyxl` and falls back to CSV;
+  P5 had built the writer in.
+
+**Not done here — the two partly met.**
+
+- FR-102: an observation has no `provenance`. specs/04 §2.5 lists it, but the model and the store have none,
+  and adding it needs a schema migration.
+- FR-165: the deflection of the vertical is not estimated, as specs/17 §5.5 has recorded since P5.
+
+Eight blocks remain.
+
 ---
 
 ## P13 — Validation, documentation and release

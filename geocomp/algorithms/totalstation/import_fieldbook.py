@@ -42,6 +42,8 @@ from geocomp.algorithms.totalstation.common import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.io import read_field_book
+from geocomp.io.tabular import read_rows
+from geocomp.services.messages import message_for
 
 __all__ = ["ImportFieldBookAlgorithm"]
 
@@ -108,7 +110,11 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
-            QgsProcessingParameterFile(SOURCE, self.tr("Field book"), extension="csv")
+            QgsProcessingParameterFile(
+                SOURCE,
+                self.tr("Field book"),
+                fileFilter=self.tr("Field books (*.csv *.xlsx);;All files (*)"),
+            )
         )
         self.addParameter(
             QgsProcessingParameterFile(
@@ -195,8 +201,10 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
                 self.tr("The field book '%1' does not exist.").replace("%1", str(source))
             )
 
-        with open(source, encoding="utf-8-sig", newline="") as handle:
-            rows = list(csv.reader(handle))
+        try:
+            rows = read_rows(source)
+        except GeoCompError as error:
+            raise QgsProcessingException(message_for(error)) from error
         if not rows:
             raise QgsProcessingException(
                 self.tr("The field book '%1' is empty.").replace("%1", str(source))
@@ -219,8 +227,6 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         try:
             result = read_field_book(rows, mapping, library=library, defaults=defaults)
         except GeoCompError as exc:
-            from geocomp.services.messages import message_for
-
             message = message_for(exc)
             if exc.code == "validation.mapping_missing_required_fields":
                 # The mapping given, or, with none, the one inferred from the

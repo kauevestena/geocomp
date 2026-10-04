@@ -122,6 +122,11 @@ gravity is there.
 `REJECTED` means a statistical test rejected it (FR-251); `EXCLUDED` means a human removed it. Both are
 reversible and neither deletes the record (FR-255, FR-135).
 
+**Not built: `provenance`.** The table above lists it, and P12c-13's requirement audit found that
+`Observation` has no such field and the store no such column. What an observation records of its origin is
+the source row, in `meta`, and only from the levelling book. FR-102 is partly met until it exists, which
+needs a schema migration ([`20`](./20-testing-and-validation.md) §11).
+
 #### 2.5.1 The frame of a GNSS baseline **[V]**
 
 A `GNSS_BASELINE` observation's three components are **geocentric cartesian ΔX, ΔY, ΔZ**, and the observation

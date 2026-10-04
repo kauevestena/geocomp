@@ -51,7 +51,7 @@ chaves e relacionamentos necessários para rastreabilidade e reprocessamento"), 
 | `gc_adjusted_station` | Adjusted coordinates with covariance and ellipse parameters; for a gravity solution, the adjusted gravity (schema 3) at the station's location | Point |
 | `gc_observation_result` | Residuals, standardised residuals, redundancy, w-test, MDB | — |
 | `gc_statistics` | Global statistics per solution | — |
-| `gc_run` | Engine and algorithm runs: command line, exit code, timings, versions (FR-036) | — |
+| `gc_run` | Engine and algorithm runs: command line, exit code, timings, versions (FR-036). Written since P12c-13, one row per engine run a solution's provenance carries; declared in P5 and empty until then | — |
 | `gc_provenance` | Provenance records with input digests (FR-134) | — |
 | `gc_displacement` | Multi-epoch displacements with covariance and significance | Line |
 
@@ -213,8 +213,18 @@ leaves the target unchanged if the user cancels.
 Export to CSV and `.xlsx` covers stations, observations, adjusted results, residuals and statistics. The
 adjusted-results sheet carries a gravity solution's `gravity` and `gravity_std_dev`, in m·s⁻² (phase P8b);
 before that it wrote a station's position alone, so a gravity solution's gravity was dropped on export.
-`.xlsx` requires `openpyxl`; where it is unavailable, the feature degrades to CSV with a clear message
-([`03-architecture.md`](./03-architecture.md) §3.7).
+`.xlsx` is written by GeoComp itself and needs no dependency ([`03-architecture.md`](./03-architecture.md)
+§3.7, amended in P5; this paragraph said otherwise until P12c-13).
+
+**As built (P12c-13): `.xlsx` is read as well as written.** Until P12c-13 every import read CSV alone, though
+FR-160 names both. `io/tabular.py` reads a workbook's first sheet with the standard library, as it writes
+one, and every book import goes through it: *Import total station field book*, *Import levelling book* and
+the mapping dialog's preview. A number is read as its shortest exact decimal, so a field book's `45.302`,
+which a spreadsheet stores as `45.302000000000007`, arrives as `45.302`. Formulas are not evaluated: the value
+the spreadsheet saved with them is read. A date cell arrives as its serial number, because no field book has
+a date column. **Stations as well as observations:** *Total station network*'s approximate coordinates are
+also read from a CSV or `.xlsx` table — a station, its easting, its northing and its height on each row —
+where until P12c-13 only a JSON document was accepted (`tests/test_spreadsheet_import.py`).
 
 ### 5.2 The *Adjust* format (FR-161) **[V]**
 
