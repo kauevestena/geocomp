@@ -185,7 +185,7 @@ class ProjectStoreAlgorithm(GeoCompAlgorithm):
             solution = read_solution(solution_path) if solution_path else None
             network = read_network(network_path)
         except GeoCompError as error:
-            raise QgsProcessingException(str(error)) from error
+            raise QgsProcessingException(message_for(error)) from error
 
         target = self.parameterAsFileOutput(parameters, STORE, context)
         connection = self.parameterAsConnectionName(parameters, DATABASE, context)

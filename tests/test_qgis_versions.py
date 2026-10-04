@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.qgis_versions import UnresolvedError, minimum_version, resolve, select
+from scripts.qgis_versions import UnresolvedError, minimum_version, resolve, same_release_line, select
 
 
 def _tag(name: str, digest: str) -> dict:
@@ -89,3 +89,24 @@ def test_a_stable_below_the_minimum_is_a_failure_not_an_empty_matrix():
 def test_the_floor_is_the_plugins_own_declaration():
     """The minimum QGIS enforces on install, not a number repeated in the workflow."""
     assert minimum_version() == (4, 0, 0)
+
+
+def test_the_installed_qgis_is_the_release_its_job_names():
+    assert same_release_line("4.2.3-Belém do Pará", "4.2.3") == (True, None)
+
+
+def test_a_package_a_patch_behind_the_image_is_the_same_line_and_said_so():
+    """Homebrew's cask was 4.2.2 the day the image was 4.2.3."""
+    ok, note = same_release_line("4.2.2-Belém do Pará", "4.2.3")
+    assert ok
+    assert "4.2.2" in note and "4.2.3" in note
+
+
+def test_another_release_line_is_not_the_channel_the_job_names():
+    """A 3.44 LTR where a 4.2 LTR is expected would be tested and reported as 4.2."""
+    assert same_release_line("3.44.14-Solothurn", "4.2.5")[0] is False
+    assert same_release_line("4.0.3-Girona", "4.2.3")[0] is False
+
+
+def test_on_linux_the_image_must_be_exactly_its_tag():
+    assert same_release_line("4.2.2-Belém do Pará", "4.2.3", exact=True)[0] is False

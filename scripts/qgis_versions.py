@@ -24,10 +24,18 @@ Writes ``matrix=<json>`` to ``$GITHUB_OUTPUT`` (and prints it), in the form
 channel cannot be resolved or stable is below the minimum (there would be
 nothing to test, and an empty matrix is a green tick for nothing); exit 2 when
 Docker Hub cannot be reached.
+
+``--check RELEASE``, run under a QGIS's own Python, is how each job shows it
+tests what its name says. On Linux the image *is* the release tag, so it must
+match exactly (``--exact``). On Windows and macOS QGIS comes from OSGeo4W and
+the official bundle's Homebrew cask, which can trail the image by a patch
+release: that is reported, and a different minor release -- another release
+line, so not the channel the job names -- fails.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -108,6 +116,30 @@ def select(releases: dict[str, str], minimum: tuple[int, ...]) -> tuple[dict, li
     return {"include": include}, notes
 
 
+def same_release_line(installed: str, expected: str, *, exact: bool = False) -> tuple[bool, str | None]:
+    """Whether *installed* is the release *expected* names, and what to report.
+
+    *installed* is ``Qgis.QGIS_VERSION`` (``4.2.3-Belém do Pará``); the name
+    after the number is dropped.
+    """
+    running = installed.split("-", 1)[0].strip()
+    if running == expected:
+        return True, None
+    if exact or version_tuple(running)[:2] != version_tuple(expected)[:2]:
+        return False, f"QGIS {running} is installed, not {expected}"
+    return True, f"QGIS {running} is installed where the image is {expected}: the same release line"
+
+
+def check(expected: str, *, exact: bool) -> int:
+    from qgis.core import Qgis
+
+    print("QGIS", Qgis.QGIS_VERSION)
+    ok, note = same_release_line(Qgis.QGIS_VERSION, expected, exact=exact)
+    if note:
+        print(f"::{'notice' if ok else 'error'}::{note}")
+    return 0 if ok else 1
+
+
 def fetch_listing(*, pages: int = PAGES) -> list[dict]:
     listing: list[dict] = []
     url: str | None = LISTING
@@ -121,7 +153,14 @@ def fetch_listing(*, pages: int = PAGES) -> list[dict]:
     return listing
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--check", metavar="RELEASE", help="check the QGIS this Python runs against RELEASE")
+    parser.add_argument("--exact", action="store_true", help="with --check: the patch release must match too")
+    arguments = parser.parse_args(argv)
+    if arguments.check:
+        return check(arguments.check, exact=arguments.exact)
+
     try:
         listing = fetch_listing()
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:

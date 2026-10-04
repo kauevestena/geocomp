@@ -138,7 +138,7 @@ jobs:
   # on the release tag rather than the moving one, so the QGIS version is
   # explicit -- in the job's name too -- rather than whatever a tag pointed at.
   qgis:
-    name: qgis integration (QGIS ${{ matrix.qgis }}, ${{ matrix.channel }})
+    name: qgis integration (Linux, QGIS ${{ matrix.qgis }}, ${{ matrix.channel }})
     needs: qgis-versions
     runs-on: ubuntu-latest
     strategy:
@@ -183,19 +183,10 @@ jobs:
       # spent ten runs failing in four seconds -- before a single test ran --
       # and reporting that as though the suite had run and failed.
       - name: Report the environment under test
-        env:
-          EXPECTED: ${{ matrix.qgis }}
         run: |
-          python3 -c "from qgis.core import Qgis; print('QGIS', Qgis.QGIS_VERSION)"
           # The image is the release the matrix names, or this job tests
           # something other than what its name says.
-          python3 - <<'PY'
-          import os, sys
-          from qgis.core import Qgis
-          running = Qgis.QGIS_VERSION.split("-")[0]
-          if running != os.environ["EXPECTED"]:
-              sys.exit(f"the image runs QGIS {running}, not {os.environ['EXPECTED']}")
-          PY
+          python3 scripts/qgis_versions.py --check "${{ matrix.qgis }}" --exact
           python3 -c "import numpy; print('numpy', numpy.__version__)"
           python3 -c "import pytest; print('pytest', pytest.__version__)"
           python3 -c "import psycopg2; print('psycopg2', psycopg2.__version__)"
@@ -297,6 +288,132 @@ jobs:
             pytest-sparse.log
             coverage.txt
           if-no-files-found: warn
+
+  # specs/21 criterion 5 on Windows and macOS: the whole suite under the QGIS a
+  # user installs there, in that QGIS's own Python -- OSGeo4W's on Windows, the
+  # official bundle (through its Homebrew cask) on macOS. Tier 1 has run on
+  # both since P0, but on python.org's Python with PyPI's NumPy, which is not
+  # what the plugin is loaded into.
+  #
+  # The releases are the Linux job's, by channel: stable is OSGeo4W's ``qgis``
+  # and the ``qgis`` cask, the LTR ``qgis-ltr`` and ``qgis@ltr``. These can
+  # trail the image by a patch release, which is reported; another release
+  # line fails, since the job would not be testing the channel it names.
+  #
+  # Not here: PostGIS, since service containers exist on Linux runners only
+  # (the Linux job runs those tests against a server); and, on Windows, the
+  # engine-installation tests, whose stand-in engine is shell scripts -- the
+  # engine workflow installs and runs the real Windows archive.
+  qgis-windows:
+    name: qgis integration (Windows, QGIS ${{ matrix.qgis }}, ${{ matrix.channel }})
+    needs: qgis-versions
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.qgis-versions.outputs.matrix) }}
+    env:
+      PACKAGE: ${{ startsWith(matrix.channel, 'stable') && 'qgis' || 'qgis-ltr' }}
+      LAUNCHER: ${{ startsWith(matrix.channel, 'stable') && 'python-qgis.bat' || 'python-qgis-ltr.bat' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # OSGeo4W's network installer, unattended. pytest and SciPy are OSGeo4W
+      # packages, built for its Python and NumPy, not wheels from PyPI.
+      - name: Install QGIS from OSGeo4W
+        run: |
+          Invoke-WebRequest https://download.osgeo.org/osgeo4w/v2/osgeo4w-setup.exe -OutFile osgeo4w-setup.exe
+          $p = Start-Process -FilePath .\osgeo4w-setup.exe -Wait -PassThru -ArgumentList '-q','-k','-r','-A','-s','https://download.osgeo.org/osgeo4w/v2/','-R','C:\OSGeo4W','-l','C:\osgeo4w-cache','-P',"$env:PACKAGE,python3-pytest,python3-scipy"
+          if ($p.ExitCode -ne 0) { throw "osgeo4w-setup exited with $($p.ExitCode)" }
+
+      # The launcher sets up QGIS's environment and replaces PATH, so nothing
+      # outside OSGeo4W runs after it in the same step: each of these is a step
+      # of its own, and the log is read from Git's bash.
+      - name: The QGIS under test
+        shell: cmd
+        run: call C:\OSGeo4W\bin\%LAUNCHER% scripts\qgis_versions.py --check ${{ matrix.qgis }}
+
+      - name: The whole suite, in QGIS's Python
+        shell: cmd
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: call C:\OSGeo4W\bin\%LAUNCHER% -m pytest -q -ra --tb=short -p no:cacheprovider > pytest.log 2>&1
+
+      - name: The test log
+        if: always()
+        shell: bash
+        run: |
+          grep -E "^(FAILED|ERROR)" pytest.log || true
+          tail -n 250 pytest.log
+
+      - name: Nothing skipped for want of QGIS or SciPy
+        shell: bash
+        run: |
+          if grep -E "SKIPPED.*(requires a QGIS runtime|SciPy not installed|test_sparse_adjustment)" pytest.log; then
+            echo "::error::tests skipped although QGIS and SciPy are installed"
+            exit 1
+          fi
+
+  qgis-macos:
+    name: qgis integration (macOS, QGIS ${{ matrix.qgis }}, ${{ matrix.channel }})
+    needs: qgis-versions
+    runs-on: macos-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.qgis-versions.outputs.matrix) }}
+    env:
+      CASK: ${{ startsWith(matrix.channel, 'stable') && 'qgis' || 'qgis@ltr' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install QGIS
+        run: brew install --cask "$CASK"
+
+      # QGIS tells its bundled Python where its standard library is; started on
+      # its own, that Python finds none, because the bundle keeps it, and
+      # site-packages, in Contents/Resources/python3.X rather than under a
+      # prefix. PYTHONPATH names them. PYTHONHOME is set too, though nothing is
+      # found under it: without it, every Python started (the tests start some)
+      # writes "Could not find platform independent libraries" to stderr.
+      #
+      # pytest is pure Python, installed for the bundle's Python version into
+      # a directory of its own rather than into the signed bundle.
+      - name: Reach the bundle's Python
+        run: |
+          app=$(ls -d /Applications/QGIS*.app | head -1)
+          lib=$(dirname "$(find "$app/Contents/Resources" -maxdepth 2 -type d -name encodings | head -1)")
+          python=$(ls "$app"/Contents/MacOS/python3.* | head -1)
+          version=$(basename "$lib" | sed 's/^python//')
+          python3 -m pip install --quiet --target "$RUNNER_TEMP/pytest" --python-version "$version" --only-binary=:all: pytest
+          {
+            echo "QGIS_PYTHON=$python"
+            echo "QGIS_PYTHONHOME=$app/Contents"
+            echo "QGIS_PYTHONPATH=$lib:$lib/site-packages:$lib/lib-dynload:$RUNNER_TEMP/pytest"
+          } >> "$GITHUB_ENV"
+          echo "QGIS at $app, Python $version at $python"
+
+      - name: The QGIS under test
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          export PYTHONHOME="$QGIS_PYTHONHOME" PYTHONPATH="$QGIS_PYTHONPATH"
+          "$QGIS_PYTHON" scripts/qgis_versions.py --check "${{ matrix.qgis }}"
+
+      - name: The whole suite, in QGIS's Python
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          set -o pipefail
+          export PYTHONHOME="$QGIS_PYTHONHOME" PYTHONPATH="$QGIS_PYTHONPATH"
+          "$QGIS_PYTHON" -m pytest -q -ra --tb=short -p no:cacheprovider 2>&1 | tee pytest.log
+
+      - name: Nothing skipped for want of QGIS or SciPy
+        run: |
+          if grep -E "SKIPPED.*(requires a QGIS runtime|SciPy not installed|test_sparse_adjustment)" pytest.log; then
+            echo "::error::tests skipped although QGIS and SciPy are installed"
+            exit 1
+          fi
 
   # NFR-005 and FR-306: the fallback paths are requirements, and an untested
   # fallback is a fallback that does not work.
