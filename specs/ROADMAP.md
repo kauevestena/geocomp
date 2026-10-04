@@ -2442,6 +2442,22 @@ P12c-13's audit found that an observation recorded none of its origin, except a 
 **Not done.** Levelling and gravimetry observations carry no provenance yet. Their documents do not carry
 their source, so FR-102 stays partly met until P12c-20.
 
+#### P12c-20 — levelling and gravimetry provenance; the files against memory (FR-102)
+
+**Delivered** ([`04`](./04-data-model.md) §2.5; [`20`](./20-testing-and-validation.md) §1).
+
+| | |
+|---|---|
+| Levelling | A reading's row reaches the setup reduction, and a line names its rows as runs. The setups, reductions and trigonometric height-difference documents carry the book's name, and each line or difference its rows |
+| Gravimetry | A difference names the file and the lines of every reading in its two visits |
+| The files against memory | For the total station in 2D, 3D and 1D, for levelling and for gravimetry, the network built through the algorithms' documents equals the one built in memory from the same field file, observation by observation and cluster by cluster. All are equal, and P12c-18's lost heights were the only loss. The rule, and the table of tests a new document joins, are in specs/20 §1 |
+
+FR-102 is now **met**: 160 met, 15 partly met, 1 open, of 176.
+
+**Not done.** The gravity network algorithm writes no network document, so a gravity observation's provenance
+is in the network the adjustment builds and not in a file a user can open. The integration algorithms copy
+observations with their provenance, and the combined network's own benchmark heights name the benchmark.
+
 ---
 
 ## P13 — Validation, documentation and release

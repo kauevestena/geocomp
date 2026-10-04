@@ -10,6 +10,7 @@ import (FR-166): a book with six bad rows needs one run.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from qgis.core import (
@@ -203,6 +204,9 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
             {
                 "kind": "levelling_setups",
                 "level_id": level.id,
+                # The book, which every observation made from these setups
+                # names with its rows as its provenance (FR-102).
+                "source": Path(book).name,
                 "lines": [
                     {
                         "id": line.id,

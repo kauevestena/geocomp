@@ -142,10 +142,15 @@ pre-processing* writes each pointing's rows and the name into the reductions doc
 puts them on the observation. The four file readers record the line or record each observation came from, in
 one pass after reading, so a large file costs no more to read.
 
-**Not yet: levelling and gravimetry.** Their observations are made from documents that do not yet carry
-their source: a line from its level book's rows, and a gravity difference from its readings. That is P12c-20,
-together with a test, for each technique, that the network built through the files equals the one built in
-memory. The 3D defect P12c-18 found was of exactly that kind.
+**Levelling and gravimetry (P12c-20).**
+
+- **Levelling.** A level-book reading's row reaches its setup reduction, and a line names the rows of all its
+  setups as runs, `rows 12-51`. The setups, reductions and trigonometric height-difference documents carry
+  the book's or field book's name, and each line or difference its rows.
+- **Gravimetry.** A reading's id is already `<file>:<line>`, so a gravity difference names the file and the
+  lines of every reading in its two visits. An absolute value names itself.
+- **Through the files.** For every field technique a test requires the network built through the documents
+  to equal the one built in memory, provenance included ([`20`](./20-testing-and-validation.md) §1).
 
 #### 2.5.1 The frame of a GNSS baseline **[V]**
 

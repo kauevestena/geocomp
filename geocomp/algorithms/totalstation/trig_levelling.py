@@ -43,7 +43,11 @@ from geocomp.algorithms.reporting import (
     render_note,
     render_table,
 )
-from geocomp.algorithms.totalstation.common import findings_table, read_reductions
+from geocomp.algorithms.totalstation.common import (
+    document_source,
+    findings_table,
+    read_reductions,
+)
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.total_station import (
     Sight,
@@ -288,6 +292,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                     {
                         "from": result.station,
                         "to": pointing.target,
+                        "records": pointing.records,
                         "difference": radial_height_difference(
                             sight,
                             instrument_height,
@@ -335,6 +340,7 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                 {
                     "from": backward.target,
                     "to": forward.target,
+                    "records": backward.records + forward.records,
                     "difference": outcome.height_difference,
                     "imbalance": outcome.sight_imbalance,
                     "cancellation": outcome.refraction_cancellation,
@@ -353,11 +359,18 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
                         "kind": "geocomp.height_differences",
                         "version": 1,
                         "mode": "leapfrog" if mode == LEAPFROG else "radial",
+                        # The field book and each difference's rows of it, which
+                        # the levelling network names as provenance (FR-102).
+                        "source": document_source(
+                            self.parameterAsFile(parameters, REDUCTIONS, context),
+                            parameter=REDUCTIONS,
+                        ),
                         "differences": [
                             {
                                 "from": row["from"],
                                 "to": row["to"],
                                 "value": row["difference"].to_dict(),
+                                "records": list(row["records"]),
                             }
                             for row in rows
                         ],

@@ -34,6 +34,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
+    document_source,
     findings_table,
     level_from_parameters,
     read_lines,
@@ -234,6 +235,9 @@ class ExtremeSightsAlgorithm(GeoCompAlgorithm):
             {
                 "kind": "levelling_setup_reductions",
                 "level_id": level.id,
+                "source": document_source(
+                    self.parameterAsFile(parameters, SETUPS, context), parameter=SETUPS
+                ),
                 "setups": [
                     {
                         "setup_id": reduction.setup_id,
@@ -244,6 +248,7 @@ class ExtremeSightsAlgorithm(GeoCompAlgorithm):
                         ],
                         "covariance": reduction.covariance.to_dict(),
                         "imbalances": list(reduction.imbalances),
+                        "records": list(reduction.records),
                     }
                     for reduction in reductions
                 ],

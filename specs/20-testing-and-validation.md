@@ -21,6 +21,22 @@ document.
 **T1 is the tier that must be fast and comprehensive.** It is where a wrong Jacobian or a sign error is
 caught, and it is why `core/` is QGIS-free.
 
+**A chain of documents is tested against the same chain in memory (P12c-20).** The field techniques reach
+their networks through files, because the graphical modeller chains algorithms through files. Each file is a
+place where a field can be dropped. P12c-18 found a 3D total-station network that had lost every sight's
+instrument and target heights between pre-processing and the network. The in-memory path carried them, and
+its tests passed. So for each technique a T3 test reads the field file again in memory, runs it through the
+same core functions with the options the algorithms used, and requires the network the algorithms built
+through their documents to equal it, observation by observation:
+
+| Technique | Test |
+|---|---|
+| Total station, 2D, 3D, 1D | `tests/qgis/test_totalstation_algorithms.py::TestAThreeDimensionalNetwork::test_the_network_through_the_files_is_the_one_built_in_memory` |
+| Levelling | `tests/qgis/test_levelling_algorithms.py::TestClosuresAndTheNetwork::test_the_network_through_the_files_is_the_one_built_in_memory` |
+| Gravimetry | `tests/qgis/test_gravimetry_algorithms.py::TestTheDocumentAndTheMemoryAgree` |
+
+A new document in a chain needs its row here.
+
 ## 2. Structural checks in CI
 
 Beyond tests, checks that enforce the specifications' structural rules:
@@ -47,6 +63,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Every module of the plugin has a function the suite runs, measured in the same run (`scripts/check_coverage.py`, P12c-13) | NFR-011 |
 | Every package the plugin imports has a recorded decision in [`03`](./03-architecture.md) §3.7 (P12c-13) | NFR-005 |
 | Every interface one module imports from another is documented and annotated, against a frozen list that may only shrink (P12c-13) | NFR-012 |
+| Every `Observation(...)` the plugin makes passes `provenance=`, or is in a reader that stamps it afterwards with `Network.record_provenance` (`tests/structural/test_observation_provenance.py`, P12c-20) | FR-102, [`04-data-model.md`](./04-data-model.md) §2.5 |
 
 ## 3. Reference datasets (FR-950)
 
@@ -468,7 +485,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 159 met, 16 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 160 met, 15 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -508,7 +525,7 @@ without a row.
 | FR-095 | **met** | As 18.5 |
 | FR-100 | **met** | `tests/test_models.py::TestProjectSerialisation`, `tests/test_models.py::TestGnssSession` |
 | FR-101 | **met** | `tests/test_models.py::TestStation` |
-| FR-102 | **partly met** | Type, stations, values with their uncertainty, epoch and instrument (`tests/test_models.py::TestObservation`). Since P12c-19 an observation also carries its provenance: the reader or reduction, the file and the records, in network documents and in both stores, schema 6 (`tests/test_observation_provenance.py`, `tests/test_project_store.py`). It is recorded by the four file readers, checked against the line each one names, and by the total-station chain through its files to the field book's rows (`tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain::test_each_observation_names_its_field_book_rows`), and by GNSS, design and benchmark observations. Levelling and gravimetry observations do not carry it yet: their documents do not carry their source (P12c-20) |
+| FR-102 | **met** | Type, stations, values with their uncertainty, epoch and instrument (`tests/test_models.py::TestObservation`). Since P12c-19 and P12c-20 an observation also carries its provenance: the reader or reduction, the file and the records, in network documents and in both stores, schema 6 (`tests/test_observation_provenance.py`, `tests/test_project_store.py`). It is recorded by the four file readers, each checked against the line it names; by the total-station, levelling and gravimetry chains, through their files, to the rows or lines of the field file; and by GNSS, design and benchmark observations. For each field technique the network built through the files equals the one built in memory, provenance included (§1) |
 | FR-103 | **met** | `tests/test_models.py::TestObservationTypeRegistry` |
 | FR-104 | **met** | `tests/test_models.py::TestCluster`; stored and reloaded bit-identical, As 17.9 |
 | FR-105 | **met** | `tests/test_models.py::TestEpoch`; refused where needed rather than assumed, e.g. `tests/test_dynadjust_pipeline.py::TestTheJob::test_a_job_without_a_frame_or_epoch_is_refused` |

@@ -377,6 +377,55 @@ class TestAThreeDimensionalNetwork:
         for station, height in one.items():
             assert three[station] == pytest.approx(height, abs=1e-3), station
 
+    @pytest.mark.parametrize("dimension", [0, 1, 2], ids=["2D", "3D", "1D"])
+    def test_the_network_through_the_files_is_the_one_built_in_memory(self, reduced, dimension):
+        """Nothing the network needs is lost between the book and the network (P12c-20).
+
+        The field book is read again in memory and taken through the same core
+        functions, with the options the algorithms ran with, and the network is
+        compared observation by observation and cluster by cluster with the one
+        the three algorithms made through their documents. This is the check
+        that would have caught P12c-18's lost heights, in every dimension.
+        """
+        from geocomp.algorithms.defaults import configured
+        from geocomp.algorithms.totalstation.common import default_library, stochastic_defaults
+        from geocomp.core.models import network_from_document
+        from geocomp.core.techniques.total_station import PreprocessingOptions, preprocess_setup
+        from geocomp.core.techniques.total_station.pipeline import build_network
+        from geocomp.io import infer_mapping, read_field_book_csv
+        from geocomp.io.fieldbook import read_rows
+
+        directory, reductions, _readings = reduced
+        network, _heights = self._adjust(directory, reductions, f"files-{dimension}", dimension)
+        through_files = network_from_document(network)
+
+        library = default_library()
+        book = read_field_book_csv(
+            rd01.RAW,
+            infer_mapping(read_rows(rd01.RAW)[0]),
+            library=library,
+            defaults=stochastic_defaults(rd01.SIGMA_ANGLE, rd01.SIGMA_ANGLE, 0.002),
+        )
+        options = PreprocessingOptions(
+            collimation_tolerance=configured("total_station.collimation_tolerance"),
+            distance_tolerance=configured("total_station.face_distance_tolerance") or None,
+            apply_atmospheric=False,
+        )
+        in_memory = build_network(
+            [preprocess_setup(setup, library, options=options) for setup in book.setups],
+            rd01.approximate_coordinates(),
+            crs="EPSG:31982",
+            dimension={0: 2, 1: 3, 2: 1}[dimension],
+            source_file=rd01.RAW.name,
+        )
+
+        assert set(through_files.observations) == set(in_memory.observations)
+        for identifier, observation in in_memory.observations.items():
+            assert through_files.observations[identifier].to_dict() == observation.to_dict()
+        assert set(through_files.clusters) == set(in_memory.clusters)
+        for identifier, cluster in in_memory.clusters.items():
+            assert through_files.clusters[identifier].to_dict() == cluster.to_dict()
+
     def test_a_document_from_before_the_heights_is_refused_in_3d_alone(self, reduced):
         from qgis.core import QgsProcessingException
 
