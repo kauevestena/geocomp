@@ -148,3 +148,49 @@ class TestTheDispatcher:
         from geocomp.gui.prompts import collect_parameters
 
         assert collect_parameters("geocomp:totalstation_network") == {}
+
+
+class TestALoadedMappingThatIsRefused:
+    """P12c-7: a mapping file GeoComp refuses is said in words, in the dialog.
+
+    ``FieldMapping`` refuses an unknown field or a missing name with a
+    ``ValidationError``, which is not a ``ValueError``: the dialog caught only
+    the latter, so the refusal escaped the slot and reached the user as QGIS's
+    Python traceback window.
+    """
+
+    @pytest.fixture
+    def warnings(self, monkeypatch):
+        seen = []
+        monkeypatch.setattr(
+            "geocomp.gui.mapping_dialog.QMessageBox.warning",
+            lambda parent, title, text: seen.append(text),
+        )
+        return seen
+
+    def _load(self, dialog, monkeypatch, path):
+        monkeypatch.setattr(
+            "geocomp.gui.mapping_dialog.QFileDialog.getOpenFileName",
+            lambda *args, **kwargs: (str(path), ""),
+        )
+        dialog._load_mapping()
+
+    def test_an_unknown_field_is_a_warning_not_a_traceback(
+        self, dialog, monkeypatch, tmp_path, warnings, geocomp_provider
+    ):
+        path = tmp_path / "mapping.json"
+        payload = {"name": "mine", "columns": [{"field": "not_a_field", "column": 0}]}
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        self._load(dialog, monkeypatch, path)
+        (text,) = warnings
+        assert "not_a_field" in text
+        assert "validation." not in text
+
+    def test_a_mapping_without_a_name_is_a_warning_too(
+        self, dialog, monkeypatch, tmp_path, warnings, geocomp_provider
+    ):
+        path = tmp_path / "mapping.json"
+        path.write_text(json.dumps({"name": "", "columns": []}), encoding="utf-8")
+        self._load(dialog, monkeypatch, path)
+        (text,) = warnings
+        assert "validation." not in text

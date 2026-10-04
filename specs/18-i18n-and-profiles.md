@@ -70,8 +70,11 @@ P12c-7 counted, 457 of the codes GeoComp raises were in that state.
   cannot write for an engine, a run that failed, and an output file that does not read.
 - A template for a failed engine run shows the **engine's own message** (FR-305). Each engine failure carries
   that message in its context, and the template must interpolate it.
-- The other 376 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
-  raises them, and that list may only shrink. `tests/structural/test_message_templates.py` reads all of
+- The 28 codes of the file readers the algorithms use have templates too: RINEX files and folders, field and
+  levelling books and their mappings, geoid grids, and the tables export.
+- The other 348 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
+  raises them, and that list may only shrink. The 31 left in `io/` belong to the readers of the reference
+  corpora (`krumm.py`, `adjust.py`), which no algorithm reaches. `tests/structural/test_message_templates.py` reads all of
   `geocomp/` and enforces three rules:
   - a code raised without a template fails unless it is listed;
   - a listed code that has gained a template, or is no longer raised, fails until its entry is removed;

@@ -111,14 +111,18 @@ def test_a_failed_batch_session_is_said_in_words(tmp_path):
     assert own_words in translate_error(failed.error)
 
 
-def test_every_engine_template_renders_from_its_own_keys():
-    """A template given exactly the keys it names says no '(not set)' and no '%n'."""
-    from geocomp.algorithms.engines.messages import TEMPLATES as ENGINES
-    from geocomp.algorithms.gnss.messages import TEMPLATES as GNSS
+def test_every_template_renders_from_its_own_keys():
+    """Every registered template, given exactly the keys it names, says each of
+    them and leaves no '(not set)' and no unfilled '%n' -- through the real
+    translation layer, which the structural test cannot reach."""
+    import re
 
-    for code, template in {**ENGINES, **GNSS}.items():
+    from geocomp.services.messages import _TEMPLATES
+
+    assert len(_TEMPLATES) > 150
+    for code, template in _TEMPLATES.items():
         text = template.render({key: f"<{key}>" for key in template.keys})
         assert "(not set)" not in text, code
-        assert "%" not in text.replace("% ref pos", ""), code
+        assert not re.search(r"%\d", text), code
         for key in template.keys:
             assert f"<{key}>" in text, (code, key)

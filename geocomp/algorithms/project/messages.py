@@ -142,6 +142,17 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "administrator enables it once, with: CREATE EXTENSION postgis",
         "path",
     ),
+    # -- the tables export (P12c-7) ---------------------------------------------
+    "validation.nothing_to_export": MessageTemplate(
+        "There is nothing to export: every sheet came out empty. Choose a network or a "
+        "solution with content; a workbook of empty sheets would say the data was zero "
+        "rather than absent.",
+    ),
+    "validation.unknown_export_sheet": MessageTemplate(
+        "'%1' is not a sheet GeoComp exports; the sheets are %2.",
+        "received",
+        "expected",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

@@ -119,6 +119,43 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "one in the velocities file.",
         "received",
     ),
+    # -- the geoid grid an integration is given (P12c-7) -------------------------
+    "validation.geoid_format_unsupported": MessageTemplate(
+        "'%1' is not a geoid grid format GeoComp reads. Give a GTX grid (.gtx) or an ESRI "
+        "ASCII grid (.asc, .txt, .grd); QGIS or gdal_translate can convert one.",
+        "received",
+    ),
+    "data.geoid_file_truncated": MessageTemplate(
+        "The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3.",
+        "path",
+        "received",
+        "expected",
+    ),
+    "data.geoid_header_not_usable": MessageTemplate(
+        "The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at "
+        "least 2 by 2 nodes and a positive spacing, in degrees.",
+        "path",
+        "received",
+    ),
+    "data.geoid_header_incomplete": MessageTemplate(
+        "The header of the geoid grid '%1' is incomplete. Expected %2.",
+        "path",
+        "expected",
+    ),
+    "data.geoid_cell_count": MessageTemplate(
+        "The geoid grid '%1' has %2 values where its header promises %3. The file is "
+        "truncated or damaged.",
+        "path",
+        "received",
+        "expected",
+    ),
+    "data.geoid_grid_has_no_data": MessageTemplate(
+        "The geoid grid '%1' has cells without data (value %2). Such a cell would be "
+        "interpolated into a plausible-looking undulation, so the grid is refused. Use a grid "
+        "that covers the network completely.",
+        "path",
+        "received",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

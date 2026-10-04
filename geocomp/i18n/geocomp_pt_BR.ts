@@ -3055,6 +3055,10 @@
             <translation>'%1' não registra a posição da estação base (um cabeçalho '% ref pos'), de modo que suas posições não podem ser convertidas em vetores a partir da base. Processe a sessão novamente com o cabeçalho de saída ativado.</translation>
         </message>
         <message>
+            <source>'%1' gives its RINEX version as '%2', which is not a version number such as 2.11 or 3.04.</source>
+            <translation>'%1' informa sua versão RINEX como '%2', que não é um número de versão como 2.11 ou 3.04.</translation>
+        </message>
+        <message>
             <source>'%1' has no column header, so its columns cannot be identified. RTKLIB writes one when its output header option is on; process the session again with it on.</source>
             <translation>'%1' não tem cabeçalho de colunas, de modo que suas colunas não podem ser identificadas. O RTKLIB grava um quando a opção de cabeçalho de saída está ativada; processe a sessão novamente com ela ativada.</translation>
         </message>
@@ -3075,6 +3079,14 @@
             <translation>'%1' é um documento de rede, não uma solução: tem estações, mas nenhuma estação ajustada. Escolha a solução que um ajustamento gravou.</translation>
         </message>
         <message>
+            <source>'%1' is compressed as %2, which GeoComp does not read. Decompress it first; GeoComp reads uncompressed and gzip-compressed RINEX.</source>
+            <translation>'%1' está compactado como %2, que o GeoComp não lê. Descompacte-o primeiro; o GeoComp lê RINEX não compactado e compactado com gzip.</translation>
+        </message>
+        <message>
+            <source>'%1' is empty: a RINEX file starts with a header.</source>
+            <translation>'%1' está vazio: um arquivo RINEX começa com um cabeçalho.</translation>
+        </message>
+        <message>
             <source>'%1' is not a DynAdjust DNA file: its first line does not begin with !#=DNA.</source>
             <translation>'%1' não é um arquivo DNA do DynAdjust: sua primeira linha não começa com !#=DNA.</translation>
         </message>
@@ -3087,12 +3099,28 @@
             <translation>'%1' não é um documento do GeoComp: seu nível superior não é um objeto JSON. Esperava-se %2.</translation>
         </message>
         <message>
+            <source>'%1' is not a RINEX file: its first record is '%2', where RINEX VERSION / TYPE was expected.</source>
+            <translation>'%1' não é um arquivo RINEX: seu primeiro registro é '%2', onde se esperava RINEX VERSION / TYPE.</translation>
+        </message>
+        <message>
             <source>'%1' is not a date in DynAdjust's dd.mm.yyyy form.</source>
             <translation>'%1' não é uma data na forma dd.mm.aaaa do DynAdjust.</translation>
         </message>
         <message>
             <source>'%1' is not a datum GeoComp can refer displacements to. Choose one of: %2.</source>
             <translation>'%1' não é um datum ao qual o GeoComp possa referir deslocamentos. Escolha um de: %2.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a decimal separator; use '.', ',' or 'auto'.</source>
+            <translation>'%1' não é um separador decimal; use '.', ',' ou 'auto'.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a folder. Choose the folder that holds the RINEX observation and navigation files.</source>
+            <translation>'%1' não é uma pasta. Escolha a pasta que contém os arquivos RINEX de observação e de navegação.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a geoid grid format GeoComp reads. Give a GTX grid (.gtx) or an ESRI ASCII grid (.asc, .txt, .grd); QGIS or gdal_translate can convert one.</source>
+            <translation>'%1' não está em um formato de grade geoidal que o GeoComp lê. Informe uma grade GTX (.gtx) ou uma grade ESRI ASCII (.asc, .txt, .grd); o QGIS ou o gdal_translate podem converter uma.</translation>
         </message>
         <message>
             <source>'%1' is not a network document as GeoComp writes it (%2).</source>
@@ -3105,6 +3133,10 @@
         <message>
             <source>'%1' is not a real date (dd.mm.yyyy).</source>
             <translation>'%1' não é uma data real (dd.mm.aaaa).</translation>
+        </message>
+        <message>
+            <source>'%1' is not a sheet GeoComp exports; the sheets are %2.</source>
+            <translation>'%1' não é uma planilha que o GeoComp exporta; as planilhas são %2.</translation>
         </message>
         <message>
             <source>'%1' is not a solution document as GeoComp writes it (%2).</source>
@@ -3141,6 +3173,10 @@
         <message>
             <source>(not set)</source>
             <translation>(não definido)</translation>
+        </message>
+        <message>
+            <source>A column of the mapping names no field. Choose the field it fills, or remove it.</source>
+            <translation>Uma coluna do mapeamento não nomeia nenhum campo. Escolha o campo que ela preenche, ou remova-a.</translation>
         </message>
         <message>
             <source>A counter reading of %1 is outside the gravimeter's calibration table: expected %2.</source>
@@ -3269,6 +3305,10 @@
         <message>
             <source>DynAdjust's uncertainty file (.apu) names stations its adjustment file (.adj) does not: %1. The two files are not from the same run.</source>
             <translation>O arquivo de incertezas do DynAdjust (.apu) nomeia estações que seu arquivo de ajustamento (.adj) não nomeia: %1. Os dois arquivos não são da mesma execução.</translation>
+        </message>
+        <message>
+            <source>Each field can be mapped once, and %1 is mapped more than once. Map each to a single column.</source>
+            <translation>Cada campo pode ser mapeado uma vez, e %1 está mapeado mais de uma vez. Mapeie cada um a uma única coluna.</translation>
         </message>
         <message>
             <source>Every station in this network is held fixed, so there is nothing to estimate. %1</source>
@@ -3575,6 +3615,18 @@
             <translation>Não foi possível baixar o motor de %1 (status HTTP %2: %3). Verifique a rede e as configurações de proxy do QGIS e execute a instalação novamente.</translation>
         </message>
         <message>
+            <source>The field '%1' has neither a source column nor a constant value. Choose a column, or give a value for every row.</source>
+            <translation>O campo '%1' não tem coluna de origem nem valor constante. Escolha uma coluna, ou informe um valor para todas as linhas.</translation>
+        </message>
+        <message>
+            <source>The field book '%1' could not be read. Choose an existing, readable CSV file.</source>
+            <translation>A caderneta de campo '%1' não pôde ser lida. Escolha um arquivo CSV existente e legível.</translation>
+        </message>
+        <message>
+            <source>The field mapping has no name. Give it one: a mapping is saved and reused by its name.</source>
+            <translation>O mapeamento de campos não tem nome. Dê-lhe um: um mapeamento é salvo e reutilizado pelo nome.</translation>
+        </message>
+        <message>
             <source>The field mapping supplies no column for %1, which every import needs: %2. Give a mapping that names them, or a field book whose header does.</source>
             <translation>O mapeamento de campos não fornece coluna para %1, que toda importação exige: %2. Informe um mapeamento que as nomeie, ou uma caderneta de campo cujo cabeçalho o faça.</translation>
         </message>
@@ -3585,6 +3637,30 @@
         <message>
             <source>The frames %1 are related only at epoch %2, and the second solution is at another. Carrying a position between epochs along a velocity is exactly the motion being measured, so GeoComp will not do it here. Give both epochs in frames related at every epoch (the ITRFs), or in the same frame.</source>
             <translation>Os referenciais %1 relacionam-se apenas na época %2, e a segunda solução está noutra. Levar uma posição entre épocas ao longo de uma velocidade é exatamente o movimento que se mede, por isso o GeoComp não o faz aqui. Forneça as duas épocas em referenciais relacionados em qualquer época (os ITRFs), ou no mesmo referencial.</translation>
+        </message>
+        <message>
+            <source>The geoid grid '%1' has %2 values where its header promises %3. The file is truncated or damaged.</source>
+            <translation>A grade geoidal '%1' tem %2 valores onde seu cabeçalho promete %3. O arquivo está truncado ou danificado.</translation>
+        </message>
+        <message>
+            <source>The geoid grid '%1' has cells without data (value %2). Such a cell would be interpolated into a plausible-looking undulation, so the grid is refused. Use a grid that covers the network completely.</source>
+            <translation>A grade geoidal '%1' tem células sem dados (valor %2). Uma célula assim seria interpolada como uma ondulação geoidal de aparência plausível, por isso a grade é recusada. Use uma grade que cubra a rede por completo.</translation>
+        </message>
+        <message>
+            <source>The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3.</source>
+            <translation>A grade geoidal '%1' está truncada: tem %2 bytes, e o formato precisa de %3.</translation>
+        </message>
+        <message>
+            <source>The header of '%1' never ends: there is no END OF HEADER record. The file is truncated, or is not RINEX.</source>
+            <translation>O cabeçalho de '%1' nunca termina: não há registro END OF HEADER. O arquivo está truncado, ou não é RINEX.</translation>
+        </message>
+        <message>
+            <source>The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at least 2 by 2 nodes and a positive spacing, in degrees.</source>
+            <translation>O cabeçalho da grade geoidal '%1' não descreve uma grade utilizável (%2): ela precisa de pelo menos 2 por 2 nós e de um espaçamento positivo, em graus.</translation>
+        </message>
+        <message>
+            <source>The header of the geoid grid '%1' is incomplete. Expected %2.</source>
+            <translation>O cabeçalho da grade geoidal '%1' está incompleto. Esperava-se %2.</translation>
         </message>
         <message>
             <source>The height difference '%1' does not say whether it is orthometric or ellipsoidal. Rebuild its network with the current GeoComp, which records it.</source>
@@ -3623,6 +3699,30 @@
             <translation>As entradas se dividem em %1 partes que não compartilham estação, então não podem ser ajustadas como uma rede. Uma combinação é ligada pelas estações que as técnicas têm em comum.</translation>
         </message>
         <message>
+            <source>The levelling book has no data: it needs a header row and at least one row of readings.</source>
+            <translation>A caderneta de nivelamento não tem dados: ela precisa de uma linha de cabeçalho e de pelo menos uma linha de leituras.</translation>
+        </message>
+        <message>
+            <source>The mapping '%1' does not show which book layout it is: it maps %2. Map station and sight for a book with one row per reading, or backsight_station and foresight_station for one row per setup.</source>
+            <translation>O mapeamento '%1' não mostra qual é o layout da caderneta: ele mapeia %2. Mapeie station e sight (estação e visada) para uma caderneta com uma linha por leitura, ou backsight_station e foresight_station para uma linha por estacionamento.</translation>
+        </message>
+        <message>
+            <source>The mapping '%1' maps %2, and needs %3.</source>
+            <translation>O mapeamento '%1' mapeia %2, e precisa de %3.</translation>
+        </message>
+        <message>
+            <source>The mapping '%1' mixes the columns of two book layouts (%2). Map station and sight for a book with one row per reading, or backsight_station and foresight_station for one row per setup, not both.</source>
+            <translation>O mapeamento '%1' mistura colunas de dois layouts de caderneta (%2). Mapeie station e sight (estação e visada) para uma caderneta com uma linha por leitura, ou backsight_station e foresight_station para uma linha por estacionamento, não ambos.</translation>
+        </message>
+        <message>
+            <source>The mapping names %1, which GeoComp does not know as a field-book field. Expected %2.</source>
+            <translation>O mapeamento nomeia %1, que o GeoComp não conhece como campo de caderneta de campo. Esperava-se %2.</translation>
+        </message>
+        <message>
+            <source>The mapping names %1, which GeoComp does not know as a levelling-book field. Expected %2.</source>
+            <translation>O mapeamento nomeia %1, que o GeoComp não conhece como campo de caderneta de nivelamento. Esperava-se %2.</translation>
+        </message>
+        <message>
             <source>The network '%1' has no active observations, so there is nothing to adjust. Observations marked as rejected do not take part; re-activate the ones you want to use.</source>
             <translation>A rede '%1' não possui observações ativas, portanto não há nada a ajustar. Observações marcadas como rejeitadas não participam; reative aquelas que deseja utilizar.</translation>
         </message>
@@ -3641,6 +3741,10 @@
         <message>
             <source>The network does not determine %1 combination(s) of unknowns: %2. Add observations that fix them, or define the datum with inner or minimum constraints so the remaining freedom is removed deliberately.</source>
             <translation>A rede não determina %1 combinação(ões) de incógnitas: %2. Acrescente observações que as fixem, ou defina o datum com injunções internas ou mínimas, de modo que a liberdade remanescente seja removida deliberadamente.</translation>
+        </message>
+        <message>
+            <source>The number of rows to skip cannot be negative (%1).</source>
+            <translation>O número de linhas a pular não pode ser negativo (%1).</translation>
         </message>
         <message>
             <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
@@ -3775,6 +3879,10 @@
             <translation>Foi pedido o resolvedor esparso, mas o SciPy não está instalado no Python do QGIS. Instale o SciPy ou deixe o GeoComp escolher o resolvedor.</translation>
         </message>
         <message>
+            <source>The stadia constant must be positive, usually 100; %1 was given.</source>
+            <translation>A constante estadimétrica deve ser positiva, normalmente 100; foi dado %1.</translation>
+        </message>
+        <message>
             <source>The station '%1' is held by two inputs (%2) at positions %3 m apart. Hold it in one input only, or correct the one that is wrong: two holds a distance apart force that distance into the residuals.</source>
             <translation>A estação '%1' é fixada por duas entradas (%2) em posições a %3 m uma da outra. Fixe-a em apenas uma entrada ou corrija a errada: duas fixações separadas por uma distância forçam essa distância nos resíduos.</translation>
         </message>
@@ -3813,6 +3921,10 @@
         <message>
             <source>There is no solution %1 in this project store.</source>
             <translation>Não há solução %1 neste repositório de projeto.</translation>
+        </message>
+        <message>
+            <source>There is nothing to export: every sheet came out empty. Choose a network or a solution with content; a workbook of empty sheets would say the data was zero rather than absent.</source>
+            <translation>Não há nada a exportar: todas as planilhas ficaram vazias. Escolha uma rede ou uma solução com conteúdo; uma pasta de trabalho de planilhas vazias diria que os dados eram zero em vez de ausentes.</translation>
         </message>
         <message>
             <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2.</source>
