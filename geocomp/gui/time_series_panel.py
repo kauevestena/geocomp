@@ -25,7 +25,7 @@ import csv
 import json
 import math
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qgis.core import QgsProject, QgsVectorLayer
 from qgis.gui import QgsDockWidget
@@ -50,6 +50,9 @@ from geocomp.core.monitoring.document import SERIES_PROPERTY
 from geocomp.core.number_format import localised
 from geocomp.core.statistics.distributions import normal_quantile
 from geocomp.core.visualization.monitoring import Curve, series_curves, series_limits
+
+if TYPE_CHECKING:
+    from geocomp.services.task_service import GeoCompTask
 
 __all__ = ["SeriesPlot", "TimeSeriesPanel", "attach_to_project", "detach_from_project"]
 
@@ -243,6 +246,7 @@ class TimeSeriesPanel(QgsDockWidget):
         self.path = ""
         self.layer: QgsVectorLayer | None = None
         self._syncing = False
+        self._tasks: list[GeoCompTask] = []
 
         body = QWidget(self)
         layout = QVBoxLayout(body)
@@ -277,18 +281,48 @@ class TimeSeriesPanel(QgsDockWidget):
     # -- the document ----------------------------------------------------------
 
     def load(self, path: str) -> None:
-        """Read the series document at *path* and show it."""
-        try:
-            document = read_series_document(json.loads(Path(path).read_text(encoding="utf-8")))
-        except (OSError, ValueError, GeoCompError) as error:
-            from geocomp.services.messages import reason_for
+        """Read the series document at *path* and show it, on the calling thread.
 
-            self.status.setText(
-                _tr("The series document could not be read: %1").replace("%1", reason_for(error))
-            )
+        The panel's own button and a velocity layer that arrives use
+        :meth:`load_in_background`, which does not hold the GUI (NFR-004).
+        """
+        try:
+            document = read_series(path)
+        except _UNREADABLE as error:
+            self._unreadable(error)
             return
         self.path = path
         self.set_document(document)
+
+    def load_in_background(self, path: str) -> GeoCompTask:
+        """Read the series document at *path* off the GUI thread, then show it."""
+        from geocomp.services.task_service import run_in_background
+
+        def shown(document: dict[str, Any]) -> None:
+            self.path = path
+            self.set_document(document)
+
+        return run_in_background(
+            _tr("Reading the series %1").replace("%1", path),
+            lambda _cancellation, _progress: read_series(path),
+            on_success=shown,
+            on_error=self._unreadable,
+            keep=self._tasks,
+        )
+
+    @property
+    def busy(self) -> bool:
+        """Whether a series document is still being read."""
+        return bool(self._tasks)
+
+    def _unreadable(self, error: BaseException) -> None:
+        if not isinstance(error, _UNREADABLE):
+            raise error
+        from geocomp.services.messages import reason_for
+
+        self.status.setText(
+            _tr("The series document could not be read: %1").replace("%1", reason_for(error))
+        )
 
     def set_document(self, document: dict[str, Any]) -> None:
         self.document = document
@@ -356,7 +390,7 @@ class TimeSeriesPanel(QgsDockWidget):
         layer.selectionChanged.connect(self._map_changed)
         path = str(layer.customProperty(SERIES_PROPERTY) or "")
         if path and path != self.path:
-            self.load(path)
+            self.load_in_background(path)
         self.show()
 
     def _map_changed(self, *args) -> None:
@@ -418,7 +452,7 @@ class TimeSeriesPanel(QgsDockWidget):
             self, _tr("Open a series document"), "", _tr("GeoComp monitoring document (*.json)")
         )
         if path:
-            self.load(path)
+            self.load_in_background(path)
 
     def _export_csv(self) -> None:
         path, _filter = QFileDialog.getSaveFileName(self, _tr("Export the series"), "", "CSV (*.csv)")
@@ -429,6 +463,15 @@ class TimeSeriesPanel(QgsDockWidget):
         path, _filter = QFileDialog.getSaveFileName(self, _tr("Export the plot"), "", "PNG (*.png)")
         if path and self.export_image(path):
             self.status.setText(_tr("Plot written."))
+
+
+#: What a series document that cannot be shown raises when read.
+_UNREADABLE = (OSError, ValueError, GeoCompError)
+
+
+def read_series(path: str) -> dict[str, Any]:
+    """The series document at *path*, checked. Touches no QGIS object."""
+    return read_series_document(json.loads(Path(path).read_text(encoding="utf-8")))
 
 
 def _component(name: str) -> str:

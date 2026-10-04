@@ -6739,6 +6739,14 @@
             <translation>Grandeza</translation>
         </message>
         <message>
+            <source>Reading the project store %1</source>
+            <translation>Lendo o repositório do projeto %1</translation>
+        </message>
+        <message>
+            <source>Reading the solution %1</source>
+            <translation>Lendo a solução %1</translation>
+        </message>
+        <message>
             <source>Redundancy</source>
             <translation>Redundância</translation>
         </message>
@@ -7618,6 +7626,10 @@
         <message>
             <source>Plot written.</source>
             <translation>Gráfico gravado.</translation>
+        </message>
+        <message>
+            <source>Reading the series %1</source>
+            <translation>Lendo a série %1</translation>
         </message>
         <message>
             <source>Select stations on a velocity layer, or open a series document.</source>

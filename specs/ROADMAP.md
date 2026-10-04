@@ -2361,6 +2361,22 @@ grid is not, which is a larger question than a scale factor. *Adjust network* ta
 given. *N* is one value for the network, not read from a geoid model per station. GeoComp's own point scale
 factor differentiates numerically and is good to 0.005 ppm; QGIS's is used.
 
+#### P12c-15 — nothing slow on the GUI thread (NFR-004)
+
+P12c-13 measured it: opening a 625-station solution in the results panel held QGIS for 1.3 s, a second of it
+reading the 37 MB document and a quarter of a second filling the observation table.
+
+**Delivered.**
+
+| | |
+|---|---|
+| Reads in tasks | A solution, a project store or a series document is read off the GUI thread when the panel's buttons open it or a layer that arrives names it. This uses `task_service.run_in_background`, the task service's first caller since it was written before P7, and the result is listed when the read is done. The synchronous `add_solution_file`, `open_store` and `load` stay for scripts and tests |
+| Tables that hold their rows | The observation and station tables are one row-backed model, so filling is a reset, filtering and sorting are list operations, and Qt asks only for the cells it draws. 625 stations now cost 19 ms on the GUI thread, 2,500 cost 46 ms, and a 5,000-row table fills, filters and sorts within 200 ms, held by a test |
+| Found on the way | The station table sorted its numbers as text, so 10.5 came before 9.2. Each column now sorts by its value, with a missing one last in both directions |
+
+**Not done.** The pre-analysis dialog still evaluates the design on the GUI thread at each click: 177 ms at
+225 stations, which a design drawn by hand does not reach.
+
 ---
 
 ## P13 — Validation, documentation and release

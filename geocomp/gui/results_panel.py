@@ -21,6 +21,15 @@ zooms there. A station that the time-series panel has a series for is shown
 there too. What the panel shows is read by
 :mod:`geocomp.core.visualization.results`, without QGIS, and the decision in
 the table is the one the residual layer is drawn by.
+
+**Nothing slow on the GUI thread (NFR-004).** A solution with its full
+covariance is large -- 37 MB for 625 stations, a second to parse -- so a document
+or a store opened from the panel, or named by a layer that arrives, is read in
+a :class:`~geocomp.services.task_service.GeoCompTask` and listed when it is
+done. And the observation table holds its rows rather than an item per cell,
+so filling it is a reset and Qt asks only for the cells it draws: as a
+standard item model behind a filtering proxy it took 180 ms for 2,352
+observations, the proxy's Python filter called once a row.
 """
 
 from __future__ import annotations
@@ -30,12 +39,11 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qgis.core import QgsExpression, QgsProject, QgsVectorLayer
 from qgis.gui import QgsDockWidget
-from qgis.PyQt.QtCore import QCoreApplication, QSortFilterProxyModel, Qt
-from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
+from qgis.PyQt.QtCore import QAbstractTableModel, QCoreApplication, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -58,12 +66,16 @@ from geocomp.core.models import Solution
 from geocomp.core.visualization.results import (
     FILTERS,
     ObservationRow,
+    StationRow,
     matches,
     observation_rows,
     run_summary,
     station_rows,
     statistics_items,
 )
+
+if TYPE_CHECKING:
+    from geocomp.services.task_service import GeoCompTask
 
 __all__ = ["ResultsPanel", "attach_to_project", "detach_from_project"]
 
@@ -95,32 +107,143 @@ class _Run:
     source: str
 
 
-class _ObservationFilter(QSortFilterProxyModel):
-    """Sorts by number, with the empty last, and filters through ``matches``."""
+class _RowTable(QAbstractTableModel):
+    """A table that holds its rows: which the filter keeps, in order.
 
-    def __init__(self, parent=None) -> None:
+    Filtering is a predicate over a list and sorting a list sort, each the whole
+    table at once; Qt asks :meth:`data` only for the cells it draws. *cell*
+    gives a row's column as the text shown and the value it sorts by, and a
+    column sorts by the value, with one that was never computed last in both
+    directions.
+    """
+
+    def __init__(
+        self,
+        headers: list[str],
+        cell: Callable[[Any, int], tuple[str, Any]],
+        parent=None,
+    ) -> None:
         super().__init__(parent)
-        self.rows: list[ObservationRow] = []
-        self.kind = "all"
-        self.text = ""
-        self.setSortRole(SORT_ROLE)
+        self.headers = headers
+        self.cell = cell
+        self.rows: list[Any] = []
+        self.shown: list[Any] = []
+        self._keep: Callable[[Any], bool] = lambda _row: True
+        self._order: tuple[int, Qt.SortOrder] | None = None
 
-    def filterAcceptsRow(self, source_row, source_parent) -> bool:
-        if source_row >= len(self.rows):
-            return True
-        return matches(self.rows[source_row], self.kind, self.text)
+    # -- what is shown -------------------------------------------------------
 
-    def lessThan(self, left, right) -> bool:
-        first, second = left.data(SORT_ROLE), right.data(SORT_ROLE)
-        if first is None or second is None:
-            # Last in both directions: Qt reverses this comparison to sort
-            # descending, so a value that was never computed would otherwise
-            # head the column it is missing from.
-            if first is None and second is None:
-                return False
-            ascending = self.sortOrder() == Qt.SortOrder.AscendingOrder
-            return (second is None) == ascending
-        return _key(first) < _key(second)
+    def set_rows(self, rows: list[Any]) -> None:
+        self.beginResetModel()
+        self.rows = list(rows)
+        self._select()
+        self.endResetModel()
+
+    def set_keep(self, keep: Callable[[Any], bool]) -> None:
+        self.beginResetModel()
+        self._keep = keep
+        self._select()
+        self.endResetModel()
+
+    def _select(self) -> None:
+        self.shown = [row for row in self.rows if self._keep(row)]
+        if self._order is not None:
+            self._sorted(*self._order)
+
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
+        self.layoutAboutToBeChanged.emit()
+        before = self.persistentIndexList()
+        where = [(self.shown[index.row()], index.column()) for index in before]
+        self._order = (column, order)
+        self._sorted(column, order)
+        position = {id(row): number for number, row in enumerate(self.shown)}
+        self.changePersistentIndexList(
+            before, [self.index(position[id(row)], column) for row, column in where]
+        )
+        self.layoutChanged.emit()
+
+    def _sorted(self, column: int, order: Qt.SortOrder) -> None:
+        present = [row for row in self.shown if self.cell(row, column)[1] is not None]
+        missing = [row for row in self.shown if self.cell(row, column)[1] is None]
+        present.sort(
+            key=lambda row: _key(self.cell(row, column)[1]),
+            reverse=order == Qt.SortOrder.DescendingOrder,
+        )
+        self.shown = present + missing
+
+    # -- the model's contract ------------------------------------------------
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: B008 -- Qt's own default
+        return 0 if parent.isValid() else len(self.shown)
+
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: B008 -- Qt's own default
+        return 0 if parent.isValid() else len(self.headers)
+
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+        if not index.isValid() or not 0 <= index.row() < len(self.shown):
+            return None
+        text, value = self.cell(self.shown[index.row()], index.column())
+        if role == Qt.ItemDataRole.DisplayRole:
+            return text
+        if role == SORT_ROLE:
+            return value
+        return None
+
+    def headerData(
+        self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> Any:
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return self.headers[section]
+        return None
+
+
+def _observation_cell(decisions: dict[str, str]) -> Callable[[ObservationRow, int], tuple[str, Any]]:
+    def cell(row: ObservationRow, column: int) -> tuple[str, Any]:
+        if column == 0:
+            return row.observation_id, row.observation_id
+        if column == 1:
+            return _number(row.residual), row.residual
+        if column == 2:
+            return _number(row.standardised, 3), row.standardised
+        if column == 3:
+            return _number(row.redundancy, 3), row.redundancy
+        if column == 4:
+            # An uncheckable observation's MDB is infinite, which is how it sorts.
+            return _number(row.mdb), row.mdb if row.mdb is not None else _infinite(row)
+        if column == 5:
+            return _number(row.external), row.external
+        return decisions.get(row.decision, row.decision), row.decision
+
+    return cell
+
+
+def _station_cell(shown) -> Callable[[StationRow, int], tuple[str, Any]]:
+    """Until P12c-15 the station table sorted its numbers as text, so 10.5 came
+    before 9.2; each column now sorts by its value."""
+
+    def cell(row: StationRow, column: int) -> tuple[str, Any]:
+        if column == 0:
+            return row.station_id, row.station_id
+        if column == 1:
+            return (
+                ", ".join(
+                    f"{name} {shown.coordinate(value)}"
+                    for name, value in zip(row.components, row.values, strict=True)
+                ),
+                row.values[0] if row.values else None,
+            )
+        if column == 2:
+            return (
+                ", ".join(_number(value, 3) for value in row.std_devs),
+                max(row.std_devs) if row.std_devs else None,
+            )
+        if column == 3:
+            return _number(row.positional_uncertainty, 3), row.positional_uncertainty
+        if column == 4:
+            return _number(row.semi_major, 3), row.semi_major
+        return _number(row.semi_minor, 3), row.semi_minor
+
+    return cell
 
 
 def _key(value: Any) -> tuple:
@@ -143,6 +266,8 @@ class ResultsPanel(QgsDockWidget):
         self.setObjectName("geocompResultsPanel")
         self.runs: list[_Run] = []
         self._zoom = zoom
+        self._tasks: list[GeoCompTask] = []
+        self._reading: set[str] = set()
         self._series_panel = series_panel
         self._current = -1
 
@@ -193,8 +318,7 @@ class ResultsPanel(QgsDockWidget):
         filters.addWidget(self.search, stretch=1)
         filters.addWidget(self.filter)
         observations_layout.addLayout(filters)
-        self.observation_model = QStandardItemModel(0, 7, observations)
-        self.observation_model.setHorizontalHeaderLabels(
+        self.observation_model = _RowTable(
             [
                 _tr("Observation"),
                 _tr("Residual"),
@@ -203,13 +327,13 @@ class ResultsPanel(QgsDockWidget):
                 _tr("MDB"),
                 _tr("External reliability"),
                 _tr("Decision"),
-            ]
+            ],
+            _observation_cell(self._decision_labels()),
+            observations,
         )
-        self.observation_proxy = _ObservationFilter(observations)
-        self.observation_proxy.setSourceModel(self.observation_model)
         self.observation_view = QTableView(observations)
         self.observation_view.setObjectName("geocompResultsObservations")
-        self.observation_view.setModel(self.observation_proxy)
+        self.observation_view.setModel(self.observation_model)
         self.observation_view.setSortingEnabled(True)
         self.observation_view.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.observation_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -217,9 +341,7 @@ class ResultsPanel(QgsDockWidget):
         observations_layout.addWidget(self.observation_view)
         self.tabs.addTab(observations, _tr("Observations"))
 
-        self.station_table = QTableWidget(0, 6, self.tabs)
-        self.station_table.setObjectName("geocompResultsStations")
-        self.station_table.setHorizontalHeaderLabels(
+        self.station_model = _RowTable(
             [
                 _tr("Station"),
                 _tr("Coordinates"),
@@ -227,8 +349,13 @@ class ResultsPanel(QgsDockWidget):
                 _tr("Positional uncertainty (m)"),
                 _tr("Semi-major (m)"),
                 _tr("Semi-minor (m)"),
-            ]
+            ],
+            _station_cell(None),  # replaced by the display format at each fill
+            self.tabs,
         )
+        self.station_table = QTableView(self.tabs)
+        self.station_table.setObjectName("geocompResultsStations")
+        self.station_table.setModel(self.station_model)
         self.station_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.station_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.station_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -250,7 +377,7 @@ class ResultsPanel(QgsDockWidget):
         self.search.textChanged.connect(self._filter_changed)
         self.filter.currentIndexChanged.connect(self._filter_changed)
         self.observation_view.selectionModel().selectionChanged.connect(self._observation_selected)
-        self.station_table.itemSelectionChanged.connect(self._station_selected)
+        self.station_table.selectionModel().selectionChanged.connect(self._station_selected)
 
     # -- the runs ------------------------------------------------------------
 
@@ -269,39 +396,96 @@ class ResultsPanel(QgsDockWidget):
         return index
 
     def add_solution_file(self, path: str) -> int | None:
-        """List the solution document at *path*; ``None`` if it cannot be read, said in the panel."""
-        try:
-            payload = json.loads(Path(path).read_text(encoding="utf-8"))
-            solution = Solution.from_dict(payload)
-        except (OSError, ValueError, KeyError, TypeError, GeoCompError) as error:
-            from geocomp.services.messages import reason_for
+        """List the solution document at *path*; ``None`` if it cannot be read, said in the panel.
 
-            self.status.setText(
-                _tr("The solution %1 could not be read: %2")
-                .replace("%1", path)
-                .replace("%2", reason_for(error))
-            )
+        Reads on the calling thread. The panel's own buttons and the layers
+        that arrive use :meth:`load_solution_file`, which does not.
+        """
+        try:
+            solution = read_solution(path)
+        except _UNREADABLE as error:
+            self._unreadable(path, error)
             return None
         return self.add_solution(solution, path)
 
+    def load_solution_file(self, path: str) -> GeoCompTask:
+        """Read the solution document at *path* off the GUI thread, then list it (NFR-004)."""
+        self._reading.add(path)
+
+        def listed(solution: Solution) -> None:
+            self._reading.discard(path)
+            self.add_solution(solution, path)
+
+        def refused(error: BaseException) -> None:
+            self._reading.discard(path)
+            self._unreadable(path, error)
+
+        return self._in_background(
+            _tr("Reading the solution %1").replace("%1", path),
+            lambda _cancellation, _progress: read_solution(path),
+            listed,
+            refused,
+        )
+
+    @property
+    def busy(self) -> bool:
+        """Whether a document or a store is still being read."""
+        return bool(self._tasks)
+
+    def _unreadable(self, path: str, error: BaseException) -> None:
+        if not isinstance(error, _UNREADABLE):
+            raise error
+        from geocomp.services.messages import reason_for
+
+        self.status.setText(
+            _tr("The solution %1 could not be read: %2")
+            .replace("%1", path)
+            .replace("%2", reason_for(error))
+        )
+
+    def _in_background(self, description, work, on_success, on_error) -> GeoCompTask:
+        from geocomp.services.task_service import run_in_background
+
+        self.status.setText(description)
+        return run_in_background(
+            description, work, on_success=on_success, on_error=on_error, keep=self._tasks
+        )
+
     def open_store(self, path: str) -> int:
-        """List every solution in the project store at *path*: the store's run history."""
-        from geocomp.io.store import open_store
+        """List every solution in the project store at *path*: the store's run history.
 
+        Reads on the calling thread; the panel's button uses :meth:`load_store`.
+        """
         try:
-            with open_store(path) as store:
-                solutions = store.read_solutions()
+            solutions = read_store_solutions(path)
         except GeoCompError as error:
-            from geocomp.services.messages import message_for
-
-            self.status.setText(message_for(error))
+            self._store_unreadable(error)
             return 0
+        return self._add_store(path, solutions)
+
+    def load_store(self, path: str) -> GeoCompTask:
+        """Read every solution in the project store at *path* off the GUI thread (NFR-004)."""
+        return self._in_background(
+            _tr("Reading the project store %1").replace("%1", path),
+            lambda _cancellation, _progress: read_store_solutions(path),
+            lambda solutions: self._add_store(path, solutions),
+            self._store_unreadable,
+        )
+
+    def _add_store(self, path: str, solutions: list[Solution]) -> int:
         for solution in solutions:
             self.add_solution(solution, path)
         self.status.setText(
             _tr("%1 solution(s) from %2.").replace("%1", str(len(solutions))).replace("%2", path)
         )
         return len(solutions)
+
+    def _store_unreadable(self, error: BaseException) -> None:
+        if not isinstance(error, GeoCompError):
+            raise error
+        from geocomp.services.messages import message_for
+
+        self.status.setText(message_for(error))
 
     def _fill_runs(self) -> None:
         self.run_table.blockSignals(True)
@@ -377,51 +561,13 @@ class ResultsPanel(QgsDockWidget):
         return _number(value)
 
     def _fill_observations(self, solution: Solution) -> None:
-        rows = observation_rows(solution)
-        labels = self._decision_labels()
-        self.observation_model.removeRows(0, self.observation_model.rowCount())
-        for row in rows:
-            cells = [
-                (row.observation_id, row.observation_id),
-                (_number(row.residual), row.residual),
-                (_number(row.standardised, 3), row.standardised),
-                (_number(row.redundancy, 3), row.redundancy),
-                # An uncheckable observation's MDB is infinite, which is how it sorts.
-                (_number(row.mdb), row.mdb if row.mdb is not None else _infinite(row)),
-                (_number(row.external), row.external),
-                (labels.get(row.decision, row.decision), row.decision),
-            ]
-            items = []
-            for text, sort in cells:
-                item = QStandardItem(text)
-                item.setData(sort, SORT_ROLE)
-                items.append(item)
-            self.observation_model.appendRow(items)
-        self.observation_proxy.rows = rows
-        self.observation_proxy.invalidateFilter()
+        self.observation_model.set_rows(observation_rows(solution))
 
     def _fill_stations(self, solution: Solution) -> None:
         from geocomp.algorithms.display import display_format
 
-        shown = display_format()
-        rows = station_rows(solution)
-        self.station_table.setSortingEnabled(False)
-        self.station_table.setRowCount(len(rows))
-        for index, row in enumerate(rows):
-            cells = [
-                row.station_id,
-                ", ".join(
-                    f"{name} {shown.coordinate(value)}"
-                    for name, value in zip(row.components, row.values, strict=True)
-                ),
-                ", ".join(_number(value, 3) for value in row.std_devs),
-                _number(row.positional_uncertainty, 3),
-                _number(row.semi_major, 3),
-                _number(row.semi_minor, 3),
-            ]
-            for column, text in enumerate(cells):
-                self.station_table.setItem(index, column, QTableWidgetItem(text))
-        self.station_table.setSortingEnabled(True)
+        self.station_model.cell = _station_cell(display_format())
+        self.station_model.set_rows(station_rows(solution))
 
     # -- filtering -------------------------------------------------------------
 
@@ -432,16 +578,12 @@ class ResultsPanel(QgsDockWidget):
         self._filter_changed()
 
     def _filter_changed(self, *args) -> None:
-        self.observation_proxy.kind = self.filter.currentData() or "all"
-        self.observation_proxy.text = self.search.text().strip()
-        self.observation_proxy.invalidateFilter()
+        kind, text = self.filter.currentData() or "all", self.search.text().strip()
+        self.observation_model.set_keep(lambda row: matches(row, kind, text))
 
     def visible_observations(self) -> list[str]:
         """The observation ids the table shows, in the order it shows them."""
-        return [
-            self.observation_proxy.index(row, 0).data()
-            for row in range(self.observation_proxy.rowCount())
-        ]
+        return [row.observation_id for row in self.observation_model.shown]
 
     # -- links to the map ----------------------------------------------------------
 
@@ -456,12 +598,10 @@ class ResultsPanel(QgsDockWidget):
             "observations", "observation", observation_id
         )
 
-    def _station_selected(self) -> None:
-        rows = {index.row() for index in self.station_table.selectedIndexes()}
+    def _station_selected(self, *args) -> None:
+        rows = self.station_table.selectionModel().selectedRows()
         if rows:
-            item = self.station_table.item(min(rows), 0)
-            if item is not None:
-                self.select_station(item.text())
+            self.select_station(rows[0].data())
 
     def select_station(self, station_id: str) -> int:
         """Select *station_id* on this run's station layers, and show its time series if there is one."""
@@ -503,12 +643,12 @@ class ResultsPanel(QgsDockWidget):
         """List the run behind any result layer that names its solution document."""
         from geocomp.algorithms.layer_outputs import SOLUTION_PROPERTY
 
-        seen = {run.source for run in self.runs}
+        seen = {run.source for run in self.runs} | self._reading
         for layer in layers:
             path = str(layer.customProperty(SOLUTION_PROPERTY) or "")
             if path and path not in seen and Path(path).is_file():
                 seen.add(path)
-                self.add_solution_file(path)
+                self.load_solution_file(path)
 
     # -- dialogs -------------------------------------------------------------------
 
@@ -517,14 +657,14 @@ class ResultsPanel(QgsDockWidget):
             self, _tr("Open solution"), "", _tr("GeoComp solution (*.json)")
         )
         if path:
-            self.add_solution_file(path)
+            self.load_solution_file(path)
 
     def _open_store(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self, _tr("Open project store"), "", _tr("GeoComp project (*.gpkg)")
         )
         if path:
-            self.open_store(path)
+            self.load_store(path)
 
     # -- labels ----------------------------------------------------------------------
 
@@ -568,6 +708,25 @@ class ResultsPanel(QgsDockWidget):
             "condition_number": _tr("Condition number"),
             "uncertainty_mode": _tr("Uncertainty mode"),
         }
+
+
+#: What a solution document that cannot be listed raises when read.
+_UNREADABLE = (OSError, ValueError, KeyError, TypeError, GeoCompError)
+
+
+def read_solution(path: str) -> Solution:
+    """The solution document at *path*. Touches no QGIS object, so it runs on a
+    worker thread as well as on the GUI's."""
+    return Solution.from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
+
+
+def read_store_solutions(path: str) -> list[Solution]:
+    """Every solution in the project store at *path*; as :func:`read_solution`,
+    safe off the GUI thread, since the store opens its own connection."""
+    from geocomp.io.store import open_store
+
+    with open_store(path) as store:
+        return store.read_solutions()
 
 
 def _infinite(row: ObservationRow) -> float | None:

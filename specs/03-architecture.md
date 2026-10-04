@@ -200,6 +200,25 @@ a solution document, and the time-series panel a series, on the main thread stil
 its full covariance is 37 MB and took 0.85 s to read, four times NFR-004's bound. Moving those reads into a
 task is the remaining work, and the requirement register records NFR-004 as partly met until it is done.
 
+**As built (P12c-15): the panels read in tasks, and the module has its first callers.** A solution, a project
+store or a series document opened from a panel, or named by a layer that arrives, is read by
+`task_service.run_in_background`. That function keeps the task until it has finished and delivers the result
+on the main thread. Only the table fill remains on the GUI thread. The panels' tables hold their rows instead
+of one item per cell, so filling one is a model reset: Qt asks only for the cells it draws, and filtering and
+sorting are list operations. As a standard item model behind a filtering proxy, whose Python filter was called
+once per row, 2,352 observations had taken 180 ms to fill.
+
+| On the GUI thread, measured | Before | Since P12c-15 |
+|---|---|---|
+| A 625-station solution, opened (37 MB with its covariance) | 1,027 ms read + 237 ms fill | 19 ms (the read, 0.9 s, on a worker) |
+| A 2,500-station solution (sparse path, block covariance) | — | 46 ms |
+| The observation table, 5,000 rows: fill, filter, sort | — | each under 200 ms, held by a test |
+| The field-mapping preview of a 20,000-row workbook | 2 s | 3–5 ms (P12c-13) |
+| The pre-analysis dialog's evaluation, per click | — | 52 ms at 100 stations, 177 ms at 225 |
+
+The last row is the one computation the plugin still runs on the main thread. A design is drawn station by
+station on the canvas, and the dialog loads no network, so 225 stations is beyond any design drawn by hand.
+
 The module stays, because the first thing that does need it (a long import, a multi-session GNSS batch in
 P7, a monitoring run in P10) should not have to write it under deadline. It was at **0% coverage** until the
 review; `tests/qgis/test_task_service.py` now exercises the cancellation adapter, the progress clamping, the

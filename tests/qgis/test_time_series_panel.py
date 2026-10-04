@@ -19,6 +19,7 @@ import pytest
 from geocomp.core.monitoring import evaluate_alerts, series, series_document, thresholds_from_rows
 from geocomp.core.monitoring.document import SERIES_PROPERTY
 from tests.monitoring_network import REFERENCE, epoch
+from tests.qgis.conftest import settle
 
 pytestmark = pytest.mark.qgis
 
@@ -124,6 +125,9 @@ class TestTheMap:
 
         QgsProject.instance().addMapLayer(velocity_layer)
         assert panel.layer is velocity_layer
+        # NFR-004: the series is read off the GUI thread, and shown when it has been.
+        assert panel.busy
+        settle(panel)
         assert panel.path == str(series_path)
         assert panel.stations.count() == 9
 
@@ -131,6 +135,7 @@ class TestTheMap:
         from qgis.core import QgsProject
 
         QgsProject.instance().addMapLayer(velocity_layer)
+        settle(panel)
         velocity_layer.selectByIds([_feature_id(velocity_layer, "O1"), _feature_id(velocity_layer, "O3")])
         assert sorted(panel.selected_stations()) == ["O1", "O3"]
         assert sorted(c.station for c in panel.plot.curves) == ["O1", "O3"]
@@ -139,6 +144,7 @@ class TestTheMap:
         from qgis.core import QgsProject
 
         QgsProject.instance().addMapLayer(velocity_layer)
+        settle(panel)
         velocity_layer.selectByIds([_feature_id(velocity_layer, "O1"), _feature_id(velocity_layer, "O2")])
         panel.pick("O2", 1)
         assert [f["station"] for f in velocity_layer.selectedFeatures()] == ["O2"]

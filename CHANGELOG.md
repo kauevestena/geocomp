@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-15 — The panels no longer freeze QGIS
+
+#### Fixed
+
+- Opening a large solution in the results panel, or adding a layer drawn from one, froze QGIS while the file
+  was read and the tables filled: 1.3 s for 625 stations. The file is now read in the background and listed
+  when it is ready, and the tables fill in a few tens of milliseconds at 2,500 stations. The time-series
+  panel reads its series the same way.
+- The station table sorted numbers as text, so 10.5 came before 9.2. It now sorts by value.
+
 ### P12c-14 — Measured distances reduced to the grid
 
 #### Fixed
