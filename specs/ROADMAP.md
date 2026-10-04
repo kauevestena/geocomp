@@ -2156,6 +2156,41 @@ names it.
 A parameter whose constant does not follow `NAME = "NAME"` would escape it. None does today, and the name rule
 would not catch one that broke the pattern by its value.
 
+#### P12c-13 — every requirement held to a test (first pull request): the platform
+
+The acceptance register holds every criterion to a test, but not every requirement. FR-302 and FR-304 were
+broken with every criterion green, because neither had a criterion of its own. specs/20 §11 now gives each
+requirement of specs/02 a row, by the acceptance register's rules, and
+`tests/structural/test_requirement_register.py` holds it to the document. It is written block by block; the
+test's list of blocks not yet audited may only shrink.
+
+**Delivered.** The register, and the platform block, FR-001 to FR-095: 29 met and 5 partly met, of 34.
+
+**Found and fixed.**
+
+- **The usage mode did nothing (FR-070).** Every advanced parameter was flagged advanced in both modes, and QGIS
+  draws a flagged parameter, collapsed, whatever GeoComp's mode says. `is_advanced_mode()` read the setting,
+  so the settings check passed, and nothing called it. Basic now hides the advanced parameters and Advanced
+  shows them, and a change of mode refreshes the provider. The parameter set and every default stay identical
+  in both modes (FR-071).
+- **The toolbar (FR-007, specs/15 §1.3)** held Global Settings alone. It now has *Inspect network*, *Adjust
+  network*, *Save to project store*, *Run again* and the results panel.
+- **An engine's run was not in its output (FR-036).** DynAdjust's provenance kept the command lines and one exit
+  code; it now keeps each stage's run, with the ends of stdout and stderr. The GNSS algorithms kept none of it;
+  their JSON now carries the run.
+- **Published algorithm ids were not pinned (FR-032).** Every one is now listed, and one leaving the list fails.
+- **The log tab and its verbosity (FR-009)** had no test; `tests/qgis/test_log.py`.
+
+**Not done here — the five partly met.**
+
+- FR-061 and FR-069: instrument constants live in profile documents, and no window adds, edits, duplicates or
+  deletes a profile.
+- FR-064: Global Settings give a default sigma for three of the twenty observation types.
+- FR-066: working directories and report templates are algorithm parameters, by P12c-6's decision.
+- FR-070: a user-supplied engine configuration in Advanced mode is FR-325's, audited with the engines block.
+
+The other nine blocks are still to be audited.
+
 ---
 
 ## P13 — Validation, documentation and release

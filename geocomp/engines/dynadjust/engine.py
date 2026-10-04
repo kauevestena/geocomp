@@ -761,6 +761,10 @@ def provenance(runs: list[EngineRun], prepared: PreparedJob) -> Provenance:
                 for stage in prepared.stages
             ],
             "skipped_observations": list(prepared.skipped),
+            # FR-036: each stage's command, exit code, wall time and the ends
+            # of its stdout and stderr. Until P12c-13 only the command lines
+            # and the first non-zero exit code were kept.
+            "runs": [run.to_dict() for run in runs],
         },
         input_ids=(prepared.job.network.id,),
     )

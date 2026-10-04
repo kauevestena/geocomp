@@ -235,6 +235,37 @@ class TestPrepare:
         assert set(prepared.names) == set(network.stations)
 
 
+class TestTheProvenance:
+    """FR-036: an engine's stdout, stderr, exit code, command line and version
+    are recorded in the run's provenance. Until P12c-13 DynAdjust's kept the
+    command lines and the first non-zero exit code, and neither stream."""
+
+    def test_every_stage_run_is_recorded_with_what_it_said(self, network, tmp_path) -> None:
+        from geocomp.engines.base import EngineRun, EngineVersion
+        from geocomp.engines.dynadjust.engine import provenance
+
+        prepared = DynAdjustEngine().prepare(DynAdjustJob(network=network, name="p"), tmp_path)
+        version = EngineVersion(name="DynAdjust", version="1.2.8", path=tmp_path)
+        runs = [
+            EngineRun(
+                program=stage.program,
+                command=(stage.program, "p"),
+                exit_code=0,
+                stdout=f"{stage.program} finished",
+                stderr="",
+                seconds=1.5,
+                work_dir=tmp_path,
+                version=version,
+            )
+            for stage in prepared.included
+        ]
+        recorded = provenance(runs, prepared).parameters["runs"]
+        assert [run["program"] for run in recorded] == [s.program for s in prepared.included]
+        assert recorded[0]["stdout"] == f"{prepared.included[0].program} finished"
+        assert recorded[0]["exit_code"] == 0
+        assert recorded[0]["version"]["version"] == "1.2.8"
+
+
 class TestTheImportCheck:
     def test_the_counts_are_read_from_dynadjusts_own_report(self) -> None:
         from geocomp.engines.dynadjust.engine import imported_counts

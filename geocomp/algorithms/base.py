@@ -139,16 +139,22 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         return settings.value("interface.mode") == MODE_ADVANCED
 
     def addAdvancedParameter(self, parameter: QgsProcessingParameterDefinition) -> None:
-        """Add *parameter* flagged as advanced.
+        """Add *parameter* flagged as advanced, and hidden in Basic mode.
 
-        Advanced parameters are collapsed in Basic mode rather than removed, so
-        the value used is the parameter's own default in both modes. That is
-        what makes FR-071 hold structurally rather than by discipline: there is
-        one default, not a Basic one and an Advanced one.
+        Hidden, not removed: the parameter exists in both modes with the same
+        default, so a run in Basic mode uses exactly the value a run in Advanced
+        mode left untouched. That is what makes FR-071 hold structurally rather
+        than by discipline -- there is one default, not a Basic one and an
+        Advanced one -- and why a script or a model may still set it.
+
+        Until P12c-13 it was flagged advanced in both modes, so the mode changed
+        nothing a user could see: QGIS shows advanced parameters, collapsed,
+        whatever GeoComp's mode says.
         """
-        parameter.setFlags(
-            parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced
-        )
+        flags = parameter.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced
+        if not self.is_advanced_mode():
+            flags |= QgsProcessingParameterDefinition.Flag.FlagHidden
+        parameter.setFlags(flags)
         self.addParameter(parameter)
 
     # -- help (specs/16 section 8) ---------------------------------------

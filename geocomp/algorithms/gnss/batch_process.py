@@ -247,6 +247,8 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 "quality": quality_from_solution(result.solution, session_id=station_id).to_dict(),
                 "solution": str(result.output_file),
                 "products": products[station_id].provenance(),
+                # FR-036: what was run for this session, and what it said.
+                "run": result.run.to_dict(),
             }
 
         def report(fraction: float | None, code: str | None = None) -> None:

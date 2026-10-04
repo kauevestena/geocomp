@@ -40,6 +40,8 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | No credential appears in any log, config, provenance record or export | NFR-010 |
 | Basic and Advanced modes produce identical numeric results with defaults, for every algorithm | FR-071 |
 | Every acceptance criterion of every specification has one row in §10's register, and every test a row cites exists | §9 criterion 8 |
+| Every requirement of an audited block has one row in §11's register, and every test a row cites exists (P12c-13) | FR-302 and FR-304's lesson: a requirement with no criterion of its own was held to nothing |
+| Every parameter an algorithm declares is read by the run, and every output it declares is returned (P12c-12) | [`16-processing-provider.md`](./16-processing-provider.md) §4 |
 | Every translated string that uses a glossary term uses the glossary's rendering of it (`scripts/check_glossary.py`) | FR-093, [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) §3 |
 | Coverage of `core/` measured on every run of the QGIS job, and every public function and method of `core/` reached by at least one test (`scripts/check_coverage.py`) | §9 criterion 6 |
 
@@ -451,3 +453,52 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
 | 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
 | 21 | 8 | The About dialog shows the licences and engine versions | **met** | Since P12c: GeoComp's licence and each engine's, and the version installed or *not installed* (`tests/qgis/test_about_dialog.py`, `tests/test_engine_status.py`) |
+
+## 11. Requirement register (P12c-13)
+
+**The acceptance register above holds every criterion to a test, but not every requirement.** P12c-11 found two
+requirements broken with every acceptance row green: no algorithm that runs RTKLIB warned about an untested
+version (FR-302), and its time limit could not be configured (FR-304). Neither requirement had a criterion of its
+own. This table gives every requirement of [`02`](./02-requirements.md) a row with the same four states and the
+same rules: a **met** row cites a test, directly or through "As NN.N" to a met acceptance row, and a row that
+is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
+document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
+
+**Audited: the platform block, FR-001 to FR-095 (P12c-13). State now: 29 met, 5 partly met, 0 open, 0 manual, of 34.**
+
+| ID | State | Evidence, or what is missing |
+|---|---|---|
+| FR-001 | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it; `tests/qgis/test_plugin_lifecycle.py` loads it through `classFactory` |
+| FR-002 | **met** | As 15.1 |
+| FR-003 | **met** | As 15.1 |
+| FR-004 | **met** | As 15.2 |
+| FR-005 | **met** | As 15.2 |
+| FR-006 | **met** | As 15.3 |
+| FR-007 | **met** | Since P12c-13: inspect, adjust, save to the project store, run the last algorithm again, the results panel and Global Settings, hidden by `interface.show_toolbar` (`tests/qgis/test_plugin_lifecycle.py::TestTheToolbar`). Until then the toolbar held Global Settings alone. *Open project* is QGIS's own: a store is a GeoPackage or a PostGIS schema, opened as any other |
+| FR-008 | **met** | Off the GUI thread as a Processing task (`tests/qgis/test_model_chain.py::TestEveryWayGivesOneAnswer`); cancellation leaves no partial output (`tests/qgis/test_cancellation.py`). 37 of the 41 algorithm modules report progress; the four that do not finish in a moment. Polling for the cancel at every iteration is per algorithm, 14 of 41 ([`16`](./16-processing-provider.md) §7) |
+| FR-009 | **met** | Since P12c-13: the `GeoComp` tab and the verbosity `interface.log_level` sets (`tests/qgis/test_log.py`) |
+| FR-030 | **met** | `tests/test_registry.py::TestIdentity::test_provider_id_is_the_documented_one` |
+| FR-031 | **met** | `tests/test_registry.py::TestReferentialIntegrity::test_every_algorithm_names_a_declared_processing_group` |
+| FR-032 | **met** | Since P12c-13 every published id is listed, and one leaving the list fails (`tests/test_registry.py::TestIdentity::test_no_published_id_has_gone`). None has been renamed, so no alias exists yet |
+| FR-033 | **met** | As 16.2 |
+| FR-034 | **met** | `tests/structural/test_parameters_are_read.py::test_every_declared_output_is_returned`; chained in a model, As 16.5 |
+| FR-035 | **met** | As 16.7 |
+| FR-036 | **met** | DynAdjust: since P12c-13 each stage's command, exit code, wall time and the ends of stdout and stderr in the solution's provenance (`tests/test_dynadjust_pipeline.py::TestTheProvenance`); until then the command lines and one exit code. RTKLIB: since P12c-13 the run and the engine's version in every GNSS algorithm's JSON output (`tests/qgis/test_engine_runs.py::TestTheVersion`); until then neither |
+| FR-060 | **met** | As 15.4 |
+| FR-061 | **partly met** | The closure, face and sight tolerances are settings (`tests/test_settings_def.py`). The instrument constants — vertical index, EDM additive and scale, prism constants, nominal precisions — are kept in named profile documents, not in Global Settings, by [`15`](./15-ui-menu-and-settings.md) §2.2's decision, and no window manages them: see FR-069 |
+| FR-062 | **met** | The model and the default temperature, pressure and humidity are settings read by *Preprocess* (`tests/test_settings_def.py`, `tests/structural/test_settings_are_honoured.py`) |
+| FR-063 | **met** | The thirteen `gnss.*` settings, every one read (`tests/structural/test_settings_are_honoured.py`) |
+| FR-064 | **partly met** | The outlier parameters and the confidence level are settings, and the default sigmas of directions, zenith angles and slope distances (`tests/structural/test_settings_are_honoured.py`). No setting gives a default for the other seventeen observation types: their sigma must come from the data or an instrument profile, or the adjustment refuses rather than invent one ([`05`](./05-uncertainty-and-covariance.md) §5) |
+| FR-065 | **met** | Preferred CRS, default epoch and geoid model are settings read as the defaults of the parameters they name (`tests/structural/test_settings_are_honoured.py`); the transformation parameters are published parameter sets with provenance in `core/geodesy/frames.py` ([`15`](./15-ui-menu-and-settings.md) §2.1) |
+| FR-066 | **partly met** | The DynAdjust and RTKLIB locations are settings (`tests/qgis/test_engine_install.py`). Working directories and report templates are each algorithm's parameters, not settings, by P12c-6's decision ([`15`](./15-ui-menu-and-settings.md) §2.1) |
+| FR-067 | **met** | Language (As 18.3), usage mode (`tests/qgis/test_basic_advanced_identity.py`), units and angle format (`tests/test_number_format.py`) |
+| FR-068 | **met** | As 15.6 |
+| FR-069 | **partly met** | Named profiles exported and imported as files and computing identically (As 15.5); the library adds and refuses duplicates by id (`geocomp/core/instruments/profiles.py`). There is no window to add, edit, duplicate or delete one: a profile is edited as a document |
+| FR-070 | **partly met** | Since P12c-13 Basic hides the advanced parameters and Advanced shows them (`tests/qgis/test_basic_advanced_identity.py::test_basic_mode_shows_the_reduced_set`). Until then both modes showed the same set and the setting changed nothing. A user-supplied engine configuration is FR-325's, in the engines block |
+| FR-071 | **met** | As 15.7 |
+| FR-090 | **met** | As 18.2 |
+| FR-091 | **met** | As 18.1; every error and finding in words, `tests/structural/test_message_templates.py` |
+| FR-092 | **met** | As 18.3 |
+| FR-093 | **met** | As 18.4 |
+| FR-094 | **met** | As 18.6 |
+| FR-095 | **met** | As 18.5 |

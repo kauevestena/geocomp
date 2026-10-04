@@ -296,6 +296,10 @@ Implemented through the Processing advanced-parameter flag plus dynamic paramete
 insufficient ([`16-processing-provider.md`](./16-processing-provider.md) §4.1). Mode is a Global Setting,
 switchable without restart, and applies to menu dialogs and Processing dialogs alike.
 
+*As built (P12c-13):* the advanced flag, plus QGIS's hidden flag in Basic mode. Dynamic construction was never
+needed. Until P12c-13 the hidden half was missing, and the mode changed nothing a user could see
+([`16-processing-provider.md`](./16-processing-provider.md) §4.1).
+
 **A third audience is served by neither mode and needs no switch:** the student. Basic mode is the right
 default for learning, and what students additionally need — visible intermediate results and visible
 statistics — is available in both modes because it is a property of the algorithms

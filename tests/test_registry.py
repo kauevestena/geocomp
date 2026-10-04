@@ -19,8 +19,71 @@ from geocomp.registry import (
     submenus_in_menu,
 )
 
+#: Every algorithm id published so far (FR-032). Saved models, scripts and batch
+#: files store these, so one leaving this set breaks a user's saved work. **An id
+#: is removed from here only together with a deprecated alias that still
+#: resolves it**, which GeoComp has not needed yet: none has been renamed.
+PUBLISHED_IDS = frozenset(
+    {
+        "analysis_dynadjust_adjust",
+        "analysis_dynadjust_compare",
+        "analysis_network_adjust",
+        "analysis_network_inspect",
+        "analysis_network_preanalysis",
+        "gnss_absolute_kinematic",
+        "gnss_absolute_static",
+        "gnss_batch",
+        "gnss_build_baselines",
+        "gnss_compare_configurations",
+        "gnss_download_products",
+        "gnss_relative_kinematic",
+        "gnss_relative_static",
+        "gnss_scan_sessions",
+        "gravimetry_network",
+        "gravimetry_preprocess",
+        "integration_gnss_level",
+        "integration_gnss_total_station",
+        "integration_multiple",
+        "integration_total_station_level",
+        "levelling_closures",
+        "levelling_equal_sights",
+        "levelling_equidistant_sights",
+        "levelling_extreme_sights",
+        "levelling_import",
+        "levelling_network",
+        "monitoring_compare_epochs",
+        "monitoring_report",
+        "monitoring_time_series",
+        "project_basemap",
+        "project_export",
+        "project_export_postgis",
+        "project_import_postgis",
+        "project_install_engine",
+        "project_print_layout",
+        "project_report",
+        "project_store",
+        "project_system_report",
+        "project_tutorial_dataset",
+        "totalstation_import_fieldbook",
+        "totalstation_intersection",
+        "totalstation_network",
+        "totalstation_preprocess",
+        "totalstation_radiation",
+        "totalstation_resection",
+        "totalstation_traverse",
+        "totalstation_trig_levelling",
+    }
+)
+
 
 class TestIdentity:
+    def test_no_published_id_has_gone(self):
+        """FR-032: an id once published stays. A new one is added here when it
+        arrives; one that disappears needs an alias first."""
+        names = {spec.name for spec in ALGORITHMS}
+        assert sorted(PUBLISHED_IDS - names) == []
+        assert sorted(names - PUBLISHED_IDS) == [], "a new algorithm: add its id to PUBLISHED_IDS"
+
     def test_provider_id_is_the_documented_one(self):
         """FR-030. Saved models store it, so it is effectively permanent."""
         assert PROVIDER_ID == "geocomp"

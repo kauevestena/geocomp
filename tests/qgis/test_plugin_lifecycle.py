@@ -37,6 +37,16 @@ MENU = [
     "geocompMenuAction_global_settings",
 ]
 
+#: The toolbar, left to right: specs/15 section 1.3's frequent actions.
+TOOLBAR = [
+    "geocompToolbarInspect",
+    "geocompToolbarAdjust",
+    "geocompToolbarStore",
+    "geocompToolbarRunAgain",
+    "geocompToolbarResults",
+    "geocompToolbarSettings",
+]
+
 SCRIPT = r"""
 import json, sys
 from qgis.core import QgsApplication
@@ -100,9 +110,11 @@ def state(iface):
             else:
                 entries.append(action.objectName())
     window = iface.window
+    toolbars = [t for t in window.findChildren(QToolBar) if t.objectName() == "geocompToolbar"]
     return {
         "menus": len(ours),
         "entries": entries,
+        "toolbar": [a.objectName() for t in toolbars for a in t.actions()],
         "toolbars": len([t for t in window.findChildren(QToolBar) if t.parent() is window]),
         "docks": len([d for d in window.findChildren(QDockWidget) if d.parent() is window]),
         "plugin_menu": len(iface.plugin_menu),
@@ -120,6 +132,22 @@ before = state(iface)
 plugin = classFactory(iface)
 plugin.initGui()
 loaded = state(iface)
+
+# The toolbar's actions, with the dialog replaced by a record of what it opened.
+opened = []
+plugin._open_dialog = opened.append
+(bar,) = [t for t in iface.window.findChildren(QToolBar) if t.objectName() == "geocompToolbar"]
+actions = {a.objectName(): a for a in bar.actions()}
+again = actions["geocompToolbarRunAgain"]
+toolbar = {"again_before": again.isEnabled()}
+actions["geocompToolbarInspect"].trigger()
+toolbar["again_after"] = again.isEnabled()
+toolbar["again_tip"] = again.toolTip()
+again.trigger()
+actions["geocompToolbarAdjust"].trigger()
+again.trigger()
+toolbar["opened"] = opened
+
 plugin.unload()
 settle()
 unloaded = state(iface)
@@ -128,7 +156,8 @@ again.initGui()
 reloaded = state(iface)
 again.unload()
 settle()
-print(json.dumps({"before": before, "loaded": loaded, "unloaded": unloaded, "reloaded": reloaded}))
+states = {"before": before, "loaded": loaded, "unloaded": unloaded, "reloaded": reloaded}
+print(json.dumps({**states, "toolbar": toolbar}))
 app.exitQgis()
 """
 
@@ -172,6 +201,29 @@ class TestLoading:
         # The time series panel and the results panel.
         assert loaded["docks"] == before["docks"] + 2
         assert loaded["plugin_menu"] == 3
+
+
+class TestTheToolbar:
+    def test_it_holds_the_frequent_actions(self, lifecycle):
+        """specs/15 section 1.3. Until P12c-13 it held Global Settings alone."""
+        assert lifecycle["loaded"]["toolbar"] == TOOLBAR
+
+    def test_its_algorithms_open_their_dialogs(self, lifecycle):
+        opened = lifecycle["toolbar"]["opened"]
+        assert opened[0] == "geocomp:analysis_network_inspect"
+        assert opened[2] == "geocomp:analysis_network_adjust"
+
+    def test_run_again_repeats_what_was_opened_last(self, lifecycle):
+        toolbar = lifecycle["toolbar"]
+        assert not toolbar["again_before"], "nothing has run yet"
+        assert toolbar["again_after"]
+        assert toolbar["opened"] == [
+            "geocomp:analysis_network_inspect",
+            "geocomp:analysis_network_inspect",
+            "geocomp:analysis_network_adjust",
+            "geocomp:analysis_network_adjust",
+        ]
+        assert "Inspect" in toolbar["again_tip"]
 
 
 class TestUnloading:

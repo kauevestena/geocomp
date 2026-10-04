@@ -335,6 +335,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         # FR-302: which engine, at which version, and whether
                         # this release was tested against it.
                         "engine": engine_record(engine),
+                        # FR-036: the command line, exit code, wall time and
+                        # the ends of stdout and stderr, as for every engine.
+                        "run": result.run.to_dict(),
                         "configuration": configuration.to_dict(),
                         # FR-134: a GNSS solution is not reproducible without
                         # knowing which orbit produced it (specs/08 section 5).

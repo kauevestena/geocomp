@@ -5,12 +5,14 @@
 left at their defaults.* ``specs/16`` section 5 and ``specs/ROADMAP.md`` P12's
 exit criterion: *every algorithm passes the Basic/Advanced identity check*.
 
-GeoComp holds it by construction: an advanced parameter is **flagged**, never
-removed (:meth:`geocomp.algorithms.base.GeoCompAlgorithm.addAdvancedParameter`),
+GeoComp holds it by construction: an advanced parameter is **hidden** in Basic
+mode, never removed (:meth:`geocomp.algorithms.base.GeoCompAlgorithm.addAdvancedParameter`),
 and its default is the Global Setting it corresponds to
 (:mod:`geocomp.algorithms.defaults`). So a run in Basic mode, which cannot see
 the parameter, uses exactly the value a run in Advanced mode left untouched
-uses. This file checks the construction across all registered algorithms, so
+uses. Until P12c-13 the first half was not true: the parameter was flagged
+advanced in both modes, QGIS showed it in both, and the mode changed nothing.
+This file checks the construction across all registered algorithms, so
 that an algorithm which one day builds a different parameter set per mode, or
 hides a parameter that has no value to fall back on, fails here by name.
 """
@@ -90,6 +92,47 @@ def test_a_hidden_parameter_always_has_a_value_to_run_with(algorithm_id):
         and definition.defaultValue() is None
     ]
     assert not stranded, f"advanced, required and with no default: {stranded}"
+
+
+@pytest.mark.parametrize("algorithm_id", _ids())
+def test_basic_mode_shows_the_reduced_set(algorithm_id):
+    """specs/15 section 3: Basic shows the reduced set, Advanced everything.
+
+    What differs is only whether a parameter is drawn: ``_signature`` above
+    leaves the hidden flag out, and is identical in both modes."""
+    from qgis.core import QgsApplication
+
+    from geocomp.core.settings_def import MODE_ADVANCED, MODE_BASIC
+    from geocomp.services.settings_service import settings
+
+    algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id)
+
+    def drawn(mode):
+        with settings.run_overrides({"interface.mode": mode}):
+            instance = algorithm.create({})
+        return {
+            definition.name(): not definition.flags() & definition.Flag.FlagHidden
+            for definition in instance.parameterDefinitions()
+            if definition.flags() & _advanced_flag()
+        }
+
+    assert not any(drawn(MODE_BASIC).values()), "an advanced parameter shows in Basic mode"
+    assert all(drawn(MODE_ADVANCED).values()), "an advanced parameter is hidden in Advanced mode"
+
+
+def test_basic_mode_hides_something_somewhere():
+    """Guards the test above, which passes for an algorithm with no advanced parameter."""
+    from qgis.core import QgsApplication
+
+    advanced = 0
+    for algorithm_id in _ids():
+        # Bound, so the parameters are not deleted with a temporary instance.
+        instance = QgsApplication.processingRegistry().algorithmById(algorithm_id).create({})
+        advanced += sum(
+            bool(definition.flags() & _advanced_flag())
+            for definition in instance.parameterDefinitions()
+        )
+    assert advanced > 40
 
 
 def test_every_algorithm_is_checked():
