@@ -464,7 +464,7 @@ same rules: a **met** row cites a test, directly or through "As NN.N" to a met a
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
 document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
 
-**Audited: the platform block, FR-001 to FR-095, and data, persistence and interoperability, FR-100 to FR-167 (P12c-13). State now: 49 met, 7 partly met, 0 open, 0 manual, of 56.**
+**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273 (P12c-13). State now: 76 met, 7 partly met, 0 open, 0 manual, of 83.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -524,3 +524,30 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-165 | **partly met** | Geoid models imported, applied, recorded and propagated (As 17.8). The deflection of the vertical is not estimated: it needs the undulation's horizontal gradient and a case to check it against, and none is available ([`17`](./17-persistence-and-interoperability.md) §5.5) |
 | FR-166 | **met** | As 17.5; a cancelled import leaves the target unchanged, As 17.6 |
 | FR-167 | **met** | `tests/qgis/test_basemap_offer.py` |
+| FR-200 | **met** | As 05.4 |
+| FR-201 | **met** | As 05.1 |
+| FR-202 | **met** | As 05.5 |
+| FR-203 | **met** | As 05.5; in the report, As 19.8 |
+| FR-204 | **met** | As 05.3 |
+| FR-205 | **met** | Curvature and refraction, the reductions to the ellipsoid and to the projection plane, each carrying the uncertainty of the heights and scale it used (`tests/test_total_station.py::TestGeometricReductions`). Whether an algorithm offers the reductions is FR-405's, in the total-station block |
+| FR-206 | **met** | A baseline cluster kept whole through a combined adjustment (`tests/test_integration.py::TestCriterion5Clusters::test_the_baseline_cluster_survives_whole`) and through DynaML, As 07.2 |
+| FR-207 | **met** | As 14.4; not significant is not zero, As 14.7 |
+| FR-208 | **met** | As 05.6 |
+| FR-220 | **met** | As 06.2; agreeing with DynAdjust, As 06.6 |
+| FR-221 | **met** | A correlated cluster weighted by its whole covariance (`tests/test_integration.py::TestCriterion5Clusters`) |
+| FR-222 | **met** | Free and constrained, As 06.2; weighted stations (`tests/test_weighted_constraints.py`) |
+| FR-223 | **met** | Convergence threshold and iteration limit are parameters of *Adjust network*, the iteration count an output; non-convergence reported, not returned (`tests/test_adjustment.py::TestFailureModes::test_non_convergence_is_reported_not_returned`) |
+| FR-224 | **met** | `tests/test_adjustment.py::TestSolutionAssembly` |
+| FR-225 | **met** | Redundancy numbers summing to the degrees of freedom (`tests/test_adjustment.py::TestLevellingAdjustment::test_redundancy_numbers_sum_to_the_degrees_of_freedom`); standardised residuals, As 06.3 |
+| FR-226 | **met** | As 06.4 |
+| FR-227 | **met** | 1D `tests/test_adjustment.py::TestLevellingAdjustment`, 2D `tests/test_adjustment.py::TestTrilateration`, 3D `tests/test_geocentric_frame.py::TestTheNetworkIsRecovered` |
+| FR-250 | **met** | As 06.7 |
+| FR-251 | **met** | As 06.3 and 06.7 |
+| FR-252 | **met** | Since P12c-13 a stricter α or a higher power is shown to enlarge every MDB by the same factor (`tests/test_statistics.py::TestReliability::test_alpha_and_beta_are_the_users_and_move_every_mdb`); until then only the defaults were exercised |
+| FR-253 | **met** | `tests/test_statistics.py::TestReliability::test_external_reliability_is_reported_alongside_internal` |
+| FR-254 | **met** | Ellipses and ellipsoids at a chosen confidence (`tests/test_statistics.py::TestEllipses`), relative ones As 19.3, drawn As 19.2 |
+| FR-255 | **met** | Recorded and never deleted (`tests/test_models.py::TestObservation`, `tests/test_models.py::TestNetwork`); never automatic, so re-adjusting is always the user's run. Since P12c-13 the report lists each observation set aside with its reason (`tests/qgis/test_adjustment_report.py::TestWhatWasSetAsideIsSaid`); until then it counted the active ones and said nothing of the rest. An observation is set aside or restored by editing its status in the network document: no dialog does it |
+| FR-270 | **met** | As 06.5 |
+| FR-271 | **met** | `tests/test_statistics.py::TestPreAnalysis::test_a_design_reports_expected_reliability_not_only_precision` |
+| FR-272 | **met** | `tests/qgis/test_preanalysis_dialog.py` |
+| FR-273 | **met** | `tests/test_statistics.py::TestInspection` |

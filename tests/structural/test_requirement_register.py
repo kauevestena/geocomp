@@ -37,7 +37,7 @@ REQUIREMENTS = SPECS / "02-requirements.md"
 
 #: The blocks of specs/02 with no rows yet. Each leaves in the pull request that
 #: audits it, and nothing is ever added.
-UNAUDITED = frozenset({"2xx", "3xx", "4xx", "5xx", "6xx", "7xx", "8xx", "9xx", "NFR"})
+UNAUDITED = frozenset({"3xx", "4xx", "5xx", "6xx", "7xx", "8xx", "9xx", "NFR"})
 
 #: A row: | FR-001 | **state** | evidence |
 ROW = re.compile(
@@ -68,7 +68,7 @@ def _rows() -> tuple[dict[str, str], ...]:
 def test_the_requirements_are_found():
     """Guards the parser: a changed table layout would make every other test vacuous."""
     assert len(_requirements()) > 150
-    assert {_block(r) for r in _requirements()} >= UNAUDITED | {"0xx", "1xx"}
+    assert {_block(r) for r in _requirements()} >= UNAUDITED | {"0xx", "1xx", "2xx"}
 
 
 def test_every_audited_requirement_has_exactly_one_row():

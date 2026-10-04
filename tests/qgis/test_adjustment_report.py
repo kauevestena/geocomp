@@ -230,6 +230,44 @@ class TestItIsDefensible:
         assert "3.34" in html
 
 
+class TestWhatWasSetAsideIsSaid:
+    """FR-255: a rejection is recorded, reversible and never silent. Until P12c-13
+    the report counted the active observations and said nothing of the rest."""
+
+    def test_each_observation_left_out_is_listed_with_its_reason(self, adjusted):
+        import copy
+        import dataclasses
+
+        from geocomp.core.models.observation import ObservationStatus, RejectionRecord
+        from geocomp.reports import ReportContext
+
+        network, solution = adjusted
+        changed = copy.deepcopy(network)
+        first, second = sorted(changed.observations)[:2]
+        changed.observations[first] = dataclasses.replace(
+            changed.observations[first],
+            status=ObservationStatus.EXCLUDED,
+            rejection=RejectionRecord(reason="sight obstructed by a parked truck"),
+        )
+        changed.observations[second] = dataclasses.replace(
+            changed.observations[second],
+            status=ObservationStatus.REJECTED,
+            rejection=RejectionRecord(
+                reason="w-test", test="data snooping", statistic=4.217, critical_value=3.29
+            ),
+        )
+        html, _omitted = _render(solution, ReportContext(network=changed))
+        assert "Observations set aside" in html
+        assert first in html and "sight obstructed by a parked truck" in html
+        assert second in html and "4.22" in html
+        assert "Excluded by hand" in html and "Rejected by a test" in html
+
+    def test_nothing_set_aside_adds_nothing(self, adjusted, context):
+        _network, solution = adjusted
+        html, _omitted = _render(solution, context)
+        assert "<h3>Observations set aside</h3>" not in html
+
+
 class TestItIsDeterministic:
     def test_the_same_solution_renders_identically(self, adjusted, context):
         """NFR-007. A report whose bytes change every time cannot be diffed,
