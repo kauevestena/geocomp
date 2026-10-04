@@ -176,16 +176,40 @@ worth doing quietly.
 Each carries the uncertainty of the heights and coordinates it used (FR-205) — the reduction of a distance to
 the ellipsoid is only as certain as the height it was reduced with.
 
-**Not applied by any algorithm (found by P12c-13's requirement audit).** The two reductions exist in
-`core/techniques/total_station/reductions.py` and propagate their uncertainty, but nothing calls them.
-*Preprocess* runs before coordinates are known, so it cannot take a station's height or its point scale
-factor. *Classical network* adjusts the measured distances in the plane of the approximate coordinates with
-no scale factor. On a projected CRS, ground distances are therefore taken as grid distances. On UTM the
-scale factor runs from 0.9996 at the central meridian to about 1.001 at a zone's edge, so the error is
-400 to 1000 ppm, plus about 157 ppm for each kilometre of height above the ellipsoid. Against grid control,
-it surfaces in the residuals and the variance factor. The reductions belong
-where the coordinates and the CRS are both known, in the network adjustment. FR-405 is partly met until
-they are applied there ([`20`](./20-testing-and-validation.md) §11).
+**As built (P12c-14): applied in *Classical network*.** P12c-13's requirement audit found that nothing applied the
+two reductions: they existed in `core/techniques/total_station/reductions.py`, propagating their uncertainty,
+and nothing called them. *Classical network* adjusted ground distances as grid distances, which on UTM is a
+scale error from −400 ppm at the central meridian, through zero about 180 km from it, to about +1000 ppm at a
+zone's edge, and another 157 ppm for each kilometre of height above the ellipsoid. *Preprocess* cannot apply
+them, because it runs before the coordinates are known. They are now applied in the network adjustment,
+where both the coordinates and the CRS are known (`core/techniques/total_station/grid.py`):
+
+- **What is reduced.** In a 2D adjustment, every horizontal distance is reduced to the ellipsoid at the mean
+  ellipsoidal height of its ends, *h = H + N*, and then to the grid by the line's mean scale factor. An
+  ellipsoid distance gets only the second step. The line's factor is Simpson's `(k₁ + 4kₘ + k₂)/6`, which
+  agrees with the integrated mean to 0.001 ppm over a 10 km line at a zone's edge.
+- **Where *k* comes from.** QGIS supplies it for the CRS at a point, so any conformal projection works. *k*
+  agrees with GeoComp's own Krüger series to 0.01 ppm on UTM (`tests/qgis/test_grid_reduction.py`). A
+  non-conformal projection is refused by name, since there a distance's reduction would depend on its
+  direction.
+- **What is carried.** The height's uncertainty is carried (FR-205); *k* is evaluated at the approximate
+  coordinates and taken as exact, being good to 0.007 ppm per metre of position. *N* is one value for the
+  network, *Geoid undulation N (m)*, default 0; each 10 m of it is 1.6 ppm.
+- **What is recorded.** Each reduced distance keeps its measured value and its factors in its `meta`, so the
+  network document says what was done and a second reduction reduces nothing. The solution's provenance
+  records whether the reduction was applied, why not if it was not, and the range in ppm; the report states
+  the same.
+- **What is left alone, and says so.** Coordinates outside the CRS's area of use are a local plane, as the
+  CRS parameter's own help recommends for a survey with no datum. RD-01's are such a plane: (0, 0) in
+  EPSG:31982. So are coordinates in a CRS that is not projected, and those of a 3D or 1D adjustment. The
+  option *Reduce measured distances to the grid* turns the reduction off.
+
+**Not reduced, and why.** A 3D adjustment's slope distances are left as measured: the 3D frame treats E, N, U
+as Cartesian metres, and a projection's grid is not one, so a scale factor does not make it right.
+*Adjust network* takes a network document's distances as given. The document is GeoComp's own, and one
+written by *Classical network* carries its reduction record, but a document from elsewhere may already hold
+grid distances. *N* is a constant, not read per station from a geoid model ([`17`](./17-persistence-and-interoperability.md)
+§5.5).
 
 ---
 

@@ -2341,6 +2341,26 @@ for every requirement in specs/02.
   message says what the user can do.
 - NFR-012: the 399 and the 51 above.
 
+#### P12c-14 — measured distances reduced to the grid (FR-405)
+
+P12c-13's register left the audit with work in this repository behind twenty rows. FR-405 was the most
+consequential: *Classical network* adjusted ground distances as grid distances. On UTM that is a scale error
+from −400 ppm at the central meridian to about +1000 ppm at a zone's edge, plus 157 ppm for each kilometre
+of height. Against grid control it surfaces in the residuals and the variance factor, and nothing says why.
+
+**Delivered.**
+
+| | |
+|---|---|
+| The reduction, as a network operation | `core/techniques/total_station/grid.py`: horizontal distances to the ellipsoid at the mean of their ends' *H + N*, then to the grid by Simpson's mean of *k* over the line; ellipsoid distances scaled only. The height's uncertainty is carried, the measured value and the factors recorded on each observation, and a second reduction reduces nothing |
+| *Classical network* applies it | In a 2D adjustment on a projected, conformal CRS, with *k* from QGIS. *Reduce measured distances to the grid* is on by default, and *Geoid undulation N (m)* is an advanced parameter. Coordinates outside the CRS's area of use are read as a local plane and left alone, which keeps RD-01 and the tutorial as they were. The summary, the report and the provenance all say whether the reduction was applied, the range in ppm if it was, and why not if it was not |
+| Evidence | A network observed on the ground 300 km from a UTM central meridian, held to two grid control points: as measured, a variance factor above 1000; reduced, its truth to 0.1 mm (`tests/test_grid_reduction.py`). QGIS's *k* agrees with GeoComp's Krüger series to 0.01 ppm, and RD-01 moved into the zone adjusts to the same triangle scaled by exactly *k* (`tests/qgis/test_grid_reduction.py`) |
+
+**Not done.** A 3D adjustment's slope distances are not reduced: its frame treats E, N, U as Cartesian, and a
+grid is not, which is a larger question than a scale factor. *Adjust network* takes a document's distances as
+given. *N* is one value for the network, not read from a geoid model per station. GeoComp's own point scale
+factor differentiates numerically and is good to 0.005 ppm; QGIS's is used.
+
 ---
 
 ## P13 — Validation, documentation and release

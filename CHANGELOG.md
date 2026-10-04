@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-14 — Measured distances reduced to the grid
+
+#### Fixed
+
+- *Classical network* adjusted the distances a total station measures on the ground as though they were
+  distances on the map grid. On UTM the difference runs from −400 ppm at the central meridian to about
+  +1000 ppm at a zone's edge, plus about 157 ppm for each kilometre of height: on a 1 km line, up to 0.4 m
+  near the central meridian and 1 m at a zone's edge, showing up as unexplained residuals against grid
+  control. In a 2D adjustment on a projected CRS each
+  distance is now reduced to the ellipsoid and to the grid, and the report states the range applied.
+
+#### Added
+
+- *Reduce measured distances to the grid* (on by default) and *Geoid undulation N (m)* in *Classical network*.
+  Coordinates outside the CRS's area of use, such as a local survey's (0, 0), are read as a local plane and
+  not reduced, and the report says so.
+
 ### P12c-13 — A large workbook no longer stalls the field-mapping dialog
 
 #### Fixed
