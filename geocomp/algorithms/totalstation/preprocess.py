@@ -42,6 +42,7 @@ from geocomp.algorithms.reporting import (
     render_table,
 )
 from geocomp.algorithms.totalstation.common import (
+    REDUCTIONS_VERSION,
     findings_table,
     load_profiles,
     read_readings,
@@ -525,10 +526,16 @@ class PreprocessAlgorithm(GeoCompAlgorithm):
 
 
 def _reductions_document(results) -> dict[str, Any]:
-    """Reduced pointings, for the network algorithm to consume."""
+    """Reduced pointings, for the network algorithm to consume.
+
+    Version 2 (P12c-18) carries each pointing's instrument and target heights.
+    A 3D network needs them in its observation equations (``specs/09`` section
+    2.5), and version 1 dropped them, so every zenith angle and slope distance
+    of a 3D network was adjusted as though it ran from mark to mark.
+    """
     return {
         "kind": "geocomp.reductions",
-        "version": 1,
+        "version": REDUCTIONS_VERSION,
         "setups": [
             {
                 "station": result.station,
@@ -553,10 +560,23 @@ def _reductions_document(results) -> dict[str, Any]:
                             else None
                         ),
                         "usable": pointing.is_usable,
+                        **_heights(pointing),
                     }
                     for pointing in result.pointings
                 ],
             }
             for result in results
         ],
+    }
+
+
+def _heights(pointing) -> dict[str, Any]:
+    """The instrument and target heights of a pointing, those it has."""
+    return {
+        name: height.to_dict()
+        for name, height in (
+            ("instrument_height", pointing.instrument_height),
+            ("target_height", pointing.target_height),
+        )
+        if height is not None
     }

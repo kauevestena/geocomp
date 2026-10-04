@@ -2410,6 +2410,21 @@ remember which library to use. Every run had to be given the file again.
 
 FR-061 is now **met**: 159 met, 16 partly met, 1 open, of 176.
 
+#### P12c-18 — a 3D network's sights keep their heights
+
+Found while tracing, for FR-102, where a total-station observation comes from. The reductions document
+dropped each pointing's instrument and target heights, so *Classical network* in 3D adjusted every zenith
+angle and slope distance from mark to mark. On RD-01 that put the heights out by up to 12 mm and multiplied
+the variance factor by seventeen. 2D and 1D networks were unaffected, because pre-processing applies the
+heights to what they take.
+
+**Delivered** ([`09`](./09-module-total-station.md) §2.5, *Found in P12c-18*). The document is now version 2
+and carries both heights. A 3D network refuses a version 1 document and says to pre-process again. The
+3D heights on RD-01 now agree with the levelled network's to 0.4 mm, and the test requires 1 mm.
+
+**Not done.** Documents written before P12c-18 are not upgraded. They are refused for 3D, and pre-processing
+again is all that a 3D network needs.
+
 ---
 
 ## P13 — Validation, documentation and release

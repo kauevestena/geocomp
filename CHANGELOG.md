@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-18 — 3D networks use the instrument and target heights
+
+#### Fixed
+
+- *Classical network* in 3D adjusted every zenith angle and slope distance as though it had been measured
+  from mark to mark. The instrument and target heights were lost between *Generalised pre-processing* and
+  the network. On the tutorial survey the heights were wrong by up to 12 mm, and with a 1.6 m instrument and
+  a 2.0 m prism the error would be 0.4 m. 2D and 1D networks were not affected. A reductions file written by
+  an earlier version is now refused for a 3D network: run *Generalised pre-processing* again.
+
 ### P12c-17 — Global Settings remembers the profile library
 
 #### Added
