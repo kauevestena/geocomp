@@ -2073,6 +2073,30 @@ says "its list of stations".
 cannot be judged from the source, as `network_integrity`'s list was. Each of those is found by reading, and
 none is known to remain.
 
+#### P12c-10 — a session that solved nothing says when it observed
+
+specs/08 §9's failure table requires a session with no solution to be reported with the engine's own message
+*and the session's data span*. P12c-7 gave `rtklib_produced_no_solution` the engine's message, but not the span.
+The P12c-7 records named the gap.
+
+**Delivered.**
+
+- The refusal carries `spans`, one per session (the rover's, and the base's for a relative mode), as `id
+  start/end`. That is an ISO 8601 interval, the same in every language, and an end the session does not state
+  is `?`.
+- The template shows the spans beside RTKLIB's own word, and *Batch GNSS processing* reports them per failed
+  session.
+- The refusal is built in `_no_solution`, so a QGIS-free test checks it without `rnx2rtkp`. The tier-4 test
+  still forces the case through a live run.
+
+**Found.** No defect. Sessions that share no epoch at all are already refused before the run
+(`rtklib_sessions_do_not_overlap`). A run that solves nothing therefore had overlapping sessions, and the spans
+show by how little. Products that do not cover the overlap are the next cause to look for, and the sentence
+names them.
+
+**Not done here.** The products' own span is not in the refusal. A run receives product file paths, and their
+coverage is resolved when they are fetched (P10c), not carried to the engine.
+
 ---
 
 ## P13 — Validation, documentation and release

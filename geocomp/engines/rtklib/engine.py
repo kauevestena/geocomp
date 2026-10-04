@@ -406,23 +406,46 @@ class RtklibEngine:
 
         solution = read_pos(output_file)
         if not solution.epochs:
-            # Exit zero and nothing solved. The engine says why on stderr, and
-            # relaying that beats reporting a successful run with no answer.
-            raise EngineError(
-                "rtklib_produced_no_solution",
-                engine=PROGRAM,
-                rover=job.rover.id,
-                base=job.base.id if job.base else "",
-                message=_diagnostic(run),
-                work_dir=str(work_dir),
-                expected=(
-                    "at least one solution epoch; the run exited zero, which for this "
-                    "engine does not mean it solved anything"
-                ),
-            )
+            raise _no_solution(job, run, work_dir)
         return RtklibResult(
             run=run, solution=solution, config_file=config_file, output_file=output_file
         )
+
+
+def _no_solution(job: RtklibJob, run: EngineRun, work_dir: Path) -> EngineError:
+    """The refusal for a run that exited zero and solved nothing.
+
+    The engine says why on stderr, and relaying that beats reporting a
+    successful run with no answer. ``specs/08`` section 9 also requires the
+    session's data span: by far the commonest cause is a rover, a base and
+    products that do not cover the same time, and the spans side by side show
+    it at a glance. Until P12c-10 the span was not there.
+    """
+    sessions = [job.rover] if job.base is None else [job.rover, job.base]
+    return EngineError(
+        "rtklib_produced_no_solution",
+        engine=PROGRAM,
+        rover=job.rover.id,
+        base=job.base.id if job.base else "",
+        message=_diagnostic(run),
+        work_dir=str(work_dir),
+        spans=[session_span(session) for session in sessions],
+        expected=(
+            "at least one solution epoch; the run exited zero, which for this "
+            "engine does not mean it solved anything"
+        ),
+    )
+
+
+def session_span(session: GnssSession) -> str:
+    """The session's observation span as ``id start/end``, an ISO 8601 interval.
+
+    Data, not a sentence, so it reads the same in every language; an end the
+    session does not state is ``?``.
+    """
+    start = session.start.isoformat() if session.start else "?"
+    end = session.end.isoformat() if session.end else "?"
+    return f"{session.id} {start}/{end}"
 
 
 def _diagnostic(run: EngineRun) -> str:
