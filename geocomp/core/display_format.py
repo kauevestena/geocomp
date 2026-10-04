@@ -106,6 +106,7 @@ class DisplayFormat:
                     "display_decimals_out_of_range",
                     parameter=name,
                     received=value,
+                    maximum=top,
                     expected=f"a whole number from 0 to {top}",
                 )
 

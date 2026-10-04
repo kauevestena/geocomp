@@ -127,6 +127,14 @@ template must interpolate only those keys. P12c-8 froze the 65 findings it found
 could only shrink. Two pull requests later the list was empty and was removed, so **a finding has no exemption
 either**: it arrives with its words, as an error does.
 
+**No English inside a translated sentence (P12c-9).** A template is translated, but what it interpolates is
+not. A key filled with an English sentence puts that English inside the Portuguese or Spanish. Examples are
+`expected="a whole number from 0 to 6"` and a list of English problem descriptions. Until P12c-9, 29
+templates did this. The template now says the sentence, and the core passes only data: ids, counts, numbers,
+lists and names. A key may still carry English for the developer's diagnostic, as long as no template reads
+it. The structural test fails on a template that interpolates a key some raise site, or some finding's
+context, fills with a phrase of three words or more.
+
 ## 3. Terminology (FR-093)
 
 [`00-glossary.md`](./00-glossary.md) is **normative** for translators: its PT-BR and ES columns are the

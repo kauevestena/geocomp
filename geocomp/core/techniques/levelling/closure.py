@@ -224,6 +224,7 @@ def loop_closure(
                 loop=loop_id,
                 line=reduction.line_id,
                 received=[reduction.from_station, reduction.to_station],
+                at=at,
                 expected=f"a line starting or ending at {at}",
             )
         variance += reduction.height_difference.variance
@@ -236,6 +237,7 @@ def loop_closure(
             "loop_does_not_close",
             loop=loop_id,
             received=at,
+            start=start,
             expected=f"{start}; a loop must return to the station it began at",
         )
 

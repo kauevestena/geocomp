@@ -125,6 +125,7 @@ def detect_format(text: str) -> GravimeterFormat:
         return GravimeterFormat.BURRIS
     raise DataError(
         "gravimeter_format_unknown",
+        columns=list(CSV_COLUMNS[:3]),
         expected=(
             "a Scintrex CG-5 export (a header of '/' lines), a ZLS Burris export "
             "(16 space-separated columns, date as YYYY/MM/DD), or a CSV whose header "
@@ -220,7 +221,10 @@ def read_cg5(
     rows = _cg5_rows(text, source)
     if not rows:
         raise DataError(
-            "gravimeter_file_empty", source=source, expected="at least one CG-5 reading line"
+            "gravimeter_file_empty",
+            source=source,
+            format="CG-5",
+            expected="at least one CG-5 reading line",
         )
 
     notes: list[str] = []
@@ -309,6 +313,7 @@ def _cg5_rows(text: str, source: str) -> list[_Cg5Row]:
                 source=source,
                 line=number,
                 received=raw,
+                format="CG-5",
                 expected="a CG-5 reading line of fifteen columns",
             ) from error
     return rows
@@ -442,6 +447,7 @@ def read_burris(
                 source=source,
                 line=number,
                 received=raw,
+                format="Burris",
                 expected="a Burris line of sixteen columns",
             )
         try:
@@ -455,6 +461,7 @@ def read_burris(
                 source=source,
                 line=number,
                 received=raw,
+                format="Burris",
                 expected="numbers in the reading, tide, elevation, latitude and longitude columns",
             ) from error
         # A non-zero tide column is a correction already in the reading. A zero
@@ -480,7 +487,9 @@ def read_burris(
             )
         )
     if not readings:
-        raise DataError("gravimeter_file_empty", source=source, expected="at least one Burris line")
+        raise DataError(
+            "gravimeter_file_empty", source=source, format="Burris", expected="at least one Burris line"
+        )
     return GravimeterFile(
         GravimeterFormat.BURRIS,
         tuple(readings),
@@ -517,6 +526,7 @@ def read_gravity_csv(text: str, *, source: str = "csv", additive_sigma: float = 
                 source=source,
                 line=number,
                 received=record,
+                format="CSV",
                 expected="an ISO 8601 time with its offset and a reading in mGal",
             ) from error
         if instant.tzinfo is None:
@@ -548,7 +558,9 @@ def read_gravity_csv(text: str, *, source: str = "csv", additive_sigma: float = 
             )
         )
     if not readings:
-        raise DataError("gravimeter_file_empty", source=source, expected="at least one data row")
+        raise DataError(
+            "gravimeter_file_empty", source=source, format="CSV", expected="at least one data row"
+        )
     return GravimeterFile(
         GravimeterFormat.CSV,
         tuple(readings),

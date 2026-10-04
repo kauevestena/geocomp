@@ -497,6 +497,9 @@ def _epoch(line: str, layout: _Layout, path: Path) -> PosEpoch:
             "pos_record_too_short",
             file=str(path),
             received=f"{len(tokens)} columns",
+            columns=len(tokens),
+            required=required,
+            layout=layout.components,
             expected=f"at least {required} for the {layout.components} format",
         )
 

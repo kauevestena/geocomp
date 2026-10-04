@@ -139,6 +139,8 @@ class CalibrationTable:
             raise ValidationError(
                 "gravimeter_reading_outside_table",
                 received=reading.value,
+                low=low,
+                high=high,
                 expected=f"a counter reading between {low} and {high}; the table cannot be "
                 "extrapolated, because the next interval's factor is not in it",
             )

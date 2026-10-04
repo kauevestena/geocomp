@@ -297,6 +297,72 @@ def test_every_finding_shows_its_template_and_keys():
     )
 
 
+#: A value written as text with at least this many words is a sentence, not data.
+PROSE_WORDS = 3
+
+
+def _prose(value: ast.expr) -> str | None:
+    """The English a context value spells out at its raise site, or ``None`` if it is data."""
+    if isinstance(value, ast.Constant) and isinstance(value.value, str):
+        text = value.value
+    elif isinstance(value, ast.JoinedStr):
+        text = " ".join(part.value for part in value.values if isinstance(part, ast.Constant))
+    else:
+        return None
+    return text if len(text.split()) >= PROSE_WORDS else None
+
+
+@functools.cache
+def _prose_keys() -> dict[str, dict[str, str]]:
+    """Map code -> {key: "file:line"} for each context key some site fills with English prose."""
+    found: dict[str, dict[str, str]] = defaultdict(dict)
+    for path in python_sources(PLUGIN_DIR):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        where = str(path.relative_to(PLUGIN_DIR.parent))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                continue
+            namespace = NAMESPACES.get(node.func.id)
+            if namespace is not None and node.args:
+                first = node.args[0]
+                if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                    code = first.value if "." in first.value else f"{namespace}.{first.value}"
+                    for keyword in node.keywords:
+                        if keyword.arg and _prose(keyword.value):
+                            found[code].setdefault(keyword.arg, f"{where}:{node.lineno}")
+            elif node.func.id == "Finding" and _imports_finding(tree):
+                code = _finding_template(node)
+                keywords = {k.arg: k.value for k in node.keywords if k.arg}
+                context = keywords.get("context")
+                if code and isinstance(context, ast.Dict):
+                    for key, value in zip(context.keys, context.values, strict=True):
+                        if isinstance(key, ast.Constant) and _prose(value):
+                            found[code].setdefault(key.value, f"{where}:{node.lineno}")
+    return dict(found)
+
+
+def test_no_template_interpolates_english_from_the_core():
+    """FR-091: a translated sentence with the core's English inside it is half translated.
+
+    Until P12c-9, 29 templates interpolated ``expected`` or a similar key that
+    a raise site filled with a sentence -- "a whole number from 0 to 6", "a
+    line starting or ending at B" -- so a Portuguese message carried an English
+    clause. The template says the sentence; the core passes only data: ids,
+    counts, numbers, lists. A key may still carry English for the developer's
+    diagnostic, as long as no template reads it.
+    """
+    prose = _prose_keys()
+    problems = []
+    for code, (_source, keys, path) in sorted(_declared_templates().items()):
+        for key in keys:
+            if key in prose.get(code, {}):
+                problems.append(
+                    f"{path}: template for {code} interpolates '{key}', which "
+                    f"{prose[code][key]} fills with English prose"
+                )
+    assert not problems, "\n".join(problems)
+
+
 #: Context keys that carry an engine's own last word.
 DIAGNOSTIC_KEYS = ("diagnostic", "message")
 

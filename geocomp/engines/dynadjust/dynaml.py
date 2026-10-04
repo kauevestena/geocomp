@@ -690,6 +690,8 @@ def _cluster_blocks(
             "dynadjust_cluster_covariance_shape",
             cluster=cluster.id,
             received=list(matrix.shape),
+            size=3 * count,
+            members=count,
             expected=f"{3 * count}x{3 * count} for {count} three-component members",
         )
 

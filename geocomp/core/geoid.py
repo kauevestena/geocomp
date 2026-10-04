@@ -222,6 +222,10 @@ class GeoidModel:
                 "geoid_outside_coverage",
                 geoid=self.id,
                 received=[math.degrees(latitude), math.degrees(longitude)],
+                south=f"{math.degrees(self.coverage.south):.4f}",
+                north=f"{math.degrees(self.coverage.north):.4f}",
+                west=f"{math.degrees(self.coverage.west):.4f}",
+                east=f"{math.degrees(self.coverage.east):.4f}",
                 expected=f"a point within {self.coverage.describe_degrees()}",
             )
 

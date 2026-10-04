@@ -28,11 +28,11 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # RTKLIB's absence reached the GNSS algorithms' users as "could not complete
     # the operation (computation.engine_not_available)" until P12c-6.
     "computation.engine_not_available": MessageTemplate(
-        "%1 is needed for %2 and was not found. It needs %3. Everything in GeoComp that "
-        "does not need it works without it.",
+        "%1 is needed for %2 and was not found. Give its path in Global Settings, under Paths "
+        "and engines, or put it on the system path. Everything in GeoComp that does not need "
+        "it works without it.",
         "engine",
         "operation",
-        "expected",
     ),
     "validation.engine_path_not_found": MessageTemplate(
         "The path given for %1 does not exist: '%2'. GeoComp does not fall back to another "
@@ -161,11 +161,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "validation.dynadjust_cluster_covariance_shape": MessageTemplate(
-        "The GNSS cluster '%1' has a covariance matrix of shape %2, where %3 was expected, so "
-        "it cannot be written for DynAdjust. Check the file the cluster was imported from.",
+        "The GNSS cluster '%1' has a covariance matrix of shape %2, where %3 by %3 was expected "
+        "for its %4 three-component members, so it cannot be written for DynAdjust. Check the "
+        "file the cluster was imported from.",
         "cluster",
         "received",
-        "expected",
+        "size",
+        "members",
     ),
     "validation.gnss_baseline_not_geocentric": MessageTemplate(
         "The GNSS baseline '%1' is recorded as %2, and DynAdjust's baselines are geocentric "
@@ -381,10 +383,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.dynaml_wrong_file_type": MessageTemplate(
-        "'%1' is a DynaML file of type '%2', where %3 was expected.",
+        "'%1' is a DynaML file of type '%2', where a %3 or a Combined File was expected.",
         "path",
         "received",
-        "expected",
+        "wanted",
     ),
     "data.dynaml_station_without_coordinates": MessageTemplate(
         "A station in the DynaML file has no coordinates (no StationCoord element); every "

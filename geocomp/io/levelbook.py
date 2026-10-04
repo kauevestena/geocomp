@@ -403,6 +403,7 @@ def read_level_book(
             "level_mapping_incomplete",
             mapping=mapping.name,
             received=sorted(mapping.mapped_fields),
+            missing=list(missing),
             expected=f"these fields as well: {', '.join(missing)}",
         )
 
