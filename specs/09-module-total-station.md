@@ -163,6 +163,23 @@ Krumm's `Baumann23_3_4_fix` reproduces to 0.03 mm with the heights treated as ex
 change every existing result. It is worth revisiting when the stochastic model is next opened; it is not
 worth doing quietly.
 
+**Found in P12c-18: the heights did not survive the documents.** The in-memory path carried them from the
+setup to the observation, and a test built that way passed. But *Classical network* is reached through
+files: *Import field book* writes the readings, *Generalised pre-processing* writes the reductions, and the
+network reads them. The reductions document, version 1, kept each pointing's reduced values and dropped its
+two heights. So a **3D** network built from it adjusted every zenith angle and slope distance as though the
+sight ran from mark to mark.
+
+- **Effect.** On RD-01 the heights moved by up to 12 mm and the variance factor rose seventeenfold. With a
+  1.6 m instrument and a 2.0 m prism the error would have been 0.4 m.
+- **What was not affected.** A 2D or 1D network takes horizontal distances and height differences, which
+  pre-processing reduces with the heights before it writes them, so those results were unaffected.
+- **The fix.** Version 2 of the document carries both heights per pointing, and the network reads them
+  back. A version 1 document is refused for a 3D network with the instruction to pre-process again, and
+  still serves a 2D or 1D one.
+- **The test.** It runs the chain through the files on RD-01 and requires the 3D network's heights to
+  agree with the levelled network's to 1 mm (`tests/qgis/test_totalstation_algorithms.py::TestAThreeDimensionalNetwork`).
+
 ### 2.6 Geometric and atmospheric-geometric reductions (FR-405)
 
 - **Earth curvature and refraction** in trigonometric heighting: (1 − k)·d²/(2R), with k the refraction

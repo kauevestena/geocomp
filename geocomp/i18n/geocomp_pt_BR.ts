@@ -8070,6 +8070,10 @@
             <translation>'%1' não é um JSON válido: %2</translation>
         </message>
         <message>
+            <source>'%1' was written by an earlier Generalised pre-processing, which did not record the instrument and target heights. A 3D network needs them: without them every zenith angle and slope distance would be adjusted as though it ran from mark to mark. Run Generalised pre-processing again on the readings.</source>
+            <translation>'%1' foi escrito por uma versão anterior do Pré-processamento generalizado, que não registrava as alturas do instrumento e do alvo. Uma rede 3D precisa delas: sem elas, cada ângulo zenital e cada distância inclinada seria ajustado como se fosse medido de marco a marco. Execute novamente o Pré-processamento generalizado sobre as leituras.</translation>
+        </message>
+        <message>
             <source>Blocking</source>
             <translation>Impeditivo</translation>
         </message>

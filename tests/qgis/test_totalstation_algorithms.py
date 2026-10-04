@@ -275,6 +275,113 @@ class TestTheWholeChain:
         }
 
 
+class TestAThreeDimensionalNetwork:
+    """Zenith angles and slope distances keep the heights they were measured at (P12c-18).
+
+    A 3D sight runs from the trunnion axis to the reflector, and the adjustment
+    puts it there with the instrument and target heights (``specs/09`` section
+    2.5). Until P12c-18 the reductions document dropped both, so a 3D network
+    built from it adjusted every sight as though it ran from mark to mark. On
+    RD-01 that moved the heights by up to 12 mm and multiplied the variance
+    factor by seventeen. With a 1.6 m instrument and a 2.0 m prism it would have
+    been 0.4 m.
+    """
+
+    @pytest.fixture(scope="class")
+    def reduced(self, geocomp_provider, tmp_path_factory):
+        directory = tmp_path_factory.mktemp("rd01-3d")
+        imported = _run(
+            "geocomp:totalstation_import_fieldbook",
+            {
+                "SOURCE": str(rd01.RAW),
+                "SIGMA_DIRECTION": rd01.SIGMA_ANGLE,
+                "SIGMA_ZENITH": rd01.SIGMA_ANGLE,
+                "SIGMA_DISTANCE": 0.002,
+                "OUTPUT_READINGS": str(directory / "readings.json"),
+            },
+        )
+        reduced = _run(
+            "geocomp:totalstation_preprocess",
+            {
+                "READINGS": imported["OUTPUT_READINGS"],
+                "APPLY_ATMOSPHERIC": False,
+                "OUTPUT_REDUCED": str(directory / "reduced.json"),
+            },
+        )
+        readings = json.loads(Path(imported["OUTPUT_READINGS"]).read_text(encoding="utf-8"))
+        return directory, Path(reduced["OUTPUT_REDUCED"]), readings
+
+    @staticmethod
+    def _adjust(directory: Path, reductions: Path, name: str, dimension: int):
+        """*dimension* is the parameter's index: 0 is 2D, 1 is 3D, 2 is 1D."""
+        from geocomp.core.models import Solution
+
+        approximate = directory / "approximate.json"
+        approximate.write_text(json.dumps(rd01.approximate_coordinates()), encoding="utf-8")
+        results = _run(
+            "geocomp:totalstation_network",
+            {
+                "REDUCTIONS": str(reductions),
+                "APPROXIMATE": str(approximate),
+                "DIMENSION": dimension,
+                "DATUM": 1,
+                "CRS": "EPSG:31982",
+                "OUTPUT_NETWORK": str(directory / f"{name}-network.json"),
+                "OUTPUT_SOLUTION": str(directory / f"{name}-solution.json"),
+            },
+        )
+        network = json.loads(Path(results["OUTPUT_NETWORK"]).read_text(encoding="utf-8"))
+        solution = Solution.from_dict(
+            json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        )
+        heights = {
+            station.station_id: station.position.values[-1].value
+            for station in solution.adjusted_stations
+        }
+        return network, heights
+
+    def test_each_sight_keeps_its_instrument_and_target_height(self, reduced):
+        from geocomp.core.models import ObservationType
+
+        directory, reductions, readings = reduced
+        network, _heights = self._adjust(directory, reductions, "3d", 1)
+        instrument = {
+            setup["station"]: setup["instrument_height"]["value"] for setup in readings["setups"]
+        }
+        raised = {ObservationType.ZENITH_ANGLE.name, ObservationType.SLOPE_DISTANCE.name}
+        sights = [o for o in network["observations"] if o["type"] in raised]
+        assert sights
+        for sight in sights:
+            assert sight["instrument_height"]["value"] == instrument[sight["stations"][0]]
+            assert sight["target_height"]["value"] == pytest.approx(1.5)
+
+    def test_its_heights_are_the_levelled_network_s(self, reduced):
+        """The 1D network reduces the same sights with the same heights before it
+        adjusts, so the two agree. They did not while the heights were lost."""
+        directory, reductions, _readings = reduced
+        _network, three = self._adjust(directory, reductions, "3d", 1)
+        _network, one = self._adjust(directory, reductions, "1d", 2)
+        for station, height in one.items():
+            assert three[station] == pytest.approx(height, abs=1e-3), station
+
+    def test_a_document_from_before_the_heights_is_refused_in_3d_alone(self, reduced):
+        from qgis.core import QgsProcessingException
+
+        directory, reductions, _readings = reduced
+        old = json.loads(reductions.read_text(encoding="utf-8"))
+        old["version"] = 1
+        for setup in old["setups"]:
+            for pointing in setup["pointings"]:
+                pointing.pop("instrument_height", None)
+                pointing.pop("target_height", None)
+        path = directory / "version-1.json"
+        path.write_text(json.dumps(old), encoding="utf-8")
+        with pytest.raises(QgsProcessingException, match="Run Generalised pre-processing again"):
+            self._adjust(directory, path, "old-3d", 1)
+        # In 2D the heights were applied in pre-processing, so the old document serves.
+        self._adjust(directory, path, "old-2d", 0)
+
+
 class TestFailuresAreActionable:
     def test_a_readings_document_is_refused_where_reductions_are_expected(
         self, geocomp_provider, tmp_path

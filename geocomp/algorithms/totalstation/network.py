@@ -330,10 +330,12 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        results = read_reductions(self.parameterAsFile(parameters, REDUCTIONS, context))
+        dimension = _DIMENSIONS[self.parameterAsEnum(parameters, DIMENSION, context)]
+        results = read_reductions(
+            self.parameterAsFile(parameters, REDUCTIONS, context), needs_heights=dimension == 3
+        )
         approximate = self._approximate(self.parameterAsFile(parameters, APPROXIMATE, context))
 
-        dimension = _DIMENSIONS[self.parameterAsEnum(parameters, DIMENSION, context)]
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context))
         fixed_names = station_list(self.parameterAsString(parameters, FIXED_STATIONS, context))
         crs = self.parameterAsString(parameters, CRS, context).strip()

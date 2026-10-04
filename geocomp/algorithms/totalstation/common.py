@@ -32,6 +32,7 @@ from geocomp.io import FieldMapping, infer_mapping
 from geocomp.services.messages import finding_text
 
 __all__ = [
+    "REDUCTIONS_VERSION",
     "default_library",
     "findings_table",
     "load_json",
@@ -45,6 +46,10 @@ __all__ = [
 ]
 
 _CONTEXT = "GeoCompTotalStation"
+
+#: The reductions document *Generalised pre-processing* writes. Version 2
+#: (P12c-18) added each pointing's instrument and target heights.
+REDUCTIONS_VERSION = 2
 
 
 def _tr(text: str) -> str:
@@ -298,10 +303,17 @@ def _reading(payload: dict) -> FaceReading:
     )
 
 
-def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
+def read_reductions(
+    path: str, *, parameter: str = "REDUCTIONS", needs_heights: bool = False
+) -> list:
     """Read the document the pre-processing algorithm writes.
 
     Rebuilds the minimal setup results the rest of the group needs.
+
+    *needs_heights* is a 3D network's: its zenith angles and slope distances
+    run from the trunnion axis to the reflector, and the heights put them
+    there. A version 1 document did not record them, and is refused rather
+    than read as though every sight ran mark to mark.
 
     Only the fields the later algorithms read are reconstructed. A full
     round-trip of the pre-processing result would carry the diagnostics through
@@ -314,6 +326,15 @@ def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
             _tr(
                 "'%1' is not a GeoComp reductions document. Run Generalised pre-processing "
                 "first, or choose the file it produced."
+            ).replace("%1", path)
+        )
+    if needs_heights and int(document.get("version", 1)) < 2:
+        raise QgsProcessingException(
+            _tr(
+                "'%1' was written by an earlier Generalised pre-processing, which did not "
+                "record the instrument and target heights. A 3D network needs them: without "
+                "them every zenith angle and slope distance would be adjusted as though it "
+                "ran from mark to mark. Run Generalised pre-processing again on the readings."
             ).replace("%1", path)
         )
 
@@ -371,6 +392,8 @@ def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
                     ),
                     basic=basic,
                     findings=() if item.get("usable", True) else (_unusable(item["target"]),),
+                    instrument_height=_height(item, "instrument_height"),
+                    target_height=_height(item, "target_height"),
                 )
             )
         results.append(
@@ -381,6 +404,12 @@ def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list:
             )
         )
     return results
+
+
+def _height(item: dict, name: str):
+    from geocomp.core.uncertainty import Quantity
+
+    return Quantity.from_dict(item[name]) if item.get(name) else None
 
 
 def _unusable(target: str):
