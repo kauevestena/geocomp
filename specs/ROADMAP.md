@@ -1744,6 +1744,32 @@ Some are guards no user input reaches, such as a matrix of the wrong shape passe
 They still need words, because a defect is exactly when they surface. The readers in `io/` come first:
 there a malformed file is the user's, and the message is all they have to find it.
 
+#### P12c-7 — every error in words (second pull request): the file readers
+
+**Delivered.** Templates, with pt-BR and es, for the 28 codes of the readers the algorithms use. That leaves
+**348** in the baseline:
+
+- RINEX files and the folder they are scanned from, shown by the GNSS algorithms;
+- the field book and its mapping, shown by *Import field book* and the mapping dialog;
+- the levelling book and its mapping, shown by *Import levelling field book*;
+- geoid grids, shown by the integration algorithms;
+- the tables export.
+
+The 31 codes left in `io/` are all in `krumm.py` and `adjust.py`. These read the RD-11 and ADJUST
+reference corpora for the tests and scripts, and no algorithm reaches them; the baseline says so.
+
+A tier-3 test reads every registered template back through the real translation layer, each given exactly
+its own keys (`tests/qgis/test_engine_messages.py`).
+
+**Found.** **The field-mapping dialog showed a traceback for a mapping file it refused.** `FieldMapping`
+refuses an unknown field or a missing name with a `ValidationError`, which is not a `ValueError`. The
+dialog caught only `OSError`, `ValueError` and `KeyError`, so the refusal escaped the slot and reached the
+user as QGIS's Python error window. It now says why the file was refused, in a warning
+(`tests/qgis/test_mapping_dialog.py`).
+
+**Not done here.** The 317 codes raised in `core/`, `reports/` and `services/`. They are next, technique by
+technique, starting with the levelling and total-station codes a user's observations reach.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -223,6 +223,39 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "solution.",
         "received",
     ),
+    # -- the RINEX folder and files a run is given (P12c-7) ---------------------
+    "data.gnss_scan_not_a_directory": MessageTemplate(
+        "'%1' is not a folder. Choose the folder that holds the RINEX observation and "
+        "navigation files.",
+        "path",
+    ),
+    "data.rinex_file_empty": MessageTemplate(
+        "'%1' is empty: a RINEX file starts with a header.",
+        "file",
+    ),
+    "data.rinex_header_missing": MessageTemplate(
+        "'%1' is not a RINEX file: its first record is '%2', where RINEX VERSION / TYPE was "
+        "expected.",
+        "file",
+        "received",
+    ),
+    "data.rinex_header_unterminated": MessageTemplate(
+        "The header of '%1' never ends: there is no END OF HEADER record. The file is "
+        "truncated, or is not RINEX.",
+        "file",
+    ),
+    "data.rinex_version_malformed": MessageTemplate(
+        "'%1' gives its RINEX version as '%2', which is not a version number such as 2.11 or "
+        "3.04.",
+        "file",
+        "received",
+    ),
+    "data.rinex_compression_unsupported": MessageTemplate(
+        "'%1' is compressed as %2, which GeoComp does not read. Decompress it first; GeoComp "
+        "reads uncompressed and gzip-compressed RINEX.",
+        "file",
+        "compression",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

@@ -28,6 +28,41 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "these have none: %1. Connect them to a benchmark, or turn the correction off.",
         "received",
     ),
+    # -- the levelling book and its mapping (P12c-7) ----------------------------
+    "validation.unknown_level_mapping_field": MessageTemplate(
+        "The mapping names %1, which GeoComp does not know as a levelling-book field. "
+        "Expected %2.",
+        "received",
+        "expected",
+    ),
+    "validation.stadia_factor_not_positive": MessageTemplate(
+        "The stadia constant must be positive, usually 100; %1 was given.",
+        "received",
+    ),
+    "validation.ambiguous_level_layout": MessageTemplate(
+        "The mapping '%1' mixes the columns of two book layouts (%2). Map station and sight "
+        "for a book with one row per reading, or backsight_station and foresight_station for "
+        "one row per setup, not both.",
+        "mapping",
+        "received",
+    ),
+    "validation.unrecognised_level_layout": MessageTemplate(
+        "The mapping '%1' does not show which book layout it is: it maps %2. Map station and "
+        "sight for a book with one row per reading, or backsight_station and "
+        "foresight_station for one row per setup.",
+        "mapping",
+        "received",
+    ),
+    "validation.level_mapping_incomplete": MessageTemplate(
+        "The mapping '%1' maps %2, and needs %3.",
+        "mapping",
+        "received",
+        "expected",
+    ),
+    "validation.level_book_empty": MessageTemplate(
+        "The levelling book has no data: it needs a header row and at least one row of "
+        "readings.",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

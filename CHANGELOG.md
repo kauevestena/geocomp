@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-7 — File readers' refusals in words
+
+#### Fixed
+
+- A RINEX file, field book, levelling book, field mapping or geoid grid that GeoComp cannot read is now
+  explained, naming the file and what it lacks. Before, the user saw "could not complete the operation"
+  and an internal code. The same applies to an export with nothing in it.
+- Loading a field mapping that names an unknown field, or has no name, shows a warning in the mapping
+  dialog. Before, it opened QGIS's Python error window.
+
 ### P12c-7 — Engine failures in words
 
 #### Fixed

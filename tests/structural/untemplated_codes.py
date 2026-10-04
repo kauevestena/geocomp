@@ -6,7 +6,9 @@ code with no template says none of that -- the user reads "GeoComp could not
 complete the operation (data.some_code)" and nothing else. When P12c-7 first
 counted, 457 of the codes GeoComp raises had no template; it wrote the 81 of
 the engine package, where a failure is most often the user's input meeting
-DynAdjust or RTKLIB, and froze the rest here.
+DynAdjust or RTKLIB, and froze the rest here. Its second pull request wrote the
+28 of the file readers the algorithms use -- RINEX, field and levelling books
+and their mappings, geoid grids, the tables export.
 
 The list may only shrink. ``tests/structural/test_message_templates.py`` fails
 on a code raised without a template that is not listed here -- a new code
@@ -271,7 +273,7 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.combination_routed_to_dynadjust",
         "validation.combination_station_without_position",
         "validation.engine_unknown",
-        # core/techniques/levelling/ (38)
+        # core/techniques/levelling/ (37)
         "validation.benchmark_height_wrong_unit",
         "validation.benchmark_not_in_network",
         "validation.benchmark_without_height_type",
@@ -299,7 +301,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.reciprocal_pairs_disagree",
         "validation.reciprocal_second_pair_reversed",
         "validation.section_runs_disagree",
-        "validation.stadia_factor_not_positive",
         "validation.staff_reading_not_a_quantity",
         "validation.staff_reading_without_station",
         "validation.staff_reading_wrong_unit",
@@ -348,7 +349,8 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.extent_not_positive",
         "validation.scale_reference_not_positive",
         "validation.target_fraction_out_of_range",
-        # io/ (58)
+        # io/ (31) -- all in krumm.py and adjust.py, which read the RD-11 and ADJUST
+        # reference corpora for the tests and scripts; no algorithm reaches them.
         "data.adjust_angle_out_of_range",
         "data.adjust_azimuths_unsupported",
         "data.adjust_cannot_express_observation",
@@ -364,12 +366,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "data.adjust_observation_row_unrecognised",
         "data.adjust_observation_station_unknown",
         "data.adjust_station_row_too_short",
-        "data.geoid_cell_count",
-        "data.geoid_file_truncated",
-        "data.geoid_grid_has_no_data",
-        "data.geoid_header_incomplete",
-        "data.geoid_header_not_usable",
-        "data.gnss_scan_not_a_directory",
         "data.krumm_angle_unreadable",
         "data.krumm_baseline_antenna_heights",
         "data.krumm_coordinate_row_too_short",
@@ -386,27 +382,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "data.krumm_section_unsupported",
         "data.krumm_setup_heights_incomplete",
         "data.krumm_value_not_a_number",
-        "data.rinex_compression_unsupported",
-        "data.rinex_file_empty",
-        "data.rinex_header_missing",
-        "data.rinex_header_unterminated",
-        "data.rinex_version_malformed",
-        "validation.ambiguous_level_layout",
-        "validation.duplicate_mapped_field",
-        "validation.field_book_not_found",
-        "validation.geoid_format_unsupported",
-        "validation.level_book_empty",
-        "validation.level_mapping_incomplete",
-        "validation.mapping_without_field",
-        "validation.mapping_without_name",
-        "validation.mapping_without_source",
-        "validation.negative_skip_rows",
-        "validation.nothing_to_export",
-        "validation.unknown_decimal_separator",
-        "validation.unknown_export_sheet",
-        "validation.unknown_level_mapping_field",
-        "validation.unknown_mapping_field",
-        "validation.unrecognised_level_layout",
         # reports/ (3)
         "validation.template_name_not_bare",
         "validation.template_not_found",

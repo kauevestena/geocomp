@@ -202,6 +202,42 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "please report it with the network that caused it.",
         "network",
     ),
+    # -- the field book and its mapping (P12c-7) --------------------------------
+    # Shared with the levelling book, whose mapping refuses the same things.
+    "validation.field_book_not_found": MessageTemplate(
+        "The field book '%1' could not be read. Choose an existing, readable CSV file.",
+        "received",
+    ),
+    "validation.mapping_without_name": MessageTemplate(
+        "The field mapping has no name. Give it one: a mapping is saved and reused by its "
+        "name.",
+    ),
+    "validation.unknown_decimal_separator": MessageTemplate(
+        "'%1' is not a decimal separator; use '.', ',' or 'auto'.",
+        "received",
+    ),
+    "validation.negative_skip_rows": MessageTemplate(
+        "The number of rows to skip cannot be negative (%1).",
+        "received",
+    ),
+    "validation.duplicate_mapped_field": MessageTemplate(
+        "Each field can be mapped once, and %1 is mapped more than once. Map each to a "
+        "single column.",
+        "received",
+    ),
+    "validation.mapping_without_field": MessageTemplate(
+        "A column of the mapping names no field. Choose the field it fills, or remove it.",
+    ),
+    "validation.mapping_without_source": MessageTemplate(
+        "The field '%1' has neither a source column nor a constant value. Choose a column, or "
+        "give a value for every row.",
+        "field",
+    ),
+    "validation.unknown_mapping_field": MessageTemplate(
+        "The mapping names %1, which GeoComp does not know as a field-book field. Expected %2.",
+        "received",
+        "expected",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

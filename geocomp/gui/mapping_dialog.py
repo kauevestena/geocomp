@@ -42,6 +42,7 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from geocomp.core.errors import GeoCompError
 from geocomp.core.findings import Severity
 from geocomp.io.mapping import FIELDS, AngleFormat, FieldMapping
 from geocomp.io.mapping_editor import (
@@ -326,13 +327,19 @@ class FieldMappingDialog(QDialog):
         try:
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
             self.editor.load(FieldMapping.from_dict(payload))
-        except (OSError, ValueError, KeyError) as exc:
+        except (OSError, ValueError, KeyError, GeoCompError) as exc:
+            # A mapping GeoComp refuses -- an unknown field, no name -- raises a
+            # ValidationError, which is not a ValueError: until P12c-7 it escaped
+            # this slot and reached the user as a Python traceback.
+            from geocomp.services.messages import message_for
+
+            reason = message_for(exc) if isinstance(exc, GeoCompError) else str(exc)
             QMessageBox.warning(
                 self,
                 _tr("Mapping not loaded"),
                 _tr("'%1' could not be read as a field mapping: %2")
                 .replace("%1", path)
-                .replace("%2", str(exc)),
+                .replace("%2", reason),
             )
             return
         self._reload_widgets()
