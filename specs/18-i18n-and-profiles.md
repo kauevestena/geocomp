@@ -72,7 +72,10 @@ P12c-7 counted, 457 of the codes GeoComp raises were in that state.
   that message in its context, and the template must interpolate it.
 - The 28 codes of the file readers the algorithms use have templates too: RINEX files and folders, field and
   levelling books and their mappings, geoid grids, and the tables export.
-- The other 348 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
+- The 67 codes of the levelling and total-station techniques have templates as well. A user's observations
+  reach most of them: a line that does not join up, a setup without a foresight, or a resection with two known
+  points.
+- The other 281 codes are frozen in `tests/structural/untemplated_codes.py`, grouped by the directory that
   raises them, and that list may only shrink. The 31 left in `io/` belong to the readers of the reference
   corpora (`krumm.py`, `adjust.py`), which no algorithm reaches. `tests/structural/test_message_templates.py` reads all of
   `geocomp/` and enforces three rules:
