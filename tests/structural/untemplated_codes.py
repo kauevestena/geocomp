@@ -9,7 +9,9 @@ the engine package, where a failure is most often the user's input meeting
 DynAdjust or RTKLIB, and froze the rest here. Its second pull request wrote the
 28 of the file readers the algorithms use -- RINEX, field and levelling books
 and their mappings, geoid grids, the tables export -- and its third the 67 of
-the levelling and total-station techniques, which a user's observations reach.
+the levelling and total-station techniques, which a user's observations reach;
+its fourth the 51 of GNSS, gravimetry and integration, which finish the
+techniques.
 
 The list may only shrink. ``tests/structural/test_message_templates.py`` fails
 on a code raised without a template that is not listed here -- a new code
@@ -75,7 +77,7 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.sqrt_of_negative",
         "validation.unknown_covariance_label",
         "validation.value_count_mismatch",
-        # core/adjustment/ (30)
+        # core/adjustment/ (29)
         "computation.degenerate_sight",
         "computation.variance_component_negative",
         "computation.variance_component_unestimable",
@@ -84,7 +86,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "data.weighted_constraint_components_missing",
         "data.weighted_constraint_singular",
         "validation.direction_without_setup",
-        "validation.drift_degree_invalid",
         "validation.fixed_station_without_gravity",
         "validation.geocentric_frame_orthometric_constraint",
         "validation.geocentric_frame_partial_geodetic_constraint",
@@ -221,59 +222,6 @@ UNTEMPLATED: frozenset[str] = frozenset(
         "validation.incomplete_gamma_domain",
         "validation.probability_out_of_range",
         "validation.relative_ellipse_dimension_mismatch",
-        # core/techniques/gnss/ (32)
-        "data.antenna_offset_unit",
-        "data.baseline_between_one_station",
-        "data.baseline_cluster_empty",
-        "data.baseline_cluster_mixed_frames",
-        "data.baseline_component_count",
-        "data.baseline_component_unit",
-        "data.baseline_covariance_size",
-        "data.comparison_mixed_frames",
-        "data.comparison_mixed_station_pairs",
-        "data.comparison_needs_two_configurations",
-        "data.comparison_reference_not_found",
-        "data.duplicate_reference_station",
-        "data.gnss_loop_leg_not_ecef",
-        "data.gnss_loop_mixed_antenna_reduction",
-        "data.reference_station_database_missing",
-        "data.reference_station_database_unreadable",
-        "data.reference_station_not_found",
-        "data.reference_station_position_count",
-        "data.reference_station_position_unit",
-        "data.reference_station_without_frame",
-        "data.reference_station_without_id",
-        "data.trajectory_covariance_not_local",
-        "data.trajectory_point_frame",
-        "validation.antenna_height_already_reduced",
-        "validation.antenna_height_is_slant",
-        "validation.antenna_reduction_needs_ecef",
-        "validation.baseline_already_local",
-        "validation.gnss_loop_leg_missing",
-        "validation.gnss_loop_repeats_a_station",
-        "validation.gnss_loop_too_short",
-        "validation.reference_station_frame_mismatch",
-        "validation.reference_station_without_velocity",
-        # core/techniques/gravimetry/ (14)
-        "validation.absolute_gravity_invalid",
-        "validation.drift_occupation_mismatch",
-        "validation.drift_time_scale_invalid",
-        "validation.gravity_base_station_not_in_session",
-        "validation.gravity_network_without_readings",
-        "validation.gravity_reading_incomplete",
-        "validation.gravity_reading_instant_naive",
-        "validation.gravity_reading_sensor_height_unit",
-        "validation.gravity_station_held_twice",
-        "validation.gravity_station_not_in_solution",
-        "validation.gravity_vertical_gradient_invalid",
-        "validation.tide_amplification_invalid",
-        "validation.tide_instant_naive",
-        "validation.tide_latitude_out_of_range",
-        # core/techniques/integration/ (4)
-        "validation.combination_gravity_without_its_network",
-        "validation.combination_routed_to_dynadjust",
-        "validation.combination_station_without_position",
-        "validation.engine_unknown",
         # core/visualization/ (6)
         "validation.ellipse_too_few_vertices",
         "validation.exaggeration_not_finite",
