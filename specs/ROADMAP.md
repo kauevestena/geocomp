@@ -2284,6 +2284,30 @@ Nothing was found broken.
 Two blocks remain: visualisation, reporting and community (FR-900 to FR-955) and the non-functional
 ones (NFR-001 to NFR-012).
 
+#### P12c-13 — every requirement held to a test (seventh pull request): visualisation, reporting and community
+
+FR-900 to FR-955: 10 met, 4 partly met and 1 open, of 15.
+
+**Found and fixed: a test of styling that could not fail (FR-900, FR-905).** The check that the adjustment's
+result layers "are not left with the default renderer" asserted that each had a renderer, and every vector
+layer has one, so an unstyled layer passed it. Nothing ran the displacement and velocity layers'
+post-processor at all, so a style that never reached them would have passed too. Each produced layer is now
+post-processed as Processing does it and its renderer compared with the one its shipped QML gives: the six
+adjustment layers, the displacements, their ellipses and the velocities. The code was right; the tests are now
+able to show it.
+
+**Not done here.**
+
+- FR-950: three reference datasets have no test (row 20 3), and only RD-01 ships with the plugin.
+- FR-951: the comparison protocol is written in §5 of specs/20 and its export exists, but it is a specification
+  section, not documentation, and has never been run (W-12).
+- FR-952: one tutorial, for one module, in English.
+- FR-954, open: no contribution guide. How companies and public bodies take part is the maintainer's decision.
+- FR-955: the files an upstream report needs are kept, but nothing packages them into one.
+
+All four partly met and the open one are P13's deliverables, as its plan already states. One block remains: the
+non-functional requirements (NFR-001 to NFR-012).
+
 ---
 
 ## P13 — Validation, documentation and release
