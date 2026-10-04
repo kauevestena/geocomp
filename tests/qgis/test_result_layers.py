@@ -24,7 +24,7 @@ import pytest
 
 from tests.conftest import REPO_ROOT
 from tests.networks import trilateration
-from tests.qgis.conftest import requires_modern_field_api
+from tests.qgis.conftest import post_process, requires_modern_field_api, shipped_renderer
 
 pytestmark = pytest.mark.qgis
 
@@ -97,6 +97,16 @@ def adjusted(geocomp_provider, network_document, tmp_path_factory):
         assert layer is not None, f"{name} produced no layer"
         layers[name] = layer
     return results, layers, context
+
+
+@pytest.fixture(scope="module")
+def styled(adjusted):
+    """The layers of :func:`adjusted` as Processing loads them: post-processed,
+    which is where they are named, styled and given their thematic maps."""
+    results, layers, context = adjusted
+    for name, layer in layers.items():
+        post_process(results, name, layer, context)
+    return layers
 
 
 def _values(layer, field: str) -> list:
@@ -376,13 +386,18 @@ class TestTheStylesLoad:
         _message, ok = layer.loadNamedStyle(str(style_path(style)))
         assert ok, f"QGIS rejected {style}.qml"
 
-    def test_the_produced_layers_are_not_left_with_the_default_renderer(self, adjusted):
-        """The post-processor is the only thing that styles a Processing
+    @pytest.mark.parametrize("output", LAYER_OUTPUT_NAMES)
+    def test_each_produced_layer_draws_with_its_shipped_style(self, styled, output):
+        """FR-905. The post-processor is the only thing that styles a Processing
         output, and Processing holds it weakly -- an instance that went out of
-        scope would leave the layers silently unstyled."""
-        _results, layers, _context = adjusted
-        for name, layer in layers.items():
-            assert layer.renderer() is not None, name
+        scope would leave the layers silently unstyled.
+
+        Until P12c-13 this asserted only that each layer had a renderer, which
+        every vector layer has, styled or not."""
+        from geocomp.algorithms.layer_outputs import LAYER_OUTPUTS
+
+        style = next(style for name, style, *_ in LAYER_OUTPUTS if name == output)
+        assert styled[output].renderer().dump() == shipped_renderer(style)
 
     def test_the_residual_categories_are_the_three_the_code_produces(self, adjusted):
         """The style names its categories by string. A renderer whose attribute
@@ -403,15 +418,8 @@ class TestTheThematicMapsReachTheAdjustment:
     filled."""
 
     @pytest.fixture(scope="class")
-    def processed(self, adjusted):
-        from qgis.core import QgsProcessingFeedback
-
-        results, layers, context = adjusted
-        for name, layer in layers.items():
-            details = context.layerToLoadOnCompletionDetails(results[name])
-            assert details is not None, f"{name} is not loaded on completion"
-            details.postProcessor().postProcessLayer(layer, context, QgsProcessingFeedback())
-        return layers
+    def processed(self, styled):
+        return styled
 
     def test_the_residual_layer_offers_its_four_maps(self, processed):
         styles = set(processed["OUTPUT_RESIDUAL_LAYER"].styleManager().styles())

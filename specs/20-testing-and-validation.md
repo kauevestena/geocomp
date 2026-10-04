@@ -464,7 +464,7 @@ same rules: a **met** row cites a test, directly or through "As NN.N" to a met a
 is not met says what is missing. `tests/structural/test_requirement_register.py` holds it to the requirements
 document. It is written block by block, and the test lists the blocks not yet audited; that list may only shrink.
 
-**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838 (P12c-13). State now: 136 met, 13 partly met, 0 open, 0 manual, of 149.**
+**Audited: the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955 (P12c-13). State now: 146 met, 17 partly met, 1 open, 0 manual, of 164.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -617,3 +617,18 @@ document. It is written block by block, and the test lists the blocks not yet au
 | FR-836 | **met** | `tests/test_monitoring.py::TestStrain` |
 | FR-837 | **met** | As 14.9 |
 | FR-838 | **met** | As 14.8 |
+| FR-900 | **met** | Each drawn with the style it ships with: adjusted stations, residuals and error ellipses (`tests/qgis/test_result_layers.py::TestTheStylesLoad`), GNSS baselines (`tests/qgis/test_gnss_layers.py::TestTheStyleLoads`), displacement vectors and velocities (`tests/qgis/test_monitoring_algorithms.py::TestLayers`). Since P12c-13 the produced layer is compared with its shipped style; until then the adjustment's layers were held only to having a renderer, which an unstyled layer has too, and nothing ran the displacement layers' post-processor |
+| FR-901 | **met** | As 19.2 |
+| FR-902 | **met** | As 19.5 |
+| FR-903 | **met** | As 19.6 |
+| FR-904 | **met** | As 19.4 |
+| FR-905 | **met** | As 19.1; through a model as well as the toolbox, `tests/qgis/test_model_chain.py::TestRd01ArrivesAsStyledLayers` |
+| FR-930 | **met** | `tests/qgis/test_adjustment_report.py::TestItCarriesEverySection`; the parameters' scopes, the inputs by digest and the software versions, `tests/qgis/test_adjustment_report.py::TestItIsDefensible` |
+| FR-931 | **met** | One HTML file, printed to PDF by any browser, and print layouts (`tests/qgis/test_print_layouts.py`); an organisation's template used and what it leaves out reported (`tests/qgis/test_adjustment_report.py::TestATemplateCanChangeTheLayout`, `tests/test_report_templates.py`). The template is chosen per run rather than in Global Settings, which is FR-066's row |
+| FR-932 | **met** | Displacements, decisions and the map (`tests/qgis/test_monitoring_algorithms.py::TestCompareEpochs::test_the_report_carries_the_decisions_and_the_map`), the time series (`tests/qgis/test_monitoring_algorithms.py::TestTimeSeries::test_the_series_report_plots_every_station`), both drawn from the layers' geometry (`tests/test_monitoring_drawing.py::TestReportMap`, `tests/test_monitoring_drawing.py::TestReportPlot`) |
+| FR-950 | **partly met** | Nine of the twelve reference datasets have an expected result and a test; RD-05 is not vendored, RD-08's published half waits on W-01, RD-10 is P13's (row 20 3). Only RD-01 ships with the plugin (`tests/test_tutorial_dataset.py::TestItShips`); the others are in the repository |
+| FR-951 | **partly met** | The protocol is written, §5, with how a difference is classified, investigated and published, and GeoComp's half of it, the comparison export, As 20.7. It is a section of a specification rather than documentation a comparison's author is handed, and it has never been run (W-12): P13's |
+| FR-952 | **partly met** | RD-01 ships as a tutorial dataset with its walkthrough, and every number the walkthrough states is checked against the files (`tests/test_tutorial_dataset.py::TestTheTutorialTellsTheTruth`, `tests/qgis/test_tutorial.py::TestFollowingIt`). One module, in English; tutorials for every module in three languages and worked QGIS projects are P13's |
+| FR-953 | **met** | Public, with CI on every push (`.github/workflows/test.yml`, `.github/workflows/build.yml`), every algorithm's help held to its parameters (`tests/qgis/test_algorithm_help.py`), and the specifications in `specs/`. Teaching material is FR-952's row |
+| FR-954 | **open** | No contribution guide. §8 says what it must cover and P13 writes it; how companies and public bodies take part is the maintainer's to decide, not an audit's to draft |
+| FR-955 | **partly met** | What a report needs is kept: a DynAdjust failure that names its files leaves them and says where (`tests/qgis/test_engine_runs.py::TestADynAdjustRefusal`), an RTKLIB working directory is kept on request with its configuration (`tests/qgis/test_engine_runs.py::TestTheWorkingDirectory`), and the command and what the engine said are in the result (`tests/qgis/test_engine_runs.py::TestTheVersion`). Nothing packages them into one report for upstream, as §8 describes: P13's |

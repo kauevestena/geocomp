@@ -30,7 +30,7 @@ from geocomp.core.models import (
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 from tests.monitoring_network import CRS, LAYOUT, OBJECTS, ORIGIN, REFERENCE, epoch
-from tests.qgis.conftest import requires_modern_field_api
+from tests.qgis.conftest import post_process, requires_modern_field_api, shipped_renderer
 
 pytestmark = pytest.mark.qgis
 
@@ -388,3 +388,39 @@ class TestLayers:
         o1 = next(f for f in layer.getFeatures() if f["station"] == "O1")
         assert o1["v_e"] == pytest.approx(0.004, abs=0.001)
         assert o1["epochs"] == 3
+
+    def test_each_draws_with_its_shipped_style(self, files):
+        """FR-900 and FR-905: displacement vectors, their ellipses and the
+        velocities arrive styled. Until P12c-13 nothing ran their post-processor,
+        so a style that never reached them would have passed."""
+        from qgis.core import QgsProcessing, QgsProcessingUtils
+
+        folder = files["folder"]
+        compared = _run(
+            COMPARE,
+            _compare_parameters(
+                files,
+                OUTPUT_ANALYSIS=str(folder / "styled.json"),
+                OUTPUT_HTML="",
+                OUTPUT_DISPLACEMENT_LAYER=QgsProcessing.TEMPORARY_OUTPUT,
+                OUTPUT_DISPLACEMENT_ELLIPSE_LAYER=QgsProcessing.TEMPORARY_OUTPUT,
+            ),
+        )
+        series = _run(
+            SERIES,
+            _series_parameters(
+                files,
+                OUTPUT_SERIES=str(folder / "styled-series.json"),
+                OUTPUT_CSV="",
+                OUTPUT_HTML="",
+                OUTPUT_VELOCITY_LAYER=QgsProcessing.TEMPORARY_OUTPUT,
+            ),
+        )
+        for (results, context), output, style in (
+            (compared, "OUTPUT_DISPLACEMENT_LAYER", "displacements"),
+            (compared, "OUTPUT_DISPLACEMENT_ELLIPSE_LAYER", "displacement_ellipses"),
+            (series, "OUTPUT_VELOCITY_LAYER", "velocities"),
+        ):
+            layer = QgsProcessingUtils.mapLayerFromString(results[output], context)
+            post_process(results, output, layer, context)
+            assert layer.renderer().dump() == shipped_renderer(style), output

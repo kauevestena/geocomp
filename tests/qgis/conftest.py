@@ -76,3 +76,34 @@ requires_modern_field_api = pytest.mark.skipif(
         "the plugin's declared minimum of 4.0"
     ),
 )
+
+
+def post_process(results: dict, name: str, layer, context) -> None:
+    """Run what Processing runs when it loads *layer* into a project: the
+    post-processor GeoComp registered for output *name*, which styles it."""
+    from qgis.core import QgsProcessingFeedback
+
+    details = context.layerToLoadOnCompletionDetails(results[name])
+    assert details is not None, f"{name} is not loaded on completion"
+    assert details.postProcessor() is not None, f"{name} has no post-processor"
+    details.postProcessor().postProcessLayer(layer, context, QgsProcessingFeedback())
+
+
+def shipped_renderer(style: str) -> str:
+    """The renderer the shipped ``<style>.qml`` gives a layer of its own kind,
+    dumped -- what a produced layer must draw with if it arrived styled.
+
+    Compared as dumps, not as "a renderer is set": every vector layer has one,
+    the single-symbol default, so that check is true of an unstyled layer too.
+    """
+    from qgis.core import QgsVectorLayer
+
+    from geocomp.layers.builders import LAYER_GEOMETRY, fields_for
+    from geocomp.layers.styles import style_path
+
+    reference = QgsVectorLayer(f"{LAYER_GEOMETRY[style]}?crs=EPSG:31982", style, "memory")
+    reference.dataProvider().addAttributes(list(fields_for(style)))
+    reference.updateFields()
+    _message, ok = reference.loadNamedStyle(str(style_path(style)))
+    assert ok, f"QGIS rejected {style}.qml"
+    return reference.renderer().dump()
