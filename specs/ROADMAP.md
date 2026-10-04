@@ -2269,6 +2269,21 @@ specs/09 §2 now records it. It is the most consequential gap the audit has foun
 
 Four blocks remain.
 
+#### P12c-13 — every requirement held to a test (sixth pull request): GNSS, gravimetry, integration and multi-epoch
+
+FR-600 to FR-838: 23 met and 1 partly met, of 24. Most rows borrow the acceptance register's evidence
+(specs/08, 12, 13 and 14 have a criterion for nearly every requirement); the rest cite the test directly.
+Nothing was found broken.
+
+**Not done here — the one partly met.**
+
+- FR-603: dilution of precision is never reported. `rnx2rtkp` does not write it, and the quality summary
+  leaves the field empty rather than put another quantity in it; specs/08 §7.3 now says so. Computing it
+  from the satellite geometry needs the navigation data the engine already reads, and is not an audit fix.
+
+Two blocks remain: visualisation, reporting and community (FR-900 to FR-955) and the non-functional
+ones (NFR-001 to NFR-012).
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -356,6 +356,12 @@ Parsed into:
 | Kinematic trajectory | Time-ordered positions with per-epoch covariance and quality |
 | Quality indicators | Q flag (fixed / float / single), satellite count, DOP, ratio, age (FR-603) |
 
+*As built (P12c-13).* DOP has a field and no value: no column of `rnx2rtkp`'s solution file carries it,
+and `core/techniques/gnss/quality.py` leaves the field empty rather than fill it with another quantity.
+FR-603 is recorded as partly met in the requirement register
+([`20-testing-and-validation.md`](./20-testing-and-validation.md) §11) until DOP is computed from the
+satellite geometry or read from an engine that writes it.
+
 **Solution quality is never silently discarded.** A float solution presented without its Q flag is a
 misrepresentation; Q travels with the result into every layer, report and adjustment.
 
