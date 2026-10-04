@@ -5,6 +5,17 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-17 — Global Settings remembers the profile library
+
+#### Added
+
+- *Instrument profile library*, *Level profile library* and *Gravimeter profile library*, on the Total
+  Station, Level and Gravimeter pages of Global Settings. A run given no profile library reads the one its
+  technique's page names, so the file no longer has to be chosen again for every run. A project can name its
+  own. Empty, the default, changes nothing.
+- *Instrument profiles…* opens the library the page names. A library saved from the window while the page
+  names none is entered on the page.
+
 ### P12c-16 — Instrument profiles in a window
 
 #### Added

@@ -123,7 +123,11 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                PROFILES, self.tr("Instrument profiles"), extension="json", optional=True
+                PROFILES,
+                self.tr("Instrument profiles"),
+                extension="json",
+                defaultValue=configured("total_station.profile_library") or None,
+                optional=True,
             )
         )
         for name, label, default, maximum in (

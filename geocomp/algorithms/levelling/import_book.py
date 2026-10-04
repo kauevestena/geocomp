@@ -23,6 +23,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.levelling.common import (
     findings_table,
     level_from_parameters,
@@ -110,7 +111,11 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                PROFILES, self.tr("Instrument profiles"), extension="json", optional=True
+                PROFILES,
+                self.tr("Instrument profiles"),
+                extension="json",
+                defaultValue=configured("level.profile_library") or None,
+                optional=True,
             )
         )
         self.addAdvancedParameter(

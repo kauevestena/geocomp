@@ -66,6 +66,7 @@ DRIFT_MODE_KEY = "gravimeter.drift_mode"
 DRIFT_DEGREE_KEY = "gravimeter.drift_degree"
 PRECISION_FLOOR_KEY = "gravimeter.precision_floor"
 DISPLAY_UNIT_KEY = "gravimeter.display_unit"
+PROFILE_LIBRARY_KEY = "gravimeter.profile_library"
 
 #: What *Pre-processing* writes and *Gravimetric network adjustment* reads.
 DOCUMENT_FORMAT = "geocomp.gravity_readings"

@@ -2395,6 +2395,21 @@ the file. Making a library every run's default needs a rule for a library that l
 and that rule is the next step. The window does not edit a gravimeter's counter-to-milligal table: the table
 is kept as imported.
 
+#### P12c-17 — the library a run reads (FR-061)
+
+After P12c-16, profiles were edited in a window reached from Global Settings, but Global Settings did not
+remember which library to use. Every run had to be given the file again.
+
+**Delivered** ([`15`](./15-ui-menu-and-settings.md) §2.2, *As built (P12c-17)*).
+
+| | |
+|---|---|
+| A library per technique | `total_station.profile_library`, `level.profile_library` and `gravimeter.profile_library` are each the default of their technique's *Instrument profiles* inputs, six in all. A run that names its own library still reads that one. Empty leaves every run as it was. There is one setting per technique, not one for all, so a library holding only total stations never becomes what a levelling run reads |
+| The window opens it | The page's *Instrument profiles…* opens the library the page names. A file named but not yet written is started there. A library saved while the page names none is entered on the page, for OK to keep |
+| Found on the way | In P12c-16, before it merged: the window's *Add* did not make the first profile of a kind its default, as the library's own `add_instrument` does. So a library built in the window failed every run that named no instrument. The first test of a run reading such a library found it |
+
+FR-061 is now **met**: 159 met, 16 partly met, 1 open, of 176.
+
 ---
 
 ## P13 — Validation, documentation and release

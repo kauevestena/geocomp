@@ -54,6 +54,8 @@ EPOCH_USERS = (
 PREPROCESS = "geocomp:totalstation_preprocess"
 TRAVERSE = "geocomp:totalstation_traverse"
 FIELDBOOK = "geocomp:totalstation_import_fieldbook"
+#: A profile library's path. Not opened: the setting only becomes the default.
+LIBRARY = "/surveys/instruments.json"
 
 #: (setting, value set for the run, algorithm, parameter, the default that must follow)
 WIRING: list[tuple[str, object, str, str, object]] = [
@@ -111,6 +113,20 @@ WIRING: list[tuple[str, object, str, str, object]] = [
     ("reference_systems.preferred_crs", "EPSG:31983", "geocomp:totalstation_network", "CRS", "EPSG:31983"),
     ("reference_systems.geoid_sigma", 0.08, "geocomp:integration_multiple", "GEOID_SIGMA", 0.08),
     ("basemaps.reuse_existing_layer", False, "geocomp:project_basemap", "REUSE", False),
+    # The profile library a run reads when given none (P12c-17).
+    *[
+        ("total_station.profile_library", LIBRARY, algorithm, "PROFILES", LIBRARY)
+        for algorithm in (PREPROCESS, FIELDBOOK)
+    ],
+    *[
+        ("level.profile_library", LIBRARY, algorithm, "PROFILES", LIBRARY)
+        for algorithm in (
+            "geocomp:levelling_import",
+            "geocomp:levelling_equal_sights",
+            "geocomp:levelling_extreme_sights",
+        )
+    ],
+    ("gravimeter.profile_library", LIBRARY, "geocomp:gravimetry_preprocess", "PROFILES", LIBRARY),
 ]
 
 

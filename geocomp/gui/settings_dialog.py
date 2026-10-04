@@ -76,6 +76,8 @@ def open_algorithm_dialog(algorithm_id: str, parameters: dict[str, Any]) -> None
 
 #: The settings page that leads to the instrument profiles, and the tab it opens.
 _PROFILE_TABS = {"total_station": "instruments", "level": "levels", "gravimeter": "gravimeters"}
+#: The setting naming the library a run reads, by the tab its page opens.
+_PROFILE_SETTINGS = {kind: f"{section}.profile_library" for section, kind in _PROFILE_TABS.items()}
 
 
 def section_label(section_id: str) -> str:
@@ -123,12 +125,14 @@ def setting_label(key: str) -> str:
         "total_station.traverse_angular_tolerance_per_station": _tr(
             "Angular tolerance per station (rad)"
         ),
+        "total_station.profile_library": _tr("Instrument profile library"),
         # -- Level (P4) --------------------------------------------------
         "level.weighting": _tr("Height-difference weighting"),
         "level.tolerance_coefficient": _tr("Permissible misclosure k, in m per root kilometre"),
         "level.max_sight_length": _tr("Longest permitted sight (m)"),
         "level.max_sight_imbalance": _tr("Largest permitted imbalance per setup (m)"),
         "level.max_accumulated_imbalance": _tr("Largest permitted imbalance per line (m)"),
+        "level.profile_library": _tr("Level profile library"),
         # -- GNSS (P7c) ---------------------------------------------------
         "gnss.product_directory": _tr("Precise product directory"),
         "gnss.antenna_file": _tr("Antenna calibration file (ANTEX)"),
@@ -153,6 +157,7 @@ def setting_label(key: str) -> str:
             "Reading precision floor, added in quadrature (m/s²)"
         ),
         "gravimeter.display_unit": _tr("Gravity display unit"),
+        "gravimeter.profile_library": _tr("Gravimeter profile library"),
         "level.reciprocal_variance_inflation": _tr(
             "Variance inflation for reciprocal sights"
         ),
@@ -393,10 +398,24 @@ class GlobalSettingsDialog(QDialog):
         return button
 
     def open_profiles(self, kind: str = "") -> QDialog:
-        """Open the instrument profiles window on *kind*'s tab, and return it."""
+        """Open the instrument profiles window on *kind*'s tab, and return it.
+
+        It opens the library this page names (P12c-17), as the page shows it,
+        saved or not. A library saved from the window while the page names none
+        is entered on the page, for OK to keep or Cancel to drop: the window
+        alone changes no setting.
+        """
         from geocomp.gui.profiles_dialog import ProfileLibraryDialog
 
-        dialog = ProfileLibraryDialog(parent=self, kind=kind)
+        editor = self._editors.get(_PROFILE_SETTINGS.get(kind, ""))
+        path = _editor_value(editor) if editor is not None else ""
+        dialog = ProfileLibraryDialog(path or "", parent=self, kind=kind)
+
+        def named(_result: int) -> None:
+            if editor is not None and not _editor_value(editor) and dialog.path:
+                _set_editor_value(editor, dialog.path)
+
+        dialog.finished.connect(named)
         dialog.setModal(True)
         dialog.show()
         return dialog

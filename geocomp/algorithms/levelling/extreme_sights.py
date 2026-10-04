@@ -123,7 +123,11 @@ class ExtremeSightsAlgorithm(GeoCompAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterFile(
-                PROFILES, self.tr("Instrument profiles"), extension="json", optional=True
+                PROFILES,
+                self.tr("Instrument profiles"),
+                extension="json",
+                defaultValue=configured("level.profile_library") or None,
+                optional=True,
             )
         )
         self.addAdvancedParameter(
