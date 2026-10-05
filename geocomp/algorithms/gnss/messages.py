@@ -176,6 +176,28 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
         "expected",
     ),
+    # -- RTKLIB: an options file of the user's own (FR-070, P12c-21) -----------------
+    "data.rtklib_configuration_unreadable": MessageTemplate(
+        "The RTKLIB configuration file '%1' could not be read: %2.",
+        "path",
+        "reason",
+    ),
+    "validation.rtklib_configuration_empty": MessageTemplate(
+        "The RTKLIB configuration file '%1' sets no options. It should hold key = value "
+        "lines, as rnx2rtkp -k reads; check that it is the file you meant.",
+        "path",
+    ),
+    "validation.rtklib_option_reserved": MessageTemplate(
+        "The RTKLIB configuration file sets %1, which GeoComp sets itself: the positioning "
+        "mode is the algorithm's, the base station's position is held by GeoComp, and the "
+        "solution is read back by the out- options. Remove them from the file.",
+        "received",
+    ),
+    "validation.rtklib_option_value_invalid": MessageTemplate(
+        "The RTKLIB configuration file gives '%1', where %2 was expected.",
+        "received",
+        "expected",
+    ),
     # -- RTKLIB: reading the solution it wrote ------------------------------------
     "data.pos_column_header_missing": MessageTemplate(
         "'%1' has no column header, so its columns cannot be identified. RTKLIB writes one "

@@ -15,12 +15,16 @@ first commit that declares them so they never join that list.
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from qgis.core import QgsProcessingException, QgsProcessingParameterNumber
+from qgis.core import (
+    QgsProcessingException,
+    QgsProcessingParameterFile,
+    QgsProcessingParameterNumber,
+)
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
@@ -38,12 +42,19 @@ from geocomp.core.techniques.gnss.products import (
 )
 from geocomp.core.techniques.gnss.stations import StationDatabase
 from geocomp.engines.base import DEFAULT_TIMEOUT
-from geocomp.engines.rtklib.config import PROFILES, RtklibConfig
+from geocomp.engines.rtklib.config import (
+    PROFILES,
+    RtklibConfig,
+    read_user_options,
+    with_user_options,
+)
 
 __all__ = [
     "PPP_NOTICE_CODE",
     "SessionProducts",
     "base_coordinates",
+    "configuration_help",
+    "configuration_parameter",
     "configured_profile",
     "engine_record",
     "frame_choices",
@@ -60,6 +71,7 @@ __all__ = [
     "session_products",
     "timeout_parameter",
     "translate_error",
+    "user_configuration",
 ]
 
 # The settings this module reads, written out in full rather than composed from
@@ -107,14 +119,20 @@ def gnss_setting(key: str) -> Any:
     return settings.value(key)
 
 
-def configured_profile(profile_name: str, **overrides: Any) -> RtklibConfig:
+def configured_profile(
+    profile_name: str,
+    *,
+    user_options: Mapping[str, str] | None = None,
+    **overrides: Any,
+) -> RtklibConfig:
     """A named profile with the user's Global Settings applied (FR-063, FR-358).
 
     The profile fixes what the *mode* requires -- a static run is static -- and
     the settings supply what the *user* chose: mask, ephemeris source,
-    atmospheric models, ambiguity threshold. Explicit ``overrides`` win over
-    both, which is how a Processing parameter beats a global default without
-    either having to know about the other.
+    atmospheric models, ambiguity threshold. ``user_options``, from an options
+    file of the user's own (FR-070), come over the settings, and explicit
+    ``overrides`` win over all of them, which is how a Processing parameter beats
+    a global default without either having to know about the other.
     """
     if profile_name not in PROFILES:
         raise QgsProcessingException(
@@ -148,8 +166,68 @@ def configured_profile(profile_name: str, **overrides: Any) -> RtklibConfig:
             "pos1-posopt2": "on",
         }
 
-    configured.update(overrides)
-    return PROFILES[profile_name].with_options(**configured)
+    configuration = PROFILES[profile_name].with_options(**configured)
+    if user_options:
+        try:
+            configuration = with_user_options(configuration, user_options)
+        except GeoCompError as exc:
+            raise QgsProcessingException(
+                _tr("%1: %2")
+                .replace("%1", _configuration_label())
+                .replace("%2", translate_error(exc))
+            ) from exc
+    return configuration.with_options(**overrides)
+
+
+def _configuration_label() -> str:
+    return _tr("RTKLIB configuration file")
+
+
+def configuration_parameter(name: str) -> QgsProcessingParameterFile:
+    """An options file of the user's own, for Advanced mode (FR-070, P12c-21).
+
+    The same on every algorithm that runs ``rnx2rtkp``, as the timeout is.
+    """
+    return QgsProcessingParameterFile(
+        name,
+        _configuration_label(),
+        optional=True,
+        fileFilter=_tr("RTKLIB options (*.conf);;All files (*)"),
+    )
+
+
+def configuration_help() -> str:
+    """What :func:`configuration_parameter` takes, for each algorithm's help."""
+    return _tr(
+        "<p><b>RTKLIB configuration file</b> (Advanced) &mdash; options of your own for "
+        "<code>rnx2rtkp</code>, as <code>key = value</code> lines in RTKLIB's own "
+        "format: any option it reads, including those GeoComp offers no parameter for. "
+        "They come over Global Settings, and the parameters here come over them. Three "
+        "things stay GeoComp's, and a file that sets one is refused: the positioning "
+        "mode, which is the menu item; the base station's position "
+        "(<code>ant2-postype</code> and <code>ant2-pos1</code> to <code>ant2-pos3</code>), "
+        "which GeoComp holds; and every <code>out-</code> option, because the solution "
+        "is read back by them. The summary records the file and the options taken from "
+        "it.</p>"
+    )
+
+
+def user_configuration(
+    algorithm: Any, parameters: dict[str, Any], name: str, context: Any
+) -> dict[str, Any] | None:
+    """The options file given to *name*, read, as the summary records it.
+
+    ``{"file": ..., "options": {...}}``, or ``None`` when none was given. A file
+    that cannot be read, or sets nothing, is refused against the parameter.
+    """
+    path = algorithm.parameterAsFile(parameters, name, context)
+    if not path:
+        return None
+    try:
+        options = read_user_options(path)
+    except GeoCompError as exc:
+        raise QgsProcessingException(algorithm.about_input(name, translate_error(exc))) from exc
+    return {"file": str(path), "options": options}
 
 
 def product_directory() -> Path | None:

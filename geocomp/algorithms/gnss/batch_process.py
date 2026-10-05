@@ -31,6 +31,8 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     SessionProducts,
     base_coordinates,
+    configuration_help,
+    configuration_parameter,
     configured_profile,
     engine_record,
     frame_choices,
@@ -40,6 +42,7 @@ from geocomp.algorithms.gnss.common import (
     run_frame,
     timeout_parameter,
     translate_error,
+    user_configuration,
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.batch import run_batch
@@ -54,6 +57,7 @@ PROFILE = "PROFILE"
 OUTPUT_DIR = "OUTPUT_DIR"
 OUTPUT_JSON = "OUTPUT_JSON"
 TIMEOUT = "TIMEOUT"
+CONFIGURATION = "CONFIGURATION"
 
 _PROFILES = ("relative-static", "relative-kinematic", "absolute-static", "absolute-kinematic")
 
@@ -86,7 +90,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             "that lacks any is refused, naming each session and product, before "
             "a long run begins. A download that fails is reported against its "
             "session, and the batch continues.</p>"
-        )
+        ) + configuration_help()
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
@@ -122,6 +126,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 defaultValue=0,
             )
         )
+        self.addAdvancedParameter(configuration_parameter(CONFIGURATION))
         self.addAdvancedParameter(timeout_parameter(TIMEOUT))
         self.addParameter(
             QgsProcessingParameterFileDestination(
@@ -143,6 +148,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         base_name = (self.parameterAsString(parameters, BASE_STATION, context) or "").strip()
         profile_name = _PROFILES[self.parameterAsEnum(parameters, PROFILE, context)]
         is_absolute = profile_name.startswith("absolute")
+        user = user_configuration(self, parameters, CONFIGURATION, context)
 
         if is_absolute:
             feedback.pushWarning(self.tr(
@@ -197,7 +203,10 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             held, base_record = base_coordinates(
                 base, run_frame(self.parameterAsEnum(parameters, FRAME, context)), feedback
             )
-        configuration = configured_profile(profile_name, **held)
+        # Every session with the same configuration, the user's options included.
+        configuration = configured_profile(
+            profile_name, user_options=user["options"] if user else None, **held
+        )
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
         work_root = Path(tempfile.mkdtemp(prefix="geocomp-batch-"))
 
@@ -299,6 +308,10 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                         **({"base_coordinates": base_record} if base_record else {}),
                         # FR-302: the engine version every session was run with.
                         "engine": engine_record(engine),
+                        # The configuration every session ran with, and the
+                        # user's own options in it (FR-070).
+                        "configuration": configuration.to_dict(),
+                        **({"user_configuration": user} if user else {}),
                         **outcome.to_dict(),
                         "sessions": [r.value for r in outcome.succeeded if r.value],
                     },

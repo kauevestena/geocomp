@@ -140,6 +140,33 @@ indistinguishable from unusable observations: exit zero, a header, no records. S
 `tzinfo`, which would otherwise fail as a `TypeError` from comparing it against the session's own
 times — an error that says nothing about which of the caller's two numbers is wrong.
 
+### 2.4 An options file of the user's own (FR-070, P12c-21)
+
+§2 calls the configuration file "editable by the user in Advanced mode". Until P12c-21 nothing took one:
+`RtklibConfig.extra` could carry any option, and no algorithm let a user fill it. Now the four processing
+modes and *Batch processing* take an Advanced **RTKLIB configuration file**: `key = value` lines in RTKLIB's
+own format, read by the same `parse_config` that reads GeoComp's own back.
+
+- **Precedence.** Global Settings, then the file, then the algorithm's own parameters — the existing rule
+  that an explicit parameter beats a default, with the file as one more default between them. An elevation
+  mask given in the dialog wins over one in the file.
+- **An option GeoComp models sets its field**, rather than overriding the written value behind its back:
+  `pos1-sateph = precise` in the file is a configuration whose ephemeris *is* precise, so the products a
+  precise run needs are the ones fetched (§5). An enumeration given by its number (`pos1-sateph = 1`) is
+  taken by its name, from the comment table GeoComp writes; `pos1-navsys` is a sum of flags and stays a
+  number. A modelled number that is not one is refused, and so is anything `RtklibConfig` refuses of the
+  result, as an elevation mask out of range.
+- **Any other option is written after GeoComp's**, through `extra`, so it is the value the engine reads.
+- **Three things are refused**, every offending key named at once: `pos1-posmode`, because the mode is the
+  menu item; `ant2-postype` and `ant2-pos1` to `ant2-pos3`, because where the base is held is GeoComp's
+  to decide (§2.1 says what leaving it to chance costs); and **every `out-` option**, because §7's reader
+  reads the solution by them — its columns, header, time system and separator.
+- **A file that sets nothing is refused**: almost certainly the wrong file, and a run that ignored it would be
+  recorded as configured by it.
+- **Recorded.** The run's summary and the batch report carry `user_configuration` — the file and the options
+  taken from it — beside the configuration as written. *Compare configurations* (FR-359) does not take one;
+  it compares the masks it is given.
+
 ---
 
 ## 3. Risk: PPP capability (FR-604)

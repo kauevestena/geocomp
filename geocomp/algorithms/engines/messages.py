@@ -125,6 +125,46 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "epoch, and one or both are missing. GeoComp will not guess either. Set them on the "
         "run or record them on the network.",
     ),
+    "validation.dynadjust_configuration_unknown_program": MessageTemplate(
+        "The DynAdjust configuration names '%1', which is not a program GeoComp runs. "
+        "It may give options to: %2.",
+        "program",
+        "expected",
+    ),
+    "validation.dynadjust_option_reserved": MessageTemplate(
+        "The DynAdjust configuration gives '%1' to %2, an option GeoComp sets itself. "
+        "Change it through the algorithm's own parameter instead: GeoComp reads the output "
+        "back by what that option says, and would misread it.",
+        "option",
+        "program",
+    ),
+    "data.dynadjust_configuration_unreadable": MessageTemplate(
+        "The DynAdjust configuration '%1' could not be read as JSON: %2.",
+        "path",
+        "reason",
+    ),
+    "validation.dynadjust_configuration_invalid": MessageTemplate(
+        "The DynAdjust configuration '%1' is not a list of options per program. Write it "
+        'as {"dnaadjust": ["--option", "value"]}.',
+        "path",
+    ),
+    "data.dynadjust_prepared_manifest_missing": MessageTemplate(
+        "'%1' holds no job GeoComp prepared. Run Adjust network (DynAdjust) with "
+        "'Stop after writing the input' first, and give the folder it wrote.",
+        "work_dir",
+    ),
+    "data.dynadjust_prepared_manifest_unreadable": MessageTemplate(
+        "The prepared job in '%1' could not be read: %2. It is the file GeoComp wrote "
+        "beside the input; prepare the job again rather than editing it.",
+        "path",
+        "reason",
+    ),
+    "data.dynadjust_prepared_file_missing": MessageTemplate(
+        "The prepared input file '%1' is no longer in '%2'. Edit the input files in place; "
+        "do not rename or remove them.",
+        "path",
+        "work_dir",
+    ),
     "validation.dynadjust_geoid_grid_required": MessageTemplate(
         "The network '%1' has orthometric heights, and DynAdjust cannot relate them to "
         "ellipsoidal heights without a geoid model. Give a geoid grid (NTv2) in the dialog, "

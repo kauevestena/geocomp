@@ -133,6 +133,41 @@ exceeds a configurable threshold. Advanced mode exposes each stage individually 
 to stop after input generation, inspect or edit the files, and resume — this is the `prepare` / `run` /
 `parse` split in the engine interface ([`03-architecture.md`](./03-architecture.md) §3.3).
 
+*As built (P12c-21, FR-325).* Three things, each in Advanced mode:
+
+- **Stop after writing the input.** *Adjust network (DynAdjust)* with *Stop after writing the input*
+  prepares the job in its working-files folder — the station and measurement files, the plan, and a
+  manifest, `geocomp-dynadjust-job.json` — reports the plan, and stops. It runs no program, so DynAdjust need
+  not be installed on the machine that prepares; a run that will use DynAdjust still looks for it first, as
+  before, so a machine without it is told so before anything about the network.
+- **Run it later.** *Run a prepared DynAdjust job* (`analysis_dynadjust_run_prepared`) takes that folder and
+  runs what is in it **now**. The manifest holds what reading the result back needs — the network, the job's
+  frame, epoch and figures, the plan and the name mapping — and a SHA-256 digest of each input file as
+  GeoComp wrote it. A file whose digest has changed was edited: the run warns, and the solution's provenance
+  records `resumed` and `edited_inputs`, because a result from edited input is not the network's alone. A
+  folder with no manifest, a manifest that cannot be read, and an input file that has gone are each refused by
+  name. The folder is the user's and is never removed.
+- **A configuration of the user's own.** A JSON file of options per program,
+  `{"dnaadjust": ["--free-stn-sd", "10"]}`, passed to each stage the plan includes after GeoComp's own
+  options. A program GeoComp does not run is refused, and so is any option GeoComp sets itself
+  (`RESERVED_OPTIONS`: the network name, the frame and epoch, the stage switches, the iteration and
+  confidence figures and every output option the reader depends on), with or without an `=value`. The
+  configuration is recorded in the provenance.
+
+Measured with DynAdjust 1.4.0 on the GNSS sample: scaling a measurement's variance and constraining a station
+by hand both read back, the second with three more degrees of freedom (6 rather than 3, the tier-4
+`test_a_prepared_job_runs_the_input_as_the_user_left_it`). **Adding, removing or ignoring a measurement does
+not, yet.** DynAdjust loads an ignored measurement — `Loaded 36 measurements`, `Includes 1 ignored` — and
+leaves it out of the adjusted-measurement table (24 rows for one ignored cluster of four baselines), and the
+reader matches that table to the network by order, so it refuses. The help says not to. The same
+measurement exposed a defect older than this phase, on the path GeoComp writes itself: an observation the user
+excluded (FR-255) is written as active when it is a member of a GNSS cluster or a direction set, so DynAdjust
+uses it, and a lone excluded one is left out of the file while the reader still expects its rows. Both are
+P12c-22's.
+
+Not built: Advanced mode cannot switch an individual stage on or off. Each still runs when its condition holds,
+and a configuration can give it options but not override that decision.
+
 **Segmentation.** For very large networks `dnasegment` divides the network into blocks joined by junction
 stations, and `dnaadjust` solves them by Tienstra's phased least-squares method with forward and reverse
 passes, which is rigorous — the block solutions and their variances equal the simultaneous solution

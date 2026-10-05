@@ -395,6 +395,17 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="analysis",
         menu_order=40,
     ),
+    # FR-325 (P12c-21): the second half of a job Adjust network (DynAdjust)
+    # stopped before running, after its input was inspected or edited.
+    AlgorithmSpec(
+        operation="dynadjust_run_prepared",
+        group="analysis",
+        module="geocomp.algorithms.engines.dynadjust_run_prepared",
+        class_name="DynAdjustRunPreparedAlgorithm",
+        requirement="FR-325",
+        menu="analysis",
+        menu_order=45,
+    ),
     AlgorithmSpec(
         operation="dynadjust_compare",
         group="analysis",

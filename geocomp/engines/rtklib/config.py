@@ -23,19 +23,23 @@ them; a file written without them is one nobody can safely change.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from geocomp.core.errors import ValidationError
+from geocomp.core.errors import DataError, ValidationError
 
 __all__ = [
     "PROFILES",
+    "RESERVED_OPTIONS",
     "PositioningMode",
     "RtklibConfig",
     "parse_config",
     "profile",
+    "read_user_options",
+    "with_user_options",
     "write_config",
 ]
 
@@ -297,6 +301,116 @@ def parse_config(text: str) -> dict[str, str]:
         if match:
             values[match.group(1)] = match.group(2)
     return values
+
+
+#: What a user's own options file may not set (FR-070, P12c-21). The positioning
+#: mode is the menu item's: a static run is static. Where the base station is
+#: held is GeoComp's to decide (``specs/11`` section 7), and the comment in
+#: :meth:`RtklibConfig.settings` says what leaving it to chance costs. And every
+#: ``out-`` option decides how the solution file is written -- its columns, its
+#: header, its time system, its separator -- which
+#: :func:`~geocomp.engines.rtklib.read_pos.read_pos` reads it by.
+RESERVED_OPTIONS = frozenset({"pos1-posmode", "ant2-postype", "ant2-pos1", "ant2-pos2", "ant2-pos3"})
+_RESERVED_PREFIX = "out-"
+
+#: The options :class:`RtklibConfig` models, and the field each sets. A user's
+#: file that sets one sets the field rather than overriding the written value
+#: behind its back, so what GeoComp acts on -- the products a precise ephemeris
+#: needs, the systems a navigation file must carry -- is what the engine is told.
+_FIELDS: dict[str, tuple[str, type]] = {
+    "pos1-frequency": ("frequencies", str),
+    "pos1-soltype": ("solution_type", str),
+    "pos1-elmask": ("elevation_mask", float),
+    "pos1-ionoopt": ("ionosphere", str),
+    "pos1-tropopt": ("troposphere", str),
+    "pos1-sateph": ("ephemeris", str),
+    "pos1-navsys": ("navigation_systems", int),
+    "pos2-armode": ("ambiguity_mode", str),
+    "pos2-arthres": ("ambiguity_threshold", float),
+    "ant1-postype": ("rover_position_type", str),
+}
+
+
+def read_user_options(path: str | Path) -> dict[str, str]:
+    """A user's own ``rnx2rtkp`` options file, as ``key -> value`` (FR-070).
+
+    Raises:
+        DataError: ``rtklib_configuration_unreadable`` when the file cannot be
+            read as text.
+        ValidationError: ``rtklib_configuration_empty`` when it sets nothing --
+            almost certainly the wrong file, and a run that silently ignored it
+            would be recorded as configured by it.
+    """
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise DataError(
+            "rtklib_configuration_unreadable", path=str(path), reason=str(exc)
+        ) from exc
+    options = parse_config(text)
+    if not options:
+        raise ValidationError(
+            "rtklib_configuration_empty",
+            path=str(path),
+            expected="key = value lines, as rnx2rtkp -k reads",
+        )
+    return options
+
+
+def with_user_options(config: RtklibConfig, options: Mapping[str, str]) -> RtklibConfig:
+    """*config* with a user's own options applied over it (FR-070, P12c-21).
+
+    An option :class:`RtklibConfig` models sets its field; any other is written
+    verbatim through :attr:`RtklibConfig.extra`, after GeoComp's own, so the
+    user's value is the one the engine reads. An enumeration given by its number,
+    as ``pos1-sateph = 1``, is written by its name, which is the form the
+    products GeoComp fetches are chosen by.
+
+    Raises:
+        ValidationError: ``rtklib_option_reserved`` naming every option the file
+            may not set (:data:`RESERVED_OPTIONS`, and every ``out-`` option);
+            ``rtklib_option_value_invalid`` for a modelled number that is not
+            one; and whatever :class:`RtklibConfig` refuses of the result, as an
+            elevation mask out of range.
+    """
+    reserved = sorted(
+        key for key in options if key in RESERVED_OPTIONS or key.startswith(_RESERVED_PREFIX)
+    )
+    if reserved:
+        raise ValidationError(
+            "rtklib_option_reserved",
+            received=", ".join(reserved),
+            expected="options other than pos1-posmode, the base position and the out- group",
+        )
+    changes: dict[str, Any] = {}
+    extra = dict(config.extra)
+    for key, value in options.items():
+        value = _enumeration_name(key, value)
+        if key not in _FIELDS:
+            extra[key] = value
+            continue
+        name, kind = _FIELDS[key]
+        try:
+            changes[name] = kind(value)
+        except ValueError as exc:
+            raise ValidationError(
+                "rtklib_option_value_invalid",
+                received=f"{key} = {value}",
+                expected=f"a{'n integer' if kind is int else ' number'}",
+            ) from exc
+    return replace(config, extra=extra, **changes)
+
+
+def _enumeration_name(key: str, value: str) -> str:
+    """``1`` as ``precise`` for ``pos1-sateph``, from the comment RTKLIB writes.
+
+    Not ``pos1-navsys``, whose number is a sum of flags rather than a choice.
+    """
+    if not value.isdigit() or _FIELDS.get(key, ("", str))[1] is not str:
+        return value
+    names = dict(re.findall(r"(\d+):([a-z0-9+-]+)", _COMMENTS.get(key, "")))
+    return names.get(value, value)
 
 
 def _number(value: float) -> str:

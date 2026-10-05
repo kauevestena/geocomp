@@ -217,6 +217,120 @@ class TestTheWorkingDirectory:
 # -- DynAdjust -------------------------------------------------------------
 
 
+# -- RTKLIB: an options file of the user's own (FR-070, P12c-21) ------------
+
+RTKLIB_RUNS = tuple(i for i in GNSS_IDS if i != "geocomp:gnss_compare_configurations")
+
+
+def _options(tmp_path: Path, text: str) -> str:
+    path = tmp_path / "mine.conf"
+    path.write_text(text, encoding="utf-8")
+    return str(path)
+
+
+class TestAUsersOwnRtklibOptions:
+    @pytest.mark.parametrize("algorithm_id", RTKLIB_RUNS)
+    def test_every_algorithm_that_processes_offers_it_in_advanced(
+        self, geocomp_provider, algorithm_id
+    ):
+        from qgis.core import QgsApplication, QgsProcessingParameterDefinition
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id)
+        parameter = algorithm.parameterDefinition("CONFIGURATION")
+        assert parameter is not None
+        assert parameter.flags() & QgsProcessingParameterDefinition.FlagAdvanced
+        assert parameter.flags() & QgsProcessingParameterDefinition.FlagOptional
+
+    def test_its_options_reach_the_run_and_the_summary(self, geocomp_provider, rtklib, tmp_path):
+        engine = rtklib()
+        conf = _options(tmp_path, "pos2-arlockcnt =7\npos1-elmask =10 # (deg)\n")
+        _results, feedback, out = _process(tmp_path, CONFIGURATION=conf)
+        (job,) = engine.jobs
+        assert job.config.extra["pos2-arlockcnt"] == "7"
+        assert job.config.elevation_mask == 10.0
+        summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+        assert summary["user_configuration"] == {
+            "file": conf,
+            "options": {"pos2-arlockcnt": "7", "pos1-elmask": "10"},
+        }
+        assert summary["configuration"]["settings"]["pos2-arlockcnt"] == "7"
+        assert any("pos2-arlockcnt = 7" in info for info in feedback.infos)
+
+    def test_the_parameters_here_come_over_the_file(self, geocomp_provider, rtklib, tmp_path):
+        engine = rtklib()
+        conf = _options(tmp_path, "pos1-elmask =10\n")
+        _process(tmp_path, CONFIGURATION=conf, ELEVATION_MASK=20.0)
+        (job,) = engine.jobs
+        assert job.config.elevation_mask == 20.0
+
+    def test_without_one_nothing_is_recorded(self, geocomp_provider, rtklib, tmp_path):
+        rtklib()
+        _results, _feedback, out = _process(tmp_path)
+        assert "user_configuration" not in json.loads(
+            (out / "summary.json").read_text(encoding="utf-8")
+        )
+
+    def test_an_option_geocomp_reads_the_result_by_is_refused_before_any_run(
+        self, geocomp_provider, rtklib, tmp_path
+    ):
+        from qgis.core import QgsProcessingException
+
+        engine = rtklib()
+        conf = _options(tmp_path, "out-timesys =utc\n")
+        with pytest.raises(QgsProcessingException) as caught:
+            _process(tmp_path, CONFIGURATION=conf)
+        assert "RTKLIB configuration file" in str(caught.value)
+        assert "out-timesys" in str(caught.value)
+        assert engine.jobs == []
+
+    def test_a_file_that_sets_nothing_is_refused_against_the_parameter(
+        self, geocomp_provider, rtklib, tmp_path
+    ):
+        from qgis.core import QgsProcessingException
+
+        rtklib()
+        conf = _options(tmp_path, "# only a comment\n")
+        with pytest.raises(QgsProcessingException) as caught:
+            _process(tmp_path, CONFIGURATION=conf)
+        assert "RTKLIB configuration file" in str(caught.value)
+        assert "mine.conf" in str(caught.value)
+
+    def test_a_batch_runs_every_session_with_it_and_records_it(
+        self, geocomp_provider, rtklib, tmp_path
+    ):
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        engine = rtklib()
+        conf = _options(tmp_path, "pos2-arlockcnt =7\n")
+        folder = tmp_path / "rinex"
+        folder.mkdir()
+        for path in RINEX.iterdir():
+            if path.is_file() and path.suffix != ".md":
+                shutil.copy(path, folder)
+        report = tmp_path / "batch.json"
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:gnss_batch"
+        ).create({})
+        _results, ok = algorithm.run(
+            {
+                "FOLDER": str(folder),
+                "BASE_STATION": "3040",
+                "PROFILE": 0,
+                "CONFIGURATION": conf,
+                "OUTPUT_JSON": str(report),
+            },
+            QgsProcessingContext(),
+            _feedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        assert engine.jobs
+        assert all(job.config.extra["pos2-arlockcnt"] == "7" for job in engine.jobs)
+        recorded = json.loads(report.read_text(encoding="utf-8"))
+        assert recorded["user_configuration"]["options"] == {"pos2-arlockcnt": "7"}
+        assert recorded["configuration"]["settings"]["pos2-arlockcnt"] == "7"
+
+
 class _DynAdjust:
     """Stands in for ``DynAdjustEngine``: prepares, then fails as told."""
 
@@ -385,3 +499,167 @@ class TestADynAdjustResultOnTheMap:
         assert stations is not None and ellipses is not None
         assert stations.featureCount() == 11
         assert ellipses.featureCount() > 0
+
+
+# -- DynAdjust: stop, edit, run later (FR-325, P12c-21) -------------------
+
+
+class _NeverDetected:
+    """The real engine's prepare; detecting it would mean the stop needed DynAdjust."""
+
+    def __init__(self) -> None:
+        from geocomp.engines.dynadjust.engine import DynAdjustEngine
+
+        self._engine = DynAdjustEngine()
+
+    def prepare(self, job, work_dir):
+        return self._engine.prepare(job, work_dir)
+
+    def detect(self):
+        raise AssertionError("stopping before running must not need DynAdjust")
+
+
+class _RunsWhatWasPrepared(_DynAdjust):
+    """Runs nothing; reads the committed sample's output with the job's own provenance."""
+
+    def __init__(self) -> None:
+        super().__init__(failure=None)
+        self.ran = None
+
+    def run(self, prepared, *, timeout, on_progress=None):
+        self.ran = prepared
+        return []
+
+    def parse(self, runs, prepared):
+        from geocomp.engines.dynadjust.engine import provenance
+        from geocomp.engines.dynadjust.read_output import AngularFormat
+        from geocomp.engines.dynadjust.solution import read_solution
+
+        output = REPO_ROOT / "tests" / "data" / "dynadjust" / "output"
+        return read_solution(
+            output / "sample.adj",
+            network=prepared.job.network,
+            apu_path=output / "sample.apu",
+            cor_path=output / "sample.cor",
+            angular_format=AngularFormat.HP,
+            provenance=provenance(runs, prepared),
+        )
+
+
+class TestStopEditAndRunLater:
+    @pytest.fixture
+    def network_document(self, tmp_path):
+        from geocomp.engines.dynadjust.read_dynaml import read_dynaml
+
+        data = REPO_ROOT / "tests" / "data" / "dynadjust"
+        network = read_dynaml(data / "sample-stn.xml", data / "sample-msr.xml").network
+        document = tmp_path / "network.json"
+        document.write_text(json.dumps(network.to_dict()), encoding="utf-8")
+        return document
+
+    @staticmethod
+    def _stop(tmp_path, monkeypatch, network_document, configuration=None):
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_adjust
+
+        monkeypatch.setattr(
+            dynadjust_adjust, "dynadjust_engine", lambda directory=None: _NeverDetected()
+        )
+        parameters = {
+            "NETWORK": str(network_document),
+            "FRAME": "GDA2020",
+            "EPOCH": 2020.0,
+            "STOP_BEFORE_RUNNING": True,
+            "OUTPUT_WORK_DIR": str(tmp_path / "job"),
+            "OUTPUT_SOLUTION": str(tmp_path / "unwritten.json"),
+        }
+        if configuration is not None:
+            path = tmp_path / "dynadjust.json"
+            path.write_text(json.dumps(configuration), encoding="utf-8")
+            parameters["CONFIGURATION"] = str(path)
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_adjust"
+        ).create({})
+        results, ok = algorithm.run(
+            parameters, QgsProcessingContext(), _feedback(), catchExceptions=False
+        )
+        assert ok
+        return results
+
+    def test_it_stops_with_the_input_written_and_needs_no_dynadjust(
+        self, geocomp_provider, tmp_path, monkeypatch, network_document
+    ):
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        results = self._stop(
+            tmp_path, monkeypatch, network_document, {"dnaadjust": ["--free-stn-sd", "10"]}
+        )
+        job = Path(results["OUTPUT_WORK_DIR"])
+        assert job == tmp_path / "job"
+        manifest = json.loads((job / MANIFEST).read_text(encoding="utf-8"))
+        assert (job / manifest["station_file"]).is_file()
+        assert (job / manifest["measurement_file"]).is_file()
+        adjust = next(s for s in manifest["stages"] if s["program"] == "dnaadjust")
+        assert adjust["arguments"][-2:] == ["--free-stn-sd", "10"]
+        assert not (tmp_path / "unwritten.json").exists()
+
+    def test_an_option_geocomp_sets_is_refused_naming_the_configuration(
+        self, geocomp_provider, tmp_path, monkeypatch, network_document
+    ):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException) as refused:
+            self._stop(
+                tmp_path, monkeypatch, network_document, {"dnaadjust": ["--max-iterations", "3"]}
+            )
+        assert "--max-iterations" in str(refused.value)
+
+    def test_the_edited_input_runs_and_the_solution_says_it_was_edited(
+        self, geocomp_provider, tmp_path, monkeypatch, network_document
+    ):
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_run_prepared
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        job = Path(self._stop(tmp_path, monkeypatch, network_document)["OUTPUT_WORK_DIR"])
+        manifest = json.loads((job / MANIFEST).read_text(encoding="utf-8"))
+        measurements = job / manifest["measurement_file"]
+        edited = measurements.read_text(encoding="utf-8") + "<!-- edited -->\n"
+        measurements.write_text(edited, encoding="utf-8")
+
+        engine = _RunsWhatWasPrepared()
+        monkeypatch.setattr(dynadjust_run_prepared, "dynadjust_engine", lambda directory=None: engine)
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_run_prepared"
+        ).create({})
+        results, ok = algorithm.run(
+            {"PREPARED": str(job), "OUTPUT_SOLUTION": str(tmp_path / "solution.json")},
+            QgsProcessingContext(),
+            _feedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        assert engine.ran is not None and engine.ran.work_dir == job
+        assert results["EDITED_INPUTS"] == measurements.name
+        recorded = json.loads((tmp_path / "solution.json").read_text(encoding="utf-8"))
+        parameters = recorded["provenance"]["parameters"]
+        assert parameters["resumed"] is True
+        assert parameters["edited_inputs"] == [measurements.name]
+        assert job.is_dir()  # the user's folder, never removed
+
+    def test_a_folder_nothing_prepared_is_refused(self, geocomp_provider, tmp_path):
+        from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingException
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_run_prepared"
+        ).create({})
+        with pytest.raises(QgsProcessingException) as refused:
+            algorithm.run(
+                {"PREPARED": str(tmp_path)},
+                QgsProcessingContext(),
+                _feedback(),
+                catchExceptions=False,
+            )
+        assert "Stop after writing the input" in str(refused.value)

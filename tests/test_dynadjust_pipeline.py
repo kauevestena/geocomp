@@ -266,6 +266,125 @@ class TestTheProvenance:
         assert recorded[0]["version"]["version"] == "1.2.8"
 
 
+class TestTheUsersConfiguration:
+    """FR-325: Advanced mode's own DynAdjust options, added after GeoComp's."""
+
+    def test_the_options_follow_geocomps_in_the_stages_that_run(self, network) -> None:
+        job = DynAdjustJob(
+            network=network,
+            name="p",
+            extra_arguments={"dnaadjust": ("--free-stn-sd", "10"), "dnareftran": ("--x",)},
+        )
+        adjust = stage(job, "dnaadjust")
+        assert adjust.arguments[-2:] == ("--free-stn-sd", "10")
+        assert adjust.arguments[:-2] == stage(DynAdjustJob(network=network, name="p"), "dnaadjust").arguments
+        # dnareftran does not run here, so nothing is added to it.
+        assert "--x" not in stage(job, "dnareftran").arguments
+
+    @pytest.mark.parametrize("option", ["--max-iterations", "--max-iterations=20", "-n", "--output-adj-msr"])
+    def test_an_option_geocomp_sets_itself_is_refused(self, network, option) -> None:
+        with pytest.raises(ValidationError) as refused:
+            DynAdjustJob(network=network, extra_arguments={"dnaadjust": (option, "20")})
+        assert refused.value.code == "validation.dynadjust_option_reserved"
+
+    def test_a_program_that_is_not_dynadjusts_is_refused(self, network) -> None:
+        with pytest.raises(ValidationError) as refused:
+            DynAdjustJob(network=network, extra_arguments={"dnaplot": ("--x",)})
+        assert refused.value.code == "validation.dynadjust_configuration_unknown_program"
+
+    def test_it_is_read_from_a_json_file(self, tmp_path) -> None:
+        import json
+
+        from geocomp.engines.dynadjust.engine import read_configuration
+
+        path = tmp_path / "dynadjust.json"
+        path.write_text(json.dumps({"dnaadjust": ["--free-stn-sd", "10"]}), encoding="utf-8")
+        assert read_configuration(path) == {"dnaadjust": ("--free-stn-sd", "10")}
+
+    @pytest.mark.parametrize(
+        ("text", "code"),
+        [
+            ("{not json", "data.dynadjust_configuration_unreadable"),
+            ('{"dnaadjust": "--free-stn-sd 10"}', "validation.dynadjust_configuration_invalid"),
+            ('["--free-stn-sd"]', "validation.dynadjust_configuration_invalid"),
+            ('{"dnaadjust": ["--conf-interval", "99"]}', "validation.dynadjust_option_reserved"),
+        ],
+    )
+    def test_a_configuration_it_cannot_use_is_refused(self, tmp_path, text, code) -> None:
+        from geocomp.core.errors import GeoCompError
+        from geocomp.engines.dynadjust.engine import read_configuration
+
+        path = tmp_path / "dynadjust.json"
+        path.write_text(text, encoding="utf-8")
+        with pytest.raises(GeoCompError) as refused:
+            read_configuration(path)
+        assert refused.value.code == code
+
+    def test_it_is_recorded_in_the_provenance(self, network, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import provenance
+
+        job = DynAdjustJob(network=network, name="p", extra_arguments={"dnaadjust": ("--x",)})
+        prepared = DynAdjustEngine().prepare(job, tmp_path)
+        assert provenance([], prepared).parameters["configuration"] == {"dnaadjust": ["--x"]}
+        plain = DynAdjustEngine().prepare(DynAdjustJob(network=network, name="q"), tmp_path)
+        assert "configuration" not in provenance([], plain).parameters
+
+
+class TestStopEditAndRunLater:
+    """FR-325: stop after the input is written, inspect or edit it, then run it."""
+
+    def test_the_prepared_job_reads_back_from_its_directory(self, network, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import MANIFEST, load_prepared
+
+        job = DynAdjustJob(network=network, name="p", extra_arguments={"dnaadjust": ("--x",)})
+        prepared = DynAdjustEngine().prepare(job, tmp_path)
+        assert (tmp_path / MANIFEST).is_file()
+
+        again = load_prepared(tmp_path)
+        assert again.resumed and again.edited == ()
+        assert again.stages == prepared.stages
+        assert again.names == prepared.names
+        assert again.station_file == prepared.station_file
+        assert again.job.frame == job.frame and again.job.epoch == job.epoch
+        assert again.job.extra_arguments == job.extra_arguments
+        assert set(again.job.network.stations) == set(network.stations)
+        assert again.output("adj") == prepared.output("adj")
+
+    def test_a_file_edited_by_hand_is_known_to_have_been(self, network, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared, provenance
+
+        prepared = DynAdjustEngine().prepare(DynAdjustJob(network=network, name="p"), tmp_path)
+        text = prepared.measurement_file.read_text(encoding="utf-8")
+        scaled = text.replace("<Vscale>1.000</Vscale>", "<Vscale>4.000</Vscale>", 1)
+        assert scaled != text
+        prepared.measurement_file.write_text(scaled, encoding="utf-8")
+
+        again = load_prepared(tmp_path)
+        assert again.edited == ("p-msr.xml",)
+        recorded = provenance([], again).parameters
+        assert recorded["resumed"] is True
+        assert recorded["edited_inputs"] == ["p-msr.xml"]
+
+    def test_a_directory_nothing_prepared_is_refused(self, tmp_path) -> None:
+        from geocomp.core.errors import DataError
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        with pytest.raises(DataError) as refused:
+            load_prepared(tmp_path)
+        assert refused.value.code == "data.dynadjust_prepared_manifest_missing"
+
+    def test_a_prepared_file_that_has_gone_is_refused_by_name(self, network, tmp_path) -> None:
+        from geocomp.core.errors import DataError
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared = DynAdjustEngine().prepare(DynAdjustJob(network=network, name="p"), tmp_path)
+        prepared.station_file.unlink()
+        with pytest.raises(DataError) as refused:
+            load_prepared(tmp_path)
+        assert refused.value.code == "data.dynadjust_prepared_file_missing"
+        assert "p-stn.xml" in refused.value.context["path"]
+
+
 class TestTheImportCheck:
     def test_the_counts_are_read_from_dynadjusts_own_report(self) -> None:
         from geocomp.engines.dynadjust.engine import imported_counts
@@ -339,6 +458,29 @@ class TestAgainstARealEngine:
         assert solution.statistics.converged
         assert solution.statistics.degrees_of_freedom == 3
         assert solution.parameter_covariance is not None
+
+    def test_a_prepared_job_runs_the_input_as_the_user_left_it(self, network, tmp_path) -> None:
+        """FR-325: what runs is the edited file, not GeoComp's own. Constraining
+        one station by hand is three fewer unknowns, so three more degrees of
+        freedom than the network as GeoComp wrote it."""
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(
+            DynAdjustJob(network=network, name="p", target_frame="GDA2020"), tmp_path
+        )
+        text = prepared.station_file.read_text(encoding="utf-8")
+        constrained = text.replace(
+            "<Constraints>FFF</Constraints>", "<Constraints>CCC</Constraints>", 1
+        )
+        assert constrained != text
+        prepared.station_file.write_text(constrained, encoding="utf-8")
+
+        again = load_prepared(tmp_path)
+        solution = engine.parse(engine.run(again, timeout=120), again)
+        assert again.edited == ("p-stn.xml",)
+        assert solution.statistics.degrees_of_freedom == 6
+        assert solution.provenance.parameters["edited_inputs"] == ["p-stn.xml"]
 
     def test_the_provenance_records_every_stage_and_why(self, network, tmp_path) -> None:
         job = DynAdjustJob(network=network, name="run")

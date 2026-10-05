@@ -16,6 +16,12 @@ the algorithm still appears in the toolbox so a user can read what it needs.
 **The working directory is kept when asked** (FR-325). An adjustment that
 surprises its author is answerable only from the files that produced it, and
 "re-run it and hope" is not an answer.
+
+**Advanced mode can stop before running, and add options of its own**
+(FR-325, FR-070; P12c-21). *Stop after writing the input* writes the input
+files and a manifest and returns their folder, to be inspected or edited and
+run by *Run a prepared DynAdjust job*. A *DynAdjust configuration* file adds
+options to each program after GeoComp's own.
 """
 
 from __future__ import annotations
@@ -37,15 +43,21 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
 )
+from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.analysis.common import load_network
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import Epoch
-from geocomp.engines.base import EngineAbsentError
-from geocomp.engines.dynadjust.engine import DynAdjustEngine, DynAdjustJob
+from geocomp.core.models import Epoch, Solution
+from geocomp.engines.base import EngineAbsentError, EngineVersion
+from geocomp.engines.dynadjust.engine import (
+    DynAdjustEngine,
+    DynAdjustJob,
+    PreparedJob,
+    read_configuration,
+)
 from geocomp.services.engines import dynadjust_engine
 from geocomp.services.messages import message_for
 
@@ -62,6 +74,8 @@ SEGMENTATION_THRESHOLD = "SEGMENTATION_THRESHOLD"
 ENGINE_DIRECTORY = "ENGINE_DIRECTORY"
 TIMEOUT = "TIMEOUT"
 KEEP_WORKING_FILES = "KEEP_WORKING_FILES"
+CONFIGURATION = "CONFIGURATION"
+STOP_BEFORE_RUNNING = "STOP_BEFORE_RUNNING"
 OUTPUT_SOLUTION = "OUTPUT_SOLUTION"
 OUTPUT_WORK_DIR = "OUTPUT_WORK_DIR"
 ENGINE_VERSION = "ENGINE_VERSION"
@@ -71,6 +85,26 @@ ITERATIONS = "ITERATIONS"
 CONVERGED = "CONVERGED"
 GLOBAL_TEST_PASSED = "GLOBAL_TEST_PASSED"
 ADJUSTMENT_MODE = "ADJUSTMENT_MODE"
+
+#: The context of the helpers both DynAdjust algorithms share. A fixed one,
+#: not the calling algorithm's: Qt looks a string up in the context it is
+#: translated in, and the second algorithm has none of these.
+_CONTEXT = "DynAdjustAdjustAlgorithm"
+
+
+def _tr(text: str) -> str:
+    return QCoreApplication.translate(_CONTEXT, text)
+
+
+#: Refusals of the configuration file itself, which name it as the input at fault.
+_CONFIGURATION_CODES = frozenset(
+    {
+        "data.dynadjust_configuration_unreadable",
+        "validation.dynadjust_configuration_invalid",
+        "validation.dynadjust_configuration_unknown_program",
+        "validation.dynadjust_option_reserved",
+    }
+)
 
 
 class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
@@ -125,6 +159,17 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             "<p><b>Keep the working files</b> &mdash; writes the generated input and the raw "
             "DynAdjust output to a folder instead of a temporary directory. An adjustment "
             "that surprises you is answerable only from the files that produced it.</p>"
+            "<p><b>DynAdjust configuration</b> &mdash; a JSON file of options of your own for "
+            "each program, added after GeoComp's: "
+            "<code>{\"dnaadjust\": [\"--free-stn-sd\", \"10\"]}</code>. The options GeoComp "
+            "sets itself, such as the confidence or the output files, are refused: each has a "
+            "parameter here, and GeoComp reads the output back by them. The options are "
+            "recorded in the solution's provenance.</p>"
+            "<p><b>Stop after writing the input</b> &mdash; writes the input files and the "
+            "plan to the working-files folder and stops, without running DynAdjust, which "
+            "need not even be installed. Inspect or edit the files there, then run them with "
+            "<b>Run a prepared DynAdjust job</b>. Which files were edited is recorded in the "
+            "result.</p>"
             "<h3>Outputs</h3>"
             "<p><b>Solution</b> &mdash; JSON: adjusted coordinates, the full variance matrix, "
             "per-observation residuals, the statistics, and the provenance recording every "
@@ -227,6 +272,21 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 defaultValue=False,
             )
         )
+        self.addAdvancedParameter(
+            QgsProcessingParameterFile(
+                CONFIGURATION,
+                self.tr("DynAdjust configuration (JSON: options per program)"),
+                extension="json",
+                optional=True,
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterBoolean(
+                STOP_BEFORE_RUNNING,
+                self.tr("Stop after writing the input, to inspect or edit it"),
+                defaultValue=False,
+            )
+        )
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 OUTPUT_SOLUTION,
@@ -262,45 +322,39 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         )
         directory = self.parameterAsFile(parameters, ENGINE_DIRECTORY, context)
         engine = dynadjust_engine(directory)
-
-        version = engine.detect()
-        if version is None:
-            raise QgsProcessingException(
-                self.tr(
-                    "DynAdjust was not found. Install it with Project > Install an engine, "
-                    "or give the directory holding its programs in Global Settings under "
-                    "Paths and engines, or in the 'DynAdjust directory' parameter. GeoComp "
-                    "does not bundle it: it is a separate program under its own licence."
-                )
-            )
-        if not version.tested:
-            feedback.pushWarning(
-                self.tr(
-                    "DynAdjust %1 has not been checked against this GeoComp release. "
-                    "It will be used, but if its output format has changed the result "
-                    "may be refused when it is read back."
-                ).replace("%1", version.version)
-            )
-        feedback.pushInfo(
-            self.tr("Using DynAdjust %1 from %2.")
-            .replace("%1", version.version)
-            .replace("%2", str(version.path))
-        )
+        stop = self.parameterAsBoolean(parameters, STOP_BEFORE_RUNNING, context)
+        # A run that will use DynAdjust looks for it first, as it always has: a
+        # machine without it is told so before anything about the network. One
+        # that stops after writing the input runs nothing and needs none.
+        version = None if stop else detect(engine, feedback)
 
         epoch_year = self.parameterAsDouble(parameters, EPOCH, context)
-        job = DynAdjustJob(
-            network=network,
-            name=network.id or "geocomp",
-            target_frame=self.parameterAsString(parameters, FRAME, context).strip(),
-            target_epoch=Epoch.from_decimal_year(epoch_year) if epoch_year else None,
-            geoid_grid=self.parameterAsFile(parameters, GEOID_GRID, context) or None,
-            confidence=self.parameterAsDouble(parameters, CONFIDENCE, context),
-            iteration_threshold=self.parameterAsDouble(parameters, ITERATION_THRESHOLD, context),
-            maximum_iterations=self.parameterAsInt(parameters, MAX_ITERATIONS, context),
-            segmentation_threshold=self.parameterAsInt(
-                parameters, SEGMENTATION_THRESHOLD, context
-            ),
-        )
+        configuration = self.parameterAsFile(parameters, CONFIGURATION, context)
+        try:
+            job = DynAdjustJob(
+                network=network,
+                name=network.id or "geocomp",
+                target_frame=self.parameterAsString(parameters, FRAME, context).strip(),
+                target_epoch=Epoch.from_decimal_year(epoch_year) if epoch_year else None,
+                geoid_grid=self.parameterAsFile(parameters, GEOID_GRID, context) or None,
+                confidence=self.parameterAsDouble(parameters, CONFIDENCE, context),
+                iteration_threshold=self.parameterAsDouble(
+                    parameters, ITERATION_THRESHOLD, context
+                ),
+                maximum_iterations=self.parameterAsInt(parameters, MAX_ITERATIONS, context),
+                segmentation_threshold=self.parameterAsInt(
+                    parameters, SEGMENTATION_THRESHOLD, context
+                ),
+                extra_arguments=read_configuration(configuration) if configuration else {},
+            )
+        except GeoCompError as error:
+            message = message_for(error)
+            if error.code in _CONFIGURATION_CODES:
+                message = self.about_input(CONFIGURATION, message)
+            raise QgsProcessingException(message) from error
+
+        if version is None:
+            return self._prepare_only(job, engine, parameters, context, feedback)
 
         keep = self.parameterAsBoolean(parameters, KEEP_WORKING_FILES, context)
         requested = self.parameterAsString(parameters, OUTPUT_WORK_DIR, context)
@@ -338,21 +392,48 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             if not retain:
                 shutil.rmtree(work_dir, ignore_errors=True)
 
-        statistics = solution.statistics
         return {
             **results,
             OUTPUT_WORK_DIR: str(work_dir) if keep else "",
-            ENGINE_VERSION: version.version,
-            VARIANCE_FACTOR_APOSTERIORI: statistics.variance_factor_aposteriori,
-            DEGREES_OF_FREEDOM: statistics.degrees_of_freedom,
-            ITERATIONS: statistics.iterations,
-            CONVERGED: statistics.converged,
-            GLOBAL_TEST_PASSED: (
-                statistics.global_test.passed if statistics.global_test else None
-            ),
-            ADJUSTMENT_MODE: solution.provenance.parameters["mode"]
-            if solution.provenance
-            else "",
+            **figures(solution, version.version),
+        }
+
+    def _prepare_only(
+        self,
+        job: DynAdjustJob,
+        engine: DynAdjustEngine,
+        parameters: dict[str, Any],
+        context: QgsProcessingContext,
+        feedback: QgsProcessingFeedback,
+    ) -> dict[str, Any]:
+        """Write the input and the plan, and stop (FR-325). No program is run,
+        so DynAdjust need not be installed on the machine that prepares."""
+        requested = self.parameterAsString(parameters, OUTPUT_WORK_DIR, context)
+        work_dir = Path(requested) if requested else Path(tempfile.mkdtemp(prefix="geocomp-dynadjust-"))
+        try:
+            prepared = engine.prepare(job, work_dir)
+        except GeoCompError as error:
+            raise QgsProcessingException(message_for(error)) from error
+        report_plan(prepared, feedback)
+        feedback.pushInfo(
+            self.tr(
+                "Stopped before running DynAdjust. The input is in %1: %2 and %3. Inspect or "
+                "edit them there, then run Run a prepared DynAdjust job on that folder."
+            )
+            .replace("%1", str(work_dir))
+            .replace("%2", prepared.station_file.name)
+            .replace("%3", prepared.measurement_file.name)
+        )
+        return {
+            OUTPUT_SOLUTION: None,
+            OUTPUT_WORK_DIR: str(work_dir),
+            ENGINE_VERSION: "",
+            VARIANCE_FACTOR_APOSTERIORI: None,
+            DEGREES_OF_FREEDOM: None,
+            ITERATIONS: None,
+            CONVERGED: None,
+            GLOBAL_TEST_PASSED: None,
+            ADJUSTMENT_MODE: prepared.mode,
         }
 
     def _run(
@@ -364,56 +445,15 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ):
-        """Drive the pipeline, turning every engine failure into a user message.
-
-        The three failure kinds are kept apart because the remedies differ: an
-        absent program is an installation problem, a refused input is a data
-        problem the engine itself describes, and everything else is a GeoComp
-        problem.
-        """
+        """Prepare, run and read the job, every engine failure said in words."""
         try:
             prepared = engine.prepare(job, work_dir)
         except GeoCompError as error:
             raise QgsProcessingException(message_for(error)) from error
-
-        if prepared.skipped:
-            feedback.pushWarning(
-                self.tr(
-                    "%1 observation(s) have no DynAdjust equivalent and were not "
-                    "written: %2"
-                )
-                .replace("%1", str(len(prepared.skipped)))
-                .replace("%2", ", ".join(sorted(prepared.skipped)[:10]))
-            )
-
-        running = [stage.program for stage in prepared.included]
-        feedback.pushInfo(self.tr("Pipeline: %1").replace("%1", " -> ".join(running)))
-        for stage in prepared.stages:
-            if not stage.included:
-                feedback.pushInfo(
-                    self.tr("Skipping %1: %2")
-                    .replace("%1", stage.program)
-                    .replace("%2", stage.reason)
-                )
-
-        timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
-        try:
-            runs = engine.run(prepared, timeout=timeout, on_progress=feedback.pushConsoleInfo)
-        except EngineAbsentError as error:
-            raise QgsProcessingException(
-                self.tr(
-                    "A DynAdjust program the pipeline needs is missing: %1. DynAdjust is "
-                    "a suite, and a partial installation fails part way through."
-                ).replace("%1", str(error.context.get("program", "")))
-            ) from error
-        except GeoCompError as error:
-            raise QgsProcessingException(message_for(error)) from error
-
-        feedback.setProgress(80)
-        try:
-            return engine.parse(runs, prepared)
-        except GeoCompError as error:
-            raise QgsProcessingException(message_for(error)) from error
+        report_plan(prepared, feedback)
+        return run_and_read(
+            engine, prepared, self.parameterAsDouble(parameters, TIMEOUT, context), feedback
+        )
 
     def _write(
         self,
@@ -427,6 +467,99 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
                 json.dump(solution.to_dict(), handle, indent=2, sort_keys=True)
                 handle.write("\n")
         return {OUTPUT_SOLUTION: target}
+
+
+def detect(engine: DynAdjustEngine, feedback: QgsProcessingFeedback) -> EngineVersion:
+    """The installed DynAdjust, said in the log, or a refusal that says how to get it."""
+    version = engine.detect()
+    if version is None:
+        raise QgsProcessingException(
+            _tr(
+                "DynAdjust was not found. Install it with Project > Install an engine, "
+                "or give the directory holding its programs in Global Settings under "
+                "Paths and engines, or in the 'DynAdjust directory' parameter. GeoComp "
+                "does not bundle it: it is a separate program under its own licence."
+            )
+        )
+    if not version.tested:
+        feedback.pushWarning(
+            _tr(
+                "DynAdjust %1 has not been checked against this GeoComp release. "
+                "It will be used, but if its output format has changed the result "
+                "may be refused when it is read back."
+            ).replace("%1", version.version)
+        )
+    feedback.pushInfo(
+        _tr("Using DynAdjust %1 from %2.")
+        .replace("%1", version.version)
+        .replace("%2", str(version.path))
+    )
+    return version
+
+
+def report_plan(prepared: PreparedJob, feedback: QgsProcessingFeedback) -> None:
+    """Say what was left out, what will run, and why each other stage will not."""
+    if prepared.skipped:
+        feedback.pushWarning(
+            _tr(
+                "%1 observation(s) have no DynAdjust equivalent and were not written: %2"
+            )
+            .replace("%1", str(len(prepared.skipped)))
+            .replace("%2", ", ".join(sorted(prepared.skipped)[:10]))
+        )
+    running = [stage.program for stage in prepared.included]
+    feedback.pushInfo(_tr("Pipeline: %1").replace("%1", " -> ".join(running)))
+    for stage in prepared.stages:
+        if not stage.included:
+            feedback.pushInfo(
+                _tr("Skipping %1: %2").replace("%1", stage.program).replace("%2", stage.reason)
+            )
+
+
+def run_and_read(
+    engine: DynAdjustEngine,
+    prepared: PreparedJob,
+    timeout: float,
+    feedback: QgsProcessingFeedback,
+) -> Solution:
+    """Run the planned stages and read the result, each failure said in words.
+
+    The three failure kinds are kept apart because the remedies differ: an
+    absent program is an installation problem, a refused input is a data
+    problem the engine itself describes, and everything else is a GeoComp
+    problem.
+    """
+    try:
+        runs = engine.run(prepared, timeout=timeout, on_progress=feedback.pushConsoleInfo)
+    except EngineAbsentError as error:
+        raise QgsProcessingException(
+            _tr(
+                "A DynAdjust program the pipeline needs is missing: %1. DynAdjust is "
+                "a suite, and a partial installation fails part way through."
+            ).replace("%1", str(error.context.get("program", "")))
+        ) from error
+    except GeoCompError as error:
+        raise QgsProcessingException(message_for(error)) from error
+
+    feedback.setProgress(80)
+    try:
+        return engine.parse(runs, prepared)
+    except GeoCompError as error:
+        raise QgsProcessingException(message_for(error)) from error
+
+
+def figures(solution: Solution, version: str) -> dict[str, Any]:
+    """The scalar outputs both DynAdjust algorithms return."""
+    statistics = solution.statistics
+    return {
+        ENGINE_VERSION: version,
+        VARIANCE_FACTOR_APOSTERIORI: statistics.variance_factor_aposteriori,
+        DEGREES_OF_FREEDOM: statistics.degrees_of_freedom,
+        ITERATIONS: statistics.iterations,
+        CONVERGED: statistics.converged,
+        GLOBAL_TEST_PASSED: statistics.global_test.passed if statistics.global_test else None,
+        ADJUSTMENT_MODE: solution.provenance.parameters["mode"] if solution.provenance else "",
+    }
 
 
 def _names_working_files(failure: BaseException) -> bool:

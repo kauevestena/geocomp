@@ -27,6 +27,7 @@ PUBLISHED_IDS = frozenset(
     {
         "analysis_dynadjust_adjust",
         "analysis_dynadjust_compare",
+        "analysis_dynadjust_run_prepared",
         "analysis_network_adjust",
         "analysis_network_inspect",
         "analysis_network_preanalysis",

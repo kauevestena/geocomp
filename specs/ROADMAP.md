@@ -2458,6 +2458,40 @@ FR-102 is now **met**: 160 met, 15 partly met, 1 open, of 176.
 is in the network the adjustment builds and not in a file a user can open. The integration algorithms copy
 observations with their provenance, and the combined network's own benchmark heights name the benchmark.
 
+#### P12c-21 — hand-written engine configuration; stop, edit and run DynAdjust later (FR-070, FR-325)
+
+**Delivered** ([`07`](./07-engine-dynadjust.md) §3; [`08`](./08-engine-rtklib.md) §2.4).
+
+| | |
+|---|---|
+| Stop after writing the input | *Adjust network (DynAdjust)* writes the input, the plan and a manifest to its working-files folder and stops. It runs nothing, so it needs no DynAdjust |
+| Run it later | *Run a prepared DynAdjust job*, a new algorithm, runs the folder as it now is and reads the result into the same Solution. Files changed since GeoComp wrote them are found by digest, warned about and recorded in the provenance |
+| DynAdjust configuration | A JSON file of options per program, passed to each stage after GeoComp's own. A program GeoComp does not run, and any option GeoComp sets itself, are refused |
+| RTKLIB configuration | The four processing modes and *Batch processing* take an `rnx2rtkp` options file. Options GeoComp models set their fields, so a precise ephemeris in the file fetches precise products; any other is written after GeoComp's. The mode, the base position and every `out-` option are refused. The summary and the batch report record the file and its options |
+
+FR-070 is now **met**.
+
+**Defects found.**
+
+- **A refused run told the user about the network before the engine** — introduced while building this, and
+  caught by `tests/qgis/test_engine_install.py` before it left the branch: building the job first meant a
+  machine without DynAdjust heard about a missing frame before being told to install it. A run that will use
+  DynAdjust looks for it first again; only a stopped one does not.
+- **The test of an edited file edited nothing.** It replaced `<Ignore/>`, which GeoComp writes as `<Ignore />`,
+  and passed only because it also appended a newline. It now scales a variance and checks the edit happened.
+- **DynAdjust ignores what GeoComp set aside only some of the time** — older than this phase, found by running
+  a hand-ignored measurement through the real engine. A set-aside member of a GNSS cluster or a direction set is
+  written as active, and DynAdjust uses it: with a baseline set aside the sample still solved with 3 degrees of
+  freedom. A set-aside lone observation is left out of the file while the reader expects its rows, so the
+  result refuses to read back. FR-255 goes back to **partly met** until P12c-22 fixes it.
+
+FR-325 stays **partly met**: a measurement added, removed or ignored by hand in a prepared job is refused when
+the result is read back, for the same reason as the defect above. 160 met, 15 partly met, 1 open, of 176.
+
+**Not done.** An individual DynAdjust stage cannot be switched on or off: each runs when its condition holds,
+and a configuration can give it options but not override that. *Compare configurations* takes no RTKLIB
+options file.
+
 ---
 
 ## P13 — Validation, documentation and release
