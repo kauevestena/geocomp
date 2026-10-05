@@ -573,8 +573,11 @@ class TestLevellingAdjustment:
         assert run.degrees_of_freedom == 0
         assert math.isnan(run.variance_factor_aposteriori)
         assert run.variance_factor == run.variance_factor_apriori
-        assert np.all(np.isfinite(run.parameter_covariance))
-        np.testing.assert_allclose(run.parameter_covariance, run.cofactor_parameters)
+        # Diagonals: under --sparse the cofactor is a SparseCofactor, not an array.
+        assert np.all(np.isfinite(run.parameter_covariance.diagonal()))
+        np.testing.assert_allclose(
+            run.parameter_covariance.diagonal(), run.cofactor_parameters.diagonal()
+        )
 
     def test_its_solution_has_no_a_posteriori_factor_and_no_nan(self):
         import json
