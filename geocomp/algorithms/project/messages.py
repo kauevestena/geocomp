@@ -48,6 +48,22 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
         "reason",
     ),
+    "data.project_store_has_no_network": MessageTemplate(
+        "The project store %1 holds no network. Save one to it first, with Save to project "
+        "store, or give a network document instead.",
+        "store",
+    ),
+    "validation.project_store_network_ambiguous": MessageTemplate(
+        "The project store %1 holds more than one network: %2. Name the one to use.",
+        "store",
+        "expected",
+    ),
+    "data.project_store_network_not_found": MessageTemplate(
+        "The project store %1 holds no network '%2'. It holds: %3.",
+        "store",
+        "network",
+        "expected",
+    ),
     "data.project_store_not_found": MessageTemplate(
         "There is no GeoComp project at %1. Check the name, or choose to create it.",
         "path",

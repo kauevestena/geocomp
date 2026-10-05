@@ -302,6 +302,65 @@ def _schema_exists(schema: str) -> bool:
         connection.close()
 
 
+class TestAdjustingStraightFromTheDatabase:
+    """FR-320 (P12c-24): DynAdjust's input written from the network a database
+    project holds, through the user's saved connection."""
+
+    def test_the_network_is_read_through_the_connection_and_written_for_dynadjust(
+        self, saved_connection, schema, tmp_path, monkeypatch
+    ):
+        from pathlib import Path
+
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_adjust
+        from geocomp.core.models import Project
+        from geocomp.engines.dynadjust.engine import MANIFEST, DynAdjustEngine
+        from geocomp.engines.dynadjust.read_dynaml import read_dynaml
+        from geocomp.services.postgis import open_database_store
+        from tests.conftest import REPO_ROOT
+
+        data = REPO_ROOT / "tests" / "data" / "dynadjust"
+        network = read_dynaml(data / "sample-stn.xml", data / "sample-msr.xml").network
+        network.id = "sample"
+        project = Project(id="project")
+        project.add_network(network)
+        store = open_database_store(saved_connection, schema, create=True)
+        try:
+            store.write(project)
+        finally:
+            store.close()
+
+        class _Unrun:
+            def prepare(self, job, work_dir):
+                return DynAdjustEngine().prepare(job, work_dir)
+
+            def detect(self):
+                raise AssertionError("stopping before running must not need DynAdjust")
+
+        monkeypatch.setattr(dynadjust_adjust, "dynadjust_engine", lambda directory=None: _Unrun())
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_adjust"
+        ).create({})
+        results, ok = algorithm.run(
+            {
+                "DATABASE": saved_connection,
+                "SCHEMA": schema,
+                "FRAME": "GDA2020",
+                "EPOCH": 2020.0,
+                "STOP_BEFORE_RUNNING": True,
+                "OUTPUT_WORK_DIR": str(tmp_path / "job"),
+            },
+            QgsProcessingContext(),
+            Recorder().feedback,
+            catchExceptions=False,
+        )
+        assert ok
+        manifest = json.loads((Path(results["OUTPUT_WORK_DIR"]) / MANIFEST).read_text("utf-8"))
+        assert manifest["network"]["id"] == "sample"
+        assert len(manifest["network"]["observations"]) == 12
+
+
 class TestCancelling:
     """``specs/17`` criterion 6: a cancelled switch or save leaves its target as it was."""
 

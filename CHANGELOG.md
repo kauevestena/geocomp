@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-24 — DynAdjust from the project store
+
+#### Added
+
+- *Adjust network (DynAdjust)* reads its network straight from a project store, a GeoPackage or a PostgreSQL
+  connection, as an alternative to a network document. The store is read and never changed.
+
 ### P12c-23 — Networks with no redundancy
 
 #### Fixed

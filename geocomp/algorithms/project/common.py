@@ -13,10 +13,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from geocomp.core.errors import DataError
-from geocomp.core.models import Network, Solution
+from geocomp.core.errors import DataError, ValidationError
+from geocomp.core.models import Network, Project, Solution
 
-__all__ = ["read_json", "read_network", "read_solution"]
+__all__ = ["read_json", "read_network", "read_solution", "stored_network"]
 
 
 def read_json(path: str, what: str) -> dict[str, Any]:
@@ -83,3 +83,33 @@ def read_network(path: str) -> Network | None:
             reason=str(error),
             expected="a network document as GeoComp writes it",
         ) from error
+
+
+def stored_network(project: Project, store: str, network_id: str = "") -> Network:
+    """The network *network_id* of a project read from a store (FR-320, P12c-24).
+
+    An empty id means the store's only network: the ordinary case, a project
+    holding one, needs no id typed. A store with several is not guessed in --
+    the refusal lists them -- because adjusting the wrong one gives a result
+    nothing in it would flag.
+    """
+    available = sorted(project.networks)
+    if not available:
+        raise DataError("project_store_has_no_network", store=store)
+    if not network_id:
+        if len(available) > 1:
+            raise ValidationError(
+                "project_store_network_ambiguous",
+                store=store,
+                expected=", ".join(available),
+            )
+        return project.networks[available[0]]
+    if network_id not in project.networks:
+        raise DataError(
+            "project_store_network_not_found",
+            store=store,
+            network=network_id,
+            expected=", ".join(available),
+        )
+    return project.networks[network_id]
+

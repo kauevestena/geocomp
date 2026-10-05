@@ -723,3 +723,118 @@ class TestStopEditAndRunLater:
                 catchExceptions=False,
             )
         assert "Stop after writing the input" in str(refused.value)
+
+
+# -- DynAdjust: straight from the project store (FR-320, P12c-24) -----------
+
+
+class TestFromTheProjectStore:
+    """The network a project store holds is adjusted without a document in between."""
+
+    @staticmethod
+    def _store(tmp_path, *network_ids):
+        from geocomp.core.models import Project
+        from geocomp.engines.dynadjust.read_dynaml import read_dynaml
+        from geocomp.io.store import open_store
+
+        data = REPO_ROOT / "tests" / "data" / "dynadjust"
+        project = Project(id="project")
+        for identifier in network_ids:
+            network = read_dynaml(data / "sample-stn.xml", data / "sample-msr.xml").network
+            network.id = identifier
+            project.add_network(network)
+        path = tmp_path / "project.gpkg"
+        store = open_store(path, create=True)
+        try:
+            store.write(project)
+        finally:
+            store.close()
+        return path
+
+    @staticmethod
+    def _stop(tmp_path, monkeypatch, **source):
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_adjust
+
+        monkeypatch.setattr(
+            dynadjust_adjust, "dynadjust_engine", lambda directory=None: _NeverDetected()
+        )
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_adjust"
+        ).create({})
+        results, ok = algorithm.run(
+            {
+                "FRAME": "GDA2020",
+                "EPOCH": 2020.0,
+                "STOP_BEFORE_RUNNING": True,
+                "OUTPUT_WORK_DIR": str(tmp_path / "job"),
+                **source,
+            },
+            QgsProcessingContext(),
+            _feedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        return results
+
+    def test_the_stores_only_network_is_written_for_dynadjust(
+        self, geocomp_provider, tmp_path, monkeypatch
+    ):
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        store = self._store(tmp_path, "sample")
+        job = Path(self._stop(tmp_path, monkeypatch, STORE=str(store))["OUTPUT_WORK_DIR"])
+        manifest = json.loads((job / MANIFEST).read_text(encoding="utf-8"))
+        assert manifest["network"]["id"] == "sample"
+        assert len(manifest["network"]["observations"]) == 12
+        assert (job / manifest["measurement_file"]).is_file()
+
+    def test_a_network_is_named_when_the_store_holds_several(
+        self, geocomp_provider, tmp_path, monkeypatch
+    ):
+        from qgis.core import QgsProcessingException
+
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        store = self._store(tmp_path, "north", "south")
+        with pytest.raises(QgsProcessingException) as refused:
+            self._stop(tmp_path, monkeypatch, STORE=str(store))
+        assert "north" in str(refused.value) and "south" in str(refused.value)
+
+        job = Path(
+            self._stop(tmp_path, monkeypatch, STORE=str(store), STORED_NETWORK="south")[
+                "OUTPUT_WORK_DIR"
+            ]
+        )
+        assert json.loads((job / MANIFEST).read_text(encoding="utf-8"))["network"]["id"] == "south"
+
+    def test_a_network_the_store_does_not_hold_is_refused_listing_those_it_does(
+        self, geocomp_provider, tmp_path, monkeypatch
+    ):
+        from qgis.core import QgsProcessingException
+
+        store = self._store(tmp_path, "sample")
+        with pytest.raises(QgsProcessingException) as refused:
+            self._stop(tmp_path, monkeypatch, STORE=str(store), STORED_NETWORK="other")
+        assert "other" in str(refused.value) and "sample" in str(refused.value)
+
+    def test_the_store_is_not_changed_by_reading_it(self, geocomp_provider, tmp_path, monkeypatch):
+        store = self._store(tmp_path, "sample")
+        before = store.read_bytes()
+        self._stop(tmp_path, monkeypatch, STORE=str(store))
+        assert store.read_bytes() == before
+
+    def test_a_document_and_a_store_together_are_refused(
+        self, geocomp_provider, tmp_path, monkeypatch
+    ):
+        from qgis.core import QgsProcessingException
+
+        store = self._store(tmp_path, "sample")
+        document = tmp_path / "network.json"
+        document.write_text("{}", encoding="utf-8")
+        with pytest.raises(QgsProcessingException) as refused:
+            self._stop(tmp_path, monkeypatch, STORE=str(store), NETWORK=str(document))
+        assert "Network document" in str(refused.value)
+        assert "project store" in str(refused.value)
+

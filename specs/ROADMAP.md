@@ -2549,6 +2549,23 @@ building the solution failed with `Eigenvalues did not converge`. Every adjustin
 **Not done.** The levelling and total-station adjustments are exercised at zero redundancy only through the
 shared code; `tests/qgis/test_zero_redundancy.py` drives *Adjust network* end to end.
 
+#### P12c-24 — DynAdjust input straight from the project store (FR-320)
+
+**Delivered** ([`07`](./07-engine-dynadjust.md) §4).
+
+*Adjust network (DynAdjust)* takes its network from a project store, a GeoPackage or a PostgreSQL schema
+through a saved QGIS connection, as an alternative to a network document. An empty network id takes the
+store's only network. A store with several, an id it does not hold, and a store with no network are each
+refused, naming what the store holds. Exactly one source is given. The store is read as it is, never created
+or migrated, and a test checks the file is byte-for-byte unchanged. Tested on a GeoPackage, and on PostGIS
+through the saved-connection fixture the P11 tests use.
+
+FR-320 stays **partly met**, narrower: a QGIS layer of the user's own design is not read, because no field
+mapping exists.
+
+**Not done.** The other adjusting algorithms still take documents only; the store route is FR-320's, which
+names DynAdjust.
+
 ---
 
 ## P13 — Validation, documentation and release

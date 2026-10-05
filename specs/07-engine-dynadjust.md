@@ -228,6 +228,15 @@ the counts are what matters and they do not change wording between releases.
 
 DynAdjust accepts **DNA, DynaML and SINEX** formats **[V]**.
 
+**Where the network comes from (FR-320).** From a GeoComp network document, which the field-book imports make
+from CSV and `.xlsx` and the GNSS and integration algorithms make from their results. *As built (P12c-24)*, also
+**straight from a project store**: a GeoPackage, or a schema reached through a PostgreSQL connection saved in
+QGIS, with the id of the network in it. An empty id takes the store's only network, and a store with several
+is refused, listing them. Exactly one source is given. The store is opened as it is, never created and never
+migrated, because reading an input must not change it: an older store is refused with the store's own message.
+Not read: a QGIS layer of the user's own design. Stations as points and observations as rows of an arbitrary
+table would need a field mapping that does not exist.
+
 ### 4.1 Format decision
 
 GeoComp writes **DynaML (XML)** as its primary interchange format, and reads DNA `.stn`/`.msr` for
