@@ -284,6 +284,50 @@ class Network:
     def active_observations(self) -> list[Observation]:
         return [o for o in self.observations.values() if o.is_active]
 
+    def active_clusters(self) -> dict[str, Cluster]:
+        """The clusters as an adjustment sees them: active members only (FR-255).
+
+        A cluster whose members are all active is returned as it is, and one
+        with none is left out. One with some set aside keeps the rest, under the
+        rows and columns of its covariance that are theirs: the covariance of a
+        subset of correlated observations is that submatrix, with nothing to
+        condition on, because what was set aside is not being observed.
+
+        **Every adjustment reads clusters through this** -- the in-house core,
+        the DynaML writer and the reader of DynAdjust's output -- so the three
+        cannot disagree about what was adjusted. Until P12c-22 the core refused
+        a cluster with a member set aside, and the writer adjusted it.
+
+        A cluster with a member the network does not hold is returned as it is,
+        for :meth:`validate` to report: without the member there is no saying
+        which rows were its.
+        """
+        active: dict[str, Cluster] = {}
+        for identifier, cluster in self.clusters.items():
+            members = [self.observations.get(o) for o in cluster.observation_ids]
+            if any(member is None for member in members):
+                active[identifier] = cluster
+                continue
+            if all(member.is_active for member in members):
+                active[identifier] = cluster
+                continue
+            kept: list[str] = []
+            labels: list[str] = []
+            position = 0
+            for member in members:
+                width = len(member.spec.components)
+                if member.is_active:
+                    kept.append(member.id)
+                    labels.extend(cluster.covariance.labels[position : position + width])
+                position += width
+            if kept:
+                active[identifier] = dataclasses.replace(
+                    cluster,
+                    observation_ids=tuple(kept),
+                    covariance=cluster.covariance.sub(labels),
+                )
+        return active
+
     def observations_at(self, station_id: str) -> list[Observation]:
         return [o for o in self.observations.values() if station_id in o.stations]
 

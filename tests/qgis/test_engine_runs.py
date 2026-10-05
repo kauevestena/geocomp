@@ -649,6 +649,66 @@ class TestStopEditAndRunLater:
         assert parameters["edited_inputs"] == [measurements.name]
         assert job.is_dir()  # the user's folder, never removed
 
+    def _run_prepared(self, tmp_path, monkeypatch, job):
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_run_prepared
+
+        engine = _RunsWhatWasPrepared()
+        monkeypatch.setattr(dynadjust_run_prepared, "dynadjust_engine", lambda directory=None: engine)
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_run_prepared"
+        ).create({})
+        feedback = _feedback()
+        _results, ok = algorithm.run(
+            {"PREPARED": str(job), "OUTPUT_SOLUTION": str(tmp_path / "solution.json")},
+            QgsProcessingContext(),
+            feedback,
+            catchExceptions=False,
+        )
+        assert ok
+        return engine, feedback
+
+    def test_a_measurement_flagged_ignore_is_said_to_be_set_aside(
+        self, geocomp_provider, tmp_path, monkeypatch, network_document
+    ):
+        """P12c-22: the edit a user most wants. The measurement's observations
+        are set aside in what the result is read back against."""
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        job = Path(self._stop(tmp_path, monkeypatch, network_document)["OUTPUT_WORK_DIR"])
+        manifest = json.loads((job / MANIFEST).read_text(encoding="utf-8"))
+        measurements = job / manifest["measurement_file"]
+        text = measurements.read_text(encoding="utf-8")
+        measurements.write_text(text.replace("<Ignore />", "<Ignore>*</Ignore>", 1), encoding="utf-8")
+
+        engine, feedback = self._run_prepared(tmp_path, monkeypatch, job)
+        held = manifest["elements"][0]
+        assert engine.ran.ignored == tuple(held)
+        assert any(all(identifier in info for identifier in held) for info in feedback.infos)
+        excluded = engine.ran.adjusted_network.observations
+        assert all(not excluded[identifier].is_active for identifier in held)
+
+    def test_a_measurement_removed_by_hand_is_refused_before_anything_runs(
+        self, geocomp_provider, tmp_path, monkeypatch, network_document
+    ):
+        from qgis.core import QgsProcessingException
+
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        job = Path(self._stop(tmp_path, monkeypatch, network_document)["OUTPUT_WORK_DIR"])
+        manifest = json.loads((job / MANIFEST).read_text(encoding="utf-8"))
+        measurements = job / manifest["measurement_file"]
+        text = measurements.read_text(encoding="utf-8")
+        first = text.index("<DnaMeasurement>")
+        second = text.index("<DnaMeasurement>", first + 1)
+        measurements.write_text(text[:first] + text[second:], encoding="utf-8")
+
+        with pytest.raises(QgsProcessingException) as refused:
+            self._run_prepared(tmp_path, monkeypatch, job)
+        assert "Ignore" in str(refused.value)
+        assert measurements.name in str(refused.value)
+
     def test_a_folder_nothing_prepared_is_refused(self, geocomp_provider, tmp_path):
         from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingException
 

@@ -281,6 +281,13 @@ says which was applied.
   reason, test and statistic. Until P12c-13 the report counted only the active observations, so a rejection
   was recorded in the document and silent in the report (`tests/qgis/test_adjustment_report.py`).
 
+  *As built (P12c-22).* A member of a correlated cluster can be set aside. The rest is weighted by the inverse
+  of its own block of the cluster's covariance ([`04`](./04-data-model.md) §2.6), which gives the answer a
+  survey that never had the observation gives: every parameter within 10⁻⁹ on the combined survey
+  (`tests/test_dynadjust_geocentric.py::TestWhatWasSetAside`). Until then the core refused it as
+  `data.cluster_rows_mismatch`, a message about matrix shapes that did not say an observation had been set
+  aside. A set-aside direction leaves its set's orientation unknown to the directions that remain.
+
 ### 4.3 Reliability (FR-252, FR-253)
 
 **Internal** — the minimal detectable bias per observation, for configurable α (Type I) and β (Type II),

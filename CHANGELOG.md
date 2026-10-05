@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-22 — Observations set aside stay aside, whichever engine adjusts
+
+#### Fixed
+
+- *Adjust network (DynAdjust)* adjusted an observation you had set aside when it was a member of a GNSS
+  cluster or a direction set. A set-aside observation outside one made the result fail to read back. Only
+  active observations are written now, and DynAdjust agrees with GeoComp's own adjustment on what remains.
+- GeoComp's own adjustment refused a correlated cluster with one member set aside, with a message about
+  matrix sizes. It now adjusts the rest, weighted by their part of the cluster's covariance.
+
+#### Added
+
+- In a job prepared for *Run a prepared DynAdjust job*, set a measurement's `Ignore` to `*`, or one
+  direction's in a set, to leave it out. It is set aside in the solution, and the provenance says so.
+
 ### P12c-21 — Engine configuration files of your own; stop DynAdjust, edit, run later
 
 #### Added
@@ -17,12 +32,6 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 - The four GNSS processing modes and *Batch processing* take an RTKLIB options file of your own (Advanced).
   The positioning mode, the base station's position and the output options stay GeoComp's. The summary
   records the file and the options taken from it.
-
-#### Known problems
-
-- On the DynAdjust path, an observation set aside in a GNSS cluster or a direction set is still adjusted, and a
-  set-aside observation outside one makes the result fail to read back. Adding, removing or ignoring a
-  measurement in a prepared job fails the same way. Both are fixed in the next change.
 
 ### P12c-20 — Levelling and gravity observations say where they came from
 
