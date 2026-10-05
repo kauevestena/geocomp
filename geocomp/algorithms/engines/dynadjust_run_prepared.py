@@ -74,11 +74,13 @@ class DynAdjustRunPreparedAlgorithm(GeoCompAlgorithm):
             "compares each with what it wrote, and the solution's provenance names the files "
             "that were edited, because a result from edited input is not the network's "
             "alone.</p>"
+            "<p>To leave a measurement out, set its <code>Ignore</code> to <code>*</code>: "
+            "on the measurement, or on one direction of a direction set. It is set aside in "
+            "the solution, as though you had set it aside in GeoComp. Do not add or remove "
+            "measurements: the result is matched to the network measurement by measurement, "
+            "in the order GeoComp wrote them, and a file with a different set is refused.</p>"
             "<p>Do not rename or remove the files, and do not edit the job file GeoComp "
-            "wrote beside them: it is how the result is read back. Do not add or remove "
-            "measurements, or set a measurement's <code>Ignore</code> flag, either: the "
-            "result is matched to the network measurement by measurement, in the order "
-            "GeoComp wrote them, and a different set is refused when it is read back.</p>"
+            "wrote beside them: it is how the result is read back.</p>"
             "<h3>Parameters</h3>"
             "<p><b>Prepared folder</b> &mdash; the working-files folder the stopped run "
             "returned. <b>DynAdjust directory</b> and <b>Timeout</b> &mdash; as for Adjust "
@@ -146,6 +148,12 @@ class DynAdjustRunPreparedAlgorithm(GeoCompAlgorithm):
                     "run as they are, and the solution records that they were edited."
                 ).replace("%1", ", ".join(prepared.edited))
             )
+        if prepared.ignored:
+            feedback.pushInfo(
+                self.tr("Flagged Ignore in the input, and set aside in the solution: %1.").replace(
+                    "%1", ", ".join(prepared.ignored)
+                )
+            )
 
         engine = dynadjust_engine(self.parameterAsFile(parameters, ENGINE_DIRECTORY, context))
         version = detect(engine, feedback)
@@ -168,7 +176,7 @@ class DynAdjustRunPreparedAlgorithm(GeoCompAlgorithm):
                 parameters,
                 context,
                 solution,
-                prepared.job.network,
+                prepared.adjusted_network,
                 feedback=feedback,
                 solution_path=target or "",
             )

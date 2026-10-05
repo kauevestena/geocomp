@@ -300,3 +300,220 @@ class TestAgainstARealEngine:
             theirs = np.array([q.value for q in station.position.values])
             ours = _coordinates(in_house, network, station.station_id)
             assert np.abs(ours - theirs).max() <= PRINTED
+
+
+# -- What was set aside (FR-255, P12c-22) -----------------------------------
+
+#: One of each kind that matters: a baseline from a correlated cluster, a
+#: direction from a set (not its reference), and a lone slope distance.
+ASIDE = ("X4-1", "D0-1", "S5")
+
+
+def _set_aside(network, identifiers=ASIDE):
+    from dataclasses import replace
+
+    from geocomp.core.models.observation import ObservationStatus
+
+    for identifier in identifiers:
+        network.observations[identifier] = replace(
+            network.observations[identifier], status=ObservationStatus.EXCLUDED
+        )
+    return network
+
+
+def _starting(network) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(20261005)
+    return {
+        identifier: dict(
+            zip(
+                ("x", "y", "z"),
+                (q.value + rng.uniform(-PERTURBATION, PERTURBATION) for q in station.approx_position.values),
+                strict=True,
+            )
+        )
+        for identifier, station in network.stations.items()
+    }
+
+
+def _ignore(text: str, nth: int, *, direction: int | None = None) -> str:
+    """Flag the *nth* measurement ``Ignore``, or one of its directions."""
+    parts = text.split("<DnaMeasurement>")
+    part = parts[nth + 1]
+    if direction is None:
+        part = part.replace("<Ignore />", "<Ignore>*</Ignore>", 1)
+    else:
+        pieces = part.split("<Directions>")
+        pieces[direction + 1] = pieces[direction + 1].replace("<Ignore />", "<Ignore>*</Ignore>", 1)
+        part = "<Directions>".join(pieces)
+    parts[nth + 1] = part
+    return "<DnaMeasurement>".join(parts)
+
+
+class TestWhatWasSetAside:
+    """Until P12c-22 the DynAdjust path adjusted a set-aside cluster member, the
+    core refused one, and a set-aside lone observation made DynAdjust's result
+    refuse to read back."""
+
+    def test_a_cluster_keeps_the_rest_under_their_part_of_its_covariance(self) -> None:
+        network = _set_aside(written())
+        whole = network.clusters["X4"].covariance
+        kept = network.active_clusters()["X4"]
+        assert kept.observation_ids == ("X4-0", "X4-2")
+        rows = [0, 1, 2, 6, 7, 8]
+        np.testing.assert_array_equal(kept.covariance.matrix, whole.matrix[np.ix_(rows, rows)])
+        assert kept.covariance.labels == tuple(whole.labels[i] for i in rows)
+        assert network.active_clusters()["D1"] is network.clusters["D1"]
+
+    def test_a_cluster_wholly_set_aside_is_left_out(self) -> None:
+        network = _set_aside(written(), ("X4-0", "X4-1", "X4-2"))
+        assert "X4" not in network.active_clusters()
+
+    def test_the_core_adjusts_what_remains_as_a_smaller_survey(self) -> None:
+        """What setting aside means: the same answer as a survey that never had
+        the observation, with the cluster's covariance cut to the rest."""
+        aside = _set_aside(written())
+        smaller = written()
+        for identifier in ASIDE:
+            del smaller.observations[identifier]
+        smaller.clusters = aside.active_clusters()
+        options = AdjustmentOptions(frame=Frame.GEOCENTRIC_3D, datum=DatumDefinition.FIXED)
+        one = adjust(aside, options, approximate=_starting(aside))
+        other = adjust(smaller, options, approximate=_starting(smaller))
+        assert one.degrees_of_freedom == other.degrees_of_freedom == 33
+        np.testing.assert_allclose(one.parameters, other.parameters, rtol=0, atol=1e-9)
+
+    def test_the_writer_writes_only_what_is_active(self, tmp_path) -> None:
+        prepared = DynAdjustEngine().prepare(job(_set_aside(written())), tmp_path)
+        held = [identifier for element in prepared.elements for identifier in element]
+        assert not set(ASIDE) & set(held)
+        text = prepared.measurement_file.read_text(encoding="utf-8")
+        assert text.count("<Ignore>*</Ignore>") == 0
+        assert ("X4-0", "X4-2") in prepared.elements
+        assert ("D0-0", "D0-2") in prepared.elements
+
+    def test_the_reader_expects_what_the_writer_wrote(self) -> None:
+        from geocomp.engines.dynadjust.read_output import printed_rows
+
+        everything = len(printed_rows(written()))
+        # A baseline is three rows, a direction one, a distance one.
+        assert len(printed_rows(_set_aside(written()))) == everything - 5
+
+
+class TestIgnoredByHand:
+    """FR-325 (P12c-22): ``Ignore`` set in a prepared job's measurement file."""
+
+    @staticmethod
+    def _prepared(tmp_path):
+        prepared = DynAdjustEngine().prepare(job(written()), tmp_path)
+        return prepared, prepared.measurement_file.read_text(encoding="utf-8")
+
+    def test_a_measurement_flagged_sets_aside_everything_it_holds(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared, text = self._prepared(tmp_path)
+        nth = prepared.elements.index(("X4-0", "X4-1", "X4-2"))
+        prepared.measurement_file.write_text(_ignore(text, nth), encoding="utf-8")
+        again = load_prepared(tmp_path)
+        assert again.ignored == ("X4-0", "X4-1", "X4-2")
+        adjusted = again.adjusted_network.observations
+        assert not any(adjusted[i].is_active for i in again.ignored)
+        assert adjusted["X4-0"].rejection.by == "user"
+        assert all(again.job.network.observations[i].is_active for i in again.ignored)
+
+    def test_a_direction_flagged_sets_aside_that_direction(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared, text = self._prepared(tmp_path)
+        nth = prepared.elements.index(("D1-0", "D1-1", "D1-2", "D1-3", "D1-4"))
+        prepared.measurement_file.write_text(_ignore(text, nth, direction=1), encoding="utf-8")
+        assert load_prepared(tmp_path).ignored == ("D1-2",)
+
+    def test_a_measurement_added_or_removed_is_refused(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared, text = self._prepared(tmp_path)
+        first = text.index("<DnaMeasurement>")
+        second = text.index("<DnaMeasurement>", first + 1)
+        prepared.measurement_file.write_text(text[:first] + text[second:], encoding="utf-8")
+        with pytest.raises(DataError) as refused:
+            load_prepared(tmp_path)
+        assert refused.value.code == "data.dynadjust_prepared_measurements_changed"
+        assert refused.value.context["written"] == len(prepared.elements)
+
+    def test_a_direction_added_or_removed_is_refused_naming_the_set(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared, text = self._prepared(tmp_path)
+        nth = prepared.elements.index(("D1-0", "D1-1", "D1-2", "D1-3", "D1-4"))
+        parts = text.split("<DnaMeasurement>")
+        start = parts[nth + 1].index("<Directions>")
+        end = parts[nth + 1].index("</Directions>") + len("</Directions>")
+        parts[nth + 1] = parts[nth + 1][:start] + parts[nth + 1][end:]
+        prepared.measurement_file.write_text("<DnaMeasurement>".join(parts), encoding="utf-8")
+        with pytest.raises(DataError) as refused:
+            load_prepared(tmp_path)
+        assert refused.value.code == "data.dynadjust_prepared_directions_changed"
+        assert refused.value.context["observation"] == "D1-0"
+        assert (refused.value.context["written"], refused.value.context["found"]) == (4, 3)
+
+    def test_a_file_that_is_not_xml_is_left_to_dnaimport(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        prepared, text = self._prepared(tmp_path)
+        prepared.measurement_file.write_text(text[: len(text) // 2], encoding="utf-8")
+        assert load_prepared(tmp_path).ignored == ()
+
+    def test_the_provenance_names_what_was_ignored(self, tmp_path) -> None:
+        from geocomp.engines.dynadjust.engine import load_prepared, provenance
+
+        prepared, text = self._prepared(tmp_path)
+        nth = prepared.elements.index(("X4-0", "X4-1", "X4-2"))
+        prepared.measurement_file.write_text(_ignore(text, nth), encoding="utf-8")
+        recorded = provenance([], load_prepared(tmp_path)).parameters
+        assert recorded["ignored_in_input"] == ["X4-0", "X4-1", "X4-2"]
+
+
+@pytest.mark.engines
+@requires_dynadjust
+class TestWhatWasSetAsideAgainstARealEngine:
+    """Tier 4. Measured with DynAdjust 1.4.0 when P12c-22 was written."""
+
+    def test_dynadjust_and_the_core_agree_on_what_remains(self, tmp_path) -> None:
+        network = _set_aside(written())
+        ours = adjust(
+            network,
+            AdjustmentOptions(frame=Frame.GEOCENTRIC_3D, datum=DatumDefinition.FIXED),
+            approximate=_starting(network),
+        )
+        theirs = DynAdjustEngine().adjust(job(network), tmp_path)
+        assert ours.degrees_of_freedom == theirs.statistics.degrees_of_freedom == 33
+        for station in theirs.adjusted_stations:
+            position = np.array([q.value for q in station.position.values])
+            assert np.abs(_coordinates(ours, network, station.station_id) - position).max() <= PRINTED
+        assert not {r.observation_id for r in theirs.observation_results} & set(ASIDE)
+
+    def test_ignored_by_hand_is_the_same_as_set_aside_in_geocomp(self, tmp_path) -> None:
+        """A baseline cluster and one direction flagged by hand read back as the
+        adjustment GeoComp makes when it sets the same observations aside."""
+        from geocomp.engines.dynadjust.engine import load_prepared
+
+        engine = DynAdjustEngine()
+        prepared = engine.prepare(job(written()), tmp_path / "by-hand")
+        text = prepared.measurement_file.read_text(encoding="utf-8")
+        text = _ignore(text, prepared.elements.index(("X4-0", "X4-1", "X4-2")))
+        text = _ignore(text, prepared.elements.index(("D1-0", "D1-1", "D1-2", "D1-3", "D1-4")), direction=1)
+        prepared.measurement_file.write_text(text, encoding="utf-8")
+        again = load_prepared(tmp_path / "by-hand")
+        by_hand = engine.parse(engine.run(again, timeout=120), again)
+
+        aside = _set_aside(written(), ("X4-0", "X4-1", "X4-2", "D1-2"))
+        in_geocomp = engine.adjust(job(aside), tmp_path / "in-geocomp")
+
+        assert by_hand.statistics.degrees_of_freedom == in_geocomp.statistics.degrees_of_freedom == 28
+        ours = {s.station_id: [q.value for q in s.position.values] for s in by_hand.adjusted_stations}
+        theirs = {s.station_id: [q.value for q in s.position.values] for s in in_geocomp.adjusted_stations}
+        assert ours.keys() == theirs.keys()
+        for station, position in ours.items():
+            np.testing.assert_allclose(position, theirs[station], rtol=0, atol=1e-6)
+        # In file order: the direction sets come before the baseline cluster.
+        assert by_hand.provenance.parameters["ignored_in_input"] == ["D1-2", "X4-0", "X4-1", "X4-2"]

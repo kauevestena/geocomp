@@ -1315,6 +1315,11 @@ def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
     of observation. Keeping this rule in step with the writer's is what makes
     the two round-trip; the row-by-row check in :func:`match_observations` is
     what catches it when they drift apart.
+
+    **Only active observations print** (P12c-22), because only they are written,
+    and DynAdjust leaves a measurement flagged ``Ignore`` out of the table too.
+    Until then a set-aside observation was expected here whether or not the
+    writer had written it.
     """
     rows: list[tuple[str, str, tuple[str, ...]]] = []
     seen: set[str] = set()
@@ -1324,7 +1329,7 @@ def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
         for _ in spec.components:
             rows.append((observation.id, code, observation.stations))
 
-    for cluster in network.clusters.values():
+    for cluster in network.active_clusters().values():
         members = [
             network.observations[identifier]
             for identifier in cluster.observation_ids
@@ -1350,7 +1355,7 @@ def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
             seen.add(member.id)
             emit(member, code or _own_code(member))
 
-    for observation in network.observations.values():
+    for observation in network.active_observations:
         if observation.id in seen:
             continue
         emit(observation, _own_code(observation))

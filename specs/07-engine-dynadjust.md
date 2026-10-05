@@ -162,8 +162,34 @@ leaves it out of the adjusted-measurement table (24 rows for one ignored cluster
 reader matches that table to the network by order, so it refuses. The help says not to. The same
 measurement exposed a defect older than this phase, on the path GeoComp writes itself: an observation the user
 excluded (FR-255) is written as active when it is a member of a GNSS cluster or a direction set, so DynAdjust
-uses it, and a lone excluded one is left out of the file while the reader still expects its rows. Both are
-P12c-22's.
+uses it, and a lone excluded one is left out of the file while the reader still expects its rows. Both
+were fixed in P12c-22, below.
+
+*As built (P12c-22, FR-255, FR-325).* **GeoComp writes only active observations**, with clusters cut to their
+active members ([`04`](./04-data-model.md) §2.6), and the reader expects exactly the rows written. Measured
+against DynAdjust 1.4.0 on the combined survey, with a baseline from the GNSS cluster, a direction that is
+not its set's reference, and a lone slope distance set aside: both engines have 33 degrees of freedom, and the
+coordinates agree within the 0.05 mm DynAdjust prints. With a set's reference direction set aside instead, the
+same holds at 34.
+
+**A measurement flagged `Ignore` by hand is read back set aside.** The manifest records which observations
+each `DnaMeasurement` holds, in file order. An `Ignore` on a measurement sets aside everything in it, and one
+on a single `Directions` of a set sets aside that direction. Three things make the read-back right:
+
+- `dnaimport` counts an ignored measurement among those it loaded (`Loaded 50 measurements`,
+  `Includes 1 ignored measurements`), so the import check still counts the network **as written**.
+- `dnaadjust` leaves it out of its table, so the result is matched against the network **with it set aside**
+  (`PreparedJob.adjusted_network`). Each such observation carries a `RejectionRecord` by the user.
+- The provenance records `ignored_in_input`.
+
+A baseline cluster and one direction ignored by hand give, to the printed digit, the adjustment GeoComp makes
+when it sets the same observations aside itself (the tier-4
+`TestWhatWasSetAsideAgainstARealEngine::test_ignored_by_hand_is_the_same_as_set_aside_in_geocomp`). A file
+with measurements, or directions in a set, added or removed is refused before anything runs
+(`data.dynadjust_prepared_measurements_changed`, or `…_directions_changed` naming the set), because its rows
+can no longer be matched. A file that is no
+longer XML is left to `dnaimport`, whose diagnostic says where. Setting aside all but one direction of a set
+leaves a set of one, which is skipped as any set of one is (§5.6), and so needs *allow partial*.
 
 Not built: Advanced mode cannot switch an individual stage on or off. Each still runs when its condition holds,
 and a configuration can give it options but not override that decision.

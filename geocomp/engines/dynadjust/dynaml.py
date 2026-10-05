@@ -114,6 +114,10 @@ class DynaMLDocument:
             reason. **Never silently dropped**: a gravity observation vanishing
             from an exported network is a difference in the adjustment that the
             user did not ask for and cannot see.
+        set_aside: Observations not written because the user set them aside
+            (FR-255). Not in :attr:`skipped`: leaving them out is what was asked.
+        elements: The observations each ``DnaMeasurement`` holds, in file order
+            -- what a hand-set ``Ignore`` flag is mapped back by (FR-325).
     """
 
     station_path: Path | None = None
@@ -123,6 +127,8 @@ class DynaMLDocument:
     renamed: dict[str, str] = field(default_factory=dict)
     skipped: list[tuple[str, str]] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
+    set_aside: list[str] = field(default_factory=list)
+    elements: list[tuple[str, ...]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -465,6 +471,14 @@ def write_measurement_file(
     Clustered types are written once per cluster, with their covariance intact;
     everything else once per observation. An observation of a type DynAdjust
     does not have is **reported in** :attr:`DynaMLDocument.skipped`, not dropped.
+
+    **Only active observations are written** (FR-255; P12c-22). One the user set
+    aside is left out and listed in :attr:`DynaMLDocument.set_aside`, and the
+    clusters are :meth:`~geocomp.core.models.Network.active_clusters`: a
+    cluster with members set aside is written with the rest, under the part of
+    its covariance that is theirs, as the in-house core weights it. Until
+    P12c-22 a set-aside member of a GNSS cluster or a direction set was written
+    as active, and DynAdjust adjusted it.
     """
     names = names or station_names(network)
     root = _root("Measurement File", frame, epoch)
@@ -474,13 +488,14 @@ def write_measurement_file(
     written_ids: set[str] = set()
     counts: dict[str, int] = {}
 
-    for cluster in network.clusters.values():
+    document.set_aside = [o.id for o in network.observations.values() if not o.is_active]
+    for cluster in network.active_clusters().values():
         members = [network.observations[o] for o in cluster.observation_ids if o in network.observations]
+        written_ids.update(o.id for o in members)
         if not members:
             continue
         code = _code_for(members[0], document)
         if code is None:
-            written_ids.update(o.id for o in members)
             continue
         if code == "D" and len(members) < 2:
             # DynAdjust's D is a *reference* direction plus the directions
@@ -502,15 +517,13 @@ def write_measurement_file(
                     "adjustment is unchanged",
                 )
             )
-            written_ids.update(o.id for o in members)
             continue
         # The code the *cluster writer* used, not the registry's: a cluster of
         # several baselines is written as X and a single one as G, so counting
         # the registry code would report a file that does not exist.
-        written = _write_cluster(root, cluster, members, names, frame, epoch)
-        written_ids.update(o.id for o in members)
-        for used in written:
+        for used, held in _write_cluster(root, cluster, members, names, frame, epoch):
             counts[used] = counts.get(used, 0) + 1
+            document.elements.append(held)
 
     for observation in network.active_observations:
         if observation.id in written_ids:
@@ -520,6 +533,7 @@ def write_measurement_file(
             continue
         _write_measurement(root, observation, code, names, frame, epoch)
         counts[code] = counts.get(code, 0) + 1
+        document.elements.append((observation.id,))
 
     document.counts = counts
     _write(root, Path(path))
@@ -712,44 +726,48 @@ def _write_cluster(
     names: dict[str, str],
     frame: str,
     epoch: str,
-) -> list[str]:
+) -> list[tuple[str, tuple[str, ...]]]:
     """A clustered measurement: X (baseline cluster), Y (point cluster) or D.
 
     A single-member GNSS baseline cluster is written as ``G`` rather than ``X``.
     Both are correct and both carry the same 3x3; ``G`` is what upstream's own
     files use for the one-baseline case, so a GeoComp file put beside one of
     theirs is diffable, which is worth more than uniformity here.
+
+    Returns each element written: its type letter and the observations it
+    holds, which is what a hand-set ``Ignore`` flag is mapped back by.
     """
     first = members[0]
+    held = tuple(o.id for o in members)
     if first.type is ObservationType.GNSS_BASELINE:
         own, between = _cluster_blocks(cluster, members)
         if len(members) == 1:
             element = ET.SubElement(root, "DnaMeasurement")
             _text(element, "Type", "G")
-            _text(element, "Ignore", "*" if not first.is_active else "")
+            _text(element, "Ignore", "")
             stations = _stations(first, names)
             _text(element, "First", stations[0])
             _text(element, "Second", stations[1])
             _write_gnss_components(
                 element, first, "GPSBaseline", frame, epoch, block=own[0]
             )
-            return ["G"]
+            return [("G", held)]
         _write_gnss_cluster(root, members, "X", names, frame, epoch, own, between)
-        return ["X"]
+        return [("X", held)]
     if first.type is ObservationType.GNSS_POINT:
         own, between = _cluster_blocks(cluster, members)
         _write_gnss_cluster(root, members, "Y", names, frame, epoch, own, between)
-        return ["Y"]
+        return [("Y", held)]
     if first.type is ObservationType.DIRECTION:
         _write_direction_set(root, members, names)
-        return ["D"]
-    used = []
+        return [("D", held)]
+    written = []
     for observation in members:
         code = OBSERVATION_TYPES[observation.type].dynadjust_code
         if code:
             _write_measurement(root, observation, code, names, frame, epoch)
-            used.append(code)
-    return used
+            written.append((code, (observation.id,)))
+    return written
 
 
 def _write_gnss_cluster(

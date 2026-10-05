@@ -209,6 +209,9 @@ def adjust(
     # rows were missing.
     weighted = weighted_constraints(network, layout, options.frame)
     weighted += undulation_priors(layout, undulations)
+    # FR-255: a cluster with members set aside is weighted by the covariance of
+    # the rest. Until P12c-22 it was refused, as rows that did not match.
+    clusters = network.active_clusters()
 
     # NFR-008: which path, decided before anything the size of the network is
     # allocated. Rows are counted rather than assembled to find out.
@@ -219,7 +222,7 @@ def adjust(
         from geocomp.core.adjustment import sparse as path
 
         def linearised(at):
-            return path.assemble(observations, network.clusters, layout, at, weighted=weighted)
+            return path.assemble(observations, clusters, layout, at, weighted=weighted)
 
         def solved(system, *, first=False, final=False):
             return path.solve(
@@ -228,7 +231,7 @@ def adjust(
     else:
 
         def linearised(at):
-            return assemble(observations, network.clusters, layout, at, weighted=weighted)
+            return assemble(observations, clusters, layout, at, weighted=weighted)
 
         def solved(system, *, first=False, final=False):
             return solve(system, layout, constraints=constraints)

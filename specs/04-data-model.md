@@ -198,6 +198,15 @@ model does not permit it silently.
 | `observation_ids` | list[str] | Ordered — the order defines the covariance matrix ordering |
 | `covariance` | `Covariance` | Full *n*×*n* matrix over the ordered members |
 
+**As built (P12c-22): a member set aside.** The cluster stays as it was recorded, and
+`Network.active_clusters()` gives it as an adjustment sees it: the active members only, under the rows and
+columns of `covariance` that are theirs. That submatrix is the covariance of the remaining observations, with
+nothing to condition on, because what was set aside is not observed. A cluster with every member set aside is
+left out, and one with every member active is the same object. The in-house core, the DynaML writer and the
+reader of DynAdjust's output all read clusters through it, so they cannot disagree about what was adjusted.
+Until P12c-22 the core refused such a cluster, as rows that did not match its matrix, and the writer wrote the
+set-aside member as active.
+
 ### 2.7 `GnssSession` (FR-350)
 
 | Field | Type | Notes |

@@ -159,6 +159,23 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
         "reason",
     ),
+    "data.dynadjust_prepared_measurements_changed": MessageTemplate(
+        "The prepared measurement file '%1' now holds %2 measurements where GeoComp wrote %3. "
+        "The result is matched to the network measurement by measurement, so measurements "
+        "cannot be added or removed; to leave one out, set its Ignore to *.",
+        "path",
+        "found",
+        "written",
+    ),
+    "data.dynadjust_prepared_directions_changed": MessageTemplate(
+        "A direction set in the prepared measurement file '%1' now holds %2 directions after its "
+        "reference where GeoComp wrote %3 (the set whose reference is observation %4). Directions "
+        "cannot be added or removed; to leave one out, set its Ignore to *.",
+        "path",
+        "found",
+        "written",
+        "observation",
+    ),
     "data.dynadjust_prepared_file_missing": MessageTemplate(
         "The prepared input file '%1' is no longer in '%2'. Edit the input files in place; "
         "do not rename or remove them.",

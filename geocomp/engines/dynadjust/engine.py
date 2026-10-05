@@ -35,6 +35,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,6 +44,7 @@ from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.core.geodesy.projection import ProjectionParameters
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.network import Network
+from geocomp.core.models.observation import ObservationStatus, RejectionRecord
 from geocomp.core.models.position import HeightType
 from geocomp.core.models.solution import Provenance, Solution
 from geocomp.engines.base import (
@@ -330,6 +332,33 @@ class PreparedJob:
     #: between preparing and running. Recorded in the provenance, because a
     #: result from edited input is not the network's result alone.
     edited: tuple[str, ...] = ()
+    #: The observations each ``DnaMeasurement`` of the measurement file holds,
+    #: in file order, as the writer reported them (P12c-22).
+    elements: tuple[tuple[str, ...], ...] = ()
+    #: Observations whose measurement was flagged ``Ignore`` by hand in the
+    #: prepared file. DynAdjust loads them and leaves them out of the
+    #: adjustment, so the result is read back with them set aside.
+    ignored: tuple[str, ...] = ()
+
+    @property
+    def adjusted_network(self) -> Network:
+        """The network DynAdjust adjusted: :attr:`ignored` set aside (FR-255).
+
+        ``job.network`` stays the network as written, which is what
+        ``dnaimport``'s count is checked against: it counts an ignored
+        measurement among those it loaded.
+        """
+        if not self.ignored:
+            return self.job.network
+        record = RejectionRecord(
+            reason="flagged Ignore in the prepared DynAdjust input", by="user"
+        )
+        observations = dict(self.job.network.observations)
+        for identifier in self.ignored:
+            observations[identifier] = replace(
+                observations[identifier], status=ObservationStatus.EXCLUDED, rejection=record
+            )
+        return replace(self.job.network, observations=observations)
 
     @property
     def mode(self) -> str:
@@ -750,6 +779,7 @@ class DynAdjustEngine:
             stages=stages,
             names=names,
             skipped=skipped,
+            elements=tuple(document.elements),
         )
         _write_manifest(prepared)
         return prepared
@@ -829,7 +859,7 @@ class DynAdjustEngine:
         corrections = prepared.output("cor")
         return read_solution(
             adjust,
-            network=prepared.job.network,
+            network=prepared.adjusted_network,
             apu_path=uncertainty if uncertainty.is_file() else None,
             cor_path=corrections if corrections.is_file() else None,
             angular_format=ANGULAR_FORMAT,
@@ -878,6 +908,7 @@ def provenance(runs: list[EngineRun], prepared: PreparedJob) -> Provenance:
             ),
             **({"resumed": True} if prepared.resumed else {}),
             **({"edited_inputs": list(prepared.edited)} if prepared.edited else {}),
+            **({"ignored_in_input": list(prepared.ignored)} if prepared.ignored else {}),
             "confidence": prepared.job.confidence,
             "iteration_threshold": prepared.job.iteration_threshold,
             "stages": [
@@ -937,6 +968,7 @@ def _write_manifest(prepared: PreparedJob) -> None:
         ],
         "names": dict(prepared.names),
         "skipped": list(prepared.skipped),
+        "elements": [list(held) for held in prepared.elements],
         "digests": {
             path.name: _digest(path) for path in (prepared.station_file, prepared.measurement_file)
         },
@@ -995,6 +1027,7 @@ def load_prepared(work_dir: str | Path) -> PreparedJob:
         station_file = work_dir / payload["station_file"]
         measurement_file = work_dir / payload["measurement_file"]
         digests = dict(payload.get("digests", {}))
+        elements = tuple(tuple(held) for held in payload.get("elements", ()))
     except (KeyError, TypeError, ValueError) as exc:
         raise DataError(
             "dynadjust_prepared_manifest_unreadable", path=str(manifest), reason=str(exc)
@@ -1009,6 +1042,11 @@ def load_prepared(work_dir: str | Path) -> PreparedJob:
         for path in (station_file, measurement_file)
         if digests.get(path.name) != _digest(path)
     )
+    ignored = (
+        _ignored_by_hand(measurement_file, elements)
+        if measurement_file.name in edited
+        else ()
+    )
     return PreparedJob(
         job=job,
         work_dir=work_dir,
@@ -1019,4 +1057,58 @@ def load_prepared(work_dir: str | Path) -> PreparedJob:
         skipped=tuple(payload.get("skipped", ())),
         resumed=True,
         edited=edited,
+        elements=elements,
+        ignored=ignored,
     )
+
+
+def _ignored_by_hand(path: Path, elements: tuple[tuple[str, ...], ...]) -> tuple[str, ...]:
+    """The observations whose measurement the user flagged ``Ignore`` (P12c-22).
+
+    Mapped back through the manifest's record of what each ``DnaMeasurement``
+    holds. An ``Ignore`` on the measurement sets aside everything in it; one on
+    a single ``Directions`` of a set sets aside that direction, the *k*-th after
+    the reference -- measured with DynAdjust 1.4.0 to give the result GeoComp
+    gets by setting the direction aside itself, to the last printed digit.
+
+    A file with measurements or directions added or removed is refused: its
+    elements no longer line up with the network, and DynAdjust's table would
+    be matched to the wrong observations. A file that is not XML at all is left
+    to ``dnaimport``, whose diagnostic says where.
+    """
+    try:
+        measurements = ET.parse(path).getroot().findall("DnaMeasurement")
+    except ET.ParseError:
+        return ()
+
+    if len(measurements) != len(elements):
+        raise DataError(
+            "dynadjust_prepared_measurements_changed",
+            path=str(path),
+            written=len(elements),
+            found=len(measurements),
+            expected="the measurements GeoComp wrote, each kept, or flagged Ignore to leave it out",
+        )
+    ignored: list[str] = []
+    for element, held in zip(measurements, elements, strict=True):
+        if (element.findtext("Ignore") or "").strip() == "*":
+            ignored.extend(held)
+            continue
+        directions = element.findall("Directions")
+        if not directions:
+            continue
+        if len(directions) != len(held) - 1:
+            raise DataError(
+                "dynadjust_prepared_directions_changed",
+                path=str(path),
+                observation=held[0],
+                written=len(held) - 1,
+                found=len(directions),
+                expected="the directions GeoComp wrote, each kept, or flagged Ignore to leave it out",
+            )
+        ignored.extend(
+            identifier
+            for direction, identifier in zip(directions, held[1:], strict=True)
+            if (direction.findtext("Ignore") or "").strip() == "*"
+        )
+    return tuple(ignored)

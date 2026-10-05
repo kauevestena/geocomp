@@ -2492,6 +2492,36 @@ the result is read back, for the same reason as the defect above. 160 met, 15 pa
 and a configuration can give it options but not override that. *Compare configurations* takes no RTKLIB
 options file.
 
+#### P12c-22 — what was set aside stays aside, on both engines; Ignore by hand (FR-255, FR-325)
+
+**Delivered** ([`04`](./04-data-model.md) §2.6; [`06`](./06-adjustment-core.md) §4.2; [`07`](./07-engine-dynadjust.md) §3).
+
+| | |
+|---|---|
+| One rule for clusters | `Network.active_clusters()`: a cluster cut to its active members, under their part of its covariance. The core, the DynaML writer and the reader of DynAdjust's output all use it |
+| The core | Adjusts a cluster with a member set aside, as a survey that never had it. It refused before |
+| DynAdjust | GeoComp writes only active observations, and the reader expects exactly the rows written. Against DynAdjust 1.4.0 the two engines agree on the combined survey with a baseline, a direction and a distance set aside |
+| Ignore by hand | In a prepared job, `Ignore` on a measurement or on one direction of a set is read back set aside, with a record by the user, and gives the adjustment GeoComp makes when it sets the same observations aside. Adding or removing a measurement is refused before anything runs |
+
+FR-255 and FR-325 are now **met**: 162 met, 13 partly met, 1 open, of 176.
+
+**Defects found.**
+
+- **The fix's first draft duplicated half of `dynaml.py`**: a slice that removed the wrong span. The diff
+  showed two `_write_cluster` definitions before any test ran, and the file was restored and edited again.
+- **The core refused what P12c-21 found DynAdjust adjusting.** Setting aside one baseline of a correlated
+  cluster raised `data.cluster_rows_mismatch` in the core, a message about matrix shapes that did not say
+  an observation had been set aside. The two engines now agree instead of failing in two different ways.
+
+**Found, not fixed.** An in-house adjustment with no redundancy (0 degrees of freedom) has an undefined
+a-posteriori variance factor; it is `NaN`, and the station covariances built from it make `to_solution` fail
+with numpy's `Eigenvalues did not converge` instead of a refusal in words. Setting aside one observation from
+the three-dof GNSS sample is enough to reach it. Which variance factor a zero-redundancy solution should carry
+is a decision for `specs/06`, not a fix to make in passing.
+
+**Not done.** Directions never reach a DynAdjust solution's observation results (§5.6), so a set-aside
+direction is visible only in the degrees of freedom and the provenance.
+
 ---
 
 ## P13 — Validation, documentation and release
