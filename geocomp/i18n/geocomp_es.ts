@@ -928,8 +928,8 @@
             <translation>%1 observación(es) no tienen equivalente en DynAdjust y no se escribieron: %2</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Adjusts a geodetic network using &lt;b&gt;DynAdjust&lt;/b&gt;, Geoscience Australia's least-squares suite, and reads its output back into the same solution structure GeoComp's own adjustment produces. Everything downstream &amp;mdash; reports, map layers, storage, multi-epoch comparison &amp;mdash; works the same way whichever engine produced the result.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust must be installed separately.&lt;/b&gt; It is not bundled: it is a large native program under a different licence, and shipping a copy inside a QGIS plugin would make GeoComp responsible for its build. If it is not found, this algorithm says so and names what is missing.&lt;/p&gt;&lt;p&gt;DynAdjust is a suite, not one program. This runs, in order, &lt;code&gt;dnaimport&lt;/code&gt;, then &lt;code&gt;dnareftran&lt;/code&gt; if the target frame or epoch differs from the network's, then &lt;code&gt;dnageoid&lt;/code&gt; if orthometric heights take part, then &lt;code&gt;dnasegment&lt;/code&gt; for a network too large to adjust in one piece, then &lt;code&gt;dnaadjust&lt;/code&gt;. Which stages ran, and why each other one did not, is recorded in the solution's provenance.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference frame&lt;/b&gt; and &lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the frame and epoch to adjust in. Leave them empty to use the network's own. Neither is ever guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed into the residuals.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid grid&lt;/b&gt; &amp;mdash; an NTv2 file, required when the network has orthometric heights, because the height systems cannot be related without one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the chi-square test and the positional uncertainties. &lt;b&gt;Convergence threshold&lt;/b&gt; and &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; passed to DynAdjust unchanged.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Segmentation threshold&lt;/b&gt; &amp;mdash; above this many stations the network is segmented and adjusted in phases, which is rigorous: the block solutions and their variances equal the simultaneous ones.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust directory&lt;/b&gt; &amp;mdash; where the programs are, for this run. Empty, GeoComp uses the directory set in Global Settings under Paths and engines, then its own installation (Project &amp;rsaquo; Install an engine), then the system path. &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; seconds before a stage is abandoned and its process group killed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Keep the working files&lt;/b&gt; &amp;mdash; writes the generated input and the raw DynAdjust output to a folder instead of a temporary directory. An adjustment that surprises you is answerable only from the files that produced it.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON: adjusted coordinates, the full variance matrix, per-observation residuals, the statistics, and the provenance recording every command line that ran.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Ajusta una red geodésica usando &lt;b&gt;DynAdjust&lt;/b&gt;, el conjunto de programas de mínimos cuadrados de Geoscience Australia, y lee su salida de vuelta en la misma estructura de solución que produce el ajuste propio de GeoComp. Todo lo que viene después &amp;mdash; informes, capas de mapa, almacenamiento, comparación multiépoca &amp;mdash; funciona igual, sea cual sea el motor que produjo el resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust debe instalarse por separado.&lt;/b&gt; No se distribuye junto: es un programa nativo grande, bajo otra licencia, y llevar una copia dentro de un complemento de QGIS haría a GeoComp responsable de su compilación. Si no se encuentra, este algoritmo lo indica y nombra lo que falta.&lt;/p&gt;&lt;p&gt;DynAdjust es un conjunto de programas, no uno solo. Este algoritmo ejecuta, en este orden, &lt;code&gt;dnaimport&lt;/code&gt;, luego &lt;code&gt;dnareftran&lt;/code&gt; si el marco o la época de destino difieren de los de la red, luego &lt;code&gt;dnageoid&lt;/code&gt; si participan alturas ortométricas, luego &lt;code&gt;dnasegment&lt;/code&gt; para una red demasiado grande para ajustarse de una vez, y por último &lt;code&gt;dnaadjust&lt;/code&gt;. Qué etapas se ejecutaron, y por qué cada una de las otras no, queda registrado en la procedencia de la solución.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Red&lt;/b&gt; &amp;mdash; un documento de red de GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Marco de referencia&lt;/b&gt; y &lt;b&gt;Época de referencia&lt;/b&gt; &amp;mdash; el marco y la época en que ajustar. Déjelos vacíos para usar los de la propia red. Ninguno se adivina nunca: un marco que GeoComp infirió en lugar de conocer es un desplazamiento de datum absorbido por los residuos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Malla del geoide&lt;/b&gt; &amp;mdash; un archivo NTv2, obligatorio cuando la red tiene alturas ortométricas, porque los sistemas de alturas no pueden relacionarse sin él.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt; &amp;mdash; para la prueba ji-cuadrado y las incertidumbres posicionales. &lt;b&gt;Umbral de convergencia&lt;/b&gt; y &lt;b&gt;Número máximo de iteraciones&lt;/b&gt; &amp;mdash; se pasan a DynAdjust sin cambios.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Umbral de segmentación&lt;/b&gt; &amp;mdash; por encima de este número de estaciones la red se segmenta y se ajusta por fases, lo cual es riguroso: las soluciones de los bloques y sus varianzas son iguales a las simultáneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Directorio de DynAdjust&lt;/b&gt; &amp;mdash; dónde están los programas, para esta ejecución. Vacío, GeoComp usa el directorio definido en Configuraciones Globales, en Rutas y motores, luego su propia instalación (Proyecto &amp;rsaquo; Instalar un motor), luego la ruta del sistema. &lt;b&gt;Tiempo límite&lt;/b&gt; &amp;mdash; segundos antes de abandonar una etapa y terminar su grupo de procesos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Conservar los archivos de trabajo&lt;/b&gt; &amp;mdash; escribe la entrada generada y la salida sin procesar de DynAdjust en una carpeta en vez de un directorio temporal. Un ajuste que sorprende sólo puede responderse a partir de los archivos que lo produjeron.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, la matriz de varianzas completa, residuos por observación, las estadísticas y la procedencia con cada línea de comandos que se ejecutó.&lt;/p&gt;&lt;p&gt;Salidas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; y &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Adjusts a geodetic network using &lt;b&gt;DynAdjust&lt;/b&gt;, Geoscience Australia's least-squares suite, and reads its output back into the same solution structure GeoComp's own adjustment produces. Everything downstream &amp;mdash; reports, map layers, storage, multi-epoch comparison &amp;mdash; works the same way whichever engine produced the result.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust must be installed separately.&lt;/b&gt; It is not bundled: it is a large native program under a different licence, and shipping a copy inside a QGIS plugin would make GeoComp responsible for its build. If it is not found, this algorithm says so and names what is missing.&lt;/p&gt;&lt;p&gt;DynAdjust is a suite, not one program. This runs, in order, &lt;code&gt;dnaimport&lt;/code&gt;, then &lt;code&gt;dnareftran&lt;/code&gt; if the target frame or epoch differs from the network's, then &lt;code&gt;dnageoid&lt;/code&gt; if orthometric heights take part, then &lt;code&gt;dnasegment&lt;/code&gt; for a network too large to adjust in one piece, then &lt;code&gt;dnaadjust&lt;/code&gt;. Which stages ran, and why each other one did not, is recorded in the solution's provenance.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Network&lt;/b&gt; &amp;mdash; a GeoComp network document (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reference frame&lt;/b&gt; and &lt;b&gt;Reference epoch&lt;/b&gt; &amp;mdash; the frame and epoch to adjust in. Leave them empty to use the network's own. Neither is ever guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed into the residuals.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Geoid grid&lt;/b&gt; &amp;mdash; an NTv2 file, required when the network has orthometric heights, because the height systems cannot be related without one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence level&lt;/b&gt; &amp;mdash; for the chi-square test and the positional uncertainties. &lt;b&gt;Convergence threshold&lt;/b&gt; and &lt;b&gt;Maximum iterations&lt;/b&gt; &amp;mdash; passed to DynAdjust unchanged.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Segmentation threshold&lt;/b&gt; &amp;mdash; above this many stations the network is segmented and adjusted in phases, which is rigorous: the block solutions and their variances equal the simultaneous ones.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust directory&lt;/b&gt; &amp;mdash; where the programs are, for this run. Empty, GeoComp uses the directory set in Global Settings under Paths and engines, then its own installation (Project &amp;rsaquo; Install an engine), then the system path. &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; seconds before a stage is abandoned and its process group killed.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Keep the working files&lt;/b&gt; &amp;mdash; writes the generated input and the raw DynAdjust output to a folder instead of a temporary directory. An adjustment that surprises you is answerable only from the files that produced it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust configuration&lt;/b&gt; &amp;mdash; a JSON file of options of your own for each program, added after GeoComp's: &lt;code&gt;{"dnaadjust": ["--free-stn-sd", "10"]}&lt;/code&gt;. The options GeoComp sets itself, such as the confidence or the output files, are refused: each has a parameter here, and GeoComp reads the output back by them. The options are recorded in the solution's provenance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Stop after writing the input&lt;/b&gt; &amp;mdash; writes the input files and the plan to the working-files folder and stops, without running DynAdjust, which need not even be installed. Inspect or edit the files there, then run them with &lt;b&gt;Run a prepared DynAdjust job&lt;/b&gt;. Which files were edited is recorded in the result.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON: adjusted coordinates, the full variance matrix, per-observation residuals, the statistics, and the provenance recording every command line that ran.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; and &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ajusta una red geodésica usando &lt;b&gt;DynAdjust&lt;/b&gt;, el conjunto de programas de mínimos cuadrados de Geoscience Australia, y lee su salida de vuelta en la misma estructura de solución que produce el ajuste propio de GeoComp. Todo lo que viene después &amp;mdash; informes, capas de mapa, almacenamiento, comparación multiépoca &amp;mdash; funciona igual, sea cual sea el motor que produjo el resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;DynAdjust debe instalarse por separado.&lt;/b&gt; No se distribuye junto: es un programa nativo grande, bajo otra licencia, y llevar una copia dentro de un complemento de QGIS haría a GeoComp responsable de su compilación. Si no se encuentra, este algoritmo lo indica y nombra lo que falta.&lt;/p&gt;&lt;p&gt;DynAdjust es un conjunto de programas, no uno solo. Este algoritmo ejecuta, en este orden, &lt;code&gt;dnaimport&lt;/code&gt;, luego &lt;code&gt;dnareftran&lt;/code&gt; si el marco o la época de destino difieren de los de la red, luego &lt;code&gt;dnageoid&lt;/code&gt; si participan alturas ortométricas, luego &lt;code&gt;dnasegment&lt;/code&gt; para una red demasiado grande para ajustarse de una vez, y por último &lt;code&gt;dnaadjust&lt;/code&gt;. Qué etapas se ejecutaron, y por qué cada una de las otras no, queda registrado en la procedencia de la solución.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Red&lt;/b&gt; &amp;mdash; un documento de red de GeoComp (JSON).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Marco de referencia&lt;/b&gt; y &lt;b&gt;Época de referencia&lt;/b&gt; &amp;mdash; el marco y la época en que ajustar. Déjelos vacíos para usar los de la propia red. Ninguno se adivina nunca: un marco que GeoComp infirió en lugar de conocer es un desplazamiento de datum absorbido por los residuos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Malla del geoide&lt;/b&gt; &amp;mdash; un archivo NTv2, obligatorio cuando la red tiene alturas ortométricas, porque los sistemas de alturas no pueden relacionarse sin él.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nivel de confianza&lt;/b&gt; &amp;mdash; para la prueba ji-cuadrado y las incertidumbres posicionales. &lt;b&gt;Umbral de convergencia&lt;/b&gt; y &lt;b&gt;Número máximo de iteraciones&lt;/b&gt; &amp;mdash; se pasan a DynAdjust sin cambios.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Umbral de segmentación&lt;/b&gt; &amp;mdash; por encima de este número de estaciones la red se segmenta y se ajusta por fases, lo cual es riguroso: las soluciones de los bloques y sus varianzas son iguales a las simultáneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Directorio de DynAdjust&lt;/b&gt; &amp;mdash; dónde están los programas, para esta ejecución. Vacío, GeoComp usa el directorio definido en Configuraciones Globales, en Rutas y motores, luego su propia instalación (Proyecto &amp;rsaquo; Instalar un motor), luego la ruta del sistema. &lt;b&gt;Tiempo límite&lt;/b&gt; &amp;mdash; segundos antes de abandonar una etapa y terminar su grupo de procesos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Conservar los archivos de trabajo&lt;/b&gt; &amp;mdash; escribe la entrada generada y la salida sin procesar de DynAdjust en una carpeta en vez de un directorio temporal. Un ajuste que sorprende sólo puede responderse a partir de los archivos que lo produjeron.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Configuración de DynAdjust&lt;/b&gt; &amp;mdash; un archivo JSON con opciones propias para cada programa, añadidas después de las de GeoComp: &lt;code&gt;{"dnaadjust": ["--free-stn-sd", "10"]}&lt;/code&gt;. Las opciones que GeoComp define por sí mismo, como la confianza o los archivos de salida, se rechazan: cada una tiene aquí un parámetro, y GeoComp lee la salida de vuelta por ellas. Las opciones quedan registradas en la procedencia de la solución.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Detenerse tras escribir la entrada&lt;/b&gt; &amp;mdash; escribe los archivos de entrada y el plan en la carpeta de archivos de trabajo y se detiene, sin ejecutar DynAdjust, que ni siquiera necesita estar instalado. Inspeccione o edite los archivos allí y luego ejecútelos con &lt;b&gt;Ejecutar un trabajo preparado de DynAdjust&lt;/b&gt;. Los archivos editados quedan registrados en el resultado.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, la matriz de varianzas completa, residuos por observación, las estadísticas y la procedencia con cada línea de comandos que se ejecutó.&lt;/p&gt;&lt;p&gt;Salidas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; y &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a suite, and a partial installation fails part way through.</source>
@@ -954,6 +954,10 @@
         <message>
             <source>DynAdjust %1 has not been checked against this GeoComp release. It will be used, but if its output format has changed the result may be refused when it is read back.</source>
             <translation>DynAdjust %1 no se ha verificado con esta versión de GeoComp. Se usará, pero si su formato de salida ha cambiado el resultado puede rechazarse al leerlo.</translation>
+        </message>
+        <message>
+            <source>DynAdjust configuration (JSON: options per program)</source>
+            <translation>Configuración de DynAdjust (JSON: opciones por programa)</translation>
         </message>
         <message>
             <source>DynAdjust directory (empty: Global Settings, then GeoComp's installation, then the system path)</source>
@@ -1002,6 +1006,14 @@
         <message>
             <source>Solution</source>
             <translation>Solución</translation>
+        </message>
+        <message>
+            <source>Stop after writing the input, to inspect or edit it</source>
+            <translation>Detenerse tras escribir la entrada, para inspeccionarla o editarla</translation>
+        </message>
+        <message>
+            <source>Stopped before running DynAdjust. The input is in %1: %2 and %3. Inspect or edit them there, then run Run a prepared DynAdjust job on that folder.</source>
+            <translation>Detenido antes de ejecutar DynAdjust. La entrada está en %1: %2 y %3. Inspecciónelos o edítelos allí y luego ejecute Ejecutar un trabajo preparado de DynAdjust sobre esa carpeta.</translation>
         </message>
         <message>
             <source>Timeout per stage (s)</source>
@@ -1077,6 +1089,41 @@
         <message>
             <source>Variance factor tolerance (relative)</source>
             <translation>Tolerancia del factor de varianza (relativa)</translation>
+        </message>
+    </context>
+    <context>
+        <name>DynAdjustRunPreparedAlgorithm</name>
+        <message>
+            <source>&lt;p&gt;Runs a DynAdjust job that &lt;b&gt;Adjust network (DynAdjust)&lt;/b&gt; prepared with &lt;b&gt;Stop after writing the input&lt;/b&gt;, and reads the result back into the same solution GeoComp's own adjustment produces.&lt;/p&gt;&lt;p&gt;Between the two you may inspect the input files in the folder, and edit them: a measurement's variance to scale, a station to constrain, an option DynAdjust offers that GeoComp does not. They are run as they are now. GeoComp compares each with what it wrote, and the solution's provenance names the files that were edited, because a result from edited input is not the network's alone.&lt;/p&gt;&lt;p&gt;Do not rename or remove the files, and do not edit the job file GeoComp wrote beside them: it is how the result is read back. Do not add or remove measurements, or set a measurement's &lt;code&gt;Ignore&lt;/code&gt; flag, either: the result is matched to the network measurement by measurement, in the order GeoComp wrote them, and a different set is refused when it is read back.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Prepared folder&lt;/b&gt; &amp;mdash; the working-files folder the stopped run returned. &lt;b&gt;DynAdjust directory&lt;/b&gt; and &lt;b&gt;Timeout&lt;/b&gt; &amp;mdash; as for Adjust network (DynAdjust).&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON, as Adjust network (DynAdjust) writes it. The scalar outputs are the same, with &lt;code&gt;EDITED_INPUTS&lt;/code&gt;: the input files that were edited, or nothing.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Ejecuta un trabajo de DynAdjust que &lt;b&gt;Ajustar red (DynAdjust)&lt;/b&gt; preparó con &lt;b&gt;Detenerse tras escribir la entrada&lt;/b&gt;, y lee el resultado de vuelta en la misma solución que produce el ajuste propio de GeoComp.&lt;/p&gt;&lt;p&gt;Entre uno y otro puede inspeccionar los archivos de entrada en la carpeta y editarlos: la varianza de una medición a escalar, una estación a restringir, una opción que DynAdjust ofrece y GeoComp no. Se ejecutan tal como están ahora. GeoComp compara cada uno con lo que escribió, y la procedencia de la solución nombra los archivos editados, porque un resultado de una entrada editada no es solo de la red.&lt;/p&gt;&lt;p&gt;No renombre ni elimine los archivos, y no edite el archivo de trabajo que GeoComp escribió junto a ellos: es por él que el resultado se lee de vuelta. Tampoco añada ni elimine mediciones, ni marque el campo &lt;code&gt;Ignore&lt;/code&gt; de una medición: el resultado se asocia a la red medición por medición, en el orden en que GeoComp las escribió, y un conjunto distinto se rechaza al leerse de vuelta.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Carpeta preparada&lt;/b&gt; &amp;mdash; la carpeta de archivos de trabajo que devolvió la ejecución detenida. &lt;b&gt;Directorio de DynAdjust&lt;/b&gt; y &lt;b&gt;Tiempo límite&lt;/b&gt; &amp;mdash; como en Ajustar red (DynAdjust).&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON, como lo escribe Ajustar red (DynAdjust). Las salidas escalares son las mismas, con &lt;code&gt;EDITED_INPUTS&lt;/code&gt;: los archivos de entrada que se editaron, o nada.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>DynAdjust directory (empty: Global Settings, then GeoComp's installation, then the system path)</source>
+            <translation>Directorio de DynAdjust (vacío: Configuraciones Globales, luego la instalación de GeoComp, luego la ruta del sistema)</translation>
+        </message>
+        <message>
+            <source>Prepared folder</source>
+            <translation>Carpeta preparada</translation>
+        </message>
+        <message>
+            <source>Run a prepared DynAdjust job</source>
+            <translation>Ejecutar un trabajo preparado de DynAdjust</translation>
+        </message>
+        <message>
+            <source>Run the DynAdjust input prepared earlier, as written or as edited, and read the result back.</source>
+            <translation>Ejecutar la entrada de DynAdjust preparada antes, tal como se escribió o como se editó, y leer el resultado de vuelta.</translation>
+        </message>
+        <message>
+            <source>Solution</source>
+            <translation>Solución</translation>
+        </message>
+        <message>
+            <source>These input files were edited after GeoComp wrote them: %1. They are run as they are, and the solution records that they were edited.</source>
+            <translation>Estos archivos de entrada se editaron después de que GeoComp los escribiera: %1. Se ejecutan tal como están, y la solución registra que se editaron.</translation>
+        </message>
+        <message>
+            <source>Timeout per stage (s)</source>
+            <translation>Tiempo límite por etapa (s)</translation>
         </message>
     </context>
     <context>
@@ -2406,12 +2453,20 @@
             <translation>%1 %2 no se ha comprobado con esta versión de GeoComp. Se usará, pero si su formato de salida ha cambiado la solución puede rechazarse al leerla.</translation>
         </message>
         <message>
+            <source>%1: %2</source>
+            <translation>%1: %2</translation>
+        </message>
+        <message>
             <source>%1: used the %2 orbit, as Global Settings allow; recorded in provenance.</source>
             <translation>%1: se usó la órbita %2, como permite la Configuración Global; registrado en la procedencia.</translation>
         </message>
         <message>
             <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
             <translation>&lt;p&gt;&lt;b&gt;El procesamiento Absoluto (PPP) en RTKLIB es limitado.&lt;/b&gt; Su posicionamiento puntual preciso no equivale a un servicio PPP dedicado: la convergencia es más lenta, el tratamiento de ambigüedades es más simple y el resultado es típicamente decimétrico en lugar de centimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible, y trate una solución Absoluta como indicativa a menos que la haya contrastado con una determinación independiente.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;&lt;b&gt;RTKLIB configuration file&lt;/b&gt; (Advanced) &amp;mdash; options of your own for &lt;code&gt;rnx2rtkp&lt;/code&gt;, as &lt;code&gt;key = value&lt;/code&gt; lines in RTKLIB's own format: any option it reads, including those GeoComp offers no parameter for. They come over Global Settings, and the parameters here come over them. Three things stay GeoComp's, and a file that sets one is refused: the positioning mode, which is the menu item; the base station's position (&lt;code&gt;ant2-postype&lt;/code&gt; and &lt;code&gt;ant2-pos1&lt;/code&gt; to &lt;code&gt;ant2-pos3&lt;/code&gt;), which GeoComp holds; and every &lt;code&gt;out-&lt;/code&gt; option, because the solution is read back by them. The summary records the file and the options taken from it.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;Archivo de configuración de RTKLIB&lt;/b&gt; (Avanzado) &amp;mdash; opciones propias para &lt;code&gt;rnx2rtkp&lt;/code&gt;, como líneas &lt;code&gt;clave = valor&lt;/code&gt; en el formato propio de RTKLIB: cualquier opción que lea, incluidas aquellas para las que GeoComp no ofrece parámetro. Prevalecen sobre la Configuración Global, y los parámetros de aquí prevalecen sobre ellas. Tres cosas siguen siendo de GeoComp, y un archivo que defina alguna se rechaza: el modo de posicionamiento, que es el elemento de menú; la posición de la estación base (&lt;code&gt;ant2-postype&lt;/code&gt; y &lt;code&gt;ant2-pos1&lt;/code&gt; a &lt;code&gt;ant2-pos3&lt;/code&gt;), que GeoComp fija; y toda opción &lt;code&gt;out-&lt;/code&gt;, porque la solución se lee de vuelta por ellas. El resumen registra el archivo y las opciones tomadas de él.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>As the base station publishes it</source>
@@ -2436,6 +2491,14 @@
         <message>
             <source>Products this run needs are not available: %1. Place them in the product directory, add a download service in Global Settings → GNSS, or -- for a recent session whose final orbit is not yet published -- allow rapid orbits there.</source>
             <translation>Productos que esta ejecución necesita no están disponibles: %1. Colóquelos en el directorio de productos, añada un servicio de descarga en Configuración Global → GNSS, o -- para una sesión reciente cuya órbita final aún no se ha publicado -- permita allí órbitas rápidas.</translation>
+        </message>
+        <message>
+            <source>RTKLIB configuration file</source>
+            <translation>Archivo de configuración de RTKLIB</translation>
+        </message>
+        <message>
+            <source>RTKLIB options (*.conf);;All files (*)</source>
+            <translation>Opciones de RTKLIB (*.conf);;Todos los archivos (*)</translation>
         </message>
         <message>
             <source>The configured antenna file does not exist: %1</source>
@@ -2531,6 +2594,10 @@
         <message>
             <source>No RINEX observation sessions were found in %1</source>
             <translation>No se encontraron sesiones de observación RINEX en %1</translation>
+        </message>
+        <message>
+            <source>Options from %1: %2</source>
+            <translation>Opciones de %1: %2</translation>
         </message>
         <message>
             <source>Quality summary</source>
@@ -3269,6 +3336,10 @@
         <message>
             <source>'%1' holds no %2 readings.</source>
             <translation>'%1' no contiene lecturas %2.</translation>
+        </message>
+        <message>
+            <source>'%1' holds no job GeoComp prepared. Run Adjust network (DynAdjust) with 'Stop after writing the input' first, and give the folder it wrote.</source>
+            <translation>'%1' no contiene ningún trabajo que GeoComp haya preparado. Ejecute antes Ajustar red (DynAdjust) con 'Detenerse tras escribir la entrada' e indique la carpeta que escribió.</translation>
         </message>
         <message>
             <source>'%1' holds no station coordinates. Each row gives a station, then its easting, northing and height, in metres.</source>
@@ -4371,6 +4442,22 @@
             <translation>El CSV '%1' no tiene las columnas obligatorias: tiene %2 y necesita %3.</translation>
         </message>
         <message>
+            <source>The DynAdjust configuration '%1' could not be read as JSON: %2.</source>
+            <translation>No se pudo leer la configuración de DynAdjust '%1' como JSON: %2.</translation>
+        </message>
+        <message>
+            <source>The DynAdjust configuration '%1' is not a list of options per program. Write it as {"dnaadjust": ["--option", "value"]}.</source>
+            <translation>La configuración de DynAdjust '%1' no es una lista de opciones por programa. Escríbala como {"dnaadjust": ["--option", "value"]}.</translation>
+        </message>
+        <message>
+            <source>The DynAdjust configuration gives '%1' to %2, an option GeoComp sets itself. Change it through the algorithm's own parameter instead: GeoComp reads the output back by what that option says, and would misread it.</source>
+            <translation>La configuración de DynAdjust pasa '%1' a %2, una opción que GeoComp define por sí mismo. Cámbiela mediante el parámetro propio del algoritmo: GeoComp lee la salida de vuelta por lo que esa opción dice, y la leería mal.</translation>
+        </message>
+        <message>
+            <source>The DynAdjust configuration names '%1', which is not a program GeoComp runs. It may give options to: %2.</source>
+            <translation>La configuración de DynAdjust nombra '%1', que no es un programa que GeoComp ejecute. Puede dar opciones a: %2.</translation>
+        </message>
+        <message>
             <source>The DynAdjust program %1 was not found. Install DynAdjust from Project &gt; Install an engine, or give its directory in Global Settings, under Paths and engines.</source>
             <translation>No se encontró el programa %1 de DynAdjust. Instale DynAdjust desde Proyecto &gt; Instalar un motor, o indique su directorio en las Configuraciones Globales, en Rutas y motores.</translation>
         </message>
@@ -4413,6 +4500,22 @@
         <message>
             <source>The GNSS session '%1' ends at %3, before it starts at %2. Check the session's times.</source>
             <translation>La sesión GNSS '%1' termina en %3, antes de empezar en %2. Compruebe las horas de la sesión.</translation>
+        </message>
+        <message>
+            <source>The RTKLIB configuration file '%1' could not be read: %2.</source>
+            <translation>No se pudo leer el archivo de configuración de RTKLIB '%1': %2.</translation>
+        </message>
+        <message>
+            <source>The RTKLIB configuration file '%1' sets no options. It should hold key = value lines, as rnx2rtkp -k reads; check that it is the file you meant.</source>
+            <translation>El archivo de configuración de RTKLIB '%1' no define ninguna opción. Debe contener líneas clave = valor, como las lee rnx2rtkp -k; compruebe que es el archivo que quería.</translation>
+        </message>
+        <message>
+            <source>The RTKLIB configuration file gives '%1', where %2 was expected.</source>
+            <translation>El archivo de configuración de RTKLIB da '%1', donde se esperaba %2.</translation>
+        </message>
+        <message>
+            <source>The RTKLIB configuration file sets %1, which GeoComp sets itself: the positioning mode is the algorithm's, the base station's position is held by GeoComp, and the solution is read back by the out- options. Remove them from the file.</source>
+            <translation>El archivo de configuración de RTKLIB define %1, que GeoComp define por sí mismo: el modo de posicionamiento es del algoritmo, la posición de la estación base la fija GeoComp, y la solución se lee de vuelta por las opciones out-. Elimínelas del archivo.</translation>
         </message>
         <message>
             <source>The URL of the base map service '%1' carries a key or password, which would be copied into every export and every log. Remove it, and name a QGIS authentication configuration in the service's auth_config_id instead.</source>
@@ -5233,6 +5336,14 @@
         <message>
             <source>The pointing to %1 was taken on one face only, so the instrumental errors were corrected from the profile rather than cancelled. Their uncertainties are included in the result.</source>
             <translation>La puntería hacia %1 se hizo en un solo círculo, así que los errores instrumentales se corrigieron con el perfil en lugar de cancelarse. Sus incertidumbres están incluidas en el resultado.</translation>
+        </message>
+        <message>
+            <source>The prepared input file '%1' is no longer in '%2'. Edit the input files in place; do not rename or remove them.</source>
+            <translation>El archivo de entrada preparado '%1' ya no está en '%2'. Edite los archivos de entrada en su sitio; no los renombre ni los elimine.</translation>
+        </message>
+        <message>
+            <source>The prepared job in '%1' could not be read: %2. It is the file GeoComp wrote beside the input; prepare the job again rather than editing it.</source>
+            <translation>No se pudo leer el trabajo preparado en '%1': %2. Es el archivo que GeoComp escribió junto a la entrada; prepare el trabajo de nuevo en vez de editarlo.</translation>
         </message>
         <message>
             <source>The processing window %1 does not overlap the session '%2', which observed %3. Give a window inside the observations; both are in GPS time.</source>

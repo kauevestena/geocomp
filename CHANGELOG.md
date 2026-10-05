@@ -5,6 +5,25 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-21 — Engine configuration files of your own; stop DynAdjust, edit, run later
+
+#### Added
+
+- *Adjust network (DynAdjust)* can stop after writing its input (Advanced). Inspect or edit the files, then run
+  them with the new *Run a prepared DynAdjust job*. The solution records which files were edited. Stopping
+  needs no DynAdjust installed.
+- *Adjust network (DynAdjust)* takes a configuration of your own: extra options for each DynAdjust program,
+  as JSON. Options GeoComp sets itself are refused.
+- The four GNSS processing modes and *Batch processing* take an RTKLIB options file of your own (Advanced).
+  The positioning mode, the base station's position and the output options stay GeoComp's. The summary
+  records the file and the options taken from it.
+
+#### Known problems
+
+- On the DynAdjust path, an observation set aside in a GNSS cluster or a direction set is still adjusted, and a
+  set-aside observation outside one makes the result fail to read back. Adding, removing or ignoring a
+  measurement in a prepared job fails the same way. Both are fixed in the next change.
+
 ### P12c-20 — Levelling and gravity observations say where they came from
 
 #### Added

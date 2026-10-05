@@ -32,12 +32,14 @@ the caller to know what it asked for -- which it does, because it asked here.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
-from geocomp.core.errors import ComputationError, ValidationError
+from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.core.geodesy.projection import ProjectionParameters
 from geocomp.core.models.epoch import Epoch
 from geocomp.core.models.network import Network
@@ -62,6 +64,8 @@ from geocomp.engines.dynadjust.read_output import (
 from geocomp.engines.dynadjust.solution import read_solution
 
 __all__ = [
+    "MANIFEST",
+    "RESERVED_OPTIONS",
     "DynAdjustEngine",
     "DynAdjustJob",
     "PreparedJob",
@@ -69,13 +73,49 @@ __all__ = [
     "check_import",
     "dynadjust_epoch",
     "imported_counts",
+    "load_prepared",
     "parse_version",
     "plan",
     "program_filenames",
+    "read_configuration",
 ]
 
 #: The programs a pipeline may use, in the order they run.
 PROGRAMS = ("dnaimport", "dnareftran", "dnageoid", "dnasegment", "dnaadjust")
+
+#: The options GeoComp itself passes (:func:`plan`). A user's configuration
+#: (FR-325) may add any other; these it may not, because GeoComp reads the
+#: output back by the names, formats and files they set, and one changed under
+#: it would be parsed as something it is not. Each has a parameter of its own.
+RESERVED_OPTIONS = frozenset(
+    {
+        "-n",
+        "--network-name",
+        "-r",
+        "-e",
+        "-g",
+        "--convert-stn-hts",
+        "--max-block-stns",
+        "--phased-adjustment",
+        "--simultaneous-adjustment",
+        "--conf-interval",
+        "--iteration-threshold",
+        "--max-iterations",
+        "--output-adj-msr",
+        "--output-pos-uncertainty",
+        "--output-all-covariances",
+        "--output-corrections-file",
+        "--stn-corrections",
+        "--angular-stn-type",
+        "--angular-msr-type",
+        "--dms-msr-format",
+        "--output-apu-vcv-units",
+    }
+)
+
+#: What :meth:`DynAdjustEngine.prepare` writes beside the input files, so a
+#: prepared job can be run later from the directory alone (FR-325).
+MANIFEST = "geocomp-dynadjust-job.json"
 
 #: What those programs are called inside the **Windows** release archive [V].
 #:
@@ -226,8 +266,13 @@ class DynAdjustJob:
     #: not in it. Turning this on is a statement that a partial network is what
     #: was wanted; the skipped observations are still reported either way.
     allow_partial: bool = False
+    #: Options of the user's own for each program (FR-325), added after
+    #: GeoComp's: ``{"dnaadjust": ("--free-stn-sd", "10")}``. The options in
+    #: :data:`RESERVED_OPTIONS` are refused.
+    extra_arguments: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        check_extra_arguments(self.extra_arguments)
         if not self.network.stations:
             raise ValidationError(
                 "dynadjust_job_without_stations",
@@ -278,6 +323,13 @@ class PreparedJob:
     #: column it overflows.
     names: dict[str, str] = field(default_factory=dict)
     skipped: tuple[str, ...] = ()
+    #: Read back from a directory :meth:`DynAdjustEngine.prepare` wrote, to be
+    #: run there (FR-325), rather than prepared in this run.
+    resumed: bool = False
+    #: The input files that differ from what GeoComp wrote: edited by hand
+    #: between preparing and running. Recorded in the provenance, because a
+    #: result from edited input is not the network's result alone.
+    edited: tuple[str, ...] = ()
 
     @property
     def mode(self) -> str:
@@ -459,7 +511,68 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
     stages.append(
         Stage("dnaadjust", tuple(adjust), reason="always: it is the adjustment")
     )
-    return tuple(stages)
+    # The user's own options come after GeoComp's, so they add to the run
+    # without moving anything GeoComp's parsers rely on (FR-325).
+    return tuple(
+        replace(stage, arguments=stage.arguments + tuple(job.extra_arguments.get(stage.program, ())))
+        if stage.included and job.extra_arguments.get(stage.program)
+        else stage
+        for stage in stages
+    )
+
+
+def check_extra_arguments(extra: dict[str, tuple[str, ...]]) -> None:
+    """Refuse a configuration that names no DynAdjust program or sets a reserved option."""
+    for program, arguments in extra.items():
+        if program not in PROGRAMS:
+            raise ValidationError(
+                "dynadjust_configuration_unknown_program",
+                program=program,
+                expected=", ".join(PROGRAMS),
+            )
+        for argument in arguments:
+            option = argument.split("=", 1)[0]
+            if option in RESERVED_OPTIONS:
+                raise ValidationError(
+                    "dynadjust_option_reserved",
+                    program=program,
+                    option=option,
+                    expected=(
+                        "an option GeoComp does not set itself; this one has a parameter "
+                        "of its own, and changing it under GeoComp would make the output "
+                        "be read as something it is not"
+                    ),
+                )
+
+
+def read_configuration(path: str | Path) -> dict[str, tuple[str, ...]]:
+    """A user's DynAdjust configuration (FR-325): options per program, in JSON.
+
+    ``{"dnaadjust": ["--free-stn-sd", "10"], "dnaimport": ["--flag-unused-stations"]}``.
+    Each list is passed to that program after GeoComp's own options, as written.
+    """
+    path = Path(path)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise DataError(
+            "dynadjust_configuration_unreadable", path=str(path), reason=str(exc)
+        ) from exc
+    if not isinstance(payload, dict) or not all(
+        isinstance(arguments, list) and all(isinstance(a, str) for a in arguments)
+        for arguments in payload.values()
+    ):
+        raise ValidationError(
+            "dynadjust_configuration_invalid",
+            path=str(path),
+            expected=(
+                'a JSON object naming a list of option strings per program, as '
+                '{"dnaadjust": ["--option", "value"]}'
+            ),
+        )
+    extra = {program: tuple(arguments) for program, arguments in payload.items()}
+    check_extra_arguments(extra)
+    return extra
 
 
 #: ``dnaimport`` reports what it took in, e.g. ``Loaded 36 measurements in 0.002s``.
@@ -629,7 +742,7 @@ class DynAdjustEngine:
                     "saying what was left out; set allow_partial to accept that"
                 ),
             )
-        return PreparedJob(
+        prepared = PreparedJob(
             job=job,
             work_dir=work_dir,
             station_file=station_file,
@@ -638,6 +751,8 @@ class DynAdjustEngine:
             names=names,
             skipped=skipped,
         )
+        _write_manifest(prepared)
+        return prepared
 
     def run(
         self,
@@ -754,6 +869,15 @@ def provenance(runs: list[EngineRun], prepared: PreparedJob) -> Provenance:
         parameters={
             "mode": prepared.mode,
             "frame": prepared.job.frame,
+            # FR-325: the user's own options, and whether the input was edited
+            # by hand between preparing and running. Present only when so.
+            **(
+                {"configuration": {k: list(v) for k, v in prepared.job.extra_arguments.items()}}
+                if prepared.job.extra_arguments
+                else {}
+            ),
+            **({"resumed": True} if prepared.resumed else {}),
+            **({"edited_inputs": list(prepared.edited)} if prepared.edited else {}),
             "confidence": prepared.job.confidence,
             "iteration_threshold": prepared.job.iteration_threshold,
             "stages": [
@@ -767,4 +891,132 @@ def provenance(runs: list[EngineRun], prepared: PreparedJob) -> Provenance:
             "runs": [run.to_dict() for run in runs],
         },
         input_ids=(prepared.job.network.id,),
+    )
+
+
+def _digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _write_manifest(prepared: PreparedJob) -> None:
+    """Record the prepared job beside its input files (FR-325).
+
+    Enough to run it later from the directory alone: the network the output is
+    read back against, the job's frame and figures, the plan, the name mapping,
+    and a digest of each input file as GeoComp wrote it -- so a file edited by
+    hand before the run is known to have been.
+    """
+    job = prepared.job
+    payload = {
+        "format": "geocomp.dynadjust_job",
+        "version": 1,
+        "job": {
+            "name": job.name,
+            "target_frame": job.target_frame,
+            "target_epoch": job.target_epoch.to_dict() if job.target_epoch else None,
+            "geoid_grid": str(job.geoid_grid) if job.geoid_grid else "",
+            "confidence": job.confidence,
+            "iteration_threshold": job.iteration_threshold,
+            "maximum_iterations": job.maximum_iterations,
+            "phased": job.phased,
+            "segmentation_threshold": job.segmentation_threshold,
+            "allow_partial": job.allow_partial,
+            "extra_arguments": {k: list(v) for k, v in job.extra_arguments.items()},
+        },
+        "network": job.network.to_dict(),
+        "station_file": prepared.station_file.name,
+        "measurement_file": prepared.measurement_file.name,
+        "stages": [
+            {
+                "program": stage.program,
+                "arguments": list(stage.arguments),
+                "included": stage.included,
+                "reason": stage.reason,
+            }
+            for stage in prepared.stages
+        ],
+        "names": dict(prepared.names),
+        "skipped": list(prepared.skipped),
+        "digests": {
+            path.name: _digest(path) for path in (prepared.station_file, prepared.measurement_file)
+        },
+    }
+    (prepared.work_dir / MANIFEST).write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
+def load_prepared(work_dir: str | Path) -> PreparedJob:
+    """A job :meth:`DynAdjustEngine.prepare` wrote, read back to be run (FR-325).
+
+    The input files are taken as they now are: inspecting and editing them
+    between preparing and running is what this is for. Which ones changed is
+    found from the digests and kept on the job, for the provenance.
+    """
+    work_dir = Path(work_dir)
+    manifest = work_dir / MANIFEST
+    if not manifest.is_file():
+        raise DataError(
+            "dynadjust_prepared_manifest_missing",
+            work_dir=str(work_dir),
+            expected=f"a {MANIFEST} that Adjust network (DynAdjust) wrote when stopped before running",
+        )
+    try:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        if payload.get("format") != "geocomp.dynadjust_job":
+            raise ValueError(f"format {payload.get('format')!r}")
+        recorded = payload["job"]
+        epoch = recorded.get("target_epoch")
+        job = DynAdjustJob(
+            network=Network.from_dict(payload["network"]),
+            name=recorded["name"],
+            target_frame=recorded.get("target_frame", ""),
+            target_epoch=Epoch.from_dict(epoch) if epoch else None,
+            geoid_grid=recorded.get("geoid_grid") or None,
+            confidence=float(recorded["confidence"]),
+            iteration_threshold=float(recorded["iteration_threshold"]),
+            maximum_iterations=int(recorded["maximum_iterations"]),
+            phased=recorded.get("phased"),
+            segmentation_threshold=int(recorded["segmentation_threshold"]),
+            allow_partial=bool(recorded.get("allow_partial", False)),
+            extra_arguments={
+                k: tuple(v) for k, v in (recorded.get("extra_arguments") or {}).items()
+            },
+        )
+        stages = tuple(
+            Stage(
+                program=stage["program"],
+                arguments=tuple(stage["arguments"]),
+                included=bool(stage["included"]),
+                reason=stage.get("reason", ""),
+            )
+            for stage in payload["stages"]
+        )
+        station_file = work_dir / payload["station_file"]
+        measurement_file = work_dir / payload["measurement_file"]
+        digests = dict(payload.get("digests", {}))
+    except (KeyError, TypeError, ValueError) as exc:
+        raise DataError(
+            "dynadjust_prepared_manifest_unreadable", path=str(manifest), reason=str(exc)
+        ) from exc
+    for path in (station_file, measurement_file):
+        if not path.is_file():
+            raise DataError(
+                "dynadjust_prepared_file_missing", path=str(path), work_dir=str(work_dir)
+            )
+    edited = tuple(
+        path.name
+        for path in (station_file, measurement_file)
+        if digests.get(path.name) != _digest(path)
+    )
+    return PreparedJob(
+        job=job,
+        work_dir=work_dir,
+        station_file=station_file,
+        measurement_file=measurement_file,
+        stages=stages,
+        names=dict(payload.get("names", {})),
+        skipped=tuple(payload.get("skipped", ())),
+        resumed=True,
+        edited=edited,
     )

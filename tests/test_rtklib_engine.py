@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from geocomp.core.errors import ComputationError, ValidationError
+from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.engines.base import EngineAbsentError
 from geocomp.engines.rtklib import (
     PROFILES,
@@ -31,6 +31,11 @@ from geocomp.engines.rtklib import (
     profile,
     program_filenames,
     write_config,
+)
+from geocomp.engines.rtklib.config import (
+    RESERVED_OPTIONS,
+    read_user_options,
+    with_user_options,
 )
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 from tests.conftest import requires_rtklib
@@ -171,6 +176,93 @@ class TestConfiguration:
         assert parse_config(write_config(config, tmp_path / "c.conf").read_text())[
             "pos2-arlockcnt"
         ] == "7"
+
+
+class TestAUsersOwnOptions:
+    """FR-070 (P12c-21): an options file of the user's own, applied over the
+    configured profile. ``specs/08`` section 2.2."""
+
+    def test_an_option_geocomp_models_sets_the_field(self):
+        """So what GeoComp acts on is what the engine is told: a precise
+        ephemeris asked for in the file is one the products are fetched for."""
+        config = with_user_options(
+            profile("relative-static"), {"pos1-sateph": "precise", "pos1-elmask": "10"}
+        )
+        assert config.ephemeris == "precise"
+        assert config.elevation_mask == 10.0
+        assert "pos1-sateph" not in config.extra
+
+    def test_an_enumeration_given_by_number_is_written_by_name(self):
+        config = with_user_options(
+            profile("relative-static"), {"pos1-sateph": "1", "pos1-frequency": "3"}
+        )
+        assert config.ephemeris == "precise"
+        assert config.frequencies == "l1+l2+l5"
+
+    def test_but_the_satellite_systems_are_a_sum_of_flags_not_a_choice(self):
+        config = with_user_options(profile("relative-static"), {"pos1-navsys": "5"})
+        assert config.navigation_systems == 5
+
+    def test_any_other_option_is_written_after_geocomps(self, tmp_path):
+        """The escape hatch: any option ``rnx2rtkp`` reads, as written."""
+        config = with_user_options(
+            profile("relative-static"), {"pos2-arlockcnt": "7", "misc-timeinterp": "on"}
+        )
+        written = parse_config(write_config(config, tmp_path / "c.conf").read_text())
+        assert written["pos2-arlockcnt"] == "7"
+        assert written["misc-timeinterp"] == "on"
+        assert list(written)[-2:] == ["pos2-arlockcnt", "misc-timeinterp"]
+
+    def test_it_keeps_what_the_settings_put_in_the_escape_hatch(self):
+        configured = profile("relative-static").with_options(extra={"file-rcvantfile": "a.atx"})
+        config = with_user_options(configured, {"pos2-arlockcnt": "7"})
+        assert config.extra == {"file-rcvantfile": "a.atx", "pos2-arlockcnt": "7"}
+
+    @pytest.mark.parametrize(
+        "key", [*sorted(RESERVED_OPTIONS), "out-solformat", "out-timesys", "out-fieldsep"]
+    )
+    def test_what_geocomp_reads_the_result_by_is_refused(self, key):
+        with pytest.raises(ValidationError) as caught:
+            with_user_options(profile("relative-static"), {key: "1"})
+        assert caught.value.code == "validation.rtklib_option_reserved"
+        assert key in caught.value.context["received"]
+
+    def test_every_reserved_option_is_named_at_once(self):
+        with pytest.raises(ValidationError) as caught:
+            with_user_options(
+                profile("relative-static"), {"out-timesys": "utc", "pos1-posmode": "kinematic"}
+            )
+        assert caught.value.context["received"] == "out-timesys, pos1-posmode"
+
+    def test_a_number_that_is_not_one_is_refused(self):
+        with pytest.raises(ValidationError) as caught:
+            with_user_options(profile("relative-static"), {"pos1-elmask": "high"})
+        assert caught.value.code == "validation.rtklib_option_value_invalid"
+        assert caught.value.context["received"] == "pos1-elmask = high"
+
+    def test_and_so_is_a_value_the_configuration_would_refuse(self):
+        with pytest.raises(ValidationError) as caught:
+            with_user_options(profile("relative-static"), {"pos1-elmask": "95"})
+        assert caught.value.code == "validation.rtklib_elevation_mask_out_of_range"
+
+    def test_the_file_is_read_in_rtklibs_own_format(self, tmp_path):
+        path = tmp_path / "mine.conf"
+        path.write_text("# mine\npos2-arlockcnt =7 # lock count\nout-fieldsep =\n")
+        assert read_user_options(path) == {"pos2-arlockcnt": "7", "out-fieldsep": ""}
+
+    def test_a_file_that_sets_nothing_is_refused(self, tmp_path):
+        """Almost certainly the wrong file, and a run that ignored it would be
+        recorded as configured by it."""
+        path = tmp_path / "empty.conf"
+        path.write_text("# nothing here\n\n")
+        with pytest.raises(ValidationError) as caught:
+            read_user_options(path)
+        assert caught.value.code == "validation.rtklib_configuration_empty"
+
+    def test_a_file_that_cannot_be_read_is_refused(self, tmp_path):
+        with pytest.raises(DataError) as caught:
+            read_user_options(tmp_path / "absent.conf")
+        assert caught.value.code == "data.rtklib_configuration_unreadable"
 
 
 class TestTheBaseStationPosition:

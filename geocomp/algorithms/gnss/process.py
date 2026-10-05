@@ -47,6 +47,8 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.gnss.common import (
     base_coordinates,
+    configuration_help,
+    configuration_parameter,
     configured_profile,
     engine_record,
     frame_choices,
@@ -56,6 +58,7 @@ from geocomp.algorithms.gnss.common import (
     session_products,
     timeout_parameter,
     translate_error,
+    user_configuration,
 )
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sink
 from geocomp.core.errors import GeoCompError
@@ -69,6 +72,7 @@ BASE_STATION = "BASE_STATION"
 FRAME = "FRAME"
 ROVER_STATION = "ROVER_STATION"
 ELEVATION_MASK = "ELEVATION_MASK"
+CONFIGURATION = "CONFIGURATION"
 KEEP_WORK_DIR = "KEEP_WORK_DIR"
 TIMEOUT = "TIMEOUT"
 OUTPUT_POS = "OUTPUT_POS"
@@ -112,6 +116,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             "fraction of epochs with resolved ambiguities, satellite counts and "
             "the ambiguity ratio.</p>"
         )
+        body += configuration_help()
         if self.is_absolute:
             return ppp_limitation_notice() + body
         return body
@@ -158,6 +163,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 maxValue=45.0,
             )
         )
+        self.addAdvancedParameter(configuration_parameter(CONFIGURATION))
         self.addAdvancedParameter(timeout_parameter(TIMEOUT))
         self.addAdvancedParameter(
             QgsProcessingParameterBoolean(
@@ -213,6 +219,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             else ""
         )
         mask = self.parameterAsDouble(parameters, ELEVATION_MASK, context)
+        # FR-070: read before the folder is scanned, so a file that will be
+        # refused is refused before any work is done.
+        user = user_configuration(self, parameters, CONFIGURATION, context)
 
         try:
             scan = scan_folder(folder)
@@ -270,7 +279,15 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
             overrides.update(held)
 
-        configuration = configured_profile(self.profile_name, **overrides)
+        configuration = configured_profile(
+            self.profile_name, user_options=user["options"] if user else None, **overrides
+        )
+        if user:
+            feedback.pushInfo(
+                _tr("Options from %1: %2")
+                .replace("%1", user["file"])
+                .replace("%2", ", ".join(f"{k} = {v}" for k, v in user["options"].items()))
+            )
         # The products the sessions need for their own days -- an orbit when
         # `configuration.ephemeris` asks for precise, navigation when the folder
         # has none -- from the cache, the directory or a service (FR-352). A
@@ -339,6 +356,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         # the ends of stdout and stderr, as for every engine.
                         "run": result.run.to_dict(),
                         "configuration": configuration.to_dict(),
+                        # FR-070: the user's own options, and where from.
+                        **({"user_configuration": user} if user else {}),
                         # FR-134: a GNSS solution is not reproducible without
                         # knowing which orbit produced it (specs/08 section 5).
                         "products": products.provenance(),
