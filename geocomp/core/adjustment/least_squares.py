@@ -152,9 +152,24 @@ class AdjustmentRun:
     solver: str = DENSE
 
     @property
+    def variance_factor(self) -> float:
+        """The factor the covariances are scaled by: a posteriori when there is one.
+
+        With no redundancy there is none -- the observations fit exactly by
+        construction and ``v'Pv / 0`` estimates nothing -- so the a priori factor
+        is used, and the precision of the result is the precision of the
+        observations as stated, propagated (``specs/06`` section 4.1). Until
+        P12c-23 the undefined factor was used, every covariance came out NaN,
+        and an open levelling line failed inside numpy instead of adjusting.
+        """
+        if self.degrees_of_freedom < 1:
+            return self.variance_factor_apriori
+        return self.variance_factor_aposteriori
+
+    @property
     def parameter_covariance(self) -> np.ndarray:
-        """Sigma_x = sigma_0^2 * Qxx, using the a posteriori variance factor."""
-        return self.variance_factor_aposteriori * self.cofactor_parameters
+        """Sigma_x = sigma_0^2 * Qxx, with :attr:`variance_factor`."""
+        return self.variance_factor * self.cofactor_parameters
 
 
 def adjust(
@@ -801,7 +816,10 @@ def to_solution(
         n_constraints=run.defect.size if run.method.endswith("bordered") else 0,
         degrees_of_freedom=run.degrees_of_freedom,
         variance_factor_apriori=run.variance_factor_apriori,
-        variance_factor_aposteriori=run.variance_factor_aposteriori,
+        # Undefined with no redundancy, so absent rather than NaN (P12c-23).
+        variance_factor_aposteriori=(
+            run.variance_factor_aposteriori if run.degrees_of_freedom > 0 else None
+        ),
         global_test=global_test,
         iterations=run.iterations,
         converged=run.converged,

@@ -12,6 +12,7 @@ than a second pipeline.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import Enum
@@ -125,6 +126,11 @@ class TestResult:
     confidence: float = 0.95
     passed: bool = True
     note: str = ""
+    #: ``False`` for a test that could not be made, as the global test with no
+    #: redundancy (P12c-23). ``passed`` then says nothing, and is left ``True``
+    #: only so that code reading it alone does not report a failure; every
+    #: report says "not tested" instead, with :attr:`note` saying why.
+    tested: bool = True
 
     def __post_init__(self) -> None:
         # Every field here is computed from NumPy scalars, and only one of them
@@ -138,6 +144,7 @@ class TestResult:
         # NumPy would keep the silent half of the leak alive, and the silent
         # half is what let the loud one through unnoticed.
         object.__setattr__(self, "passed", bool(self.passed))
+        object.__setattr__(self, "tested", bool(self.tested))
         object.__setattr__(self, "statistic", float(self.statistic))
         for name in ("critical_low", "critical_high", "confidence"):
             value = getattr(self, name)
@@ -147,10 +154,13 @@ class TestResult:
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
-            "statistic": self.statistic,
+            # A test not made has no statistic, and JSON has no NaN: ``null``.
+            "statistic": self.statistic if math.isfinite(self.statistic) else None,
             "confidence": self.confidence,
             "passed": self.passed,
         }
+        if not self.tested:
+            payload["tested"] = False
         for key, value in (
             ("critical_low", self.critical_low),
             ("critical_high", self.critical_high),
@@ -162,14 +172,16 @@ class TestResult:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> TestResult:
+        statistic = payload["statistic"]
         return cls(
             name=payload["name"],
-            statistic=float(payload["statistic"]),
+            statistic=float("nan") if statistic is None else float(statistic),
             critical_low=payload.get("critical_low"),
             critical_high=payload.get("critical_high"),
             confidence=float(payload.get("confidence", 0.95)),
             passed=bool(payload["passed"]),
             note=payload.get("note", ""),
+            tested=bool(payload.get("tested", True)),
         )
 
 

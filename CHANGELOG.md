@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-23 — Networks with no redundancy
+
+#### Fixed
+
+- A network with as many observations as unknowns, such as an open levelling line or an open traverse,
+  failed with "Eigenvalues did not converge". It now adjusts. The uncertainties are the observations' stated
+  precisions, propagated.
+- Such a network was reported as having passed the global test. It now says the test was not made, and why:
+  nothing in the result has been checked.
+
 ### P12c-22 — Observations set aside stay aside, whichever engine adjusts
 
 #### Fixed

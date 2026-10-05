@@ -60,6 +60,7 @@ from geocomp.algorithms.reporting import (
     escape,
     exact,
     format_number,
+    no_redundancy,
     render_document,
     render_note,
     render_table,
@@ -483,7 +484,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         return {
             DEGREES_OF_FREEDOM: run.degrees_of_freedom,
             VARIANCE_FACTOR: run.variance_factor_aposteriori,
-            GLOBAL_TEST_PASSED: test.passed,
+            GLOBAL_TEST_PASSED: test.passed if test.tested else None,
             OUTLIER_COUNT: len(snooping.candidates),
             **outputs,
             **layers,
@@ -640,7 +641,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 "%1", format_number(run.variance_factor_aposteriori)
             )
         )
-        if test.passed:
+        if not test.tested:
+            feedback.pushWarning(no_redundancy())
+        elif test.passed:
             feedback.pushInfo(self.tr("The global test passes."))
         else:
             feedback.pushWarning(self.tr("The global test fails: %1").replace("%1", test.note))
@@ -750,9 +753,11 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 ]
             )
 
-        verdict_class = "pass" if test.passed else "fail"
+        verdict_class = "pass" if test.passed and test.tested else "fail"
         verdict = (
-            self.tr("The global test passes.")
+            no_redundancy()
+            if not test.tested
+            else self.tr("The global test passes.")
             if test.passed
             else self.tr("The global test fails.")
         )
@@ -787,7 +792,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 ],
             ),
         ]
-        if test.note:
+        if test.note and test.tested:
             body.append(render_note(test.note))
 
         body.append(f"<h2>{escape(self.tr('Data snooping'))}</h2>")

@@ -200,6 +200,27 @@ class TestGlobalTest:
         assert result.passed
         assert "no redundancy" in result.note
 
+    def test_and_says_it_was_not_made_rather_than_passed(self):
+        """P12c-23: ``passed`` alone reported a network that checked nothing as
+        having passed. ``tested`` is what the reports read."""
+        assert global_test(float("nan"), 0).tested is False
+        assert global_test(1.0, 10).tested is True
+
+    def test_a_test_not_made_round_trips_without_a_nan(self):
+        """JSON has no NaN; a solution written with one need not read back."""
+        import json
+
+        from geocomp.core.models import TestResult
+
+        result = global_test(float("nan"), 0)
+        payload = result.to_dict()
+        assert payload["statistic"] is None
+        assert payload["tested"] is False
+        back = TestResult.from_dict(json.loads(json.dumps(payload, allow_nan=False)))
+        assert back.tested is False
+        assert back.note == result.note
+        assert "tested" not in global_test(1.0, 10).to_dict()
+
     def test_the_statistic_carries_both_critical_values(self):
         """specs/06 section 7: never a bare pass or fail."""
         result = global_test(1.0, 10)

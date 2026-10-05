@@ -2522,6 +2522,33 @@ is a decision for `specs/06`, not a fix to make in passing.
 **Not done.** Directions never reach a DynAdjust solution's observation results (§5.6), so a set-aside
 direction is visible only in the degrees of freedom and the provenance.
 
+#### P12c-23 — a network with no redundancy adjusts, and says nothing was checked
+
+**Delivered** ([`06`](./06-adjustment-core.md) §4.1).
+
+P12c-22 found that setting aside one observation of the three-dof GNSS sample made the in-house adjustment
+fail inside numpy. The cause was any network with as many observations as unknowns, and an **open levelling
+line** is one: a benchmark and three marks, levelled one after another and never closed. The a-posteriori
+variance factor is 0/0. It was used to scale every covariance anyway, every covariance came out NaN, and
+building the solution failed with `Eigenvalues did not converge`. Every adjusting algorithm reached it.
+
+| | |
+|---|---|
+| The covariances | Scaled by the a priori factor when there is no redundancy (`AdjustmentRun.variance_factor`). On the open line the heights carry 2, 2.8 and 3.5 mm: 2 mm per line, propagated |
+| The solution | Carries no a-posteriori factor rather than NaN, and a test not made has no statistic; both write as JSON a strict reader accepts |
+| The global test | `TestResult.tested = False`, reported as **not tested** with the reason. The analysis, levelling, total-station, gravimetry and integration adjustments, the shared report, the results panel and the CSV and spreadsheet exports all say so; `GLOBAL_TEST_PASSED` is empty |
+
+**Defects found.**
+
+- **An adjustment that checked nothing was reported as having passed.** The global test already returned
+  "nothing to test" for no redundancy, as `passed=True` with a note. Every report read `passed`, and the
+  note was English text that only one report printed. Unseen until now, because the crash came first.
+- **The core's English note sat under a translated verdict** in the total-station report. Where the test was
+  not made, the report now prints the translated reason instead.
+
+**Not done.** The levelling and total-station adjustments are exercised at zero redundancy only through the
+shared code; `tests/qgis/test_zero_redundancy.py` drives *Adjust network* end to end.
+
 ---
 
 ## P13 — Validation, documentation and release

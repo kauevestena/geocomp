@@ -43,6 +43,8 @@ from geocomp.algorithms.reporting import (
     _STYLE,
     escape,
     format_number,
+    no_redundancy,
+    not_tested,
     render_note,
     render_table,
 )
@@ -435,6 +437,8 @@ def _statistics(solution: Solution) -> str:
         return body + render_note(
             _tr("No global test was run for this solution."), label=_tr("Global test")
         )
+    if not test.tested:
+        return body + render_note(no_redundancy(), label=_tr("Global test: %1").replace("%1", not_tested()))
 
     verdict = _tr("passed") if test.passed else _tr("FAILED")
     body += render_table(
