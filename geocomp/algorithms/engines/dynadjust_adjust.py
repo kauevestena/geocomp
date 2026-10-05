@@ -41,6 +41,7 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterFolderDestination,
     QgsProcessingParameterNumber,
+    QgsProcessingParameterProviderConnection,
     QgsProcessingParameterString,
 )
 from qgis.PyQt.QtCore import QCoreApplication
@@ -50,7 +51,7 @@ from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import Epoch, Solution
+from geocomp.core.models import Epoch, Network, Solution
 from geocomp.engines.base import EngineAbsentError, EngineVersion
 from geocomp.engines.dynadjust.engine import (
     DynAdjustEngine,
@@ -64,6 +65,10 @@ from geocomp.services.messages import message_for
 __all__ = ["DynAdjustAdjustAlgorithm"]
 
 NETWORK = "NETWORK"
+STORE = "STORE"
+DATABASE = "DATABASE"
+SCHEMA = "SCHEMA"
+STORED_NETWORK = "STORED_NETWORK"
 FRAME = "FRAME"
 EPOCH = "EPOCH"
 GEOID_GRID = "GEOID_GRID"
@@ -138,7 +143,10 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             "adjust in one piece, then <code>dnaadjust</code>. Which stages ran, and why "
             "each other one did not, is recorded in the solution's provenance.</p>"
             "<h3>Parameters</h3>"
-            "<p><b>Network</b> &mdash; a GeoComp network document (JSON).</p>"
+            "<p><b>Network</b> &mdash; a GeoComp network document (JSON). Or, instead, a "
+            "<b>project store</b>: a GeoPackage, or a schema of a PostgreSQL connection, "
+            "with the id of the <b>network in the store</b> (empty: its only network). The "
+            "store is read and never changed.</p>"
             "<p><b>Reference frame</b> and <b>Reference epoch</b> &mdash; the frame and "
             "epoch to adjust in. Leave them empty to use the network's own. Neither is ever "
             "guessed: a frame GeoComp inferred rather than knew is a datum shift absorbed "
@@ -184,7 +192,40 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
-            QgsProcessingParameterFile(NETWORK, self.tr("Network document"), extension="json")
+            QgsProcessingParameterFile(
+                NETWORK, self.tr("Network document"), extension="json", optional=True
+            )
+        )
+        # FR-320 (P12c-24): or straight from a project store, as Save to project
+        # store writes one -- no network document in between.
+        self.addParameter(
+            QgsProcessingParameterFile(
+                STORE,
+                self.tr("Or a project store (GeoPackage)"),
+                fileFilter=self.tr("GeoPackage (*.gpkg)"),
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterProviderConnection(
+                DATABASE,
+                self.tr("Or a PostgreSQL connection holding the project store"),
+                "postgres",
+                optional=True,
+            )
+        )
+        self.addAdvancedParameter(
+            QgsProcessingParameterString(
+                SCHEMA, self.tr("Schema of the project store"), defaultValue="geocomp", optional=True
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterString(
+                STORED_NETWORK,
+                self.tr("Network in the store (empty: its only network)"),
+                defaultValue="",
+                optional=True,
+            )
         )
         self.addParameter(
             QgsProcessingParameterString(
@@ -317,9 +358,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        network = load_network(
-            self.parameterAsFile(parameters, NETWORK, context), parameter=NETWORK
-        )
+        network = self._network(parameters, context)
         directory = self.parameterAsFile(parameters, ENGINE_DIRECTORY, context)
         engine = dynadjust_engine(directory)
         stop = self.parameterAsBoolean(parameters, STOP_BEFORE_RUNNING, context)
@@ -397,6 +436,52 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             OUTPUT_WORK_DIR: str(work_dir) if keep else "",
             **figures(solution, version.version),
         }
+
+    def _network(self, parameters: dict[str, Any], context: QgsProcessingContext) -> Network:
+        """The network to adjust: from a document, or from a project store (FR-320).
+
+        Exactly one source. The store is opened as it is -- never created, never
+        migrated -- because reading an input must not change it.
+        """
+        document = self.parameterAsFile(parameters, NETWORK, context)
+        store = self.parameterAsFile(parameters, STORE, context)
+        connection = self.parameterAsConnectionName(parameters, DATABASE, context)
+        if sum(bool(value) for value in (document, store, connection)) != 1:
+            labels = [
+                self.parameterDefinition(name).description() for name in (NETWORK, STORE, DATABASE)
+            ]
+            raise QgsProcessingException(
+                self.tr("Give exactly one network to adjust, from one of: %1.").replace(
+                    "%1", "; ".join(labels)
+                )
+            )
+        if document:
+            return load_network(document, parameter=NETWORK)
+
+        from geocomp.algorithms.project.common import stored_network
+
+        source = STORE if store else DATABASE
+        try:
+            if store:
+                from geocomp.io.store import open_store
+
+                opened = open_store(store)
+                label = store
+            else:
+                from geocomp.services.postgis import open_database_store, store_label
+
+                schema = (self.parameterAsString(parameters, SCHEMA, context) or "geocomp").strip()
+                opened = open_database_store(connection, schema)
+                label = store_label(connection, schema)
+            try:
+                project = opened.read()
+            finally:
+                opened.close()
+            return stored_network(
+                project, label, (self.parameterAsString(parameters, STORED_NETWORK, context) or "").strip()
+            )
+        except GeoCompError as error:
+            raise QgsProcessingException(self.about_input(source, message_for(error))) from error
 
     def _prepare_only(
         self,
