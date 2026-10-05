@@ -60,6 +60,8 @@ from geocomp.algorithms.levelling.common import write_document
 from geocomp.algorithms.reporting import (
     escape,
     format_number,
+    no_redundancy,
+    not_tested,
     render_document,
     render_note,
     render_table,
@@ -348,7 +350,9 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
             {
                 VARIANCE_FACTOR_APOSTERIORI: run.variance_factor_aposteriori,
                 DEGREES_OF_FREEDOM: run.degrees_of_freedom,
-                GLOBAL_TEST_PASSED: bool(test.passed) if test is not None else False,
+                GLOBAL_TEST_PASSED: (
+                    bool(test.passed) if test is not None and test.tested else None
+                ),
                 OUTLIER_COUNT: len(candidates),
                 UNCHECKABLE_COUNT: len(result.uncheckable),
                 DATUM_DEFECT: result.datum.defect,
@@ -448,6 +452,8 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
             self.tr("Datum: %1.").replace("%1", result.datum.removed_by)
         )
         test = result.solution.statistics.global_test
+        if test is not None and not test.tested:
+            feedback.pushWarning(no_redundancy())
         if test is not None and not test.passed:
             feedback.pushWarning(
                 self.tr(
@@ -511,6 +517,8 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                     escape(
                         self.tr("not computed")
                         if test is None
+                        else not_tested()
+                        if not test.tested
                         else self.tr("passed")
                         if test.passed
                         else self.tr("FAILED")
@@ -673,6 +681,8 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
             f"<h2>{escape(self.tr('Observations'))}</h2>",
             observation_table,
         ]
+        if test is not None and not test.tested:
+            body.append(render_note(no_redundancy()))
         if test is not None and not test.passed:
             body.append(
                 render_note(

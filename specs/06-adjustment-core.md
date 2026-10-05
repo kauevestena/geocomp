@@ -254,6 +254,20 @@ the decision. Rejection is *not* automatically attributed to blunders; the repor
 possibilities — blunders, an incorrect stochastic model, or an incorrect functional model — because
 students and practitioners routinely assume the first.
 
+**With no redundancy there is no test** (P12c-23). An open levelling line, an open traverse, a single
+baseline from a held station: as many observations as unknowns. The observations fit exactly by
+construction, σ̂₀² = 0/0 is undefined, and nothing has been checked. Such a network still determines its
+unknowns, and is adjusted:
+
+- The covariances are scaled by the **a priori** σ₀², so the uncertainty of each result is the stated
+  precision of the observations, propagated. (`AdjustmentRun.variance_factor` is the factor used: a
+  posteriori when there is redundancy, a priori when there is none.)
+- The solution carries **no** a posteriori factor, rather than NaN, which JSON cannot hold.
+- The global test is reported as **not tested** (`TestResult.tested = False`), with the reason, in every
+  report, summary, export and Processing output (`GLOBAL_TEST_PASSED` is empty). Until P12c-23 it was
+  reported as passed, and the NaN factor made the solution fail inside numpy (`Eigenvalues did not
+  converge`) before any of that was seen (`tests/qgis/test_zero_redundancy.py`).
+
 ### 4.2 Data snooping (FR-251)
 
 Baarda's w-test on standardised residuals:

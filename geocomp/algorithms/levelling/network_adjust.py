@@ -67,6 +67,8 @@ from geocomp.algorithms.reporting import (
     escape,
     exact,
     format_number,
+    no_redundancy,
+    not_tested,
     render_document,
     render_note,
     render_table,
@@ -535,7 +537,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         return {
             VARIANCE_FACTOR_APOSTERIORI: run.variance_factor_aposteriori,
             DEGREES_OF_FREEDOM: run.degrees_of_freedom,
-            GLOBAL_TEST_PASSED: test.passed,
+            GLOBAL_TEST_PASSED: test.passed if test.tested else None,
             OUTLIER_COUNT: len(snooping.candidates),
             WORST_HEIGHT_UNCERTAINTY: max(heights) if heights else 0.0,
             OUTPUT_SOLUTION: self.parameterAsFileOutput(parameters, OUTPUT_SOLUTION, context),
@@ -804,6 +806,8 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             .replace("%1", str(run.degrees_of_freedom))
             .replace("%2", format_number(run.variance_factor_aposteriori, 4))
         )
+        if not test.tested:
+            feedback.pushWarning(no_redundancy())
         if not test.passed:
             feedback.pushWarning(
                 self.tr(
@@ -922,7 +926,11 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 ],
                 [
                     escape(self.tr("Global test")),
-                    escape(self.tr("passed") if test.passed else self.tr("FAILED")),
+                    escape(
+                        not_tested()
+                        if not test.tested
+                        else self.tr("passed") if test.passed else self.tr("FAILED")
+                    ),
                 ],
                 [escape(self.tr("Datum")), escape(solution.datum_definition.value)],
                 [escape(self.tr("Height type")), escape(built.height_type.value)],
@@ -990,6 +998,8 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             ),
         ]
 
+        if not test.tested:
+            body.append(render_note(no_redundancy()))
         if not test.passed:
             body.append(
                 render_note(

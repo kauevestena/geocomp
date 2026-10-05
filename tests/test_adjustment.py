@@ -562,6 +562,40 @@ class TestLevellingAdjustment:
         # Observation sigma is 2 mm with redundancy; errors should stay well below 1 cm.
         assert reference.max_coordinate_error(run.parameters, run.layout) < 0.01
 
+    def test_an_open_line_adjusts_with_the_precisions_it_was_given(self):
+        """P12c-23. A benchmark and three marks levelled one after the other,
+        never closed: as many observations as unknowns. The a posteriori
+        variance factor is 0/0 and was used anyway; every covariance came out
+        NaN and the solution failed inside numpy. The heights are determined,
+        and their precision is the observations' as stated, propagated."""
+        network = _open_line()
+        run = adjust(network, constrained(Frame.HEIGHT_1D))
+        assert run.degrees_of_freedom == 0
+        assert math.isnan(run.variance_factor_aposteriori)
+        assert run.variance_factor == run.variance_factor_apriori
+        # Diagonals: under --sparse the cofactor is a SparseCofactor, not an array.
+        assert np.all(np.isfinite(run.parameter_covariance.diagonal()))
+        np.testing.assert_allclose(
+            run.parameter_covariance.diagonal(), run.cofactor_parameters.diagonal()
+        )
+
+    def test_its_solution_has_no_a_posteriori_factor_and_no_nan(self):
+        import json
+
+        network = _open_line()
+        run = adjust(network, constrained(Frame.HEIGHT_1D))
+        solution = to_solution(
+            run,
+            network,
+            solution_id="open",
+            crs="EPSG:31982",
+            epoch=Epoch.from_decimal_year(2020.0),
+            datum=DatumDefinition.CONSTRAINED,
+            observation_results=to_observation_results(run),
+        )
+        assert solution.statistics.variance_factor_aposteriori is None
+        json.dumps(solution.to_dict(), allow_nan=False)
+
     def test_redundancy_numbers_sum_to_the_degrees_of_freedom(self):
         """The identity behind data snooping and reliability. It holds for every
         network, which makes it a far stronger check than any single answer."""
@@ -1195,3 +1229,14 @@ class TestAngularMisclosureWrapping:
             for computed in range(0, 360, 11):
                 result = self._misclosure(float(observed), float(computed), RADIAN)
                 assert -math.pi < result <= math.pi + 1e-12
+
+
+
+def _open_line() -> Network:
+    """The RD-03.1 loop with only A-B, B-C and C-D kept: open, never closed."""
+    network = levelling_loop().network
+    for identifier, observation in list(network.observations.items()):
+        if tuple(observation.stations) not in {("A", "B"), ("B", "C"), ("C", "D")}:
+            del network.observations[identifier]
+    assert len(network.observations) == 3
+    return network

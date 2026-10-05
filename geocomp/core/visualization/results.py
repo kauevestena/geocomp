@@ -75,7 +75,12 @@ def run_summary(solution: Solution) -> RunSummary:
         created=provenance.created if provenance else None,
         algorithm=(provenance.algorithm_id or provenance.source) if provenance else "",
         kind=solution.kind.value,
-        global_test=statistics.global_test.passed if statistics.global_test else None,
+        # A test not made has no verdict (P12c-23): no redundancy is not a pass.
+        global_test=(
+            statistics.global_test.passed
+            if statistics.global_test and statistics.global_test.tested
+            else None
+        ),
         variance_factor=statistics.variance_factor_aposteriori,
         degrees_of_freedom=statistics.degrees_of_freedom,
         candidates=decisions.count("rejected"),
@@ -102,8 +107,8 @@ def statistics_items(solution: Solution) -> list[tuple[str, Any]]:
         ("degrees_of_freedom", statistics.degrees_of_freedom),
         ("variance_factor_apriori", statistics.variance_factor_apriori),
         ("variance_factor_aposteriori", statistics.variance_factor_aposteriori),
-        ("global_test", None if test is None else test.passed),
-        ("test_statistic", None if test is None else test.statistic),
+        ("global_test", None if test is None or not test.tested else test.passed),
+        ("test_statistic", None if test is None or not test.tested else test.statistic),
         ("critical_low", None if test is None else test.critical_low),
         ("critical_high", None if test is None else test.critical_high),
         ("confidence", None if test is None else test.confidence),

@@ -63,11 +63,15 @@ def global_test(
     ``1 - (1 - confidence) / 2``.
     """
     if degrees_of_freedom < 1:
+        # Not made, and said so: ``tested`` is what every report reads. Until
+        # P12c-23 this was ``passed`` alone, and a network that checked nothing
+        # was reported as having passed.
         return TestResult(
             name="global",
             statistic=float("nan"),
             confidence=confidence,
             passed=True,
+            tested=False,
             note=(
                 "no redundancy: with zero degrees of freedom the observations fit "
                 "exactly by construction and there is nothing to test"

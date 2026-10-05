@@ -64,6 +64,7 @@ from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
 )
+from geocomp.algorithms.reporting import no_redundancy, not_tested
 from geocomp.core.adjustment.least_squares import (
     AdjustmentOptions,
     adjust,
@@ -432,7 +433,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             VARIANCE_FACTOR_APOSTERIORI: run.variance_factor_aposteriori,
             DEGREES_OF_FREEDOM: run.degrees_of_freedom,
             ITERATIONS: run.iterations,
-            GLOBAL_TEST_PASSED: test.passed,
+            GLOBAL_TEST_PASSED: test.passed if test.tested else None,
             OUTLIER_COUNT: len(snooping.candidates),
             WORST_OUTLIER: worst.observation_id if worst else "",
             UNCHECKABLE_COUNT: len(reliability_report.uncheckable),
@@ -493,7 +494,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             .replace("%2", run.method)
         )
 
-        if test.passed:
+        if not test.tested:
+            feedback.pushWarning(no_redundancy())
+        elif test.passed:
             feedback.pushInfo(self.tr("The global test passes."))
         else:
             feedback.pushWarning(self.tr("The global test fails: %1").replace("%1", test.note))
@@ -705,6 +708,11 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
         ]
 
     def _global_test_block(self, test) -> str:
+        if not test.tested:
+            return render_table(
+                [escape(self.tr("Quantity")), escape(self.tr("Value"))],
+                [[escape(self.tr("Decision")), escape(not_tested())]],
+            ) + render_note(no_redundancy())
         rows = [
             [escape(self.tr("Statistic")), format_number(test.statistic)],
             [escape(self.tr("Lower critical value")), format_number(test.critical_low)],

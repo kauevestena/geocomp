@@ -1815,6 +1815,10 @@
             <translation>Teste global</translation>
         </message>
         <message>
+            <source>Global test: %1</source>
+            <translation>Teste global: %1</translation>
+        </message>
+        <message>
             <source>Gravimetry</source>
             <translation>Gravimetria</translation>
         </message>
@@ -7086,8 +7090,16 @@
     <context>
         <name>GeoCompReport</name>
         <message>
+            <source>No redundancy: there are as many observations as unknowns, so the observations fit exactly by construction. Nothing in this result has been checked, neither the observations nor their precisions; the uncertainties are the stated precisions of the observations, propagated.</source>
+            <translation>Sem redundância: há tantas observações quanto incógnitas, por isso as observações se ajustam exatamente por construção. Nada neste resultado foi verificado, nem as observações nem as suas precisões; as incertezas são as precisões declaradas das observações, propagadas.</translation>
+        </message>
+        <message>
             <source>not defined</source>
             <translation>não definido</translation>
+        </message>
+        <message>
+            <source>not tested</source>
+            <translation>não testado</translation>
         </message>
     </context>
     <context>

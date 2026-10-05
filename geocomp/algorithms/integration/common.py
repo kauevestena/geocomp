@@ -382,7 +382,9 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         return {
             VARIANCE_FACTOR_APOSTERIORI: statistics.variance_factor_aposteriori,
             DEGREES_OF_FREEDOM: statistics.degrees_of_freedom,
-            GLOBAL_TEST_PASSED: bool(test.passed) if test is not None else False,
+            GLOBAL_TEST_PASSED: (
+                bool(test.passed) if test is not None and test.tested else None
+            ),
             OUTLIER_COUNT: sum(
                 1 for r in solution.observation_results if r.w_test is not None and not r.w_test.passed
             ),

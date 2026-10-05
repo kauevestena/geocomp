@@ -24,6 +24,8 @@ from geocomp.core.number_format import localised
 __all__ = [
     "escape",
     "format_number",
+    "no_redundancy",
+    "not_tested",
     "render_document",
     "render_findings",
     "render_note",
@@ -39,6 +41,25 @@ def _tr(text: str) -> str:
 
 def escape(value: Any) -> str:
     return html.escape(str(value))
+
+
+def not_tested() -> str:
+    """The verdict of a test that could not be made (P12c-23)."""
+    return _tr("not tested")
+
+
+def no_redundancy() -> str:
+    """Why the global test of a network with no redundancy was not made.
+
+    Every algorithm that adjusts says the same words: until P12c-23 such a
+    network was reported as having passed a test nobody ran.
+    """
+    return _tr(
+        "No redundancy: there are as many observations as unknowns, so the "
+        "observations fit exactly by construction. Nothing in this result has been "
+        "checked, neither the observations nor their precisions; the uncertainties "
+        "are the stated precisions of the observations, propagated."
+    )
 
 
 def exact(value: Any) -> str:

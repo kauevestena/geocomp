@@ -163,8 +163,8 @@ def _residual_rows(network: Network | None, solution: Solution | None) -> list[l
                 result.adjusted_value,
                 int(result.is_uncheckable),
                 test.name if test else "",
-                test.statistic if test else None,
-                int(test.passed) if test else None,
+                test.statistic if test and test.tested else None,
+                int(test.passed) if test and test.tested else None,
             ]
         )
     return rows
@@ -197,8 +197,9 @@ def _statistics_rows(network: Network | None, solution: Solution | None) -> list
         ("max_correction", statistics.max_correction),
         ("condition_number", statistics.condition_number),
         ("global_test", test.name if test else ""),
-        ("global_test_statistic", test.statistic if test else None),
-        ("global_test_passed", int(test.passed) if test else None),
+        # A test not made (no redundancy) has neither: blank, not NaN or a pass.
+        ("global_test_statistic", test.statistic if test and test.tested else None),
+        ("global_test_passed", int(test.passed) if test and test.tested else None),
     ]
     return [[name, value] for name, value in pairs]
 
