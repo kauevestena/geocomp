@@ -110,7 +110,7 @@ Per [`20-testing-and-validation.md`](./20-testing-and-validation.md) §7:
 | `test` | Every push and PR | T1–T3, structural checks; T4/T5 where engines are cached |
 | `nightly` | Daily | Full matrix including T4/T5 across all OSes |
 | `translations` | Every push | Extract strings; fail on untranslated additions |
-| `build` | Every push and tag | Build the ZIP; validate it installs into a headless QGIS |
+| `build` | Every push and tag | Build the ZIP; validate it installs into a headless QGIS; on a **published release**, attach the archive and its SHA-256 to it (P12c-28, untested until a release is published) |
 | `release` | Tag | Build, sign, attach to the GitHub release, publish to plugins.qgis.org |
 
 A pull request cannot merge with a failing `test` or `translations` workflow.

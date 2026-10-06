@@ -15,6 +15,7 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
   was used. RTKLIB's licence notice ships beside it.
 - *Install tutorial dataset* offers a second dataset, `rtklib-sample`: RTKLIB's own two-receiver baseline, with a
   walkthrough from the folder to the map. It shows the GNSS chain running, not that its coordinates are accurate.
+- Publishing a release on GitHub now attaches the plugin ZIP, and its SHA-256, that the `build` workflow built and checked.
 - Windows and macOS builds do not carry it yet; there, `rnx2rtkp` is found on the path as before.
 
 ### P12c-24 — DynAdjust from the project store
