@@ -2592,6 +2592,21 @@ engine, the solution file and the summary were. The layer is covered by the QGIS
 **Not done.** Windows and macOS builds (a runner each, fixtures run against the result, and a Gatekeeper
 decision for macOS); the one-button DynAdjust install with a licence acknowledgement the maintainer asked for.
 
+#### P12c-29 — a licence acknowledgement on installing DynAdjust
+
+On the maintainer's instruction that DynAdjust, which cannot be bundled, be a single button press with a tick
+box saying the person understands the licensing. *Install an engine* already was one run; it now has a
+required, unticked-by-default box, and an install without it is refused before any download, naming the box,
+the program's owner and its licence. The log records the confirmation. The help and the refusal point to
+DynAdjust's own repository for the licence text. Tested against the local release server the install tests
+already use: refused with nothing downloaded or written, accepted with the confirmation logged before the
+download starts. pt_BR and es are complete.
+
+**Not done.** The acknowledgement is **not recorded in `installed.json`**, only in the run's log, so a later
+reader of the installation cannot tell it was given. A script or model that installed DynAdjust unattended must
+now pass the input. DynAdjust's licence text is **not** placed beside the installed program (the manager extracts only the
+programs). `THIRD_PARTY.md` said it was; that was wrong and is corrected, not worked around.
+
 ---
 
 ## P13 — Validation, documentation and release

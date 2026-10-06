@@ -9071,8 +9071,8 @@
     <context>
         <name>InstallEngineAlgorithm</name>
         <message>
-            <source>&lt;p&gt;Downloads the DynAdjust release GeoComp was tested with, for this computer's operating system, from Geoscience Australia's release page. Before anything is extracted the download is checked against the SHA-256 digest recorded in GeoComp; a download that does not match is deleted and nothing is installed.&lt;/p&gt;&lt;p&gt;The programs go into GeoComp's folder in the QGIS profile, so no administrator rights are needed and removing the profile removes them. The version is recorded, and the installed program is run once to show that it works on this computer.&lt;/p&gt;&lt;p&gt;The download uses QGIS's network settings, including its proxy.&lt;/p&gt;&lt;p&gt;A DynAdjust directory set in Global Settings, under Paths and engines, is still used in preference to this installation; clear it to use this one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;RTKLIB&lt;/b&gt; is not offered: its authors publish executables for Windows only. Install it yourself and give the path to &lt;code&gt;rnx2rtkp&lt;/code&gt; in Global Settings.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Baixa a versão do DynAdjust com que o GeoComp foi testado, para o sistema operacional deste computador, da página de versões da Geoscience Australia. Antes de qualquer extração, o download é conferido com o resumo criptográfico SHA-256 registrado no GeoComp; um download que não confere é apagado e nada é instalado.&lt;/p&gt;&lt;p&gt;Os programas vão para a pasta do GeoComp no perfil do QGIS, então não são necessários direitos de administrador, e remover o perfil os remove. A versão é registrada, e o programa instalado é executado uma vez para mostrar que funciona neste computador.&lt;/p&gt;&lt;p&gt;O download usa as configurações de rede do QGIS, inclusive o proxy.&lt;/p&gt;&lt;p&gt;Um diretório do DynAdjust definido em Configurações Globais, na seção Caminhos e motores, continua tendo preferência sobre esta instalação; apague-o para usar esta.&lt;/p&gt;&lt;p&gt;O &lt;b&gt;RTKLIB&lt;/b&gt; não é oferecido: seus autores publicam executáveis apenas para Windows. Instale-o por conta própria e informe o caminho do &lt;code&gt;rnx2rtkp&lt;/code&gt; em Configurações Globais.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Downloads the DynAdjust release GeoComp was tested with, for this computer's operating system, from Geoscience Australia's release page. Before anything is extracted the download is checked against the SHA-256 digest recorded in GeoComp; a download that does not match is deleted and nothing is installed.&lt;/p&gt;&lt;p&gt;The programs go into GeoComp's folder in the QGIS profile, so no administrator rights are needed and removing the profile removes them. The version is recorded, and the installed program is run once to show that it works on this computer.&lt;/p&gt;&lt;p&gt;The download uses QGIS's network settings, including its proxy.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Licence.&lt;/b&gt; DynAdjust is a separate program by Geoscience Australia, under the Apache-2.0 licence (see its repository, %1). GeoComp does not distribute it: it is downloaded from the authors' release page. Tick the box to say you understand this; without it nothing is downloaded.&lt;/p&gt;&lt;p&gt;A DynAdjust directory set in Global Settings, under Paths and engines, is still used in preference to this installation; clear it to use this one.&lt;/p&gt;&lt;p&gt;&lt;b&gt;RTKLIB&lt;/b&gt; is not installed here. GeoComp's Linux build carries its own &lt;code&gt;rnx2rtkp&lt;/code&gt;; on other systems, give the path to one in Global Settings.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Baixa a versão do DynAdjust com que o GeoComp foi testado, para o sistema operacional deste computador, da página de versões da Geoscience Australia. Antes de qualquer extração, o download é conferido com o resumo criptográfico SHA-256 registrado no GeoComp; um download que não confere é apagado e nada é instalado.&lt;/p&gt;&lt;p&gt;Os programas vão para a pasta do GeoComp no perfil do QGIS, então não são necessários direitos de administrador, e remover o perfil os remove. A versão é registrada, e o programa instalado é executado uma vez para mostrar que funciona neste computador.&lt;/p&gt;&lt;p&gt;O download usa as configurações de rede do QGIS, inclusive o proxy.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Licença.&lt;/b&gt; O DynAdjust é um programa separado da Geoscience Australia, sob a licença Apache-2.0 (veja seu repositório, %1). O GeoComp não o distribui: ele é baixado da página de versões dos autores. Marque a caixa para dizer que você entende isso; sem ela, nada é baixado.&lt;/p&gt;&lt;p&gt;Um diretório do DynAdjust definido em Configurações Globais, na seção Caminhos e motores, continua tendo preferência sobre esta instalação; apague-o para usar esta.&lt;/p&gt;&lt;p&gt;O &lt;b&gt;RTKLIB&lt;/b&gt; não é instalado aqui. A versão do GeoComp para Linux traz seu próprio &lt;code&gt;rnx2rtkp&lt;/code&gt;; em outros sistemas, informe o caminho de um em Configurações Globais.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>A DynAdjust directory is set in Global Settings (%1), and the algorithms will keep using it. Clear it to use this installation.</source>
@@ -9103,6 +9103,10 @@
             <translation>Motor</translation>
         </message>
         <message>
+            <source>I understand that DynAdjust is a separate program under its own licence</source>
+            <translation>Entendo que o DynAdjust é um programa separado, sob sua própria licença</translation>
+        </message>
+        <message>
             <source>Install an engine</source>
             <translation>Instalar um motor</translation>
         </message>
@@ -9115,12 +9119,20 @@
             <translation>O programa informa a versão %1, embora a versão %2 tenha sido instalada.</translation>
         </message>
         <message>
+            <source>Tick “%1” to install DynAdjust. It is a separate program by Geoscience Australia, under the Apache-2.0 licence (%2), downloaded from their release page; GeoComp does not distribute it. Nothing was downloaded.</source>
+            <translation>Marque “%1” para instalar o DynAdjust. Ele é um programa separado da Geoscience Australia, sob a licença Apache-2.0 (%2), baixado da página de versões deles; o GeoComp não o distribui. Nada foi baixado.</translation>
+        </message>
+        <message>
             <source>Verified against the SHA-256 recorded in GeoComp (%1) and installed in %2.</source>
             <translation>Verificado com o SHA-256 registrado no GeoComp (%1) e instalado em %2.</translation>
         </message>
         <message>
             <source>Version installed</source>
             <translation>Versão instalada</translation>
+        </message>
+        <message>
+            <source>You confirmed that you understand DynAdjust is a separate program under its own licence, Apache-2.0 (%1).</source>
+            <translation>Você confirmou que entende que o DynAdjust é um programa separado, sob sua própria licença, Apache-2.0 (%1).</translation>
         </message>
     </context>
     <context>

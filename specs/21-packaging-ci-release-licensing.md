@@ -77,7 +77,10 @@ RTKLIB could be found only on the system path. Now:
   profile; then the system path (`services/engines.py`). Every algorithm that runs an engine, the About
   dialog and the system report build it the same way.
 - **Installing** is *Project ▸ Install an engine* (`geocomp:project_install_engine`), which the *Paths and
-  engines* page opens beside each engine's state. It downloads the pinned release for this machine
+  engines* page opens beside each engine's state. **A tick box, unticked, says the person installing
+  understands DynAdjust is a separate program under its own licence** (Apache-2.0, by Geoscience Australia,
+  downloaded from their page and not distributed by GeoComp); without it the run is refused, naming the box,
+  before anything is downloaded, and the log records that it was confirmed (P12c-29). It downloads the pinned release for this machine
   (`current_platform()`) over the QGIS network stack, verifies it, extracts it, **records** version,
   platform, source, digest and directory in `installed.json`, and runs the installed `dnaadjust` to show
   it works here. The record is written last, so it only ever names an installation that verified.
