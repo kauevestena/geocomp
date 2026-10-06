@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """The engines as the plugin finds them, and installing one (FR-066, FR-300, FR-301; ADR-0003).
 
-A program comes from one of three places, in the order ADR-0003 rule 4 sets:
+A program comes from one of four places, in the order ADR-0003 rule 4 sets and
+ADR-0009 extends:
 
 1. **A path the user configured**, in Global Settings under *Paths and
    engines* or, for one run, in an algorithm's own parameter. It always wins,
@@ -9,7 +10,9 @@ A program comes from one of three places, in the order ADR-0003 rule 4 sets:
 2. **GeoComp's own installation** in the QGIS profile, put there by *Install an
    engine* and found again through its manifest
    (:func:`~geocomp.engines.manager.managed_directories`).
-3. **The system path.**
+3. **The copy that ships inside the plugin**, where a build carries one: RTKLIB's
+   ``rnx2rtkp`` (ADR-0009).
+4. **The system path.**
 
 Until P12c-6 the plugin had only the first, for DynAdjust alone and only as a
 parameter, and the third. Nothing handed the managed directory to an engine, so
@@ -34,6 +37,7 @@ from geocomp.core.errors import DataError
 from geocomp.engines.dynadjust.engine import DynAdjustEngine
 from geocomp.engines.manager import (
     Installation,
+    bundled_directories,
     current_platform,
     install_pinned,
     installation_root,
@@ -98,6 +102,7 @@ def rtklib_engine() -> RtklibEngine:
     return RtklibEngine(
         configured=configured_path("rtklib") or None,
         extra_directories=managed_directories("rtklib", engine_root()),
+        bundled_directories=bundled_directories("rtklib", Path(__file__).resolve().parent.parent),
     )
 
 

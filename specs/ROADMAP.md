@@ -2566,6 +2566,32 @@ mapping exists.
 **Not done.** The other adjusting algorithms still take documents only; the store route is FR-320's, which
 names DynAdjust.
 
+#### P12c-27 — `rnx2rtkp` ships with the plugin (ADR-0009)
+
+On the maintainer's instruction that the plugin is meant to be self-contained, ADR-0003's "do not bundle" is
+amended for RTKLIB's `rnx2rtkp` alone ([`adr/0009`](./adr/0009-bundle-rnx2rtkp.md)); DynAdjust stays a
+download. The `build` workflow builds it from the pinned commit on Ubuntu 22.04, links `libc` and `libm` only,
+checks the committed `.pos` fixtures against that binary, and `scripts/build.py --engine` stores it executable
+under `resources/engines/linux-x86_64/rtklib/` with RTKLIB's BSD 2-clause notice, without which the build
+fails. The plugin searches a configured path, the managed installation, the bundled copy, then `PATH`; restores
+the executable bit a ZIP library drops; and reports the source as `bundled`. The `install` job unpacks the
+archive as QGIS does, with nothing on `PATH`, and runs the bundled program.
+
+It also ships a second tutorial dataset, `rtklib-sample` (RTKLIB's own base-and-rover pair, BSD 2-clause notice
+beside it), so a GNSS run can be shown from *Install tutorial dataset* to the map; the build now ships dataset
+folders whole, because RINEX is `.05o`. A real run of it through the bundled program gave 120 epochs, 117
+fixed, and the README states exactly that. A static landing page is in `docs/`, with the logo.
+
+**Decisions taken while building it.** Dynamic against glibc rather than static, to avoid LGPL relinking
+obligations; `libgfortran` left out because only the IERS tide model, off in this build, uses it.
+
+**Found while running it.** The result-layer step of the GNSS run could not be exercised on the QGIS in this
+container, which is older than the plugin's declared minimum of 4.0 (`QgsField` with a `QMetaType`); the
+engine, the solution file and the summary were. The layer is covered by the QGIS tier in CI.
+
+**Not done.** Windows and macOS builds (a runner each, fixtures run against the result, and a Gatekeeper
+decision for macOS); the one-button DynAdjust install with a licence acknowledgement the maintainer asked for.
+
 ---
 
 ## P13 — Validation, documentation and release

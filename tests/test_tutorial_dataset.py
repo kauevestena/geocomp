@@ -205,3 +205,67 @@ class TestTheTutorialTellsTheTruth:
         """It does fail, correctly, and a reader who was not told would think
         they had done something wrong."""
         assert "global test fails" in readme.lower()
+
+
+RTKLIB_SAMPLE = DATASETS_DIR / "rtklib-sample"
+RTKLIB_FILES = (
+    "07590920.05o",
+    "30400920.05o",
+    "RTKLIB-license.txt",
+    "README.md",
+    "brdc_0759.05n.gz",
+)
+
+
+class TestTheGnssSample:
+    """The second shipped dataset: RTKLIB's own sample baseline, for a GNSS run."""
+
+    def test_it_is_discoverable_and_sorts_after_rd01(self):
+        """The installer's default is the first dataset, and existing tests and
+        users mean RD-01 by it."""
+        names = available_datasets()
+        assert "rtklib-sample" in names
+        assert names.index("rd01") < names.index("rtklib-sample")
+        assert names[0] == "rd01"
+
+    @pytest.mark.parametrize("name", RTKLIB_FILES)
+    def test_every_file_is_there(self, name):
+        assert (RTKLIB_SAMPLE / name).is_file()
+
+    def test_nothing_else_is_in_the_folder(self):
+        assert sorted(path.name for path in RTKLIB_SAMPLE.iterdir()) == sorted(RTKLIB_FILES)
+
+    @pytest.mark.parametrize("name", ("07590920.05o", "30400920.05o", "brdc_0759.05n.gz"))
+    def test_the_data_is_the_repositorys_own_copy_of_rtklibs(self, name):
+        """One provenance record covers both copies, so they must not drift."""
+        repository = Path(__file__).resolve().parent / "data" / "rtklib" / name
+        assert (RTKLIB_SAMPLE / name).read_bytes() == repository.read_bytes()
+
+    def test_the_licence_notice_travels_with_the_data(self):
+        text = (RTKLIB_SAMPLE / "RTKLIB-license.txt").read_text(encoding="utf-8")
+        assert "BSD 2-clause" in text and "T. Takasu" in text
+
+    def test_the_build_ships_every_file_whatever_its_suffix(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "geocomp_build", Path(__file__).resolve().parent.parent / "scripts" / "build.py"
+        )
+        build = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(build)
+
+        shipped = {path.name for path in build.collect_files() if RTKLIB_SAMPLE in path.parents}
+        assert shipped == set(RTKLIB_FILES)
+
+    def test_the_readme_names_the_stations_the_data_holds(self):
+        text = (RTKLIB_SAMPLE / "README.md").read_text(encoding="utf-8")
+        assert "3040" in text and "0759" in text
+        markers = {
+            name: next(
+                line[:60].strip()
+                for line in (RTKLIB_SAMPLE / name).read_text(encoding="latin-1").splitlines()
+                if line.endswith("MARKER NAME")
+            )
+            for name in ("07590920.05o", "30400920.05o")
+        }
+        assert markers == {"07590920.05o": "0759", "30400920.05o": "3040"}

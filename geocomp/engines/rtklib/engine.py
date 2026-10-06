@@ -293,7 +293,9 @@ class RtklibEngine:
         configured: An explicitly configured executable path, which always wins
             over the managed installation and over ``PATH`` (ADR-0003 rule 4).
         extra_directories: Where a managed installation keeps the program,
-            searched after *configured* and before ``PATH``.
+            searched after *configured* and before the bundled copy.
+        bundled_directories: Where the plugin's own copy is (ADR-0009),
+            searched after the managed installation and before ``PATH``.
     """
 
     name = "rtklib"
@@ -303,15 +305,20 @@ class RtklibEngine:
         *,
         configured: str | Path | None = None,
         extra_directories: tuple[Path, ...] = (),
+        bundled_directories: tuple[Path, ...] = (),
     ) -> None:
         self._configured = configured
         self._extra = extra_directories
+        self._bundled = bundled_directories
         self._version: EngineVersion | None = None
 
     def locate(self) -> tuple[Path | None, str]:
         for candidate in program_filenames():
             path, source = discover(
-                candidate, configured=self._configured, extra_directories=self._extra
+                candidate,
+                configured=self._configured,
+                extra_directories=self._extra,
+                bundled_directories=self._bundled,
             )
             if path is not None:
                 return path, source

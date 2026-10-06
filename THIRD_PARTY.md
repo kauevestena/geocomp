@@ -28,7 +28,7 @@ not derivation, and their licences do not combine with GeoComp's.
 | [SciPy](https://scipy.org) | BSD-3-Clause | Imported when present | Optional: sparse factorisation and distribution quantiles. A NumPy-only fallback is required and tested ([`specs/03-architecture.md`](specs/03-architecture.md) §3.7) |
 | [openpyxl](https://openpyxl.readthedocs.io) | MIT | Imported when present | Optional: `.xlsx` import and export (FR-160). Degrades to CSV when absent |
 
-## Processing engines (separate programs, not bundled)
+## Processing engines (separate programs; only `rnx2rtkp` is bundled)
 
 | Component | Licence | Upstream |
 |---|---|---|
@@ -45,6 +45,10 @@ RTKLIB 2.4.3 and optimised for low-cost receivers. The research project names RT
 `rnx2rtkp` from both distributions and records which one produced a result. The licence is **BSD 2-clause**
 (`license.txt`, "Copyright (c) 2007-2020, T. Takasu, All rights reserved"), confirmed at the pinned commit in
 phase P7 — the previous entry here said only "see the upstream `license.txt`", which is not an answer.
+
+**`rnx2rtkp` is bundled** (ADR-0009): the plugin ZIP carries a build of it from RTKLIB-EX commit `06e8644`, with
+RTKLIB's licence text at `geocomp/resources/engines/licences/RTKLIB-license.txt`, which BSD 2-clause asks of a
+binary redistribution. **DynAdjust is not bundled.**
 
 Where GeoComp downloads an engine, it places that engine's own licence text alongside the binary and shows
 it in the About dialog.

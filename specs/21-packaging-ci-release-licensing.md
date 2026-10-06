@@ -51,7 +51,7 @@ The proposal promises installation "com poucos cliques": install QGIS, install t
 are separate C++ programs, so this needs a mechanism. Full reasoning in
 [`adr/0003-engine-acquisition.md`](./adr/0003-engine-acquisition.md); the requirements are:
 
-1. **Engines are not bundled in the plugin ZIP.** Platform-specific binaries for three operating systems
+1. **DynAdjust is not bundled in the plugin ZIP** (RTKLIB's `rnx2rtkp` is: ADR-0009, below). Platform-specific binaries for three operating systems
    would multiply the package size, break the single-artefact model, and create a licence-redistribution
    obligation GeoComp should not carry.
 2. **An engine manager in Global Settings** (FR-066) downloads the pinned release for the user's platform
@@ -86,12 +86,20 @@ RTKLIB could be found only on the system path. Now:
   `dnaadjust --version` answering the pinned version, a configured directory winning, and a network
   adjusted through the managed installation agreeing with the committed fixture to 0.1 mm.
 
-**RTKLIB is located, not acquired.** Its upstream (RTKLIB-EX) publishes executables for Windows only,
-and the release they come from (tag `v2.5.1`, commit `62d4677`) is not the build GeoComp's RTKLIB parsers
-were checked against (`06e8644`); on Linux and macOS there is nothing to download, and GeoComp does not
-redistribute engine binaries (ADR-0003, consequences). Criterion 4 is therefore met for DynAdjust and
-not for RTKLIB: pinning the Windows release needs its output checked against `scripts/check_rtklib_fixtures.py`
-first, and Linux and macOS need either upstream binaries or a decision to amend the criterion.
+**RTKLIB's `rnx2rtkp` ships inside the plugin (ADR-0009).** Its upstream (RTKLIB-EX) publishes executables for
+Windows only, at a release (`v2.5.1`, `62d4677`) that is not the build GeoComp's parsers were checked against
+(`06e8644`), so there was nothing pinnable to download on Linux or macOS, and GeoComp is meant to be
+self-contained. The `build` workflow now builds `rnx2rtkp` from `06e8644` on the oldest supported Ubuntu, checks
+that it links `libc` and `libm` only and that the committed `.pos` fixtures match *that binary*, and
+`scripts/build.py --engine rtklib=linux-x86_64:PATH` stores it, executable, under
+`resources/engines/linux-x86_64/rtklib/` with RTKLIB's BSD 2-clause notice beside it; a build that carries the
+program without the notice fails. The plugin looks for it after a configured path and a managed installation and
+before `PATH`, restores the executable bit a ZIP library drops, and reports the source as `bundled`. The `install`
+job unpacks the archive the way QGIS does, with no `rnx2rtkp` on `PATH`, and runs the bundled program.
+
+**Not done:** Windows and macOS builds. Criterion 4 is met for DynAdjust and, on Linux x86-64 only, for RTKLIB.
+On the other platforms RTKLIB is still located, not acquired, until a runner builds it and its fixtures check
+out; macOS also needs a decision about Gatekeeper.
 
 ## 5. Continuous integration (FR-953)
 

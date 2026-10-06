@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform as _platform
 import sys
 import zipfile
@@ -48,6 +49,7 @@ __all__ = [
     "EngineRelease",
     "Fetcher",
     "Installation",
+    "bundled_directories",
     "current_platform",
     "install",
     "installation_root",
@@ -305,6 +307,32 @@ def installed(engine: str, root: str | Path) -> Installation | None:
     if installation.engine != engine or not inside or not directory.is_dir():
         return None
     return installation
+
+
+def bundled_directories(engine: str, plugin_root: str | Path) -> tuple[Path, ...]:
+    """Where the copy of *engine* that ships inside the plugin is, for this machine (ADR-0009).
+
+    ``resources/engines/<platform>/<engine>/`` under the plugin, where the
+    release build puts it. Empty when this build carries none for this platform
+    -- a development checkout, or a platform nobody built for -- so the search
+    simply goes on to ``PATH``.
+
+    Plugin ZIPs are unpacked by a library that does not keep the executable
+    bit, so the programs are made executable here, once, before anything runs
+    them. A failure to do so is not raised: the run that follows reports a
+    program that will not start, which is the more useful message.
+    """
+    directory = Path(plugin_root) / "resources" / "engines" / current_platform() / engine
+    if not directory.is_dir():
+        return ()
+    if sys.platform != "win32":
+        for program in directory.iterdir():
+            if program.is_file() and program.suffix == "" and not os.access(program, os.X_OK):
+                try:
+                    program.chmod(program.stat().st_mode | 0o111)
+                except OSError:
+                    pass
+    return (directory,)
 
 
 def managed_directories(engine: str, root: str | Path) -> tuple[Path, ...]:

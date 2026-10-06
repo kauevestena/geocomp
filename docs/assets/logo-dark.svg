@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" width="280" height="72" role="img" aria-label="GeoComp">
+  <title>GeoComp</title>
+  <g transform="translate(4 4)">
+    <g fill="none" stroke="#5fb6d3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 50 L32 14 L52 50 Z"/>
+      <path d="M32 14 L32 50"/>
+    </g>
+    <ellipse cx="32" cy="50" rx="13" ry="7" fill="none" stroke="#ff8a5c" stroke-width="2.5" transform="rotate(-18 32 50)"/>
+    <g fill="#5fb6d3">
+      <circle cx="12" cy="50" r="4.5"/>
+      <circle cx="52" cy="50" r="4.5"/>
+      <circle cx="32" cy="14" r="4.5"/>
+    </g>
+    <circle cx="32" cy="50" r="3.5" fill="#ff8a5c"/>
+  </g>
+  <text x="80" y="47" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="38" letter-spacing="-0.5">
+    <tspan fill="#5fb6d3" font-weight="700">Geo</tspan><tspan fill="#e6edf0" font-weight="400">Comp</tspan>
+  </text>
+</svg>

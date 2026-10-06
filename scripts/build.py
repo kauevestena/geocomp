@@ -7,6 +7,8 @@ Usage::
     python3 scripts/build.py                  # build dist/geocomp.zip
     python3 scripts/build.py --output DIR     # build elsewhere
     python3 scripts/build.py --skip-translations   # for a development build
+    python3 scripts/build.py --engine rtklib=linux-x86_64:PATH/TO/rnx2rtkp
+                                              # ship a built engine (ADR-0009)
 
 The archive is **reproducible**: entries are sorted and timestamps fixed, so two
 builds of the same commit are byte-identical. That is what makes it possible to
@@ -46,6 +48,16 @@ EXCLUDE_DIRS = {"__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache"}
 #: Never shipped, even where the suffix matches. ``.ts`` files are translation
 #: *sources*; the compiled ``.qm`` is what the plugin loads.
 EXCLUDE_SUFFIXES = {".ts", ".pyc", ".pyo"}
+
+
+#: Reference datasets ship whole, whatever their file types.
+DATASETS_DIR = PLUGIN_DIR / "resources" / "datasets"
+
+#: Where a shipped engine goes inside the plugin, and the licence that must
+#: travel with it (ADR-0009): BSD-2-Clause asks that a binary redistribution
+#: reproduce the notice, so a build refuses to carry a program without it.
+ENGINE_DIR = Path("resources") / "engines"
+ENGINE_LICENCES = {"rtklib": ENGINE_DIR / "licences" / "RTKLIB-license.txt"}
 
 
 class BuildError(RuntimeError):
@@ -117,14 +129,36 @@ def collect_files() -> list[Path]:
             continue
         if path.suffix in EXCLUDE_SUFFIXES:
             continue
-        if path.suffix not in INCLUDE_SUFFIXES:
+        # A dataset is a folder of whatever its data is in -- RINEX observations
+        # are ``.05o`` -- so by suffix it would lose exactly the files that
+        # matter. Whole folders ship; the exclusions above still apply.
+        if path.suffix not in INCLUDE_SUFFIXES and not path.is_relative_to(DATASETS_DIR):
             continue
         files.append(path)
     return sorted(files)
 
 
-def write_zip(target: Path, files: list[Path]) -> None:
-    """Write a reproducible ZIP containing a single top-level ``geocomp/``."""
+def parse_engine(spec: str) -> tuple[str, str, Path]:
+    """``NAME=PLATFORM:PATH`` as (engine, platform, program)."""
+    try:
+        engine, rest = spec.split("=", 1)
+        platform, path = rest.split(":", 1)
+    except ValueError:
+        raise BuildError(f"--engine wants NAME=PLATFORM:PATH, not {spec!r}") from None
+    program = Path(path)
+    if engine not in ENGINE_LICENCES:
+        raise BuildError(f"no licence is recorded for engine {engine!r}; known: {sorted(ENGINE_LICENCES)}")
+    if not program.is_file():
+        raise BuildError(f"engine program not found: {program}")
+    return engine, platform, program
+
+
+def write_zip(target: Path, files: list[Path], engines: list[tuple[str, str, Path]] = ()) -> None:
+    """Write a reproducible ZIP containing a single top-level ``geocomp/``.
+
+    *engines* are built programs to carry: each is stored executable, under
+    ``resources/engines/<platform>/<engine>/``.
+    """
     target.parent.mkdir(parents=True, exist_ok=True)
     if target.exists():
         target.unlink()
@@ -138,6 +172,12 @@ def write_zip(target: Path, files: list[Path]) -> None:
             # be must not change the artefact.
             info.external_attr = 0o644 << 16
             archive.writestr(info, path.read_bytes())
+        for engine, platform, program in sorted(engines):
+            arcname = Path(PLUGIN_NAME) / ENGINE_DIR / platform / engine / program.name
+            info = zipfile.ZipInfo(str(arcname), date_time=FIXED_TIMESTAMP)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o755 << 16
+            archive.writestr(info, program.read_bytes())
 
 
 def verify(target: Path) -> None:
@@ -154,6 +194,18 @@ def verify(target: Path) -> None:
     if f"{PLUGIN_NAME}/__init__.py" not in names:
         raise BuildError("archive is missing geocomp/__init__.py")
 
+    prefix = f"{PLUGIN_NAME}/{ENGINE_DIR.as_posix()}/"
+    shipped = set()
+    for name in names:
+        parts = name[len(prefix):].split("/") if name.startswith(prefix) else []
+        # <platform>/<engine>/<program>; the licences folder is not a platform.
+        if len(parts) == 3 and parts[0] != "licences":
+            shipped.add(parts[1])
+    for engine in shipped:
+        licence = f"{PLUGIN_NAME}/{ENGINE_LICENCES[engine].as_posix()}"
+        if licence not in names:
+            raise BuildError(f"archive carries {engine} without its licence, {licence}")
+
     leaked = [name for name in names if name.endswith((".ts", ".pyc"))]
     if leaked:
         raise BuildError(f"archive contains files that must not ship: {leaked}")
@@ -167,6 +219,13 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="do not compile .qm (development builds only; never for a release)",
     )
+    parser.add_argument(
+        "--engine",
+        action="append",
+        default=[],
+        metavar="NAME=PLATFORM:PATH",
+        help="carry a built engine program in the archive (ADR-0009); repeatable",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -179,12 +238,15 @@ def main(argv: list[str] | None = None) -> int:
             build_translations(strict=False)
 
         files = collect_files()
+        engines = [parse_engine(spec) for spec in args.engine]
         target = args.output / f"{PLUGIN_NAME}.zip"
-        write_zip(target, files)
+        write_zip(target, files, engines)
         verify(target)
 
         size = target.stat().st_size
         print(f"  {len(files)} files -> {target} ({size:,} bytes)")
+        for engine, platform, program in engines:
+            print(f"  carrying {engine} for {platform}: {program.name}")
         return 0
     except BuildError as error:
         print(f"build failed: {error}", file=sys.stderr)

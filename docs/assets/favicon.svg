@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>GeoComp</title>
+  <!-- A geodetic network: three stations, their connecting observations,
+       and an error ellipse on the adjusted point. -->
+  <g fill="none" stroke="#1a5f7a" stroke-width="3" stroke-linecap="round">
+    <path d="M12 50 L32 14 L52 50 Z"/>
+    <path d="M32 14 L32 50"/>
+  </g>
+  <ellipse cx="32" cy="50" rx="13" ry="7" fill="none" stroke="#c1440e" stroke-width="2.5"
+           transform="rotate(-18 32 50)"/>
+  <g fill="#1a5f7a">
+    <circle cx="12" cy="50" r="4.5"/>
+    <circle cx="52" cy="50" r="4.5"/>
+    <circle cx="32" cy="14" r="4.5"/>
+  </g>
+  <circle cx="32" cy="50" r="3.5" fill="#c1440e"/>
+</svg>
