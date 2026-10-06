@@ -202,3 +202,27 @@ jobs:
           print("bundled", path, version.name, version.version)
           app.exitQgis()
           PY
+
+  # Publishing a release in the GitHub interface is all it takes to give the
+  # landing page's install step something to link to: the archive this very
+  # run built and checked is attached to it. Its own job, so the wider token
+  # exists only here, and only when a release is published.
+  attach:
+    name: attach the archive to the release
+    needs: [package, install]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: geocomp-plugin
+
+      - name: Attach geocomp.zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          sha256sum geocomp.zip | tee geocomp.zip.sha256
+          gh release upload "$TAG" geocomp.zip geocomp.zip.sha256 --clobber --repo "$GITHUB_REPOSITORY"
