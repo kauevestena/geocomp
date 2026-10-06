@@ -1,0 +1,212 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoComp — geodetic network adjustment inside QGIS</title>
+<meta name="description" content="GeoComp is a QGIS plugin that takes a geodetic survey from field observations to an adjusted, statistically checked network: total station, levelling, GNSS, gravimetry, multi-epoch monitoring.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg: #f7f9fa;
+    --surface: #ffffff;
+    --ink: #1c2a31;
+    --muted: #55656d;
+    --line: #dbe3e7;
+    --teal: #1a5f7a;
+    --teal-ink: #ffffff;
+    --accent: #c1440e;
+    --code-bg: #eef3f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11191d;
+      --surface: #182227;
+      --ink: #e6edf0;
+      --muted: #9fb0b8;
+      --line: #2a3840;
+      --teal: #5fb6d3;
+      --teal-ink: #0b1519;
+      --accent: #ff8a5c;
+      --code-bg: #1d2a30;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  a { color: var(--teal); }
+  a:hover { color: var(--accent); }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 16px; }
+  header.site { border-bottom: 1px solid var(--line); background: var(--surface); }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+  header.site img { height: 40px; width: auto; display: block; }
+  nav a { margin-left: 18px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+  nav a:hover { color: var(--accent); }
+  .hero { padding: 56px 0 40px; }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 2.9rem); line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.02em; }
+  .hero p.lead { font-size: 1.2rem; color: var(--muted); max-width: 42rem; margin: 0 0 28px; }
+  .badge { display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 12px; margin-bottom: 18px; }
+  .buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 11px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;
+         background: var(--teal); color: var(--teal-ink); border: 2px solid var(--teal); }
+  .btn:hover { color: var(--teal-ink); filter: brightness(1.08); }
+  .btn.secondary { background: transparent; color: var(--teal); }
+  .btn.secondary:hover { color: var(--accent); border-color: var(--accent); }
+  section { padding: 36px 0; border-top: 1px solid var(--line); }
+  section h2 { font-size: 1.55rem; margin: 0 0 6px; letter-spacing: -0.01em; }
+  section p.sub { color: var(--muted); margin: 0 0 22px; max-width: 44rem; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .card .n { color: var(--accent); font-weight: 700; }
+  ol.steps { padding-left: 1.3rem; }
+  ol.steps li { margin-bottom: 10px; }
+  code, kbd { background: var(--code-bg); border-radius: 4px; padding: 1px 6px; font-size: 0.9em; }
+  .note { background: var(--surface); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 18px; margin: 20px 0; color: var(--muted); }
+  .note strong { color: var(--ink); }
+  table { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: 0; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 44px; color: var(--muted); font-size: 0.9rem; }
+  @media (max-width: 520px) { nav a { margin-left: 12px; } .hero { padding-top: 36px; } }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <picture>
+      <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="assets/logo.svg" alt="GeoComp" width="155" height="40">
+    </picture>
+    <nav aria-label="Sections">
+      <a href="#what">What it does</a>
+      <a href="#try">Try it</a>
+      <a href="#install">Install</a>
+      <a href="#honest">Status</a>
+      <a href="https://github.com/kauevestena/geocomp">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="badge">Research software &middot; v0.1 &middot; experimental</span>
+    <h1>Geodetic network adjustment, inside QGIS.</h1>
+    <p class="lead">GeoComp takes a survey from field observations to an adjusted network whose results have been
+      statistically checked, and puts the answer on the map &mdash; total station, levelling, GNSS, gravimetry, and
+      repeated surveys of the same network over time.</p>
+    <div class="buttons">
+      <a class="btn" href="#install">Install the plugin</a>
+      <a class="btn secondary" href="https://github.com/kauevestena/geocomp">Source on GitHub</a>
+    </div>
+  </div>
+
+  <section id="what">
+    <h2>What it does</h2>
+    <p class="sub">Every step is a QGIS Processing algorithm, so it runs from the menu, the toolbox, the modeller or a
+      script, and every result keeps a record of how it was made.</p>
+    <div class="grid">
+      <div class="card"><h3>Total station</h3><p>Field-book import with saved column mappings, face reduction, atmospheric and EDM corrections, traverse,
+        resection, intersection, trigonometric levelling, and classical network adjustment.</p></div>
+      <div class="card"><h3>Levelling</h3><p>Level-book import, closure checks, equal, equidistant and extreme sight methods, and a levelling network
+        adjustment.</p></div>
+      <div class="card"><h3>GNSS</h3><p>Absolute and relative, static and kinematic processing with RTKLIB; precise products discovered and
+        downloaded; baselines built into a network; configurations compared.</p></div>
+      <div class="card"><h3>Gravimetry</h3><p>Reduction of relative gravimeter readings for scale, Earth tide and drift, then a gravity network
+        adjustment.</p></div>
+      <div class="card"><h3>Integration</h3><p>GNSS with total station, total station with levelling, GNSS with levelling, or several techniques at once,
+        in one adjustment with per-technique variance components.</p></div>
+      <div class="card"><h3>Monitoring</h3><p>Compare two epochs, test reference-point stability, build time series with alert thresholds, and report.</p></div>
+    </div>
+    <p class="sub" style="margin-top:22px">Behind them: the adjustment core estimates, tests and explains &mdash; global test, data snooping,
+      reliability, error ellipses, with uncertainty carried through every step rather than attached at the end.
+      <span class="n">48</span> algorithms in all, in English, Portuguese (Brazil) and Spanish.</p>
+  </section>
+
+  <section id="try">
+    <h2>Two examples you can run in minutes</h2>
+    <p class="sub">Both ship inside the plugin: <em>GeoComp &#9656; Project &#9656; Install tutorial dataset</em> copies them
+      to a folder you choose, each with a walkthrough.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>A network adjustment, with two real errors</h3>
+        <p>The author's own total-station triangle: three stations, each observed on both faces. It contains a
+          1.000&nbsp;m transcription blunder that pre-processing catches, and a global test that correctly fails.
+          Software that finds real errors in real data teaches more than a clean run.</p>
+      </div>
+      <div class="card">
+        <h3>A GNSS baseline, end to end</h3>
+        <p>RTKLIB's own 2005 sample: two receivers 3.3&nbsp;km apart. Discover the session, run the engine, read the
+          solution &mdash; 120 epochs, 117 with ambiguities fixed &mdash; and see it on the map. GeoComp carries
+          the <code>rnx2rtkp</code> program itself, so there is nothing else to install.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <p class="sub">Needs <strong>QGIS 4.0 or later</strong>. This is a pre-release; there is no listing on the QGIS plugin
+      repository yet.</p>
+    <ol class="steps">
+      <li>Get <code>geocomp.zip</code>: from the project's
+        <a href="https://github.com/kauevestena/geocomp/releases">Releases</a> page when one is published, or the
+        <code>geocomp-plugin</code> artifact of the <code>build</code> workflow on
+        <a href="https://github.com/kauevestena/geocomp/actions/workflows/build.yml">GitHub Actions</a>.</li>
+      <li>In QGIS: <kbd>Plugins</kbd> &#9656; <kbd>Manage and Install Plugins</kbd> &#9656; <kbd>Install from ZIP</kbd>,
+        choose the file, and install. Because it is experimental, enable
+        <em>Show also experimental plugins</em> under <kbd>Settings</kbd> if it does not appear.</li>
+      <li>A <strong>GeoComp</strong> menu appears, and the algorithms are in the Processing toolbox.</li>
+    </ol>
+    <table>
+      <thead><tr><th>Engine</th><th>What it does</th><th>How you get it</th></tr></thead>
+      <tbody>
+        <tr><td><strong>RTKLIB</strong> <code>rnx2rtkp</code></td><td>GNSS post-processing</td>
+            <td>Included with the plugin (Linux x86-64 so far). BSD 2-clause; its licence notice ships beside it.</td></tr>
+        <tr><td><strong>DynAdjust</strong></td><td>An independent least-squares engine, used to cross-check the in-house one</td>
+            <td>Optional. Downloaded from its upstream release on request (<em>Install an engine</em>) and checked against a pinned digest. Apache-2.0.</td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin-top:14px">Adjustment itself runs in GeoComp's own core and needs neither engine.</p>
+  </section>
+
+  <section id="honest">
+    <h2>Where it stands</h2>
+    <p class="sub">A research project of the Departamento de Geomática, Universidade Federal do Paraná, built from a written
+      specification and checked against published reference data wherever that data could be reached.</p>
+    <div class="note"><strong>Early software.</strong> The adjustment and statistics are tested against textbook and published
+      networks; the GNSS example above shows the pipeline running, not that its coordinates are accurate &mdash; the two sample
+      stations have no published coordinates to compare with. It has not had a stable release, and the QGIS plugin
+      repository does not list it.</div>
+    <ul>
+      <li>The specifications, decision records and a requirement-by-requirement acceptance register, with what is
+        <em>not</em> met stated plainly, are in the
+        <a href="https://github.com/kauevestena/geocomp/tree/main/specs">specs</a> folder.</li>
+      <li>Open source, <strong>GPL-2.0-or-later</strong>. Issues and contributions are welcome on
+        <a href="https://github.com/kauevestena/geocomp">GitHub</a>.</li>
+    </ul>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    GeoComp &middot; GPL-2.0-or-later &middot; Kau&ecirc; de Moraes Vestena and the GeoComp contributors &middot;
+    Departamento de Geom&aacute;tica, Universidade Federal do Paran&aacute;.
+    RTKLIB &copy; T. Takasu (BSD 2-clause); DynAdjust &copy; Geoscience Australia (Apache-2.0).
+  </div>
+</footer>
+
+</body>
+</html>

@@ -101,6 +101,12 @@ angles sum to 38.24°, and implies a 2–3 distance of 4.43 m against 24.35 m me
 RD-01 ships with the plugin as a tutorial dataset (FR-952), with both defects documented — a tutorial in
 which the software catches two real errors in real data teaches more than one in which nothing is wrong.
 
+A second dataset ships beside it (P12c-27): **`rtklib-sample`**, RTKLIB's own 2005 base-and-rover pair, for a
+GNSS run from *Install tutorial dataset* to the map. It is **not a reference dataset**: its stations have no
+published coordinates reachable from this project, so it shows the pipeline running (120 epochs, 117 with
+ambiguities fixed, checked against the real engine) and says nothing about accuracy. RD-06 is the dataset that
+would.
+
 **RD-02, RD-03 and RD-04 note — validation complete, citation now made by RD-11.** The cases implemented in
 `tests/test_reference_propagation.py`, `tests/networks.py` and `tests/reference_levelling.py` are *not*
 transcriptions from Ghilani or Gemael; they are reference cases built from the geodetic operations GeoComp performs, with a known truth.
@@ -647,7 +653,7 @@ without a row.
 | FR-930 | **met** | `tests/qgis/test_adjustment_report.py::TestItCarriesEverySection`; the parameters' scopes, the inputs by digest and the software versions, `tests/qgis/test_adjustment_report.py::TestItIsDefensible` |
 | FR-931 | **met** | One HTML file, printed to PDF by any browser, and print layouts (`tests/qgis/test_print_layouts.py`); an organisation's template used and what it leaves out reported (`tests/qgis/test_adjustment_report.py::TestATemplateCanChangeTheLayout`, `tests/test_report_templates.py`). The template is chosen per run rather than in Global Settings, which is FR-066's row |
 | FR-932 | **met** | Displacements, decisions and the map (`tests/qgis/test_monitoring_algorithms.py::TestCompareEpochs::test_the_report_carries_the_decisions_and_the_map`), the time series (`tests/qgis/test_monitoring_algorithms.py::TestTimeSeries::test_the_series_report_plots_every_station`), both drawn from the layers' geometry (`tests/test_monitoring_drawing.py::TestReportMap`, `tests/test_monitoring_drawing.py::TestReportPlot`) |
-| FR-950 | **partly met** | Nine of the twelve reference datasets have an expected result and a test; RD-05 is not vendored, RD-08's published half waits on W-01, RD-10 is P13's (row 20 3). Only RD-01 ships with the plugin (`tests/test_tutorial_dataset.py::TestItShips`); the others are in the repository |
+| FR-950 | **partly met** | Nine of the twelve reference datasets have an expected result and a test; RD-05 is not vendored, RD-08's published half waits on W-01, RD-10 is P13's (row 20 3). RD-01 ships with the plugin (`tests/test_tutorial_dataset.py::TestItShips`), and so does a GNSS sample that is not a reference dataset (P12c-27); the others are in the repository |
 | FR-951 | **partly met** | The protocol is written, §5, with how a difference is classified, investigated and published, and GeoComp's half of it, the comparison export, As 20.7. It is a section of a specification rather than documentation a comparison's author is handed, and it has never been run (W-12): P13's |
 | FR-952 | **partly met** | RD-01 ships as a tutorial dataset with its walkthrough, and every number the walkthrough states is checked against the files (`tests/test_tutorial_dataset.py::TestTheTutorialTellsTheTruth`, `tests/qgis/test_tutorial.py::TestFollowingIt`). One module, in English; tutorials for every module in three languages and worked QGIS projects are P13's |
 | FR-953 | **met** | Public, with CI on every push (`.github/workflows/test.yml`, `.github/workflows/build.yml`), every algorithm's help held to its parameters (`tests/qgis/test_algorithm_help.py`), and the specifications in `specs/`. Teaching material is FR-952's row |

@@ -547,6 +547,9 @@ class TestAgainstTheRealEngine:
             solution = result.solution
             assert len(solution.epochs) == 120
             assert solution.fixed_fraction > 0.9
+            # The numbers geocomp/resources/datasets/rtklib-sample/README.md
+            # promises a user who runs this data, checked against the engine.
+            assert len(solution.fixed_epochs()) == 117
             assert solution.last().is_ambiguity_fixed
 
     def test_a_window_selects_the_epochs_it_names(self, sessions):

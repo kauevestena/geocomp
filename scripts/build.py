@@ -50,6 +50,9 @@ EXCLUDE_DIRS = {"__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache"}
 EXCLUDE_SUFFIXES = {".ts", ".pyc", ".pyo"}
 
 
+#: Reference datasets ship whole, whatever their file types.
+DATASETS_DIR = PLUGIN_DIR / "resources" / "datasets"
+
 #: Where a shipped engine goes inside the plugin, and the licence that must
 #: travel with it (ADR-0009): BSD-2-Clause asks that a binary redistribution
 #: reproduce the notice, so a build refuses to carry a program without it.
@@ -126,7 +129,10 @@ def collect_files() -> list[Path]:
             continue
         if path.suffix in EXCLUDE_SUFFIXES:
             continue
-        if path.suffix not in INCLUDE_SUFFIXES:
+        # A dataset is a folder of whatever its data is in -- RINEX observations
+        # are ``.05o`` -- so by suffix it would lose exactly the files that
+        # matter. Whole folders ship; the exclusions above still apply.
+        if path.suffix not in INCLUDE_SUFFIXES and not path.is_relative_to(DATASETS_DIR):
             continue
         files.append(path)
     return sorted(files)

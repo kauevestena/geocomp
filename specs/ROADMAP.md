@@ -2577,8 +2577,17 @@ fails. The plugin searches a configured path, the managed installation, the bund
 the executable bit a ZIP library drops; and reports the source as `bundled`. The `install` job unpacks the
 archive as QGIS does, with nothing on `PATH`, and runs the bundled program.
 
+It also ships a second tutorial dataset, `rtklib-sample` (RTKLIB's own base-and-rover pair, BSD 2-clause notice
+beside it), so a GNSS run can be shown from *Install tutorial dataset* to the map; the build now ships dataset
+folders whole, because RINEX is `.05o`. A real run of it through the bundled program gave 120 epochs, 117
+fixed, and the README states exactly that. A static landing page is in `docs/`, with the logo.
+
 **Decisions taken while building it.** Dynamic against glibc rather than static, to avoid LGPL relinking
 obligations; `libgfortran` left out because only the IERS tide model, off in this build, uses it.
+
+**Found while running it.** The result-layer step of the GNSS run could not be exercised on the QGIS in this
+container, which is older than the plugin's declared minimum of 4.0 (`QgsField` with a `QMetaType`); the
+engine, the solution file and the summary were. The layer is covered by the QGIS tier in CI.
 
 **Not done.** Windows and macOS builds (a runner each, fixtures run against the result, and a Gatekeeper
 decision for macOS); the one-button DynAdjust install with a licence acknowledgement the maintainer asked for.
