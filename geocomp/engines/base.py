@@ -227,6 +227,7 @@ def discover(
     *,
     configured: str | Path | None = None,
     extra_directories: Sequence[Path] = (),
+    bundled_directories: Sequence[Path] = (),
     candidates: Sequence[str] = (),
 ) -> tuple[Path | None, str]:
     """Find *program*, returning its path and how it was found.
@@ -235,7 +236,8 @@ def discover(
     configured path always wins**, because a user who set one has a reason --
     a system installation, their own build, a specific version they are
     comparing against -- and silently preferring something else would make that
-    setting a lie. Then the managed installation directories, then ``PATH``.
+    setting a lie. Then the managed installation directories, then the copy
+    that ships inside the plugin (ADR-0009), then ``PATH``.
 
     A configured path that does not exist is an **error**, not a fall-through:
     falling back would run a different program than the one named, which is the
@@ -277,6 +279,12 @@ def discover(
             candidate = Path(directory) / name
             if candidate.exists():
                 return candidate, "managed"
+
+    for directory in bundled_directories:
+        for name in names:
+            candidate = Path(directory) / name
+            if candidate.exists():
+                return candidate, "bundled"
 
     for name in names:
         found = shutil.which(name)

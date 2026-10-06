@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-27 — RTKLIB's `rnx2rtkp` ships with the plugin
+
+#### Added
+
+- The plugin ZIP built for Linux x86-64 carries `rnx2rtkp`, built from the RTKLIB-EX commit GeoComp's parsers
+  were checked against, so a GNSS session can be processed after installing QGIS and the plugin and nothing
+  else. A `rnx2rtkp` you configure still wins, and the About dialog and run records say when the bundled one
+  was used. RTKLIB's licence notice ships beside it.
+- Windows and macOS builds do not carry it yet; there, `rnx2rtkp` is found on the path as before.
+
 ### P12c-24 — DynAdjust from the project store
 
 #### Added

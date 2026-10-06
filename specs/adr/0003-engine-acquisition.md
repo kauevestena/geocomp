@@ -1,6 +1,6 @@
 # ADR-0003 — Engine acquisition: download pinned binaries, do not bundle
 
-**Status:** Accepted
+**Status:** Accepted. **Amended by [ADR-0009](./0009-bundle-rnx2rtkp.md)**: `rnx2rtkp` ships inside the plugin; DynAdjust is still a download, as below.
 **Date:** 2026-08
 **Requirements:** FR-301, FR-300, FR-302, FR-306
 

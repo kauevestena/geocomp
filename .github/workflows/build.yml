@@ -8,12 +8,68 @@ on:
   release:
     types: [published]
 
+env:
+  # The RTKLIB-EX commit the plugin ships rnx2rtkp from (ADR-0009): the one the
+  # parsers and the committed .pos fixtures were checked against, and the one
+  # engine.yml builds. Change them together.
+  RTKLIB_COMMIT: 06e8644287ff07efc4c53bbf3e7f9dafb0355605
+
 jobs:
+  # Built on the oldest Ubuntu GeoComp supports, so the program runs on that
+  # and on every later one: glibc is backward compatible, not forward. It links
+  # libc and libm and nothing else -- not libgfortran, which only the IERS
+  # model, off in this build, would use -- and is not linked statically,
+  # because a static glibc would bring LGPL relinking obligations that a
+  # dynamic one does not.
+  rtklib:
+    name: rnx2rtkp for Linux
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build rnx2rtkp from the pinned commit
+        run: |
+          git clone --filter=blob:none https://github.com/rtklibexplorer/RTKLIB.git rtklib-src
+          git -C rtklib-src checkout --detach "$RTKLIB_COMMIT"
+          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" LDLIBS="-lm"
+          mkdir engine
+          cp rtklib-src/app/consapp/rnx2rtkp/gcc/rnx2rtkp engine/
+          strip engine/rnx2rtkp
+          ldd engine/rnx2rtkp
+
+      - name: Only libc and libm
+        run: |
+          extra=$(ldd engine/rnx2rtkp | awk '{print $1}' | grep -vE '^(linux-vdso|libc\.so|libm\.so|/lib64/ld-linux)' || true)
+          if [ -n "$extra" ]; then
+            echo "::error::rnx2rtkp links more than libc and libm: $extra"
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: The committed fixtures must match this very binary
+        run: |
+          python -m pip install --upgrade pip numpy -r tests/data/rd06/requirements.txt
+          PATH="$PWD/engine:$PATH" python scripts/check_rtklib_fixtures.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rnx2rtkp-linux-x86_64
+          path: engine/rnx2rtkp
+
   package:
     name: plugin package
+    needs: rtklib
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: rnx2rtkp-linux-x86_64
+          path: engine
 
       - uses: actions/setup-python@v5
         with:
@@ -28,13 +84,13 @@ jobs:
           lrelease -version
 
       - name: Build
-        run: python scripts/build.py
+        run: python scripts/build.py --engine rtklib=linux-x86_64:engine/rnx2rtkp
 
       - name: The archive must be reproducible
         run: |
           sha256sum dist/geocomp.zip | tee first.sha
           rm -rf dist
-          python scripts/build.py
+          python scripts/build.py --engine rtklib=linux-x86_64:engine/rnx2rtkp
           sha256sum dist/geocomp.zip | tee second.sha
           if ! diff <(cut -d' ' -f1 first.sha) <(cut -d' ' -f1 second.sha); then
             echo "::error::Two builds of the same commit produced different archives"
@@ -113,5 +169,36 @@ jobs:
           assert registered == expected, f"expected {expected}, registered {registered}"
           print("provider registered", len(registered), "algorithm(s):", sorted(registered))
 
+          app.exitQgis()
+          PY
+
+      # The point of ADR-0009: with nothing on PATH, the unpacked plugin finds
+      # its own rnx2rtkp, runs it, and says where it came from. The unpacking
+      # above is the same library QGIS uses, so the executable bit is as lost
+      # here as it is on a user's machine.
+      - name: The bundled rnx2rtkp must be found and run
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          command -v rnx2rtkp && { echo "::error::rnx2rtkp is on PATH; this check would prove nothing"; exit 1; } || true
+          xvfb-run -a python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, str(Path.home() / ".local/share/QGIS/QGIS3/profiles/default/python/plugins"))
+
+          from qgis.core import QgsApplication
+
+          app = QgsApplication([], False)
+          app.initQgis()
+
+          from geocomp.services.engines import rtklib_engine
+
+          engine = rtklib_engine()
+          path, source = engine.locate()
+          assert source == "bundled", f"found {path} by {source}, not the bundled copy"
+          version = engine.version()
+          assert version is not None, "the bundled rnx2rtkp did not run"
+          assert version.tested, f"{version.version} is not the version GeoComp was checked against"
+          print("bundled", path, version.name, version.version)
           app.exitQgis()
           PY
