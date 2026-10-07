@@ -49,7 +49,7 @@ the two stations have no published coordinates here to compare with.
 | The plugin, unpacked the way QGIS does it, finds and runs the bundled program with nothing on `PATH` | **checked in CI** (in the QGIS stable container) |
 | The GNSS run through the bundled program: engine, solution file, quality summary | **checked here**, headless: 120 epochs, 117 fixed |
 | The **result layer on the map**, and the **dialogs** | **not checked here** — the QGIS available while building this is older than 4.0. Covered by the QGIS tier of CI, but not looked at by eye. **Look at it at home.** |
-| Windows and macOS | **not built** |
+| Windows and macOS | **built and checked in CI** since P12c-34 (fixtures, found as the bundled copy); not part of this Linux demo |
 
 ## If something goes wrong on stage
 

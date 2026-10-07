@@ -53,6 +53,12 @@ Linux x86-64, Windows x86-64, and macOS on Apple Silicon and Intel are built, ch
 Linux, P12c-34 for the rest). Any other platform -- Linux on ARM, say -- falls through to a configured path or
 `PATH`, exactly as before. This ADR does not claim more than what CI checks.
 
+The three builds are not bit-identical, and the fixture check says how far apart they may be. RTKLIB's
+arithmetic, built by another compiler against another C library, moves a value's last bits; a value on a
+rounding boundary then prints one unit apart in its last decimal, as the Windows build's ambiguity ratio does at
+two epochs of the sample run. `scripts/check_rtklib_fixtures.py` accepts that one unit for decimals and nothing
+for integers, so a solution status or a satellite count must still agree exactly.
+
 **Gatekeeper is not checked.** macOS quarantines a file a browser downloaded, and refuses to run a quarantined
 program that is not notarised. The plugin ZIP is downloaded, but QGIS unpacks it with Python's `zipfile`, which
 does not carry the quarantine attribute over to what it extracts, so the bundled program should not be

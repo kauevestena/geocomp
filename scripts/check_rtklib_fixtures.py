@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -73,6 +74,16 @@ CASES = (
 #: place is wrong by a factor, not by a part in a million.
 RELATIVE_TOLERANCE = 1e-6
 
+#: How many units in the last printed decimal place two numbers may differ by.
+#: A value that lands on a rounding boundary turns noise of any size into one
+#: unit there: at two epochs the Windows build's ambiguity ratio prints 629.3
+#: and 654.6 where the Linux build's prints 629.4 and 654.7 (P12c-34). Both C
+#: libraries print the same float the same way, so the difference is in the
+#: arithmetic, at the float's last bits. Integers -- the week, the solution
+#: status, the satellite count -- are not given this: a status of 1 against 2
+#: is fixed against float.
+LAST_PLACE_UNITS = 1
+
 
 def comparable(text: str) -> list[str]:
     return [
@@ -106,12 +117,28 @@ def same_line(committed: str, produced: str) -> bool:
             first, second = float(expected), float(actual)
         except ValueError:
             return False
+        if _within_last_place(expected, actual):
+            continue
         scale = max(abs(first), abs(second))
         if scale and abs(first - second) / scale > RELATIVE_TOLERANCE:
             return False
         if not scale and first != second:
             return False
     return True
+
+
+def _within_last_place(expected: str, actual: str) -> bool:
+    """Do two decimals printed to the same place differ by at most :data:`LAST_PLACE_UNITS` there?"""
+    if "." not in expected or "." not in actual:
+        return False
+    try:
+        first, second = Decimal(expected), Decimal(actual)
+    except InvalidOperation:
+        return False
+    place = first.as_tuple().exponent
+    if place != second.as_tuple().exponent:
+        return False
+    return abs(first - second) <= LAST_PLACE_UNITS * Decimal(1).scaleb(place)
 
 
 def run_case(case: Case, work: Path) -> str:

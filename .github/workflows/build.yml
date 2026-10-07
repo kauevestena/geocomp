@@ -78,8 +78,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: |
-          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" CC=gcc \
-            LDFLAGS="-static" LDLIBS="-lm -lwinmm -lws2_32"
+          # RTKLIB selects its Windows code with WIN32, which MinGW does not
+          # define (it defines _WIN32); without it rtklib.h asks for sys/select.h.
+          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" CC="gcc -DWIN32" \
+            LDFLAGS="-static" LDLIBS="-lm"
 
       - name: Collect the program
         run: |
@@ -103,7 +105,9 @@ jobs:
         run: |
           strip engine/rnx2rtkp
           otool -L engine/rnx2rtkp
-          extra=$(otool -L engine/rnx2rtkp | tail -n +2 | awk '{print $1}' | grep -vE '^/usr/lib/libSystem' || true)
+          # A universal program lists its libraries once per architecture, each
+          # under a header line; only the indented lines are libraries.
+          extra=$(otool -L engine/rnx2rtkp | awk '/^[[:space:]]/{print $1}' | grep -vE '^/usr/lib/libSystem' || true)
           if [ -n "$extra" ]; then
             echo "::error::rnx2rtkp links more than libSystem: $extra"
             exit 1
@@ -115,10 +119,11 @@ jobs:
         run: |
           strip engine/rnx2rtkp.exe
           objdump -p engine/rnx2rtkp.exe | grep "DLL Name" | tee dlls.txt
-          # Only DLLs every Windows has: nothing from MinGW's runtime, which a
+          # Only DLLs every Windows has -- nothing from MinGW's runtime, which a
           # user would not have beside the program.
-          if grep -iE 'lib(gcc|winpthread|stdc)' dlls.txt; then
-            echo "::error::rnx2rtkp.exe needs MinGW runtime DLLs"
+          extra=$(awk '{print $3}' dlls.txt | grep -viE '^(kernel32|msvcrt)\.dll$' || true)
+          if [ -n "$extra" ]; then
+            echo "::error::rnx2rtkp.exe needs more than KERNEL32 and msvcrt: $extra"
             exit 1
           fi
 
