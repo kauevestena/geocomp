@@ -826,3 +826,41 @@ class TestARunThatSolvesNothingSaysWhen:
 
         session = GnssSession(id="0759", station_id="P1", start=datetime(2024, 5, 1, tzinfo=UTC))
         assert session_span(session) == "0759 2024-05-01T00:00:00+00:00/?"
+
+
+class TestTheFixtureDriftGuard:
+    """``scripts/check_rtklib_fixtures.py`` compares builds of a numerical program
+    on three operating systems, so it compares numbers with a tolerance. These
+    are the cases that say the tolerance did not make it blind.
+    """
+
+    @staticmethod
+    def _same_line(first: str, second: str) -> bool:
+        from scripts.check_rtklib_fixtures import same_line
+
+        return same_line(first, second)
+
+    @pytest.mark.parametrize(
+        ("what", "committed", "produced", "same"),
+        [
+            ("identical lines", "1316 520710.000  1   6  629.4", "1316 520710.000  1   6  629.4", True),
+            ("arithmetic noise", "X  35.160872527", "X  35.160872528", True),
+            ("a part in 1e7", "X  -3976219.4233", "X  -3976219.4236", True),
+            # A value on a rounding boundary: the Windows build's ratio at one
+            # epoch of the sample run (P12c-34).
+            ("a rounding flip in the last place", "6  629.4", "6  629.3", True),
+            ("two units in the last place", "6  629.4", "6  629.2", False),
+            ("a flip in a sigma", "X  0.0003", "X  0.0002", True),
+            ("zero against two units", "X  0.0000", "X  0.0002", False),
+            ("fixed read as float", "1316 520710.000  1   6", "1316 520710.000  2   6", False),
+            ("a satellite more", "1316 520710.000  1   6", "1316 520710.000  1   7", False),
+            ("a week later", "1316 520710.000", "1317 520710.000", False),
+            ("printed to another place", "X  0.0003", "X  0.00031", False),
+            ("a column shifted right", "1316  1.0  2.0", "1316   1.0  2.0", False),
+            ("seconds read as an angle", "X  0.0010", "X  3.6000", False),
+        ],
+    )
+    def test_it_tolerates_noise_and_nothing_else(
+        self, what: str, committed: str, produced: str, same: bool
+    ) -> None:
+        assert self._same_line(committed, produced) is same, what

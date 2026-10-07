@@ -337,7 +337,7 @@ what its row claims; that is what review is for, and a row is changed in the sam
 | **open** | Not met; the row says what is missing and where it waits — often a `W-` item of [`23`](./23-wanted-reference-data.md) |
 | **manual** | Cannot be automated; the row says why and how it is checked instead |
 
-**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 123 met, 7 partly met, 4 open, 2 manual, of 136.** The audit
+**State at the audit (P12c, 2 October 2026): 90 met, 31 partly met, 12 open, 2 manual, of 135. State now: 124 met, 6 partly met, 4 open, 2 manual, of 136.** The audit
 found that several criteria believed met were met in part. A test existed near each one but did not assert
 what the criterion says, and nothing compared the two until this table. The rows say which part.
 
@@ -474,7 +474,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 21 | 1 | The ZIP installs into a clean QGIS and validates | **met** | `.github/workflows/build.yml` installs the built archive into the QGIS image and loads it |
 | 21 | 2 | Two builds byte-identical | **met** | `.github/workflows/build.yml`, *The archive must be reproducible* |
 | 21 | 3 | Loads with no engine; engine operations explained | **met** | As 07.7 |
-| 21 | 4 | The engine manager on every OS, with an override | **partly met** | DynAdjust: the pinned archive downloaded, verified, installed, recorded, run and overridden on Linux, Windows and macOS, and a network adjusted through it agreeing with the fixture (`tests/test_engine_manager_live.py`, the `engine` workflow's `manager` job); the plugin's own path through the QGIS network stack, Global Settings and *Install an engine* (`tests/qgis/test_engine_install.py`, P12c-6). RTKLIB is located, not acquired: upstream publishes Windows executables only, from a release that is not the build the parsers were checked against ([`21`](./21-packaging-ci-release-licensing.md) §4) |
+| 21 | 4 | The engine manager on every OS, with an override | **met** | DynAdjust: the pinned archive downloaded, verified, installed, recorded, run and overridden on Linux, Windows and macOS, and a network adjusted through it agreeing with the fixture (`tests/test_engine_manager_live.py`, the `engine` workflow's `manager` job); the plugin's own path through the QGIS network stack, Global Settings and *Install an engine* (`tests/qgis/test_engine_install.py`, P12c-6). RTKLIB is carried rather than downloaded (ADR-0009): built from the pinned commit on Linux, Windows and macOS, the committed fixtures checked against each binary, each found and run as the bundled copy on its own system (`tests/test_bundled_engine.py`, the `build` workflow's `rtklib` job), and a configured path still winning (`tests/test_bundled_engine.py::TestTheSearchOrder`) |
 | 21 | 5 | CI on Linux, Windows and macOS, LTR and stable QGIS | **met** | Since P12c-6 the whole suite runs on all three in the QGIS a user installs there, in its own Python: the `qgis/qgis` image on Linux, OSGeo4W on Windows, the official bundle on macOS (`.github/workflows/test.yml`, the three *qgis integration* jobs). The releases are read from the images' `stable` and `ltr` tags at each run and held to ADR-0007's reading of NFR-001: stable 4.2 today, the LTR added when its tag is a 4.x release (`scripts/qgis_versions.py`, `tests/test_qgis_versions.py`). Not covered: the LTR legs have not yet run; PostGIS runs on Linux only; the engine-installation tests skip on Windows ([`21`](./21-packaging-ci-release-licensing.md) §5) |
 | 21 | 6 | A tagged release publishes and installs | **open** | P13's: no release has been made |
 | 21 | 7 | LICENSE, THIRD_PARTY.md and SPDX headers | **met** | `tests/structural/test_spdx_headers.py` |
@@ -491,7 +491,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 163 met, 12 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 164 met, 11 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -579,7 +579,7 @@ without a row.
 | FR-272 | **met** | `tests/qgis/test_preanalysis_dialog.py` |
 | FR-273 | **met** | `tests/test_statistics.py::TestInspection` |
 | FR-300 | **met** | `tests/test_engines.py::test_a_configured_path_wins`, `tests/test_engines.py::test_a_configured_directory_is_searched_for_the_program`; set in Global Settings, `tests/qgis/test_engine_install.py` |
-| FR-301 | **partly met** | As 21.4: DynAdjust is acquired from *Install an engine*; RTKLIB is located, not acquired |
+| FR-301 | **met** | As 21.4: DynAdjust is acquired from *Install an engine*; RTKLIB's `rnx2rtkp` ships inside the plugin for Linux and Windows on x86-64 and for macOS (ADR-0009), each binary checked on its own system |
 | FR-302 | **met** | Detected and recorded (`tests/test_rtklib_engine.py::TestVersion`, `tests/test_dynadjust_pipeline.py::TestVersionDetection`); warned about, by every algorithm that runs an engine since P12c-11 (`tests/qgis/test_engine_runs.py::TestTheVersion`) |
 | FR-303 | **met** | One runner, version record and discovery for both engines (`geocomp/engines/base.py`, `tests/test_engines.py`); the RTKLIB adapter was added in P7 without changing it ([`08`](./08-engine-rtklib.md) §2) |
 | FR-304 | **met** | Captured (`tests/test_engines.py`); a timeout told from a failure (`tests/test_engines.py::test_a_timeout_is_distinguished_from_a_failure`) and reported with elapsed time and limit since P12c-11 (`tests/test_engine_timeouts.py`); the limit configurable on every algorithm that runs an engine (`tests/qgis/test_engine_runs.py::TestTheTimeLimit`) |

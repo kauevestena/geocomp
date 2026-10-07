@@ -36,26 +36,40 @@ program.
 3. **Search order** becomes: a configured path; GeoComp's managed installation; **the bundled copy**; the system
    `PATH`. A path the user configured still wins and is never silently replaced (ADR-0003 rule 3). The result
    says where the program came from: `bundled` is a source of its own in the provenance and the About dialog.
-4. **Built on the oldest supported Ubuntu**, so that it runs on that and on every later one, and linked
-   dynamically against `libc` and `libm` only. A static glibc would add LGPL relinking obligations that this
-   avoids; `libgfortran` is not needed, because only the IERS tide model, which this build leaves out, uses it.
-   CI fails the build if the program links anything else.
+4. **Built on each platform's own runner, and checked there.** Linux on the oldest supported Ubuntu, so that it
+   runs on that and on every later one, linked dynamically against `libc` and `libm` only: a static glibc would
+   add LGPL relinking obligations that this avoids, and `libgfortran` is not needed, because only the IERS tide
+   model, which this build leaves out, uses it. Windows with MinGW-w64, linked statically so that no MinGW
+   runtime DLL has to travel with it. macOS as one universal program, Apple Silicon and Intel. CI fails a build
+   that links anything beyond what every machine of that system has, and runs the committed `.pos` fixtures
+   against every binary it ships -- the Intel half of the macOS one under Rosetta.
 5. **A ZIP unpacked by QGIS loses the executable bit**, so the plugin restores it, once, before first use
    (`bundled_directories`). CI unpacks the archive the way QGIS does and runs the bundled program.
 6. **DynAdjust stays a download** (ADR-0003 option C, unchanged), through the engine manager.
 
 ## Platforms
 
-Linux x86-64 is built, tested and shipped. Windows and macOS are **not yet**: the same build needs a Windows and
-a macOS runner and the fixtures run against each result, and a macOS binary has the further question of
-Gatekeeper. Until they are done, those platforms fall through to a configured path or `PATH`, exactly as before.
-This ADR does not claim more than what CI checks.
+Linux x86-64, Windows x86-64, and macOS on Apple Silicon and Intel are built, checked and shipped (P12c-27 for
+Linux, P12c-34 for the rest). Any other platform -- Linux on ARM, say -- falls through to a configured path or
+`PATH`, exactly as before. This ADR does not claim more than what CI checks.
+
+The three builds are not bit-identical, and the fixture check says how far apart they may be. RTKLIB's
+arithmetic, built by another compiler against another C library, moves a value's last bits; a value on a
+rounding boundary then prints one unit apart in its last decimal, as the Windows build's ambiguity ratio does at
+two epochs of the sample run. `scripts/check_rtklib_fixtures.py` accepts that one unit for decimals and nothing
+for integers, so a solution status or a satellite count must still agree exactly.
+
+**Gatekeeper is not checked.** macOS quarantines a file a browser downloaded, and refuses to run a quarantined
+program that is not notarised. The plugin ZIP is downloaded, but QGIS unpacks it with Python's `zipfile`, which
+does not carry the quarantine attribute over to what it extracts, so the bundled program should not be
+quarantined. That is the expected behaviour, not one a CI runner can show: it has no browser download in the
+chain. Notarising the program would settle it and is not done.
 
 ## Consequences
 
 - `specs/21` §4 rule 1 and its RTKLIB paragraph are amended; ADR-0003 is marked as amended, not rewritten.
 - `THIRD_PARTY.md` moves RTKLIB out of "not bundled".
-- The plugin ZIP grows by about 1 MB and now differs per platform built; the reproducible-archive check still
-  holds, because the program is built once and the same file goes into both builds.
+- The plugin ZIP grows by a few megabytes, one program per platform; the reproducible-archive check still
+  holds, because each program is built once and the same file goes into both builds.
 - The bundled version is pinned to the commit above. Moving it means re-running the fixture check and reading
   the diff, as for any engine release.

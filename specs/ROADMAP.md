@@ -2672,6 +2672,37 @@ payload and check it themselves, and the annotation says that.
 **Not done.** Nothing checks the annotations are *right* -- no type checker runs in CI. They are read against the
 callers here, not verified by a tool.
 
+#### P12c-34 — `rnx2rtkp` for Windows and macOS; FR-301 met
+
+P12c-27 shipped `rnx2rtkp` for Linux only. The `build` workflow's `rtklib` job is now a matrix over three
+runners: Linux as before; Windows with MinGW-w64, linked statically and failed if it needs a MinGW runtime DLL;
+and macOS as one universal program, failed if it links beyond `libSystem`. Each checks the committed `.pos`
+fixtures against its own binary -- the macOS one's Intel half under Rosetta, through a wrapper -- and runs it as
+the plugin will, planted unexecutable under its platform name and found as the bundled copy
+(`tests/test_bundled_engine.py::TestARealBuildOnThisSystem`, which skips unless a workflow names a binary). The
+package carries all four platform folders, the macOS program twice. **FR-301 and acceptance row 21.4 are met**:
+164 met, 11 partly met, 1 open, of 176; 124 of 136.
+
+`scripts/check_rtklib_fixtures.py` shelled out to `gunzip` and normalised only `/` paths; it now uses Python's
+`gzip` and accepts a Windows path, so the same check runs on all three.
+
+**Found by the first CI run.** RTKLIB selects its Windows code with `WIN32`, which MinGW does not define, so the
+Windows build failed asking for `sys/select.h`; it is now built with `-DWIN32`, and imports only `KERNEL32` and
+`msvcrt` -- the check is now an allow-list of those two. The macOS linkage check read the second architecture's
+header line of `otool -L` as a library and failed a program that links only `libSystem`. The Windows program,
+cross-compiled and run under Wine to reproduce both locally, matches the fixtures in every column but one: at two
+epochs its ambiguity ratio prints 629.3 and 654.6 where Linux prints 629.4 and 654.7. Both C libraries print the
+same float the same way, so the difference is arithmetic at the float's last bits, turned into a whole unit by a
+rounding boundary, and a relative tolerance of a part in a million cannot absorb that. The fixture check now also
+accepts one unit in the last printed decimal place; integers -- week, status, satellite count -- stay exact
+(`tests/test_rtklib_engine.py::TestTheFixtureDriftGuard`). The sample RINEX, in the tests and in the plugin's
+own copy, is now kept byte for byte (`-text`) so a Windows checkout does not hand the engine CRLF input; marking
+only the tests' copy failed the test that requires the two copies to be the same bytes, on Windows alone.
+
+**Not done.** Gatekeeper on a user's Mac is expected not to apply, because QGIS's `zipfile` extraction does not
+carry the quarantine attribute, but no runner can show it, and the program is not notarised (ADR-0009,
+*Platforms*). Any platform beyond the three -- Linux on ARM, say -- still needs a configured path.
+
 ---
 
 ## P13 — Validation, documentation and release

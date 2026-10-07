@@ -152,3 +152,39 @@ class TestTheBuild:
         build.write_zip(target, files, [engine])
         with pytest.raises(build.BuildError, match="without its licence"):
             build.verify(target)
+
+
+REAL_PROGRAM = os.environ.get("GEOCOMP_BUNDLED_RNX2RTKP", "")
+
+
+@pytest.mark.skipif(
+    not REAL_PROGRAM, reason="GEOCOMP_BUNDLED_RNX2RTKP names no built rnx2rtkp to check"
+)
+class TestARealBuildOnThisSystem:
+    """The program a release carries, run the way the plugin runs it, on the OS it was built for.
+
+    The ``build`` workflow sets ``GEOCOMP_BUNDLED_RNX2RTKP`` on each runner to
+    the program it has just built. Planted as a ZIP library leaves it -- not
+    executable -- under this machine's platform name, it must be found as the
+    bundled copy, run, and report the version GeoComp was checked against.
+    """
+
+    def test_it_is_found_run_and_recognised(self, tmp_path):
+        from geocomp.engines.rtklib.engine import RtklibEngine
+
+        source = Path(REAL_PROGRAM)
+        plugin = tmp_path / "plugin"
+        directory = plugin / "resources" / "engines" / manager.current_platform() / "rtklib"
+        directory.mkdir(parents=True)
+        program = directory / source.name
+        program.write_bytes(source.read_bytes())
+        if sys.platform != "win32":
+            program.chmod(0o644)
+
+        engine = RtklibEngine(bundled_directories=manager.bundled_directories("rtklib", plugin))
+        path, where = engine.locate()
+        assert (path, where) == (program, "bundled")
+        version = engine.version()
+        assert version is not None, "the bundled program did not run"
+        assert version.tested, f"{version.name} {version.version} is not the version checked against"
+        assert version.source == "bundled"

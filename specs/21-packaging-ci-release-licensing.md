@@ -92,17 +92,21 @@ RTKLIB could be found only on the system path. Now:
 **RTKLIB's `rnx2rtkp` ships inside the plugin (ADR-0009).** Its upstream (RTKLIB-EX) publishes executables for
 Windows only, at a release (`v2.5.1`, `62d4677`) that is not the build GeoComp's parsers were checked against
 (`06e8644`), so there was nothing pinnable to download on Linux or macOS, and GeoComp is meant to be
-self-contained. The `build` workflow now builds `rnx2rtkp` from `06e8644` on the oldest supported Ubuntu, checks
-that it links `libc` and `libm` only and that the committed `.pos` fixtures match *that binary*, and
-`scripts/build.py --engine rtklib=linux-x86_64:PATH` stores it, executable, under
-`resources/engines/linux-x86_64/rtklib/` with RTKLIB's BSD 2-clause notice beside it; a build that carries the
-program without the notice fails. The plugin looks for it after a configured path and a managed installation and
-before `PATH`, restores the executable bit a ZIP library drops, and reports the source as `bundled`. The `install`
-job unpacks the archive the way QGIS does, with no `rnx2rtkp` on `PATH`, and runs the bundled program.
+self-contained. The `build` workflow builds `rnx2rtkp` from `06e8644` on three runners: Linux on the oldest
+supported Ubuntu, linked against `libc` and `libm` only (P12c-27); Windows with MinGW-w64, linked statically;
+and macOS as one universal program for Apple Silicon and Intel (P12c-34). Each runner fails a binary that links
+anything beyond its system's own libraries, checks the committed `.pos` fixtures against that binary -- the
+Intel half of the macOS one under Rosetta -- and runs it the way the plugin will, planted unexecutable under its
+platform name and found as the bundled copy (`tests/test_bundled_engine.py::TestARealBuildOnThisSystem`).
+`scripts/build.py --engine` stores each under `resources/engines/<platform>/rtklib/` with RTKLIB's BSD 2-clause
+notice beside them; a build that carries the program without the notice fails. The plugin looks for it after a
+configured path and a managed installation and before `PATH`, restores the executable bit a ZIP library drops,
+and reports the source as `bundled`. The `install` job unpacks the archive the way QGIS does, with no
+`rnx2rtkp` on `PATH`, and runs the bundled program on Linux.
 
-**Not done:** Windows and macOS builds. Criterion 4 is met for DynAdjust and, on Linux x86-64 only, for RTKLIB.
-On the other platforms RTKLIB is still located, not acquired, until a runner builds it and its fixtures check
-out; macOS also needs a decision about Gatekeeper.
+Criterion 4 is met for both engines: DynAdjust through the manager, RTKLIB carried. **Not done:** any platform
+beyond those three, which falls back to a configured path; and a macOS user's Gatekeeper, which no runner can
+show (ADR-0009, *Platforms*).
 
 ## 5. Continuous integration (FR-953)
 

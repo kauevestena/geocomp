@@ -21,8 +21,9 @@ is downloaded from their release page and GeoComp does not distribute it
 installing it has been told so, and an install without it is refused, naming the
 box, before anything is downloaded.
 
-**RTKLIB is not offered here.** The Linux build of GeoComp carries its own
-``rnx2rtkp`` (ADR-0009); on other systems its path is set in Global Settings.
+**RTKLIB is not offered here.** GeoComp carries its own ``rnx2rtkp`` for Linux
+and Windows on x86-64 and for macOS (ADR-0009); on any other system its path is
+set in Global Settings.
 """
 
 from __future__ import annotations
@@ -84,9 +85,9 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
             "understand this; without it nothing is downloaded.</p>"
             "<p>A DynAdjust directory set in Global Settings, under Paths and engines, is still "
             "used in preference to this installation; clear it to use this one.</p>"
-            "<p><b>RTKLIB</b> is not installed here. GeoComp's Linux build carries its own "
-            "<code>rnx2rtkp</code>; on other systems, give the path to one in Global "
-            "Settings.</p>"
+            "<p><b>RTKLIB</b> is not installed here. GeoComp carries its own "
+            "<code>rnx2rtkp</code> for Linux and Windows on x86-64 and for macOS; on any "
+            "other system, give the path to one in Global Settings.</p>"
         ).replace("%1", DYNADJUST_REPOSITORY)
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:

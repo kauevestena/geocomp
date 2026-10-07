@@ -8,3 +8,11 @@ tests/data/rd07/gsadjust/** -text -whitespace
 
 # DynAdjust's own DynaML schema, byte for byte (THIRD_PARTY.md gives its SHA-256).
 tests/data/dynadjust/DynaML.xsd -text -whitespace
+
+# RTKLIB's sample RINEX and the .pos it was solved into: the same bytes on every
+# runner, since the build workflow compares the engine's output across three
+# operating systems and a Windows checkout would otherwise hand it CRLF input.
+# The plugin's own copy of the sample must stay byte-identical to the tests'
+# (tests/test_tutorial_dataset.py), so it is kept as committed too.
+tests/data/rtklib/** -text
+geocomp/resources/datasets/rtklib-sample/*.05o -text
