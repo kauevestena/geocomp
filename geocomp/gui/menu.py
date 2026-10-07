@@ -98,6 +98,7 @@ class GeoCompMenu:
 
     @property
     def menu(self) -> QMenu | None:
+        """The menu, or ``None`` before it is built and after it is removed."""
         return self._menu
 
     def build(self, menu_bar) -> QMenu:

@@ -36,6 +36,7 @@ class Face(Enum):
 
     @property
     def is_direct(self) -> bool:
+        """Whether this is face left: the direct face."""
         return self is Face.DIRECT
 
 
@@ -118,10 +119,12 @@ class FacePair:
 
     @property
     def target(self) -> str:
+        """The station the pair points at."""
         return self.direct.target
 
     @property
     def has_distance(self) -> bool:
+        """Whether both faces measured a distance."""
         return self.direct.distance is not None and self.reverse.distance is not None
 
 
@@ -174,6 +177,7 @@ class Setup:
 
     @property
     def is_empty(self) -> bool:
+        """Whether the setup holds no readings at all."""
         return not self.pairs and not self.singles
 
 

@@ -82,6 +82,7 @@ class GnssSession:
 
     @property
     def duration_seconds(self) -> float | None:
+        """How long the session observed, in seconds; ``None`` when its start or end is unknown."""
         if self.start is None or self.end is None:
             return None
         return (self.end - self.start).total_seconds()
@@ -93,6 +94,10 @@ class GnssSession:
         return self.start < other.end and other.start < self.end  # type: ignore[operator]
 
     def to_dict(self) -> dict[str, Any]:
+        """The session as a project document holds it.
+
+        Empty fields are left out, and times are written in UTC.
+        """
         payload: dict[str, Any] = {"id": self.id, "station_id": self.station_id}
         for key, value in (
             ("obs_file", self.obs_file),
@@ -113,6 +118,7 @@ class GnssSession:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> GnssSession:
+        """The inverse of :meth:`to_dict`."""
         height = payload.get("antenna_height")
         return cls(
             id=payload["id"],
@@ -148,6 +154,10 @@ class Campaign:
     meta: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """The campaign as a project document holds it.
+
+        Empty fields are left out, and times are written in UTC.
+        """
         payload: dict[str, Any] = {"id": self.id}
         for key, value in (
             ("name", self.name),
@@ -163,6 +173,7 @@ class Campaign:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Campaign:
+        """The inverse of :meth:`to_dict`."""
         epoch = payload.get("epoch")
         return cls(
             id=payload["id"],
@@ -240,16 +251,25 @@ class Network:
     # -- assembly --------------------------------------------------------
 
     def add_station(self, station: Station) -> None:
+        """Add *station*, refusing an id the network already holds."""
         if station.id in self.stations:
             raise DataError("duplicate_station", station=station.id, network=self.id)
         self.stations[station.id] = station
 
     def add_observation(self, observation: Observation) -> None:
+        """Add *observation*, refusing an id the network already holds.
+
+        Its stations are checked by :meth:`validate`, not here.
+        """
         if observation.id in self.observations:
             raise DataError("duplicate_observation", observation=observation.id, network=self.id)
         self.observations[observation.id] = observation
 
     def add_cluster(self, cluster: Cluster) -> None:
+        """Add *cluster*, refusing an id the network already holds.
+
+        Its members are checked by :meth:`validate`, not here.
+        """
         if cluster.id in self.clusters:
             raise DataError("duplicate_cluster", cluster=cluster.id, network=self.id)
         self.clusters[cluster.id] = cluster
@@ -282,6 +302,7 @@ class Network:
 
     @property
     def active_observations(self) -> list[Observation]:
+        """The observations an adjustment uses: those not rejected or set aside (FR-255)."""
         return [o for o in self.observations.values() if o.is_active]
 
     def active_clusters(self) -> dict[str, Cluster]:
@@ -329,12 +350,15 @@ class Network:
         return active
 
     def observations_at(self, station_id: str) -> list[Observation]:
+        """Every observation involving *station_id*, active or not."""
         return [o for o in self.observations.values() if station_id in o.stations]
 
     def station_ids(self) -> set[str]:
+        """The identifiers of the network's stations."""
         return set(self.stations)
 
     def constrained_stations(self) -> list[Station]:
+        """The stations held in at least one component: those the datum is defined by."""
         return [s for s in self.stations.values() if not s.constraint.is_free]
 
     # -- integrity -------------------------------------------------------
@@ -407,6 +431,11 @@ class Network:
     # -- serialisation ---------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The network document (``specs/17``).
+
+        Stations, observations and clusters in full; the name, frame, epoch and metadata when they
+        are set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "stations": [s.to_dict() for s in self.stations.values()],
@@ -425,6 +454,10 @@ class Network:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Network:
+        """The inverse of :meth:`to_dict`.
+
+        Not validated: call :meth:`validate`, or read through :func:`network_from_document`.
+        """
         epoch = payload.get("epoch")
         return cls(
             id=payload["id"],
@@ -462,16 +495,19 @@ class Project:
     settings: dict[str, Any] = field(default_factory=dict)
 
     def add_network(self, network: Network) -> None:
+        """Add *network*, refusing an id the project already holds."""
         if network.id in self.networks:
             raise DataError("duplicate_network", network=network.id, project=self.id)
         self.networks[network.id] = network
 
     def add_campaign(self, campaign: Campaign) -> None:
+        """Add *campaign*, refusing an id the project already holds."""
         if campaign.id in self.campaigns:
             raise DataError("duplicate_campaign", campaign=campaign.id, project=self.id)
         self.campaigns[campaign.id] = campaign
 
     def add_gnss_session(self, session: GnssSession) -> None:
+        """Add *session*, refusing an id the project already holds."""
         if session.id in self.gnss_sessions:
             raise DataError("duplicate_gnss_session", session=session.id, project=self.id)
         self.gnss_sessions[session.id] = session
@@ -492,6 +528,10 @@ class Project:
             )
 
     def to_dict(self) -> dict[str, Any]:
+        """The project as one document, everything it contains included.
+
+        Empty fields are left out.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "schema_version": self.schema_version,
@@ -514,6 +554,10 @@ class Project:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Project:
+        """The inverse of :meth:`to_dict`.
+
+        The schema version is read, not checked: see :meth:`require_schema_version`.
+        """
         epoch = payload.get("default_epoch")
         return cls(
             id=payload["id"],

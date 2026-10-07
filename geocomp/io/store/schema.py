@@ -155,9 +155,11 @@ class Table:
 
     @property
     def primary_key(self) -> tuple[str, ...]:
+        """The names of the primary-key columns, in declaration order."""
         return tuple(c.name for c in self.columns if c.primary_key)
 
     def column(self, name: str) -> Column:
+        """The column *name*, raising ``KeyError`` for one the table does not have."""
         for candidate in self.columns:
             if candidate.name == name:
                 return candidate
@@ -569,10 +571,12 @@ _BY_NAME = {entry.name: entry for entry in SCHEMA}
 
 
 def table(name: str) -> Table:
+    """The declared table *name*."""
     return _BY_NAME[name]
 
 
 def table_names() -> tuple[str, ...]:
+    """Every declared table's name, in declaration order."""
     return tuple(entry.name for entry in SCHEMA)
 
 
@@ -624,6 +628,7 @@ def geometry_type(kind: GeometryKind, backend: str = SQLITE) -> str:
 
 
 def physical_type(kind: ColumnKind, backend: str = SQLITE) -> str:
+    """The SQL type a column of *kind* has in *backend*: SQLite or PostgreSQL."""
     sqlite_type, postgres_type = _PHYSICAL[kind]
     if backend == SQLITE:
         return sqlite_type

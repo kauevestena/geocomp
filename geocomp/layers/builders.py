@@ -850,6 +850,7 @@ def correction_layer(
 
 
 def correction_layer_name(*, exaggeration: float) -> str:
+    """The translated name of the coordinate-corrections layer, stating the exaggeration."""
     return _tr("Coordinate corrections (%1)").replace("%1", exaggeration_label(exaggeration))
 
 
@@ -1178,6 +1179,8 @@ def velocity_layer(
 
 
 def displacement_layer_name(document: dict[str, Any], *, exaggeration: float) -> str:
+    """The translated name of the displacement layer, stating the two epochs and the exaggeration.
+    """
     first, second = (e["epoch"] for e in document["epochs"])
     return (
         _tr("Displacements %1 to %2 (%3)")
@@ -1188,12 +1191,16 @@ def displacement_layer_name(document: dict[str, Any], *, exaggeration: float) ->
 
 
 def displacement_ellipse_layer_name(document: dict[str, Any], *, exaggeration: float) -> str:
+    """The translated name of the displacement-ellipse layer, stating the exaggeration and the
+    confidence level.
+    """
     return _tr("Displacement ellipses (%1)").replace(
         "%1", exaggeration_label(exaggeration, document["confidence"])
     )
 
 
 def velocity_layer_name(*, exaggeration: float) -> str:
+    """The translated name of the velocity layer, stating the exaggeration."""
     return _tr("Velocities, one year's motion (%1)").replace("%1", exaggeration_label(exaggeration))
 
 

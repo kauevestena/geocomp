@@ -86,10 +86,12 @@ class FaceReduction:
 
     @property
     def blunder_candidates(self) -> tuple[Finding, ...]:
+        """The findings severe enough to block the pair: candidate blunders."""
         return tuple(f for f in self.findings if f.severity is Severity.BLOCKING)
 
     @property
     def is_clean(self) -> bool:
+        """Whether the reduction found nothing at all."""
         return not self.findings
 
 

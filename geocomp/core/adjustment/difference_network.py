@@ -74,6 +74,7 @@ class ApproximateValues:
 
     @property
     def is_connected(self) -> bool:
+        """Whether the network is one piece, so it can be adjusted as a single network."""
         return self.components <= 1
 
 

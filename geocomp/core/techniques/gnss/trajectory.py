@@ -76,10 +76,12 @@ class TrajectoryPoint:
 
     @property
     def latitude_degrees(self) -> float:
+        """The latitude in degrees, for display."""
         return math.degrees(self.latitude)
 
     @property
     def longitude_degrees(self) -> float:
+        """The longitude in degrees, for display."""
         return math.degrees(self.longitude)
 
     @property

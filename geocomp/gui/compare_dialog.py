@@ -120,6 +120,9 @@ class CompatibilityDialog(QDialog):
         self.check()
 
     def check(self, *_args) -> None:
+        """Check the two chosen solutions, show what the comparison will find, and enable OK only
+        when they are comparable.
+        """
         first, second = self.first.filePath(), self.second.filePath()
         if not first or not second:
             self.result_of_check = Compatibility(False, [_tr("Choose both epochs' solutions.")])
@@ -129,4 +132,5 @@ class CompatibilityDialog(QDialog):
         self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(self.result_of_check.comparable)
 
     def parameters(self) -> dict[str, str]:
+        """The two chosen solutions as the comparison algorithm's parameters."""
         return {"FIRST": self.first.filePath(), "SECOND": self.second.filePath()}

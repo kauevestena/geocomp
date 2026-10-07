@@ -228,14 +228,17 @@ class Quantity:
 
     @property
     def std_dev(self) -> float:
+        """The standard deviation, the square root of the variance."""
         return math.sqrt(self.variance)
 
     @property
     def is_exact(self) -> bool:
+        """Whether the variance is exactly zero."""
         return self.variance == 0.0
 
     @property
     def is_rigorous(self) -> bool:
+        """Whether the uncertainty was propagated rigorously rather than estimated (FR-203)."""
         return self.mode is UncertaintyMode.RIGOROUS
 
     def relative_std_dev(self) -> float:
@@ -391,6 +394,7 @@ class Quantity:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Quantity:
+        """Read a quantity back from its stored form."""
         return cls(
             value=float(payload["value"]),
             variance=float(payload["variance"]),
@@ -677,9 +681,14 @@ class Covariance:
 
     @property
     def size(self) -> int:
+        """The number of rows, which is also the number of columns."""
         return len(self.labels)
 
     def index(self, label: str) -> int:
+        """The row and column of a label.
+
+        Raises:     ValidationError: ``unknown_covariance_label`` when the matrix has no such label.
+        """
         try:
             return self.labels.index(label)
         except ValueError:
@@ -690,10 +699,17 @@ class Covariance:
     # -- extraction ------------------------------------------------------
 
     def variance(self, label: str) -> float:
+        """The variance of one label, from the diagonal.
+
+        Raises:     ValidationError: ``unknown_covariance_label`` when the matrix has no such label.
+        """
         position = self.index(label)
         return float(self.matrix[position, position])
 
     def std_devs(self) -> dict[str, float]:
+        """The standard deviation of every label, with a negative diagonal from rounding read as
+        zero.
+        """
         return {
             label: math.sqrt(max(float(self.matrix[i, i]), 0.0))
             for i, label in enumerate(self.labels)
@@ -807,6 +823,7 @@ class Covariance:
     # -- serialisation ---------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The covariance as stored: labels, units, mode, and the full matrix."""
         payload: dict[str, Any] = {
             "labels": list(self.labels),
             "units": [unit.name for unit in self.units],
@@ -821,6 +838,7 @@ class Covariance:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Covariance:
+        """Read a covariance back from its stored form."""
         return cls(
             matrix=np.array(payload["matrix"], dtype=float),
             labels=tuple(payload["labels"]),

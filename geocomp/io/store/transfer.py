@@ -59,10 +59,12 @@ class CopyReport:
 
     @property
     def total(self) -> int:
+        """The number of rows copied, over every table."""
         return sum(self.rows.values())
 
     @property
     def identical(self) -> bool:
+        """Whether the copy matched the source in every table compared."""
         return not self.differences
 
 

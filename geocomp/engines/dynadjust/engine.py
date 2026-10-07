@@ -308,6 +308,7 @@ class DynAdjustJob:
 
     @property
     def epoch(self) -> Epoch | None:
+        """The epoch to adjust at: the one asked for, or the network's own."""
         return self.target_epoch or self.network.epoch
 
 
@@ -368,10 +369,12 @@ class PreparedJob:
         return "phased" if "--phased-adjustment" in stage_arguments(adjust) else "simult"
 
     def output(self, suffix: str) -> Path:
+        """The path of the output file DynAdjust writes with *suffix*, as ``adj`` or ``apu``."""
         return self.work_dir / f"{self.job.name}.{self.mode}.{suffix}"
 
     @property
     def included(self) -> tuple[Stage, ...]:
+        """The stages the plan runs, in order."""
         return tuple(stage for stage in self.stages if stage.included)
 
 

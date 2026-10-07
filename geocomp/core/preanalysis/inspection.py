@@ -42,18 +42,22 @@ class InspectionReport:
 
     @property
     def blocking(self) -> tuple[Finding, ...]:
+        """The findings that stop the adjustment."""
         return tuple(f for f in self.findings if f.severity is Severity.BLOCKING)
 
     @property
     def warnings(self) -> tuple[Finding, ...]:
+        """The findings that are reported but do not stop the adjustment."""
         return tuple(f for f in self.findings if f.severity is Severity.WARNING)
 
     @property
     def can_adjust(self) -> bool:
+        """Whether nothing found stops the adjustment."""
         return not self.blocking
 
     @property
     def is_connected(self) -> bool:
+        """Whether the observations join every station into one network."""
         return len(self.components) <= 1
 
 

@@ -31,6 +31,10 @@ __all__ = [
 
 
 class StationType(Enum):
+    """What kind of point a station is.
+
+    ``PLANNED`` exists only in a pre-analysis design and has no observations yet (FR-270).
+    """
     MARK = "mark"
     BENCHMARK = "benchmark"
     GNSS_CORS = "gnss_cors"
@@ -62,6 +66,7 @@ GRAVITY_COMPONENT = "gravity"
 
 
 class ConstraintMode(Enum):
+    """How a station takes part in the datum: not at all, held exactly, or held with a weight."""
     FREE = "free"
     FIXED = "fixed"
     WEIGHTED = "weighted"
@@ -171,12 +176,17 @@ class ConstraintSpec:
 
     @property
     def is_free(self) -> bool:
+        """Whether the station is held in nothing."""
         return self.mode is ConstraintMode.FREE
 
     def constrains(self, component: str) -> bool:
+        """Whether *component* is held: named as in the constraining position's system, or
+        ``gravity``.
+        """
         return not self.is_free and component in self.components
 
     def to_dict(self) -> dict[str, Any]:
+        """The constraint as a network document holds it; empty fields are left out."""
         payload: dict[str, Any] = {"mode": self.mode.name}
         if self.components:
             payload["components"] = sorted(self.components)
@@ -190,6 +200,7 @@ class ConstraintSpec:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ConstraintSpec:
+        """The inverse of :meth:`to_dict`, with the same checks as building one directly."""
         position = payload.get("position")
         covariance = payload.get("covariance")
         gravity = payload.get("gravity")
@@ -231,6 +242,7 @@ class Station:
 
     @property
     def display_name(self) -> str:
+        """The name to show a user: the station's name, or its id when it has none."""
         return self.name or self.id
 
     @property
@@ -240,9 +252,14 @@ class Station:
 
     @property
     def is_reference(self) -> bool:
+        """Whether the station belongs to a monitoring network's reference block."""
         return self.monitoring_role is MonitoringRole.REFERENCE
 
     def to_dict(self) -> dict[str, Any]:
+        """The station as a network document holds it.
+
+        Identity, type and constraint always; the rest only when it is set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "station_type": self.station_type.name,
@@ -261,6 +278,7 @@ class Station:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Station:
+        """The inverse of :meth:`to_dict`."""
         position = payload.get("approx_position")
         role = payload.get("monitoring_role")
         return cls(

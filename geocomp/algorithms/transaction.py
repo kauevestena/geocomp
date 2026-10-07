@@ -94,6 +94,7 @@ class FeedbackCancellation:
         self._feedback = feedback
 
     def is_cancelled(self) -> bool:
+        """Whether the user has pressed cancel."""
         return _cancelled(self._feedback)
 
 

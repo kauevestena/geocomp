@@ -91,6 +91,7 @@ class EngineVersion:
     raw: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """The version as provenance and summaries record it (FR-302)."""
         return {
             "name": self.name,
             "version": self.version,
@@ -132,6 +133,11 @@ class EngineRun:
 
     @property
     def ok(self) -> bool:
+        """Whether the program exited with zero and did not time out.
+
+        Necessary, not sufficient: ``dnaimport`` exits zero having parsed nothing (``specs/07``
+        section 3).
+        """
         return self.exit_code == 0 and not self.timed_out
 
     @property

@@ -50,6 +50,7 @@ class LogLevel(IntEnum):
 
     @property
     def qgis_level(self) -> Qgis.MessageLevel:
+        """The QGIS message level a record at this level is logged at; debug is logged as info."""
         return {
             LogLevel.DEBUG: Qgis.MessageLevel.Info,
             LogLevel.INFO: Qgis.MessageLevel.Info,

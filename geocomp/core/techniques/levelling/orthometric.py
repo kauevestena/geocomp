@@ -110,6 +110,7 @@ class OrthometricCorrection:
 
     @property
     def millimetres(self) -> float:
+        """The correction in millimetres, for reports."""
         return self.correction.value * 1000.0
 
 

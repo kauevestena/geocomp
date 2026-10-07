@@ -67,6 +67,10 @@ class RunSummary:
 
 
 def run_summary(solution: Solution) -> RunSummary:
+    """The solution as one row of the run history.
+
+    A global test that was not made has no verdict rather than a pass.
+    """
     statistics = solution.statistics
     decisions = [decision(result) for result in solution.observation_results]
     provenance = solution.provenance
@@ -136,6 +140,7 @@ class ObservationRow:
 
 
 def observation_rows(solution: Solution) -> list[ObservationRow]:
+    """One row per observation result, with its reliability figures and test decision."""
     return [
         ObservationRow(
             observation_id=result.observation_id,
@@ -177,6 +182,7 @@ class StationRow:
 
 
 def station_rows(solution: Solution) -> list[StationRow]:
+    """One row per adjusted station, with its components, standard deviations and ellipse axes."""
     rows = []
     for station in solution.adjusted_stations:
         values = station.position.values

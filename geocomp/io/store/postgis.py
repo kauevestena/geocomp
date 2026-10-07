@@ -129,12 +129,15 @@ class PostgisStore(ProjectStore):
 
     @property
     def connection(self) -> Any:
+        """The database connection, for the migrations and the tests."""
         return self._connection
 
     def close(self) -> None:
+        """Close the database connection."""
         self._connection.close()
 
     def tables(self) -> list[str]:
+        """The names of the base tables in the store's schema, sorted; its views are not tables."""
         rows = self._execute(
             "SELECT table_name FROM information_schema.tables "
             "WHERE table_schema = ? AND table_type = 'BASE TABLE' ORDER BY table_name",
@@ -185,6 +188,7 @@ class PostgisStore(ProjectStore):
         return struct.pack("<BIII", 1, 2 | EWKB_SRID, _srid(srs_id), len(points)) + body
 
     def migration_target(self) -> _Target:
+        """What the migrations run against for this store."""
         return _Target(self)
 
 

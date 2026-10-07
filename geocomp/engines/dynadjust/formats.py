@@ -144,6 +144,7 @@ def seconds_to_radians(value: str | float) -> float:
 
 
 def format_metres(value: float) -> str:
+    """*value* in metres, to the number of decimals DynaML is written with."""
     return f"{value:.{LINEAR_DECIMALS}f}"
 
 

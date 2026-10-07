@@ -163,6 +163,7 @@ class ResectionResult:
 
     @property
     def is_reliable(self) -> bool:
+        """Whether no finding blocks the resection's result."""
         return not any(f.severity is Severity.BLOCKING for f in self.findings)
 
 

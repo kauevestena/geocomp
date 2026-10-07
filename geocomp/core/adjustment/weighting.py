@@ -69,6 +69,7 @@ class ExtentKind(Enum):
 
     @property
     def accumulates(self) -> bool:
+        """Whether the weight depends on an extent at all: everything but ``NONE``."""
         return self is not ExtentKind.NONE
 
 
@@ -178,6 +179,7 @@ class DifferenceWeighting:
         return f"sigma = {self.coefficient:g} {self.unit.value} * sqrt({label})"
 
     def to_dict(self) -> dict[str, Any]:
+        """The weighting as a document records it, by enum names."""
         return {
             "kind": self.kind.name,
             "coefficient": self.coefficient,
@@ -188,6 +190,9 @@ class DifferenceWeighting:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> DifferenceWeighting:
+        """The inverse of :meth:`to_dict`; a missing unit reads as metres and a missing strategy as
+        nominal precision.
+        """
         return cls(
             kind=ExtentKind[payload["kind"]],
             coefficient=float(payload["coefficient"]),

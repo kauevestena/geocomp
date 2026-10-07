@@ -71,16 +71,20 @@ class LinearisedSystem:
 
     @property
     def observation_count(self) -> int:
+        """The number of rows of the design matrix."""
         return self.design.shape[0]
 
     @property
     def parameter_count(self) -> int:
+        """The number of columns of the design matrix: the parameters being estimated."""
         return self.design.shape[1]
 
     def normal_matrix(self) -> np.ndarray:
+        """N = Aᵀ P A, formed densely."""
         return self.design.T @ self.weight @ self.design
 
     def normal_vector(self) -> np.ndarray:
+        """n = Aᵀ P l, formed densely."""
         return self.design.T @ self.weight @ self.misclosure
 
 
@@ -325,6 +329,7 @@ class NullSpaceFinding:
     magnitude: float
 
     def describe(self) -> str:
+        """The combination in words for a refusal: the six largest parameters, and how many more."""
         involved = ", ".join(f"{label} ({weight:+.2f})" for label, weight in self.parameters[:6])
         more = "" if len(self.parameters) <= 6 else f", and {len(self.parameters) - 6} more"
         return f"undetermined combination of {involved}{more}"
@@ -450,6 +455,7 @@ def solve(
 
 
 def _condition_number(normal: np.ndarray) -> float:
+    """The ratio of *normal*'s largest eigenvalue to its smallest, infinite when one is zero."""
     if normal.size == 0:
         return float("inf")
     eigenvalues = np.abs(np.linalg.eigvalsh(normal))

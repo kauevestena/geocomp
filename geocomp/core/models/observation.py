@@ -261,6 +261,7 @@ OBSERVATION_TYPES: dict[ObservationType, ObservationTypeSpec] = {
 
 
 def observation_type_spec(observation_type: ObservationType) -> ObservationTypeSpec:
+    """The registry entry for *observation_type*."""
     return OBSERVATION_TYPES[observation_type]
 
 
@@ -290,6 +291,7 @@ class RejectionRecord:
     by: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """The record as a network document holds it; empty fields are left out, times in UTC."""
         payload: dict[str, Any] = {"reason": self.reason}
         if self.test:
             payload["test"] = self.test
@@ -305,6 +307,7 @@ class RejectionRecord:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> RejectionRecord:
+        """The inverse of :meth:`to_dict`."""
         at = payload.get("at")
         return cls(
             reason=payload["reason"],
@@ -503,10 +506,12 @@ class Observation:
 
     @property
     def spec(self) -> ObservationTypeSpec:
+        """The registry entry for this observation's type: components, units, dimensionality."""
         return OBSERVATION_TYPES[self.type]
 
     @property
     def is_active(self) -> bool:
+        """Whether an adjustment uses this observation: it is neither rejected nor set aside."""
         return self.status is ObservationStatus.ACTIVE
 
     @property
@@ -522,6 +527,7 @@ class Observation:
         return self.values[0]
 
     def supports_dimension(self, dimension: int) -> bool:
+        """Whether this type can contribute to an adjustment in *dimension* (1, 2 or 3)."""
         return dimension in self.spec.dimensionality
 
     @property
@@ -540,6 +546,10 @@ class Observation:
         return target - instrument
 
     def to_dict(self) -> dict[str, Any]:
+        """The observation as a network document holds it.
+
+        Identity, type, stations, values and status always; everything else only when it is set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "type": self.type.name,
@@ -567,6 +577,7 @@ class Observation:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Observation:
+        """The inverse of :meth:`to_dict`, with the same checks as building one directly."""
         epoch = payload.get("epoch")
         rejection = payload.get("rejection")
         instrument_height = payload.get("instrument_height")
@@ -661,6 +672,7 @@ def baseline_frame(observation: Observation) -> BaselineFrame:
 
 
 class ClusterKind(Enum):
+    """What a cluster's members are: GNSS baselines, GNSS points, a set of directions, or other."""
     GNSS_BASELINE = "gnss_baseline"
     GNSS_POINT = "gnss_point"
     DIRECTION_SET = "direction_set"
@@ -725,6 +737,7 @@ class Cluster:
             )
 
     def to_dict(self) -> dict[str, Any]:
+        """The cluster as a network document holds it, with its covariance in full."""
         return {
             "id": self.id,
             "kind": self.kind.name,
@@ -734,6 +747,11 @@ class Cluster:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Cluster:
+        """The inverse of :meth:`to_dict`.
+
+        The covariance's size is checked against the members by :meth:`Network.validate`, where they
+        resolve.
+        """
         return cls(
             id=payload["id"],
             kind=ClusterKind[payload["kind"]],

@@ -82,15 +82,18 @@ class SessionQuality:
 
     @property
     def duration_seconds(self) -> float | None:
+        """How long the solution spans, in seconds; ``None`` when its start or end is unknown."""
         if self.start is None or self.end is None:
             return None
         return (self.end - self.start).total_seconds()
 
     @property
     def is_wholly_fixed(self) -> bool:
+        """Whether every epoch has its ambiguities fixed, and there is at least one epoch."""
         return self.epochs > 0 and self.fixed_fraction == 1.0
 
     def to_dict(self) -> dict[str, Any]:
+        """The indicators as a run summary holds them; times in ISO 8601."""
         return {
             "session_id": self.session_id,
             "epochs": self.epochs,

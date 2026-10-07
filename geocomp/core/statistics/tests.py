@@ -126,9 +126,14 @@ class OutlierCandidate:
 
     @property
     def is_uncheckable(self) -> bool:
+        """Whether the redundancy is below 0.01, so the statistic says nothing about a blunder here.
+        """
         return self.redundancy < 0.01
 
     def to_test_result(self, confidence: float, distribution: str) -> TestResult:
+        """The w-test on this observation as a ``TestResult``, passed when the statistic does not
+        exceed the critical value.
+        """
         return TestResult(
             name=f"w-test ({distribution})",
             statistic=self.statistic,
@@ -163,13 +168,20 @@ class SnoopingReport:
 
     @property
     def multiple_exceedances(self) -> bool:
+        """Whether more than one observation exceeds the critical value, in which case they may mask
+        each other.
+        """
         return len(self.candidates) > 1
 
     @property
     def worst(self) -> OutlierCandidate | None:
+        """The candidate with the largest statistic, or ``None`` when nothing exceeds the critical
+        value.
+        """
         return self.candidates[0] if self.candidates else None
 
     def note(self) -> str:
+        """What the exceedances mean for the user, or an empty string when there are none."""
         if not self.candidates:
             return ""
         if self.multiple_exceedances:

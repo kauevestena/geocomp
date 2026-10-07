@@ -247,6 +247,12 @@ class DesignSession:
         return identifier
 
     def remove_observation(self, observation_id: str) -> None:
+        """Take an observation out of the design, as an edit that can be undone.
+
+        Its cluster, if it had one, is rebuilt from the members left, or dropped when none are.
+
+        Raises:     GeoCompError: ``unknown_observation`` when the design has no such observation.
+        """
         observation = self.network.observations.get(observation_id)
         if observation is None:
             raise GeoCompError(
@@ -260,6 +266,7 @@ class DesignSession:
             self._rebuild_cluster(observation.cluster_id)
 
     def set_datum(self, datum: DatumDefinition, stations: tuple[str, ...] = ()) -> None:
+        """Change the datum, and the stations it names, as an edit that can be undone."""
         self._checkpoint()
         self.datum = datum
         self.datum_stations = tuple(stations)
@@ -268,13 +275,19 @@ class DesignSession:
 
     @property
     def can_undo(self) -> bool:
+        """Whether there is an edit to undo."""
         return bool(self._undo)
 
     @property
     def can_redo(self) -> bool:
+        """Whether an undone edit can be made again."""
         return bool(self._redo)
 
     def undo(self) -> bool:
+        """Undo the last edit.
+
+        Returns whether there was one to undo.
+        """
         if not self._undo:
             return False
         self._redo.append(self._capture())
@@ -282,6 +295,10 @@ class DesignSession:
         return True
 
     def redo(self) -> bool:
+        """Make the last undone edit again.
+
+        Returns whether there was one to make.
+        """
         if not self._redo:
             return False
         self._undo.append(self._capture())

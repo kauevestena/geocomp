@@ -189,6 +189,7 @@ class LevelMapping:
     # -- lookup ----------------------------------------------------------
 
     def for_field(self, name: str) -> ColumnMapping | None:
+        """The mapping of one field, or ``None`` when the field is not mapped."""
         for mapping in self.columns:
             if mapping.field == name:
                 return mapping
@@ -196,10 +197,12 @@ class LevelMapping:
 
     @property
     def mapped_fields(self) -> frozenset[str]:
+        """The fields the mapping fills, from a column or a constant."""
         return frozenset(mapping.field for mapping in self.columns)
 
     @property
     def source_columns(self) -> frozenset[str]:
+        """The source columns the mapping reads."""
         return frozenset(m.column for m in self.columns if m.column is not None)
 
     @property
@@ -265,14 +268,19 @@ class LevelMapping:
         return tuple(sorted(required - mapped))
 
     def unrecognised(self, header: list[str]) -> tuple[str, ...]:
+        """The non-empty header columns the mapping does not read, in header order."""
         return tuple(
             column for column in header if column and column not in self.source_columns
         )
 
     def parse_number(self, text: str, *, unit: str = "") -> float:
+        """Read a number with the mapping's decimal separator, converted from the source *unit* to
+        SI (FR-095).
+        """
         return parse_number(text, self.decimal_separator, unit=unit)
 
     def to_dict(self) -> dict[str, Any]:
+        """The mapping as stored, leaving out a zero ``skip_rows`` and an empty description."""
         payload: dict[str, Any] = {
             "name": self.name,
             "columns": [mapping.to_dict() for mapping in self.columns],
@@ -288,6 +296,8 @@ class LevelMapping:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> LevelMapping:
+        """Read a mapping back from its stored form; absent optional keys take the field defaults.
+        """
         return cls(
             name=payload["name"],
             columns=tuple(ColumnMapping.from_dict(c) for c in payload.get("columns", ())),
@@ -336,6 +346,7 @@ class LevelImportResult:
 
     @property
     def rejected_rows(self) -> tuple[int, ...]:
+        """The numbers of the rows a blocking finding rejected, ascending and without repeats."""
         return tuple(
             sorted(
                 {
@@ -348,6 +359,7 @@ class LevelImportResult:
 
     @property
     def is_clean(self) -> bool:
+        """Whether no row was rejected."""
         return not any(finding.is_blocking for finding in self.findings)
 
 

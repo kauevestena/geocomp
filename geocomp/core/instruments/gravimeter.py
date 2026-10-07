@@ -155,10 +155,12 @@ class CalibrationTable:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """The table as a profile library holds it: its rows and where they came from."""
         return {"rows": [list(row) for row in self.rows], "source": self.source}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> CalibrationTable:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             rows=tuple(tuple(float(v) for v in row) for row in payload["rows"]),  # type: ignore[misc]
             source=payload.get("source", ""),
@@ -233,6 +235,7 @@ class GravimeterProfile:
 
     @property
     def label(self) -> str:
+        """The name to show a user: the profile's name, or its id when it has none."""
         return self.name or self.id
 
     def reading_in_gravity(self, reading: Quantity) -> Quantity:
@@ -289,6 +292,11 @@ class GravimeterProfile:
         return Quantity.approximate(reading.value, sigma, unit, Strategy.NOMINAL_PRECISION)
 
     def to_dict(self) -> dict[str, Any]:
+        """The profile as a library holds it.
+
+        Identity, reading unit, calibration factor, reading precision and tide flag always; the rest
+        when it is set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "reading_unit": self.reading_unit.value,
@@ -305,6 +313,7 @@ class GravimeterProfile:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> GravimeterProfile:
+        """The inverse of :meth:`to_dict`; a missing calibration factor reads as one, exactly."""
         table = payload.get("table")
         factor = payload.get("calibration_factor")
         return cls(

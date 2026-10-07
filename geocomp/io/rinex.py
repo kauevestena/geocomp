@@ -177,6 +177,7 @@ class RinexHeader:
 
     @property
     def is_observation(self) -> bool:
+        """Whether the file is an observation file, type ``O``."""
         return self.file_type == "O"
 
     @property

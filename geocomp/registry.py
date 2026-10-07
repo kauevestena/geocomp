@@ -72,6 +72,7 @@ class MenuGroup:
 
     @property
     def label_code(self) -> str:
+        """The message code of the menu group's label."""
         return f"menu.{self.id}.label"
 
 
@@ -190,6 +191,7 @@ class AlgorithmSpec:
 
     @property
     def label_code(self) -> str:
+        """The message code of the algorithm's label."""
         return f"algorithm.{self.name}.label"
 
 

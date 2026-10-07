@@ -408,6 +408,10 @@ GEOCENTRIC_TYPES = frozenset(_EQUATIONS)
 
 
 def evaluate_geocentric(observation: Observation, layout, x: np.ndarray):
+    """*observation*'s computed value and partials in the geocentric frame.
+
+    An observation type the geocentric frame has no equation for is refused, naming the ones it has.
+    """
     equation = _EQUATIONS.get(observation.type)
     if equation is None:
         raise ValidationError(

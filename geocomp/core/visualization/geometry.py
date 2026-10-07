@@ -60,6 +60,7 @@ class DrawnEllipse:
 
     @property
     def is_exaggerated(self) -> bool:
+        """Whether the ellipse is drawn at anything other than true scale."""
         return self.exaggeration != 1.0
 
 

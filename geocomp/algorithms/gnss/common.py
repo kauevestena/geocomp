@@ -308,6 +308,7 @@ class SessionProducts:
         return entry
 
     def missing(self) -> list[str]:
+        """Every product that could not be resolved, described with the reason."""
         return [f"{request.describe()} ({reason})" for request, reason in self.resolution.missing]
 
 

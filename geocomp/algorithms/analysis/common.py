@@ -110,10 +110,12 @@ def datum_labels() -> list[str]:
 
 
 def frame_of(index: int) -> Frame:
+    """The frame at a position of the frame parameter's choices."""
     return FRAME_ORDER[index]
 
 
 def datum_of(index: int) -> DatumDefinition:
+    """The datum definition at a position of the datum parameter's choices."""
     return DATUM_ORDER[index]
 
 

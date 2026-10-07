@@ -100,10 +100,12 @@ class EdmSpecification:
         return self.scale * (self.constant + self.proportional * abs(distance))
 
     def to_dict(self) -> dict[str, Any]:
+        """The specification as a profile holds it."""
         return {"constant": self.constant, "proportional": self.proportional, "scale": self.scale}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EdmSpecification:
+        """The inverse of :meth:`to_dict`; a missing scale reads as one."""
         return cls(
             constant=float(payload["constant"]),
             proportional=float(payload["proportional"]),
@@ -159,9 +161,13 @@ class ReflectorProfile:
 
     @property
     def label(self) -> str:
+        """The name to show a user: the profile's name, or its id when it has none."""
         return self.name or self.id
 
     def to_dict(self) -> dict[str, Any]:
+        """The profile as a library holds it: the constant and whether it is applied, descriptive
+        fields when set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "additive_constant": self.additive_constant.to_dict(),
@@ -180,6 +186,7 @@ class ReflectorProfile:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ReflectorProfile:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             id=payload["id"],
             name=payload.get("name", ""),
@@ -297,6 +304,7 @@ class InstrumentProfile:
 
     @property
     def label(self) -> str:
+        """The name to show a user: the profile's name, or its id when it has none."""
         return self.name or self.id
 
     # -- stochastic model -------------------------------------------------
@@ -319,6 +327,12 @@ class InstrumentProfile:
         )
 
     def zenith_quantity(self, value: float, distance: float = 0.0, *, sets: int = 1) -> Quantity:
+        """A measured zenith angle of *value* radians, with this instrument's precision for it.
+
+        *distance* is the sight's length, for the refraction term; the mean of *sets* is more
+        precise as :meth:`distance_quantity` says. The precision is nominal, and marked as an
+        approximation (FR-203).
+        """
         return Quantity.approximate(
             value,
             self.zenith_sigma(distance) / (sets**0.5),
@@ -327,6 +341,11 @@ class InstrumentProfile:
         )
 
     def distance_quantity(self, value: float, *, sets: int = 1) -> Quantity:
+        """A measured distance of *value* metres, with this instrument's precision for it.
+
+        The mean of *sets* measurements is that many times more precise in variance. The precision
+        is nominal, and marked as an approximation (FR-203).
+        """
         return Quantity.approximate(
             value,
             self.distance_sigma(value) / (sets**0.5),
@@ -335,14 +354,19 @@ class InstrumentProfile:
         )
 
     def instrument_height_quantity(self, value: float) -> Quantity:
+        """An instrument height of *value* metres, with the profile's precision for measuring it."""
         return Quantity.from_std_dev(value, self.sigma_instrument_height, Unit.METRE)
 
     def target_height_quantity(self, value: float) -> Quantity:
+        """A target height of *value* metres, with the profile's precision for measuring it."""
         return Quantity.from_std_dev(value, self.sigma_target_height, Unit.METRE)
 
     # -- serialisation ----------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The profile as a library holds it: every correction and precision, descriptive fields
+        when set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "collimation": self.collimation.to_dict(),
@@ -377,6 +401,7 @@ class InstrumentProfile:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> InstrumentProfile:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             id=payload["id"],
             name=payload.get("name", ""),
@@ -438,6 +463,7 @@ class ProfileLibrary:
     default_gravimeter: str = ""
 
     def add_instrument(self, profile: InstrumentProfile) -> None:
+        """Add *profile*, refusing a duplicate id; the first one added becomes the default."""
         if profile.id in self.instruments:
             raise ValidationError(
                 "duplicate_instrument_profile",
@@ -449,6 +475,7 @@ class ProfileLibrary:
             self.default_instrument = profile.id
 
     def add_reflector(self, profile: ReflectorProfile) -> None:
+        """Add *profile*, refusing a duplicate id; the first one added becomes the default."""
         if profile.id in self.reflectors:
             raise ValidationError(
                 "duplicate_reflector_profile",
@@ -504,6 +531,7 @@ class ProfileLibrary:
     # -- levels and levelling classes (phase P4) --------------------------
 
     def add_level(self, profile: LevelProfile) -> None:
+        """Add *profile*, refusing a duplicate id; the first one added becomes the default."""
         if profile.id in self.levels:
             raise ValidationError(
                 "duplicate_level_profile",
@@ -515,6 +543,8 @@ class ProfileLibrary:
             self.default_level = profile.id
 
     def add_levelling_class(self, levelling_class: LevellingClass) -> None:
+        """Add *levelling_class*, refusing a duplicate id; the first one added becomes the default.
+        """
         if levelling_class.id in self.levelling_classes:
             raise ValidationError(
                 "duplicate_levelling_class",
@@ -579,6 +609,7 @@ class ProfileLibrary:
     # -- gravimeters (phase P8) --------------------------------------------
 
     def add_gravimeter(self, profile: GravimeterProfile) -> None:
+        """Add *profile*, refusing a duplicate id; the first one added becomes the default."""
         if profile.id in self.gravimeters:
             raise ValidationError(
                 "duplicate_gravimeter_profile",
@@ -622,6 +653,10 @@ class ProfileLibrary:
         self.instruments[profile.id] = profile
 
     def rename_instrument(self, old_id: str, new_id: str) -> InstrumentProfile:
+        """Give instrument *old_id* the id *new_id*, keeping it the default if it was.
+
+        Refuses an unknown *old_id*, an empty *new_id* and one already taken.
+        """
         profile = self.instrument(old_id)
         _require_id(new_id, "instrument")
         if new_id in self.instruments:
@@ -634,6 +669,8 @@ class ProfileLibrary:
         return renamed
 
     def to_dict(self) -> dict[str, Any]:
+        """The library file's content: every profile of every kind, and the defaults that are set.
+        """
         payload: dict[str, Any] = {
             "instruments": [p.to_dict() for p in self.instruments.values()],
             "reflectors": [p.to_dict() for p in self.reflectors.values()],
@@ -654,6 +691,7 @@ class ProfileLibrary:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ProfileLibrary:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             instruments={
                 p["id"]: InstrumentProfile.from_dict(p) for p in payload.get("instruments", ())

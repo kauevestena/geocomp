@@ -47,6 +47,7 @@ class ResolvedSetting:
 
     @property
     def is_default(self) -> bool:
+        """Whether no scope overrode the built-in default."""
         return self.scope is Scope.DEFAULT
 
     @property

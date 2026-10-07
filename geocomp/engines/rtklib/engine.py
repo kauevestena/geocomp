@@ -230,9 +230,13 @@ class RtklibResult:
 
     @property
     def ok(self) -> bool:
+        """Whether the run succeeded and the solution has at least one epoch."""
         return self.run.ok and bool(self.solution.epochs)
 
     def to_dict(self) -> dict[str, Any]:
+        """The run as a summary records it: the command, exit code, time, configuration file and
+        solution.
+        """
         return {
             "command": list(self.run.command),
             "exit_code": self.run.exit_code,
@@ -313,6 +317,7 @@ class RtklibEngine:
         self._version: EngineVersion | None = None
 
     def locate(self) -> tuple[Path | None, str]:
+        """The ``rnx2rtkp`` to run and where it was found, or ``(None, "not found")``."""
         for candidate in program_filenames():
             path, source = discover(
                 candidate,
@@ -331,6 +336,10 @@ class RtklibEngine:
         return self.locate()[0] is not None
 
     def version(self) -> EngineVersion | None:
+        """The located program's version, read once and kept; ``None`` when there is no program.
+
+        Both output streams are searched, because builds differ in which they print it to.
+        """
         if self._version is not None:
             return self._version
         path, source = self.locate()

@@ -241,6 +241,7 @@ def _reading_to_dict(reading: StaffReading) -> dict[str, Any]:
 
 
 def setup_to_dict(setup: LevelSetup) -> dict[str, Any]:
+    """A level setup as the readings document stores it, with its backsight and foresights."""
     payload: dict[str, Any] = {
         "id": setup.id,
         "backsight": _reading_to_dict(setup.backsight),
@@ -303,6 +304,7 @@ def read_lines(path: str, *, parameter: str = "SETUPS") -> list[LevellingLine]:
 
 
 def reduction_to_dict(reduction: LineReduction) -> dict[str, Any]:
+    """A reduced line as the readings document stores it."""
     return {
         "line_id": reduction.line_id,
         "from_station": reduction.from_station,

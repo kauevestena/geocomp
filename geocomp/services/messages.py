@@ -35,6 +35,10 @@ class MessageTemplate:
         self.keys = keys
 
     def render(self, context: dict[str, Any]) -> str:
+        """The translated sentence with each ``%n`` placeholder replaced by its context value.
+
+        A missing value reads as "(not set)", translated, and a list is joined with commas.
+        """
         text = QCoreApplication.translate(_CONTEXT, self.source)
         for index, key in enumerate(self.keys, start=1):
             text = text.replace(f"%{index}", _format(context.get(key)))

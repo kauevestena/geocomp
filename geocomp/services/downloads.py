@@ -43,6 +43,11 @@ class QgisFetcher:
         self.feedback = feedback
 
     def exists(self, url: str, authcfg: str) -> bool:
+        """Whether the server has the file, asked with a HEAD request.
+
+        Raises:     DataError: ``product_authentication_failed`` or ``product_network_failed``; a
+        missing product is ``False``, not an error.
+        """
         try:
             self._request("head", url, authcfg)
         except DataError as error:
@@ -52,6 +57,11 @@ class QgisFetcher:
         return True
 
     def get(self, url: str, authcfg: str) -> bytes:
+        """The file's bytes, fetched through QGIS with the authentication configuration given.
+
+        Raises:     DataError: ``product_not_found``, ``product_authentication_failed`` or
+        ``product_network_failed``.
+        """
         return bytes(self._request("get", url, authcfg).content())
 
     def _request(self, method: str, url: str, authcfg: str):

@@ -44,6 +44,8 @@ EPOCH_ASSUMED = "assumed"
 
 
 class SolutionKind(Enum):
+    """What produced a solution: an adjustment, GNSS processing, a pre-analysis or a transformation.
+    """
     ADJUSTMENT = "adjustment"
     GNSS_PROCESSING = "gnss_processing"
     PREANALYSIS = "preanalysis"
@@ -89,6 +91,8 @@ class ErrorEllipse:
     semi_vertical: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """The ellipse as a solution document holds it, with its vertical semi-axis when it has one.
+        """
         payload = {
             "semi_major": self.semi_major,
             "semi_minor": self.semi_minor,
@@ -101,6 +105,7 @@ class ErrorEllipse:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ErrorEllipse:
+        """The inverse of :meth:`to_dict`; a missing confidence reads as 0.95."""
         return cls(
             semi_major=float(payload["semi_major"]),
             semi_minor=float(payload["semi_minor"]),
@@ -152,6 +157,11 @@ class TestResult:
                 object.__setattr__(self, name, float(value))
 
     def to_dict(self) -> dict[str, Any]:
+        """The test as a solution document holds it.
+
+        A statistic that is not finite is written as ``null``, and ``tested`` only when the test was
+        not made.
+        """
         payload: dict[str, Any] = {
             "name": self.name,
             # A test not made has no statistic, and JSON has no NaN: ``null``.
@@ -172,6 +182,7 @@ class TestResult:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> TestResult:
+        """The inverse of :meth:`to_dict`; a ``null`` statistic reads back as NaN."""
         statistic = payload["statistic"]
         return cls(
             name=payload["name"],
@@ -216,6 +227,11 @@ class AdjustedStation:
             )
 
     def to_dict(self) -> dict[str, Any]:
+        """The station as a solution document holds it.
+
+        Identity and position always; gravity, covariance, ellipse, positional uncertainty and
+        correction when there are any.
+        """
         payload: dict[str, Any] = {
             "station_id": self.station_id,
             "position": self.position.to_dict(),
@@ -233,6 +249,7 @@ class AdjustedStation:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> AdjustedStation:
+        """The inverse of :meth:`to_dict`."""
         covariance = payload.get("covariance")
         ellipse = payload.get("ellipse")
         correction = payload.get("correction")
@@ -287,6 +304,8 @@ class ObservationResult:
         return self.redundancy is not None and self.redundancy < threshold
 
     def to_dict(self) -> dict[str, Any]:
+        """The result as a solution document holds it: the residual always, the rest when computed.
+        """
         payload: dict[str, Any] = {
             "observation_id": self.observation_id,
             "residual": self.residual,
@@ -305,6 +324,7 @@ class ObservationResult:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ObservationResult:
+        """The inverse of :meth:`to_dict`."""
         w_test = payload.get("w_test")
         return cls(
             observation_id=payload["observation_id"],
@@ -335,6 +355,11 @@ class AdjustmentStatistics:
     condition_number: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """The statistics as a solution document holds them.
+
+        The counts, the a priori factor and convergence always; the rest only when there is a value,
+        so a factor that does not exist is absent rather than written as NaN.
+        """
         payload: dict[str, Any] = {
             "n_observations": self.n_observations,
             "n_parameters": self.n_parameters,
@@ -356,6 +381,7 @@ class AdjustmentStatistics:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> AdjustmentStatistics:
+        """The inverse of :meth:`to_dict`; a missing count reads as zero."""
         global_test = payload.get("global_test")
         return cls(
             n_observations=int(payload.get("n_observations", 0)),
@@ -401,9 +427,14 @@ class Provenance:
 
     @classmethod
     def now(cls, **kwargs: Any) -> Provenance:
+        """A record created now, in UTC, with *kwargs* for its other fields."""
         return cls(created=datetime.now(UTC), **kwargs)
 
     def to_dict(self) -> dict[str, Any]:
+        """The record as a solution document holds it.
+
+        When, which GeoComp and the uncertainty mode always; the rest only when it is set.
+        """
         payload: dict[str, Any] = {
             "created": self.created.astimezone(UTC).isoformat(),
             "geocomp_version": self.geocomp_version,
@@ -428,6 +459,7 @@ class Provenance:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Provenance:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             created=datetime.fromisoformat(payload["created"]),
             source=payload.get("source", ""),
@@ -519,13 +551,17 @@ class Solution:
 
     @property
     def is_superseded(self) -> bool:
+        """Whether a later solution has been recorded as replacing this one (FR-135)."""
         return self.superseded_by is not None
 
     @property
     def is_approximate(self) -> bool:
+        """Whether any uncertainty in the solution was approximated rather than propagated (FR-203).
+        """
         return self.uncertainty_mode is UncertaintyMode.APPROXIMATE
 
     def station(self, station_id: str) -> AdjustedStation:
+        """The adjusted station *station_id*, refusing one the solution does not hold."""
         for adjusted in self.adjusted_stations:
             if adjusted.station_id == station_id:
                 return adjusted
@@ -563,6 +599,7 @@ class Solution:
         return findings
 
     def to_dict(self) -> dict[str, Any]:
+        """The solution document (``specs/17``)."""
         payload: dict[str, Any] = {
             "id": self.id,
             "network_id": self.network_id,
@@ -589,6 +626,11 @@ class Solution:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Solution:
+        """The inverse of :meth:`to_dict`.
+
+        A document with no epoch is refused before it is read further, as the constructor would
+        refuse it (FR-105).
+        """
         covariance = payload.get("parameter_covariance")
         provenance = payload.get("provenance")
         if payload.get("epoch") is None:

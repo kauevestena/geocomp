@@ -32,6 +32,7 @@ __all__ = ["Alert", "AlertKind", "AlertThreshold", "evaluate_alerts", "threshold
 
 class AlertKind(Enum):
     #: The whole displacement vector's length, metres.
+    """What an alert threshold is compared with (``specs/14`` section 7)."""
     MAGNITUDE = "magnitude"
     #: Its horizontal part, metres.
     HORIZONTAL = "horizontal"
@@ -68,6 +69,7 @@ class AlertThreshold:
             )
 
     def applies_to(self, station_id: str) -> bool:
+        """Whether the threshold covers *station_id*: every station when none are named."""
         return self.stations is None or station_id in self.stations
 
 

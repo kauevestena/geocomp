@@ -68,6 +68,7 @@ class Strain:
 
     @property
     def deforming(self) -> bool:
+        """Whether the strain test rejected 'no deformation'."""
         return not self.strain_test.passed
 
 

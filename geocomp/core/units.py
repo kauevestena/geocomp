@@ -64,6 +64,7 @@ class Unit(Enum):
 
     @property
     def symbol(self) -> str:
+        """The unit's symbol in SI notation; empty for a dimensionless quantity."""
         return self.value
 
 

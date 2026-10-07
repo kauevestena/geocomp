@@ -117,6 +117,7 @@ class ReadReport:
     skipped: list[tuple[str, str]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """What was read, for provenance: frame, epoch, counts and what was skipped, with why."""
         return {
             "reference_frame": self.frame,
             "epoch": self.epoch,
@@ -192,6 +193,10 @@ def read_station_file(path: str | Path, *, crs: str = "", network: Network | Non
 
 
 def _position(coord: ET.Element | None, system: CoordinateSystem, crs: str) -> Position:
+    """A station's position from its ``StationCoord`` element, in *system*.
+
+    Geodetic coordinates are read from HP notation; a station with no element is refused.
+    """
     if coord is None:
         raise DataError("dynaml_station_without_coordinates", expected="a StationCoord element")
 

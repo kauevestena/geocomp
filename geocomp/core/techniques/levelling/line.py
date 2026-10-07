@@ -112,18 +112,22 @@ class LevellingLine:
 
     @property
     def from_station(self) -> str:
+        """The station the line starts at: the first setup's backsight."""
         return self.setups[0].backsight.station
 
     @property
     def to_station(self) -> str:
+        """The station the line ends at: the last setup's first foresight."""
         return self.setups[-1].foresights[0].station
 
     @property
     def setup_count(self) -> int:
+        """The number of setups in the line."""
         return len(self.setups)
 
     @property
     def has_distances(self) -> bool:
+        """Whether every setup has its sight distances, which weighting by length needs."""
         return all(setup.has_distances for setup in self.setups)
 
     @property

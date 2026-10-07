@@ -115,15 +115,19 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         return self.spec().name
 
     def group(self) -> str:
+        """The translated label of the algorithm's group in the toolbox."""
         return _group_label(self.spec().group)
 
     def groupId(self) -> str:
+        """The id of the algorithm's group, from its registry entry."""
         return self.spec().group
 
     def createInstance(self) -> GeoCompAlgorithm:
+        """A fresh instance of the same algorithm, as Processing asks for one per run."""
         return type(self)()
 
     def tr(self, text: str) -> str:
+        """Translate a string in the algorithm's own translation context."""
         return QCoreApplication.translate(self.TR_CONTEXT, text)
 
     # -- Basic / Advanced gating (FR-070, FR-071) ------------------------
@@ -194,9 +198,11 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         raise NotImplementedError
 
     def displayName(self) -> str:  # pragma: no cover - trivial, overridden
+        """The algorithm's translated name; every subclass overrides it."""
         raise NotImplementedError
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:  # pragma: no cover
+        """Declare the parameters and outputs; every subclass overrides it."""
         raise NotImplementedError
 
 

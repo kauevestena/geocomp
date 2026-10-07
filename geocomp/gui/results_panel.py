@@ -545,6 +545,7 @@ class ResultsPanel(QgsDockWidget):
 
     @property
     def current(self) -> _Run | None:
+        """The run shown, or ``None`` when there is none."""
         return self.runs[self._current] if 0 <= self._current < len(self.runs) else None
 
     def _fill_statistics(self, solution: Solution) -> None:
@@ -741,6 +742,7 @@ def attach_to_project(panel: ResultsPanel) -> None:
 
 
 def detach_from_project(panel: ResultsPanel) -> None:
+    """Stop the panel listening for added layers, tolerating a connection already gone."""
     try:
         QgsProject.instance().layersAdded.disconnect(panel.layers_added)
     except (TypeError, RuntimeError):

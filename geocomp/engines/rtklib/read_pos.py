@@ -114,6 +114,7 @@ class _Layout:
 
 
 class PosFormat(Enum):
+    """The solution formats ``rnx2rtkp`` writes that GeoComp reads (``specs/08`` section 7)."""
     LLH = "llh"
     LLH_DMS = "llh_dms"
     XYZ = "xyz"
@@ -121,6 +122,7 @@ class PosFormat(Enum):
 
     @property
     def layout(self) -> _Layout:
+        """Which column means what in this format: by position, never by label."""
         return _LAYOUTS[self]
 
 
@@ -184,6 +186,7 @@ class PosEpoch:
 
     @property
     def is_ambiguity_fixed(self) -> bool:
+        """Whether this epoch's ambiguities are fixed."""
         return self.status.is_ambiguity_fixed
 
     @property
@@ -278,9 +281,11 @@ class PosSolution:
 
     @property
     def components(self) -> tuple[str, str, str]:
+        """The names of the three position components in the solution's format."""
         return self.format.layout.components
 
     def fixed_epochs(self) -> tuple[PosEpoch, ...]:
+        """The epochs whose ambiguities are fixed."""
         return tuple(epoch for epoch in self.epochs if epoch.is_ambiguity_fixed)
 
     @property
@@ -333,6 +338,9 @@ class PosSolution:
         return resolved
 
     def to_dict(self) -> dict[str, Any]:
+        """A summary of the solution for provenance: its format, counts, inputs, antennas and
+        anomalies.
+        """
         return {
             "format": self.format.value,
             "program": self.program,

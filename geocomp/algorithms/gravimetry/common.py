@@ -114,6 +114,7 @@ def to_display(value: float, unit: str) -> float:
 
 
 def display_decimals(unit: str) -> int:
+    """The number of decimals a gravity value is shown with in a unit, ``mgal`` or ``ugal``."""
     return _DECIMALS[unit]
 
 
@@ -313,4 +314,5 @@ def translate_error(error: GeoCompError) -> str:
 
 
 def source_name(path: str) -> str:
+    """The file name of a reading file, without its directory, as the report names the source."""
     return Path(path).name

@@ -40,6 +40,7 @@ def _tr(text: str) -> str:
 
 
 def escape(value: Any) -> str:
+    """A value as text safe to put inside the report's HTML."""
     return html.escape(str(value))
 
 

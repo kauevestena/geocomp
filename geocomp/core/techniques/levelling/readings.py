@@ -181,6 +181,7 @@ class ThreeWireReading:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """The three wires as a document holds them."""
         return {
             "upper": self.upper.to_dict(),
             "middle": self.middle.to_dict(),
@@ -189,6 +190,7 @@ class ThreeWireReading:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ThreeWireReading:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             upper=Quantity.from_dict(payload["upper"]),
             middle=Quantity.from_dict(payload["middle"]),
@@ -249,6 +251,7 @@ class StaffReading:
 
     @property
     def has_distance(self) -> bool:
+        """Whether the sight distance is known."""
         return self.distance is not None
 
     @property
@@ -368,6 +371,7 @@ class LevelSetup:
 
     @property
     def mode(self) -> UncertaintyMode:
+        """``APPROXIMATE`` if any reading's uncertainty is, ``RIGOROUS`` otherwise (FR-203)."""
         modes = [self.backsight.reading.mode, *(s.reading.mode for s in self.foresights)]
         return (
             UncertaintyMode.APPROXIMATE
