@@ -395,7 +395,9 @@ per epoch -- hundreds of megabytes for a day at 1 Hz -- and the configuration ke
 satellites would look as plausible as the right one. A **combined** solution (`pos1-soltype = combined`) runs a
 forward and then a backward pass, and both write to the same status file, so each epoch's block -- opened by its
 `$POS` line -- appears twice; only the first, the forward pass's, is read, since reading both would double every
-epoch's satellites and shrink its DOP by the square root of two. Checked against RTKLIB's own `dops()` on every epoch of
+epoch's satellites and shrink its DOP by the square root of two. The same lines give each signal's slip flag and outlier
+counter, read for cycle slips and rejected observations by the rules in
+[`11-module-gnss.md`](./11-module-gnss.md) §5 (P12c-36). Checked against RTKLIB's own `dops()` on every epoch of
 a real run (`tests/test_dilution_of_precision.py`, `tests/data/rtklib/stat/PROVENANCE.md`).
 
 **Solution quality is never silently discarded.** A float solution presented without its Q flag is a

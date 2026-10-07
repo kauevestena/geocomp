@@ -285,6 +285,13 @@ class PosSolution:
     #: (:func:`~geocomp.engines.rtklib.read_stat.read_satellite_geometry`), keyed
     #: by GPS time to the millisecond. Empty for a solution read on its own.
     geometry: dict[datetime, tuple[SatelliteSighting, ...]] = field(default_factory=dict)
+    #: The signals the engine detected a cycle slip on at each epoch, as ``G20/1``,
+    #: from the same file (:func:`~geocomp.engines.rtklib.read_stat.read_status`).
+    #: Every epoch the file reports is a key, with or without slips; empty for a
+    #: solution read on its own.
+    slips: dict[datetime, tuple[str, ...]] = field(default_factory=dict)
+    #: The signals the engine rejected as outliers at each epoch, likewise.
+    rejections: dict[datetime, tuple[str, ...]] = field(default_factory=dict)
 
     @property
     def components(self) -> tuple[str, str, str]:
@@ -301,6 +308,14 @@ class PosSolution:
         if not sightings:
             return None
         return dilution_of_precision([(s.azimuth, s.elevation) for s in sightings])
+
+    def slips_at(self, time: datetime) -> tuple[str, ...] | None:
+        """The signals a cycle slip was detected on at *time*; ``None`` without a status for it."""
+        return self.slips.get(to_millisecond(time))
+
+    def rejections_at(self, time: datetime) -> tuple[str, ...] | None:
+        """The signals rejected as outliers at *time*; ``None`` without a status for it."""
+        return self.rejections.get(to_millisecond(time))
 
     def fixed_epochs(self) -> tuple[PosEpoch, ...]:
         """The epochs whose ambiguities are fixed."""

@@ -247,10 +247,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.rtklib_status_malformed": MessageTemplate(
-        "Line %2 of RTKLIB's solution-status file '%1' could not be read (%3). Its satellite "
-        "lines are not in the layout this GeoComp release reads, so the dilution of "
-        "precision cannot be computed from it. Check that rnx2rtkp is the version GeoComp "
-        "was tested with.",
+        "Line %2 of RTKLIB's solution-status file '%1' could not be read (%3). Its lines "
+        "are not in the layout this GeoComp release reads, so neither the dilution of "
+        "precision nor the cycle slips and rejected observations can be read from it. Check "
+        "that rnx2rtkp is the version GeoComp was tested with.",
         "file",
         "line",
         "reason",

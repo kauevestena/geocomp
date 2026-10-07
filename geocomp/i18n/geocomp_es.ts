@@ -2576,8 +2576,8 @@
             <translation>%1: %2</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts and the ambiguity ratio.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Procesa una carpeta de observaciones RINEX con &lt;code&gt;rnx2rtkp&lt;/code&gt;. Las sesiones se descubren a partir de las cabeceras de los archivos, no de sus nombres, y solo se procesan juntas las sesiones que realmente se solapan en el tiempo.&lt;/p&gt;&lt;p&gt;Las opciones de procesamiento provienen de Configuración Global → GNSS, salvo que un parámetro aquí las sustituya: máscara de elevación, fuente de las efemérides, modelos atmosféricos y el umbral de la razón de ambigüedades.&lt;/p&gt;&lt;p&gt;Produce la solución &lt;code&gt;.pos&lt;/code&gt; del motor y un resumen JSON de los indicadores de calidad de la ejecución: estado de la solución por época, la fracción de épocas con ambigüedades resueltas, recuento de satélites y la razón de ambigüedades.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts, the ambiguity ratio, the dilution of precision, and the cycle slips and outlying observations the engine detected, with the satellites they were on.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Procesa una carpeta de observaciones RINEX con &lt;code&gt;rnx2rtkp&lt;/code&gt;. Las sesiones se descubren a partir de las cabeceras de los archivos, no de sus nombres, y solo se procesan juntas las sesiones que realmente se solapan en el tiempo.&lt;/p&gt;&lt;p&gt;Las opciones de procesamiento provienen de Configuración Global → GNSS, salvo que un parámetro aquí las sustituya: máscara de elevación, fuente de las efemérides, modelos atmosféricos y el umbral de la razón de ambigüedades.&lt;/p&gt;&lt;p&gt;Produce la solución &lt;code&gt;.pos&lt;/code&gt; del motor y un resumen JSON de los indicadores de calidad de la ejecución: estado de la solución por época, la fracción de épocas con ambigüedades resueltas, recuento de satélites, la razón de ambigüedades, la dilución de la precisión, y los saltos de ciclo y las observaciones con errores groseros que el motor detectó, con los satélites en que ocurrieron.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
@@ -2590,6 +2590,10 @@
         <message>
             <source>Base station</source>
             <translation>Estación base</translation>
+        </message>
+        <message>
+            <source>Cycle slips detected by the engine: %1, on %2.</source>
+            <translation>Saltos de ciclo detectados por el motor: %1, en %2.</translation>
         </message>
         <message>
             <source>Elevation mask, degrees (-1 uses Global Settings)</source>
@@ -2628,6 +2632,10 @@
             <translation>No se encontraron sesiones de observación RINEX en %1</translation>
         </message>
         <message>
+            <source>Observations the engine rejected as outliers: %1, on %2.</source>
+            <translation>Observaciones que el motor rechazó como errores groseros: %1, en %2.</translation>
+        </message>
+        <message>
             <source>Options from %1: %2</source>
             <translation>Opciones de %1: %2</translation>
         </message>
@@ -2658,6 +2666,14 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas de la solución (capa)</translation>
+        </message>
+        <message>
+            <source>The engine detected no cycle slip.</source>
+            <translation>El motor no detectó ningún salto de ciclo.</translation>
+        </message>
+        <message>
+            <source>The engine rejected no observation as an outlier.</source>
+            <translation>El motor no rechazó ninguna observación como error grosero.</translation>
         </message>
         <message>
             <source>The engine's working files are in %1.</source>
@@ -4126,8 +4142,8 @@
             <translation>Línea de nivelación %1: %2</translation>
         </message>
         <message>
-            <source>Line %2 of RTKLIB's solution-status file '%1' could not be read (%3). Its satellite lines are not in the layout this GeoComp release reads, so the dilution of precision cannot be computed from it. Check that rnx2rtkp is the version GeoComp was tested with.</source>
-            <translation>No se pudo leer la línea %2 del archivo de estado de la solución de RTKLIB '%1' (%3). Sus líneas de satélites no están en el formato que lee esta versión de GeoComp, por lo que no se puede calcular la dilución de la precisión a partir de él. Compruebe que rnx2rtkp sea la versión con la que se probó GeoComp.</translation>
+            <source>Line %2 of RTKLIB's solution-status file '%1' could not be read (%3). Its lines are not in the layout this GeoComp release reads, so neither the dilution of precision nor the cycle slips and rejected observations can be read from it. Check that rnx2rtkp is the version GeoComp was tested with.</source>
+            <translation>No se pudo leer la línea %2 del archivo de estado de la solución de RTKLIB '%1' (%3). Sus líneas no están en el formato que lee esta versión de GeoComp, por lo que no se pueden leer a partir de él ni la dilución de la precisión ni los saltos de ciclo y las observaciones rechazadas. Compruebe que rnx2rtkp sea la versión con la que se probó GeoComp.</translation>
         </message>
         <message>
             <source>Measurement %1 is a %2 with a %3 of %4, but a height offset does not change this kind of measurement. Remove the offset, or check the measurement type.</source>

@@ -231,6 +231,14 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("pdop", _REAL),
         ("hdop", _REAL),
         ("vdop", _REAL),
+        # The engine's cycle slips and rejected observations at the epoch
+        # (specs/11 section 5, P12c-36): how many signals, and which, as
+        # "G20/1 G20/2". NULL where the engine reported nothing for the epoch;
+        # 0 and an empty list where it reported none.
+        ("slips", _INT),
+        ("slipped", _TEXT),
+        ("rejections", _INT),
+        ("rejected", _TEXT),
     ),
     "corrections": (
         ("station", _TEXT),
@@ -776,6 +784,8 @@ def gnss_trajectory_features(points: Iterable[TrajectoryPoint]) -> Iterator[QgsF
                 QgsPointXY(point.longitude_degrees, point.latitude_degrees)
             )
         )
+        slips, slipped = _signals(quality.slips)
+        rejections, rejected = _signals(quality.rejections)
         feature.setAttributes(
             [
                 quality.time.isoformat(),
@@ -798,9 +808,20 @@ def gnss_trajectory_features(points: Iterable[TrajectoryPoint]) -> Iterator[QgsF
                 quality.dop.position if quality.dop else None,
                 quality.dop.horizontal if quality.dop else None,
                 quality.dop.vertical if quality.dop else None,
+                slips,
+                slipped,
+                rejections,
+                rejected,
             ]
         )
         yield feature
+
+
+def _signals(signals: tuple[str, ...] | None) -> tuple[int | None, str | None]:
+    """A count and a list of signals for two attributes; both NULL when the engine said nothing."""
+    if signals is None:
+        return None, None
+    return len(signals), " ".join(signals)
 
 
 def gnss_trajectory_layer(points, *, crs: str = "", name: str = "") -> QgsVectorLayer:

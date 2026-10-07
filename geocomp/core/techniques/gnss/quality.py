@@ -15,6 +15,10 @@ reports -- each used satellite's azimuth and elevation -- by the definition
 RTKLIB's own ``dops()`` uses (P12c-35). ``rnx2rtkp`` writes no DOP in its
 solution file, but it writes the geometry in its solution-status file, and the
 DOP of that geometry is what the engine would have reported.
+
+Cycle slips and rejected observations are the engine's own detections, per
+signal and epoch, read from the same file (P12c-36); this module only counts
+them. A signal is a satellite and a frequency, ``G20/1``.
 """
 
 from __future__ import annotations
@@ -116,6 +120,11 @@ class EpochQuality:
     ratio: float
     age: float
     dop: DilutionOfPrecision | None = None
+    #: The signals a cycle slip was detected on at this epoch; ``None`` when
+    #: the engine reported nothing about it, as distinct from reporting none.
+    slips: tuple[str, ...] | None = None
+    #: The signals rejected as outliers at this epoch; ``None`` likewise.
+    rejections: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -141,6 +150,13 @@ class SessionQuality:
         dilution_of_precision_worst: The DOP of the epoch whose PDOP was
             largest: a session whose median is good can still have had a
             stretch where the geometry was not.
+        cycle_slips / rejections: How many signals, over all epochs, the
+            engine detected a cycle slip on or rejected as an outlier. A slip
+            the engine finds from the two frequencies together is two signals.
+            ``None`` when the engine reported on no epoch, which is not zero.
+        satellites_slipped / satellites_rejected: The satellites those
+            signals belong to: a dozen slips on one low satellite and a dozen
+            across the sky are different sessions.
     """
 
     session_id: str
@@ -156,6 +172,10 @@ class SessionQuality:
     interval: float | None = None
     dilution_of_precision: DilutionOfPrecision | None = None
     dilution_of_precision_worst: DilutionOfPrecision | None = None
+    cycle_slips: int | None = None
+    rejections: int | None = None
+    satellites_slipped: tuple[str, ...] = ()
+    satellites_rejected: tuple[str, ...] = ()
     per_epoch: tuple[EpochQuality, ...] = ()
     meta: dict[str, Any] = field(default_factory=dict)
 
@@ -193,6 +213,10 @@ class SessionQuality:
                 if self.dilution_of_precision_worst
                 else None
             ),
+            "cycle_slips": self.cycle_slips,
+            "rejections": self.rejections,
+            "satellites_slipped": list(self.satellites_slipped),
+            "satellites_rejected": list(self.satellites_rejected),
         }
 
 
@@ -241,6 +265,8 @@ def summarise(
     )
 
     dops = [epoch.dop for epoch in epochs if epoch.dop is not None]
+    slips = [epoch.slips for epoch in epochs if epoch.slips is not None]
+    rejections = [epoch.rejections for epoch in epochs if epoch.rejections is not None]
 
     return SessionQuality(
         session_id=session_id,
@@ -256,6 +282,10 @@ def summarise(
         interval=_median(gaps) if gaps else None,
         dilution_of_precision=_median_dop(dops),
         dilution_of_precision_worst=max(dops, key=lambda dop: dop.position) if dops else None,
+        cycle_slips=sum(map(len, slips)) if slips else None,
+        rejections=sum(map(len, rejections)) if rejections else None,
+        satellites_slipped=_satellites(slips),
+        satellites_rejected=_satellites(rejections),
         per_epoch=tuple(epochs) if keep_per_epoch else (),
     )
 
@@ -270,6 +300,11 @@ def _median_dop(dops: list[DilutionOfPrecision]) -> DilutionOfPrecision | None:
         horizontal=_median(sorted(dop.horizontal for dop in dops)),
         vertical=_median(sorted(dop.vertical for dop in dops)),
     )
+
+
+def _satellites(signals: list[tuple[str, ...]]) -> tuple[str, ...]:
+    """The satellites a list of epochs' signals belong to, each once, in order."""
+    return tuple(sorted({signal.split("/")[0] for epoch in signals for signal in epoch}))
 
 
 def _median(values: list[float]) -> float:

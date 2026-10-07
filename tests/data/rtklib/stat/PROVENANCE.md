@@ -22,3 +22,24 @@ definition of it, applied by the engine's code, so an error in GeoComp's arithme
 
 The sample stations have no published coordinates, as [`../PROVENANCE.md`](../PROVENANCE.md) says; that does not
 matter here, because DOP depends only on which satellites were used and where they were in the sky.
+
+## `slip-and-outlier.pos.stat.gz` -- a run with faults put in (P12c-36)
+
+The same baseline, configuration and commit, with the rover file changed first by
+[`tests/gnss_faults.py`](../../../gnss_faults.py)'s `SLIP_AND_OUTLIER`: five cycles added to G20's L1 phase and three
+to its L2 from the file's 60th epoch (00:30:00) to its end -- a cycle slip, with no loss-of-lock flag set -- and
+500 m added to both of G19's pseudoranges at the 90th (00:45:00) alone -- an outlier. The sample has neither of
+its own, so this is the only way to know where the engine *should* find them. Gzipped with `gzip -9 -n`; 120
+epochs, 1,500 `$SAT` lines.
+
+```console
+$ python -c 'from tests.gnss_faults import SLIP_AND_OUTLIER, with_faults; import pathlib; \
+    rover = pathlib.Path("tests/data/rtklib/07590920.05o").read_text(); \
+    pathlib.Path("07590920.05o").write_text(with_faults(rover, SLIP_AND_OUTLIER))'
+$ rnx2rtkp -k rnx2rtkp.conf -o slip-and-outlier.pos 07590920.05o 30400920.05o brdc_0759.05n
+```
+
+The engine flags the slip on both of G20's carriers at 00:30:00 and nowhere else, and rejects both of G19's
+signals at 00:45:00 and nowhere else -- its rejection counter reads 3 there, one for each pass it made over the
+residuals that epoch. `tests/test_cycle_slips.py` reads this file and requires exactly that; its tier-4 class
+puts the same faults in and runs the engine live.

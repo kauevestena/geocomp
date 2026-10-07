@@ -789,6 +789,9 @@ class TestABaselineFromALiveRun:
         assert quality.dilution_of_precision is not None
         assert quality.dilution_of_precision_worst.position == pytest.approx(37.551224, abs=1e-6)
         assert quality.dilution_of_precision.position < quality.dilution_of_precision_worst.position
+        # The sample is clean: the engine reported on every epoch and found
+        # nothing -- zero, not None (tests/test_cycle_slips.py puts faults in).
+        assert (quality.cycle_slips, quality.rejections) == (0, 0)
 
     def test_a_combined_solution_reads_each_epochs_satellites_once(self, sessions):
         """A combined run writes every epoch's status twice, forward then backward;
