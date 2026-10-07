@@ -13,9 +13,10 @@ __all__ = ["TEMPLATES"]
 
 TEMPLATES: dict[str, MessageTemplate] = {
     "data.gravimeter_format_unknown": MessageTemplate(
-        "This file is not a gravimeter export GeoComp can read. Expected a Scintrex CG-5 export "
-        "(a header of '/' lines), a ZLS Burris export (16 space-separated columns, the date as "
-        "YYYY/MM/DD), or a CSV whose header names %1.",
+        "This file is not a gravimeter export GeoComp can read. Expected a Scintrex CG-5 "
+        "export (a header of '/' lines), a ZLS Burris export (16 space-separated columns, the "
+        "date as YYYY/MM/DD), or a CSV whose header names %1. Export the readings again in "
+        "one of those formats.",
         "columns",
     ),
     "data.gravimeter_line_unreadable": MessageTemplate(
@@ -26,7 +27,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "format",
     ),
     "data.gravimeter_file_empty": MessageTemplate(
-        "'%1' holds no %2 readings.",
+        "'%1' holds no %2 readings. Check that you chose the export that holds the survey's "
+        "readings.",
         "source",
         "format",
     ),
@@ -39,14 +41,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.gravimeter_csv_columns": MessageTemplate(
-        "The CSV '%1' lacks required columns: it has %2, and needs %3.",
+        "The CSV '%1' lacks required columns: it has %2, and needs %3. Add the missing "
+        "columns to its header.",
         "source",
         "received",
         "expected",
     ),
     "data.gravimeter_header_location": MessageTemplate(
         "The CG-5 header field %1 of '%2' reads '%3', which is not a latitude or longitude "
-        "with its hemisphere. The tide needs the survey's location.",
+        "with its hemisphere. The tide needs the survey's location. Correct that field to the "
+        "survey's latitude or longitude, with its hemisphere.",
         "field",
         "source",
         "received",
@@ -101,7 +105,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.gravity_session_mixes_instruments": MessageTemplate(
         "Session '%1' holds readings from several instruments (%2). Drift belongs to an "
-        "instrument, so each needs its own session.",
+        "instrument, so each needs its own session. Split the session by instrument.",
         "session",
         "received",
     ),
@@ -116,9 +120,10 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.gravimeter_reading_outside_table": MessageTemplate(
-        "A counter reading of %1 is outside the gravimeter's calibration table, which runs from "
-        "%2 to %3. The table cannot be extrapolated, because the next interval's factor is not "
-        "in it.",
+        "A counter reading of %1 is outside the gravimeter's calibration table, which runs "
+        "from %2 to %3. The table cannot be extrapolated, because the next interval's factor "
+        "is not in it. Use a calibration table that covers this reading, or check the "
+        "reading.",
         "received",
         "low",
         "high",
@@ -129,8 +134,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     # -- readings, drift, tides and the network the core refuses (P12c-7) -------
     "validation.gravity_reading_incomplete": MessageTemplate(
-        "The gravity reading '%1' lacks an id, a station or a session; every reading needs all "
-        "three.",
+        "The gravity reading '%1' lacks an id, a station or a session; every reading needs "
+        "all three. Fill in the one it lacks.",
         "reading",
     ),
     "validation.gravity_reading_instant_naive": MessageTemplate(
@@ -145,26 +150,29 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.gravity_vertical_gradient_invalid": MessageTemplate(
         "The vertical gradient %2 at the station '%1' cannot be used: it must be a finite "
-        "number in s^-2, with a non-negative uncertainty.",
+        "number in s^-2, with a non-negative uncertainty. Correct the gradient at that "
+        "station.",
         "station",
         "received",
     ),
     "validation.drift_degree_invalid": MessageTemplate(
-        "The degree of the drift polynomial must be 1 or more; %1 was given.",
+        "The degree of the drift polynomial must be 1 or more; %1 was given. Give a degree of "
+        "1 or more.",
         "received",
     ),
     "validation.drift_time_scale_invalid": MessageTemplate(
-        "The drift time scale must be a positive number of seconds; %1 was given.",
+        "The drift time scale must be a positive number of seconds; %1 was given. Give the "
+        "time scale in seconds, greater than zero.",
         "received",
     ),
     "validation.drift_occupation_mismatch": MessageTemplate(
         "The drift model has occupations and elapsed times in different numbers (%1); each "
-        "occupation needs one elapsed time.",
+        "occupation needs one elapsed time. Give one elapsed time for each occupation.",
         "received",
     ),
     "validation.tide_instant_naive": MessageTemplate(
         "The tide at %1 cannot be computed: the time has no time zone, and the tide depends "
-        "on the time to the minute.",
+        "on the time to the minute. Give the time with its time zone.",
         "received",
     ),
     "validation.tide_latitude_out_of_range": MessageTemplate(
@@ -173,7 +181,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.tide_amplification_invalid": MessageTemplate(
-        "The gravimetric factor must be positive, typically 1.16; %1 was given.",
+        "The gravimetric factor must be positive, typically 1.16; %1 was given. Give a "
+        "positive factor.",
         "received",
     ),
     "validation.absolute_gravity_invalid": MessageTemplate(
@@ -183,10 +192,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "observation",
     ),
     "validation.gravity_network_without_readings": MessageTemplate(
-        "The gravity network has no readings, so there is nothing to adjust.",
+        "The gravity network has no readings, so there is nothing to adjust. Check that the "
+        "readings were imported, and that not every session was left out.",
     ),
     "validation.gravity_base_station_not_in_session": MessageTemplate(
-        "The base station '%2' was not read in the session '%1', which read %3.",
+        "The base station '%2' was not read in the session '%1', which read %3. Choose one of "
+        "the stations the session read as its base.",
         "session",
         "received",
         "expected",
@@ -197,8 +208,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.gravity_station_not_in_solution": MessageTemplate(
-        "The station '%1' is not a station of the adjusted gravity network; a held station has "
-        "no estimated value.",
+        "The station '%1' is not a station of the adjusted gravity network; a held station "
+        "has no estimated value. Choose a station the adjustment estimated.",
         "station",
     ),
     # -- gravimeter profiles and their calibration tables (P12c-7) -------------
@@ -219,45 +230,51 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.gravimeter_calibration_factor_invalid": MessageTemplate(
         "The calibration factor of the gravimeter '%1' is %2; it must be a positive number "
-        "close to 1.",
+        "close to 1. Check the factor in the gravimeter's profile against its calibration "
+        "certificate.",
         "gravimeter",
         "received",
     ),
     "validation.gravimeter_sigma_negative": MessageTemplate(
-        "The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative.",
+        "The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative. "
+        "Give zero or more in the gravimeter's profile.",
         "gravimeter",
         "received",
     ),
     "validation.gravimeter_reading_unit": MessageTemplate(
-        "A reading of the gravimeter '%1' is in %2, where %3 was expected.",
+        "A reading of the gravimeter '%1' is in %2, where %3 was expected. Give it in that "
+        "unit.",
         "gravimeter",
         "received",
         "expected",
     ),
     "validation.counter_reading_unit": MessageTemplate(
-        "A counter reading is in %1; counter units are dimensionless.",
+        "A counter reading is in %1; counter units are dimensionless. Give counter readings "
+        "without a unit.",
         "received",
     ),
     "validation.calibration_table_too_short": MessageTemplate(
-        "The gravimeter's calibration table has %1 row(s); it needs at least two, since one row "
-        "has no interval to interpolate over.",
+        "The gravimeter's calibration table has %1 row(s); it needs at least two, since one "
+        "row has no interval to interpolate over. Give the whole table from the "
+        "manufacturer's calibration sheet.",
         "received",
     ),
     "validation.calibration_table_not_increasing": MessageTemplate(
         "Row %1 of the gravimeter's calibration table does not increase; the counter readings "
-        "must increase strictly down the table.",
+        "must increase strictly down the table. Check the table's order against the "
+        "manufacturer's calibration sheet.",
         "row",
     ),
     "validation.calibration_table_factor_not_positive": MessageTemplate(
         "Row %1 of the gravimeter's calibration table has the interval factor %2; it must be "
-        "positive.",
+        "positive. Correct that row against the manufacturer's calibration sheet.",
         "row",
         "received",
     ),
     "validation.calibration_table_inconsistent": MessageTemplate(
-        "Row %1 of the gravimeter's calibration table gives %2, where the previous row and its "
-        "factor imply %3. The rows disagree by more than printing explains, so one of them was "
-        "mistyped.",
+        "Row %1 of the gravimeter's calibration table gives %2, where the previous row and "
+        "its factor imply %3. The rows disagree by more than printing explains, so one of "
+        "them was mistyped. Check both rows against the manufacturer's calibration sheet.",
         "row",
         "received",
         "implied",

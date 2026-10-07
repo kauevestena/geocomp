@@ -3338,8 +3338,8 @@
             <translation>'%1' no se pudo leer como archivo DynaML (XML de DynAdjust): %2.</translation>
         </message>
         <message>
-            <source>'%1' could not be read as a JSON document (%2).</source>
-            <translation>'%1' no se pudo leer como documento JSON (%2).</translation>
+            <source>'%1' could not be read as a JSON document (%2). Check that the file is complete, and is the document a GeoComp algorithm wrote.</source>
+            <translation>'%1' no se pudo leer como documento JSON (%2). Compruebe que el archivo esté completo y sea el documento que escribió un algoritmo de GeoComp.</translation>
         </message>
         <message>
             <source>'%1' could not be read as an .xlsx workbook: it is damaged, or it has no worksheet. Save it again from the spreadsheet program, or export it as CSV.</source>
@@ -3382,8 +3382,8 @@
             <translation>'%1' contiene posiciones %2, y una línea base GNSS necesita X, Y y Z ECEF. Procese la sesión de nuevo con salida ECEF.</translation>
         </message>
         <message>
-            <source>'%1' holds no %2 readings.</source>
-            <translation>'%1' no contiene lecturas %2.</translation>
+            <source>'%1' holds no %2 readings. Check that you chose the export that holds the survey's readings.</source>
+            <translation>'%1' no contiene lecturas %2. Compruebe que eligió la exportación que contiene las lecturas del levantamiento.</translation>
         </message>
         <message>
             <source>'%1' holds no job GeoComp prepared. Run Adjust network (DynAdjust) with 'Stop after writing the input' first, and give the folder it wrote.</source>
@@ -3410,8 +3410,8 @@
             <translation>'%1' está comprimido como %2, que GeoComp no lee. Descomprímalo primero; GeoComp lee RINEX sin comprimir y comprimido con gzip.</translation>
         </message>
         <message>
-            <source>'%1' is empty.</source>
-            <translation>'%1' está vacío.</translation>
+            <source>'%1' is empty. Fill it in, or remove the row.</source>
+            <translation>'%1' está vacío. Rellénelo, o quite la fila.</translation>
         </message>
         <message>
             <source>'%1' is empty: a RINEX file starts with a header.</source>
@@ -3426,8 +3426,8 @@
             <translation>'%1' no es un archivo DynaML: su elemento raíz es '%2', donde se esperaba DnaXmlFormat.</translation>
         </message>
         <message>
-            <source>'%1' is not a GeoComp document: its top level is not a JSON object.</source>
-            <translation>'%1' no es un documento de GeoComp: su nivel superior no es un objeto JSON.</translation>
+            <source>'%1' is not a GeoComp document: its top level is not a JSON object. Choose the file a GeoComp algorithm wrote.</source>
+            <translation>'%1' no es un documento de GeoComp: su nivel superior no es un objeto JSON. Elija el archivo que escribió un algoritmo de GeoComp.</translation>
         </message>
         <message>
             <source>'%1' is not a RINEX file: its first record is '%2', where RINEX VERSION / TYPE was expected.</source>
@@ -3474,12 +3474,12 @@
             <translation>'%1' no es un tipo de observación que GeoComp pondere; se esperaba %2.</translation>
         </message>
         <message>
-            <source>'%1' is not a kind of sight the mapping knows (%2).</source>
-            <translation>'%1' no es un tipo de visual que la asignación conozca (%2).</translation>
+            <source>'%1' is not a kind of sight the mapping knows (%2). Use one of those in that column.</source>
+            <translation>'%1' no es un tipo de visual que la asignación conozca (%2). Use uno de esos en esa columna.</translation>
         </message>
         <message>
-            <source>'%1' is not a network document as GeoComp writes it (%2).</source>
-            <translation>'%1' no es un documento de red como lo escribe GeoComp (%2).</translation>
+            <source>'%1' is not a network document as GeoComp writes it (%2). Give the network document an import or a pre-processing algorithm wrote.</source>
+            <translation>'%1' no es un documento de red como lo escribe GeoComp (%2). Indique el documento de red que escribió una importación o un algoritmo de preprocesamiento.</translation>
         </message>
         <message>
             <source>'%1' is not a number, on the line: %2</source>
@@ -3502,12 +3502,12 @@
             <translation>'%1' no es un marco de referencia para el que GeoComp tenga transformaciones; tiene %2. WGS 84 no es uno de ellos: sus realizaciones difieren en decímetros, y el nombre no dice cuál.</translation>
         </message>
         <message>
-            <source>'%1' is not a sheet GeoComp exports; the sheets are %2.</source>
-            <translation>'%1' no es una hoja que GeoComp exporte; las hojas son %2.</translation>
+            <source>'%1' is not a sheet GeoComp exports; the sheets are %2. Choose one of those.</source>
+            <translation>'%1' no es una hoja que GeoComp exporte; las hojas son %2. Elija una de ellas.</translation>
         </message>
         <message>
-            <source>'%1' is not a solution document as GeoComp writes it (%2).</source>
-            <translation>'%1' no es un documento de solución como lo escribe GeoComp (%2).</translation>
+            <source>'%1' is not a solution document as GeoComp writes it (%2). Give the solution document an adjustment wrote.</source>
+            <translation>'%1' no es un documento de solución como lo escribe GeoComp (%2). Indique el documento de solución que escribió un ajuste.</translation>
         </message>
         <message>
             <source>'%1' is not a solution format GeoComp reads: its column header is '%2'. GeoComp reads latitude/longitude/height, ECEF X/Y/Z and ENU baseline solutions.</source>
@@ -3534,8 +3534,8 @@
             <translation>'%1' no es un formato de salida de RTKLIB; escribe llh, xyz, enu o nmea.</translation>
         </message>
         <message>
-            <source>'%1' is not an adjustment engine; expected %2.</source>
-            <translation>'%1' no es un motor de ajuste; se esperaba %2.</translation>
+            <source>'%1' is not an adjustment engine; expected %2. Choose one of those.</source>
+            <translation>'%1' no es un motor de ajuste; se esperaba %2. Elija uno de ellos.</translation>
         </message>
         <message>
             <source>'%1' is not an angle format GeoComp writes; expected %2. Correct it in Global Settings, under Interface.</source>
@@ -3596,6 +3596,10 @@
         <message>
             <source>'%2', given for '%1', is not a number.</source>
             <translation>'%2', dado para '%1', no es un número.</translation>
+        </message>
+        <message>
+            <source>'%2', given for '%1', is not a number. Correct it in the book.</source>
+            <translation>'%2', dado para '%1', no es un número. Corríjalo en la libreta.</translation>
         </message>
         <message>
             <source>'%2', given for '%1', is not an angle.</source>
@@ -3670,12 +3674,12 @@
             <translation>Un coeficiente de correlación debe estar entre -1 y 1.</translation>
         </message>
         <message>
-            <source>A counter reading is in %1; counter units are dimensionless.</source>
-            <translation>Una lectura de contador está en %1; las unidades de contador son adimensionales.</translation>
+            <source>A counter reading is in %1; counter units are dimensionless. Give counter readings without a unit.</source>
+            <translation>Una lectura de contador está en %1; las unidades de contador son adimensionales. Indique las lecturas del contador sin unidad.</translation>
         </message>
         <message>
-            <source>A counter reading of %1 is outside the gravimeter's calibration table, which runs from %2 to %3. The table cannot be extrapolated, because the next interval's factor is not in it.</source>
-            <translation>Una lectura de contador de %1 está fuera de la tabla de calibración del gravímetro, que va de %2 a %3. La tabla no puede extrapolarse, porque el factor del intervalo siguiente no está en ella.</translation>
+            <source>A counter reading of %1 is outside the gravimeter's calibration table, which runs from %2 to %3. The table cannot be extrapolated, because the next interval's factor is not in it. Use a calibration table that covers this reading, or check the reading.</source>
+            <translation>Una lectura de contador de %1 está fuera de la tabla de calibración del gravímetro, que va de %2 a %3. La tabla no puede extrapolarse, porque el factor del intervalo siguiente no está en ella. Use una tabla de calibración que cubra esta lectura, o compruebe la lectura.</translation>
         </message>
         <message>
             <source>A covariance matrix has no component '%1'.</source>
@@ -3734,8 +3738,8 @@
             <translation>Se indicó un modelo geoidal, pero esta combinación está en un sistema local (%1), donde cada altura es lo que dice su entrada. No indique el geoide.</translation>
         </message>
         <message>
-            <source>A geometry in the project store could not be read (it begins %1). The store may be damaged; the numeric coordinates beside it are the record.</source>
-            <translation>No se pudo leer una geometría del repositorio del proyecto (empieza por %1). El repositorio puede estar dañado; las coordenadas numéricas a su lado son el registro.</translation>
+            <source>A geometry in the project store could not be read (it begins %1). The store may be damaged; the numeric coordinates beside it are the record. Restore the store from a backup if other records fail to read too.</source>
+            <translation>No se pudo leer una geometría del repositorio del proyecto (empieza por %1). El repositorio puede estar dañado; las coordenadas numéricas a su lado son el registro. Restaure el repositorio desde una copia de seguridad si otros registros tampoco se pueden leer.</translation>
         </message>
         <message>
             <source>A gravimeter profile has no id; readings refer to the instrument by it. Give every profile one.</source>
@@ -3778,8 +3782,8 @@
             <translation>Una línea de nivelación no tiene id. Los cierres y los hallazgos se refieren a una línea por su id; dé uno a cada línea.</translation>
         </message>
         <message>
-            <source>A levelling line length cannot be negative; %1 km was given.</source>
-            <translation>La longitud de una línea de nivelación no puede ser negativa; se dio %1 km.</translation>
+            <source>A levelling line length cannot be negative; %1 km was given. Give the line's length in kilometres, zero or more.</source>
+            <translation>La longitud de una línea de nivelación no puede ser negativa; se dio %1 km. Indique la longitud de la línea en kilómetros, cero o más.</translation>
         </message>
         <message>
             <source>A pair of readings has the faces %1, where face left and then face right were expected.</source>
@@ -3834,12 +3838,12 @@
             <translation>Una lectura no nombra objetivo. Toda lectura necesita la estación o el punto visado.</translation>
         </message>
         <message>
-            <source>A reading of the gravimeter '%1' is in %2, where %3 was expected.</source>
-            <translation>Una lectura del gravímetro '%1' está en %2, donde se esperaba %3.</translation>
+            <source>A reading of the gravimeter '%1' is in %2, where %3 was expected. Give it in that unit.</source>
+            <translation>Una lectura del gravímetro '%1' está en %2, donde se esperaba %3. Indíquela en esa unidad.</translation>
         </message>
         <message>
-            <source>A reciprocal pair at setup '%1' reads the same station, '%2', on both banks. A reciprocal crossing needs one station on each bank.</source>
-            <translation>Un par recíproco en el estacionamiento '%1' lee la misma estación, '%2', en ambas orillas. Una travesía recíproca necesita una estación en cada orilla.</translation>
+            <source>A reciprocal pair at setup '%1' reads the same station, '%2', on both banks. A reciprocal crossing needs one station on each bank. Check which station each reading of that pair is on.</source>
+            <translation>Un par recíproco en el estacionamiento '%1' lee la misma estación, '%2', en ambas orillas. Una travesía recíproca necesita una estación en cada orilla. Compruebe en qué estación está cada lectura de ese par.</translation>
         </message>
         <message>
             <source>A record of '%1' has %2 columns, where at least %3 were expected for the %4 format. The file is truncated or damaged.</source>
@@ -3882,8 +3886,8 @@
             <translation>Una fila de la sección %1 tiene %3 valor(es), donde se necesitan %2: %4</translation>
         </message>
         <message>
-            <source>A series needs two epochs at least; %1 was given.</source>
-            <translation>Una serie necesita al menos dos épocas; se dio %1.</translation>
+            <source>A series needs two epochs at least; %1 was given. Add the solutions of the other epochs.</source>
+            <translation>Una serie necesita al menos dos épocas; se dio %1. Añada las soluciones de las otras épocas.</translation>
         </message>
         <message>
             <source>A setup has no id. Readings and findings refer to a setup by its id; give every setup one.</source>
@@ -3894,8 +3898,8 @@
             <translation>Un estacionamiento no nombra estación. Todo estacionamiento necesita la estación ocupada por el instrumento.</translation>
         </message>
         <message>
-            <source>A staff reading names no station. Every reading needs the point the staff stood on.</source>
-            <translation>Una lectura de mira no nombra estación. Toda lectura necesita el punto sobre el que estaba la mira.</translation>
+            <source>A staff reading names no station. Every reading needs the point the staff stood on. Fill in the station of every reading.</source>
+            <translation>Una lectura de mira no nombra estación. Toda lectura necesita el punto sobre el que estaba la mira. Rellene la estación de cada lectura.</translation>
         </message>
         <message>
             <source>A station constrained as %1 does not say which components the constraint holds. Name them, such as height, or make the station free.</source>
@@ -4114,8 +4118,8 @@
             <translation>Se incorporaron observaciones de gravedad (%1) a la red geométrica, donde se ajustarían como si estuvieran libres de deriva. Indique la gravedad como su propia red, construida con su modelo de deriva.</translation>
         </message>
         <message>
-            <source>Heights cannot be converted between %1. A geoid relates ellipsoidal and orthometric heights only; normal heights need a quasi-geoid, which is a different model.</source>
-            <translation>Las alturas no pueden convertirse entre %1. Un geoide relaciona solo alturas elipsoidales y ortométricas; las alturas normales necesitan un cuasigeoide, que es un modelo distinto.</translation>
+            <source>Heights cannot be converted between %1. A geoid relates ellipsoidal and orthometric heights only; normal heights need a quasi-geoid, which is a different model. Use ellipsoidal or orthometric heights with a geoid model.</source>
+            <translation>Las alturas no pueden convertirse entre %1. Un geoide relaciona solo alturas elipsoidales y ortométricas; las alturas normales necesitan un cuasigeoide, que es un modelo distinto. Use alturas elipsoidales u ortométricas con un modelo geoidal.</translation>
         </message>
         <message>
             <source>Heights of different types (%1) cannot be combined without a geoid model: the result would be wrong by the geoid undulation and still look reasonable. Give a geoid model, or heights of one type.</source>
@@ -4254,20 +4258,20 @@
             <translation>Reducir distancias a la cuadrícula exige una posición aproximada para cada estación en la que termina una distancia, y estas no tienen ninguna: %1. Deles coordenadas aproximadas, o desactive la reducción.</translation>
         </message>
         <message>
-            <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in metres, or in metres a year for a velocity. Each row is kind, limit, stations, group.</source>
-            <translation>La fila %1 del archivo de umbrales de alerta no se puede leer: '%2'. Se esperaba un límite positivo en metros, o en metros por año para una velocidad. Cada fila es tipo, límite, estaciones, grupo.</translation>
+            <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in metres, or in metres a year for a velocity. Each row is kind, limit, stations, group; correct that row.</source>
+            <translation>La fila %1 del archivo de umbrales de alerta no se puede leer: '%2'. Se esperaba un límite positivo en metros, o en metros por año para una velocidad. Cada fila es tipo, límite, estaciones, grupo; corrija esa fila.</translation>
         </message>
         <message>
-            <source>Row %1 of the gravimeter's calibration table does not increase; the counter readings must increase strictly down the table.</source>
-            <translation>La fila %1 de la tabla de calibración del gravímetro no aumenta; las lecturas de contador deben aumentar estrictamente a lo largo de la tabla.</translation>
+            <source>Row %1 of the gravimeter's calibration table does not increase; the counter readings must increase strictly down the table. Check the table's order against the manufacturer's calibration sheet.</source>
+            <translation>La fila %1 de la tabla de calibración del gravímetro no aumenta; las lecturas de contador deben aumentar estrictamente a lo largo de la tabla. Compruebe el orden de la tabla con la hoja de calibración del fabricante.</translation>
         </message>
         <message>
-            <source>Row %1 of the gravimeter's calibration table gives %2, where the previous row and its factor imply %3. The rows disagree by more than printing explains, so one of them was mistyped.</source>
-            <translation>La fila %1 de la tabla de calibración del gravímetro da %2, donde la fila anterior y su factor implican %3. Las filas discrepan más de lo que la impresión explica, por lo que una de ellas se escribió mal.</translation>
+            <source>Row %1 of the gravimeter's calibration table gives %2, where the previous row and its factor imply %3. The rows disagree by more than printing explains, so one of them was mistyped. Check both rows against the manufacturer's calibration sheet.</source>
+            <translation>La fila %1 de la tabla de calibración del gravímetro da %2, donde la fila anterior y su factor implican %3. Las filas discrepan más de lo que la impresión explica, por lo que una de ellas se escribió mal. Compruebe ambas filas con la hoja de calibración del fabricante.</translation>
         </message>
         <message>
-            <source>Row %1 of the gravimeter's calibration table has the interval factor %2; it must be positive.</source>
-            <translation>La fila %1 de la tabla de calibración del gravímetro tiene el factor de intervalo %2; debe ser positivo.</translation>
+            <source>Row %1 of the gravimeter's calibration table has the interval factor %2; it must be positive. Correct that row against the manufacturer's calibration sheet.</source>
+            <translation>La fila %1 de la tabla de calibración del gravímetro tiene el factor de intervalo %2; debe ser positivo. Corrija esa fila según la hoja de calibración del fabricante.</translation>
         </message>
         <message>
             <source>Row %1: %2</source>
@@ -4286,8 +4290,8 @@
             <translation>La sesión '%1' no puede precorregirse: su estación base %2 se leyó %3 vez/veces, y una deriva de grado %4 necesita una lectura más que su grado. Estime la deriva junto con los valores de las estaciones, o reduzca el grado.</translation>
         </message>
         <message>
-            <source>Session '%1' holds readings from several instruments (%2). Drift belongs to an instrument, so each needs its own session.</source>
-            <translation>La sesión '%1' contiene lecturas de varios instrumentos (%2). La deriva pertenece a un instrumento, así que cada uno necesita su propia sesión.</translation>
+            <source>Session '%1' holds readings from several instruments (%2). Drift belongs to an instrument, so each needs its own session. Split the session by instrument.</source>
+            <translation>La sesión '%1' contiene lecturas de varios instrumentos (%2). La deriva pertenece a un instrumento, así que cada uno necesita su propia sesión. Divida la sesión por instrumento.</translation>
         </message>
         <message>
             <source>Setup %1 has %2 backsight(s) and %3 foresight(s); it needs exactly one backsight and at least one foresight.</source>
@@ -4366,20 +4370,20 @@
             <translation>La estación '%1' está fija pero no tiene posición, por lo que no hay valor en el que mantenerla. Asígnele coordenadas, o libere la constricción.</translation>
         </message>
         <message>
-            <source>Station '%1' is not foresighted from setup '%2', which foresights %3.</source>
-            <translation>La estación '%1' no se visa de frente desde el estacionamiento '%2', que visa de frente %3.</translation>
+            <source>Station '%1' is not foresighted from setup '%2', which foresights %3. Check the station named, or the setup it was read from.</source>
+            <translation>La estación '%1' no se visa de frente desde el estacionamiento '%2', que visa de frente %3. Compruebe la estación indicada, o el estacionamiento desde el que se leyó.</translation>
         </message>
         <message>
-            <source>Strain cannot be computed here. It needs east and north components, and three object points at least, spread over an area rather than along a line.</source>
-            <translation>La deformación no puede calcularse aquí. Necesita las componentes este y norte, y al menos tres puntos objeto, repartidos por un área y no a lo largo de una línea.</translation>
+            <source>Strain cannot be computed here. It needs east and north components, and three object points at least, spread over an area rather than along a line. Include more object points, or leave strain out of this comparison.</source>
+            <translation>La deformación no puede calcularse aquí. Necesita las componentes este y norte, y al menos tres puntos objeto, repartidos por un área y no a lo largo de una línea. Incluya más puntos objeto, o deje la deformación fuera de esta comparación.</translation>
         </message>
         <message>
             <source>The %1 antenna offset is in %2; give it in metres.</source>
             <translation>El desplazamiento de antena %1 está en %2; indíquelo en metros.</translation>
         </message>
         <message>
-            <source>The %1 is in %2, where %3 was expected.</source>
-            <translation>El/la %1 está en %2, donde se esperaba %3.</translation>
+            <source>The %1 is in %2, where %3 was expected. Give it in that unit.</source>
+            <translation>El/la %1 está en %2, donde se esperaba %3. Indíquelo en esa unidad.</translation>
         </message>
         <message>
             <source>The %1 is in %2; give it in metres.</source>
@@ -4438,12 +4442,12 @@
             <translation>La tabla %1 en la salida de DynAdjust tiene columnas que GeoComp no reconoce, por lo que probablemente fue escrita por una versión de DynAdjust con la que GeoComp no se ha verificado. Se esperaba el encabezado '%2'; se encontró '%3'.</translation>
         </message>
         <message>
-            <source>The %1 threshold's limit is %2; it must be positive.</source>
-            <translation>El límite del umbral %1 es %2; debe ser positivo.</translation>
+            <source>The %1 threshold's limit is %2; it must be positive. Give a limit greater than zero.</source>
+            <translation>El límite del umbral %1 es %2; debe ser positivo. Indique un límite mayor que cero.</translation>
         </message>
         <message>
-            <source>The %1 wire reading carries no uncertainty; every reading needs one.</source>
-            <translation>La lectura del hilo %1 no tiene incertidumbre; toda lectura necesita una.</translation>
+            <source>The %1 wire reading carries no uncertainty; every reading needs one. Choose a level profile that states the reading standard deviation.</source>
+            <translation>La lectura del hilo %1 no tiene incertidumbre; toda lectura necesita una. Elija un perfil de nivel que indique la desviación estándar de la lectura.</translation>
         </message>
         <message>
             <source>The %1 wire reading is in %2; give it in metres.</source>
@@ -4466,12 +4470,12 @@
             <translation>El/la %2 del instrumento '%1' es %3; una desviación estándar no puede ser negativa.</translation>
         </message>
         <message>
-            <source>The %2 of the level '%1' is %3; a standard deviation cannot be negative.</source>
-            <translation>El/la %2 del nivel '%1' es %3; una desviación estándar no puede ser negativa.</translation>
+            <source>The %2 of the level '%1' is %3; a standard deviation cannot be negative. Give zero or more in the level's profile.</source>
+            <translation>El/la %2 del nivel '%1' es %3; una desviación estándar no puede ser negativa. Indique cero o más en el perfil del nivel.</translation>
         </message>
         <message>
-            <source>The %2 of the levelling class '%1' is %3; a limit cannot be negative, and zero means unconstrained.</source>
-            <translation>El/la %2 de la clase de nivelación '%1' es %3; un límite no puede ser negativo, y cero significa sin restricción.</translation>
+            <source>The %2 of the levelling class '%1' is %3; a limit cannot be negative, and zero means unconstrained. Give zero or more.</source>
+            <translation>El/la %2 de la clase de nivelación '%1' es %3; un límite no puede ser negativo, y cero significa sin restricción. Indique cero o más.</translation>
         </message>
         <message>
             <source>The %2 of the observation '%1' carries no uncertainty. Every observation in GeoComp carries its standard deviation; give one.</source>
@@ -4490,12 +4494,12 @@
             <translation>El motor '%1' es necesario para esta operación, pero no está instalado. Instálelo desde Configuraciones Globales, en Rutas y motores.</translation>
         </message>
         <message>
-            <source>The CG-5 header field %1 of '%2' reads '%3', which is not a latitude or longitude with its hemisphere. The tide needs the survey's location.</source>
-            <translation>El campo de cabecera CG-5 %1 de '%2' contiene '%3', que no es una latitud o longitud con su hemisferio. La marea necesita la ubicación del levantamiento.</translation>
+            <source>The CG-5 header field %1 of '%2' reads '%3', which is not a latitude or longitude with its hemisphere. The tide needs the survey's location. Correct that field to the survey's latitude or longitude, with its hemisphere.</source>
+            <translation>El campo de cabecera CG-5 %1 de '%2' contiene '%3', que no es una latitud o longitud con su hemisferio. La marea necesita la ubicación del levantamiento. Corrija ese campo con la latitud o la longitud del levantamiento, con su hemisferio.</translation>
         </message>
         <message>
-            <source>The CSV '%1' lacks required columns: it has %2, and needs %3.</source>
-            <translation>El CSV '%1' no tiene las columnas obligatorias: tiene %2 y necesita %3.</translation>
+            <source>The CSV '%1' lacks required columns: it has %2, and needs %3. Add the missing columns to its header.</source>
+            <translation>El CSV '%1' no tiene las columnas obligatorias: tiene %2 y necesita %3. Añada las columnas que faltan a su encabezado.</translation>
         </message>
         <message>
             <source>The DynAdjust configuration '%1' could not be read as JSON: %2.</source>
@@ -4662,8 +4666,8 @@
             <translation>El servicio de mapa base '%1' no tiene atribución. Añadir un mapa base sin la atribución que su licencia exige incumple esa licencia; indíquela, o escriba none si el servicio realmente no exige ninguna.</translation>
         </message>
         <message>
-            <source>The base station '%2' was not read in the session '%1', which read %3.</source>
-            <translation>La estación base '%2' no se leyó en la sesión '%1', que leyó %3.</translation>
+            <source>The base station '%2' was not read in the session '%1', which read %3. Choose one of the stations the session read as its base.</source>
+            <translation>La estación base '%2' no se leyó en la sesión '%1', que leyó %3. Elija como base una de las estaciones que leyó la sesión.</translation>
         </message>
         <message>
             <source>The baseline '%1' already carries its antenna-height reduction; a second would double the offset.</source>
@@ -4690,8 +4694,8 @@
             <translation>La línea base '%1' empieza y termina en la misma estación, '%2'. Una línea base une dos estaciones distintas.</translation>
         </message>
         <message>
-            <source>The benchmark '%1' does not say which kind of height it has (orthometric, normal or ellipsoidal), so it cannot be checked against the others.</source>
-            <translation>El punto de referencia '%1' no dice qué tipo de altura tiene (ortométrica, normal o elipsoidal), por lo que no puede comprobarse frente a los demás.</translation>
+            <source>The benchmark '%1' does not say which kind of height it has (orthometric, normal or ellipsoidal), so it cannot be checked against the others. Give the benchmark its height type.</source>
+            <translation>El punto de referencia '%1' no dice qué tipo de altura tiene (ortométrica, normal o elipsoidal), por lo que no puede comprobarse frente a los demás. Indique el tipo de altura del punto de referencia.</translation>
         </message>
         <message>
             <source>The benchmark '%1' has a %2 height to convert with the geoid '%3', and no position: a geoid undulation depends on where the station is. Give the benchmark its latitude and longitude.</source>
@@ -4702,8 +4706,8 @@
             <translation>El punto de referencia '%1' es una restricción ponderada sin incertidumbre, lo que es una restricción fija con otro nombre. Dé una incertidumbre a su altura, o manténgalo fijo.</translation>
         </message>
         <message>
-            <source>The calibration factor of the gravimeter '%1' is %2; it must be a positive number close to 1.</source>
-            <translation>El factor de calibración del gravímetro '%1' es %2; debe ser un número positivo cercano a 1.</translation>
+            <source>The calibration factor of the gravimeter '%1' is %2; it must be a positive number close to 1. Check the factor in the gravimeter's profile against its calibration certificate.</source>
+            <translation>El factor de calibración del gravímetro '%1' es %2; debe ser un número positivo cercano a 1. Compruebe el factor en el perfil del gravímetro con su certificado de calibración.</translation>
         </message>
         <message>
             <source>The cluster %1 carries a covariance of size %2 for members with %3 components in all; it needs one row per component.</source>
@@ -4782,12 +4786,12 @@
             <translation>La cobertura de un modelo geoidal no está en orden: su límite sur debe estar por debajo del límite norte, y su límite oeste al oeste del este. Compruebe los límites que declara la malla.</translation>
         </message>
         <message>
-            <source>The cross-covariance given has shape %1; it must be %2.</source>
-            <translation>La covarianza cruzada indicada tiene forma %1; debe ser %2.</translation>
+            <source>The cross-covariance given has shape %1; it must be %2. Give one row per component of the first solution and one column per component of the second.</source>
+            <translation>La covarianza cruzada indicada tiene forma %1; debe ser %2. Indique una fila por componente de la primera solución y una columna por componente de la segunda.</translation>
         </message>
         <message>
-            <source>The database behind %1 does not have the PostGIS extension. A database administrator enables it once, with: CREATE EXTENSION postgis</source>
-            <translation>La base de datos detrás de %1 no tiene la extensión PostGIS. Un administrador la habilita una vez, con: CREATE EXTENSION postgis</translation>
+            <source>The database behind %1 does not have the PostGIS extension. Ask a database administrator to enable it, once, with: CREATE EXTENSION postgis</source>
+            <translation>La base de datos detrás de %1 no tiene la extensión PostGIS. Pida a un administrador de la base de datos que la habilite, una vez, con: CREATE EXTENSION postgis</translation>
         </message>
         <message>
             <source>The datum '%1' needs a plan (east and north) and these solutions have none. Use the translation datum for heights.</source>
@@ -4802,8 +4806,8 @@
             <translation>La desviación estándar por defecto para %1 es %2; no puede ser negativa. Corríjala en las Configuraciones Globales, en Modelo estocástico.</translation>
         </message>
         <message>
-            <source>The degree of the drift polynomial must be 1 or more; %1 was given.</source>
-            <translation>El grado del polinomio de deriva debe ser 1 o más; se dio %1.</translation>
+            <source>The degree of the drift polynomial must be 1 or more; %1 was given. Give a degree of 1 or more.</source>
+            <translation>El grado del polinomio de deriva debe ser 1 o más; se dio %1. Indique un grado de 1 o más.</translation>
         </message>
         <message>
             <source>The design cannot be evaluated: %1</source>
@@ -4878,16 +4882,16 @@
             <translation>El archivo comprimido descargado coloca los programas del motor en varias carpetas (%1); GeoComp los ejecuta desde una sola. Instale el motor usted mismo e indique su ruta en Configuraciones Globales.</translation>
         </message>
         <message>
-            <source>The drift model has occupations and elapsed times in different numbers (%1); each occupation needs one elapsed time.</source>
-            <translation>El modelo de deriva tiene ocupaciones y tiempos transcurridos en números distintos (%1); cada ocupación necesita un tiempo transcurrido.</translation>
+            <source>The drift model has occupations and elapsed times in different numbers (%1); each occupation needs one elapsed time. Give one elapsed time for each occupation.</source>
+            <translation>El modelo de deriva tiene ocupaciones y tiempos transcurridos en números distintos (%1); cada ocupación necesita un tiempo transcurrido. Indique un tiempo transcurrido para cada ocupación.</translation>
         </message>
         <message>
             <source>The drift of session '%1' cannot be estimated with the station values: no station was read again at enough different times for a degree-%2 drift. Re-occupy a station in that session, lower the degree, or split the session.</source>
             <translation>La deriva de la sesión '%1' no puede estimarse junto con los valores de las estaciones: ninguna estación se volvió a leer en suficientes instantes distintos para una deriva de grado %2. Reocupe una estación en esa sesión, reduzca el grado o divida la sesión.</translation>
         </message>
         <message>
-            <source>The drift time scale must be a positive number of seconds; %1 was given.</source>
-            <translation>La escala de tiempo de la deriva debe ser un número positivo de segundos; se dio %1.</translation>
+            <source>The drift time scale must be a positive number of seconds; %1 was given. Give the time scale in seconds, greater than zero.</source>
+            <translation>La escala de tiempo de la deriva debe ser un número positivo de segundos; se dio %1. Indique la escala de tiempo en segundos, mayor que cero.</translation>
         </message>
         <message>
             <source>The drift time scale of the gravity observation '%1' must be a positive number of seconds; %2 was given.</source>
@@ -4962,20 +4966,20 @@
             <translation>El datum libre de '%1' nombra componentes distintas para estaciones distintas (%2); una restricción interna nombra las mismas componentes para todas las estaciones.</translation>
         </message>
         <message>
-            <source>The geoid grid '%1' has %2 values where its header promises %3, for a grid of %4 by %5. The file is truncated or damaged.</source>
-            <translation>La malla geoidal '%1' tiene %2 valores donde su encabezado promete %3, para una malla de %4 por %5. El archivo está truncado o dañado.</translation>
+            <source>The geoid grid '%1' has %2 values where its header promises %3, for a grid of %4 by %5. The file is truncated or damaged; download it again from its publisher.</source>
+            <translation>La malla geoidal '%1' tiene %2 valores donde su encabezado promete %3, para una malla de %4 por %5. El archivo está truncado o dañado; descárguelo de nuevo de quien lo publica.</translation>
         </message>
         <message>
             <source>The geoid grid '%1' has cells without data (value %2). Such a cell would be interpolated into a plausible-looking undulation, so the grid is refused. Use a grid that covers the network completely.</source>
             <translation>La malla del geoide '%1' tiene celdas sin datos (valor %2). Una celda así se interpolaría como una ondulación geoidal de apariencia plausible, por eso la malla se rechaza. Use una malla que cubra la red por completo.</translation>
         </message>
         <message>
-            <source>The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3.</source>
-            <translation>La malla del geoide '%1' está truncada: tiene %2 bytes, y el formato necesita %3.</translation>
+            <source>The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3. Download it again from its publisher.</source>
+            <translation>La malla del geoide '%1' está truncada: tiene %2 bytes, y el formato necesita %3. Descárguela de nuevo de quien la publica.</translation>
         </message>
         <message>
-            <source>The geoid model '%1' has a grid of shape %2; interpolation needs a two-dimensional grid of at least 2 by 2 nodes.</source>
-            <translation>El modelo geoidal '%1' tiene una malla de forma %2; la interpolación necesita una malla bidimensional de al menos 2 por 2 nodos.</translation>
+            <source>The geoid model '%1' has a grid of shape %2; interpolation needs a two-dimensional grid of at least 2 by 2 nodes. Use a model that covers the area with a grid.</source>
+            <translation>El modelo geoidal '%1' tiene una malla de forma %2; la interpolación necesita una malla bidimensional de al menos 2 por 2 nodos. Use un modelo que cubra el área con una malla.</translation>
         </message>
         <message>
             <source>The geoid model '%1' has nodes without a value. A no-data value in the grid would be interpolated into a plausible-looking height; fill the grid, or use one that covers the area completely.</source>
@@ -4998,24 +5002,24 @@
             <translation>El gravímetro '%1' lee gravedad directamente y tiene también una tabla de calibración; convertir dos veces sería un error silencioso. Elimine la tabla, o marque el instrumento como lector de unidades de contador.</translation>
         </message>
         <message>
-            <source>The gravimeter's calibration table has %1 row(s); it needs at least two, since one row has no interval to interpolate over.</source>
-            <translation>La tabla de calibración del gravímetro tiene %1 fila(s); necesita al menos dos, pues una fila no tiene intervalo sobre el que interpolar.</translation>
+            <source>The gravimeter's calibration table has %1 row(s); it needs at least two, since one row has no interval to interpolate over. Give the whole table from the manufacturer's calibration sheet.</source>
+            <translation>La tabla de calibración del gravímetro tiene %1 fila(s); necesita al menos dos, pues una fila no tiene intervalo sobre el que interpolar. Indique la tabla completa de la hoja de calibración del fabricante.</translation>
         </message>
         <message>
-            <source>The gravimetric factor must be positive, typically 1.16; %1 was given.</source>
-            <translation>El factor gravimétrico debe ser positivo, típicamente 1,16; se dio %1.</translation>
+            <source>The gravimetric factor must be positive, typically 1.16; %1 was given. Give a positive factor.</source>
+            <translation>El factor gravimétrico debe ser positivo, típicamente 1,16; se dio %1. Indique un factor positivo.</translation>
         </message>
         <message>
-            <source>The gravity network has no readings, so there is nothing to adjust.</source>
-            <translation>La red gravimétrica no tiene lecturas, por lo que no hay nada que ajustar.</translation>
+            <source>The gravity network has no readings, so there is nothing to adjust. Check that the readings were imported, and that not every session was left out.</source>
+            <translation>La red gravimétrica no tiene lecturas, por lo que no hay nada que ajustar. Compruebe que las lecturas se importaron y que no se excluyeron todas las sesiones.</translation>
         </message>
         <message>
             <source>The gravity observation '%1' has a drift term (%2) but not the times it depends on, so the drift cannot be evaluated. Build the gravity network from its readings, which records them.</source>
             <translation>La observación gravimétrica '%1' tiene un término de deriva (%2), pero no los tiempos de los que depende, por lo que la deriva no puede evaluarse. Construya la red gravimétrica a partir de sus lecturas, que los registran.</translation>
         </message>
         <message>
-            <source>The gravity reading '%1' lacks an id, a station or a session; every reading needs all three.</source>
-            <translation>La lectura gravimétrica '%1' no tiene id, estación o sesión; toda lectura necesita los tres.</translation>
+            <source>The gravity reading '%1' lacks an id, a station or a session; every reading needs all three. Fill in the one it lacks.</source>
+            <translation>La lectura gravimétrica '%1' no tiene id, estación o sesión; toda lectura necesita los tres. Rellene el que falta.</translation>
         </message>
         <message>
             <source>The grid coordinate %1 could not be converted back to latitude and longitude; it lies outside the projection's domain.</source>
@@ -5026,12 +5030,12 @@
             <translation>El encabezado de '%1' nunca termina: no hay registro END OF HEADER. El archivo está truncado, o no es RINEX.</translation>
         </message>
         <message>
-            <source>The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at least 2 by 2 nodes and a positive spacing, in degrees.</source>
-            <translation>El encabezado de la malla del geoide '%1' no describe una malla utilizable (%2): necesita al menos 2 por 2 nodos y un espaciado positivo, en grados.</translation>
+            <source>The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at least 2 by 2 nodes and a positive spacing, in degrees. Check that the grid is in geographic coordinates, as the publisher distributes it.</source>
+            <translation>El encabezado de la malla del geoide '%1' no describe una malla utilizable (%2): necesita al menos 2 por 2 nodos y un espaciado positivo, en grados. Compruebe que la malla esté en coordenadas geográficas, como la distribuye quien la publica.</translation>
         </message>
         <message>
-            <source>The header of the geoid grid '%1' is not a complete ESRI ASCII header: it lacks %2.</source>
-            <translation>El encabezado de la malla geoidal '%1' no es un encabezado ESRI ASCII completo: le falta %2.</translation>
+            <source>The header of the geoid grid '%1' is not a complete ESRI ASCII header: it lacks %2. Check that the file is the ESRI ASCII grid the publisher distributes, not one converted from another format.</source>
+            <translation>El encabezado de la malla geoidal '%1' no es un encabezado ESRI ASCII completo: le falta %2. Compruebe que el archivo sea la malla ESRI ASCII que distribuye quien la publica, no una convertida de otro formato.</translation>
         </message>
         <message>
             <source>The height difference '%1' does not say whether it is orthometric or ellipsoidal. Rebuild its network with the current GeoComp, which records it.</source>
@@ -5062,8 +5066,8 @@
             <translation>La entrada '%1' contiene una posición (%2) pero no dice en qué marco está. Indique el marco al construir la red -- para líneas base GNSS, el marco de las coordenadas de la base.</translation>
         </message>
         <message>
-            <source>The input '%1' holds a position (%2) but not its epoch. GeoComp does not assume one: the frame moves, and the same coordinates at two epochs are two different places.</source>
-            <translation>La entrada '%1' contiene una posición (%2) pero no su época. GeoComp no supone una: el marco se mueve, y las mismas coordenadas en dos épocas son dos lugares distintos.</translation>
+            <source>The input '%1' holds a position (%2) but not its epoch. GeoComp does not assume one: the frame moves, and the same coordinates at two epochs are two different places. Give the input the epoch its coordinates refer to.</source>
+            <translation>La entrada '%1' contiene una posición (%2) pero no su época. GeoComp no supone una: el marco se mueve, y las mismas coordenadas en dos épocas son dos lugares distintos. Indique en la entrada la época a la que se refieren sus coordenadas.</translation>
         </message>
         <message>
             <source>The input '%1' holds the benchmark '%2' exactly. In a geocentric combination a benchmark's height holds h - N, and holding it exactly would make the geoid exact there. Give the benchmark its uncertainty (height±sigma) when adjusting the levelling network.</source>
@@ -5078,12 +5082,12 @@
             <translation>La entrada '%1' está en %2, desde el cual GeoComp no puede transformar. Désela en ITRF2000 a ITRF2020 o SIRGAS 2000, o en una proyección UTM o Transversa de Mercator de uno de ellos. Combinarla sin transformar absorbería un cambio de datum en los residuos.</translation>
         </message>
         <message>
-            <source>The inputs are in different coordinate reference systems (%1). A combination without GNSS is adjusted in the inputs' own system, so they must share one.</source>
-            <translation>Las entradas están en sistemas de referencia de coordenadas distintos (%1). Una combinación sin GNSS se ajusta en el propio sistema de las entradas, así que deben compartir uno.</translation>
+            <source>The inputs are in different coordinate reference systems (%1). A combination without GNSS is adjusted in the inputs' own system, so they must share one. Bring them into one system before combining them.</source>
+            <translation>Las entradas están en sistemas de referencia de coordenadas distintos (%1). Una combinación sin GNSS se ajusta en el propio sistema de las entradas, así que deben compartir uno. Llévelas a un único sistema antes de combinarlas.</translation>
         </message>
         <message>
-            <source>The inputs fall into %1 pieces that share no station, so they cannot be adjusted as one network. A combination is tied together by the stations the techniques have in common.</source>
-            <translation>Las entradas se dividen en %1 partes que no comparten estación, así que no pueden ajustarse como una red. Una combinación se une por las estaciones que las técnicas tienen en común.</translation>
+            <source>The inputs fall into %1 pieces that share no station, so they cannot be adjusted as one network. A combination is tied together by the stations the techniques have in common: add observations that join the pieces, or adjust each piece on its own.</source>
+            <translation>Las entradas se dividen en %1 partes que no comparten estación, así que no pueden ajustarse como una red. Una combinación se une por las estaciones que las técnicas tienen en común: añada observaciones que unan las partes, o ajuste cada parte por separado.</translation>
         </message>
         <message>
             <source>The instrument %1 applies its additive constant internally, so GeoComp did not apply it again.</source>
@@ -5126,12 +5130,12 @@
             <translation>El perfil de nivel '%1' no tiene desviación estándar de lectura, y GeoComp no inventa una: un peso fabricado corrompe toda estadística calculada a partir de él. Indique el sigma_reading del perfil.</translation>
         </message>
         <message>
-            <source>The levelling book has no data: it needs a header row and at least one row of readings.</source>
-            <translation>La libreta de nivelación no tiene datos: necesita una fila de encabezado y al menos una fila de lecturas.</translation>
+            <source>The levelling book has no data: it needs a header row and at least one row of readings. Check that you chose the book the level exported.</source>
+            <translation>La libreta de nivelación no tiene datos: necesita una fila de encabezado y al menos una fila de lecturas. Compruebe que eligió la libreta que exportó el nivel.</translation>
         </message>
         <message>
-            <source>The levelling line '%1' breaks at setup '%2': its backsight is on %3, where %4 was expected, the first foresight of setup %5. A line advances through each setup's first foresight; the others are side shots.</source>
-            <translation>La línea de nivelación '%1' se interrumpe en el estacionamiento '%2': su visual de espalda está en %3, donde se esperaba %4, la primera visual de frente del estacionamiento %5. Una línea avanza por la primera visual de frente de cada estacionamiento; las demás son puntos radiados.</translation>
+            <source>The levelling line '%1' breaks at setup '%2': its backsight is on %3, where %4 was expected, the first foresight of setup %5. A line advances through each setup's first foresight; the others are side shots. Check that setup's backsight, and the order of the setups before it.</source>
+            <translation>La línea de nivelación '%1' se interrumpe en el estacionamiento '%2': su visual de espalda está en %3, donde se esperaba %4, la primera visual de frente del estacionamiento %5. Una línea avanza por la primera visual de frente de cada estacionamiento; las demás son puntos radiados. Compruebe la visual de espalda de ese estacionamiento y el orden de los estacionamientos anteriores.</translation>
         </message>
         <message>
             <source>The levelling line '%1' has a %2 of %3, which cannot weight it: a zero would give it no uncertainty and an infinite weight. Check its sight distances or setups.</source>
@@ -5142,12 +5146,12 @@
             <translation>La línea de nivelación '%1' no tiene estacionamientos. Compruebe las columnas de línea y de estacionamiento de la libreta.</translation>
         </message>
         <message>
-            <source>The levelling network '%1' has no reduced lines, so there is nothing to adjust.</source>
-            <translation>La red de nivelación '%1' no tiene líneas reducidas, por lo que no hay nada que ajustar.</translation>
+            <source>The levelling network '%1' has no reduced lines, so there is nothing to adjust. Check that the book was reduced, and that its readings form at least one line.</source>
+            <translation>La red de nivelación '%1' no tiene líneas reducidas, por lo que no hay nada que ajustar. Compruebe que la libreta se redujo y que sus lecturas forman al menos una línea.</translation>
         </message>
         <message>
-            <source>The levelling network '%1' has no reduced setups, so there is nothing to adjust.</source>
-            <translation>La red de nivelación '%1' no tiene estacionamientos reducidos, por lo que no hay nada que ajustar.</translation>
+            <source>The levelling network '%1' has no reduced setups, so there is nothing to adjust. Check that the book was reduced, and that it holds at least one setup.</source>
+            <translation>La red de nivelación '%1' no tiene estacionamientos reducidos, por lo que no hay nada que ajustar. Compruebe que la libreta se redujo y que contiene al menos un estacionamiento.</translation>
         </message>
         <message>
             <source>The library has no profile with the id '%1'.</source>
@@ -5174,16 +5178,16 @@
             <translation>El logaritmo de %1 no está definido; necesita un valor positivo.</translation>
         </message>
         <message>
-            <source>The loop '%1' ends at %2 and does not return to %3, where it began. A loop must return to the station it began at.</source>
-            <translation>El circuito '%1' termina en %2 y no vuelve a %3, donde empezó. Un circuito debe volver a la estación en la que empezó.</translation>
+            <source>The loop '%1' ends at %2 and does not return to %3, where it began. A loop must return to the station it began at. Add the line that closes it, or check the order of its lines.</source>
+            <translation>El circuito '%1' termina en %2 y no vuelve a %3, donde empezó. Un circuito debe volver a la estación en la que empezó. Añada la línea que lo cierra, o compruebe el orden de sus líneas.</translation>
         </message>
         <message>
-            <source>The loop '%1' has no lines. A loop is a sequence of levelling lines that returns to where it began.</source>
-            <translation>El circuito '%1' no tiene líneas. Un circuito es una secuencia de líneas de nivelación que vuelve al punto en que empezó.</translation>
+            <source>The loop '%1' has no lines. A loop is a sequence of levelling lines that returns to where it began. Give the lines that make it up.</source>
+            <translation>El circuito '%1' no tiene líneas. Un circuito es una secuencia de líneas de nivelación que vuelve al punto en que empezó. Indique las líneas que lo componen.</translation>
         </message>
         <message>
-            <source>The loop '%1' is broken at line '%2', which joins %3 and does not continue from the line before it: expected a line starting or ending at %4.</source>
-            <translation>El circuito '%1' está interrumpido en la línea '%2', que une %3 y no continúa desde la línea anterior: se esperaba una línea que empiece o termine en %4.</translation>
+            <source>The loop '%1' is broken at line '%2', which joins %3 and does not continue from the line before it: expected a line starting or ending at %4. List the loop's lines in the order they are run.</source>
+            <translation>El circuito '%1' está interrumpido en la línea '%2', que une %3 y no continúa desde la línea anterior: se esperaba una línea que empiece o termine en %4. Enumere las líneas del circuito en el orden en que se recorren.</translation>
         </message>
         <message>
             <source>The map extent %1 has no area; it needs a positive width and height.</source>
@@ -5194,8 +5198,8 @@
             <translation>La asignación '%1' no muestra cuál es el formato de la libreta: asigna %2. Asigne station y sight (estación y visual) para una libreta con una fila por lectura, o backsight_station y foresight_station para una fila por estacionamiento.</translation>
         </message>
         <message>
-            <source>The mapping '%1' maps %2, and also needs %3.</source>
-            <translation>La asignación '%1' asigna %2, y también necesita %3.</translation>
+            <source>The mapping '%1' maps %2, and also needs %3. Add the missing fields to it.</source>
+            <translation>La asignación '%1' asigna %2, y también necesita %3. Añádale los campos que faltan.</translation>
         </message>
         <message>
             <source>The mapping '%1' mixes the columns of two book layouts (%2). Map station and sight for a book with one row per reading, or backsight_station and foresight_station for one row per setup, not both.</source>
@@ -5210,8 +5214,8 @@
             <translation>La asignación nombra %1, que GeoComp no conoce como campo de libreta de campo. Se esperaba %2.</translation>
         </message>
         <message>
-            <source>The mapping names %1, which GeoComp does not know as a levelling-book field. Expected %2.</source>
-            <translation>La asignación nombra %1, que GeoComp no conoce como campo de libreta de nivelación. Se esperaba %2.</translation>
+            <source>The mapping names %1, which GeoComp does not know as a levelling-book field. Expected %2. Use one of those names.</source>
+            <translation>La asignación nombra %1, que GeoComp no conoce como campo de libreta de nivelación. Se esperaba %2. Use uno de esos nombres.</translation>
         </message>
         <message>
             <source>The network '%1' has no active observations, so there is nothing to adjust. Observations marked as rejected do not take part; re-activate the ones you want to use.</source>
@@ -5282,8 +5286,8 @@
             <translation>El número de series debe ser al menos 1; se dio %1.</translation>
         </message>
         <message>
-            <source>The number of setups for the level '%1' cannot be negative; %2 was given.</source>
-            <translation>El número de estacionamientos del nivel '%1' no puede ser negativo; se dio %2.</translation>
+            <source>The number of setups for the level '%1' cannot be negative; %2 was given. Give zero or more.</source>
+            <translation>El número de estacionamientos del nivel '%1' no puede ser negativo; se dio %2. Indique cero o más.</translation>
         </message>
         <message>
             <source>The observation %1 cannot be deleted: the stored solutions %2 were computed from it (FR-135). Supersede those solutions first, or keep the observation.</source>
@@ -5450,8 +5454,8 @@
             <translation>El repositorio del proyecto %1 contiene más de una red: %2. Indique cuál usar.</translation>
         </message>
         <message>
-            <source>The project store %1 holds no network '%2'. It holds: %3.</source>
-            <translation>El repositorio del proyecto %1 no contiene la red '%2'. Contiene: %3.</translation>
+            <source>The project store %1 holds no network '%2'. It holds: %3. Choose one of those.</source>
+            <translation>El repositorio del proyecto %1 no contiene la red '%2'. Contiene: %3. Elija una de ellas.</translation>
         </message>
         <message>
             <source>The project store %1 holds no network. Save one to it first, with Save to project store, or give a network document instead.</source>
@@ -5466,8 +5470,8 @@
             <translation>El repositorio de proyecto %1 registra la versión de esquema %2, que ningún GeoComp escribió. Puede estar dañado; restáurelo desde una copia de seguridad.</translation>
         </message>
         <message>
-            <source>The project store %1 uses schema %2, older than this version's %3. It can be migrated, after a backup is taken.</source>
-            <translation>El repositorio de proyecto %1 usa el esquema %2, más antiguo que el %3 de esta versión. Se puede migrar, tras una copia de seguridad.</translation>
+            <source>The project store %1 uses schema %2, older than this version's %3. Save to it with the Save to project store algorithm, which takes a backup and then migrates it.</source>
+            <translation>El repositorio de proyecto %1 usa el esquema %2, más antiguo que el %3 de esta versión. Guarde en él con el algoritmo Guardar en el repositorio del proyecto, que hace una copia de seguridad y luego lo migra.</translation>
         </message>
         <message>
             <source>The project store %1 was written by a newer GeoComp (schema %2; this version reads up to %3). Update the plugin to open it: GeoComp does not read a schema it does not understand, because what it cannot see would be lost on the next save.</source>
@@ -5482,12 +5486,12 @@
             <translation>La lectura '%1' aparece dos veces. Elimine la línea duplicada y ejecute de nuevo.</translation>
         </message>
         <message>
-            <source>The reading on '%1' carries no uncertainty; every reading needs one.</source>
-            <translation>La lectura en '%1' no tiene incertidumbre; toda lectura necesita una.</translation>
+            <source>The reading on '%1' carries no uncertainty; every reading needs one. Choose a level profile that states the reading standard deviation.</source>
+            <translation>La lectura en '%1' no tiene incertidumbre; toda lectura necesita una. Elija un perfil de nivel que indique la desviación estándar de la lectura.</translation>
         </message>
         <message>
-            <source>The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative.</source>
-            <translation>La desviación estándar de lectura del gravímetro '%1' es %2; no puede ser negativa.</translation>
+            <source>The reading standard deviation of the gravimeter '%1' is %2; it cannot be negative. Give zero or more in the gravimeter's profile.</source>
+            <translation>La desviación estándar de lectura del gravímetro '%1' es %2; no puede ser negativa. Indique cero o más en el perfil del gravímetro.</translation>
         </message>
         <message>
             <source>The readings name the gravimeter '%1', which the profile library does not hold: expected %2. Add a profile with that id, carrying the instrument's calibration.</source>
@@ -5534,8 +5538,8 @@
             <translation>La humedad relativa debe estar entre 0 y 1; se dio %1.</translation>
         </message>
         <message>
-            <source>The report template %1 uses tokens GeoComp does not fill (%2); expected %3.</source>
-            <translation>La plantilla de informe %1 usa marcadores que GeoComp no rellena (%2); se esperaba %3.</translation>
+            <source>The report template %1 uses tokens GeoComp does not fill (%2); expected %3. Correct the template, or remove the tokens it cannot have.</source>
+            <translation>La plantilla de informe %1 usa marcadores que GeoComp no rellena (%2); se esperaba %3. Corrija la plantilla, o quite los marcadores que no puede tener.</translation>
         </message>
         <message>
             <source>The resection cannot determine the station: its equations are singular, and the known points are not on a common circle with it. Check the directions for a blunder.</source>
@@ -5570,8 +5574,8 @@
             <translation>La referencia de escala debe ser un radio positivo, en las unidades del mapa; se dio %1.</translation>
         </message>
         <message>
-            <source>The second pair of a reciprocal crossing is reversed: its near reading is on %1, where %2 was expected. The second pair is observed from the far bank, so its near reading is onto the station the difference runs to.</source>
-            <translation>El segundo par de una travesía recíproca está invertido: su lectura cercana está en %1, donde se esperaba %2. El segundo par se observa desde la orilla opuesta, así que su lectura cercana es hacia la estación a la que va el desnivel.</translation>
+            <source>The second pair of a reciprocal crossing is reversed: its near reading is on %1, where %2 was expected. The second pair is observed from the far bank, so its near reading is onto the station the difference runs to. Swap its near and far readings.</source>
+            <translation>El segundo par de una travesía recíproca está invertido: su lectura cercana está en %1, donde se esperaba %2. El segundo par se observa desde la orilla opuesta, así que su lectura cercana es hacia la estación a la que va el desnivel. Intercambie sus lecturas cercana y lejana.</translation>
         </message>
         <message>
             <source>The section %1 is listed as read but has no reader. This is an internal error; please report it.</source>
@@ -5594,20 +5598,20 @@
             <translation>La configuración %1 es %2, lo que está fuera de rango; se esperaba un número entero de 0 a %3. Corríjala en Configuraciones Globales, en Interfaz.</translation>
         </message>
         <message>
-            <source>The setting '%1' cannot be greater than %2 (received %3).</source>
-            <translation>La configuración '%1' no puede ser mayor que %2 (se recibió %3).</translation>
+            <source>The setting '%1' cannot be greater than %2 (received %3). Give a value no greater than that.</source>
+            <translation>La configuración '%1' no puede ser mayor que %2 (se recibió %3). Indique un valor que no sea mayor que ese.</translation>
         </message>
         <message>
-            <source>The setting '%1' cannot be less than %2 (received %3).</source>
-            <translation>La configuración '%1' no puede ser menor que %2 (se recibió %3).</translation>
+            <source>The setting '%1' cannot be less than %2 (received %3). Give a value no less than that.</source>
+            <translation>La configuración '%1' no puede ser menor que %2 (se recibió %3). Indique un valor que no sea menor que ese.</translation>
         </message>
         <message>
-            <source>The setting '%1' cannot be set at %2 scope; it can be set at %3.</source>
-            <translation>La configuración '%1' no puede definirse en el ámbito %2; puede definirse en %3.</translation>
+            <source>The setting '%1' cannot be set at %2 scope; it can be set at %3. Set it there instead.</source>
+            <translation>La configuración '%1' no puede definirse en el ámbito %2; puede definirse en %3. Defínala allí.</translation>
         </message>
         <message>
-            <source>The setting '%1' cannot be set to '%2'. Permitted values are: %3.</source>
-            <translation>La configuración '%1' no puede establecerse en '%2'. Los valores permitidos son: %3.</translation>
+            <source>The setting '%1' cannot be set to '%2'. Permitted values are: %3. Choose one of those.</source>
+            <translation>La configuración '%1' no puede establecerse en '%2'. Los valores permitidos son: %3. Elija uno de ellos.</translation>
         </message>
         <message>
             <source>The setting '%1' expects a value of type %2, but received %3. Correct it in Global Settings, or restore the default.</source>
@@ -5618,8 +5622,8 @@
             <translation>La configuración '%1' es una configuración de proyecto, y no hay ningún proyecto abierto. Abra o cree primero un proyecto de GeoComp.</translation>
         </message>
         <message>
-            <source>The setup '%1' has no foresight: a backsight alone gives no height difference.</source>
-            <translation>El estacionamiento '%1' no tiene visual de frente: una espalda sola no da ningún desnivel.</translation>
+            <source>The setup '%1' has no foresight: a backsight alone gives no height difference. Add the foresight's reading, or remove the setup.</source>
+            <translation>El estacionamiento '%1' no tiene visual de frente: una espalda sola no da ningún desnivel. Añada la lectura de la visual de frente, o quite el estacionamiento.</translation>
         </message>
         <message>
             <source>The setup '%1' sights the same station more than once (%2). A second sight onto the same point from one setup adds nothing; check the station names.</source>
@@ -5650,8 +5654,8 @@
             <translation>La solución '%1' no tiene sistema de referencia de coordenadas, y GeoComp no infiere uno. Dé a la solución su SRC.</translation>
         </message>
         <message>
-            <source>The solution '%1' has no position components to compare (%2).</source>
-            <translation>La solución '%1' no tiene componentes de posición que comparar (%2).</translation>
+            <source>The solution '%1' has no position components to compare (%2). Choose a solution that estimates station coordinates.</source>
+            <translation>La solución '%1' no tiene componentes de posición que comparar (%2). Elija una solución que estime coordenadas de estaciones.</translation>
         </message>
         <message>
             <source>The solution '%1' has no station '%2'. Check the station's id, and that this is the solution that adjusted it.</source>
@@ -5670,8 +5674,8 @@
             <translation>La solución '%1' no indica época, así que no puede entrar en una comparación (FR-105). La diferencia entre dos instantes desconocidos no es un desplazamiento; GeoComp no supone una época. Ajuste la red de esa época de nuevo con la fecha de observación.</translation>
         </message>
         <message>
-            <source>The solutions '%1' and '%2' have no station in common, so there is nothing to compare. The same mark must carry the same name at every epoch.</source>
-            <translation>Las soluciones '%1' y '%2' no tienen estaciones en común, así que no hay nada que comparar. La misma marca debe llevar el mismo nombre en todas las épocas.</translation>
+            <source>The solutions '%1' and '%2' have no station in common, so there is nothing to compare. The same mark must carry the same name at every epoch; rename one solution's stations to match the other's.</source>
+            <translation>Las soluciones '%1' y '%2' no tienen estaciones en común, así que no hay nada que comparar. La misma marca debe llevar el mismo nombre en todas las épocas; renombre las estaciones de una solución para que coincidan con las de la otra.</translation>
         </message>
         <message>
             <source>The sparse solver was asked for, but SciPy is not installed in QGIS's Python. Install SciPy, or let GeoComp choose the solver.</source>
@@ -5682,12 +5686,12 @@
             <translation>La raíz cuadrada de %1 no está definida; necesita un valor que no sea negativo.</translation>
         </message>
         <message>
-            <source>The stadia constant must be positive, usually 100; %1 was given.</source>
-            <translation>La constante estadimétrica debe ser positiva, normalmente 100; se dio %1.</translation>
+            <source>The stadia constant must be positive, usually 100; %1 was given. Correct it in the level's profile.</source>
+            <translation>La constante estadimétrica debe ser positiva, normalmente 100; se dio %1. Corríjala en el perfil del nivel.</translation>
         </message>
         <message>
-            <source>The stadia constant of the level '%1' must be positive, usually 100; %2 was given.</source>
-            <translation>La constante estadimétrica del nivel '%1' debe ser positiva, normalmente 100; se dio %2.</translation>
+            <source>The stadia constant of the level '%1' must be positive, usually 100; %2 was given. Correct it in the level's profile.</source>
+            <translation>La constante estadimétrica del nivel '%1' debe ser positiva, normalmente 100; se dio %2. Corríjala en el perfil del nivel.</translation>
         </message>
         <message>
             <source>The station '%1' appears more than once in the reference station database.</source>
@@ -5718,8 +5722,8 @@
             <translation>La estación '%1' se mantiene fija en gravedad, pero no tiene valor de gravedad que mantener. Indique su valor de gravedad.</translation>
         </message>
         <message>
-            <source>The station '%1' is not a station of the adjusted gravity network; a held station has no estimated value.</source>
-            <translation>La estación '%1' no es una estación de la red gravimétrica ajustada; una estación mantenida fija no tiene valor estimado.</translation>
+            <source>The station '%1' is not a station of the adjusted gravity network; a held station has no estimated value. Choose a station the adjustment estimated.</source>
+            <translation>La estación '%1' no es una estación de la red gravimétrica ajustada; una estación mantenida fija no tiene valor estimado. Elija una estación que el ajuste estimó.</translation>
         </message>
         <message>
             <source>The station '%1' is not in the reference station database; expected %2.</source>
@@ -5754,12 +5758,12 @@
             <translation>Los tres hilos leídos en %1 dan (superior + inferior) / 2 - medio = %2 m, que debería ser cero. Uno de los tres se leyó mal, o se anotaron en las columnas equivocadas.</translation>
         </message>
         <message>
-            <source>The three-wire readings %1 are not in the order lower, middle, upper. A staff is read upwards, so the values were probably entered in the wrong columns.</source>
-            <translation>Las lecturas de los tres hilos %1 no están en el orden inferior, medio, superior. Una mira se lee de abajo arriba, por lo que los valores probablemente se introdujeron en las columnas equivocadas.</translation>
+            <source>The three-wire readings %1 are not in the order lower, middle, upper. A staff is read upwards, so the values were probably entered in the wrong columns. Check which column the mapping gives each wire.</source>
+            <translation>Las lecturas de los tres hilos %1 no están en el orden inferior, medio, superior. Una mira se lee de abajo arriba, por lo que los valores probablemente se introdujeron en las columnas equivocadas. Compruebe qué columna asigna el mapeo a cada hilo.</translation>
         </message>
         <message>
-            <source>The tide at %1 cannot be computed: the time has no time zone, and the tide depends on the time to the minute.</source>
-            <translation>La marea en %1 no puede calcularse: la hora no tiene zona horaria, y la marea depende de la hora al minuto.</translation>
+            <source>The tide at %1 cannot be computed: the time has no time zone, and the tide depends on the time to the minute. Give the time with its time zone.</source>
+            <translation>La marea en %1 no puede calcularse: la hora no tiene zona horaria, y la marea depende de la hora al minuto. Indique la hora con su zona horaria.</translation>
         </message>
         <message>
             <source>The time of the gravity reading '%1' has no time zone. A time zone guessed an hour wrong is tens of microgal of tide; give the time zone of the readings.</source>
@@ -5790,12 +5794,12 @@
             <translation>Los dos círculos hacia %1 discrepan en la distancia en %2 m, frente a una tolerancia de %3 m. La media de las dos no es la medida de nada; compruebe la libreta de campo antes de usar este par.</translation>
         </message>
         <message>
-            <source>The two pairs of a reciprocal crossing join different stations: the second joins %1, where %2 was expected.</source>
-            <translation>Los dos pares de una travesía recíproca unen estaciones distintas: el segundo une %1, donde se esperaba %2.</translation>
+            <source>The two pairs of a reciprocal crossing join different stations: the second joins %1, where %2 was expected. Check the stations of the second pair.</source>
+            <translation>Los dos pares de una travesía recíproca unen estaciones distintas: el segundo une %1, donde se esperaba %2. Compruebe las estaciones del segundo par.</translation>
         </message>
         <message>
-            <source>The two runs of a double-run section join different stations (%1). Both runs of a section go between the same two stations, in either direction.</source>
-            <translation>Los dos recorridos de una sección de ida y vuelta unen estaciones distintas (%1). Los dos recorridos de una sección van entre las mismas dos estaciones, en cualquier sentido.</translation>
+            <source>The two runs of a double-run section join different stations (%1). Both runs of a section go between the same two stations, in either direction. Check the stations of each run.</source>
+            <translation>Los dos recorridos de una sección de ida y vuelta unen estaciones distintas (%1). Los dos recorridos de una sección van entre las mismas dos estaciones, en cualquier sentido. Compruebe las estaciones de cada recorrido.</translation>
         </message>
         <message>
             <source>The two sights differ by %1 m over %2 m. Leap-frog cancels refraction in proportion to how equal the sights are, so an imbalanced pair gets much less of the method's benefit.</source>
@@ -5858,16 +5862,16 @@
             <translation>El factor de varianza del grupo '%1' salió negativo (%2): sus residuos son menores de lo que su modelo admite. El grupo tiene poca redundancia, o su modelo estocástico está equivocado en la forma, no en la escala.</translation>
         </message>
         <message>
-            <source>The variance inflation of a reciprocal crossing must be at least 1; %1 was given. A smaller factor would claim the method is better than its readings.</source>
-            <translation>La inflación de varianza de una travesía recíproca debe ser al menos 1; se dio %1. Un factor menor afirmaría que el método es mejor que sus lecturas.</translation>
+            <source>The variance inflation of a reciprocal crossing must be at least 1; %1 was given. A smaller factor would claim the method is better than its readings. Give a factor of 1 or more.</source>
+            <translation>La inflación de varianza de una travesía recíproca debe ser al menos 1; se dio %1. Un factor menor afirmaría que el método es mejor que sus lecturas. Indique un factor de 1 o más.</translation>
         </message>
         <message>
             <source>The variance of this crossing was multiplied by %1. Refraction over water varies rapidly and asymmetrically, and the two reciprocal observations were not simultaneous, so the symmetry the method relies on holds only approximately.</source>
             <translation>La varianza de esta travesía se multiplicó por %1. La refracción sobre el agua varía rápida y asimétricamente, y las dos observaciones recíprocas no fueron simultáneas, así que la simetría en la que se apoya el método solo se cumple aproximadamente.</translation>
         </message>
         <message>
-            <source>The vertical gradient %2 at the station '%1' cannot be used: it must be a finite number in s^-2, with a non-negative uncertainty.</source>
-            <translation>El gradiente vertical %2 en la estación '%1' no puede usarse: debe ser un número finito en s^-2, con una incertidumbre no negativa.</translation>
+            <source>The vertical gradient %2 at the station '%1' cannot be used: it must be a finite number in s^-2, with a non-negative uncertainty. Correct the gradient at that station.</source>
+            <translation>El gradiente vertical %2 en la estación '%1' no puede usarse: debe ser un número finito en s^-2, con una incertidumbre no negativa. Corrija el gradiente en esa estación.</translation>
         </message>
         <message>
             <source>The vertical index error at station %1 varies by %2 arcsec across its face pairs.</source>
@@ -5886,8 +5890,8 @@
             <translation>El coeficiente de ponderación debe ser positivo; se dio %1. Un cero afirmaría que toda diferencia es exacta y le daría peso infinito.</translation>
         </message>
         <message>
-            <source>The zoom range of the base map service '%1' runs from %2; the minimum zoom must be 0 or more, and no greater than the maximum.</source>
-            <translation>El rango de zoom del servicio de mapa base '%1' va de %2; el zoom mínimo debe ser 0 o más, y no mayor que el máximo.</translation>
+            <source>The zoom range of the base map service '%1' runs from %2; the minimum zoom must be 0 or more, and no greater than the maximum. Correct the service's zoom range in the base map catalogue.</source>
+            <translation>El rango de zoom del servicio de mapa base '%1' va de %2; el zoom mínimo debe ser 0 o más, y no mayor que el máximo. Corrija el rango de zoom del servicio en el catálogo de mapas base.</translation>
         </message>
         <message>
             <source>There is no GeoComp project at %1. Check the name, or choose to create it.</source>
@@ -5918,12 +5922,12 @@
             <translation>No hay ningún perfil de reflector '%1'; se esperaba %2.</translation>
         </message>
         <message>
-            <source>There is no report template '%1' in the configured directory or among the shipped ones: %2.</source>
-            <translation>No hay ninguna plantilla de informe '%1' en el directorio configurado ni entre las incluidas: %2.</translation>
+            <source>There is no report template '%1' in the configured directory or among the shipped ones: %2. Choose one of those, or check the template directory in Global Settings.</source>
+            <translation>No hay ninguna plantilla de informe '%1' en el directorio configurado ni entre las incluidas: %2. Elija una de ellas, o compruebe el directorio de plantillas en Configuración Global.</translation>
         </message>
         <message>
-            <source>There is no solution %1 in this project store.</source>
-            <translation>No hay ninguna solución %1 en este repositorio de proyecto.</translation>
+            <source>There is no solution %1 in this project store. Check the solution's id, or the store it was saved to.</source>
+            <translation>No hay ninguna solución %1 en este repositorio de proyecto. Compruebe el identificador de la solución, o el repositorio en que se guardó.</translation>
         </message>
         <message>
             <source>There is nothing to export: every sheet came out empty. Choose a network or a solution with content; a workbook of empty sheets would say the data was zero rather than absent.</source>
@@ -5934,12 +5938,12 @@
             <translation>Estas distancias forman parte de un agrupamiento correlacionado, cuya covarianza las describe como medidas, y reducirlas la dejaría describiendo otros valores: %1. Redúzcalas antes de agruparlas, o desactive la reducción.</translation>
         </message>
         <message>
-            <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2.</source>
-            <translation>Estas estaciones no están en ambas soluciones: %1. Estaciones que ambas épocas estiman: %2.</translation>
+            <source>These stations are not in both solutions: %1. Stations both epochs estimate: %2. Name stations from that list.</source>
+            <translation>Estas estaciones no están en ambas soluciones: %1. Estaciones que ambas épocas estiman: %2. Indique estaciones de esa lista.</translation>
         </message>
         <message>
-            <source>These stations were not compared: %1. The compared stations are: %2.</source>
-            <translation>Estas estaciones no se compararon: %1. Las estaciones comparadas son: %2.</translation>
+            <source>These stations were not compared: %1. The compared stations are: %2. Name stations from that list.</source>
+            <translation>Estas estaciones no se compararon: %1. Las estaciones comparadas son: %2. Indique estaciones de esa lista.</translation>
         </message>
         <message>
             <source>This DynAdjust output writes angles in degrees, minutes and seconds with symbols (%1), which GeoComp does not read. Run DynAdjust with its default angular format.</source>
@@ -5974,8 +5978,8 @@
             <translation>Este archivo es un '%1', no un '%2'. Indique el documento que el algoritmo de monitoreo escribió para esta entrada.</translation>
         </message>
         <message>
-            <source>This file is not a gravimeter export GeoComp can read. Expected a Scintrex CG-5 export (a header of '/' lines), a ZLS Burris export (16 space-separated columns, the date as YYYY/MM/DD), or a CSV whose header names %1.</source>
-            <translation>Este archivo no es una exportación de gravímetro que GeoComp pueda leer. Se esperaba una exportación del Scintrex CG-5 (un encabezado de líneas '/'), una exportación del ZLS Burris (16 columnas separadas por espacios, la fecha como AAAA/MM/DD), o un CSV cuyo encabezado nombre %1.</translation>
+            <source>This file is not a gravimeter export GeoComp can read. Expected a Scintrex CG-5 export (a header of '/' lines), a ZLS Burris export (16 space-separated columns, the date as YYYY/MM/DD), or a CSV whose header names %1. Export the readings again in one of those formats.</source>
+            <translation>Este archivo no es una exportación de gravímetro que GeoComp pueda leer. Se esperaba una exportación del Scintrex CG-5 (un encabezado de líneas '/'), una exportación del ZLS Burris (16 columnas separadas por espacios, la fecha como AAAA/MM/DD), o un CSV cuyo encabezado nombre %1. Exporte las lecturas de nuevo en uno de esos formatos.</translation>
         </message>
         <message>
             <source>This monitoring document is version %1; this GeoComp reads version %2. Run the analysis again to write it anew.</source>

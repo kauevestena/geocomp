@@ -135,6 +135,25 @@ lists and names. A key may still carry English for the developer's diagnostic, a
 it. The structural test fails on a template that interpolates a key some raise site, or some finding's
 context, fills with a phrase of three words or more.
 
+**Every refusal says what the user can do (P12c-37).** NFR-006 asks three things of an error message: what
+failed, why, and *what the user can do about it*. The rules above hold the first two. The third was not
+checked, and when P12c-37 counted, 322 of the 641 refusal templates stopped after the why. "The relative
+humidity must lie between 0 and 1; 1.4 was given" states the rule. It does not tell the user that the value
+wants giving as a fraction.
+
+The structural test now reads a remedy as **a clause that begins with an imperative**. That is how GeoComp's
+templates already say it where they say it: "Give it in metres.", "Check the temperature readings.", "...,
+or turn the correction off." The verbs are a fixed list in the test, extended when a remedy uses one it lacks.
+A verb inside a sentence ("the engine could not open the file") is not an instruction. The test can tell that
+a remedy is present; whether it is a good one is still the review's question. Findings are not refusals.
+They are a report's observations about a result, and are not held to it.
+
+The 322 were frozen in `tests/structural/nfr006_without_a_remedy.txt`, a list that may only shrink. Its first
+pull request gave a remedy to 91: the 37 in the settings service and in the monitoring, integration and
+project algorithms, and the 54 of gravimetry and levelling. Six more already had remedies the first verb list
+missed, so "copy", "restore", "rebuild", "compare" and "ask" were added, and "swap" for the batch's own. 225
+remain.
+
 ## 3. Terminology (FR-093)
 
 [`00-glossary.md`](./00-glossary.md) is **normative** for translators: its PT-BR and ES columns are the

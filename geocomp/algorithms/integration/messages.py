@@ -33,9 +33,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "subject",
     ),
     "validation.combination_input_without_epoch": MessageTemplate(
-        "The input '%1' holds a position (%2) but not its epoch. GeoComp does not "
-        "assume one: the frame moves, and the same coordinates at two epochs are two "
-        "different places.",
+        "The input '%1' holds a position (%2) but not its epoch. GeoComp does not assume one: "
+        "the frame moves, and the same coordinates at two epochs are two different places. Give "
+        "the input the epoch its coordinates refer to.",
         "input",
         "subject",
     ),
@@ -75,8 +75,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "validation.combination_frames_differ": MessageTemplate(
-        "The inputs are in different coordinate reference systems (%1). A combination "
-        "without GNSS is adjusted in the inputs' own system, so they must share one.",
+        "The inputs are in different coordinate reference systems (%1). A combination without "
+        "GNSS is adjusted in the inputs' own system, so they must share one. Bring them into "
+        "one system before combining them.",
         "inputs",
     ),
     "validation.combination_gnss_in_local_frame": MessageTemplate(
@@ -93,9 +94,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "stations",
     ),
     "validation.combination_disconnected": MessageTemplate(
-        "The inputs fall into %1 pieces that share no station, so they cannot be "
-        "adjusted as one network. A combination is tied together by the stations the "
-        "techniques have in common.",
+        "The inputs fall into %1 pieces that share no station, so they cannot be adjusted as "
+        "one network. A combination is tied together by the stations the techniques have in "
+        "common: add observations that join the pieces, or adjust each piece on its own.",
         "received",
     ),
     "validation.combination_geoid_in_local_frame": MessageTemplate(
@@ -126,25 +127,29 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.geoid_file_truncated": MessageTemplate(
-        "The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3.",
+        "The geoid grid '%1' is truncated: it has %2 bytes, and the format needs %3. Download "
+        "it again from its publisher.",
         "path",
         "received",
         "needed",
     ),
     "data.geoid_header_not_usable": MessageTemplate(
         "The header of the geoid grid '%1' does not describe a usable grid (%2): it needs at "
-        "least 2 by 2 nodes and a positive spacing, in degrees.",
+        "least 2 by 2 nodes and a positive spacing, in degrees. Check that the grid is in "
+        "geographic coordinates, as the publisher distributes it.",
         "path",
         "received",
     ),
     "data.geoid_header_incomplete": MessageTemplate(
-        "The header of the geoid grid '%1' is not a complete ESRI ASCII header: it lacks %2.",
+        "The header of the geoid grid '%1' is not a complete ESRI ASCII header: it lacks %2. "
+        "Check that the file is the ESRI ASCII grid the publisher distributes, not one "
+        "converted from another format.",
         "path",
         "missing",
     ),
     "data.geoid_cell_count": MessageTemplate(
         "The geoid grid '%1' has %2 values where its header promises %3, for a grid of %4 by "
-        "%5. The file is truncated or damaged.",
+        "%5. The file is truncated or damaged; download it again from its publisher.",
         "path",
         "received",
         "cells",
@@ -171,7 +176,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "reason",
     ),
     "validation.engine_unknown": MessageTemplate(
-        "'%1' is not an adjustment engine; expected %2.",
+        "'%1' is not an adjustment engine; expected %2. Choose one of those.",
         "received",
         "expected",
     ),
@@ -187,8 +192,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "Give the model one.",
     ),
     "data.geoid_grid_too_small": MessageTemplate(
-        "The geoid model '%1' has a grid of shape %2; interpolation needs a two-dimensional grid "
-        "of at least 2 by 2 nodes.",
+        "The geoid model '%1' has a grid of shape %2; interpolation needs a two-dimensional "
+        "grid of at least 2 by 2 nodes. Use a model that covers the area with a grid.",
         "geoid",
         "shape",
     ),
@@ -222,11 +227,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.height_conversion_unsupported": MessageTemplate(
         "Heights cannot be converted between %1. A geoid relates ellipsoidal and orthometric "
-        "heights only; normal heights need a quasi-geoid, which is a different model.",
+        "heights only; normal heights need a quasi-geoid, which is a different model. Use "
+        "ellipsoidal or orthometric heights with a geoid model.",
         "received",
     ),
     "validation.height_wrong_unit": MessageTemplate(
-        "The %1 is in %2, where %3 was expected.",
+        "The %1 is in %2, where %3 was expected. Give it in that unit.",
         "parameter",
         "received",
         "expected",

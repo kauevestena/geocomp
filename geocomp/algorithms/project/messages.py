@@ -25,12 +25,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # came from (geocomp.algorithms.inputs). Before P12c-6 none had a template,
     # and a run showed the code and its context instead.
     "data.json_document_unreadable": MessageTemplate(
-        "'%1' could not be read as a JSON document (%2).",
+        "'%1' could not be read as a JSON document (%2). Check that the file is complete, and "
+        "is the document a GeoComp algorithm wrote.",
         "path",
         "reason",
     ),
     "data.json_document_not_an_object": MessageTemplate(
-        "'%1' is not a GeoComp document: its top level is not a JSON object.",
+        "'%1' is not a GeoComp document: its top level is not a JSON object. Choose the file a "
+        "GeoComp algorithm wrote.",
         "path",
     ),
     "data.network_given_where_a_solution_was_expected": MessageTemplate(
@@ -39,12 +41,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
     ),
     "data.solution_document_malformed": MessageTemplate(
-        "'%1' is not a solution document as GeoComp writes it (%2).",
+        "'%1' is not a solution document as GeoComp writes it (%2). Give the solution document "
+        "an adjustment wrote.",
         "path",
         "reason",
     ),
     "data.network_document_malformed": MessageTemplate(
-        "'%1' is not a network document as GeoComp writes it (%2).",
+        "'%1' is not a network document as GeoComp writes it (%2). Give the network document an "
+        "import or a pre-processing algorithm wrote.",
         "path",
         "reason",
     ),
@@ -59,7 +63,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "expected",
     ),
     "data.project_store_network_not_found": MessageTemplate(
-        "The project store %1 holds no network '%2'. It holds: %3.",
+        "The project store %1 holds no network '%2'. It holds: %3. Choose one of those.",
         "store",
         "network",
         "expected",
@@ -87,8 +91,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "supported",
     ),
     "data.store_schema_older": MessageTemplate(
-        "The project store %1 uses schema %2, older than this version's %3. It can be "
-        "migrated, after a backup is taken.",
+        "The project store %1 uses schema %2, older than this version's %3. Save to it with the "
+        "Save to project store algorithm, which takes a backup and then migrates it.",
         "path",
         "received",
         "supported",
@@ -119,7 +123,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.unknown_solution": MessageTemplate(
-        "There is no solution %1 in this project store.",
+        "There is no solution %1 in this project store. Check the solution's id, or the store "
+        "it was saved to.",
         "solution",
     ),
     "validation.solution_supersedes_itself": MessageTemplate(
@@ -132,8 +137,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
     ),
     "data.store_geometry_unreadable": MessageTemplate(
-        "A geometry in the project store could not be read (it begins %1). The store "
-        "may be damaged; the numeric coordinates beside it are the record.",
+        "A geometry in the project store could not be read (it begins %1). The store may be "
+        "damaged; the numeric coordinates beside it are the record. Restore the store from a "
+        "backup if other records fail to read too.",
         "received",
     ),
     "data.postgis_driver_missing": MessageTemplate(
@@ -152,8 +158,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.postgis_extension_missing": MessageTemplate(
-        "The database behind %1 does not have the PostGIS extension. A database "
-        "administrator enables it once, with: CREATE EXTENSION postgis",
+        "The database behind %1 does not have the PostGIS extension. Ask a database "
+        "administrator to enable it, once, with: CREATE EXTENSION postgis",
         "path",
     ),
     # -- the tables export (P12c-7) ---------------------------------------------
@@ -163,7 +169,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "rather than absent.",
     ),
     "validation.unknown_export_sheet": MessageTemplate(
-        "'%1' is not a sheet GeoComp exports; the sheets are %2.",
+        "'%1' is not a sheet GeoComp exports; the sheets are %2. Choose one of those.",
         "received",
         "expected",
     ),
@@ -175,12 +181,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.template_not_found": MessageTemplate(
         "There is no report template '%1' in the configured directory or among the shipped "
-        "ones: %2.",
+        "ones: %2. Choose one of those, or check the template directory in Global Settings.",
         "received",
         "available",
     ),
     "validation.template_unknown_token": MessageTemplate(
-        "The report template %1 uses tokens GeoComp does not fill (%2); expected %3.",
+        "The report template %1 uses tokens GeoComp does not fill (%2); expected %3. Correct "
+        "the template, or remove the tokens it cannot have.",
         "source",
         "received",
         "expected",
@@ -235,8 +242,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "service",
     ),
     "validation.basemap_zoom_range": MessageTemplate(
-        "The zoom range of the base map service '%1' runs from %2; the minimum zoom must be 0 or "
-        "more, and no greater than the maximum.",
+        "The zoom range of the base map service '%1' runs from %2; the minimum zoom must be 0 "
+        "or more, and no greater than the maximum. Correct the service's zoom range in the base "
+        "map catalogue.",
         "service",
         "received",
     ),

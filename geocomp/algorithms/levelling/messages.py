@@ -31,12 +31,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # -- the levelling book and its mapping (P12c-7) ----------------------------
     "validation.unknown_level_mapping_field": MessageTemplate(
         "The mapping names %1, which GeoComp does not know as a levelling-book field. "
-        "Expected %2.",
+        "Expected %2. Use one of those names.",
         "received",
         "expected",
     ),
     "validation.stadia_factor_not_positive": MessageTemplate(
-        "The stadia constant must be positive, usually 100; %1 was given.",
+        "The stadia constant must be positive, usually 100; %1 was given. Correct it in the "
+        "level's profile.",
         "received",
     ),
     "validation.ambiguous_level_layout": MessageTemplate(
@@ -54,21 +55,23 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.level_mapping_incomplete": MessageTemplate(
-        "The mapping '%1' maps %2, and also needs %3.",
+        "The mapping '%1' maps %2, and also needs %3. Add the missing fields to it.",
         "mapping",
         "received",
         "missing",
     ),
     "validation.level_book_empty": MessageTemplate(
         "The levelling book has no data: it needs a header row and at least one row of "
-        "readings.",
+        "readings. Check that you chose the book the level exported.",
     ),
     # -- the readings, setups, lines and network the core refuses (P12c-7) ------
     "validation.staff_reading_without_station": MessageTemplate(
-        "A staff reading names no station. Every reading needs the point the staff stood on.",
+        "A staff reading names no station. Every reading needs the point the staff stood on. "
+        "Fill in the station of every reading.",
     ),
     "validation.staff_reading_not_a_quantity": MessageTemplate(
-        "The reading on '%1' carries no uncertainty; every reading needs one.",
+        "The reading on '%1' carries no uncertainty; every reading needs one. Choose a level "
+        "profile that states the reading standard deviation.",
         "station",
     ),
     "validation.staff_reading_wrong_unit": MessageTemplate(
@@ -84,11 +87,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.three_wire_out_of_order": MessageTemplate(
         "The three-wire readings %1 are not in the order lower, middle, upper. A staff is "
-        "read upwards, so the values were probably entered in the wrong columns.",
+        "read upwards, so the values were probably entered in the wrong columns. Check which "
+        "column the mapping gives each wire.",
         "received",
     ),
     "validation.three_wire_reading_not_a_quantity": MessageTemplate(
-        "The %1 wire reading carries no uncertainty; every reading needs one.",
+        "The %1 wire reading carries no uncertainty; every reading needs one. Choose a level "
+        "profile that states the reading standard deviation.",
         "component",
     ),
     "validation.three_wire_wrong_unit": MessageTemplate(
@@ -101,7 +106,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "setup one.",
     ),
     "validation.level_setup_without_foresight": MessageTemplate(
-        "The setup '%1' has no foresight: a backsight alone gives no height difference.",
+        "The setup '%1' has no foresight: a backsight alone gives no height difference. Add "
+        "the foresight's reading, or remove the setup.",
         "setup",
     ),
     "validation.level_setup_repeats_a_station": MessageTemplate(
@@ -120,8 +126,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.levelling_line_discontinuous": MessageTemplate(
         "The levelling line '%1' breaks at setup '%2': its backsight is on %3, where %4 was "
-        "expected, the first foresight of setup %5. A line advances through each setup's first "
-        "foresight; the others are side shots.",
+        "expected, the first foresight of setup %5. A line advances through each setup's "
+        "first foresight; the others are side shots. Check that setup's backsight, and the "
+        "order of the setups before it.",
         "line",
         "setup",
         "received",
@@ -138,27 +145,30 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.loop_without_lines": MessageTemplate(
         "The loop '%1' has no lines. A loop is a sequence of levelling lines that returns to "
-        "where it began.",
+        "where it began. Give the lines that make it up.",
         "loop",
     ),
     "validation.loop_discontinuous": MessageTemplate(
         "The loop '%1' is broken at line '%2', which joins %3 and does not continue from the "
-        "line before it: expected a line starting or ending at %4.",
+        "line before it: expected a line starting or ending at %4. List the loop's lines in "
+        "the order they are run.",
         "loop",
         "line",
         "received",
         "at",
     ),
     "validation.loop_does_not_close": MessageTemplate(
-        "The loop '%1' ends at %2 and does not return to %3, where it began. A loop must return "
-        "to the station it began at.",
+        "The loop '%1' ends at %2 and does not return to %3, where it began. A loop must "
+        "return to the station it began at. Add the line that closes it, or check the order "
+        "of its lines.",
         "loop",
         "received",
         "start",
     ),
     "validation.section_runs_disagree": MessageTemplate(
         "The two runs of a double-run section join different stations (%1). Both runs of a "
-        "section go between the same two stations, in either direction.",
+        "section go between the same two stations, in either direction. Check the stations of "
+        "each run.",
         "received",
     ),
     "validation.unknown_weighting_mode": MessageTemplate(
@@ -166,11 +176,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.levelling_network_without_lines": MessageTemplate(
-        "The levelling network '%1' has no reduced lines, so there is nothing to adjust.",
+        "The levelling network '%1' has no reduced lines, so there is nothing to adjust. "
+        "Check that the book was reduced, and that its readings form at least one line.",
         "network",
     ),
     "validation.levelling_network_without_setups": MessageTemplate(
-        "The levelling network '%1' has no reduced setups, so there is nothing to adjust.",
+        "The levelling network '%1' has no reduced setups, so there is nothing to adjust. "
+        "Check that the book was reduced, and that it holds at least one setup.",
         "network",
     ),
     "validation.benchmark_not_in_network": MessageTemplate(
@@ -187,7 +199,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.benchmark_without_height_type": MessageTemplate(
         "The benchmark '%1' does not say which kind of height it has (orthometric, normal or "
-        "ellipsoidal), so it cannot be checked against the others.",
+        "ellipsoidal), so it cannot be checked against the others. Give the benchmark its "
+        "height type.",
         "station",
     ),
     "validation.weighted_benchmark_without_uncertainty": MessageTemplate(
@@ -235,30 +248,33 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.variance_inflation_below_one": MessageTemplate(
         "The variance inflation of a reciprocal crossing must be at least 1; %1 was given. A "
-        "smaller factor would claim the method is better than its readings.",
+        "smaller factor would claim the method is better than its readings. Give a factor of "
+        "1 or more.",
         "received",
     ),
     "validation.reciprocal_pair_same_station": MessageTemplate(
         "A reciprocal pair at setup '%1' reads the same station, '%2', on both banks. A "
-        "reciprocal crossing needs one station on each bank.",
+        "reciprocal crossing needs one station on each bank. Check which station each reading "
+        "of that pair is on.",
         "setup",
         "station",
     ),
     "validation.reciprocal_pairs_disagree": MessageTemplate(
         "The two pairs of a reciprocal crossing join different stations: the second joins %1, "
-        "where %2 was expected.",
+        "where %2 was expected. Check the stations of the second pair.",
         "received",
         "expected",
     ),
     "validation.reciprocal_second_pair_reversed": MessageTemplate(
         "The second pair of a reciprocal crossing is reversed: its near reading is on %1, "
         "where %2 was expected. The second pair is observed from the far bank, so its near "
-        "reading is onto the station the difference runs to.",
+        "reading is onto the station the difference runs to. Swap its near and far readings.",
         "received",
         "station",
     ),
     "validation.station_not_foresighted": MessageTemplate(
-        "Station '%1' is not foresighted from setup '%2', which foresights %3.",
+        "Station '%1' is not foresighted from setup '%2', which foresights %3. Check the "
+        "station named, or the setup it was read from.",
         "station",
         "setup",
         "expected",
@@ -273,12 +289,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "class one.",
     ),
     "validation.level_stadia_factor_not_positive": MessageTemplate(
-        "The stadia constant of the level '%1' must be positive, usually 100; %2 was given.",
+        "The stadia constant of the level '%1' must be positive, usually 100; %2 was given. "
+        "Correct it in the level's profile.",
         "level",
         "received",
     ),
     "validation.level_sigma_negative": MessageTemplate(
-        "The %2 of the level '%1' is %3; a standard deviation cannot be negative.",
+        "The %2 of the level '%1' is %3; a standard deviation cannot be negative. Give zero "
+        "or more in the level's profile.",
         "level",
         "parameter",
         "received",
@@ -291,17 +309,19 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.levelling_class_negative_limit": MessageTemplate(
         "The %2 of the levelling class '%1' is %3; a limit cannot be negative, and zero means "
-        "unconstrained.",
+        "unconstrained. Give zero or more.",
         "levelling_class",
         "parameter",
         "received",
     ),
     "validation.negative_line_length": MessageTemplate(
-        "A levelling line length cannot be negative; %1 km was given.",
+        "A levelling line length cannot be negative; %1 km was given. Give the line's length "
+        "in kilometres, zero or more.",
         "received",
     ),
     "validation.negative_setup_count": MessageTemplate(
-        "The number of setups for the level '%1' cannot be negative; %2 was given.",
+        "The number of setups for the level '%1' cannot be negative; %2 was given. Give zero "
+        "or more.",
         "level",
         "received",
     ),
@@ -309,16 +329,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # Each refusal is reported as a finding, worded by the frame it is reported
     # in with the refusal's own words as the reason.
     "data.level_missing_value": MessageTemplate(
-        "'%1' is empty.",
+        "'%1' is empty. Fill it in, or remove the row.",
         "field",
     ),
     "data.level_unreadable_number": MessageTemplate(
-        "'%2', given for '%1', is not a number.",
+        "'%2', given for '%1', is not a number. Correct it in the book.",
         "field",
         "received",
     ),
     "data.level_unknown_sight": MessageTemplate(
-        "'%1' is not a kind of sight the mapping knows (%2).",
+        "'%1' is not a kind of sight the mapping knows (%2). Use one of those in that column.",
         "received",
         "expected",
     ),
