@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-34 — `rnx2rtkp` for Windows and macOS too
+
+#### Added
+
+- The plugin carries RTKLIB's `rnx2rtkp` for Windows (x86-64) and macOS (Apple Silicon and Intel, one
+  universal program) as well as Linux, so GNSS processing needs nothing else installed on any of them. Each is
+  built from the same pinned commit and checked against the same reference output on its own system.
+
 ### P12c-29 — Installing DynAdjust asks you to confirm its licence
 
 #### Changed

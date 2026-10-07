@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import gzip
 import re
 import shutil
 import subprocess
@@ -115,11 +116,9 @@ def same_line(committed: str, produced: str) -> bool:
 
 def run_case(case: Case, work: Path) -> str:
     """Run one case and return its output with the input paths made relative."""
+    # Python's gzip rather than gunzip(1), which a Windows runner need not have.
     navigation = work / "nav.05n"
-    with subprocess.Popen(
-        ["gunzip", "-c", str(DATA / NAVIGATION)], stdout=subprocess.PIPE
-    ) as unzip:
-        navigation.write_bytes(unzip.stdout.read())
+    navigation.write_bytes(gzip.decompress((DATA / NAVIGATION).read_bytes()))
 
     output = work / f"{case.name}.pos"
     command = [
@@ -133,8 +132,11 @@ def run_case(case: Case, work: Path) -> str:
             f"{result.stdout[-2000:]}\n{result.stderr[-2000:]}"
         )
     # The `% inp file` lines name absolute paths on the machine that ran; the
-    # committed fixtures carry relative ones, as the DynAdjust fixtures do.
-    return re.sub(r"^(% inp file  :) +.*/([^/\n]+)$", r"\1 ./\2", output.read_text(), flags=re.M)
+    # committed fixtures carry relative ones, as the DynAdjust fixtures do. A
+    # Windows path separates with backslashes, which the pattern accepts too.
+    return re.sub(
+        r"^(% inp file  :) +.*[/\\]([^/\\\n]+)$", r"\1 ./\2", output.read_text(), flags=re.M
+    )
 
 
 def main() -> int:

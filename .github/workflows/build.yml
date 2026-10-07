@@ -15,33 +15,110 @@ env:
   RTKLIB_COMMIT: 06e8644287ff07efc4c53bbf3e7f9dafb0355605
 
 jobs:
-  # Built on the oldest Ubuntu GeoComp supports, so the program runs on that
-  # and on every later one: glibc is backward compatible, not forward. It links
-  # libc and libm and nothing else -- not libgfortran, which only the IERS
-  # model, off in this build, would use -- and is not linked statically,
-  # because a static glibc would bring LGPL relinking obligations that a
-  # dynamic one does not.
+  # rnx2rtkp from the pinned commit, once per platform the plugin carries it for
+  # (ADR-0009). Each runner builds it, checks what it links against, checks the
+  # committed .pos fixtures against *that* binary, and runs it the way the
+  # plugin will -- planted unexecutable under its platform name, found as the
+  # bundled copy -- before it may ship.
+  #
+  # Linux is built on the oldest Ubuntu GeoComp supports, so it runs on that and
+  # every later one (glibc is backward compatible, not forward), and linked
+  # dynamically against libc and libm only: a static glibc would bring LGPL
+  # relinking obligations. libgfortran is not linked; only the IERS tide model,
+  # off in this build, uses it. Windows is linked statically with MinGW-w64, so
+  # it needs no MinGW runtime DLLs beside it. macOS is one universal program,
+  # Apple Silicon and Intel together; the runner checks its arm64 half natively
+  # and its Intel half under Rosetta, and the package carries it for both.
   rtklib:
-    name: rnx2rtkp for Linux
-    runs-on: ubuntu-22.04
+    name: rnx2rtkp for ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+            program: rnx2rtkp
+          - os: windows-latest
+            platform: windows-x86_64
+            program: rnx2rtkp.exe
+          - os: macos-latest
+            platform: macos-universal
+            program: rnx2rtkp
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build rnx2rtkp from the pinned commit
+      - name: Fetch the pinned source
         run: |
           git clone --filter=blob:none https://github.com/rtklibexplorer/RTKLIB.git rtklib-src
           git -C rtklib-src checkout --detach "$RTKLIB_COMMIT"
-          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" LDLIBS="-lm"
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" LDLIBS="-lm"
+
+      - name: Build (macOS, universal)
+        if: runner.os == 'macOS'
+        run: |
+          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(sysctl -n hw.ncpu)" \
+            CC="clang -arch arm64 -arch x86_64" LDLIBS="-lm"
+          lipo -info rtklib-src/app/consapp/rnx2rtkp/gcc/rnx2rtkp
+
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: MINGW64
+          update: false
+          install: mingw-w64-x86_64-gcc make
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          make -C rtklib-src/app/consapp/rnx2rtkp/gcc -j"$(nproc)" CC=gcc \
+            LDFLAGS="-static" LDLIBS="-lm -lwinmm -lws2_32"
+
+      - name: Collect the program
+        run: |
           mkdir engine
-          cp rtklib-src/app/consapp/rnx2rtkp/gcc/rnx2rtkp engine/
+          cp "rtklib-src/app/consapp/rnx2rtkp/gcc/${{ matrix.program }}" engine/
+          ls -l engine
+
+      - name: What it links against (Linux)
+        if: runner.os == 'Linux'
+        run: |
           strip engine/rnx2rtkp
           ldd engine/rnx2rtkp
-
-      - name: Only libc and libm
-        run: |
           extra=$(ldd engine/rnx2rtkp | awk '{print $1}' | grep -vE '^(linux-vdso|libc\.so|libm\.so|/lib64/ld-linux)' || true)
           if [ -n "$extra" ]; then
             echo "::error::rnx2rtkp links more than libc and libm: $extra"
+            exit 1
+          fi
+
+      - name: What it links against (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          strip engine/rnx2rtkp
+          otool -L engine/rnx2rtkp
+          extra=$(otool -L engine/rnx2rtkp | tail -n +2 | awk '{print $1}' | grep -vE '^/usr/lib/libSystem' || true)
+          if [ -n "$extra" ]; then
+            echo "::error::rnx2rtkp links more than libSystem: $extra"
+            exit 1
+          fi
+
+      - name: What it links against (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          strip engine/rnx2rtkp.exe
+          objdump -p engine/rnx2rtkp.exe | grep "DLL Name" | tee dlls.txt
+          # Only DLLs every Windows has: nothing from MinGW's runtime, which a
+          # user would not have beside the program.
+          if grep -iE 'lib(gcc|winpthread|stdc)' dlls.txt; then
+            echo "::error::rnx2rtkp.exe needs MinGW runtime DLLs"
             exit 1
           fi
 
@@ -49,15 +126,39 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Tooling
+        run: python -m pip install --upgrade pip pytest numpy
+
       - name: The committed fixtures must match this very binary
+        run: PATH="$PWD/engine:$PATH" python scripts/check_rtklib_fixtures.py
+
+      # The Intel half of the universal program, which the Apple-Silicon runner
+      # can only run translated. Through a wrapper, so the check above runs it
+      # unchanged.
+      - name: The Intel half must match them too, under Rosetta
+        if: runner.os == 'macOS'
         run: |
-          python -m pip install --upgrade pip numpy -r tests/data/rd06/requirements.txt
-          PATH="$PWD/engine:$PATH" python scripts/check_rtklib_fixtures.py
+          lipo -info engine/rnx2rtkp | grep -q x86_64
+          softwareupdate --install-rosetta --agree-to-license || true
+          mkdir rosetta
+          printf '#!/bin/sh\nexec arch -x86_64 "%s" "$@"\n' "$PWD/engine/rnx2rtkp" > rosetta/rnx2rtkp
+          chmod +x rosetta/rnx2rtkp
+          PATH="$PWD/rosetta:$PATH" python scripts/check_rtklib_fixtures.py
+
+      - name: The plugin must find it as its bundled copy, and run it
+        env:
+          GEOCOMP_BUNDLED_RNX2RTKP: ${{ github.workspace }}/engine/${{ matrix.program }}
+        run: |
+          python -m pytest -q -rs tests/test_bundled_engine.py -k TestARealBuildOnThisSystem | tee bundled.log
+          if grep -q "SKIPPED" bundled.log; then
+            echo "::error::the real-binary check skipped"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
-          name: rnx2rtkp-linux-x86_64
-          path: engine/rnx2rtkp
+          name: rnx2rtkp-${{ matrix.platform }}
+          path: engine/${{ matrix.program }}
 
   package:
     name: plugin package
@@ -66,10 +167,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # One folder per platform: engine/rnx2rtkp-<platform>/<program>.
       - uses: actions/download-artifact@v4
         with:
-          name: rnx2rtkp-linux-x86_64
+          pattern: rnx2rtkp-*
           path: engine
+
+      - name: The engines to carry
+        run: |
+          {
+            echo -n "ENGINES=--engine rtklib=linux-x86_64:engine/rnx2rtkp-linux-x86_64/rnx2rtkp"
+            echo -n " --engine rtklib=windows-x86_64:engine/rnx2rtkp-windows-x86_64/rnx2rtkp.exe"
+            echo -n " --engine rtklib=macos-arm64:engine/rnx2rtkp-macos-universal/rnx2rtkp"
+            echo " --engine rtklib=macos-x86_64:engine/rnx2rtkp-macos-universal/rnx2rtkp"
+          } >> "$GITHUB_ENV"
+          ls -lR engine
 
       - uses: actions/setup-python@v5
         with:
@@ -84,13 +196,13 @@ jobs:
           lrelease -version
 
       - name: Build
-        run: python scripts/build.py --engine rtklib=linux-x86_64:engine/rnx2rtkp
+        run: python scripts/build.py $ENGINES
 
       - name: The archive must be reproducible
         run: |
           sha256sum dist/geocomp.zip | tee first.sha
           rm -rf dist
-          python scripts/build.py --engine rtklib=linux-x86_64:engine/rnx2rtkp
+          python scripts/build.py $ENGINES
           sha256sum dist/geocomp.zip | tee second.sha
           if ! diff <(cut -d' ' -f1 first.sha) <(cut -d' ' -f1 second.sha); then
             echo "::error::Two builds of the same commit produced different archives"

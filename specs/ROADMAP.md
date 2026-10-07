@@ -2672,6 +2672,24 @@ payload and check it themselves, and the annotation says that.
 **Not done.** Nothing checks the annotations are *right* -- no type checker runs in CI. They are read against the
 callers here, not verified by a tool.
 
+#### P12c-34 — `rnx2rtkp` for Windows and macOS; FR-301 met
+
+P12c-27 shipped `rnx2rtkp` for Linux only. The `build` workflow's `rtklib` job is now a matrix over three
+runners: Linux as before; Windows with MinGW-w64, linked statically and failed if it needs a MinGW runtime DLL;
+and macOS as one universal program, failed if it links beyond `libSystem`. Each checks the committed `.pos`
+fixtures against its own binary -- the macOS one's Intel half under Rosetta, through a wrapper -- and runs it as
+the plugin will, planted unexecutable under its platform name and found as the bundled copy
+(`tests/test_bundled_engine.py::TestARealBuildOnThisSystem`, which skips unless a workflow names a binary). The
+package carries all four platform folders, the macOS program twice. **FR-301 and acceptance row 21.4 are met**:
+164 met, 11 partly met, 1 open, of 176; 124 of 136.
+
+`scripts/check_rtklib_fixtures.py` shelled out to `gunzip` and normalised only `/` paths; it now uses Python's
+`gzip` and accepts a Windows path, so the same check runs on all three.
+
+**Not done.** Gatekeeper on a user's Mac is expected not to apply, because QGIS's `zipfile` extraction does not
+carry the quarantine attribute, but no runner can show it, and the program is not notarised (ADR-0009,
+*Platforms*). Any platform beyond the three -- Linux on ARM, say -- still needs a configured path.
+
 ---
 
 ## P13 — Validation, documentation and release
