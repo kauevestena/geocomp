@@ -13,9 +13,14 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from geocomp.core.errors import GeoCompError
 from geocomp.engines.base import EngineVersion
+
+if TYPE_CHECKING:
+    from geocomp.engines.dynadjust.engine import DynAdjustEngine
+    from geocomp.engines.rtklib.engine import RtklibEngine
 
 __all__ = ["EngineStatus", "engine_status"]
 
@@ -49,7 +54,9 @@ def _detected(probe: Callable[[], EngineVersion | None]) -> EngineVersion | None
         return None
 
 
-def engine_status(*, dynadjust=None, rtklib=None) -> list[EngineStatus]:
+def engine_status(
+    *, dynadjust: DynAdjustEngine | None = None, rtklib: RtklibEngine | None = None
+) -> list[EngineStatus]:
     """Every engine GeoComp runs, probed where the algorithms would find it.
 
     Args:

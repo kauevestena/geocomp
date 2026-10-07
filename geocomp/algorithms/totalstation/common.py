@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from qgis.core import QgsProcessingException
+from qgis.core import QgsProcessingException, QgsProcessingFeedback
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.reporting import escape, render_note, render_table
@@ -213,7 +213,7 @@ def findings_table(findings: tuple[Finding, ...]) -> str:
     )
 
 
-def summarise_findings(findings: tuple[Finding, ...], feedback) -> tuple[int, int]:
+def summarise_findings(findings: tuple[Finding, ...], feedback: QgsProcessingFeedback) -> tuple[int, int]:
     """Push every finding to the log and return the blocking and warning counts.
 
     Blocking findings go through ``pushWarning`` so they are visible even when

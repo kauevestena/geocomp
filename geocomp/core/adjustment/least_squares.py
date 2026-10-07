@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field, replace
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -56,6 +57,10 @@ from geocomp.core.models import (
 from geocomp.core.statistics.ellipses import error_ellipse
 from geocomp.core.uncertainty import Covariance, Quantity, Strategy, UncertaintyMode, combine_modes
 from geocomp.core.units import Unit, circular_mean
+
+if TYPE_CHECKING:
+    from geocomp.core.statistics.reliability import ReliabilityReport
+    from geocomp.core.statistics.tests import SnoopingReport
 
 __all__ = [
     "AdjustmentOptions",
@@ -601,8 +606,8 @@ def _constraints_for(
 def to_observation_results(
     run: AdjustmentRun,
     *,
-    snooping=None,
-    reliability=None,
+    snooping: SnoopingReport | None = None,
+    reliability: ReliabilityReport | None = None,
 ) -> list[ObservationResult]:
     """Gather what the adjustment and its tests concluded about each row.
 
@@ -682,7 +687,7 @@ def to_solution(
     geoid_model: str | None = None,
     provenance: Provenance | None = None,
     observation_results: list[ObservationResult] | None = None,
-    global_test=None,
+    global_test: TestResult | None = None,
     confidence: float = 0.95,
 ) -> Solution:
     """Assemble an :class:`AdjustmentRun` into the shared Solution type.

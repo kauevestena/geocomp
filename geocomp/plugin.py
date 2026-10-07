@@ -12,6 +12,8 @@ common way a plugin becomes confusing to work on.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 from qgis.PyQt.QtGui import QIcon
@@ -22,6 +24,9 @@ from geocomp.core.version import __version__
 from geocomp.i18n import install_translator, resolve_locale
 from geocomp.provider import GeoCompProvider
 from geocomp.resources import icon_path
+
+if TYPE_CHECKING:
+    from qgis.gui import QgisInterface
 
 __all__ = ["GeoCompPlugin"]
 
@@ -57,7 +62,7 @@ class GeoCompPlugin:
         iface: The ``QgisInterface`` QGIS hands to ``classFactory``.
     """
 
-    def __init__(self, iface) -> None:
+    def __init__(self, iface: QgisInterface) -> None:
         self.iface = iface
         self._provider: GeoCompProvider | None = None
         self._translator: QTranslator | None = None

@@ -27,7 +27,7 @@ import math
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from qgis.core import QgsProject, QgsVectorLayer
+from qgis.core import QgsMapLayer, QgsProject, QgsVectorLayer
 from qgis.gui import QgsDockWidget
 from qgis.PyQt.QtCore import QCoreApplication, QPointF, QRectF, Qt, pyqtSignal
 from qgis.PyQt.QtGui import QColor, QImage, QPainter, QPainterPath, QPen, QPolygonF
@@ -378,7 +378,7 @@ class TimeSeriesPanel(QgsDockWidget):
 
     # -- the map ---------------------------------------------------------------
 
-    def layers_added(self, layers) -> None:
+    def layers_added(self, layers: list[QgsMapLayer]) -> None:
         """Attach to the first added layer that carries a series document."""
         for layer in layers:
             if isinstance(layer, QgsVectorLayer) and layer.customProperty(SERIES_PROPERTY):

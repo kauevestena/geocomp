@@ -23,13 +23,14 @@ geometry used (FR-901).
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
     QgsProcessing,
     QgsProcessingContext,
+    QgsProcessingFeedback,
     QgsProcessingLayerPostProcessorInterface,
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterNumber,
@@ -56,6 +57,9 @@ from geocomp.layers.builders import (
 )
 from geocomp.layers.styles import apply_style
 from geocomp.layers.themes import add_thematic_styles
+
+if TYPE_CHECKING:
+    from geocomp.algorithms.base import GeoCompAlgorithm
 
 __all__ = [
     "EXAGGERATION",
@@ -190,7 +194,7 @@ class _StyledLayer(QgsProcessingLayerPostProcessorInterface):
             add_thematic_styles(layer, self.style)
 
 
-def add_result_layer_parameters(algorithm) -> None:
+def add_result_layer_parameters(algorithm: GeoCompAlgorithm) -> None:
     """Declare the six result-layer sinks and the exaggeration factor.
 
     All optional and none created by default: an adjustment run from the
@@ -260,12 +264,12 @@ def resolve_exaggeration(requested: float, solution: Solution) -> float:
 
 
 def write_result_layers(
-    algorithm,
+    algorithm: GeoCompAlgorithm,
     parameters: dict[str, Any],
     context: QgsProcessingContext,
     solution: Solution,
     network: Network,
-    feedback=None,
+    feedback: QgsProcessingFeedback | None = None,
     *,
     solution_path: str = "",
 ) -> dict[str, Any]:
@@ -360,7 +364,7 @@ def write_result_layers(
 
 
 def write_styled_sink(
-    algorithm,
+    algorithm: GeoCompAlgorithm,
     parameters: dict[str, Any],
     context: QgsProcessingContext,
     parameter_name: str,

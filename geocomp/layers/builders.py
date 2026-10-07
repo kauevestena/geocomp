@@ -26,8 +26,8 @@ legend is composed from the same number the geometry used.
 from __future__ import annotations
 
 import math
-from collections.abc import Iterator
-from typing import Any
+from collections.abc import Iterable, Iterator
+from typing import TYPE_CHECKING, Any
 
 from qgis.core import (
     QgsFeature,
@@ -48,6 +48,11 @@ from geocomp.core.visualization.monitoring import drawn_displacements, drawn_vel
 from geocomp.core.visualization.results import decision
 from geocomp.layers.styles import apply_style
 from geocomp.layers.themes import add_thematic_styles
+
+if TYPE_CHECKING:
+    from geocomp.core.techniques.gnss.baselines import Baseline
+    from geocomp.core.techniques.gnss.trajectory import TrajectoryPoint
+    from geocomp.core.visualization.relative import RelativeEllipse
 
 __all__ = [
     "GNSS_HORIZON_CRS",
@@ -478,7 +483,9 @@ def ellipse_layer_name(solution: Solution, *, exaggeration: float) -> str:
     )
 
 
-def relative_ellipse_features(relative, *, exaggeration: float) -> Iterator[QgsFeature]:
+def relative_ellipse_features(
+    relative: Iterable[RelativeEllipse], *, exaggeration: float
+) -> Iterator[QgsFeature]:
     """Relative ellipses at the middle of each line, drawn at *exaggeration* (specs/19 §3 item 4).
 
     *relative* is what :func:`~geocomp.core.visualization.relative.relative_ellipses`
@@ -505,7 +512,7 @@ def relative_ellipse_features(relative, *, exaggeration: float) -> Iterator[QgsF
         yield feature
 
 
-def relative_ellipse_layer_name(relative, *, exaggeration: float) -> str:
+def relative_ellipse_layer_name(relative: Iterable[RelativeEllipse], *, exaggeration: float) -> str:
     """What the legend reads: the factor the rings used, and their confidence."""
     confidence = next((item.ellipse.confidence for item in relative), None)
     return _tr("Relative ellipses (%1)").replace("%1", exaggeration_label(exaggeration, confidence))
@@ -658,15 +665,13 @@ def gnss_baseline_positions(baselines) -> dict[str, tuple[float, float]]:
 
 
 def gnss_baseline_features(
-    baselines, positions: dict[str, tuple[float, float]] | None = None
+    baselines: Iterable[Baseline], positions: dict[str, tuple[float, float]] | None = None
 ) -> Iterator[QgsFeature]:
     """One line per determined baseline, with its quality (FR-357).
 
     Args:
-        baselines: :class:`~geocomp.core.techniques.gnss.baselines.Baseline`
-            objects. Typed loosely so this module does not import the GNSS
-            technique package: ``layers`` sits above ``core`` and reaches down,
-            never the other way.
+        baselines: The baselines built. Their type is imported for checking
+            only, so drawing them does not load the GNSS technique package.
         positions: Station id to ``(easting, northing)``, for drawing the
             baselines somewhere other than their own horizons -- a projected
             network, say. ``None`` uses :func:`gnss_baseline_positions`.
@@ -744,13 +749,12 @@ def _independence(baseline) -> str:
 # -- GNSS trajectory ------------------------------------------------------
 
 
-def gnss_trajectory_features(points) -> Iterator[QgsFeature]:
+def gnss_trajectory_features(points: Iterable[TrajectoryPoint]) -> Iterator[QgsFeature]:
     """One point per solution epoch, with its quality (FR-357, FR-603).
 
     Args:
-        points: :class:`~geocomp.core.techniques.gnss.trajectory.TrajectoryPoint`
-            objects. Typed loosely for the same reason the baseline builder is:
-            ``layers`` reaches down into ``core`` and never the other way.
+        points: The solution epochs, one per point. Their type is imported for
+            checking only, as the baselines' is.
 
     The epoch is written as an ISO-8601 string rather than a date field.
     ``QDateTime`` round-trips through a shapefile as a date alone, losing the

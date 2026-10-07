@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from qgis.core import QgsProcessingException
+from qgis.core import QgsProcessingException, QgsProcessingFeedback
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.reporting import escape, render_table
@@ -393,7 +393,7 @@ def findings_table(findings: tuple[Finding, ...]) -> str:
     )
 
 
-def summarise_findings(findings: tuple[Finding, ...], feedback) -> tuple[int, int]:
+def summarise_findings(findings: tuple[Finding, ...], feedback: QgsProcessingFeedback) -> tuple[int, int]:
     """Push every finding to the log and return the blocking and warning counts."""
     blocking = warnings = 0
     for finding in findings:

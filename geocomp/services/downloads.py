@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from urllib.parse import urlsplit
 
-from qgis.core import QgsBlockingNetworkRequest
+from qgis.core import QgsBlockingNetworkRequest, QgsFeedback
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtNetwork import QNetworkRequest
 
@@ -39,7 +39,7 @@ _TIMEOUT_MS = 120_000
 class QgisFetcher:
     """Products over the QGIS network stack, with an optional login by reference."""
 
-    def __init__(self, feedback=None) -> None:
+    def __init__(self, feedback: QgsFeedback | None = None) -> None:
         self.feedback = feedback
 
     def exists(self, url: str, authcfg: str) -> bool:

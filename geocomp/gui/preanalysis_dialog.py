@@ -28,7 +28,7 @@ import math
 from html import escape
 
 from qgis.core import QgsPointXY, QgsWkbTypes
-from qgis.gui import QgsMapTool, QgsRubberBand, QgsVertexMarker
+from qgis.gui import QgsMapCanvas, QgsMapTool, QgsRubberBand, QgsVertexMarker
 from qgis.PyQt.QtCore import QCoreApplication, Qt, pyqtSignal
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
@@ -49,7 +49,7 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from geocomp.core.models import ObservationType
+from geocomp.core.models import Network, ObservationType
 from geocomp.core.number_format import localised
 from geocomp.core.preanalysis.session import DesignSession
 from geocomp.core.visualization import default_exaggeration, ellipse_ring
@@ -132,7 +132,7 @@ class DesignMapTool(QgsMapTool):
 class PreAnalysisDialog(QDialog):
     """Place a design on the canvas and watch what it would achieve."""
 
-    def __init__(self, canvas, crs: str = "", parent: QWidget | None = None) -> None:
+    def __init__(self, canvas: QgsMapCanvas, crs: str = "", parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("geocompPreAnalysisDialog")
         self.setWindowTitle(_tr("GeoComp — Interactive pre-analysis"))
@@ -469,7 +469,7 @@ class PreAnalysisDialog(QDialog):
                 self.canvas.setMapTool(self._previous_tool)
         super().done(result)
 
-    def network(self):
+    def network(self) -> Network:
         """The design as a network, ready to write out and evaluate in full."""
         return self.session.network
 

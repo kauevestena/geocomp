@@ -26,10 +26,13 @@ Two rules, applied to every algorithm by :class:`~geocomp.algorithms.base.GeoCom
 from __future__ import annotations
 
 import functools
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    QgsProcessingAlgorithm,
+    QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterFile,
@@ -66,7 +69,9 @@ def _paths(algorithm, definition, parameters: dict[str, Any], context) -> list[s
     return []
 
 
-def input_problem(algorithm, parameters: dict[str, Any], context) -> str | None:
+def input_problem(
+    algorithm: QgsProcessingAlgorithm, parameters: dict[str, Any], context: QgsProcessingContext
+) -> str | None:
     """The first input that cannot be used, said with its label; ``None`` when all can."""
     for definition in algorithm.parameterDefinitions():
         if definition.isDestination():
@@ -132,7 +137,7 @@ def naming_the_input(algorithm, parameters: dict[str, Any], context, message: st
     return _tr("%1: %2").replace("%1", carried[0]).replace("%2", message)
 
 
-def validated(process):
+def validated(process: Callable[..., dict[str, Any]]) -> Callable[..., dict[str, Any]]:
     """Wrap a ``processAlgorithm`` with both rules of this module."""
     if getattr(process, "_geocomp_validated", False):
         return process

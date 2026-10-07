@@ -56,6 +56,7 @@ from geocomp.core.models import (
 from geocomp.core.models.solution import Provenance
 from geocomp.core.statistics.reliability import DEFAULT_ALPHA, DEFAULT_BETA, reliability
 from geocomp.core.statistics.tests import data_snooping, global_test
+from geocomp.core.techniques.gravimetry.network import GravityNetwork
 from geocomp.core.techniques.integration.breakdown import TechniqueSummary, technique_breakdown
 from geocomp.core.techniques.integration.combine import Combination, Routing, route
 
@@ -115,7 +116,7 @@ def adjust_combination(
     *,
     geoid: GeoidModel | None = None,
     requested_engine: str = "in_house",
-    gravity=None,
+    gravity: GravityNetwork | None = None,
     estimate_components: bool = False,
     datum: DatumDefinition = DatumDefinition.FIXED,
     confidence: float = 0.95,

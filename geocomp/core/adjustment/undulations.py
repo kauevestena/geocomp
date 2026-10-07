@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -54,6 +55,9 @@ from geocomp.core.geodesy.cartesian import cartesian_to_geodetic
 from geocomp.core.geoid import GeoidModel
 from geocomp.core.models import HeightType, Network, Observation, ObservationType
 from geocomp.core.uncertainty import Quantity, Strategy
+
+if TYPE_CHECKING:
+    from geocomp.core.adjustment.least_squares import AdjustmentRun
 
 __all__ = [
     "GEOID_OWNER_PREFIX",
@@ -186,7 +190,7 @@ class GeoidResidual:
     standardised: float | None
 
 
-def geoid_residuals(run) -> tuple[GeoidResidual, ...]:
+def geoid_residuals(run: AdjustmentRun) -> tuple[GeoidResidual, ...]:
     """How the adjustment moved each undulation from the model's value."""
     prefix = f"{CONSTRAINT_ROW_PREFIX}{GEOID_OWNER_PREFIX}"
     sigma0_squared = run.variance_factor_apriori

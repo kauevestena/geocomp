@@ -41,7 +41,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from qgis.core import QgsExpression, QgsProject, QgsVectorLayer
+from qgis.core import QgsExpression, QgsMapLayer, QgsProject, QgsVectorLayer
 from qgis.gui import QgsDockWidget
 from qgis.PyQt.QtCore import QAbstractTableModel, QCoreApplication, QModelIndex, Qt
 from qgis.PyQt.QtWidgets import (
@@ -640,7 +640,7 @@ class ResultsPanel(QgsDockWidget):
 
     # -- the project -------------------------------------------------------------
 
-    def layers_added(self, layers) -> None:
+    def layers_added(self, layers: list[QgsMapLayer]) -> None:
         """List the run behind any result layer that names its solution document."""
         from geocomp.algorithms.layer_outputs import SOLUTION_PROPERTY
 

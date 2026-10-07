@@ -28,12 +28,16 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation
 from geocomp.core.models import CoordinateSystem, ErrorEllipse, Network, Solution
 from geocomp.core.statistics.ellipses import error_ellipse
+
+if TYPE_CHECKING:
+    from geocomp.core.visualization.display import DisplayGrid
 
 __all__ = ["RelativeEllipse", "observed_pairs", "relative_ellipses"]
 
@@ -70,7 +74,7 @@ def relative_ellipses(
     pairs: Iterable[tuple[str, str]],
     *,
     shown: Solution | None = None,
-    grid=None,
+    grid: DisplayGrid | None = None,
 ) -> list[RelativeEllipse]:
     """The relative ellipse of each pair, at the solution's own confidence.
 

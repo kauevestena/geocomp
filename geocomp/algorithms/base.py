@@ -21,6 +21,7 @@ from typing import Any
 
 from qgis.core import (
     QgsProcessingAlgorithm,
+    QgsProcessingContext,
     QgsProcessingParameterDefinition,
 )
 from qgis.PyQt.QtCore import QCoreApplication
@@ -65,7 +66,9 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
 
             cls.processAlgorithm = validated(transactional(_in_the_display_locale(own)))
 
-    def checkParameterValues(self, parameters, context):
+    def checkParameterValues(
+        self, parameters: dict[str, Any], context: QgsProcessingContext
+    ) -> tuple[bool, str]:
         """GeoComp's check, then QGIS's, each naming the input by its label (specs/16 §7).
 
         The dialog and ``processing.run`` call this before a run starts, so a

@@ -26,11 +26,18 @@ that finds a setting's readers searches for the literal key.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.number_format import localised
+
+if TYPE_CHECKING:
+    from qgis.core import QgsProcessingFeedback
+
+    from geocomp.core.models.epoch import Epoch
+    from geocomp.core.models.network import Network
+    from geocomp.core.models.solution import Solution
 
 __all__ = ["configured", "configured_epoch", "recorded_epoch", "run_epoch"]
 
@@ -60,7 +67,7 @@ def configured_epoch(fallback: float) -> float:
     return stated if stated > 0.0 else fallback
 
 
-def run_epoch(stated: float, network, fallback: float):
+def run_epoch(stated: float, network: Network | None, fallback: float) -> tuple[Epoch, str]:
     """An adjustment's reference epoch, and where it came from (FR-105; P12c).
 
     *stated* is the run's parameter, whose default is
@@ -84,7 +91,9 @@ def run_epoch(stated: float, network, fallback: float):
     return Epoch.from_decimal_year(fallback), EPOCH_ASSUMED
 
 
-def recorded_epoch(solution, origin: str, feedback):
+def recorded_epoch(
+    solution: Solution, origin: str, feedback: QgsProcessingFeedback | None
+) -> Solution:
     """*solution* with its epoch's origin in the provenance, and a word if it was assumed."""
     from dataclasses import replace
 
