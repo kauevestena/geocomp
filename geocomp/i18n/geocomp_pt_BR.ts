@@ -4126,6 +4126,10 @@
             <translation>Linha de nivelamento %1: %2</translation>
         </message>
         <message>
+            <source>Line %2 of RTKLIB's solution-status file '%1' could not be read (%3). Its satellite lines are not in the layout this GeoComp release reads, so the dilution of precision cannot be computed from it. Check that rnx2rtkp is the version GeoComp was tested with.</source>
+            <translation>A linha %2 do arquivo de estado da solução do RTKLIB '%1' não pôde ser lida (%3). Suas linhas de satélites não estão no formato que esta versão do GeoComp lê, então a diluição da precisão não pode ser calculada a partir dele. Verifique se o rnx2rtkp é a versão com que o GeoComp foi testado.</translation>
+        </message>
+        <message>
             <source>Measurement %1 is a %2 with a %3 of %4, but a height offset does not change this kind of measurement. Remove the offset, or check the measurement type.</source>
             <translation>A medição %1 é um(a) %2 com %3 de %4, mas um deslocamento de altura não altera esse tipo de medição. Remova o deslocamento, ou verifique o tipo de medição.</translation>
         </message>

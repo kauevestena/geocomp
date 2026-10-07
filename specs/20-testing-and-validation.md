@@ -491,7 +491,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 164 met, 11 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 165 met, 10 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -623,7 +623,7 @@ without a row.
 | FR-600 | **met** | `geocomp:gnss_absolute_static` and `gnss_absolute_kinematic` under *GNSS > Absolute* (`tests/test_registry.py::TestNesting`) |
 | FR-601 | **met** | `geocomp:gnss_relative_static` and `gnss_relative_kinematic` under *GNSS > Relative* (`tests/test_registry.py::TestNesting`) |
 | FR-602 | **met** | As 11.4; the cluster reaches an adjustment, `tests/test_gnss_baselines.py::TestTheClusterReachesAnAdjustment` |
-| FR-603 | **partly met** | Per session, the fixed fraction, satellite count and ratio (`tests/test_gnss_baselines.py::TestTheEngineBridgeRefusesWhatItCannotUse::test_the_quality_summary_carries_what_the_run_achieved`); per epoch, the trajectory layer's status and quality columns (`tests/qgis/test_gnss_layers.py::TestTheTrajectoryLayer`). Dilution of precision is always absent: `rnx2rtkp` does not write it, and `core/techniques/gnss/quality.py` leaves the field empty rather than put another quantity in it |
+| FR-603 | **met** | Per session, the fixed fraction, satellite count and ratio (`tests/test_gnss_baselines.py::TestTheEngineBridgeRefusesWhatItCannotUse::test_the_quality_summary_carries_what_the_run_achieved`); per epoch, the trajectory layer's status and quality columns (`tests/qgis/test_gnss_layers.py::TestTheTrajectoryLayer`). Dilution of precision per epoch and per session -- the median and the worst epoch -- from the satellite geometry in the engine's solution-status file, by RTKLIB's definition, and checked against RTKLIB's own `dops()` on every epoch of a real run (`tests/test_dilution_of_precision.py`, P12c-35) |
 | FR-604 | **met** | As 08.8 |
 | FR-700 | **met** | `tests/test_gravimetry_network.py::TestTheDatum`; absolute values weighted, not fixed, As 12.5 |
 | FR-701 | **met** | Tide (`tests/test_gravimetry_readings.py::TestTheTide`), scale (`tests/test_gravimetry_network.py::TestTheCalibrationUncertaintyReachesTheDifferences`), drift (As 12.2). Agreement with a published scale example waits on W-02, row 12.1 |

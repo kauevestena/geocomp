@@ -2703,6 +2703,37 @@ only the tests' copy failed the test that requires the two copies to be the same
 carry the quarantine attribute, but no runner can show it, and the program is not notarised (ADR-0009,
 *Platforms*). Any platform beyond the three -- Linux on ARM, say -- still needs a configured path.
 
+#### P12c-35 — dilution of precision from the satellite geometry; FR-603 met
+
+P7b recorded DOP as unavailable from `rnx2rtkp`, and that was true of its solution file only. Every
+configuration GeoComp writes now sets `out-outstat = residual`; the engine reads the `$SAT` lines of the status
+file that produces -- each used satellite's azimuth and elevation per epoch, in the layout `outsolstat` writes
+at the pinned commit -- then removes the file, which at this level runs to hundreds of megabytes for a day at
+1 Hz. GDOP, PDOP, HDOP and VDOP follow RTKLIB's own `dops()`; each epoch carries them, the session carries each
+one's median and the epoch whose PDOP was worst, and the trajectory layer gains three columns. **FR-603 is
+met**: 165 met, 10 partly met, 1 open, of 176.
+
+The evidence is RTKLIB's, not GeoComp's: `scripts/rtklib_dops_reference.c` links RTKLIB's `rtkcmn.c` and
+applies its `dops()` to the same status file, and every one of the 120 epochs of the sample run agrees to the
+six decimals it prints; a live run's worst epoch, PDOP 37.551224 with five satellites, is the reference's. A
+hand-worked geometry -- a satellite at the zenith and four at 30 degrees -- gives HDOP sqrt(4/3), VDOP sqrt(5),
+PDOP sqrt(19/3) and GDOP sqrt(25/3).
+
+**Found while doing it.** A combined solution writes every epoch's status twice, forward pass then backward,
+and the reader as first written appended both: every epoch's satellites doubled and its DOP was too small by
+the square root of two -- found by running the engine both ways, before any of it was pushed. Each epoch's
+first block, opened by its `$POS` line, is now the one read; keying on the `$POS` line matters because the
+backward pass begins on the epoch the forward pass ended on. A live test runs both solution types and requires
+the same geometry (`tests/test_rtklib_engine.py::TestABaselineFromALiveRun`).
+
+specs/11 §5 also said cycle slips and rejections are reported in no output format.
+The same `$SAT` lines carry a slip flag and slip and rejection counters; the statement is corrected and reading
+them is recorded as not done. The `SessionQuality.dilution_of_precision` justification in
+`test_no_bare_geodetic_floats.py` said "always None today" and is replaced by reasons for the four new values.
+
+**Not done.** Cycle slips and rejections, from the same lines. A `.pos` read on its own, without the run that
+produced it, has no geometry and so no DOP.
+
 ---
 
 ## P13 — Validation, documentation and release

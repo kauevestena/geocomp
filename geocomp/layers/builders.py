@@ -225,6 +225,12 @@ LAYER_FIELDS: dict[str, tuple[tuple[str, Any], ...]] = {
         ("sigma_e", _REAL),
         ("sigma_u", _REAL),
         ("drms", _REAL),
+        # The geometry's dilution of precision (FR-603, P12c-35); NULL where the
+        # engine reported no geometry for the epoch, or fewer than four
+        # satellites.
+        ("pdop", _REAL),
+        ("hdop", _REAL),
+        ("vdop", _REAL),
     ),
     "corrections": (
         ("station", _TEXT),
@@ -789,6 +795,9 @@ def gnss_trajectory_features(points: Iterable[TrajectoryPoint]) -> Iterator[QgsF
                 east,
                 up,
                 point.drms,
+                quality.dop.position if quality.dop else None,
+                quality.dop.horizontal if quality.dop else None,
+                quality.dop.vertical if quality.dop else None,
             ]
         )
         yield feature

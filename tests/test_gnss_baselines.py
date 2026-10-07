@@ -448,10 +448,11 @@ class TestTheEngineBridgeRefusesWhatItCannotUse:
         assert quality.satellites_least == 5
         assert quality.satellites_most == 7
 
-    def test_dilution_of_precision_is_absent_and_says_so(self):
-        """FR-603 names DOP and ``rnx2rtkp`` writes none, in any format. The
-        field is ``None`` rather than a covariance-derived substitute wearing
-        the name of a different quantity."""
+    def test_a_solution_read_without_its_geometry_has_no_dilution_of_precision(self):
+        """The ``.pos`` file carries no DOP in any format; it comes from the
+        engine's status file (P12c-35). A solution read on its own has none, and
+        the field is ``None`` rather than a covariance-derived substitute
+        wearing the name of a different quantity."""
         from geocomp.engines.rtklib.baseline import quality_from_solution
 
         assert quality_from_solution(read_pos(POS / "xyz.pos")).dilution_of_precision is None

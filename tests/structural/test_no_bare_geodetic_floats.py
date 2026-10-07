@@ -166,6 +166,13 @@ class TestDeclaredTypes:
             assert len(reason) > 10, f"{key} needs a real reason, not a placeholder"
 
 
+#: Why each of the four dilutions of precision is a plain float (P12c-35).
+_DILUTION_OF_PRECISION = (
+    "a dilution of precision: a dimensionless factor of the satellite geometry, exact for "
+    "the azimuths and elevations it came from (specs/11 section 5). It scales an "
+    "uncertainty; it is not one"
+)
+
 #: Plain-float fields on the technique and instrument dataclasses, with the
 #: reason each is not a measurement. Same discipline as DELIBERATE_PLAIN_FLOATS
 #: above and the same force: a new float field fails until someone decides.
@@ -395,11 +402,10 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("BatchResult", "seconds"): (
         "wall-clock duration of one session's run, for the report. A timing, not a geodetic value"
     ),
-    ("SessionQuality", "dilution_of_precision"): (
-        "a geometry factor, dimensionless and derived from satellite positions. Always "
-        "None today: rnx2rtkp writes no DOP column in any output format, and the field "
-        "exists so the gap is visible rather than silently absent (specs/11 section 5)"
-    ),
+    ("DilutionOfPrecision", "geometric"): _DILUTION_OF_PRECISION,
+    ("DilutionOfPrecision", "position"): _DILUTION_OF_PRECISION,
+    ("DilutionOfPrecision", "horizontal"): _DILUTION_OF_PRECISION,
+    ("DilutionOfPrecision", "vertical"): _DILUTION_OF_PRECISION,
     ("TechniqueSummary", "redundancy"): (
         "a sum of redundancy numbers: a property of the design, dimensionless and exact "
         "for the adjustment it came from"

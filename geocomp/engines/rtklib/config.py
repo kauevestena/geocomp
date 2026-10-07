@@ -163,6 +163,10 @@ class RtklibConfig:
             "out-degform": self.degrees_format,
             "out-height": self.height,
             "out-solstatic": self.static_output,
+            # The satellite geometry dilution of precision is computed from: the
+            # $SAT lines of <solution>.stat, written at the "residual" level only
+            # (P12c-35; geocomp.engines.rtklib.read_stat).
+            "out-outstat": "residual",
             # **Not optional, and the reason is worth stating.** Loading a
             # configuration file resets the base-station position to the option
             # table's default -- latitude 0, longitude 0, height 0 -- while the
@@ -216,6 +220,7 @@ _COMMENTS = {
     "out-degform": "(0:deg,1:dms)",
     "out-height": "(0:ellipsoidal,1:geodetic)",
     "out-solstatic": "(0:all,1:single)",
+    "out-outstat": "(0:off,1:state,2:residual)",
     "ant1-postype": "(0:llh,1:xyz,2:single,3:posfile,4:rinexhead,5:rtcm)",
     "ant2-postype": "(0:llh,1:xyz,2:single,3:posfile,4:rinexhead,5:rtcm)",
 }

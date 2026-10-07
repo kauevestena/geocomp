@@ -383,11 +383,20 @@ Parsed into:
 | Kinematic trajectory | Time-ordered positions with per-epoch covariance and quality |
 | Quality indicators | Q flag (fixed / float / single), satellite count, DOP, ratio, age (FR-603) |
 
-*As built (P12c-13).* DOP has a field and no value: no column of `rnx2rtkp`'s solution file carries it,
-and `core/techniques/gnss/quality.py` leaves the field empty rather than fill it with another quantity.
-FR-603 is recorded as partly met in the requirement register
-([`20-testing-and-validation.md`](./20-testing-and-validation.md) §11) until DOP is computed from the
-satellite geometry or read from an engine that writes it.
+*As built (P12c-35).* No column of `rnx2rtkp`'s solution file carries DOP, but the engine writes the geometry
+it is defined from. Every configuration GeoComp writes sets `out-outstat = residual`, and the run then leaves
+`<solution>.stat` beside the `.pos`: per epoch, one `$SAT` line per satellite and frequency used, with its
+azimuth, elevation and valid-data flag (`outsolstat` in `src/rtkpos.c`). `engines/rtklib/read_stat.py` reads the
+first-frequency lines of valid satellites, keyed by GPS time to the millisecond so that a calendar-time `.pos`
+agrees with it; `core/techniques/gnss/quality.py` computes GDOP, PDOP, HDOP and VDOP by RTKLIB's own `dops()`
+definition; and the file is then **removed**, because at this level it is a line per satellite and frequency
+per epoch -- hundreds of megabytes for a day at 1 Hz -- and the configuration kept beside it reproduces it. A
+`$SAT` line that cannot be read is refused (`rtklib_status_malformed`), not skipped: a DOP of the wrong
+satellites would look as plausible as the right one. A **combined** solution (`pos1-soltype = combined`) runs a
+forward and then a backward pass, and both write to the same status file, so each epoch's block -- opened by its
+`$POS` line -- appears twice; only the first, the forward pass's, is read, since reading both would double every
+epoch's satellites and shrink its DOP by the square root of two. Checked against RTKLIB's own `dops()` on every epoch of
+a real run (`tests/test_dilution_of_precision.py`, `tests/data/rtklib/stat/PROVENANCE.md`).
 
 **Solution quality is never silently discarded.** A float solution presented without its Q flag is a
 misrepresentation; Q travels with the result into every layer, report and adjustment.

@@ -442,6 +442,46 @@ class TestTheTrajectoryLayer:
         for feature, point in zip(layer.getFeatures(), trajectory, strict=True):
             assert datetime.fromisoformat(feature["epoch"]) == point.quality.time
 
+    def test_the_dilution_of_precision_columns_are_rtklibs(self, geocomp_provider, tmp_path):
+        """FR-603 per epoch (P12c-35): with the run's geometry, each point carries
+        the PDOP, HDOP and VDOP RTKLIB's own dops() gives for that epoch; without
+        it, the columns are empty rather than zero."""
+        import csv
+        import gzip
+        from datetime import UTC, datetime, timedelta
+
+        from geocomp.engines.rtklib.read_pos import read_pos
+        from geocomp.engines.rtklib.read_stat import read_satellite_geometry, to_millisecond
+        from geocomp.engines.rtklib.trajectory import trajectory_from_solution
+        from geocomp.layers.builders import gnss_trajectory_layer
+
+        stat = REPO_ROOT / "tests" / "data" / "rtklib" / "stat"
+        status_file = tmp_path / "relative-static.pos.stat"
+        status_file.write_bytes(gzip.decompress((stat / "relative-static.pos.stat.gz").read_bytes()))
+        with (stat / "relative-static.dops.csv").open(encoding="ascii") as handle:
+            expected = {
+                to_millisecond(
+                    datetime(1980, 1, 6, tzinfo=UTC)
+                    + timedelta(weeks=int(row["week"]), seconds=float(row["tow"]))
+                ): row
+                for row in csv.DictReader(handle)
+            }
+
+        solution = read_pos(REPO_ROOT / "tests" / "data" / "rtklib" / "pos" / "llh.pos")
+        bare = gnss_trajectory_layer(trajectory_from_solution(solution))
+        # NULL is None under PyQt6 and a null QVariant under PyQt5.
+        assert all(
+            value is None or (hasattr(value, "isNull") and value.isNull())
+            for value in _values(bare, "pdop")
+        )
+
+        solution.geometry = read_satellite_geometry(status_file)
+        layer = gnss_trajectory_layer(trajectory_from_solution(solution))
+        for feature in layer.getFeatures():
+            row = expected[to_millisecond(datetime.fromisoformat(feature["epoch"]))]
+            for column in ("pdop", "hdop", "vdop"):
+                assert feature[column] == pytest.approx(float(row[column]), abs=1e-6), column
+
     def test_qgis_accepts_the_trajectory_style(self, geocomp_provider):
         from qgis.core import QgsVectorLayer
 

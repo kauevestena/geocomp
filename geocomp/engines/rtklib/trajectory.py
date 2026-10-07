@@ -69,9 +69,9 @@ def trajectory_from_solution(
     """
     shape = ellipsoid or ELLIPSOIDS["GRS80"]
     if solution.format in _GEODETIC:
-        return [_from_geodetic(epoch) for epoch in solution.epochs]
+        return [_from_geodetic(epoch, solution) for epoch in solution.epochs]
     if solution.format is PosFormat.XYZ:
-        return [_from_cartesian(epoch, shape) for epoch in solution.epochs]
+        return [_from_cartesian(epoch, shape, solution) for epoch in solution.epochs]
 
     reference = solution.reference_position
     if reference is None:
@@ -85,20 +85,21 @@ def trajectory_from_solution(
         )
     base = (math.radians(reference[0]), math.radians(reference[1]), reference[2])
     origin = geodetic_to_cartesian(*base, shape)
-    return [_from_enu(epoch, base, origin, shape) for epoch in solution.epochs]
+    return [_from_enu(epoch, base, origin, shape, solution) for epoch in solution.epochs]
 
 
-def _quality(epoch: PosEpoch) -> EpochQuality:
+def _quality(epoch: PosEpoch, solution: PosSolution) -> EpochQuality:
     return EpochQuality(
         time=epoch.time,
         status=epoch.status.name,
         satellites=epoch.satellites,
         ratio=epoch.ratio,
         age=epoch.age,
+        dop=solution.dop_at(epoch.time),
     )
 
 
-def _from_geodetic(epoch: PosEpoch) -> TrajectoryPoint:
+def _from_geodetic(epoch: PosEpoch, solution: PosSolution) -> TrajectoryPoint:
     latitude, longitude, height = epoch.decimal_position
     return TrajectoryPoint(
         latitude=math.radians(latitude),
@@ -107,11 +108,11 @@ def _from_geodetic(epoch: PosEpoch) -> TrajectoryPoint:
         # Already (n, e, u): the geodetic layouts name their deviations sdn,
         # sde, sdu in that order, which is what LOCAL_LABELS is.
         covariance=reorder_to_local(epoch.covariance),
-        quality=_quality(epoch),
+        quality=_quality(epoch, solution),
     )
 
 
-def _from_cartesian(epoch: PosEpoch, shape: Ellipsoid) -> TrajectoryPoint:
+def _from_cartesian(epoch: PosEpoch, shape: Ellipsoid, solution: PosSolution) -> TrajectoryPoint:
     x, y, z = epoch.decimal_position
     latitude, longitude, height = cartesian_to_geodetic(x, y, z, shape)
     return TrajectoryPoint(
@@ -126,7 +127,7 @@ def _from_cartesian(epoch: PosEpoch, shape: Ellipsoid) -> TrajectoryPoint:
         covariance=reorder_to_local(
             ecef_to_enu_covariance(epoch.covariance, latitude, longitude)
         ),
-        quality=_quality(epoch),
+        quality=_quality(epoch, solution),
     )
 
 
@@ -135,6 +136,7 @@ def _from_enu(
     base: tuple[float, float, float],
     origin: tuple[float, float, float],
     shape: Ellipsoid,
+    solution: PosSolution,
 ) -> TrajectoryPoint:
     east, north, up = epoch.decimal_position
     shift = enu_to_ecef((east, north, up), base[0], base[1])
@@ -150,5 +152,5 @@ def _from_enu(
         # honest operation: re-rotating at the rover would be correcting for a
         # turn the engine never applied.
         covariance=reorder_to_local(epoch.covariance),
-        quality=_quality(epoch),
+        quality=_quality(epoch, solution),
     )

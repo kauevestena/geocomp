@@ -39,6 +39,7 @@ from geocomp.engines.base import (
 )
 from geocomp.engines.rtklib.config import RtklibConfig, profile, write_config
 from geocomp.engines.rtklib.read_pos import PosSolution, read_pos
+from geocomp.engines.rtklib.read_stat import read_satellite_geometry
 
 __all__ = [
     "PROGRAM",
@@ -438,6 +439,14 @@ class RtklibEngine:
         solution = read_pos(output_file)
         if not solution.epochs:
             raise _no_solution(job, run, work_dir)
+        # The satellite geometry dilution of precision is computed from
+        # (P12c-35). Read, then removed: at the residual level it is a line per
+        # satellite and frequency per epoch, hundreds of megabytes for a day at
+        # 1 Hz, and the configuration kept beside it reproduces it.
+        status_file = output_file.with_name(f"{output_file.name}.stat")
+        if status_file.is_file():
+            solution.geometry = read_satellite_geometry(status_file)
+            status_file.unlink()
         return RtklibResult(
             run=run, solution=solution, config_file=config_file, output_file=output_file
         )
