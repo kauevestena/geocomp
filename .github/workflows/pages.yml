@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: pages
+
+# The landing page and logo in docs/, published by GitHub Pages.
+#
+# This is for a repository whose Pages source is "GitHub Actions" (Settings >
+# Pages > Build and deployment). With that source and no workflow, the site is a
+# 404: nothing builds it. If the source is "Deploy from a branch" (main, /docs),
+# GitHub builds the site itself and this workflow is not needed -- it would fail
+# at the deploy step, which says Pages is not set up for Actions.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and let a running one finish rather than leaving the
+# site half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: publish docs/
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
