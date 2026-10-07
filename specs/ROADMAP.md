@@ -2695,7 +2695,9 @@ epochs its ambiguity ratio prints 629.3 and 654.6 where Linux prints 629.4 and 6
 same float the same way, so the difference is arithmetic at the float's last bits, turned into a whole unit by a
 rounding boundary, and a relative tolerance of a part in a million cannot absorb that. The fixture check now also
 accepts one unit in the last printed decimal place; integers -- week, status, satellite count -- stay exact
-(`tests/test_rtklib_engine.py::TestTheFixtureDriftGuard`).
+(`tests/test_rtklib_engine.py::TestTheFixtureDriftGuard`). The sample RINEX, in the tests and in the plugin's
+own copy, is now kept byte for byte (`-text`) so a Windows checkout does not hand the engine CRLF input; marking
+only the tests' copy failed the test that requires the two copies to be the same bytes, on Windows alone.
 
 **Not done.** Gatekeeper on a user's Mac is expected not to apply, because QGIS's `zipfile` extraction does not
 carry the quarantine attribute, but no runner can show it, and the program is not notarised (ADR-0009,
