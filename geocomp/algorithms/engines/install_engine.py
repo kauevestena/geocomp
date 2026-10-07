@@ -14,10 +14,15 @@ It lands in the QGIS profile, is recorded with its version, and is then run to
 show that it works here -- an installation that verified and will not start is
 reported as a failure, not as success.
 
-**RTKLIB is not offered.** Its upstream publishes executables for Windows only,
-and the release they come from is not the build GeoComp's RTKLIB parsers were
-checked against (``specs/21`` section 4). It is installed by the user, and its
-path set in Global Settings.
+**The user states that they understand the licence.** DynAdjust is a separate
+program, written by Geoscience Australia and licensed by them (Apache-2.0); it
+is downloaded from their release page and GeoComp does not distribute it
+(ADR-0003, ``specs/21`` section 7). A required tick box says that the person
+installing it has been told so, and an install without it is refused, naming the
+box, before anything is downloaded.
+
+**RTKLIB is not offered here.** The Linux build of GeoComp carries its own
+``rnx2rtkp`` (ADR-0009); on other systems its path is set in Global Settings.
 """
 
 from __future__ import annotations
@@ -30,6 +35,7 @@ from qgis.core import (
     QgsProcessingFeedback,
     QgsProcessingOutputFolder,
     QgsProcessingOutputString,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
 )
 
@@ -40,11 +46,15 @@ from geocomp.engines.manager import current_platform, releases_for
 __all__ = ["InstallEngineAlgorithm"]
 
 ENGINE = "ENGINE"
+ACKNOWLEDGE_LICENCE = "ACKNOWLEDGE_LICENCE"
 OUTPUT_DIRECTORY = "OUTPUT_DIRECTORY"
 OUTPUT_VERSION = "OUTPUT_VERSION"
 
 #: The engines the manager has a pinned release of, in the order offered.
 ENGINES = ("dynadjust",)
+
+#: Where DynAdjust's licence is published, named in the help and in the refusal.
+DYNADJUST_REPOSITORY = "https://github.com/GeoscienceAustralia/DynAdjust"
 
 
 class InstallEngineAlgorithm(GeoCompAlgorithm):
@@ -68,12 +78,16 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
             "rights are needed and removing the profile removes them. The version is recorded, "
             "and the installed program is run once to show that it works on this computer.</p>"
             "<p>The download uses QGIS's network settings, including its proxy.</p>"
+            "<p><b>Licence.</b> DynAdjust is a separate program by Geoscience Australia, under "
+            "the Apache-2.0 licence (see its repository, %1). GeoComp does not distribute it: "
+            "it is downloaded from the authors' release page. Tick the box to say you "
+            "understand this; without it nothing is downloaded.</p>"
             "<p>A DynAdjust directory set in Global Settings, under Paths and engines, is still "
             "used in preference to this installation; clear it to use this one.</p>"
-            "<p><b>RTKLIB</b> is not offered: its authors publish executables for Windows only. "
-            "Install it yourself and give the path to <code>rnx2rtkp</code> in Global "
+            "<p><b>RTKLIB</b> is not installed here. GeoComp's Linux build carries its own "
+            "<code>rnx2rtkp</code>; on other systems, give the path to one in Global "
             "Settings.</p>"
-        )
+        ).replace("%1", DYNADJUST_REPOSITORY)
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
@@ -82,6 +96,13 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
                 self.tr("Engine"),
                 options=[self.tr("DynAdjust")],
                 defaultValue=0,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                ACKNOWLEDGE_LICENCE,
+                self.tr("I understand that DynAdjust is a separate program under its own licence"),
+                defaultValue=False,
             )
         )
         self.addOutput(QgsProcessingOutputFolder(OUTPUT_DIRECTORY, self.tr("Installed in")))
@@ -96,6 +117,22 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
         from geocomp.services.engines import configured_path, install_engine
 
         engine = ENGINES[self.parameterAsEnum(parameters, ENGINE, context)]
+        if not self.parameterAsBoolean(parameters, ACKNOWLEDGE_LICENCE, context):
+            raise QgsProcessingException(
+                self.tr(
+                    "Tick \u201c%1\u201d to install DynAdjust. It is a separate program by "
+                    "Geoscience Australia, under the Apache-2.0 licence (%2), downloaded from "
+                    "their release page; GeoComp does not distribute it. Nothing was downloaded."
+                )
+                .replace("%1", self.parameterDefinition(ACKNOWLEDGE_LICENCE).description())
+                .replace("%2", DYNADJUST_REPOSITORY)
+            )
+        feedback.pushInfo(
+            self.tr(
+                "You confirmed that you understand DynAdjust is a separate program under its "
+                "own licence, Apache-2.0 (%1)."
+            ).replace("%1", DYNADJUST_REPOSITORY)
+        )
         platform = current_platform()
         releases = releases_for(engine, platform)
         if releases:

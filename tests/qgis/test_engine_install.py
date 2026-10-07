@@ -132,14 +132,17 @@ def global_setting():
         settings.reset_global(key)
 
 
-def _install(recorder=None):
+def _install(recorder=None, *, acknowledged=True):
     from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingFeedback
 
     algorithm = QgsApplication.processingRegistry().algorithmById(INSTALL)
     assert algorithm is not None, "Install an engine is not registered"
     feedback = recorder.feedback if recorder is not None else QgsProcessingFeedback()
     results, ok = algorithm.create({}).run(
-        {"ENGINE": 0}, QgsProcessingContext(), feedback, catchExceptions=False
+        {"ENGINE": 0, "ACKNOWLEDGE_LICENCE": acknowledged},
+        QgsProcessingContext(),
+        feedback,
+        catchExceptions=False,
     )
     assert ok
     return results
@@ -226,6 +229,57 @@ class TestInstalling:
             _install()
         assert "no verified release" in str(caught.value)
         assert "Global Settings" in str(caught.value)
+
+
+class TestTheLicenceAcknowledgement:
+    """DynAdjust is another party's program under its own licence; a person who
+    installs it says they know."""
+
+    def test_it_is_a_tick_box_that_starts_unticked(self):
+        from qgis.core import QgsApplication, QgsProcessingParameterBoolean
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(INSTALL)
+        definition = algorithm.parameterDefinition("ACKNOWLEDGE_LICENCE")
+        assert isinstance(definition, QgsProcessingParameterBoolean)
+        assert definition.defaultValue() is False
+        assert "separate program under its own licence" in definition.description()
+
+    def test_without_it_nothing_is_downloaded_or_installed(self, pinned, no_engine_on_the_path):
+        from qgis.core import QgsProcessingException
+
+        from geocomp.engines.manager import installed
+
+        root, _pin = pinned
+        recorder = Recorder()
+        with pytest.raises(QgsProcessingException) as caught:
+            _install(recorder, acknowledged=False)
+        assert not [path for path in root.rglob("*") if path.is_file()]
+        assert installed("dynadjust", root) is None
+        assert "Downloading" not in recorder.text
+
+        text = str(caught.value)
+        # The refusal names the box as the dialog labels it, says whose
+        # program and which licence, and says nothing was fetched.
+        assert "I understand that DynAdjust is a separate program under its own licence" in text
+        assert "Geoscience Australia" in text and "Apache-2.0" in text
+        assert "Nothing was downloaded" in text
+
+    def test_with_it_the_install_goes_ahead_and_says_what_was_confirmed(
+        self, pinned, no_engine_on_the_path
+    ):
+        recorder = Recorder()
+        results = _install(recorder)
+        assert results["OUTPUT_VERSION"] == "1.4.0"
+        assert "You confirmed that you understand DynAdjust is a separate program" in recorder.text
+        assert recorder.text.index("You confirmed") < recorder.text.index("Downloading")
+
+    def test_the_help_says_the_same_thing_the_refusal_does(self):
+        from qgis.core import QgsApplication
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(INSTALL)
+        help_text = algorithm.shortHelpString()
+        assert "Apache-2.0" in help_text and "does not distribute it" in help_text
+        assert "https://github.com/GeoscienceAustralia/DynAdjust" in help_text
 
 
 class TestTheSettings:

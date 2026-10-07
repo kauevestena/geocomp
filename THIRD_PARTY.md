@@ -50,8 +50,9 @@ phase P7 — the previous entry here said only "see the upstream `license.txt`",
 RTKLIB's licence text at `geocomp/resources/engines/licences/RTKLIB-license.txt`, which BSD 2-clause asks of a
 binary redistribution. **DynAdjust is not bundled.**
 
-Where GeoComp downloads an engine, it places that engine's own licence text alongside the binary and shows
-it in the About dialog.
+Where GeoComp downloads an engine, the About dialog names that engine's licence and its authors, and the
+install asks the person to confirm they understand it (P12c-29). The manager extracts only the programs: the
+archive's own licence file is **not** placed beside them, and this file used to say it was.
 
 ### Test data redistributed from DynAdjust
 

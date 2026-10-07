@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-29 — Installing DynAdjust asks you to confirm its licence
+
+#### Changed
+
+- *Install an engine* has a tick box, *I understand that DynAdjust is a separate program under its own
+  licence*, which must be ticked. DynAdjust is Geoscience Australia's program under Apache-2.0, downloaded from
+  their release page; GeoComp does not distribute it. Without the tick nothing is downloaded, and the message
+  says why. A script or model that installs it has to pass the new `ACKNOWLEDGE_LICENCE` input.
+
 ### P12c-27 — RTKLIB's `rnx2rtkp` ships with the plugin
 
 #### Added
