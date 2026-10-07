@@ -63,6 +63,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from geocomp.core.errors import ValidationError
 
@@ -364,15 +365,15 @@ def transformation_path(source: str, target: str) -> list[tuple[Helmert, bool]]:
 
 
 def transform_point(
-    xyz,
+    xyz: ArrayLike,
     *,
     source: str,
     target: str,
     epoch: float,
     target_epoch: float | None = None,
-    covariance=None,
-    velocity=None,
-    velocity_covariance=None,
+    covariance: ArrayLike | None = None,
+    velocity: ArrayLike | None = None,
+    velocity_covariance: ArrayLike | None = None,
 ) -> TransformedPoint:
     """Bring one geocentric point from (*source*, *epoch*) to (*target*, *target_epoch*).
 
@@ -469,7 +470,7 @@ def transform_point(
 
 
 def transform_vector(
-    dxyz, *, source: str, target: str, epoch: float, covariance=None
+    dxyz: ArrayLike, *, source: str, target: str, epoch: float, covariance: ArrayLike | None = None
 ) -> tuple[np.ndarray, np.ndarray | None, TransformationRecord]:
     """A baseline between two points of one frame, carried to another.
 

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from qgis.core import QgsMapLayer
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.resources import STYLES_DIR
@@ -40,7 +41,7 @@ def style_path(name: str) -> Path:
     return STYLE_DIR / f"{name}.qml"
 
 
-def apply_style(layer, name: str) -> bool:
+def apply_style(layer: QgsMapLayer, name: str) -> bool:
     """Apply the shipped style *name* to *layer*.
 
     A missing or unloadable style is logged and survived rather than raised.

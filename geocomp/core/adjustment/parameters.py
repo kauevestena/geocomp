@@ -23,7 +23,15 @@ from enum import Enum
 import numpy as np
 
 from geocomp.core.errors import DataError, ValidationError
-from geocomp.core.models import GRAVITY_COMPONENT, BaselineFrame, ConstraintMode, Network, Station
+from geocomp.core.models import (
+    GRAVITY_COMPONENT,
+    BaselineFrame,
+    ConstraintMode,
+    Network,
+    Observation,
+    Position,
+    Station,
+)
 from geocomp.core.uncertainty import Covariance
 from geocomp.core.units import Unit
 
@@ -40,7 +48,7 @@ __all__ = [
 ]
 
 
-def orientation_owner(observation) -> str:
+def orientation_owner(observation: Observation) -> str:
     """Whose orientation unknown a direction carries: its setup's.
 
     A direction's circle zero is arbitrary, so without an orientation unknown it
@@ -398,7 +406,9 @@ def _fixed_value(station: Station, component: str, frame: Frame) -> float:
     return position.component(_constraint_name(component, frame)).value
 
 
-def geocentric_component(position, component: str, station_id: str, *, held: bool = False) -> float:
+def geocentric_component(
+    position: Position, component: str, station_id: str, *, held: bool = False
+) -> float:
     """One of X, Y, Z from a cartesian or geodetic position.
 
     A projected position is refused: undoing a projection needs its parameters,

@@ -119,7 +119,7 @@ class CompatibilityDialog(QDialog):
         self.result_of_check = Compatibility(False)
         self.check()
 
-    def check(self, *_args) -> None:
+    def check(self, *_args: object) -> None:
         """Check the two chosen solutions, show what the comparison will find, and enable OK only
         when they are comparable.
         """

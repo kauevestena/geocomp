@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import math
 
-from qgis.core import QgsRendererCategory, QgsRendererRange
+from qgis.core import QgsRendererCategory, QgsRendererRange, QgsVectorLayer
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QColor
 
@@ -79,7 +79,7 @@ def theme_labels() -> dict[str, str]:
     }
 
 
-def add_thematic_styles(layer, style: str) -> list[str]:
+def add_thematic_styles(layer: QgsVectorLayer, style: str) -> list[str]:
     """Give *layer*, already styled as *style*, its thematic maps as named styles.
 
     The layer stays on its default style, renamed to say what it shows. A map

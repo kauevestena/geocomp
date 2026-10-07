@@ -36,10 +36,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from geocomp.core.adjustment.parameters import orientation_owner
+from geocomp.core.adjustment.parameters import ParameterLayout, orientation_owner
 from geocomp.core.errors import ComputationError, ValidationError
 from geocomp.core.geodesy.cartesian import (
     cartesian_to_geodetic,
@@ -55,6 +56,9 @@ from geocomp.core.models import (
     baseline_frame,
 )
 from geocomp.core.units import wrap_to_pi
+
+if TYPE_CHECKING:
+    from geocomp.core.adjustment.equations import EquationRow
 
 __all__ = [
     "GEOCENTRIC_TYPES",
@@ -407,7 +411,9 @@ _EQUATIONS = {
 GEOCENTRIC_TYPES = frozenset(_EQUATIONS)
 
 
-def evaluate_geocentric(observation: Observation, layout, x: np.ndarray):
+def evaluate_geocentric(
+    observation: Observation, layout: ParameterLayout, x: np.ndarray
+) -> list[EquationRow]:
     """*observation*'s computed value and partials in the geocentric frame.
 
     An observation type the geocentric frame has no equation for is refused, naming the ones it has.

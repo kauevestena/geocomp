@@ -50,6 +50,7 @@ import numpy as np
 
 from geocomp.core.errors import DataError, ValidationError
 from geocomp.core.models.epoch import Epoch
+from geocomp.core.models.network import Network
 from geocomp.core.models.observation import OBSERVATION_TYPES, ObservationType
 from geocomp.core.models.position import CoordinateSystem, HeightType, Position
 from geocomp.core.models.solution import (
@@ -1302,7 +1303,7 @@ def read_cor(path: str | Path, *, known: Iterable[str] | None = None) -> list[St
     return corrections
 
 
-def printed_rows(network) -> list[tuple[str, str, tuple[str, ...]]]:
+def printed_rows(network: Network) -> list[tuple[str, str, tuple[str, ...]]]:
     """``(observation id, the code DynAdjust prints, stations)``, one per row.
 
     Mirrors ``write_measurement_file``: clusters first, in the network's cluster
@@ -1393,7 +1394,7 @@ def _cluster_code(members: list) -> str | None:
 
 def match_observations(
     rows: Sequence[AdjustedMeasurement],
-    network,
+    network: Network,
 ) -> list[ObservationResult]:
     """Map measurement rows back onto the network's observation identifiers.
 

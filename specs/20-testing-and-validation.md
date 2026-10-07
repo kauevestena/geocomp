@@ -62,7 +62,7 @@ Beyond tests, checks that enforce the specifications' structural rules:
 | Coverage of `core/` measured on every run of the QGIS job, and every public function and method of `core/` reached by at least one test (`scripts/check_coverage.py`) | §9 criterion 6 |
 | Every module of the plugin has a function the suite runs, measured in the same run (`scripts/check_coverage.py`, P12c-13) | NFR-011 |
 | Every package the plugin imports has a recorded decision in [`03`](./03-architecture.md) §3.7 (P12c-13) | NFR-005 |
-| Every interface one module imports from another is documented (P12c-32) and annotated, the second against a frozen list that may only shrink (P12c-13) | NFR-012 |
+| Every interface one module imports from another is documented and annotated (P12c-31 to P12c-33) | NFR-012 |
 | Every `Observation(...)` the plugin makes passes `provenance=`, or is in a reader that stamps it afterwards with `Network.record_provenance` (`tests/structural/test_observation_provenance.py`, P12c-20) | FR-102, [`04-data-model.md`](./04-data-model.md) §2.5 |
 
 ## 3. Reference datasets (FR-950)
@@ -491,7 +491,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 162 met, 13 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 163 met, 12 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -670,4 +670,4 @@ without a row.
 | NFR-009 | **met** | As 21.7; `tests/structural/test_version_consistency.py::test_licence_is_declared_as_gpl` |
 | NFR-010 | **met** | As 08.7; a PostGIS login reaches no log, result, copy or setting (`tests/qgis/test_postgis_project.py`) |
 | NFR-011 | **met** | Since P12c-13 every module of the plugin has a function the suite runs, checked after the QGIS job (`scripts/check_coverage.py`, `tests/test_coverage_check.py`); the one exemption, `classFactory`, runs in a QGIS of its own. Until then only `core/` was measured. The core runs with no QGIS and no engine in the `core` jobs (`.github/workflows/test.yml`), every public function reached, As 20.6 |
-| NFR-012 | **partly met** | Held since P12c-13 by `tests/structural/test_public_interfaces.py`: of the 1,347 classes, functions and methods one module imports from another, 399 had no docstring and 51 were not fully annotated, frozen in lists that may only shrink. P12c-31 and P12c-32 documented all of them, and the docstring list is gone: the test now requires one on every interface. Of 1,409 now, none lacks a docstring and 51 are not fully annotated |
+| NFR-012 | **met** | `tests/structural/test_public_interfaces.py` holds every class, function and method one module imports from another to a docstring and full annotation of its parameters and return. P12c-13 first counted them: of 1,347, 399 had no docstring and 51 were not fully annotated, frozen in lists that could only shrink. P12c-31 and P12c-32 documented all 399 and P12c-33 annotated all 51, so both lists are gone and the test states the rule outright, over 1,409 interfaces now |

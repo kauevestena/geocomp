@@ -27,6 +27,7 @@ import math
 from dataclasses import dataclass
 
 from geocomp.core.adjustment.blocks import quadratic_form
+from geocomp.core.adjustment.least_squares import AdjustmentRun
 from geocomp.core.adjustment.normal_equations import CONSTRAINT_ROW_PREFIX
 from geocomp.core.adjustment.undulations import GEOID_OWNER_PREFIX
 from geocomp.core.models import Network
@@ -79,7 +80,7 @@ def _group(label: str, network: Network) -> str:
     return technique_of(network.observations[label])
 
 
-def technique_breakdown(run, network: Network) -> tuple[TechniqueSummary, ...]:
+def technique_breakdown(run: AdjustmentRun, network: Network) -> tuple[TechniqueSummary, ...]:
     """Every technique's summary, in the order its rows first appear."""
     labels = run.system.row_labels
     groups = [_group(label, network) for label, _ in labels]

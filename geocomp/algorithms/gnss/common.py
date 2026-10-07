@@ -18,10 +18,11 @@ import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qgis.core import (
     QgsProcessingException,
+    QgsProcessingFeedback,
     QgsProcessingParameterFile,
     QgsProcessingParameterNumber,
 )
@@ -48,6 +49,10 @@ from geocomp.engines.rtklib.config import (
     read_user_options,
     with_user_options,
 )
+
+if TYPE_CHECKING:
+    from geocomp.core.models import GnssSession
+    from geocomp.engines.rtklib.engine import RtklibEngine
 
 __all__ = [
     "PPP_NOTICE_CODE",
@@ -505,7 +510,9 @@ def _datum_crs_name(crs) -> str:
     return found.group(1) if found else ""
 
 
-def base_coordinates(session, frame: str | None, feedback) -> tuple[dict[str, Any], dict[str, Any]]:
+def base_coordinates(
+    session: GnssSession, frame: str | None, feedback: QgsProcessingFeedback
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Where RTKLIB is to hold the base, and the record of how that was decided (FR-832).
 
     A base in the reference-station database (FR-063) is held at its published
@@ -601,7 +608,7 @@ def ppp_limitation_notice() -> str:
     )
 
 
-def gnss_engine(feedback) -> Any:
+def gnss_engine(feedback: QgsProcessingFeedback) -> RtklibEngine:
     """The RTKLIB the algorithms run, warned about when it is untested (FR-302).
 
     The engine detects its version and caches it; warning is the plugin's job,
@@ -633,13 +640,13 @@ def gnss_engine(feedback) -> Any:
     return engine
 
 
-def engine_record(engine) -> dict[str, Any] | None:
+def engine_record(engine: RtklibEngine) -> dict[str, Any] | None:
     """The engine version that produced a result, for its summary (FR-302)."""
     version = engine.version()
     return version.to_dict() if version is not None else None
 
 
-def timeout_parameter(name: str):
+def timeout_parameter(name: str) -> QgsProcessingParameterNumber:
     """The time limit on each ``rnx2rtkp`` run, which FR-304 requires be configurable.
 
     Until P12c-11 it was the engine layer's fixed ten minutes: a long session at

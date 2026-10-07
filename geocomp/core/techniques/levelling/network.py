@@ -54,6 +54,7 @@ its grid is still refused -- a name is a label, not a conversion.
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -358,7 +359,7 @@ def build_network(
 
 def add_height_differences(
     network: Network,
-    differences,
+    differences: Iterable[tuple[str, str, Quantity]],
     height_type: HeightType,
     *,
     technique: str = "total_station",

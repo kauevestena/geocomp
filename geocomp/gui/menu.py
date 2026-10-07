@@ -29,7 +29,7 @@ from collections.abc import Callable
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QMenu, QWidget
+from qgis.PyQt.QtWidgets import QAction, QMenu, QMenuBar, QWidget
 
 from geocomp.registry import (
     MENU_GROUPS,
@@ -101,7 +101,7 @@ class GeoCompMenu:
         """The menu, or ``None`` before it is built and after it is removed."""
         return self._menu
 
-    def build(self, menu_bar) -> QMenu:
+    def build(self, menu_bar: QMenuBar) -> QMenu:
         """Create the menu and insert it into *menu_bar*.
 
         Inserted before the Help menu when one is found, so GeoComp sits among

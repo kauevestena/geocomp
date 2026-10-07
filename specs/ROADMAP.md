@@ -2652,6 +2652,26 @@ set)".
 
 **Not done.** The 51 interfaces not fully annotated. NFR-012 stays **partly met**.
 
+#### P12c-33 — every public interface annotated; NFR-012 met
+
+The last 51 interfaces between modules that did not annotate every parameter and their return now do, and the
+frozen list is gone: `tests/structural/test_public_interfaces.py` requires a docstring and full annotation of
+every one. **NFR-012 is met**: 163 met, 12 partly met, 1 open, of 176.
+
+Most of the 51 were arguments that are QGIS objects (a feedback, a context, a canvas, a layer) or the core's own
+types passed across a boundary that would otherwise make an import cycle. The latter are imported for type
+checking only, except in `core/techniques`, where `tests/structural/test_no_bare_geodetic_floats.py` evaluates
+the hints at run time, so `adjust_combination`'s gravity network and `add_height_differences`'s differences are
+real imports, checked to load fresh without a cycle.
+
+**Found while doing it.** Two builders in `layers/builders.py` said they were "typed loosely" so that `layers`
+would not import the GNSS technique package; a type-checking-only import keeps that true, and the docstrings now
+say so. `read_document` was first annotated as taking a dictionary reader; the readers it is given take any
+payload and check it themselves, and the annotation says that.
+
+**Not done.** Nothing checks the annotations are *right* -- no type checker runs in CI. They are read against the
+callers here, not verified by a tool.
+
 ---
 
 ## P13 — Validation, documentation and release

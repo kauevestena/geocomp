@@ -17,7 +17,7 @@ NumPy only: the dense path, which is the reference, goes through them too.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 
@@ -99,7 +99,7 @@ class BlockDiagonal:
         """The same blocks over the same rows, holding *matrices* (keyed by size)."""
         return BlockDiagonal(self.size, {s: (self.groups[s][0], matrices[s]) for s in self.groups})
 
-    def locate(self, rows) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def locate(self, rows: Sequence[int] | np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """For each of *rows*: its block's size, the block's index among blocks
         of that size, and the row's position within the block."""
         rows = np.asarray(rows, dtype=np.intp)
@@ -202,7 +202,7 @@ class BlockDiagonal:
         matrices = self.groups[int(self._size_of[row])][1]
         return float(matrices[self._block_of[row], self._position_of[row], self._position_of[column]])
 
-    def quadratic(self, vector: np.ndarray, rows=None) -> float:
+    def quadratic(self, vector: np.ndarray, rows: Sequence[int] | np.ndarray | None = None) -> float:
         """``v_R^T B_RR v_R``: over all rows, or over the rows *R* only."""
         vector = np.asarray(vector, dtype=float)
         if rows is not None:
@@ -214,7 +214,7 @@ class BlockDiagonal:
         return float(vector @ (self @ vector))
 
 
-def product_diagonal(first, second) -> np.ndarray:
+def product_diagonal(first: np.ndarray | BlockDiagonal, second: np.ndarray | BlockDiagonal) -> np.ndarray:
     """``diag(first @ second)``, without forming the product.
 
     For dense arrays this is O(m^2) where the product is O(m^3) -- at 3,400
@@ -225,14 +225,18 @@ def product_diagonal(first, second) -> np.ndarray:
     return np.einsum("ij,ji->i", first, second)
 
 
-def inverse_diagonal(matrix) -> np.ndarray:
+def inverse_diagonal(matrix: np.ndarray | BlockDiagonal) -> np.ndarray:
     """``diag(matrix^-1)``: each observation's variance from **P**."""
     if isinstance(matrix, BlockDiagonal):
         return matrix.inverse().diagonal()
     return np.diag(np.linalg.inv(matrix))
 
 
-def quadratic_form(matrix, vector: np.ndarray, rows=None) -> float:
+def quadratic_form(
+    matrix: np.ndarray | BlockDiagonal,
+    vector: np.ndarray,
+    rows: Sequence[int] | np.ndarray | None = None,
+) -> float:
     """``v_R^T M_RR v_R``, for a dense **P** or a block-diagonal one."""
     if isinstance(matrix, BlockDiagonal):
         return matrix.quadratic(vector, rows)

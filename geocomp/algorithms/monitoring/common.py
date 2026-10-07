@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import csv
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -92,7 +93,7 @@ def read_optional_network(path: str) -> Network | None:
         raise fail(error) from error
 
 
-def read_document(path: str, reader) -> dict[str, Any]:
+def read_document(path: str, reader: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
     """A monitoring document, checked by *reader* to be the kind expected."""
     try:
         return reader(read_json(path, "monitoring"))

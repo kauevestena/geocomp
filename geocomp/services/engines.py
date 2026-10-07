@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from qgis.core import QgsApplication, QgsBlockingNetworkRequest
+from qgis.core import QgsApplication, QgsBlockingNetworkRequest, QgsFeedback
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtNetwork import QNetworkRequest
 
@@ -126,7 +126,7 @@ class QgisArchiveFetcher:
     mirror that answers with a relative one fails here as a download error.
     """
 
-    def __init__(self, feedback=None) -> None:
+    def __init__(self, feedback: QgsFeedback | None = None) -> None:
         self.feedback = feedback
 
     def __call__(self, url: str, destination: Path) -> None:
@@ -148,7 +148,9 @@ class QgisArchiveFetcher:
         )
 
 
-def install_engine(engine: str, *, feedback=None, root: str | Path | None = None) -> Installation:
+def install_engine(
+    engine: str, *, feedback: QgsFeedback | None = None, root: str | Path | None = None
+) -> Installation:
     """Download, verify, install and record the pinned *engine* for this machine.
 
     Raises:

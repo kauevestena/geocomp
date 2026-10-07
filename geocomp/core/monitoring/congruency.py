@@ -292,7 +292,9 @@ def s_matrix(comparison: Comparison, reference: Sequence[str], datum: str | None
     return np.eye(len(weight)) - basis @ np.linalg.solve(normal, basis.T * weight)
 
 
-def s_transform(comparison: Comparison, reference: Sequence[str], datum: str | None = None):
+def s_transform(
+    comparison: Comparison, reference: Sequence[str], datum: str | None = None
+) -> tuple[np.ndarray, np.ndarray]:
     """The difference and its cofactor in the datum *reference* defines."""
     transform = s_matrix(comparison, reference, datum)
     return transform @ comparison.difference, transform @ comparison.cofactor @ transform.T
