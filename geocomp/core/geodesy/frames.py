@@ -266,6 +266,7 @@ class TransformationStep:
     accuracy: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
+        """The step as provenance stores it, leaving out fields that are empty or zero."""
         payload: dict[str, Any] = {"kind": self.kind, "description": self.description}
         for key in ("code", "epoch", "from_epoch", "to_epoch"):
             value = getattr(self, key)
@@ -299,13 +300,16 @@ class TransformationRecord:
 
     @property
     def accuracy(self) -> float:
+        """The root-sum-square of the steps' stated accuracies, in metres; zero for the identity."""
         return math.sqrt(sum(step.accuracy**2 for step in self.steps))
 
     @property
     def is_identity(self) -> bool:
+        """Whether nothing was applied: source and target frame and epoch already agreed."""
         return not self.steps
 
     def to_dict(self) -> dict[str, Any]:
+        """The record as provenance stores it, with the combined accuracy and every step."""
         return {
             "source": self.source,
             "target": self.target,

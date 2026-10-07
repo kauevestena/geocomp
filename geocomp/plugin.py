@@ -321,6 +321,7 @@ class GeoCompPlugin:
         self._open_dialog(algorithm_id)
 
     def run_again(self) -> None:
+        """Open the algorithm last launched from the menu again, if there was one."""
         if self._last_algorithm is not None:
             self.run_algorithm(self._last_algorithm)
 
@@ -346,6 +347,11 @@ class GeoCompPlugin:
         execAlgorithmDialog(algorithm_id, prefilled)
 
     def open_settings(self) -> None:
+        """Open Global Settings, then apply what changed that needs no restart.
+
+        The toolbar follows its setting, and a change of interface mode refreshes the toolbox
+        (``specs/15`` section 3).
+        """
         from geocomp.gui.settings_dialog import GlobalSettingsDialog
         from geocomp.services.settings_service import settings
 
@@ -360,16 +366,19 @@ class GeoCompPlugin:
             self._provider.refreshAlgorithms()
 
     def open_series_panel(self) -> None:
+        """Show the time-series panel and bring it to the front."""
         if self._series_panel is not None:
             self._series_panel.show()
             self._series_panel.raise_()
 
     def open_results_panel(self) -> None:
+        """Show the results panel and bring it to the front."""
         if self._results_panel is not None:
             self._results_panel.show()
             self._results_panel.raise_()
 
     def open_about(self) -> None:
+        """Show the About dialog."""
         from geocomp.gui.about_dialog import AboutDialog
 
         AboutDialog(self.iface.mainWindow()).exec()

@@ -82,6 +82,7 @@ SRS_UNDEFINED_CARTESIAN = -1
 
 
 def _now() -> str:
+    """The current time in UTC, ISO 8601, as the store writes timestamps."""
     return datetime.now(UTC).isoformat()
 
 
@@ -161,9 +162,11 @@ class ProjectStore:
     # -- what a backend supplies -------------------------------------------
 
     def close(self) -> None:
+        """Close the connection. Each backend says how."""
         raise NotImplementedError
 
     def tables(self) -> list[str]:
+        """The names of the store's tables. Each backend says how."""
         raise NotImplementedError
 
     def _execute(self, sql: str, parameters: Sequence[Any] = ()) -> Any:
@@ -325,6 +328,7 @@ class ProjectStore:
 
     @property
     def schema_version(self) -> int:
+        """The schema version the project row records, refusing a store with no project row."""
         row = self._execute('SELECT schema_version FROM "gc_project" LIMIT 1').fetchone()
         if row is None:
             raise DataError(
@@ -940,6 +944,7 @@ class ProjectStore:
         return project
 
     def read_solutions(self) -> list[Solution]:
+        """Every solution the store holds, in one read transaction."""
         with self._transaction(write=False):
             return [self._read_solution(row) for row in self._rows("gc_solution")]
 

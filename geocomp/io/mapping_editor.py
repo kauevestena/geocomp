@@ -99,10 +99,12 @@ class MappingEditor:
         return assignment.column or "" if assignment else ""
 
     def constant_for(self, field: str) -> float | None:
+        """The constant assigned to a field, or ``None`` when it has none or is unassigned."""
         assignment = self._assignments.get(field)
         return assignment.constant if assignment else None
 
     def unit_for(self, field: str) -> str:
+        """The unit assigned to a field, or an empty string when it is unassigned."""
         assignment = self._assignments.get(field)
         return assignment.unit if assignment else ""
 
@@ -140,6 +142,7 @@ class MappingEditor:
         )
 
     def set_unit(self, field: str, unit: str) -> None:
+        """Set the unit of an assigned field; a field not yet assigned is left alone."""
         existing = self._assignments.get(field)
         if existing is None:
             return

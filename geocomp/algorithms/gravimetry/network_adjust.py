@@ -112,14 +112,19 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
     TR_CONTEXT = "GravimetryNetworkAlgorithm"
 
     def displayName(self) -> str:
+        """The algorithm's translated name."""
         return self.tr("Gravimetric network adjustment")
 
     def shortDescription(self) -> str:
+        """One translated sentence describing the algorithm, for the toolbox."""
         return self.tr(
             "Adjust relative and absolute gravity as a network, with each session's drift."
         )
 
     def help_body(self) -> str:
+        """What the algorithm does, for the help panel: drift, known gravity, and what the result
+        holds.
+        """
         return self.tr(
             "<p>Adjusts the readings <i>Pre-processing (scale, tide, drift)</i> reduced: "
             "each session's occupations become gravity differences, absolute values enter "
@@ -166,6 +171,9 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
+        """Declare the readings, known gravity, drift and test parameters, with defaults from the
+        gravimeter settings.
+        """
         self.addParameter(
             QgsProcessingParameterFile(READINGS, self.tr("Reduced readings"), extension="json")
         )
@@ -261,6 +269,9 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
+        """Adjust the reduced readings as a gravity network, then write the solution, report, CSV
+        and layers asked for.
+        """
         path = self.parameterAsFile(parameters, READINGS, context)
         reduced, library, document = read_readings_document(path)
         absolutes, held = self._known(self.parameterAsString(parameters, KNOWN_GRAVITY, context))

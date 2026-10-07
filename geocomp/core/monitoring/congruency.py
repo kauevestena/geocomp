@@ -90,6 +90,7 @@ class Congruency:
 
     @property
     def passed(self) -> bool:
+        """Whether the global congruency test passed: no significant deformation detected."""
         return self.test.passed
 
 
@@ -120,10 +121,12 @@ class ReferenceCheck:
 
     @property
     def passed(self) -> bool:
+        """Whether the reference block passed its congruency test as declared."""
         return self.test.passed
 
     @property
     def implicated(self) -> tuple[str, ...]:
+        """The reference stations the localisation removed, one per step."""
         return tuple(step.removed for step in self.steps)
 
 
@@ -153,31 +156,39 @@ class Displacement:
 
     @property
     def significant(self) -> bool:
+        """Whether the displacement's test rejected 'no movement'."""
         return not self.test.passed
 
     @property
     def decision(self) -> str:
+        """The test's decision in the words a report and an export use."""
         return SIGNIFICANT if self.significant else NOT_SIGNIFICANT
 
     @property
     def std_devs(self) -> tuple[float, ...]:
+        """The standard deviation of each component, from the covariance's diagonal."""
         return tuple(float(np.sqrt(max(v, 0.0))) for v in np.diag(self.covariance))
 
     def component(self, name: str) -> float | None:
+        """The displacement in component *name*, or ``None`` when it was not compared in it."""
         return self.values[self.components.index(name)] if name in self.components else None
 
     @property
     def horizontal_magnitude(self) -> float | None:
+        """The length of the horizontal part; ``None`` without both ``e`` and ``n``."""
         e, n = self.component("e"), self.component("n")
         return None if e is None or n is None else float(np.hypot(e, n))
 
     @property
     def vertical_magnitude(self) -> float | None:
+        """The absolute vertical displacement, ``u`` or ``h``; ``None`` when neither was compared.
+        """
         up = self.component("u") if "u" in self.components else self.component("h")
         return None if up is None else abs(up)
 
     @property
     def magnitude(self) -> float:
+        """The length of the whole displacement vector."""
         return float(np.linalg.norm(self.values))
 
 
@@ -197,6 +208,7 @@ class DeformationAnalysis:
     cofactor: np.ndarray
 
     def displacement(self, station_id: str) -> Displacement:
+        """The displacement of *station_id*, refusing a station that was not compared."""
         for displacement in self.displacements:
             if displacement.station_id == station_id:
                 return displacement
@@ -206,6 +218,7 @@ class DeformationAnalysis:
 
     @property
     def significant(self) -> tuple[str, ...]:
+        """The stations whose displacement is significant, in comparison order."""
         return tuple(d.station_id for d in self.displacements if d.significant)
 
 

@@ -102,12 +102,14 @@ class ImportResult:
 
     @property
     def rejected_rows(self) -> tuple[int, ...]:
+        """The numbers of the rows a blocking finding rejected, ascending and without repeats."""
         return tuple(
             sorted({int(f.value) for f in self.findings if f.value is not None and f.is_blocking})
         )
 
     @property
     def is_clean(self) -> bool:
+        """Whether no row was rejected."""
         return not any(finding.is_blocking for finding in self.findings)
 
 

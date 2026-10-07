@@ -131,6 +131,7 @@ class DynaMLDocument:
     elements: list[tuple[str, ...]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """What was written, for provenance: files, frame, epoch, renamings, skips and counts."""
         return {
             "station_file": str(self.station_path) if self.station_path else None,
             "measurement_file": str(self.measurement_path) if self.measurement_path else None,

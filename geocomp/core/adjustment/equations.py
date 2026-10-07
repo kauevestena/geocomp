@@ -70,6 +70,7 @@ class EquationRow:
     component: str = ""
 
     def to_dense(self, size: int) -> np.ndarray:
+        """The row as a dense vector of *size* entries, zero where it has no partial."""
         row = np.zeros(size)
         for column, value in self.partials.items():
             row[column] = value
@@ -509,6 +510,7 @@ SUPPORTED_TYPES = frozenset(_EQUATIONS)
 
 
 def supports(observation_type: ObservationType) -> bool:
+    """Whether the in-house core has an observation equation for *observation_type*."""
     return observation_type in _EQUATIONS
 
 

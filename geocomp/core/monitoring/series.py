@@ -86,12 +86,14 @@ class StationSeries:
 
     @property
     def velocity_std_devs(self) -> tuple[float, ...] | None:
+        """The standard deviation of each velocity component; ``None`` without a covariance."""
         if self.velocity_covariance is None:
             return None
         return tuple(float(np.sqrt(max(v, 0.0))) for v in np.diag(self.velocity_covariance))
 
     @property
     def horizontal_speed(self) -> float | None:
+        """The horizontal speed in metres a year; ``None`` without a velocity in ``e`` and ``n``."""
         if self.velocity is None or "e" not in self.components or "n" not in self.components:
             return None
         return float(

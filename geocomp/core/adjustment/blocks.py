@@ -84,9 +84,11 @@ class BlockDiagonal:
 
     @property
     def shape(self) -> tuple[int, int]:
+        """``(size, size)``, as an array's."""
         return (self.size, self.size)
 
     def same_structure(self, other: BlockDiagonal) -> bool:
+        """Whether *other* has blocks of the same sizes over the same rows."""
         return (
             self.size == other.size
             and self.groups.keys() == other.groups.keys()
@@ -113,6 +115,7 @@ class BlockDiagonal:
         return self.like({s: (m + np.swapaxes(m, 1, 2)) * 0.5 for s, (_r, m) in self.groups.items()})
 
     def to_dense(self) -> np.ndarray:
+        """The full matrix, zeros and all: for tests and small systems, not for the sparse path."""
         dense = np.zeros(self.shape)
         for rows, matrices in self.groups.values():
             dense[rows[:, :, None], rows[:, None, :]] = matrices
@@ -121,19 +124,23 @@ class BlockDiagonal:
     # -- arithmetic -------------------------------------------------------------
 
     def diagonal(self) -> np.ndarray:
+        """The main diagonal, as a dense vector."""
         out = np.zeros(self.size)
         for rows, matrices in self.groups.values():
             out[rows] = np.diagonal(matrices, axis1=1, axis2=2)
         return out
 
     def inverse(self) -> BlockDiagonal:
+        """The inverse, block by block, in the same structure."""
         return self.like({s: np.linalg.inv(matrices) for s, (_r, matrices) in self.groups.items()})
 
     def transpose(self) -> BlockDiagonal:
+        """The transpose, block by block, in the same structure."""
         return self.like({s: np.swapaxes(matrices, 1, 2) for s, (_r, matrices) in self.groups.items()})
 
     @property
     def T(self) -> BlockDiagonal:  # noqa: N802 -- NumPy's spelling
+        """The transpose, spelled as NumPy spells it."""
         return self.transpose()
 
     def __mul__(self, factor: float) -> BlockDiagonal:
@@ -189,6 +196,7 @@ class BlockDiagonal:
         return out
 
     def entry(self, row: int, column: int) -> float:
+        """The element at (*row*, *column*): zero outside the blocks."""
         if not self.holds(row, column):
             return 0.0
         matrices = self.groups[int(self._size_of[row])][1]

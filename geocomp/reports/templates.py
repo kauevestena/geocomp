@@ -59,10 +59,13 @@ class Template:
 
     @property
     def tokens(self) -> frozenset[str]:
+        """The names of the ``{{ token }}`` placeholders the text uses."""
         return frozenset(_TOKEN.findall(self.text))
 
     @property
     def is_shipped(self) -> bool:
+        """Whether the template is the one shipped with GeoComp rather than an organisation's own.
+        """
         return self.source is None or self.source.parent == TEMPLATE_DIR
 
 

@@ -179,6 +179,7 @@ class OutputPreamble:
 
     @property
     def angular_coordinates(self) -> bool:
+        """Whether the output prints any coordinate as an angle, which decides how it is read."""
         return bool(_ANGULAR_TYPES & set(self.coordinate_types))
 
     def option(self, name: str) -> str | None:

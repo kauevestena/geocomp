@@ -776,6 +776,10 @@ class GravityNetworkResult:
     notes: tuple[str, ...]
 
     def gravity(self, station: str) -> Quantity:
+        """The adjusted gravity of *station*.
+
+        Refuses a station that is not adjusted, a held one included: it has no column.
+        """
         for adjusted in self.solution.adjusted_stations:
             if adjusted.station_id == station:
                 assert adjusted.gravity is not None

@@ -111,6 +111,7 @@ class VarianceComponents:
     iterations: int
 
     def factor(self, group: str) -> VarianceComponent:
+        """The component estimated for *group*, refusing a group that was not estimated."""
         for component in self.components:
             if component.group == group:
                 return component

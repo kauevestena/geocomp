@@ -314,11 +314,13 @@ class StationDatabase:
     stations: dict[str, ReferenceStation] = field(default_factory=dict)
 
     def add(self, station: ReferenceStation) -> None:
+        """Add *station*, refusing an id the database already holds."""
         if station.id in self.stations:
             raise DataError("duplicate_reference_station", station=station.id)
         self.stations[station.id] = station
 
     def get(self, station_id: str) -> ReferenceStation:
+        """The station *station_id*, refusing one the database does not hold."""
         try:
             return self.stations[station_id]
         except KeyError:
@@ -342,20 +344,27 @@ class StationDatabase:
         return to_frame(self.get(station_id), frame, epoch)
 
     def to_dict(self) -> dict[str, Any]:
+        """The database as its file holds it."""
         return {"stations": [s.to_dict() for s in self.stations.values()]}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> StationDatabase:
+        """The inverse of :meth:`to_dict`, refusing a duplicate station."""
         database = cls()
         for row in payload.get("stations", []):
             database.add(ReferenceStation.from_dict(row))
         return database
 
     def write(self, path: str | Path) -> None:
+        """Write the database to *path* as indented JSON."""
         Path(path).write_text(json.dumps(self.to_dict(), indent=2) + "\n", encoding="utf-8")
 
     @classmethod
     def read(cls, path: str | Path) -> StationDatabase:
+        """The database in the JSON file at *path*.
+
+        A missing file and one that is not JSON are refused separately, naming the file.
+        """
         location = Path(path)
         if not location.is_file():
             raise DataError(

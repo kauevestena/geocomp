@@ -88,6 +88,7 @@ class LevellingClass:
 
     @property
     def label(self) -> str:
+        """The name to show a user: the class's name, or its id when it has none."""
         return self.name or self.id
 
     @property
@@ -114,6 +115,7 @@ class LevellingClass:
         return self.tolerance_coefficient * math.sqrt(length_km)
 
     def to_dict(self) -> dict[str, Any]:
+        """The class as a library holds it: its tolerances always, its name and source when set."""
         payload: dict[str, Any] = {
             "id": self.id,
             "tolerance_coefficient": self.tolerance_coefficient,
@@ -128,6 +130,7 @@ class LevellingClass:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> LevellingClass:
+        """The inverse of :meth:`to_dict`; a missing tolerance reads as zero."""
         return cls(
             id=payload["id"],
             name=payload.get("name", ""),
@@ -229,6 +232,7 @@ class LevelProfile:
 
     @property
     def label(self) -> str:
+        """The name to show a user: the profile's name, or its id when it has none."""
         return self.name or self.id
 
     # -- stochastic model -------------------------------------------------
@@ -266,6 +270,7 @@ class LevelProfile:
 
     @property
     def reading_sigma(self) -> float | None:
+        """The precision of one staff reading, or ``None`` when the profile does not state one."""
         return self.sigma_reading if self.sigma_reading > 0.0 else None
 
     @property
@@ -332,6 +337,9 @@ class LevelProfile:
     # -- serialisation ----------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The profile as a library holds it: corrections and precisions always, descriptive fields
+        when set.
+        """
         payload: dict[str, Any] = {
             "id": self.id,
             "collimation": self.collimation.to_dict(),
@@ -356,6 +364,7 @@ class LevelProfile:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> LevelProfile:
+        """The inverse of :meth:`to_dict`."""
         return cls(
             id=payload["id"],
             name=payload.get("name", ""),

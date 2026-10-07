@@ -115,6 +115,7 @@ class AntennaOffset:
 
     @property
     def is_eccentric(self) -> bool:
+        """Whether the antenna is offset horizontally from the mark, not only above it."""
         return bool(
             (self.east is not None and self.east.value) or (self.north is not None and self.north.value)
         )
@@ -140,6 +141,7 @@ class AntennaReduction:
 
     @property
     def is_eccentric(self) -> bool:
+        """Whether either end's antenna is offset horizontally from its mark."""
         return self.base.is_eccentric or self.rover.is_eccentric
 
 
@@ -236,6 +238,7 @@ class Baseline:
 
     @property
     def component_names(self) -> tuple[str, str, str]:
+        """The names of the three components in the baseline's frame."""
         return _COMPONENTS[self.frame]
 
 

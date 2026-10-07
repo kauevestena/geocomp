@@ -85,6 +85,7 @@ GPS_EPOCH = date(1980, 1, 6)
 
 class ProductKind(Enum):
     #: Precise orbit with satellite clocks, SP3.
+    """The kinds of product a GNSS run can need (``specs/08`` section 5)."""
     ORBIT = "orbit"
     #: GPS broadcast navigation, RINEX 2.
     GPS_NAVIGATION = "gps_navigation"
@@ -205,6 +206,7 @@ class ProductService:
             safe_url(template, service=self.id)
 
     def urls(self, request: ProductRequest) -> tuple[str, ...]:
+        """The URLs this service offers for *request*, in the order to try them."""
         fields = request.fields()
         return tuple(t.format(**fields) for t in self.templates.get(request.key, ()))
 
@@ -282,9 +284,13 @@ class Fetcher(Protocol):
     ``product_network_failed`` -- three different things for a user to do.
     """
 
-    def exists(self, url: str, authcfg: str) -> bool: ...
+    def exists(self, url: str, authcfg: str) -> bool:
+        """Whether *url* can be fetched with *authcfg*, without fetching it."""
+        ...
 
-    def get(self, url: str, authcfg: str) -> bytes: ...
+    def get(self, url: str, authcfg: str) -> bytes:
+        """The bytes at *url*, fetched with the QGIS authentication configuration *authcfg*."""
+        ...
 
 
 def fetch_with_retry(
@@ -335,10 +341,12 @@ class ProductRecord:
     retrieved: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """The record as provenance holds it, field for field."""
         return dict(self.__dict__)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ProductRecord:
+        """The inverse of :meth:`to_dict`; keys it does not know are ignored."""
         return cls(**{k: payload[k] for k in cls.__dataclass_fields__ if k in payload})
 
 
@@ -363,10 +371,12 @@ class Resolution:
 
     @property
     def paths(self) -> tuple[str, ...]:
+        """The resolved products' local paths, as the engine is given them."""
         return tuple(str(p.path) for p in self.resolved)
 
     @property
     def records(self) -> tuple[ProductRecord, ...]:
+        """What each resolved product was and where it came from, for provenance."""
         return tuple(p.record for p in self.resolved)
 
     def to_dict(self) -> dict[str, Any]:

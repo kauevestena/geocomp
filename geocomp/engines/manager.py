@@ -216,6 +216,7 @@ def installation_root(profile_directory: str | Path) -> Path:
 
 
 def releases_for(engine: str, platform: str) -> tuple[EngineRelease, ...]:
+    """The pinned releases of *engine* for *platform*."""
     return tuple(r for r in PINNED if r.engine == engine and r.platform == platform)
 
 
@@ -253,6 +254,9 @@ class Installation:
     installed: str
 
     def to_dict(self) -> dict[str, Any]:
+        """The installation as the manager records it: what, from where, with which digest, to
+        where.
+        """
         return {
             "engine": self.engine,
             "version": self.version,
@@ -572,9 +576,11 @@ class EngineStatus:
 
     @property
     def available(self) -> bool:
+        """Whether the engine was found, its version read, and none of its programs is missing."""
         return self.version is not None and not self.missing
 
     def to_dict(self) -> dict[str, Any]:
+        """The status as the engine manager reports it."""
         return {
             "engine": self.engine,
             "available": self.available,

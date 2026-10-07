@@ -141,6 +141,9 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         }[name]
 
     def common_help(self) -> str:
+        """The help shared by every combination: inputs, fixed stations, engine choice and the
+        report.
+        """
         return self.tr(
             "<p><b>Inputs</b> are the network documents the technique algorithms write. "
             "Each is combined as its producer built it; stations with the same name in two "
@@ -156,6 +159,9 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
+        """Declare the combination's input documents, and gravity readings where the combination
+        takes them, with its shared parameters.
+        """
         for name, required in self.INPUTS:
             self.addParameter(
                 QgsProcessingParameterFile(
@@ -283,6 +289,10 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
+        """Combine the inputs and adjust them together.
+
+        Refuses fewer techniques than the combination needs, naming the one to use instead.
+        """
         inputs = self._inputs(parameters, context)
         gravity = self._gravity(parameters, context) if self.GRAVITY else None
         techniques = {_TECHNIQUE_OF_INPUT[name] for name in inputs} | ({"gravimetry"} if gravity else set())

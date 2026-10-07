@@ -121,6 +121,7 @@ class Finding:
         return self.code
 
     def to_dict(self) -> dict[str, Any]:
+        """The finding as a monitoring document holds it: its code and context."""
         return {"code": self.code, "context": dict(self.context)}
 
 
@@ -176,6 +177,7 @@ class Comparison:
 
     @property
     def dimension(self) -> int:
+        """The number of coordinate components the two solutions are compared in."""
         return len(self.components)
 
     @property

@@ -90,12 +90,15 @@ class GeoPackageStore(ProjectStore):
 
     @property
     def connection(self) -> sqlite3.Connection:
+        """The SQLite connection, for the migrations and the tests."""
         return self._connection
 
     def close(self) -> None:
+        """Close the SQLite connection."""
         self._connection.close()
 
     def tables(self) -> list[str]:
+        """The names of the file's tables, sorted."""
         rows = self._connection.execute(
             "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name"
         ).fetchall()
@@ -128,6 +131,7 @@ class GeoPackageStore(ProjectStore):
         return _line_blob(points, srs_id)
 
     def migration_target(self) -> SqliteTarget:
+        """What the migrations run against for this store."""
         return SqliteTarget(self._connection)
 
 

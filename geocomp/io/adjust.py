@@ -102,6 +102,7 @@ class AdjustReport:
 
     @property
     def counts_agree(self) -> bool:
+        """Whether the rows present match the counts the header declares."""
         return self.declared == self.found
 
 

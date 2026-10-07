@@ -59,6 +59,9 @@ class ReliabilityResult:
 
     @property
     def is_uncheckable(self) -> bool:
+        """Whether the redundancy is below ``UNCHECKABLE_REDUNDANCY``, so no blunder in this
+        observation is detectable.
+        """
         return self.redundancy < UNCHECKABLE_REDUNDANCY
 
 
@@ -73,12 +76,15 @@ class ReliabilityReport:
 
     @property
     def uncheckable(self) -> tuple[ReliabilityResult, ...]:
+        """The observations whose redundancy is too small for any blunder in them to be detected."""
         return tuple(result for result in self.results if result.is_uncheckable)
 
     def by_observation(self) -> dict[str, ReliabilityResult]:
+        """The results keyed by observation id."""
         return {result.observation_id: result for result in self.results}
 
     def note(self) -> str:
+        """A warning about uncheckable observations, or an empty string when there are none."""
         count = len(self.uncheckable)
         if not count:
             return ""

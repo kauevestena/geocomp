@@ -87,10 +87,12 @@ class SqliteTarget:
         self.connection = connection
 
     def execute(self, sql: str) -> Any:
+        """Run *sql* on the connection."""
         return self.connection.execute(sql)
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
+        """One immediate transaction: committed when the block ends, rolled back if it raises."""
         if self.connection.in_transaction:
             self.connection.commit()
         self.connection.execute("BEGIN IMMEDIATE")
@@ -114,6 +116,7 @@ class MigrationReport:
 
     @property
     def migrated(self) -> bool:
+        """Whether the store's schema version changed."""
         return self.from_version != self.to_version
 
 

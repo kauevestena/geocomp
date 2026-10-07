@@ -92,9 +92,13 @@ class StochasticDefaults:
     values: dict[str, float] = field(default_factory=dict)
 
     def sigma(self, kind: str) -> float | None:
+        """The default standard deviation for observations of *kind*, or ``None`` when there is
+        none.
+        """
         return self.values.get(kind)
 
     def with_default(self, kind: str, sigma: float) -> StochasticDefaults:
+        """A copy with *kind*'s default set to *sigma*, refusing a negative one."""
         if sigma < 0.0:
             raise ValidationError(
                 "default_sigma_negative",

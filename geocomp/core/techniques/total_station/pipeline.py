@@ -152,10 +152,12 @@ class SetupResult:
 
     @property
     def usable(self) -> tuple[ProcessedPointing, ...]:
+        """The pointings that can become observations."""
         return tuple(p for p in self.pointings if p.is_usable)
 
     @property
     def all_findings(self) -> tuple[Finding, ...]:
+        """Every finding about the setup: its own, its diagnostics', and each pointing's."""
         collected = list(self.findings) + list(self.diagnostics.findings)
         for pointing in self.pointings:
             collected.extend(pointing.findings)
@@ -163,6 +165,7 @@ class SetupResult:
 
     @property
     def severity(self) -> Severity | None:
+        """The worst severity among :attr:`all_findings`, or ``None`` when there are none."""
         return worst_severity(self.all_findings)
 
 

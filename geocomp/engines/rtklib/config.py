@@ -184,9 +184,12 @@ class RtklibConfig:
         return values
 
     def with_options(self, **changes: Any) -> RtklibConfig:
+        """A copy with *changes* applied, validated as a new configuration is."""
         return replace(self, **changes)
 
     def to_dict(self) -> dict[str, Any]:
+        """The configuration as provenance records it: its name, mode and every setting as written.
+        """
         return {"name": self.name, "mode": self.mode.value, "settings": self.settings()}
 
 

@@ -88,6 +88,7 @@ class Column:
     align: str = "r"
 
     def header(self) -> str:
+        """The column's label padded to its width, aligned as the column is."""
         return self.label.ljust(self.width) if self.align == "l" else self.label.rjust(self.width)
 
 
@@ -99,9 +100,11 @@ class ColumnPlan:
 
     @property
     def width(self) -> int:
+        """The width of a full line, in characters."""
         return sum(column.width for column in self.columns)
 
     def offsets(self) -> tuple[tuple[int, int], ...]:
+        """Each column's ``(start, end)`` character span within a line."""
         bounds: list[tuple[int, int]] = []
         start = 0
         for column in self.columns:
@@ -110,9 +113,11 @@ class ColumnPlan:
         return tuple(bounds)
 
     def header(self) -> str:
+        """The header line the plan's columns make."""
         return "".join(column.header() for column in self.columns)
 
     def index(self, label: str) -> int:
+        """The position of the column *label*, raising ``KeyError`` for one the plan lacks."""
         for position, column in enumerate(self.columns):
             if column.label == label:
                 return position
@@ -136,6 +141,7 @@ class ColumnPlan:
         return tuple(line[start:end].strip() for start, end in self.offsets())
 
     def value(self, line: str, label: str) -> str:
+        """The text of column *label* in *line*, stripped."""
         start, end = self.offsets()[self.index(label)]
         return line[start:end].strip()
 

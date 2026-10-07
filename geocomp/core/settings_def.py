@@ -168,6 +168,7 @@ class SectionDef:
 
     @property
     def label_code(self) -> str:
+        """The message code of the section's label in the side menu."""
         return f"settings.section.{self.id}.label"
 
 

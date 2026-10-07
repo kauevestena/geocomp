@@ -59,6 +59,7 @@ class Agreement:
 
     @property
     def difference(self) -> float | None:
+        """*other* minus *reference*; ``None`` when either is missing."""
         if self.reference is None or self.other is None:
             return None
         return float(self.other) - float(self.reference)
@@ -89,10 +90,13 @@ class Comparison:
 
     @property
     def disagreements(self) -> tuple[Agreement, ...]:
+        """The quantities on which the two solutions disagree."""
         return tuple(item for item in self.agreements if not item.agrees)
 
     @property
     def largest_coordinate_difference(self) -> float | None:
+        """The largest coordinate difference between the solutions; ``None`` when none was compared.
+        """
         return max(self.coordinate_differences.values(), default=None)
 
     def summary(self) -> str:

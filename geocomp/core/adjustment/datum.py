@@ -126,9 +126,11 @@ class DatumDefect:
 
     @property
     def size(self) -> int:
+        """How many datum parameters the observations leave undetermined."""
         return len(self.components)
 
     def describe(self) -> str:
+        """The defect in words for a report: its size and the components it is made of."""
         if not self.components:
             return "none: the observations determine the datum"
         names = ", ".join(component.value for component in self.components)

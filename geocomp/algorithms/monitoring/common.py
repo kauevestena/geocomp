@@ -64,6 +64,8 @@ def datum_labels() -> list[str]:
 
 
 def datum_of(index: int) -> str | None:
+    """The monitoring datum at a position of the datum parameter's choices; ``None`` for the first.
+    """
     return DATUM_OPTIONS[index]
 
 
@@ -75,6 +77,7 @@ def fail(error: GeoCompError) -> QgsProcessingException:
 
 
 def read_solutions(paths: list[str]) -> list[Solution]:
+    """Read every solution document, refusing in the user's words if any cannot be read."""
     try:
         return [read_solution(path) for path in paths]
     except GeoCompError as error:
@@ -82,6 +85,7 @@ def read_solutions(paths: list[str]) -> list[Solution]:
 
 
 def read_optional_network(path: str) -> Network | None:
+    """Read a network document, or ``None`` when no path was given, refusing in the user's words."""
     try:
         return read_network(path)
     except GeoCompError as error:
@@ -126,6 +130,10 @@ def roles(
 
 
 def read_thresholds(path: str) -> tuple[AlertThreshold, ...]:
+    """Read alert thresholds from a CSV file; none when no path was given.
+
+    An unreadable file and a malformed one are each refused in the user's words.
+    """
     if not path:
         return ()
     try:
@@ -142,6 +150,7 @@ def read_thresholds(path: str) -> tuple[AlertThreshold, ...]:
 
 
 def write_json(path: str, payload: dict[str, Any]) -> str:
+    """Write a document as JSON when a path was given, and return the path."""
     if path:
         Path(path).write_text(json.dumps(payload, indent=1, sort_keys=True), encoding="utf-8")
     return path

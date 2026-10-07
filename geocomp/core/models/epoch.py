@@ -68,6 +68,10 @@ class Epoch:
 
     @classmethod
     def from_decimal_year(cls, decimal_year: float, label: str = "") -> Epoch:
+        """An epoch known only as a decimal year, as a dialog's reference epoch is.
+
+        No instant is derived from it.
+        """
         return cls(decimal_year=decimal_year, label=label)
 
     def years_since(self, other: Epoch) -> float:
@@ -78,6 +82,10 @@ class Epoch:
         return self.label or f"{self.decimal_year:.4f}"
 
     def to_dict(self) -> dict[str, Any]:
+        """The epoch as a document holds it.
+
+        The decimal year always; the instant, in UTC, and the label only when there are any.
+        """
         payload: dict[str, Any] = {"decimal_year": self.decimal_year}
         if self.instant is not None:
             payload["instant"] = self.instant.astimezone(UTC).isoformat()
@@ -87,6 +95,10 @@ class Epoch:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Epoch:
+        """The inverse of :meth:`to_dict`.
+
+        A missing instant stays missing rather than being derived from the decimal year.
+        """
         instant = payload.get("instant")
         return cls(
             decimal_year=float(payload["decimal_year"]),

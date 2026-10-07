@@ -97,6 +97,7 @@ class Finding:
 
     @property
     def is_blocking(self) -> bool:
+        """Whether this finding stops the adjustment from running."""
         return self.severity is Severity.BLOCKING
 
 

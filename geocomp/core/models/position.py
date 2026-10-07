@@ -37,6 +37,7 @@ class CoordinateSystem(Enum):
 
     @property
     def component_names(self) -> tuple[str, str, str]:
+        """The names of the three components, in the order a position holds them."""
         return {
             CoordinateSystem.GEODETIC: ("latitude", "longitude", "height"),
             CoordinateSystem.CARTESIAN: ("x", "y", "z"),
@@ -45,6 +46,7 @@ class CoordinateSystem(Enum):
 
     @property
     def component_units(self) -> tuple[Unit, Unit, Unit]:
+        """The unit of each component: radians for latitude and longitude, metres otherwise."""
         if self is CoordinateSystem.GEODETIC:
             return (Unit.RADIAN, Unit.RADIAN, Unit.METRE)
         return (Unit.METRE, Unit.METRE, Unit.METRE)
@@ -137,13 +139,16 @@ class Position:
 
     @property
     def height(self) -> Quantity:
+        """The third component: a height, or the ``z`` or ``up`` of the other systems."""
         return self.values[2]
 
     @property
     def has_height(self) -> bool:
+        """Whether the third component is a height of a stated kind rather than a placeholder."""
         return self.height_type is not HeightType.NONE
 
     def std_devs(self) -> tuple[float, float, float]:
+        """The standard deviation of each component, in its own unit."""
         return tuple(q.std_dev for q in self.values)  # type: ignore[return-value]
 
     # -- height discipline -----------------------------------------------
@@ -174,6 +179,11 @@ class Position:
     # -- serialisation ---------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The position as a document holds it.
+
+        The values with their uncertainties, the system, frame and height type; the epoch, geoid
+        model and metadata when there are any.
+        """
         payload: dict[str, Any] = {
             "values": [q.to_dict() for q in self.values],
             "system": self.system.name,
@@ -190,6 +200,7 @@ class Position:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Position:
+        """The inverse of :meth:`to_dict`."""
         epoch = payload.get("epoch")
         return cls(
             values=tuple(Quantity.from_dict(v) for v in payload["values"]),  # type: ignore[arg-type]

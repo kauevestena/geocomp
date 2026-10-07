@@ -24,6 +24,7 @@ TECHNIQUE_KEY = "technique"
 
 
 class Technique(Enum):
+    """The survey techniques a combination distinguishes, for routing and per-technique reports."""
     GNSS = "gnss"
     TOTAL_STATION = "total_station"
     LEVELLING = "levelling"

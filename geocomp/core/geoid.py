@@ -81,18 +81,24 @@ class Coverage:
             )
 
     def contains(self, latitude: float, longitude: float) -> bool:
+        """Whether a point, latitude and longitude in radians, lies inside the stated area, edges
+        included.
+        """
         return (
             self.south <= latitude <= self.north
             and self.west <= longitude <= self.east
         )
 
     def describe_degrees(self) -> str:
+        """The area in decimal degrees, for a message that tells the user where the model is valid.
+        """
         return (
             f"{math.degrees(self.south):.4f} to {math.degrees(self.north):.4f} north, "
             f"{math.degrees(self.west):.4f} to {math.degrees(self.east):.4f} east"
         )
 
     def to_dict(self) -> dict[str, float]:
+        """The area as stored, in radians."""
         return {
             "south": self.south,
             "north": self.north,
@@ -102,6 +108,7 @@ class Coverage:
 
     @classmethod
     def from_dict(cls, payload: dict[str, float]) -> Coverage:
+        """Read an area back from its stored form, in radians."""
         return cls(
             south=float(payload["south"]),
             north=float(payload["north"]),
@@ -177,10 +184,12 @@ class GeoidModel:
 
     @property
     def rows(self) -> int:
+        """The number of grid rows, south to north."""
         return int(self.values.shape[0])
 
     @property
     def columns(self) -> int:
+        """The number of grid columns, west to east."""
         return int(self.values.shape[1])
 
     @property
@@ -193,6 +202,7 @@ class GeoidModel:
 
     @property
     def label(self) -> str:
+        """The model's name, or its id when it has none, followed by its version."""
         base = self.name or self.id
         return f"{base} {self.version}".strip()
 
@@ -361,6 +371,7 @@ class GeoidModel:
     # -- serialisation ---------------------------------------------------
 
     def to_dict(self) -> dict[str, Any]:
+        """The model as stored: its metadata, its coverage, and the grid flattened row by row."""
         return {
             "id": self.id,
             "name": self.name,
@@ -376,6 +387,7 @@ class GeoidModel:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> GeoidModel:
+        """Read a model back from its stored form, reshaping the flat values into the grid."""
         rows, columns = int(payload["rows"]), int(payload["columns"])
         return cls(
             id=payload["id"],

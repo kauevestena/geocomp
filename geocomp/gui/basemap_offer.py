@@ -84,6 +84,7 @@ class BaseMapOffer:
         self._project.cleared.connect(self._asked.clear)
 
     def unload(self) -> None:
+        """Disconnect from the project's signals, tolerating ones already gone."""
         for signal, slot in (
             (self._project.layersAdded, self.layers_added),
             (self._project.cleared, self._asked.clear),
@@ -94,6 +95,11 @@ class BaseMapOffer:
                 pass
 
     def layers_added(self, layers: list[Any]) -> None:
+        """Offer a base map when result layers are added, once per project.
+
+        Layers that are not GeoComp results are ignored. A failure to list the services is reported
+        in the message bar instead.
+        """
         from geocomp.algorithms.layer_outputs import RESULT_LAYER_PROPERTY
 
         if not any(layer.customProperty(RESULT_LAYER_PROPERTY) for layer in layers):

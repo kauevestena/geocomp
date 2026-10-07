@@ -99,6 +99,7 @@ class Frame(Enum):
 
     @property
     def components(self) -> tuple[str, ...]:
+        """The parameter components a station has in this frame."""
         return {
             Frame.HEIGHT_1D: ("h",),
             Frame.PLANE_2D: ("e", "n"),
@@ -162,6 +163,7 @@ class Frame(Enum):
 
     @property
     def component_units(self) -> tuple[Unit, ...]:
+        """The unit of each component: m/s² for gravity, metres otherwise."""
         if self is Frame.GRAVITY_1D:
             return (Unit.ACCELERATION,)
         return tuple(Unit.METRE for _ in self.components)
@@ -184,6 +186,7 @@ class ParameterSlot:
 
     @property
     def label(self) -> str:
+        """``owner.component``: how a parameter is named in reports and refusals."""
         return f"{self.owner}.{self.component}"
 
 
@@ -259,6 +262,7 @@ class ParameterLayout:
 
     @property
     def size(self) -> int:
+        """The number of parameters."""
         return len(self.slots)
 
     def column(self, owner: str, component: str) -> int | None:
@@ -266,9 +270,11 @@ class ParameterLayout:
         return self._columns.get((owner, component))
 
     def is_fixed(self, owner: str, component: str) -> bool:
+        """Whether *owner*'s *component* is held, and so not a parameter."""
         return (owner, component) in self.fixed_values
 
     def labels(self) -> list[str]:
+        """Every parameter's ``owner.component`` label, in column order."""
         return [slot.label for slot in self.slots]
 
     def station_columns(self, station_id: str) -> dict[str, int]:
@@ -280,6 +286,7 @@ class ParameterLayout:
         }
 
     def station_ids(self) -> list[str]:
+        """The stations with at least one parameter, in the order they first appear."""
         seen: list[str] = []
         for slot in self.slots:
             if slot.kind == "station" and slot.owner not in seen:
@@ -496,6 +503,7 @@ class WeightedConstraint:
 
     @property
     def size(self) -> int:
+        """The number of parameters the constraint observes."""
         return len(self.columns)
 
 

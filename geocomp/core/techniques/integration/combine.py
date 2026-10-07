@@ -165,6 +165,8 @@ class AppliedTransformation:
     record: TransformationRecord
 
     def to_dict(self) -> dict[str, Any]:
+        """The transformation as provenance records it: which input, of what, and the record itself.
+        """
         return {"input": self.input_id, "subject": self.subject, **self.record.to_dict()}
 
 

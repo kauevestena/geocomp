@@ -2592,6 +2592,13 @@ engine, the solution file and the summary were. The layer is covered by the QGIS
 **Not done.** Windows and macOS builds (a runner each, fixtures run against the result, and a Gatekeeper
 decision for macOS); the one-button DynAdjust install with a licence acknowledgement the maintainer asked for.
 
+#### P12c-28 — publishing a release attaches the plugin ZIP
+
+The landing page sends a visitor to the Releases page for `geocomp.zip`, and nothing put it there. The `build`
+workflow's `attach` job, on a published release only and with the write-scoped token in that job alone,
+attaches the archive the same run built and checked, with its SHA-256 (`specs/21` §5). **Not verified** until
+a release is published.
+
 #### P12c-29 — a licence acknowledgement on installing DynAdjust
 
 On the maintainer's instruction that DynAdjust, which cannot be bundled, be a single button press with a tick
@@ -2606,6 +2613,44 @@ download starts. pt_BR and es are complete.
 reader of the installation cannot tell it was given. A script or model that installed DynAdjust unattended must
 now pass the input. DynAdjust's licence text is **not** placed beside the installed program (the manager extracts only the
 programs). `THIRD_PARTY.md` said it was; that was wrong and is corrected, not worked around.
+
+#### P12c-30 — `docs/` published to GitHub Pages
+
+The landing page was merged and Pages switched on with the "GitHub Actions" source, which with no workflow is
+a 404. `.github/workflows/pages.yml` publishes `docs/` on a push to `main` that touches it, and on demand; its
+first run, on the merge, succeeded.
+
+#### P12c-31 — public interfaces documented: the models, the adjustment, the instruments, the techniques (NFR-012)
+
+185 of the 399 undocumented interfaces in `tests/structural/test_public_interfaces.py`'s frozen list now
+have docstrings: every one in `core.models` (69), `core.adjustment` (32), `core.instruments` (34) and
+`core.techniques` (50). Of 1,409 interfaces one module imports from another, 214 remain undocumented and 51
+not fully annotated. Each docstring says what is specific to the function: what a document omits, what a
+reader refuses, what a default reads as.
+
+**Defects found.** None in the code. Writing them turned up two wrong drafts, corrected before commit: a
+zenith precision's distance term is refraction, not centring; and a constraint's components are named in
+the constraining position's own system, not as ``east``/``north``/``up``.
+
+**Not done.** 214 docstrings and 51 annotations: the engines, the store, the GUI, the provider and the
+smaller core packages. NFR-012 stays **partly met**.
+
+#### P12c-32 — every public interface documented (NFR-012)
+
+The other 214: `core.monitoring`, the store, the engines, the remaining core packages, `io`, the
+algorithms, the GUI, the plugin and the provider. The frozen docstring list is empty, so
+`tests/structural/test_public_interfaces.py` drops it and states the rule plainly: every interface one
+module imports from another has a docstring. The QGIS overrides (`displayName`, `initAlgorithm`, `tr` and
+the like) say what Processing asks of them, in a line; the rest say what is particular to them, such as
+what a reader returns for an absent path, what a fetcher counts as missing rather than failed, and what a
+stored form leaves out.
+
+**Defects found.** None in the code. Checking each draft against the source completed three that had
+left out what a caller needs: a level mapping's `parse_number` converts to SI as well as parsing; a unit's
+symbol is empty for a dimensionless quantity; `MessageTemplate.render` shows a missing value as "(not
+set)".
+
+**Not done.** The 51 interfaces not fully annotated. NFR-012 stays **partly met**.
 
 ---
 

@@ -120,6 +120,7 @@ class GravityReading:
             )
 
     def to_dict(self) -> dict[str, Any]:
+        """The reading as a readings document holds it; optional fields only when set."""
         payload: dict[str, Any] = {
             "id": self.id,
             "station": self.station,
@@ -137,6 +138,7 @@ class GravityReading:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> GravityReading:
+        """The inverse of :meth:`to_dict`."""
         height = payload.get("sensor_height")
         return cls(
             id=payload["id"],
@@ -207,9 +209,13 @@ class ReducedReading:
 
     @property
     def tide_system(self) -> str:
+        """The tide system the reduced gravity is in: tide-free, always."""
         return TIDE_SYSTEM
 
     def to_dict(self) -> dict[str, Any]:
+        """The reduced reading as a document holds it, with its tide and mark reductions when
+        applied.
+        """
         payload: dict[str, Any] = {
             "reading": self.reading.to_dict(),
             "gravity": self.gravity.to_dict(),
@@ -223,6 +229,7 @@ class ReducedReading:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> ReducedReading:
+        """The inverse of :meth:`to_dict`."""
         tide = payload.get("tide")
         to_mark = payload.get("to_mark")
         return cls(

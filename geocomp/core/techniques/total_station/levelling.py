@@ -79,6 +79,7 @@ class Sight:
 
     @property
     def horizontal_distance(self) -> float:
+        """The horizontal distance: the slope distance times the sine of the zenith angle."""
         return self.distance.value * math.sin(self.zenith.value)
 
 

@@ -145,6 +145,7 @@ class BaseMapService:
 
     @property
     def needs_authentication(self) -> bool:
+        """Whether the service names a QGIS authentication configuration to sign in with."""
         return bool(self.auth_config_id)
 
     def to_dict(self) -> dict[str, Any]:
@@ -171,6 +172,8 @@ class BaseMapService:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> BaseMapService:
+        """Read a service back from its stored form; absent optional keys take the field defaults.
+        """
         return cls(
             id=str(payload["id"]),
             name=str(payload.get("name", payload["id"])),

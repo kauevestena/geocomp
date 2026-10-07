@@ -29,18 +29,23 @@ class GeoCompProvider(QgsProcessingProvider):
         return PROVIDER_ID
 
     def name(self) -> str:
+        """The provider's translated name in the toolbox."""
         return self.tr("GeoComp")
 
     def longName(self) -> str:
+        """The provider's name with the plugin version."""
         return f"{self.name()} {__version__}"
 
     def icon(self) -> QIcon:
+        """The provider's icon in the toolbox."""
         return QIcon(icon_path("geocomp.svg"))
 
     def versionInfo(self) -> str:
+        """The plugin version, as Processing records it."""
         return __version__
 
     def tr(self, text: str) -> str:
+        """Translate a string in the provider's translation context."""
         return QCoreApplication.translate("GeoCompProvider", text)
 
     def loadAlgorithms(self) -> None:

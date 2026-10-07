@@ -325,6 +325,8 @@ class TimeSeriesPanel(QgsDockWidget):
         )
 
     def set_document(self, document: dict[str, Any]) -> None:
+        """Show a time-series document: fill the component and station choices and state its extent.
+        """
         self.document = document
         self._syncing = True
         try:
@@ -345,6 +347,7 @@ class TimeSeriesPanel(QgsDockWidget):
         self.refresh()
 
     def selected_stations(self) -> list[str]:
+        """The station names selected in the list."""
         return [item.text() for item in self.stations.selectedItems()]
 
     def select_stations(self, stations: list[str]) -> None:
@@ -360,6 +363,9 @@ class TimeSeriesPanel(QgsDockWidget):
         self.refresh()
 
     def refresh(self) -> None:
+        """Redraw the plot for the chosen component and stations, with its confidence band and alert
+        limits.
+        """
         if self.document is None:
             self.plot.set_curves([], [])
             return
@@ -445,6 +451,7 @@ class TimeSeriesPanel(QgsDockWidget):
         return rows
 
     def export_image(self, path: str) -> bool:
+        """Save the plot as an image; returns whether it was saved."""
         return self.plot.image().save(path)
 
     def _open(self) -> None:
@@ -486,6 +493,7 @@ def attach_to_project(panel: TimeSeriesPanel) -> None:
 
 
 def detach_from_project(panel: TimeSeriesPanel) -> None:
+    """Stop the panel listening for added layers, tolerating a connection already gone."""
     try:
         QgsProject.instance().layersAdded.disconnect(panel.layers_added)
     except (TypeError, RuntimeError):
