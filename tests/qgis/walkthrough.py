@@ -91,6 +91,29 @@ def run(algorithm_id: str, parameters: dict) -> dict:
     return results
 
 
+def run_logged(algorithm_id: str, parameters: dict) -> tuple[dict, str]:
+    """Run, and return the results with everything the run wrote to its log, as one line."""
+    from qgis.core import QgsProcessingContext, QgsProcessingFeedback
+
+    class Log(QgsProcessingFeedback):
+        def __init__(self) -> None:
+            super().__init__()
+            self.lines: list[str] = []
+
+        def pushInfo(self, info: str) -> None:  # noqa: N802 -- QGIS's name
+            self.lines.append(info)
+
+        def pushWarning(self, warning: str) -> None:  # noqa: N802 -- QGIS's name
+            self.lines.append(warning)
+
+    log = Log()
+    results, ok = algorithm(algorithm_id).run(
+        parameters, QgsProcessingContext(), log, catchExceptions=False
+    )
+    assert ok, f"{algorithm_id} reported failure"
+    return results, flat("\n".join(log.lines))
+
+
 def refusal(algorithm_id: str, parameters: dict) -> str:
     """What *algorithm_id* says when it refuses *parameters*, as one line."""
     from qgis.core import QgsProcessingContext, QgsProcessingException, QgsProcessingFeedback

@@ -21,7 +21,6 @@ from __future__ import annotations
 import math
 from datetime import UTC, datetime, timedelta
 from itertools import pairwise
-from pathlib import Path
 
 import pytest
 
@@ -44,23 +43,7 @@ from geocomp.core.uncertainty import Quantity, Strategy, UncertaintyMode
 from geocomp.core.units import METRES_PER_SECOND_SQUARED_PER_MGAL as MGAL
 from geocomp.core.units import METRES_PER_SECOND_SQUARED_PER_UGAL as UGAL
 from geocomp.core.units import Unit
-
-DATA = Path(__file__).parent / "data" / "rd07" / "gsadjust"
-
-#: GSadjust_TestData.xlsx, the "True" data table of every sheet, mGal.
-TRUTH = {"sta1": 50.0, "sta2": 48.0, "sta3": 45.0, "sta4": 48.5, "sta5": 46.0}
-#: Each sheet's stated drift (mGal/h) and calibration per meter. The readings
-#: are the calibration times the truth, so the factor that recovers the truth
-#: is its reciprocal. Test 5's drift is a piecewise function, not a rate.
-CASES = {
-    "Test1": {"drift_mgal_h": 0.0, "calibration": {"B44": 1.0}},
-    "Test2": {"drift_mgal_h": 0.01, "calibration": {"B44": 1.0}},
-    "Test3": {"drift_mgal_h": 0.01, "calibration": {"B44": 1.03}},
-    "Test4": {"drift_mgal_h": 0.01, "calibration": {"B44": 1.1, "B108": 1.05}},
-    "Test5": {"drift_mgal_h": None, "calibration": {"B44": 1.003}},
-}
-#: "Station standard deviation, mGal" on every sheet.
-SIGMA_MGAL = 0.003
+from tests.usgs_gravity import CASES, DATA, SIGMA_MGAL, TRUTH
 
 
 def _readings(case: str, *, extra: list[tuple[str, str]] | None = None) -> list[GravityReading]:
