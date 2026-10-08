@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-1 — A contribution guide
+
+#### Added
+
+- `CONTRIBUTING.md`: how to report a problem or an engine's problem, contribute reference data, review a
+  translation or write code, and what a change needs before it is finished.
+
 ### P12c-48 — Report an engine's problem to its developers
 
 #### Added

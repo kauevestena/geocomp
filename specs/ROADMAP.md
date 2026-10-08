@@ -3097,6 +3097,27 @@ check it, and moved again, with the move recorded, if it cannot.
 discrepancy classified and no unexplained differences remaining. Tutorials cover every module in all three
 languages. v1.0 is on plugins.qgis.org and installs cleanly. At least one external contribution merged.
 
+**Begun in P12c.** FR-955, which this phase closes, was met in P12c-48: the upstream defect reporting path is
+*Package an engine problem*.
+
+#### P13-1 — the contribution guide (FR-954 partly met)
+
+[`CONTRIBUTING.md`](../CONTRIBUTING.md) is the guide specs/20 §8 describes. It covers:
+- the ways to take part: reporting a problem with the system report attached, reporting an engine's problem with
+  the package, contributing reference data against specs/23's wanted list, reviewing a translation, writing code;
+- that specifications come first, and how a change amends them and their registers;
+- what "done" means: the tiers with their commands, the four workflows and when each runs, the structural checks
+  a newcomer meets first, and why GeoComp refuses rather than invent a standard deviation;
+- the standard a pull request and a commit are held to, and the licence.
+
+The README's *Contributing* section points to it.
+
+**Register.** FR-954 partly met, from open: 171 met, 5 partly met, 0 open.
+
+**Not done.** How companies and public bodies take part -- sponsored work, contracted features, institutional
+data, a voice in decisions -- is the maintainer's to set out, as the register has said since P12c-13. The guide
+has the section, and the section says that.
+
 ---
 
 ## Mapping to the research project's 24-month schedule
