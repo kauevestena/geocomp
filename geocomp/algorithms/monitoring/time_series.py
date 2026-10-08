@@ -27,7 +27,6 @@ from typing import Any
 from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
-    QgsProcessing,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
@@ -43,6 +42,7 @@ from qgis.core import (
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.inputs import file_list_type
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, write_styled_sink
 from geocomp.algorithms.monitoring.common import (
     datum_labels,
@@ -87,13 +87,6 @@ ALERT_COUNT = "ALERT_COUNT"
 
 
 
-def _file_type() -> Any:
-    """``QgsProcessingParameterMultipleLayers``'s file type, as QGIS 3 and 4 spell it."""
-    if hasattr(Qgis, "ProcessingSourceType"):
-        return Qgis.ProcessingSourceType.File
-    return QgsProcessing.TypeFile
-
-
 class MonitoringTimeSeriesAlgorithm(GeoCompAlgorithm):
     """A station's series across epochs, and its velocity (FR-836, FR-838)."""
 
@@ -134,7 +127,7 @@ class MonitoringTimeSeriesAlgorithm(GeoCompAlgorithm):
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
         self.addParameter(
             QgsProcessingParameterMultipleLayers(
-                SOLUTIONS, self.tr("Solutions, one per epoch"), layerType=_file_type()
+                SOLUTIONS, self.tr("Solutions, one per epoch"), layerType=file_list_type()
             )
         )
         self.addParameter(

@@ -746,8 +746,8 @@
             <translation>%1 falló: %2</translation>
         </message>
         <message>
-            <source>&lt;p&gt;Processes one pair of simultaneously observing sessions at several elevation masks, and compares the baselines they determine.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The comparison is by significance, not by size.&lt;/b&gt; A 3 mm difference is large when both solutions are good to 0.5 mm and nothing at all when they are good to 5 mm, so each difference is tested against the combined covariance of the two solutions.&lt;/p&gt;&lt;p&gt;The two runs share their observations, so treating them as independent overstates the difference's uncertainty and under-reports significance. That is the conservative direction for a test whose job is to stop a parameter being called important when it is not, and the assumption is recorded on the result.&lt;/p&gt;&lt;p&gt;A difference reported as &lt;i&gt;not significant&lt;/i&gt; is the informative answer: it says the parameter changed nothing this data can resolve.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Procesa un par de sesiones observando simultáneamente bajo varias máscaras de elevación, y compara las líneas base que determinan.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La comparación es por significación, no por tamaño.&lt;/b&gt; Una diferencia de 3 mm es grande cuando ambas soluciones tienen precisión de 0,5 mm y es irrelevante cuando tienen 5 mm, así que cada diferencia se contrasta con la covarianza combinada de las dos soluciones.&lt;/p&gt;&lt;p&gt;Las dos ejecuciones comparten sus observaciones, así que tratarlas como independientes sobrestima la incertidumbre de la diferencia y subestima la significación. Esa es la dirección conservadora para una prueba cuya función es impedir que un parámetro se considere importante cuando no lo es, y la suposición queda registrada en el resultado.&lt;/p&gt;&lt;p&gt;Una diferencia informada como &lt;i&gt;no significativa&lt;/i&gt; es la respuesta informativa: dice que el parámetro no cambió nada que estos datos puedan resolver.&lt;/p&gt;</translation>
+            <source>&lt;p&gt;Processes one pair of simultaneously observing sessions several ways, and compares the baselines they determine, side by side in the report.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The configurations&lt;/b&gt; are either elevation masks, swept, or RTKLIB configuration files of your own: give two or more files, and each is a configuration named by its file, compared at the settings it states over Global Settings. The first is the reference the others are measured against.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The comparison is by significance, not by size.&lt;/b&gt; A 3 mm difference is large when both solutions are good to 0.5 mm and nothing at all when they are good to 5 mm, so each difference is tested against the combined covariance of the two solutions.&lt;/p&gt;&lt;p&gt;The two runs share their observations, so treating them as independent overstates the difference's uncertainty and under-reports significance. That is the conservative direction for a test whose job is to stop a parameter being called important when it is not, and the assumption is recorded on the result.&lt;/p&gt;&lt;p&gt;A difference reported as &lt;i&gt;not significant&lt;/i&gt; is the informative answer: it says the parameter changed nothing this data can resolve.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Procesa un par de sesiones observando simultáneamente de varias formas, y compara las líneas base que determinan, lado a lado en el informe.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las configuraciones&lt;/b&gt; son máscaras de elevación, barridas, o archivos de configuración de RTKLIB propios: indique dos o más archivos, y cada uno es una configuración nombrada por su archivo, comparada con las opciones que declara sobre la Configuración Global. La primera es la referencia contra la que se miden las demás.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La comparación es por significación, no por tamaño.&lt;/b&gt; Una diferencia de 3 mm es grande cuando ambas soluciones tienen precisión de 0,5 mm y es irrelevante cuando tienen 5 mm, así que cada diferencia se contrasta con la covarianza combinada de las dos soluciones.&lt;/p&gt;&lt;p&gt;Las dos ejecuciones comparten sus observaciones, así que tratarlas como independientes sobrestima la incertidumbre de la diferencia y subestima la significación. Esa es la dirección conservadora para una prueba cuya función es impedir que un parámetro se considere importante cuando no lo es, y la suposición queda registrada en el resultado.&lt;/p&gt;&lt;p&gt;Una diferencia informada como &lt;i&gt;no significativa&lt;/i&gt; es la respuesta informativa: dice que el parámetro no cambió nada que estos datos puedan resolver.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Base %1 → rover %2</source>
@@ -768,6 +768,10 @@
         <message>
             <source>Comparison needs exactly one pair of simultaneously observing sessions in the folder. Choose a folder that holds two sessions observed at the same time.</source>
             <translation>La comparación necesita exactamente un par de sesiones observando simultáneamente en la carpeta. Elija una carpeta que contenga dos sesiones observadas en el mismo periodo.</translation>
+        </message>
+        <message>
+            <source>Comparison report</source>
+            <translation>Informe de comparación</translation>
         </message>
         <message>
             <source>Comparison table</source>
@@ -794,20 +798,28 @@
             <translation>Carpeta con observaciones RINEX</translation>
         </message>
         <message>
+            <source>Give at least two configuration files to compare.</source>
+            <translation>Indique al menos dos archivos de configuración para comparar.</translation>
+        </message>
+        <message>
             <source>Give at least two elevation masks to compare.</source>
             <translation>Indique al menos dos máscaras de elevación para comparar.</translation>
+        </message>
+        <message>
+            <source>HTML files (*.html)</source>
+            <translation>Archivos HTML (*.html)</translation>
         </message>
         <message>
             <source>JSON files (*.json)</source>
             <translation>Archivos JSON (*.json)</translation>
         </message>
         <message>
-            <source>No difference is significant at this confidence: over this data, the elevation mask changed nothing that can be resolved.</source>
-            <translation>Ninguna diferencia es significativa con esta confianza: sobre estos datos, la máscara de elevación no cambió nada que pueda resolverse.</translation>
-        </message>
-        <message>
             <source>Process the same data several ways and compare, with significance.</source>
             <translation>Procesa los mismos datos de varias formas y compara, con significación.</translation>
+        </message>
+        <message>
+            <source>RTKLIB configuration files to compare, in place of the masks</source>
+            <translation>Archivos de configuración de RTKLIB a comparar, en lugar de las máscaras</translation>
         </message>
         <message>
             <source>mask %1°</source>
@@ -2615,6 +2627,133 @@
         <message>
             <source>rapid orbit</source>
             <translation>órbita rápida</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompGnssComparison</name>
+        <message>
+            <source>%1 (reference)</source>
+            <translation>%1 (referencia)</translation>
+        </message>
+        <message>
+            <source>%1 to %2</source>
+            <translation>%1 a %2</translation>
+        </message>
+        <message>
+            <source>%1: %2 mm in 3D from %3; test statistic %4, not significant.</source>
+            <translation>%1: %2 mm en 3D respecto de %3; estadístico de prueba %4, no significativa.</translation>
+        </message>
+        <message>
+            <source>%1: %2 mm in 3D from %3; test statistic %4, significant.</source>
+            <translation>%1: %2 mm en 3D respecto de %3; estadístico de prueba %4, significativa.</translation>
+        </message>
+        <message>
+            <source>At %1% confidence, these configurations changed the baseline by more than the solutions' uncertainties explain: %2.</source>
+            <translation>Con %1% de confianza, estas configuraciones cambiaron la línea base más de lo que explican las incertidumbres de las soluciones: %2.</translation>
+        </message>
+        <message>
+            <source>Baseline %1 → %2.</source>
+            <translation>Línea base %1 → %2.</translation>
+        </message>
+        <message>
+            <source>Baseline length (m)</source>
+            <translation>Longitud de la línea base (m)</translation>
+        </message>
+        <message>
+            <source>Configuration</source>
+            <translation>Configuración</translation>
+        </message>
+        <message>
+            <source>Configurations compared</source>
+            <translation>Configuraciones comparadas</translation>
+        </message>
+        <message>
+            <source>Cycle slips</source>
+            <translation>Saltos de ciclo</translation>
+        </message>
+        <message>
+            <source>Decision</source>
+            <translation>Decisión</translation>
+        </message>
+        <message>
+            <source>Difference in 3D (mm)</source>
+            <translation>Diferencia en 3D (mm)</translation>
+        </message>
+        <message>
+            <source>Difference in X (mm)</source>
+            <translation>Diferencia en X (mm)</translation>
+        </message>
+        <message>
+            <source>Difference in Y (mm)</source>
+            <translation>Diferencia en Y (mm)</translation>
+        </message>
+        <message>
+            <source>Difference in Z (mm)</source>
+            <translation>Diferencia en Z (mm)</translation>
+        </message>
+        <message>
+            <source>Difference in length (mm)</source>
+            <translation>Diferencia en longitud (mm)</translation>
+        </message>
+        <message>
+            <source>Each difference is the configuration's baseline minus the reference's, tested against the two solutions' covariances together. The runs share their observations but are tested as if independent, which overstates each difference's uncertainty: a difference reported significant is significant, and one reported not significant may still hide a small real one.</source>
+            <translation>Cada diferencia es la línea base de la configuración menos la de la referencia, contrastada con las covarianzas de las dos soluciones en conjunto. Las ejecuciones comparten sus observaciones pero se contrastan como si fueran independientes, lo que sobrestima la incertidumbre de cada diferencia: una diferencia informada como significativa es significativa, y una informada como no significativa aún puede ocultar una pequeña diferencia real.</translation>
+        </message>
+        <message>
+            <source>Elevation mask (°)</source>
+            <translation>Máscara de elevación (°)</translation>
+        </message>
+        <message>
+            <source>Epochs</source>
+            <translation>Épocas</translation>
+        </message>
+        <message>
+            <source>Fixed epochs (%)</source>
+            <translation>Épocas fijadas (%)</translation>
+        </message>
+        <message>
+            <source>How to read it</source>
+            <translation>Cómo leerlo</translation>
+        </message>
+        <message>
+            <source>Length standard deviation (mm)</source>
+            <translation>Desviación estándar de la longitud (mm)</translation>
+        </message>
+        <message>
+            <source>No difference is significant at %1% confidence: over this data, the configurations changed nothing that can be resolved.</source>
+            <translation>Ninguna diferencia es significativa con %1% de confianza: con estos datos, las configuraciones no cambiaron nada que pueda resolverse.</translation>
+        </message>
+        <message>
+            <source>PDOP, median</source>
+            <translation>PDOP, mediana</translation>
+        </message>
+        <message>
+            <source>Ratio, median</source>
+            <translation>Razón, mediana</translation>
+        </message>
+        <message>
+            <source>Rejected observations</source>
+            <translation>Observaciones rechazadas</translation>
+        </message>
+        <message>
+            <source>Satellites, fewest to most</source>
+            <translation>Satélites, del menor al mayor número</translation>
+        </message>
+        <message>
+            <source>Side by side</source>
+            <translation>Lado a lado</translation>
+        </message>
+        <message>
+            <source>Test statistic</source>
+            <translation>Estadístico de prueba</translation>
+        </message>
+        <message>
+            <source>not significant</source>
+            <translation>no significativo</translation>
+        </message>
+        <message>
+            <source>significant</source>
+            <translation>significativo</translation>
         </message>
     </context>
     <context>

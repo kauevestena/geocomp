@@ -19,6 +19,7 @@ from geocomp.core.techniques.gnss.baselines import Baseline, components_from_cov
 from geocomp.core.techniques.gnss.comparison import compare_baselines
 from geocomp.core.uncertainty import Covariance, Strategy, UncertaintyMode
 from geocomp.core.units import Unit
+from tests.conftest import requires_rtklib
 
 VECTOR = (2022.7707, -468.6291, 2610.2891)
 
@@ -151,3 +152,60 @@ class TestThePresentation:
         assert payload["confidence"] == pytest.approx(0.95)
         assert payload["critical_value"] > 0
         assert payload["any_significant"] is False
+
+
+@requires_rtklib
+class TestTwoMasksOverRealData:
+    """Tier 4: RTKLIB's sample baseline processed live at two masks, then compared.
+
+    What the stand-in engine of ``tests/qgis/test_configuration_comparison.py``
+    cannot show: two real runs that differ, compared. The sample is clean and
+    short, so no particular verdict is asserted -- only that the masks reach the
+    engine, the comparison is formed from what it determined, and its numbers
+    are the solutions'.
+
+    Written for P12c-43, it found the reader's defect: at 30 degrees one epoch's
+    printed covariance is marginally indefinite, and until then the whole run was
+    refused (``tests/test_pos_reader.py::TestAnEpochPrintedIndefinite``).
+    """
+
+    @pytest.fixture(scope="class")
+    def compared(self, tmp_path_factory):
+        from pathlib import Path
+
+        from geocomp.engines.rtklib import RtklibEngine, RtklibJob, profile
+        from geocomp.engines.rtklib.baseline import baseline_from_solution
+        from geocomp.io.gnss_discovery import scan_folder
+
+        data = Path(__file__).resolve().parent / "data" / "rtklib"
+        sessions = {session.station_id: session for session in scan_folder(data).sessions}
+        engine = RtklibEngine()
+        baselines = {}
+        for mask in (10.0, 30.0):
+            result = engine.run(
+                RtklibJob(
+                    rover=sessions["0759"],
+                    base=sessions["3040"],
+                    config=profile("relative-static").with_options(
+                        output_format="xyz", elevation_mask=mask
+                    ),
+                ),
+                work_dir=tmp_path_factory.mktemp(f"mask-{mask:g}"),
+            )
+            baselines[f"mask {mask:g}"] = baseline_from_solution(
+                result.solution, base_station="3040", rover_station="0759"
+            )
+        return baselines, compare_baselines(baselines)
+
+    def test_the_masks_determine_two_different_baselines(self, compared):
+        baselines, _comparison = compared
+        low, high = (np.array([q.value for q in b.components]) for b in baselines.values())
+        assert np.linalg.norm(low - high) > 0.0
+
+    def test_the_comparison_is_of_what_they_determined(self, compared):
+        baselines, comparison = compared
+        (row,) = comparison.rows
+        low, high = (np.array([q.value for q in b.components]) for b in baselines.values())
+        assert comparison.reference == "mask 10"
+        np.testing.assert_allclose(row.difference, high - low, atol=1e-12)
+        assert np.isfinite(row.statistic) and row.statistic >= 0.0

@@ -59,7 +59,7 @@ from geocomp.core.techniques.gnss.baselines import (
 from geocomp.core.techniques.gnss.quality import EpochQuality, SessionQuality, summarise
 from geocomp.core.uncertainty import covariance_from_printed
 from geocomp.core.units import Unit
-from geocomp.engines.rtklib.read_pos import PosEpoch, PosFormat, PosSolution
+from geocomp.engines.rtklib.read_pos import PRINTED_HALF_WIDTH, PosEpoch, PosFormat, PosSolution
 
 __all__ = [
     "PRINTED_HALF_WIDTH",
@@ -67,10 +67,6 @@ __all__ = [
     "printed_covariance_half_width",
     "quality_from_solution",
 ]
-
-#: Half the place value of the last digit ``solution.c`` writes for a deviation
-#: or a cross term -- ``%8.4f``, so 0.1 mm, so 0.5e-4 m.
-PRINTED_HALF_WIDTH = 0.5e-4
 
 #: Statuses that count as ambiguity-resolved, in RTKLIB's vocabulary.
 _FIXED_STATUSES = frozenset({"FIXED"})

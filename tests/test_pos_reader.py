@@ -432,3 +432,51 @@ class TestTheResolvedAntennas:
             tmp_path, "% antenna1  : TPSCR.G3        SCIS  ( 0.0000  0.0000  0.0000)"
         )
         assert solution.to_dict()["antennas"] == {"1": "TPSCR.G3        SCIS"}
+
+
+class TestAnEpochPrintedIndefinite:
+    """Every epoch is read as printed, not as computed (``specs/08`` §8.2, P12c-43).
+
+    The line below is RTKLIB's own: the sample baseline processed at a 30 degree
+    mask, epoch 00:10:30, fixed on four satellites. Its covariance, as the four
+    printed decimals give it back, has a smallest eigenvalue of -1.5e-6 m^2 --
+    inside the 8.4e-6 that rounding those decimals can explain. Until P12c-43 the
+    reader refused the whole run over it, so a mask comparison lost its 30 and
+    35 degree configurations.
+    """
+
+    LINE = (
+        "1316 519030.000  -3976219.6839   3382372.5715   3652513.0705   1   4"
+        "   0.0203   0.0279   0.0152  -0.0238   0.0206  -0.0175   0.00   51.2"
+    )
+
+    @staticmethod
+    def _file(tmp_path, line):
+        header = [text for text in (POS / "xyz.pos").read_text().splitlines() if text.startswith("%")]
+        path = tmp_path / "printed.pos"
+        path.write_text("\n".join([*header, line]) + "\n", encoding="ascii")
+        return path
+
+    def test_it_is_read_and_conditioned_within_its_printing(self, tmp_path):
+        from geocomp.core.uncertainty import Strategy, UncertaintyMode
+
+        covariance = read_pos(self._file(tmp_path, self.LINE)).last().covariance
+        assert min(np.linalg.eigvalsh(covariance.matrix)) >= -1e-15
+        assert covariance.mode is UncertaintyMode.APPROXIMATE
+        assert Strategy.ROUNDING_CONDITIONED in covariance.strategies
+
+    def test_one_that_rounding_cannot_explain_is_still_refused(self, tmp_path):
+        """Correlations of nearly one each way between three components: no four
+        decimals produce that from a real covariance."""
+        line = self.LINE.replace(
+            "-0.0238   0.0206  -0.0175", "-0.0270   0.0270   0.0270"
+        ).replace("0.0203   0.0279   0.0152", "0.0279   0.0279   0.0279")
+        with pytest.raises(DataError) as caught:
+            read_pos(self._file(tmp_path, line))
+        assert caught.value.code.endswith("covariance_not_positive_semidefinite")
+
+    def test_a_definite_epoch_is_left_as_it_was_printed(self):
+        """Conditioning moves only what needs it, and says so only then."""
+        from geocomp.core.uncertainty import UncertaintyMode
+
+        assert read_pos(POS / "xyz.pos").last().covariance.mode is UncertaintyMode.RIGOROUS

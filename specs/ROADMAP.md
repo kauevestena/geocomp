@@ -2890,6 +2890,46 @@ Cholesky factorisation".
 **Not done.** Core English under a name the rule does not hold, or reaching a reader by a path it does not
 read, is not seen. The English in the provenance and in JSON documents is data, and stays.
 
+#### P12c-43 — configurations compared side by side (FR-359 met)
+
+FR-359 was partly met: the comparison and its significance test existed, written as one table with a row per
+configuration, and the side-by-side presentation specs/11 §6 asks for did not. `geocomp:gnss_compare_configurations`
+now writes an HTML report, one column per configuration with the reference first. It shows the elevation mask
+each ran at, the baseline's length and its standard deviation, the difference from the reference in X, Y, Z, 3D
+and length, the test statistic and the decision. Below them are the quality indicators of specs/11 §5 from each
+configuration's own run: epochs, fixed fraction, median ratio, satellites, median PDOP, cycle slips and
+rejected observations. A note says how to read the independence assumption, and a sentence says what the
+comparison found.
+
+A configuration was only an elevation mask. It can now be an RTKLIB options file of the user's own (FR-070): give
+two or more, and each is a configuration named by its file and compared at the options it states. A file is
+the named, shareable profile specs/11 §6 describes. The comparison's JSON records what each configuration set
+and its quality indicators.
+
+**Decided.** No custom dialog. specs/15 §1.2 listed one; what the user needs to see is the result, and the report
+is where every algorithm presents one, opened by Processing's results viewer from the menu, the toolbox or a
+model alike. A dialog that ran the configurations would be a second way to run them (ADR-0005), and one that
+only collected parameters would add nothing the Processing dialog lacks. The time series took the same turn in
+P10b, as a dock panel.
+
+**Found while doing it.** The log printed the export's rows as they stood: an English header -- "configuration,
+dX mm, ..., significant" -- and "yes" or "no", in every language, through an f-string the P12c-42 rule cannot
+read. Each configuration is now one sentence in words. The CSV keeps the data's own header: it is an export for
+another program, as the JSON's keys are.
+
+**Register.** FR-359 met: 167 met, 8 partly met, 1 open.
+
+**Found while doing it, too.** A live comparison of two masks over RTKLIB's sample, added as a tier 4 test
+(`tests/test_gnss_comparison.py::TestTwoMasksOverRealData`), could not run: at 30° one epoch's printed covariance
+is marginally indefinite, within what its four decimals explain, and the `.pos` reader refused the whole file
+over it. The default sweep, 10° to 35°, lost two of its six configurations to this. Only the baseline's last
+epoch went through `covariance_from_printed`; every epoch does now, conditioned within its own printing and
+marked when moved, and a matrix indefinite beyond that is still refused (specs/08 §8.2).
+
+**Not done.** The report is tested end to end against a stand-in for `rnx2rtkp` that answers every configuration
+with one solution, so its differences are zero. Two real runs are compared in tier 4, through the core, not
+through the algorithm and its report.
+
 ---
 
 ## P13 — Validation, documentation and release

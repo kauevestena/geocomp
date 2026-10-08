@@ -60,11 +60,12 @@ import numpy as np
 
 from geocomp.core.errors import DataError
 from geocomp.core.techniques.gnss.quality import DilutionOfPrecision, dilution_of_precision
-from geocomp.core.uncertainty import Covariance, Quantity
+from geocomp.core.uncertainty import Covariance, Quantity, covariance_from_printed
 from geocomp.core.units import Unit
 from geocomp.engines.rtklib.read_stat import SatelliteSighting, to_millisecond
 
 __all__ = [
+    "PRINTED_HALF_WIDTH",
     "PosEpoch",
     "PosFormat",
     "PosSolution",
@@ -73,6 +74,10 @@ __all__ = [
 ]
 
 METRE = Unit.METRE
+
+#: Half the place value of the last digit ``solution.c`` writes for a deviation
+#: or a cross term -- ``%8.4f``, so 0.1 mm, so 0.5e-4 m (``specs/08`` §8.2).
+PRINTED_HALF_WIDTH = 0.5e-4
 
 #: GPS time began at 1980-01-06 00:00:00 UTC. Weeks and seconds-of-week in the
 #: file are GPS time, which does not observe leap seconds; the conversion to a
@@ -580,6 +585,14 @@ def _covariance(
     is most of them: in a levelled GNSS solution the north-up and east-up terms
     are routinely negative, and dropping their sign makes a position ellipse
     lean the wrong way.
+
+    Read as printed, not as computed (P12c-43). Four decimals of a signed square
+    root can leave an ill-conditioned epoch marginally indefinite -- a float
+    epoch at a 30 degree mask over RTKLIB's own sample does -- and a strict
+    :class:`Covariance` refused the whole file over it. Each epoch is conditioned
+    within what its own printing can explain, ``2 * max|v| * 0.5e-4``
+    (``specs/08`` §8.2), and recorded as conditioned; a matrix indefinite beyond
+    that is still refused.
     """
     matrix = np.zeros((3, 3), dtype=float)
     for index, sigma in enumerate(deviations):
@@ -588,10 +601,12 @@ def _covariance(
         covariance = math.copysign(value * value, value)
         matrix[first, second] = covariance
         matrix[second, first] = covariance
-    return Covariance(
-        matrix=matrix,
-        labels=layout.components,
-        units=(METRE, METRE, METRE),
+    largest = max((abs(value) for value in (*deviations, *crosses)), default=0.0)
+    return covariance_from_printed(
+        matrix,
+        layout.components,
+        (METRE, METRE, METRE),
+        half_width=2.0 * largest * PRINTED_HALF_WIDTH,
     )
 
 

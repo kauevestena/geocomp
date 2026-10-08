@@ -491,7 +491,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 166 met, 9 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 167 met, 8 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -600,7 +600,7 @@ without a row.
 | FR-356 | **met** | As 08.3 and 08.4 |
 | FR-357 | **met** | Baselines and trajectories as layers, and the network document for a joint adjustment (`tests/qgis/test_gnss_layers.py`) |
 | FR-358 | **met** | Static and kinematic profiles, precise ephemerides and the atmospheric models as configuration (`tests/test_rtklib_engine.py::TestConfiguration`); quality indicators read back, As 08.3; the products, As 08.6 |
-| FR-359 | **partly met** | The comparison and its significance test, As 11.6, written as one table with a row per configuration. The side-by-side dialog [`11`](./11-module-gnss.md) §6 describes is not built |
+| FR-359 | **met** | The comparison and its significance test, As 11.6; since P12c-43, of elevation masks or of the user's own RTKLIB configuration files, presented side by side in the report with each configuration's quality indicators (`tests/qgis/test_configuration_comparison.py::TestTheMasksSweep::test_the_report_puts_them_side_by_side_the_reference_first`, `tests/qgis/test_configuration_comparison.py::TestConfigurationFiles::test_each_file_is_a_configuration_named_by_it`) |
 | FR-400 | **met** | As 09.1 |
 | FR-401 | **met** | `tests/test_total_station.py::TestAtmosphere` |
 | FR-402 | **met** | `tests/test_total_station.py::TestInstrumentCorrections`; injected errors recovered, As 09.4 |

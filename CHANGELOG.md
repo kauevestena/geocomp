@@ -5,6 +5,26 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-43 — GNSS configurations compared side by side
+
+#### Added
+
+- *Compare configurations* writes a report with the configurations side by side: the baseline each produced,
+  its difference from the reference and whether that difference is significant, and each run's quality
+  (epochs, fixed fraction, ratio, satellites, PDOP, cycle slips, rejected observations).
+- Configurations can be RTKLIB configuration files of your own, compared against each other, as well as
+  elevation masks.
+
+#### Changed
+
+- The comparison's log says each configuration's result in words, in your language.
+
+#### Fixed
+
+- A GNSS solution with one epoch whose printed covariance is marginally indefinite -- within what its four
+  printed decimals explain, as RTKLIB's own sample has at a 30° mask -- was refused whole. Every epoch is now
+  read as printed and conditioned within that rounding, as the final baseline already was.
+
 ### P12c-42 — Reports and logs speak your language throughout
 
 #### Changed

@@ -31,6 +31,8 @@ from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    Qgis,
+    QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
@@ -42,7 +44,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.core.errors import GeoCompError
 
-__all__ = ["input_problem", "naming_the_input", "validated"]
+__all__ = ["file_list_type", "input_problem", "naming_the_input", "validated"]
 
 _CONTEXT = "GeoCompAlgorithm"
 
@@ -53,6 +55,13 @@ def _tr(text: str) -> str:
 
 def _given(value: Any) -> bool:
     return value is not None and not (isinstance(value, str) and not value.strip())
+
+
+def file_list_type() -> Any:
+    """``QgsProcessingParameterMultipleLayers``'s file type, as QGIS 3 and 4 spell it."""
+    if hasattr(Qgis, "ProcessingSourceType"):
+        return Qgis.ProcessingSourceType.File
+    return QgsProcessing.TypeFile
 
 
 def _paths(algorithm, definition, parameters: dict[str, Any], context) -> list[str]:
