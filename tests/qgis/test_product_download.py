@@ -379,7 +379,7 @@ class TestProcessingResolvesItsProducts:
             QgsProcessingException
         ) as raised:
             session_products([Session(*later, ["own.25n"])], "precise", 1, Recorder().feedback)
-        assert "orbit final 2025-01-02" in str(raised.value)
+        assert "final orbit for 2025-01-02" in str(raised.value)
 
     def test_without_a_service_nothing_is_downloaded(self, tmp_path):
         from qgis.core import QgsProcessingException

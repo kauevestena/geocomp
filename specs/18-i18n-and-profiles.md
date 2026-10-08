@@ -179,12 +179,30 @@ choose the document the right algorithm wrote, check the address, install the pl
 archive. The fallback for a code with no template, which the template rule makes unreachable, now says it is
 an internal error to report. A report's prose is not a refusal, as a finding is not.
 
-**What the rules do not reach.** A failure outside the algorithms that is not worded "could not" is left to
-the review. A warning an algorithm pushes about part of its work is not a refusal and is not held to the rule.
-The GNSS folder scan's warnings are worse than having no remedy, though. Its reason for a file it skipped or
-doubted is the reader's English, or an error's code and expected value, interpolated into a translated
-sentence: "Could not read %1: %2", where %2 is "navigation files paired by fallback: ...". That breaks FR-091
-too, and is the next change.
+**The core's English in an object (P12c-41).** P12c-9 holds templates to data: the core passes ids, counts
+and numbers, and the template says the sentence. But it reads templates, and a sentence an algorithm makes
+itself can take a value from an object instead. The GNSS folder scan reported what it skipped or doubted as
+`(file, reason)` pairs in its own English -- "navigation files paired by fallback: ...", or a refusal's code
+and expected value -- and the algorithms put the reason into "Could not read %1: %2". A product was named by
+`ProductRequest.describe()`, "orbit final 2025-01-02", and why it could not be had by a bare "not found".
+
+Now the scan reports findings, each with a code and its values, worded by a template that says what to do: a
+file that is not observation or navigation, a name that claims another station or day, navigation paired by
+fallback, a span that cannot be known. A product is named in words, "final orbit for 2025-01-02", and the two
+reasons it cannot be had are sentences that say what to do. A batch row the engine solved nothing for says
+what to check, where it showed the batch's English `detail`. `describe()` stays, for the JSON report and
+provenance, which are data.
+
+The structural test now also reads the values put into a translated sentence outside the core: a
+`describe()`, or an attribute the core fills with English (`reason`, `note`, `detail`, `method`, `group`,
+`technique`, `removed_by`, `defect_description`). When P12c-41 counted, ten such sites remained, all in the log
+lines of the adjustment, integration and DynAdjust algorithms: the datum defect and how it was removed, the
+global test's note, the integration's routing reason and techniques, the DynAdjust stages' reasons, and the
+variance components' groups. They are frozen in a list that may only shrink, and are the next change.
+
+**What the rules do not reach.** A failure outside the algorithms that is not worded "could not" is left to the
+review, and so is the core's English under a name the list above does not hold. A warning an algorithm pushes
+about part of its work is not a refusal, and is not held to the remedy rule.
 
 ## 3. Terminology (FR-093)
 

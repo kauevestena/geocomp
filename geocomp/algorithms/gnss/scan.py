@@ -26,7 +26,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.gnss.common import translate_error
+from geocomp.algorithms.gnss.common import report_scan, translate_error
 from geocomp.core.errors import GeoCompError
 from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
 
@@ -89,14 +89,7 @@ class ScanSessionsAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(translate_error(exc)) from exc
 
         feedback.setProgress(60)
-        for path, reason in scan.skipped:
-            feedback.pushWarning(
-                self.tr("Could not read %1: %2").replace("%1", str(path)).replace("%2", reason)
-            )
-        for path, reason in scan.warnings:
-            feedback.pushWarning(
-                self.tr("%1: %2").replace("%1", str(path)).replace("%2", reason)
-            )
+        report_scan(feedback, scan)
 
         groups = overlapping_groups(scan.sessions)
         feedback.pushInfo(

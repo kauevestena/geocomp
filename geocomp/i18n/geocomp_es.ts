@@ -30,6 +30,10 @@
             <translation>%1 falló: %2</translation>
         </message>
         <message>
+            <source>%1 ran, but no epoch was solved. Check in the log that the base station observed over the same time, and that the navigation data covers the session.</source>
+            <translation>%1 se procesó, pero no se resolvió ninguna época. Compruebe en el registro que la estación base observó en el mismo periodo, y que los datos de navegación cubren la sesión.</translation>
+        </message>
+        <message>
             <source>%1 succeeded, %2 failed, %3 rejected</source>
             <translation>%1 con éxito, %2 con fallo, %3 rechazadas</translation>
         </message>
@@ -68,10 +72,6 @@
         <message>
             <source>Batch report</source>
             <translation>Informe del lote</translation>
-        </message>
-        <message>
-            <source>Could not read %1: %2</source>
-            <translation>No se pudo leer %1: %2</translation>
         </message>
         <message>
             <source>Folder of RINEX observations</source>
@@ -789,7 +789,7 @@
     <context>
         <name>DownloadProductsAlgorithm</name>
         <message>
-            <source> (as %1)</source>
+            <source> (as the %1)</source>
             <translation> (como %1)</translation>
         </message>
         <message>
@@ -813,12 +813,8 @@
             <translation>%1: disponible en %2%3</translation>
         </message>
         <message>
-            <source>%1: not available (%2)</source>
-            <translation>%1: no disponible (%2)</translation>
-        </message>
-        <message>
-            <source>%1: used the %2 orbit, as Global Settings allow.</source>
-            <translation>%1: se usó la órbita %2, como permite la Configuración Global.</translation>
+            <source>%1: used the %2 instead, as Global Settings allow.</source>
+            <translation>%1: se usó la %2 en su lugar, como permite la Configuración Global.</translation>
         </message>
         <message>
             <source>&lt;p&gt;Resolves IGS orbits and broadcast navigation for the days of a folder's sessions, or for a range of days: each from the product cache, then the product directory, then the download services configured in Global Settings → GNSS, in their order.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Check only&lt;/b&gt; downloads nothing: it reports, for each product, whether it can be had and from where. Use it before a long batch on recent data, whose final orbits may not be published yet.&lt;/p&gt;&lt;p&gt;Processing resolves its own products; this is for fetching a campaign's products while there is a network, to process later without one. Ultra-rapid orbits are not offered.&lt;/p&gt;&lt;p&gt;A service that needs a login names a QGIS authentication configuration; GeoComp never sees the credential, and the manifest records service ids and URLs without one.&lt;/p&gt;</source>
@@ -835,10 +831,6 @@
         <message>
             <source>Copy the products to</source>
             <translation>Copiar los productos a</translation>
-        </message>
-        <message>
-            <source>Could not read %1: %2</source>
-            <translation>No se pudo leer %1: %2</translation>
         </message>
         <message>
             <source>Download products</source>
@@ -2485,12 +2477,28 @@
             <translation>%1 %2 no se ha comprobado con esta versión de GeoComp. Se usará, pero si su formato de salida ha cambiado la solución puede rechazarse al leerla.</translation>
         </message>
         <message>
+            <source>%1 (%2)</source>
+            <translation>%1 (%2)</translation>
+        </message>
+        <message>
+            <source>%1 for %2</source>
+            <translation>%1 del %2</translation>
+        </message>
+        <message>
+            <source>%1 is not in the cache or the product directory, and no download service is configured. Add one in Global Settings → GNSS, or place the file in the product directory.</source>
+            <translation>%1 no está en la caché ni en el directorio de productos, y no hay ningún servicio de descarga configurado. Añada uno en Configuración Global → GNSS, o coloque el archivo en el directorio de productos.</translation>
+        </message>
+        <message>
+            <source>%1 is not in the cache, the product directory or any configured download service. Add another download service in Global Settings → GNSS, or place the file in the product directory.</source>
+            <translation>%1 no está en la caché, en el directorio de productos ni en ningún servicio de descarga configurado. Añada otro servicio de descarga en Configuración Global → GNSS, o coloque el archivo en el directorio de productos.</translation>
+        </message>
+        <message>
             <source>%1: %2</source>
             <translation>%1: %2</translation>
         </message>
         <message>
-            <source>%1: used the %2 orbit, as Global Settings allow; recorded in provenance.</source>
-            <translation>%1: se usó la órbita %2, como permite la Configuración Global; registrado en la procedencia.</translation>
+            <source>%1: used the %2 instead, as Global Settings allow; recorded in provenance.</source>
+            <translation>%1: se usó la %2 en su lugar, como permite la Configuración Global; registrado en la procedencia.</translation>
         </message>
         <message>
             <source>&lt;p&gt;&lt;b&gt;Absolute (PPP) processing in RTKLIB is limited.&lt;/b&gt; Its precise point positioning is not equivalent to a dedicated PPP service: convergence is slower, the ambiguity handling is simpler, and the result is typically decimetre-level rather than centimetre-level. Prefer Relative processing where a base station is available, and treat an Absolute solution as indicative unless you have checked it against an independent determination.&lt;/p&gt;</source>
@@ -2515,6 +2523,14 @@
         <message>
             <source>Could not read the download services file %1; check that it exists and can be read: %2</source>
             <translation>No se pudo leer el archivo de servicios de descarga %1; compruebe que exista y pueda leerse: %2</translation>
+        </message>
+        <message>
+            <source>GLONASS broadcast navigation</source>
+            <translation>navegación transmitida GLONASS</translation>
+        </message>
+        <message>
+            <source>GPS broadcast navigation</source>
+            <translation>navegación transmitida GPS</translation>
         </message>
         <message>
             <source>Product %1 (%2)</source>
@@ -2564,16 +2580,28 @@
             <source>Using %1 %2 from %3.</source>
             <translation>Usando %1 %2 de %3.</translation>
         </message>
+        <message>
+            <source>final orbit</source>
+            <translation>órbita final</translation>
+        </message>
+        <message>
+            <source>no download service</source>
+            <translation>ningún servicio de descarga</translation>
+        </message>
+        <message>
+            <source>not found</source>
+            <translation>no encontrado</translation>
+        </message>
+        <message>
+            <source>rapid orbit</source>
+            <translation>órbita rápida</translation>
+        </message>
     </context>
     <context>
         <name>GeoCompGnssProcess</name>
         <message>
             <source>%1 epochs, %2% with resolved ambiguities</source>
             <translation>%1 épocas, %2% con ambigüedades resueltas</translation>
-        </message>
-        <message>
-            <source>%1: %2</source>
-            <translation>%1: %2</translation>
         </message>
         <message>
             <source>&lt;p&gt;Processes a folder of RINEX observations with &lt;code&gt;rnx2rtkp&lt;/code&gt;. Sessions are discovered from the file headers, not their names, and only sessions that actually overlap in time are processed together.&lt;/p&gt;&lt;p&gt;Processing options come from Global Settings → GNSS unless a parameter here overrides them: elevation mask, ephemeris source, atmospheric models and the ambiguity ratio threshold.&lt;/p&gt;&lt;p&gt;Outputs the engine's &lt;code&gt;.pos&lt;/code&gt; solution and a JSON summary of the run's quality indicators: solution status per epoch, the fraction of epochs with resolved ambiguities, satellite counts, the ambiguity ratio, the dilution of precision, and the cycle slips and outlying observations the engine detected, with the satellites they were on.&lt;/p&gt;</source>
@@ -2654,10 +2682,6 @@
         <message>
             <source>Rover station</source>
             <translation>Estación móvil</translation>
-        </message>
-        <message>
-            <source>Skipped %1: %2</source>
-            <translation>Omitido %1: %2</translation>
         </message>
         <message>
             <source>Solution</source>
@@ -3286,6 +3310,10 @@
             <translation>%1 punto(s) radiado(s) se nivelaron desde estas líneas y no están en la red: %2. Un ramal observado una vez no tiene redundancia, así que ajustarlo no cambiaría nada; sus alturas se siguen de la línea ajustada. Ajuste la red a partir de los estacionamientos para incluir todos los puntos.</translation>
         </message>
         <message>
+            <source>%1 states no TIME OF LAST OBS and its last epoch cannot be read, so its span is unknown and it cannot be matched with sessions observed at the same time. Decompress it, or add TIME OF LAST OBS to its header.</source>
+            <translation>%1 no indica TIME OF LAST OBS y su última época no puede leerse, por lo que su intervalo es desconocido y no puede emparejarse con sesiones observadas al mismo tiempo. Descomprímalo, o añada TIME OF LAST OBS a su encabezado.</translation>
+        </message>
+        <message>
             <source>%1 station(s) are reached only through heights, so nothing determines where they are horizontally: %2. Tie them in with a GNSS vector or a total-station observation, hold them horizontally, or adjust the levelling on its own.</source>
             <translation>%1 estación(es) se alcanzan solo mediante alturas, así que nada determina dónde están horizontalmente: %2. Vincúlelas con un vector GNSS o una observación de estación total, fíjelas horizontalmente o ajuste la nivelación por separado.</translation>
         </message>
@@ -3322,8 +3350,20 @@
             <translation>%1 se detuvo en su tiempo límite de %3 s, tras ejecutarse durante %2 s, antes de terminar. Aumente el tiempo límite en los parámetros avanzados del algoritmo. Su último mensaje: %4. Los archivos de trabajo están en %5.</translation>
         </message>
         <message>
+            <source>%1: no navigation file's name states this session's day, so every navigation file in the folder (%2) is offered to it. Name the navigation files by their day, or keep only this session's in the folder.</source>
+            <translation>%1: el nombre de ningún archivo de navegación indica el día de esta sesión, por lo que se le ofrecen todos los archivos de navegación de la carpeta (%2). Nombre los archivos de navegación por su día, o deje en la carpeta solo los de esta sesión.</translation>
+        </message>
+        <message>
             <source>%1: the ellipsoidal height %2 m was converted to the orthometric height %3 m through %4 (N = %5 m). The model's uncertainty is in the result, which is now +/- %6 mm rather than %7 mm.</source>
             <translation>%1: la altura elipsoidal %2 m se convirtió en la altura ortométrica %3 m mediante %4 (N = %5 m). La incertidumbre del modelo está en el resultado, que ahora es +/- %6 mm en lugar de %7 mm.</translation>
+        </message>
+        <message>
+            <source>%1: the file name says %2 and the first observation is on %3; the header is used. Check which is right, and correct the other.</source>
+            <translation>%1: el nombre del archivo indica %2 y la primera observación es del %3; se usa el encabezado. Compruebe cuál es correcto, y corrija el otro.</translation>
+        </message>
+        <message>
+            <source>%1: the file name says station %2 and the header says marker %3; the header is used. Check which is right, and correct the other.</source>
+            <translation>%1: el nombre del archivo indica la estación %2 y el encabezado indica la marca %3; se usa el encabezado. Compruebe cuál es correcto, y corrija el otro.</translation>
         </message>
         <message>
             <source>'%1' contains no solution epoch. Check that the observations, the base station's and the products cover the same time.</source>
@@ -4034,6 +4074,10 @@
             <translation>No se pudo descargar %1: %2. La descarga se reintentó; compruebe la red y el proxy configurado en QGIS, y ejecute de nuevo.</translation>
         </message>
         <message>
+            <source>Could not read %1: %2</source>
+            <translation>No se pudo leer %1: %2</translation>
+        </message>
+        <message>
             <source>DynAdjust needs an explicit reference frame and epoch, and this run is missing one or both. GeoComp will not guess either: a guessed frame is a datum shift hidden in the residuals. Set the reference frame and epoch in the dialog, or record them on the network.</source>
             <translation>DynAdjust necesita un marco de referencia y una época explícitos, y a esta ejecución le falta uno de ellos o ambos. GeoComp no adivina ninguno: un marco adivinado es un desplazamiento de datum escondido en los residuos. Defina el marco de referencia y la época en el diálogo, o regístrelos en la red.</translation>
         </message>
@@ -4312,6 +4356,10 @@
         <message>
             <source>Setup %1: %2</source>
             <translation>Estacionamiento %1: %2</translation>
+        </message>
+        <message>
+            <source>Skipped %1: it is a RINEX file of type %2, neither observation nor navigation. If it holds observations, check the RINEX VERSION / TYPE line of its header.</source>
+            <translation>Se omitió %1: es un archivo RINEX de tipo %2, ni de observación ni de navegación. Si contiene observaciones, compruebe la línea RINEX VERSION / TYPE de su encabezado.</translation>
         </message>
         <message>
             <source>Someone else saved %1 since you opened it (revision %2 now; you read %3). Nothing was written. Open the project again and redo your change, so their save is not overwritten.</source>
@@ -11641,16 +11689,8 @@
             <translation>%1 sesión(es), %2 grupo(s) simultáneo(s), %3 archivo(s) ilegible(s)</translation>
         </message>
         <message>
-            <source>%1: %2</source>
-            <translation>%1: %2</translation>
-        </message>
-        <message>
             <source>&lt;p&gt;Reads the header of every RINEX observation file in a folder and reports the sessions it found: station, receiver, antenna, start and end, sampling interval, and the navigation files paired with each.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The header decides, not the file name.&lt;/b&gt; A file named for one station whose header names another is reported as a mismatch rather than silently resolved either way.&lt;/p&gt;&lt;p&gt;Groups sessions by simultaneity, since only sessions that actually overlap in time can form a baseline, and lists every file it could not read rather than stopping at the first.&lt;/p&gt;</source>
             <translation>&lt;p&gt;Lee la cabecera de cada archivo de observación RINEX de una carpeta e informa de las sesiones que encontró: estación, receptor, antena, inicio y fin, intervalo de muestreo, y los archivos de navegación emparejados con cada una.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La cabecera decide, no el nombre del archivo.&lt;/b&gt; Un archivo nombrado por una estación cuya cabecera nombra otra se informa como discrepancia, en lugar de resolverse en silencio a favor de una de las dos.&lt;/p&gt;&lt;p&gt;Agrupa las sesiones por simultaneidad, ya que solo las sesiones que realmente se solapan en el tiempo pueden formar una línea base, y enumera todos los archivos que no pudo leer en lugar de detenerse en el primero.&lt;/p&gt;</translation>
-        </message>
-        <message>
-            <source>Could not read %1: %2</source>
-            <translation>No se pudo leer %1: %2</translation>
         </message>
         <message>
             <source>Discover GNSS sessions in a folder, from the RINEX headers.</source>

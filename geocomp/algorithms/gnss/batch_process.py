@@ -39,6 +39,7 @@ from geocomp.algorithms.gnss.common import (
     gather_products,
     gnss_engine,
     missing_products_message,
+    report_scan,
     run_frame,
     timeout_parameter,
     translate_error,
@@ -161,10 +162,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             scan = scan_folder(folder)
         except GeoCompError as exc:
             raise QgsProcessingException(translate_error(exc)) from exc
-        for path, reason in scan.skipped:
-            feedback.pushWarning(
-                self.tr("Could not read %1: %2").replace("%1", str(path)).replace("%2", reason)
-            )
+        report_scan(feedback, scan)
         if not scan.sessions:
             raise QgsProcessingException(
                 self.tr("No RINEX observation sessions were found in %1. Choose the "
@@ -283,13 +281,22 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                     .replace("%1", row.key)
                     .replace("%2", str(row.value["quality"]["epochs"] if row.value else 0))
                 )
-            else:
+            elif row.error is not None:
                 # The template, with the engine's own message where it has one
-                # (FR-305); the code and its context only for a failure that
-                # did not come as an error.
-                reason = translate_error(row.error) if row.error is not None else row.detail
+                # (FR-305).
                 feedback.pushWarning(
-                    self.tr("%1 failed: %2").replace("%1", row.key).replace("%2", reason)
+                    self.tr("%1 failed: %2")
+                    .replace("%1", row.key)
+                    .replace("%2", translate_error(row.error))
+                )
+            else:
+                # Ran, and refused by `accept` above: no epoch solved. Until
+                # P12c-41 this showed the batch's English ``detail``.
+                feedback.pushWarning(
+                    self.tr(
+                        "%1 ran, but no epoch was solved. Check in the log that the base station "
+                        "observed over the same time, and that the navigation data covers the session."
+                    ).replace("%1", row.key)
                 )
         counts = outcome.summary()
         feedback.pushInfo(

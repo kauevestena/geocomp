@@ -617,3 +617,73 @@ def test_every_failure_a_window_or_panel_reports_says_what_to_do():
         "These say what failed but not what the user can do about it (NFR-006). "
         "Add a clause that tells them, and its translations:\n" + "\n".join(without)
     )
+
+
+#: What the core writes in English for its own logs and documents, not for a
+#: reader: a ``describe()``, and these attributes. Put into a translated sentence,
+#: each leaves an English phrase in a Portuguese one, and P12c-9's rule, which
+#: reads the templates, does not see it: the text arrives in an object.
+_CORE_ENGLISH_ATTRIBUTES = frozenset(
+    {"defect_description", "detail", "group", "method", "note", "reason", "removed_by", "technique"}
+)
+
+#: Those still put into a sentence when P12c-41 counted, by file and expression.
+#: P12c-41 worded the GNSS ones -- a product's name, why it could not be had, a
+#: batch row the engine solved nothing for -- and the rest are P12c-42's. The
+#: list may only shrink: a site worded must leave it, and a new one fails.
+_STILL_ENGLISH = frozenset(
+    {
+        "geocomp/algorithms/analysis/network_adjust.py: run.defect.describe()",
+        "geocomp/algorithms/analysis/network_adjust.py: run.method",
+        "geocomp/algorithms/analysis/network_adjust.py: test.note",
+        "geocomp/algorithms/analysis/network_preanalysis.py: design.defect_description",
+        "geocomp/algorithms/engines/dynadjust_adjust.py: stage.reason",
+        "geocomp/algorithms/gravimetry/network_adjust.py: result.datum.removed_by",
+        "geocomp/algorithms/integration/common.py: routing.reason",
+        "geocomp/algorithms/integration/common.py: summary.technique",
+        "geocomp/algorithms/levelling/network_adjust.py: component.group",
+        "geocomp/algorithms/totalstation/network.py: test.note",
+    }
+)
+
+
+def _core_english_in_sentences() -> set[str]:
+    """Each ``.replace("%N", value)`` outside the core whose value is the core's English."""
+    found = set()
+    for path in python_sources(PLUGIN_DIR):
+        if path.relative_to(PLUGIN_DIR).parts[0] in {"core", "io", "engines"}:
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "replace"
+                and len(node.args) == 2
+                and isinstance(node.args[0], ast.Constant)
+                and str(node.args[0].value).startswith("%")
+            ):
+                continue
+            value = node.args[1]
+            english = (
+                isinstance(value, ast.Attribute) and value.attr in _CORE_ENGLISH_ATTRIBUTES
+            ) or (
+                isinstance(value, ast.Call)
+                and isinstance(value.func, ast.Attribute)
+                and value.func.attr == "describe"
+            )
+            if english:
+                found.add(f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}: {ast.unparse(value)}")
+    return found
+
+
+def test_no_sentence_carries_the_cores_english():
+    """FR-091 for what the core hands over in objects, not templates (P12c-41)."""
+    found = _core_english_in_sentences()
+    new = sorted(found - _STILL_ENGLISH)
+    assert not new, (
+        "These put the core's English into a translated sentence (FR-091). Say the "
+        "value in words where the sentence is made:\n" + "\n".join(new)
+    )
+    gone = sorted(_STILL_ENGLISH - found)
+    assert not gone, "Worded now; take them off _STILL_ENGLISH:\n" + "\n".join(gone)
