@@ -50,9 +50,13 @@ from geocomp.algorithms.analysis.common import load_network
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
+from geocomp.algorithms.projection import projection_of_crs
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import Epoch, Network, Solution
+from geocomp.core.geodesy.projection import ProjectionParameters
+from geocomp.core.models import CoordinateSystem, Epoch, HeightType, Network, Solution
+from geocomp.core.number_format import localised
 from geocomp.engines.base import EngineAbsentError, EngineVersion
+from geocomp.engines.dynadjust.dynaml import written_position
 from geocomp.engines.dynadjust.engine import (
     DynAdjustEngine,
     DynAdjustJob,
@@ -72,6 +76,7 @@ STORED_NETWORK = "STORED_NETWORK"
 FRAME = "FRAME"
 EPOCH = "EPOCH"
 GEOID_GRID = "GEOID_GRID"
+GEOID_UNDULATION = "GEOID_UNDULATION"
 CONFIDENCE = "CONFIDENCE"
 ITERATION_THRESHOLD = "ITERATION_THRESHOLD"
 MAX_ITERATIONS = "MAX_ITERATIONS"
@@ -153,6 +158,13 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             "into the residuals.</p>"
             "<p><b>Geoid grid</b> &mdash; an NTv2 file, required when the network has "
             "orthometric heights, because the height systems cannot be related without one.</p>"
+            "<p><b>A network in a projected CRS</b>, as a <i>Classical network</i> is, reaches "
+            "DynAdjust as latitude and longitude: the projection is read from the network's "
+            "CRS, which must be UTM or Transverse Mercator on GRS80. Its orthometric heights "
+            "need the <b>geoid undulation N</b> (m) instead of a grid: GeoComp converts each, "
+            "<i>h = H + N</i>, with that one N, and <code>dnageoid</code> does not run. One N "
+            "suits a network the geoid barely slopes across. Give the grid or the undulation, "
+            "not both.</p>"
             "<p><b>Confidence level</b> &mdash; for the chi-square test and the positional "
             "uncertainties. <b>Convergence threshold</b> and <b>Maximum iterations</b> "
             "&mdash; passed to DynAdjust unchanged.</p>"
@@ -248,6 +260,14 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
             QgsProcessingParameterFile(
                 GEOID_GRID,
                 self.tr("Geoid grid (NTv2), for orthometric heights"),
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                GEOID_UNDULATION,
+                self.tr("Geoid undulation N (m), for the orthometric heights of a projected network"),
+                type=QgsProcessingParameterNumber.Double,
                 optional=True,
             )
         )
@@ -369,13 +389,17 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
 
         epoch_year = self.parameterAsDouble(parameters, EPOCH, context)
         configuration = self.parameterAsFile(parameters, CONFIGURATION, context)
+        geoid_grid = self.parameterAsFile(parameters, GEOID_GRID, context) or None
+        undulations = self._undulations(network, parameters, context, geoid_grid, feedback)
         try:
             job = DynAdjustJob(
                 network=network,
                 name=network.id or "geocomp",
                 target_frame=self.parameterAsString(parameters, FRAME, context).strip(),
                 target_epoch=Epoch.from_decimal_year(epoch_year) if epoch_year else None,
-                geoid_grid=self.parameterAsFile(parameters, GEOID_GRID, context) or None,
+                geoid_grid=geoid_grid,
+                projection=_projection(network),
+                geoid_undulations=undulations,
                 confidence=self.parameterAsDouble(parameters, CONFIDENCE, context),
                 iteration_threshold=self.parameterAsDouble(
                     parameters, ITERATION_THRESHOLD, context
@@ -483,6 +507,52 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         except GeoCompError as error:
             raise QgsProcessingException(self.about_input(source, message_for(error))) from error
 
+    def _undulations(
+        self,
+        network: Network,
+        parameters: dict[str, Any],
+        context: QgsProcessingContext,
+        geoid_grid: str | None,
+        feedback: QgsProcessingFeedback,
+    ) -> dict[str, float]:
+        """The undulation given, for each station whose orthometric height is on a grid coordinate.
+
+        Empty when none was given. The writer turns those stations' *H* into
+        the *h* DynaML's ``LLH`` height means, which is ``dnageoid``'s work
+        done by GeoComp -- so a grid as well is refused: one would apply the
+        separation and the other leave it out (P12c-45).
+        """
+        given = parameters.get(GEOID_UNDULATION)
+        if given is None or given == "":
+            return {}
+        if geoid_grid:
+            raise QgsProcessingException(
+                self.tr(
+                    "A geoid grid and a geoid undulation were both given. Give one of them: "
+                    "the grid for geodetic coordinates, the undulation for a projected network."
+                )
+            )
+        undulation = self.parameterAsDouble(parameters, GEOID_UNDULATION, context)
+        stations = {
+            station.id: undulation
+            for station in network.stations.values()
+            if (position := written_position(station)) is not None
+            and position.system is CoordinateSystem.PROJECTED
+            and position.height_type is HeightType.ORTHOMETRIC
+        }
+        if not stations:
+            feedback.pushInfo(
+                self.tr("The geoid undulation is not used: no station has an orthometric height on "
+                        "projected coordinates.")
+            )
+        else:
+            feedback.pushInfo(
+                self.tr("The heights of %1 station(s) are made ellipsoidal with N = %2 m.")
+                .replace("%1", str(len(stations)))
+                .replace("%2", localised(f"{undulation:.3f}"))
+            )
+        return stations
+
     def _prepare_only(
         self,
         job: DynAdjustJob,
@@ -554,6 +624,24 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         return {OUTPUT_SOLUTION: target}
 
 
+def _projection(network: Network) -> ProjectionParameters | None:
+    """The projection of *network*'s grid coordinates, read from their CRS by QGIS (P12c-45).
+
+    ``None`` for a network with none, one whose projected stations are in more
+    than one CRS, or a projection GeoComp cannot invert: the DynaML writer then
+    refuses each projected station by name, as it did before any was read.
+    """
+    systems = {
+        position.crs or ""
+        for station in network.stations.values()
+        if (position := written_position(station)) is not None
+        and position.system is CoordinateSystem.PROJECTED
+    }
+    if len(systems) != 1:
+        return None
+    return projection_of_crs(systems.pop())
+
+
 def detect(engine: DynAdjustEngine, feedback: QgsProcessingFeedback) -> EngineVersion:
     """The installed DynAdjust, said in the log, or a refusal that says how to get it."""
     version = engine.detect()
@@ -590,7 +678,9 @@ def report_plan(prepared: PreparedJob, feedback: QgsProcessingFeedback) -> None:
                 "%1 observation(s) have no DynAdjust equivalent and were not written: %2"
             )
             .replace("%1", str(len(prepared.skipped)))
-            .replace("%2", ", ".join(sorted(prepared.skipped)[:10]))
+            # The ids: each reason is the core's English (P12c-45; it raised
+            # TypeError, joining the pairs, until a skip first reached here).
+            .replace("%2", ", ".join(sorted(identifier for identifier, _reason in prepared.skipped)[:10]))
         )
     running = [stage.program for stage in prepared.included]
     feedback.pushInfo(_tr("Pipeline: %1").replace("%1", " -> ".join(running)))

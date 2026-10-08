@@ -2960,6 +2960,41 @@ does not reach DynAdjust. FR-160's row records the layer. 167 met, 8 partly met,
 traverse's known stations and a gravity network's stations still come from files. A layer's geometry is not read
 as a field book's: where the book was observed from is the network's business.
 
+#### P12c-45 — a total-station network reaches DynAdjust (FR-320 met)
+
+P12c-44 found that *Adjust with DynAdjust* refused every network in a projected CRS, so no total-station
+network reached DynAdjust from files or from layers. Three things stood in the way, and the core had answered
+each already. RD-01 goes through DynAdjust in tier 4 with the projection stated, the undulations given and,
+until now, `allow_partial` set; the algorithm did none of the three.
+
+- **The projection.** The algorithm now asks QGIS which projection the network's CRS is and states it to the
+  writer. That is UTM or Transverse Mercator on GRS80, read by the parser the combination has used since P9b,
+  now `geocomp/algorithms/projection.py`. Anything else is refused by station, as before, in a message that no
+  longer says GeoComp "cannot tell which projection" a CRS is.
+- **The heights.** A *Classical network*'s heights are orthometric on grid coordinates, which the writer turns
+  into DynaML's *h* only with an undulation, and a geoid grid cannot give one there. The algorithm takes one,
+  *Geoid undulation N*, for the whole network; a grid as well is refused.
+- **The lone direction.** RD-01's station 3 sights one target, and a direction set of one has no DynAdjust
+  form. It was reported as skipped and made the network partial, which no algorithm accepts. Leaving it out
+  changes nothing, which a tier-4 test asserts. It is still reported, and no longer counts as
+  partial; one that does still refuses the network (`tests/test_dynadjust_pipeline.py::TestAPartialNetwork`).
+
+RD-01 now goes from its files to DynAdjust's input in three dimensions, and from a table layer and a point layer
+to the same input, file for file: latitude and longitude, *h* = *H* + *N* (`tests/qgis/test_layer_sources.py::
+TestDynAdjustInputFromLayers`). The tier-4 cross-validation of RD-01 runs without `allow_partial`.
+
+**Found while doing it.** The log line that lists the skipped observations joined (id, reason) pairs as text and
+raised `TypeError`. No skip had reached it before, because every one was refused first. It lists the ids.
+specs/07 cited "§5 rule 6" for the partial-network rule, which is §4.3's.
+
+**Register.** FR-320 met: 168 met, 7 partly met, 1 open.
+
+**Not done.** A 2D network is still refused, for its horizontal distances: DynAdjust has no measurement type for
+one, and writing a grid distance as an ellipsoid arc needs reductions GeoComp does not make (specs/07 §4.2).
+One undulation serves the whole network; a geoid model read per station is not. The input is checked as
+written, not adjusted: the end-to-end test stops before running, so it needs no DynAdjust. The core's tier-4
+test is what adjusts RD-01.
+
 ---
 
 ## P13 — Validation, documentation and release

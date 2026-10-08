@@ -789,12 +789,16 @@ class DynAdjustEngine:
             job.network, measurement_file, frame=job.frame, epoch=epoch, names=names
         )
         skipped = tuple(document.skipped)
-        if skipped and not job.allow_partial:
-            kinds = sorted({reason for _, reason in skipped})
+        # What leaving out changes nothing -- a direction set of one -- is
+        # reported with the rest but does not make the network partial: the
+        # adjustment of the remainder is the adjustment of the whole (P12c-45).
+        lost = [item for item in skipped if item[0] not in document.uninformative]
+        if lost and not job.allow_partial:
+            kinds = sorted({reason for _, reason in lost})
             raise ValidationError(
                 "dynadjust_network_would_be_partial",
                 network=job.network.id,
-                skipped=len(skipped),
+                skipped=len(lost),
                 of=len(job.network.observations),
                 reasons=kinds[:5],
                 expected="a network every observation of which DynAdjust can represent",

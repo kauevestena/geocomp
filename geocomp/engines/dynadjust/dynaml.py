@@ -51,7 +51,7 @@ from geocomp.core.models import (
     baseline_frame,
 )
 from geocomp.core.models.observation import OBSERVATION_TYPES
-from geocomp.core.models.position import CoordinateSystem, HeightType
+from geocomp.core.models.position import CoordinateSystem, HeightType, Position
 from geocomp.core.units import Unit
 from geocomp.engines.dynadjust.formats import (
     format_metres,
@@ -66,6 +66,7 @@ __all__ = [
     "station_names",
     "write_measurement_file",
     "write_station_file",
+    "written_position",
 ]
 
 #: Guide Table B.3: the station name field is 20 characters wide in DNA, and
@@ -114,6 +115,9 @@ class DynaMLDocument:
             reason. **Never silently dropped**: a gravity observation vanishing
             from an exported network is a difference in the adjustment that the
             user did not ask for and cannot see.
+        uninformative: The ids among :attr:`skipped` whose leaving out changes
+            nothing -- a direction set of one, which carries its own orientation
+            unknown. Still reported as skipped; not what makes a network partial.
         set_aside: Observations not written because the user set them aside
             (FR-255). Not in :attr:`skipped`: leaving them out is what was asked.
         elements: The observations each ``DnaMeasurement`` holds, in file order
@@ -126,6 +130,7 @@ class DynaMLDocument:
     epoch: str = ""
     renamed: dict[str, str] = field(default_factory=dict)
     skipped: list[tuple[str, str]] = field(default_factory=list)
+    uninformative: list[str] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
     set_aside: list[str] = field(default_factory=list)
     elements: list[tuple[str, ...]] = field(default_factory=list)
@@ -304,7 +309,7 @@ def write_station_file(
     )
 
 
-def written_position(station: Station):
+def written_position(station: Station) -> Position | None:
     """The coordinates a station is written with: held ones where it is held.
 
     DynAdjust holds a constrained component **at the value written beside it**
@@ -518,6 +523,7 @@ def write_measurement_file(
                     "adjustment is unchanged",
                 )
             )
+            document.uninformative.append(members[0].id)
             continue
         # The code the *cluster writer* used, not the registry's: a cluster of
         # several baselines is written as X and a single one as G, so counting
