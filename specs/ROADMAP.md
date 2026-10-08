@@ -2995,6 +2995,28 @@ One undulation serves the whole network; a geoid model read per station is not. 
 written, not adjusted: the end-to-end test stops before running, so it needs no DynAdjust. The core's tier-4
 test is what adjusts RD-01.
 
+#### P12c-46 — the engines' working directory and the report templates are settings (FR-066 met)
+
+FR-066 lists four paths for Global Settings, and P12c-6 made two of them settings, the engines' locations. It
+decided the other two, working directories and report templates, were each algorithm's parameters. That
+answered how a run names them, not where an organisation sets them once, and specs/19 §7.3 had said all along
+that reports take their template from "the templates directory configured in Global Settings". No setting named
+one. The core could already read a user's templates folder (`load_template(name, directory=...)`), and no
+algorithm gave it one unless the run named a template.
+
+Both are settings now, under *Paths and engines*, global as the engines are. Each is the default a run falls
+back to; a folder or template the run names still wins.
+- The working directory holds every engine run's working folder (`working_directory()` in
+  `geocomp/algorithms/defaults.py`). An unwritable one is refused by name, saying where it is set. Empty, the
+  system's temporary directory.
+- The templates folder serves every template-driven report: adjustment, combination, monitoring, comparison and
+  time series (`report_template()`). A folder without the template a report needs falls back to the shipped one.
+
+**Register.** FR-066 met; FR-931's row records the folder. 169 met, 6 partly met, 1 open.
+
+**Not done.** A kept working folder is still named by the run: the setting is where it goes when the run names
+none. RTKLIB's single run with its solution saved keeps its working folder beside the solution, as before.
+
 ---
 
 ## P13 — Validation, documentation and release

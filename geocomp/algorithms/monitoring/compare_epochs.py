@@ -38,7 +38,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.defaults import configured, report_template
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, POLYGON_SOURCE_TYPE, write_styled_sink
 from geocomp.algorithms.monitoring.common import (
     datum_labels,
@@ -336,6 +336,7 @@ class MonitoringCompareEpochsAlgorithm(GeoCompAlgorithm):
                 MonitoringReportContext(
                     qgis_version=Qgis.QGIS_VERSION,
                     exaggeration=self.parameterAsDouble(parameters, EXAGGERATION, context),
+                    template_directory=report_template("", "monitoring.html")[0],
                 ),
             )
             Path(html_path).write_text(html, encoding="utf-8")

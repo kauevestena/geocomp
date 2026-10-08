@@ -287,7 +287,12 @@ class TestTheSettings:
         from geocomp.core.settings_def import Scope, settings_in_section
 
         declared = {d.key: d for d in settings_in_section("paths")}
-        assert set(declared) == {"paths.dynadjust_directory", "paths.rtklib_program"}
+        assert set(declared) == {
+            "paths.dynadjust_directory",
+            "paths.rtklib_program",
+            "paths.working_directory",
+            "paths.report_templates",
+        }
         assert all(d.scopes == frozenset({Scope.GLOBAL}) for d in declared.values())
 
     def test_a_configured_dynadjust_directory_wins_over_the_installation(

@@ -173,6 +173,10 @@ def setting_label(key: str) -> str:
             "DynAdjust directory (empty: GeoComp's installation, then the system path)"
         ),
         "paths.rtklib_program": _tr("RTKLIB rnx2rtkp program (empty: the system path)"),
+        "paths.working_directory": _tr(
+            "Working directory for the engines' files (empty: the system's temporary directory)"
+        ),
+        "paths.report_templates": _tr("Report templates folder (empty: the shipped templates)"),
         # -- Base maps (P5) ----------------------------------------------
         "basemaps.offer_on_result_layers": _tr("Offer a base map when adding result layers"),
         "basemaps.default_service": _tr("Base map to offer"),

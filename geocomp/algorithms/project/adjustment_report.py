@@ -35,6 +35,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import report_template
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.project.common import read_network, read_solution
 from geocomp.core.errors import GeoCompError
@@ -137,14 +138,16 @@ class ProjectReportAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(message_for(error)) from error
 
         feedback.setProgress(30)
-        template = self.parameterAsFile(parameters, TEMPLATE, context) or ""
+        template_directory, template_name = report_template(
+            self.parameterAsFile(parameters, TEMPLATE, context) or "", "adjustment.html"
+        )
         report_context = ReportContext(
             network=network,
             qgis_version=Qgis.QGIS_VERSION,
             display=display_format(),
             parameter_scopes=self._scopes(feedback),
-            template_directory=str(Path(template).parent) if template else "",
-            template_name=Path(template).name if template else "adjustment.html",
+            template_directory=template_directory,
+            template_name=template_name,
             gravity_unit=display_unit(),
         )
 

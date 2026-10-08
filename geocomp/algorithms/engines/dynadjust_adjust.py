@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import json
 import shutil
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -48,7 +47,7 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.analysis.common import load_network
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.defaults import configured, working_directory
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.algorithms.projection import projection_of_crs
 from geocomp.core.errors import GeoCompError
@@ -424,7 +423,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         work_dir = (
             Path(requested)
             if (keep and requested)
-            else Path(tempfile.mkdtemp(prefix="geocomp-dynadjust-"))
+            else working_directory("geocomp-dynadjust-")
         )
         # Removed afterwards unless the user keeps it -- or unless the refusal
         # names it. specs/07 section 7 retains the working directory when a
@@ -564,7 +563,7 @@ class DynAdjustAdjustAlgorithm(GeoCompAlgorithm):
         """Write the input and the plan, and stop (FR-325). No program is run,
         so DynAdjust need not be installed on the machine that prepares."""
         requested = self.parameterAsString(parameters, OUTPUT_WORK_DIR, context)
-        work_dir = Path(requested) if requested else Path(tempfile.mkdtemp(prefix="geocomp-dynadjust-"))
+        work_dir = Path(requested) if requested else working_directory("geocomp-dynadjust-")
         try:
             prepared = engine.prepare(job, work_dir)
         except GeoCompError as error:

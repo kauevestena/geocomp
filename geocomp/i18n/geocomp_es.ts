@@ -2537,6 +2537,10 @@
             <source>No reference epoch was stated, by the run or its network, so the solution carries %1, assumed. It cannot enter a comparison of epochs (FR-105).</source>
             <translation>No se declaró ninguna época de referencia, ni por la ejecución ni por su red, por lo que la solución lleva %1, supuesta. No puede entrar en una comparación de épocas (FR-105).</translation>
         </message>
+        <message>
+            <source>The working directory '%1' set in Global Settings cannot be written in (%2). Choose another under Paths and engines, or clear it.</source>
+            <translation>No se puede escribir en el directorio de trabajo '%1' definido en Configuraciones Globales (%2). Elija otro en Rutas y motores, o déjelo vacío.</translation>
+        </message>
     </context>
     <context>
         <name>GeoCompGnss</name>
@@ -8469,6 +8473,10 @@
             <translation>Sistemas de referencia</translation>
         </message>
         <message>
+            <source>Report templates folder (empty: the shipped templates)</source>
+            <translation>Carpeta de plantillas de informe (vacío: las plantillas incluidas)</translation>
+        </message>
+        <message>
             <source>Required relative precision (1:N)</source>
             <translation>Precisión relativa exigida (1:N)</translation>
         </message>
@@ -8563,6 +8571,10 @@
         <message>
             <source>Warning</source>
             <translation>Advertencia</translation>
+        </message>
+        <message>
+            <source>Working directory for the engines' files (empty: the system's temporary directory)</source>
+            <translation>Directorio de trabajo para los archivos de los motores (vacío: el directorio temporal del sistema)</translation>
         </message>
         <message>
             <source>default</source>
