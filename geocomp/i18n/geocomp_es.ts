@@ -8185,6 +8185,10 @@
             <translation>Desviación típica de las distancias inclinadas (m)</translation>
         </message>
         <message>
+            <source>Default staff-reading standard deviation (m)</source>
+            <translation>Desviación típica de las lecturas de mira (m)</translation>
+        </message>
+        <message>
             <source>Default temperature (degrees Celsius)</source>
             <translation>Temperatura por defecto (grados Celsius)</translation>
         </message>

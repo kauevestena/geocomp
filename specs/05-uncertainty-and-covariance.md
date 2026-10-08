@@ -239,7 +239,12 @@ Where the input σ comes from, in order of precedence:
    constant angular σ with a pointing/reading decomposition. Nominal specifications are usually optimistic;
    the model supports a user scale factor, and residual analysis (FR-250) tells the user whether their
    assumption held.
-3. **Type default.** From Global Settings (FR-064).
+3. **Type default.** From Global Settings (FR-064). *As built (P12c-47)*, one for every kind of reading an
+   importer weights by type: a direction, a zenith angle, a distance (the slope distance's default serves a
+   horizontal one too) and a staff reading. Every other observation type reaches GeoComp with its σ: from
+   RTKLIB's covariance, a gravimeter's reading, a network document or a DynAdjust file. Or it is derived from
+   readings that carry one. An instrument or target height always has its profile's, every profile stating one.
+   A type default for any of these would be read by nothing.
 4. **Refuse.** If none of the above yields a value, the operation fails with a `ValidationError`. GeoComp
    does not invent a σ, because a fabricated weight silently corrupts every downstream statistic.
 

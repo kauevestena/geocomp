@@ -3017,6 +3017,27 @@ back to; a folder or template the run names still wins.
 **Not done.** A kept working folder is still named by the run: the setting is where it goes when the run names
 none. RTKLIB's single run with its solution saved keeps its working folder beside the solution, as before.
 
+#### P12c-47 — a staff reading's default standard deviation is a setting (FR-064 met)
+
+FR-064 asks for default weights per observation type, and the register held it partly met for the seventeen
+types without one. Which types a default can serve is decided by specs/05 §5: a type default is step 3 of the
+precedence an importer follows when it weights a reading at the boundary, after the data and the instrument
+profile. The readers ask it for seven kinds of reading. Directions, zenith angles and distances had settings
+since P3. Instrument and target heights never reach step 3, because every instrument profile states them,
+the generic one included. That leaves the staff reading. *Import levelling book* asks for it when the level
+profile states no reading precision, and until now only the run's own parameter could give one.
+`stochastic.default_sigma_staff_reading` is that parameter's default now, as the total station's are theirs.
+
+Every other observation type reaches GeoComp with its σ, from RTKLIB's covariance, a gravimeter's reading, a
+network document or a DynAdjust file, or is derived from readings that carry one. A default for any of them
+would be a control that changes nothing, which `tests/structural/test_settings_are_honoured.py` exists to
+refuse. FR-064 is met on that reading of it; specs/05 §5 now says so.
+
+**Register.** FR-064 met: 170 met, 5 partly met, 1 open.
+
+**Not done.** No setting serves a sight distance, whose precision falls back to the digits the observer wrote
+(specs/05 §2.3), or a height difference, which levelling weights by line length or setups.
+
 ---
 
 ## P13 — Validation, documentation and release

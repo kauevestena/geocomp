@@ -59,6 +59,7 @@ LIBRARY = "/surveys/instruments.json"
 
 #: (setting, value set for the run, algorithm, parameter, the default that must follow)
 WIRING: list[tuple[str, object, str, str, object]] = [
+    ("stochastic.default_sigma_staff_reading", 0.0005, "geocomp:levelling_import", "SIGMA_READING", 0.0005),
     ("total_station.default_temperature_celsius", 31.5, PREPROCESS, "TEMPERATURE", 31.5),
     ("total_station.default_pressure_hpa", 900.0, PREPROCESS, "PRESSURE", 900.0),
     ("total_station.default_humidity_percent", 80.0, PREPROCESS, "HUMIDITY", 80.0),

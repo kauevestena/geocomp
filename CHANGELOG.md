@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-47 — A default staff-reading standard deviation in Global Settings
+
+#### Added
+
+- *Stochastic model* has a default staff-reading standard deviation, used by *Import levelling book* when the
+  level profile states none.
+
 ### P12c-46 — Working directory and report templates in Global Settings
 
 #### Added
