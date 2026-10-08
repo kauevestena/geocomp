@@ -113,6 +113,7 @@ class ConfigurationComparison:
 
     @property
     def any_significant(self) -> bool:
+        """Whether any configuration changed the baseline beyond what the uncertainties explain."""
         return any(row.is_significant for row in self.rows)
 
     def table(self) -> list[list[str]]:
@@ -135,6 +136,7 @@ class ConfigurationComparison:
         return out
 
     def to_dict(self) -> dict[str, Any]:
+        """The comparison as its JSON document holds it: the reference, the test, every row."""
         return {
             "reference": self.reference,
             "confidence": self.confidence,

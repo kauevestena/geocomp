@@ -542,6 +542,14 @@ one invented from how many digits were written, and its own definition forbids i
 sigma becomes an adjustment weight" — which is what this becomes. `covariance_from_printed` adds
 `ROUNDING_CONDITIONED` itself, and only if it had to move the matrix.
 
+**Every epoch is read this way, not only the last (P12c-43).** The reader built each epoch's covariance as a
+computed one, strictly, and only the baseline conditioned its last epoch. At a 30° mask, RTKLIB's own sample
+has a fixed epoch on four satellites whose printed covariance has a smallest eigenvalue of −1.5e-6 m² --
+inside the 8.4e-6 its four decimals can explain -- and the strict construction refused the whole file over
+it. A comparison of masks lost its 30° and 35° configurations, and a kinematic run would have lost its
+trajectory. Each epoch is now conditioned within its own `2·max|v|·0.5e-4` and marked when moved. A matrix
+indefinite beyond that is refused, as before.
+
 ### 8.3 Antenna reduction needs both horizons **[V]**
 
 Rule 4 above, made exact. An engine determines the vector between two *antenna reference points*; the

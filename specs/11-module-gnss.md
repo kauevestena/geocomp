@@ -335,10 +335,27 @@ differences alone invites the reader to supply the judgement, and they have noth
 runs over the same observations are **not** independent, so summing the covariances is conservative and is
 recorded as `Strategy.INDEPENDENCE_ASSUMED` rather than quietly enjoyed.
 
-**The custom dialog [`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.2 lists is not built.**
-The algorithm ships first and alone, per [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md):
-the algorithm is what makes the capability real, scriptable and testable, and the dialog hands it the same
-parameters. It is named in `ROADMAP.md` rather than implied to be present.
+**Side by side is the algorithm's report (P12c-43).** The HTML report has one column per configuration,
+with the reference first. Its rows are:
+- the elevation mask the configuration ran at, and the baseline's length with its standard deviation;
+- the difference from the reference in X, Y, Z, in 3D and in length;
+- the test statistic and the decision;
+- the quality indicators of §5 from that configuration's own run: epochs, fixed fraction, median ratio,
+  satellites, median PDOP, cycle slips and rejected observations.
+
+A note says how to read the independence assumption, and one sentence says what the comparison found. The
+comparison's JSON records what each configuration set and how its run went; its CSV is the export (FR-162),
+with the data's own header.
+
+A configuration is an elevation mask, swept, or an RTKLIB options file of the user's own (FR-070). Given
+two or more files, each is a configuration named by its file and compared at the options it states over
+Global Settings. A file is the named, shareable profile this section asks for.
+
+[`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §1.2 listed a custom dialog for this, and none is
+built. What the user needs to see is the result, and the report is where every algorithm presents one, opened
+by Processing's results viewer whether the run came from the menu, the toolbox or a model. A dialog that ran
+the configurations itself would be a second way to run them ([`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md)),
+and one that only collected parameters would add nothing the Processing dialog lacks.
 
 ---
 
