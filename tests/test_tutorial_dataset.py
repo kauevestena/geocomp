@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""The shipped RD-01 tutorial dataset (FR-950, FR-952).
+"""The shipped tutorial datasets (FR-950, FR-952).
 
 ``specs/20`` section 3 says RD-01 ships with the plugin as a tutorial, with both
 of its defects documented, because a tutorial in which the software catches two
@@ -28,8 +28,10 @@ from geocomp.core.techniques.total_station.pipeline import (
     preprocess_setup,
 )
 from geocomp.io.fieldbook import read_field_book_csv
+from geocomp.io.levelbook import LevelMapping, read_level_book_csv
 from geocomp.io.mapping import FieldMapping
-from geocomp.resources import DATASETS_DIR, available_datasets
+from geocomp.resources import DATASET_ORDER, DATASETS_DIR, available_datasets
+from tests import reference_levelling as levelling
 from tests import reference_rd01 as rd01
 
 RD01 = DATASETS_DIR / "rd01"
@@ -76,12 +78,19 @@ class TestItShips:
         assert suffixes <= build.INCLUDE_SUFFIXES
         assert not suffixes & build.EXCLUDE_SUFFIXES
 
-    def test_the_installer_ships_the_whole_folder(self):
-        """``available_datasets`` reads the directory rather than a list in
-        code, so adding a dataset cannot leave the list behind."""
-        assert available_datasets() == sorted(
-            path.name for path in DATASETS_DIR.iterdir() if path.is_dir()
-        )
+    def test_the_installer_offers_every_folder_in_the_published_order(self):
+        """``available_datasets`` reads the directory, so a dataset a build left
+        out is not offered; it orders what it finds by ``DATASET_ORDER``, because
+        a saved model holds the dataset's index.
+
+        Until P13-2 the order was the folders' names sorted, and this test
+        asserted exactly that -- which ``rd04-loop`` would have kept passing
+        while it moved ``rtklib-sample`` from index 1 to 2. Both directions are
+        held: every folder is in the order, and every name in it ships.
+        """
+        folders = {path.name for path in DATASETS_DIR.iterdir() if path.is_dir()}
+        assert set(DATASET_ORDER) == folders
+        assert available_datasets() == list(DATASET_ORDER)
 
 
 class TestTheSupportingDocumentsWork:
@@ -269,3 +278,77 @@ class TestTheGnssSample:
             for name in ("07590920.05o", "30400920.05o")
         }
         assert markers == {"07590920.05o": "0759", "30400920.05o": "3040"}
+
+
+LOOP = DATASETS_DIR / "rd04-loop"
+LOOP_FILES = ("README.md", "loop.csv", "mapping.json", "profiles.json")
+
+
+def _build_module():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "geocomp_build", Path(__file__).resolve().parent.parent / "scripts" / "build.py"
+    )
+    build = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build)
+    return build
+
+
+class TestTheLevellingLoop:
+    """The third: RD-04's loop with one spoiled reading, the levelling tutorial (P13-2).
+
+    The README's numbers are checked by following it through the algorithms, in
+    ``tests/qgis/test_levelling_tutorial.py``. What is checked here is that the
+    files are the ones the reference generator makes, so the tutorial and the
+    tested data cannot drift apart.
+    """
+
+    def test_it_is_offered_after_the_two_before_it(self):
+        """Appended: the datasets already published keep their indices."""
+        assert available_datasets().index("rd04-loop") == 2
+
+    def test_nothing_else_is_in_the_folder(self):
+        assert sorted(path.name for path in LOOP.iterdir()) == sorted(LOOP_FILES)
+
+    def test_the_field_book_is_the_generators(self):
+        with open(LOOP / "loop.csv", encoding="utf-8", newline="") as handle:
+            assert list(csv.reader(handle)) == levelling.tutorial_rows()
+
+    def test_the_blunder_is_where_the_readme_says(self):
+        """12 mm on one foresight of BM2-BM4: the generator's, and the README's."""
+        assert levelling.TUTORIAL_LOOP["blunder_on"] == "BM2-BM4"
+        assert levelling.TUTORIAL_LOOP["blunder"] == pytest.approx(0.012)
+        readme = (LOOP / "README.md").read_text(encoding="utf-8")
+        assert "One foresight on the line BM2 to BM4\nwas written down 12 mm wrong." in readme
+
+    def test_the_heights_it_was_made_from_are_the_ones_it_states(self):
+        readme = (LOOP / "README.md").read_text(encoding="utf-8")
+        stated = ", ".join(f"{name} {levelling.HEIGHTS[name]:.3f} m" for name in ("BM1", "BM2", "BM4"))
+        assert stated in " ".join(readme.split())
+
+    def test_the_profiles_are_the_reference_level(self):
+        library = ProfileLibrary.from_dict(json.loads((LOOP / "profiles.json").read_text(encoding="utf-8")))
+        reference = ProfileLibrary()
+        reference.add_level(levelling.profile())
+        assert library.to_dict() == reference.to_dict()
+        assert library.default_level == levelling.profile().id
+
+    def test_the_mapping_covers_every_column(self):
+        mapping = LevelMapping.from_dict(json.loads((LOOP / "mapping.json").read_text(encoding="utf-8")))
+        mapped = {column.column for column in mapping.columns if column.column}
+        assert mapped == set(levelling.TUTORIAL_COLUMNS)
+
+    def test_the_book_reads_with_its_own_mapping_and_profiles(self):
+        """Step 1 of the README, without QGIS: no row rejected, no column left over."""
+        mapping = LevelMapping.from_dict(json.loads((LOOP / "mapping.json").read_text(encoding="utf-8")))
+        library = ProfileLibrary.from_dict(json.loads((LOOP / "profiles.json").read_text(encoding="utf-8")))
+        result = read_level_book_csv(LOOP / "loop.csv", mapping, library=library)
+        assert (len(result.setups), len(result.lines)) == (10, 3)
+        assert result.rejected_rows == ()
+        assert [line.id for line in result.lines] == ["BM1-BM2", "BM2-BM4", "BM4-BM1"]
+
+    def test_the_build_ships_every_file(self):
+        build = _build_module()
+        shipped = {path.name for path in build.collect_files() if LOOP in path.parents}
+        assert shipped == set(LOOP_FILES)

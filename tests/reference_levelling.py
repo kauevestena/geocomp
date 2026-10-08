@@ -430,3 +430,35 @@ def loop(
         )
 
     return books, heights
+
+
+#: The shipped levelling tutorial (P13-2): the loop, with a 12 mm blunder on one
+#: foresight of line BM2-BM4, from the module's fixed seed.
+TUTORIAL_LOOP = {"noise": 0.0003, "blunder": 0.012, "blunder_on": "BM2-BM4"}
+
+#: The tutorial field book's columns: one row per staff reading.
+TUTORIAL_COLUMNS = ("setup", "point", "kind", "reading", "distance", "line")
+
+
+def tutorial_rows() -> list[list[str]]:
+    """The tutorial's field book, header first, as ``geocomp/resources/datasets/rd04-loop/loop.csv`` holds it.
+
+    Readings to a tenth of a millimetre and distances to the centimetre, as a
+    digital level records them.
+    """
+    books, _truth = loop(**TUTORIAL_LOOP)
+    rows = [list(TUTORIAL_COLUMNS)]
+    for book in books:
+        for setup in book.line.setups:
+            for kind, reading in (("BS", setup.backsight), ("FS", setup.foresights[0])):
+                rows.append(
+                    [
+                        setup.id,
+                        reading.station,
+                        kind,
+                        f"{reading.reading.value:.4f}",
+                        f"{reading.distance_value:.2f}",
+                        book.line.id,
+                    ]
+                )
+    return rows

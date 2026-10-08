@@ -3118,6 +3118,43 @@ The README's *Contributing* section points to it.
 data, a voice in decisions -- is the maintainer's to set out, as the register has said since P12c-13. The guide
 has the section, and the section says that.
 
+#### P13-2 — the levelling tutorial (FR-952, FR-950 stay partly met)
+
+*Install tutorial dataset* offers a third dataset, **`rd04-loop`**
+(`geocomp/resources/datasets/rd04-loop/`): RD-04's loop, three lines and ten setups between BM1, BM2 and BM4,
+with one foresight on BM2-BM4 written down 12 mm wrong. Its field book is what
+`tests/reference_levelling.py::tutorial_rows` generates from the module's seed. Its README is a walkthrough in five
+steps, and it is about what a loop cannot do. The closure fails: −15.7 mm against 7.0 mm, which says
+something is wrong but not what. The adjustment holding BM1 has one degree of freedom. Its global test fails, every w-test scores
+1.00, so no outlier is named, and BM2 comes out 2.5 mm from its true height. Holding all three benchmarks gives
+every line its own closure, and the failing-line gate names BM2-BM4.
+
+Tests. `tests/test_tutorial_dataset.py::TestTheLevellingLoop` checks that the shipped files are exactly the
+generator's and that the build ships them. `tests/qgis/test_levelling_tutorial.py` installs the dataset and
+follows the README through the four algorithms. It reads every number the README quotes, out of the README, and
+compares each with what the algorithm returned. It also checks that each step's title and every input the README
+fills are the toolbox's own.
+
+**Defects found.**
+- *The dataset order was the folders' names sorted*, and the enum's index is what a saved model keeps.
+  `rd04-loop` sorts before `rtklib-sample`, so adding it would have turned a model's GNSS sample into the
+  levelling loop. The test that should have caught it asserted the sorted order itself. The order is now
+  `geocomp.resources.DATASET_ORDER`, which is append-only, and the test holds it and the folders to each other
+  both ways.
+- *The walkthrough as first written named dialogs by names they do not have.* It said "Reductions" for
+  *Reduced lines*, "Import levelling book" for *Import levelling field book*, and "Network adjustment" for
+  *Levelling network adjustment*, and it gave the tolerance and uncertainty inputs without their units. It also
+  quoted the gate's refusal without its last sentence, which is the remedy. The test now reads them all from
+  the toolbox.
+- *Install tutorial dataset*'s help described RD-01 alone, while its enum offered two datasets. It now names
+  all three.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has two modules of six, and FR-950's row
+names the second shipped reference dataset.
+
+**Not done.** Tutorials for GNSS, gravimetry, integration and monitoring. The Portuguese and Spanish versions of
+both walkthroughs. Worked examples as QGIS projects.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

@@ -11,6 +11,7 @@ from pathlib import Path
 
 __all__ = [
     "DATASETS_DIR",
+    "DATASET_ORDER",
     "ICONS_DIR",
     "LAYOUTS_DIR",
     "RESOURCES_DIR",
@@ -38,17 +39,27 @@ def icon_path(name: str) -> str:
     return str(ICONS_DIR / name)
 
 
-def available_datasets() -> list[str]:
-    """The reference datasets that ship, in a stable order.
+#: The order the datasets are offered in, which is published: *Install
+#: tutorial dataset* takes its dataset as an enum, and a saved model stores the
+#: index. Until P13-2 the order was the folders' names sorted, so a new dataset
+#: whose name sorted before an existing one moved it -- ``rd04-loop`` would have
+#: turned a model's ``rtklib-sample`` into the levelling loop. A new dataset is
+#: appended here; ``tests/test_tutorial_dataset.py`` holds the list and the
+#: folders to each other both ways.
+DATASET_ORDER: tuple[str, ...] = ("rd01", "rtklib-sample", "rd04-loop")
 
-    Read from the directory rather than listed in code. A dataset is a folder
-    of files, and a list that had to be edited alongside it would eventually
-    disagree with it -- most likely by naming one that a build left out, which
-    is the failure hardest to notice.
+
+def available_datasets() -> list[str]:
+    """The reference datasets that ship, in their published order.
+
+    Read from the directory, so a dataset a build left out is not offered: the
+    folders that exist, in :data:`DATASET_ORDER`, then any the order does not
+    name yet, sorted -- which the tests refuse, so a build never ships one.
     """
     if not DATASETS_DIR.is_dir():
         return []
-    return sorted(path.name for path in DATASETS_DIR.iterdir() if path.is_dir())
+    present = {path.name for path in DATASETS_DIR.iterdir() if path.is_dir()}
+    return [name for name in DATASET_ORDER if name in present] + sorted(present - set(DATASET_ORDER))
 
 
 def dataset_dir(name: str) -> Path:
