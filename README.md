@@ -137,5 +137,6 @@ Three properties distinguish it from a GUI wrapper:
 ## Contributing
 
 The project is developed openly and welcomes contributions from students, professionals, companies and public
-bodies. Development is specification-driven: read [`specs/README.md`](specs/README.md) before opening a pull
-request — it explains how requirements, phases and decisions relate, and what "done" means.
+bodies. Development is specification-driven: read [`CONTRIBUTING.md`](CONTRIBUTING.md), which says how to take
+part and what "done" means, and [`specs/README.md`](specs/README.md), which explains how requirements, phases
+and decisions relate, before opening a pull request.
