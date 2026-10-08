@@ -5,6 +5,19 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-3 — A monitoring tutorial
+
+#### Added
+
+- *Install tutorial dataset* offers `rd08-dam`, the monitoring tutorial: two epochs of a network around a
+  structure, one of whose targets moved 10 mm between them. The walkthrough adjusts each epoch, compares them,
+  finds the target that moved, and shows the comparison refusing a reference block that includes it.
+
+#### Fixed
+
+- `THIRD_PARTY.md` names every dataset the plugin ships, with its origin and licence; RTKLIB's sample was
+  missing. `CONTRIBUTING.md` no longer says that no third-party data ships.
+
 ### P13-2 — A levelling tutorial
 
 #### Added

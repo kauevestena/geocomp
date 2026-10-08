@@ -19,7 +19,8 @@ copied ``README.md`` walks through both rather than around them.
 Two more ship beside it: ``rtklib-sample``, RTKLIB's own baseline for a GNSS
 run, and since P13-2 ``rd04-loop``, the levelling tutorial -- a loop with one
 spoiled reading, which closes badly, adjusts quietly wrong, and is found only
-by the benchmarks. The dataset is an enum whose index a saved model keeps, so
+by the benchmarks; and since P13-3 ``rd08-dam``, the monitoring tutorial -- two
+epochs of a structure, one of whose targets moved. The dataset is an enum whose index a saved model keeps, so
 the order is :data:`~geocomp.resources.DATASET_ORDER`'s, to which a new
 dataset is appended.
 """
@@ -86,6 +87,9 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             "<p><b>rd04-loop</b> is a levelling loop of three lines with one foresight "
             "written down 12 mm wrong: the loop's closure detects the error, an adjustment "
             "with one degree of freedom spreads it, and the known heights locate it. "
+            "<b>rd08-dam</b> is two epochs of a monitored structure, one of whose targets "
+            "moved between them: comparing the epochs finds it, and holding it as a stable "
+            "pillar is refused. "
             "<b>rtklib-sample</b> is RTKLIB's own base-and-rover pair, for a GNSS run. Each "
             "has its own <code>README.md</code>.</p>"
             "<h3>Parameters</h3>"
