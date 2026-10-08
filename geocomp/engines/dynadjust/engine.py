@@ -745,7 +745,9 @@ class DynAdjustEngine:
         except EngineAbsentError:
             return None
         try:
-            run = run_process([str(path), "--version"], work_dir=Path.cwd(), program="dnaadjust")
+            run = run_process(
+                [str(path), "--version"], work_dir=Path.cwd(), program="dnaadjust", record=False
+            )
         except (OSError, ComputationError):
             return None
         return parse_version(run.stdout, path=path)

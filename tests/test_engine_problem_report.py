@@ -63,6 +63,35 @@ class TestEveryRunLeavesItsRecord:
         _run(tmp_path, "dnaadjust", FAILING)
         assert [record["program"] for record in _records(tmp_path)] == ["dnaimport", "dnaadjust"]
 
+    def test_a_version_probe_leaves_nothing_behind(self, tmp_path):
+        """Probes run in QGIS's working directory or beside a bundled program, where a record is litter.
+
+        As first written, every detection of DynAdjust left three files wherever QGIS was
+        started -- and a test run left them in the repository, where they were committed.
+        """
+        _run(tmp_path, "dnaadjust", SUCCEEDING, record=False)
+        assert list(tmp_path.iterdir()) == []
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="the stand-in programs are shell scripts")
+    def test_detecting_either_engine_writes_nowhere(self, tmp_path, monkeypatch):
+        from geocomp.engines.dynadjust.engine import DynAdjustEngine
+        from geocomp.engines.rtklib.engine import RtklibEngine
+
+        programs = tmp_path / "bin"
+        programs.mkdir()
+        banners = {"dnaadjust": "+ Version:      1.4.0, Release", "rnx2rtkp": "rnx2rtkp ver.2.4.3 b34"}
+        for name, banner in banners.items():
+            script = programs / name
+            script.write_text(f"#!/bin/sh\necho '{banner}'\n", encoding="utf-8")
+            script.chmod(0o755)
+        caller = tmp_path / "qgis-started-here"
+        caller.mkdir()
+        monkeypatch.chdir(caller)
+        DynAdjustEngine(configured_directory=programs).detect()
+        RtklibEngine(configured=programs / "rnx2rtkp").version()
+        assert list(caller.iterdir()) == []
+        assert sorted(path.name for path in programs.iterdir()) == ["dnaadjust", "rnx2rtkp"]
+
     def test_the_environment_is_not_written_down(self, tmp_path):
         """NFR-010: an environment passed to an engine is the caller's, and may hold a secret."""
         _run(tmp_path, "rnx2rtkp", SUCCEEDING, environment={"SOME_TOKEN": "s3cr3t"})

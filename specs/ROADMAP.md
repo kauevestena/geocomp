@@ -3059,7 +3059,12 @@ A real DynAdjust failure is packaged in tier 4: the real `dnaimport` refuses a b
 holds the station and measurement files, the plan, `dnaimport`'s output and its exit code.
 
 **Found while doing it.** `EngineRun.to_dict` said "the retained work_dir holds the full logs", and nothing
-wrote them. It is true now.
+wrote them. It is true now. And as first written the record was kept by every run, the version probes too:
+DynAdjust's probe runs in QGIS's own working directory and RTKLIB's beside the program, which may be the copy the
+plugin ships, so each detection left three files there. A local test run left them in the repository, and they
+went into the first commit of this change. A probe keeps no record now (`run_process(..., record=False)`), and
+a test detects both engines from a folder that must stay empty
+(`tests/test_engine_problem_report.py::TestEveryRunLeavesItsRecord::test_detecting_either_engine_writes_nowhere`).
 
 **Register.** FR-955 met: 171 met, 4 partly met, 1 open.
 

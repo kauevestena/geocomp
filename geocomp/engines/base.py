@@ -336,8 +336,14 @@ def run_process(
     on_progress: ProgressCallback | None = None,
     version: EngineVersion | None = None,
     environment: dict[str, str] | None = None,
+    record: bool = True,
 ) -> EngineRun:
     """Run one engine program to completion, capturing everything (FR-304).
+
+    With *record*, the run leaves its record in *work_dir* (:func:`keep_record`).
+    A version probe passes ``False``: it runs wherever the program or the caller
+    happens to be -- QGIS's own working directory, or the folder a bundled
+    program ships in -- and a record there is litter, not a report (P12c-48).
 
     Output is read **line by line while the process runs**, not collected at the
     end, so ``on_progress`` can report and a cancelled task can stop promptly.
@@ -424,7 +430,8 @@ def run_process(
         timed_out=timed_out,
         environment=dict(environment or {}),
     )
-    keep_record(run)
+    if record:
+        keep_record(run)
     return run
 
 
