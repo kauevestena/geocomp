@@ -139,7 +139,8 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
             masks = [float(piece) for piece in raw.replace(";", ",").split(",") if piece.strip()]
         except ValueError as exc:
             raise QgsProcessingException(
-                self.tr("Could not read the elevation masks from %1").replace("%1", raw)
+                self.tr("Could not read the elevation masks from %1. Give them as numbers "
+                        "of degrees separated by commas.").replace("%1", raw)
             ) from exc
         if len(masks) < 2:
             raise QgsProcessingException(
@@ -157,7 +158,8 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
                     FOLDER,
                     self.tr(
                         "Comparison needs exactly one pair of simultaneously observing "
-                        "sessions in the folder."
+                        "sessions in the folder. Choose a folder that holds two sessions observed at "
+                        "the same time."
                     ),
                 )
             )
@@ -213,7 +215,8 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
 
         if len(baselines) < 2:
             raise QgsProcessingException(
-                self.tr("Fewer than two configurations produced a baseline to compare.")
+                self.tr("Fewer than two configurations produced a baseline to compare. "
+                        "Check the log for why the others produced none.")
             )
 
         try:

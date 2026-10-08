@@ -577,7 +577,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                 sigma = float(sigma_text.strip()) if sigma_text.strip() else 0.0
             except ValueError:
                 raise QgsProcessingException(
-                    self.tr("'%1' does not hold a number.").replace("%1", entry)
+                    self.tr("'%1' does not hold a number. Correct it.").replace("%1", entry)
                 ) from None
             benchmarks.append(
                 Benchmark(
@@ -1059,14 +1059,16 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
             raise QgsProcessingException(
-                self.tr("The trigonometric height differences cannot be read: %1").replace(
+                self.tr("The trigonometric height differences cannot be read; choose the "
+                        "document Trigonometric levelling wrote: %1").replace(
                     "%1", str(exc)
                 )
             ) from exc
         if not isinstance(payload, dict) or payload.get("kind") != "geocomp.height_differences":
             raise QgsProcessingException(
                 self.tr(
-                    "%1 is not the height-difference document Trigonometric levelling writes."
+                    "%1 is not the height-difference document Trigonometric levelling "
+                    "writes. Choose the document it wrote."
                 ).replace("%1", path)
             )
         rows = payload.get("differences", [])

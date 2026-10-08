@@ -242,7 +242,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
         if not scan.sessions:
             raise QgsProcessingException(
-                _tr("No RINEX observation sessions were found in %1").replace(
+                _tr("No RINEX observation sessions were found in %1. Choose the folder "
+                    "that holds the observation files.").replace(
                     "%1", str(folder)
                 )
             )
@@ -260,8 +261,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             if not any(len(group) >= 2 for group in groups):
                 raise QgsProcessingException(
                     _tr(
-                        "Relative processing needs two sessions that observed at the "
-                        "same time; the folder's sessions do not overlap."
+                        "Relative processing needs two sessions that observed at the same "
+                        "time; the folder's sessions do not overlap. Add the other "
+                        "receiver's session for the same time."
                     )
                 )
             base = self._pick(
@@ -430,7 +432,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         if name:
             if name not in candidates:
                 raise QgsProcessingException(
-                    _tr("No %1 session for station %2; found: %3")
+                    _tr("No %1 session for station %2; found: %3. Choose one of those "
+                        "stations.")
                     .replace("%1", role)
                     .replace("%2", name)
                     .replace("%3", ", ".join(sorted(candidates)) or "none")

@@ -277,7 +277,7 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
             end = last.date().toPyDate() if last.isValid() else start
             if end < start:
                 raise QgsProcessingException(
-                    self.tr("The last day, %1, is before the first, %2.")
+                    self.tr("The last day, %1, is before the first, %2. Swap them.")
                     .replace("%1", end.isoformat())
                     .replace("%2", start.isoformat())
                 )

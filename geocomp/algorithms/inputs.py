@@ -80,13 +80,15 @@ def input_problem(
         value = parameters.get(definition.name())
         if not _given(value):
             if not optional and definition.defaultValue() is None:
-                return _tr("%1 is required, and none was given.").replace("%1", definition.description())
+                return _tr("%1 is required, and none was given. Give one.").replace(
+                    "%1", definition.description()
+                )
             continue
         if isinstance(definition, QgsProcessingParameterMultipleLayers):
             for item in _paths(algorithm, definition, parameters, context):
                 if not Path(item).exists() and ("/" in item or "\\" in item or Path(item).suffix):
                     return (
-                        _tr("%1: the file '%2' does not exist.")
+                        _tr("%1: the file '%2' does not exist. Check the path.")
                         .replace("%1", definition.description())
                         .replace("%2", item)
                     )
@@ -97,13 +99,13 @@ def input_problem(
         if definition.behavior() == QgsProcessingParameterFile.Folder:
             if not path.is_dir():
                 return (
-                    _tr("%1: the folder '%2' does not exist.")
+                    _tr("%1: the folder '%2' does not exist. Check the path, or create the folder.")
                     .replace("%1", definition.description())
                     .replace("%2", str(path))
                 )
         elif not path.is_file():
             return (
-                _tr("%1: the file '%2' does not exist.")
+                _tr("%1: the file '%2' does not exist. Check the path.")
                 .replace("%1", definition.description())
                 .replace("%2", str(path))
             )

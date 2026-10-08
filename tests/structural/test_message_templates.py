@@ -483,3 +483,137 @@ def test_every_refusal_says_what_the_user_can_do():
 )
 def test_a_remedy_is_an_imperative_where_a_clause_starts(source: str, found: bool):
     assert bool(_REMEDY.search(source)) is found
+
+
+#: Calls whose words are a template's, which the rule above holds to a remedy,
+#: or a cancellation, which is the user's own act: a raise that passes one on is
+#: not held to the rule a second time. Not ``reason_for`` or ``_describe``,
+#: which give Python's own text for an ``OSError`` or a ``KeyError``; and not
+#: ``about_input``, which only puts the input's label in front.
+_WORDED = frozenset({"cancelled_message", "message_for", "translate_error"})
+
+#: Functions whose returned sentence a caller raises as it stands: ``validated``
+#: raises what ``input_problem`` returns, so its sentences are refusals too.
+_SAID_FOR_A_RAISE = frozenset({"input_problem", "missing_products_message"})
+
+
+def _callee(node: ast.expr) -> str:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return node.attr
+    return ""
+
+
+@functools.cache
+def _inline_refusals() -> dict[str, str]:
+    """Map each sentence an algorithm raises as ``QgsProcessingException`` itself to where.
+
+    Only a raise whose words are its own: the literal text of its ``tr``,
+    ``_tr`` or ``translate`` calls. A raise that passes on a refusal already
+    worded (:data:`_WORDED`) is left to that refusal's template; one that
+    passes on a sentence :data:`_SAID_FOR_A_RAISE` returns is read there.
+    """
+    found: dict[str, str] = {}
+    for path in python_sources(PLUGIN_DIR):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for function in ast.walk(tree):
+            if isinstance(function, ast.FunctionDef) and function.name in _SAID_FOR_A_RAISE:
+                for node in ast.walk(function):
+                    if isinstance(node, ast.Return) and node.value is not None:
+                        for call in ast.walk(node.value):
+                            if (
+                                isinstance(call, ast.Call)
+                                and _callee(call.func) in {"tr", "_tr"}
+                                and call.args
+                                and isinstance(call.args[0], ast.Constant)
+                            ):
+                                where = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{node.lineno}"
+                                found[call.args[0].value] = where
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.Raise)
+                and isinstance(node.exc, ast.Call)
+                and _callee(node.exc.func) == "QgsProcessingException"
+            ):
+                continue
+            calls = [n for n in ast.walk(node.exc) if isinstance(n, ast.Call)]
+            if any(_callee(call.func) in _WORDED for call in calls):
+                continue
+            texts = []
+            for call in calls:
+                name = _callee(call.func)
+                index = 1 if name == "translate" else 0
+                if name in {"tr", "_tr", "translate"} and len(call.args) > index:
+                    text = call.args[index]
+                    if isinstance(text, ast.Constant) and isinstance(text.value, str):
+                        texts.append(text.value)
+            if texts:
+                found[" ".join(texts)] = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{node.lineno}"
+    return found
+
+
+def test_the_extractor_finds_the_inline_refusals():
+    found = _inline_refusals()
+    assert len(found) > 50
+    assert any(where.startswith("geocomp/algorithms/inputs.py") for where in found.values())
+
+
+def test_every_refusal_an_algorithm_words_itself_says_what_to_do():
+    """NFR-006 for the sentences raised without a template (P12c-40).
+
+    86 of 127 had no remedy when first counted; they were given one in the same
+    change, so there is no list and no exemption.
+    """
+    without = sorted(
+        f"{where}: {text}"
+        for text, where in _inline_refusals().items()
+        if not _REMEDY.search(text)
+    )
+    assert not without, (
+        "These refusals say what failed but not what the user can do about it "
+        "(NFR-006). Add a clause that tells them, and its translations:\n" + "\n".join(without)
+    )
+
+
+#: How a window, a panel or a layer says that something failed: every such
+#: sentence outside the algorithms is worded "could not" (P12c-40). A report's
+#: prose is not a refusal, as a finding is not, and is left out.
+_FAILED = re.compile(r"\bcould not\b", re.IGNORECASE)
+
+
+def _failures_outside_the_algorithms() -> dict[str, str]:
+    """Map each sentence outside ``algorithms/`` and ``reports/`` that says something failed to where."""
+    found: dict[str, str] = {}
+    for path in python_sources(PLUGIN_DIR):
+        if {"algorithms", "reports"} & set(path.relative_to(PLUGIN_DIR).parts):
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for call in ast.walk(tree):
+            if not isinstance(call, ast.Call):
+                continue
+            name = _callee(call.func)
+            index = 1 if name == "translate" else 0
+            if name in {"tr", "_tr", "translate"} and len(call.args) > index:
+                text = call.args[index]
+                if isinstance(text, ast.Constant) and isinstance(text.value, str):
+                    if _FAILED.search(text.value):
+                        found[text.value] = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{call.lineno}"
+    return found
+
+
+def test_every_failure_a_window_or_panel_reports_says_what_to_do():
+    """NFR-006 for what the GUI, the layers and the services say failed (P12c-40).
+
+    A message box, a panel's status line, a log warning: none has a single sink
+    a test could follow, so the rule is read off the wording. All eight said
+    what failed and stopped when first counted; they were given a remedy in the
+    same change. A failure worded otherwise is not seen here, and is the review's.
+    """
+    found = _failures_outside_the_algorithms()
+    assert len(found) >= 5, "the extractor found too few to mean anything"
+    without = sorted(f"{where}: {text}" for text, where in found.items() if not _REMEDY.search(text))
+    assert not without, (
+        "These say what failed but not what the user can do about it (NFR-006). "
+        "Add a clause that tells them, and its translations:\n" + "\n".join(without)
+    )

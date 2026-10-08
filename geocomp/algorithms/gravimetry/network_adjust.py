@@ -406,11 +406,12 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                 sigma = float(sigma_text.strip()) * MGAL if sigma_text.strip() else 0.0
             except ValueError:
                 raise QgsProcessingException(
-                    self.tr("'%1' does not hold a number.").replace("%1", entry)
+                    self.tr("'%1' does not hold a number. Correct it.").replace("%1", entry)
                 ) from None
             if station in held or any(a.station == station for a in absolutes):
                 raise QgsProcessingException(
-                    self.tr("The station '%1' is given a known gravity twice.").replace(
+                    self.tr("The station '%1' is given a known gravity twice. Remove one "
+                            "of the two.").replace(
                         "%1", station
                     )
                 )

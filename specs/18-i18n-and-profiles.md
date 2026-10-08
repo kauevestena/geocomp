@@ -160,10 +160,31 @@ corpora, and the arithmetic and unit checks of the core that only GeoComp's own 
 they are an internal error to report. The list was then empty and was removed: **a refusal template has no
 exemption**, and a new one arrives with its remedy.
 
-**What the rule does not yet reach.** An algorithm can also refuse with a sentence of its own, raised as a
-`QgsProcessingException` rather than worded from a template -- "No RINEX observation sessions were found in
-%1". When P12c-39 counted, 94 of the 134 such sentences said what failed and stopped. They are the next
-batch.
+**The sentences an algorithm words itself (P12c-40).** An algorithm can also refuse with a sentence of its
+own, raised as a `QgsProcessingException` rather than worded from a template -- "No RINEX observation sessions
+were found in %1". The structural test reads these off the source: the literal text of the `tr`, `_tr` or
+`translate` calls in each such raise, and the sentences `input_problem` and `missing_products_message` return
+for a caller to raise. A raise that passes on a template's words (`message_for` and its wrappers) is not read
+a second time. `reason_for` and `_describe` are not such wrappers: for an `OSError` or a `KeyError` they give
+Python's own text, so the sentence around them must say what to do. Nor is `about_input`, which only puts the
+input's label in front. When P12c-40 counted, 86 of the 127 sentences said what failed and stopped. (P12c-39
+had put it at 94 of 134. That count was of `tr` calls, not of the raises that carry them, and it missed the
+raises those exclusions hid.) All 86 were given a remedy in the same change, placed before the detail they
+end with ("...; check that the file exists and can be read: %2"). There is no exemption.
+
+Outside the algorithms, a window, a panel or a layer says that something failed in a message box, a status
+line or a log warning. There is no single sink a test could follow, but every such sentence is worded "could
+not", so the rule is read off that wording. All eight said what failed and stopped. They now say what to do:
+choose the document the right algorithm wrote, check the address, install the plugin again from its release
+archive. The fallback for a code with no template, which the template rule makes unreachable, now says it is
+an internal error to report. A report's prose is not a refusal, as a finding is not.
+
+**What the rules do not reach.** A failure outside the algorithms that is not worded "could not" is left to
+the review. A warning an algorithm pushes about part of its work is not a refusal and is not held to the rule.
+The GNSS folder scan's warnings are worse than having no remedy, though. Its reason for a file it skipped or
+doubted is the reader's English, or an error's code and expected value, interpolated into a translated
+sentence: "Could not read %1: %2", where %2 is "navigation files paired by fallback: ...". That breaks FR-091
+too, and is the next change.
 
 ## 3. Terminology (FR-093)
 

@@ -224,7 +224,8 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                     self.tr(
                         "The network document needs the frame the base coordinates were given "
                         "in. A .pos file does not state it and GeoComp does not assume one: a "
-                        "vector with no frame cannot be brought into another's."
+                        "vector with no frame cannot be brought into another's. Choose the frame they "
+                        "were given in."
                     ),
                 )
             )
@@ -232,7 +233,8 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         solutions = sorted(folder.glob("*.pos"))
         if not solutions:
             raise QgsProcessingException(
-                self.tr("No .pos solutions were found in %1").replace("%1", str(folder))
+                self.tr("No .pos solutions were found in %1. Choose the folder the GNSS "
+                        "processing wrote them to.").replace("%1", str(folder))
             )
 
         built = []
@@ -284,7 +286,8 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
 
         if not built:
             raise QgsProcessingException(
-                self.tr("No baseline could be built from the solutions in %1").replace(
+                self.tr("No baseline could be built from the solutions in %1. Check the "
+                        "log for why each was refused.").replace(
                     "%1", str(folder)
                 )
             )

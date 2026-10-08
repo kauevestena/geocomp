@@ -242,20 +242,24 @@ class DynAdjustCompareAlgorithm(GeoCompAlgorithm):
         """Read a solution document, failing with a message that names it."""
         if not path:
             raise QgsProcessingException(
-                self.tr("No solution document was given for parameter '%1'.").replace(
+                self.tr("No solution document was given for parameter '%1'. Choose the "
+                        "document in that parameter.").replace(
                     "%1", parameter
                 )
             )
         source = Path(path)
         if not source.is_file():
             raise QgsProcessingException(
-                self.tr("The solution document '%1' does not exist.").replace("%1", str(source))
+                self.tr("The solution document '%1' does not exist. Check the path.").replace(
+                    "%1", str(source)
+                )
             )
         try:
             payload = json.loads(source.read_text(encoding="utf-8"))
         except (OSError, ValueError) as error:
             raise QgsProcessingException(
-                self.tr("'%1' could not be read as JSON: %2")
+                self.tr("'%1' could not be read as JSON; correct it, or choose the file a "
+                        "GeoComp algorithm wrote: %2")
                 .replace("%1", str(source))
                 .replace("%2", str(error))
             ) from error
@@ -263,7 +267,8 @@ class DynAdjustCompareAlgorithm(GeoCompAlgorithm):
             return Solution.from_dict(payload)
         except (GeoCompError, KeyError, TypeError, ValueError) as error:
             raise QgsProcessingException(
-                self.tr("'%1' is not a GeoComp solution document: %2")
+                self.tr("'%1' is not a GeoComp solution document; choose the one an "
+                        "adjustment wrote: %2")
                 .replace("%1", str(source))
                 .replace("%2", str(error))
             ) from error

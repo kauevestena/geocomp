@@ -195,7 +195,8 @@ def gravimeter_library(
         # A library written by hand, missing a field: say which, rather than
         # let a bare KeyError reach the log as a traceback.
         raise QgsProcessingException(
-            _tr("'%1' could not be read as a gravimeter profile library: %2 is missing or invalid.")
+            _tr("'%1' could not be read as a gravimeter profile library: %2 is missing or "
+                "invalid. Choose a library the profile manager saved.")
             .replace("%1", path)
             .replace("%2", str(exc))
         ) from exc
@@ -295,13 +296,16 @@ def read_readings_document(
         raise QgsProcessingException(translate_error(exc)) from exc
     except (KeyError, TypeError, ValueError) as exc:
         raise QgsProcessingException(
-            _tr("'%1' could not be read as reduced gravity readings: %2")
+            _tr("'%1' could not be read as reduced gravity readings; choose the document "
+                "the gravity reduction wrote: %2")
             .replace("%1", path)
             .replace("%2", str(exc))
         ) from exc
     if not reduced:
         raise QgsProcessingException(
-            _tr("'%1' holds no readings.").replace("%1", path)
+            _tr(
+                "'%1' holds no readings. Choose the document the gravity reduction wrote."
+            ).replace("%1", path)
         )
     return reduced, library, payload
 

@@ -438,7 +438,7 @@ class ResultsPanel(QgsDockWidget):
         from geocomp.services.messages import reason_for
 
         self.status.setText(
-            _tr("The solution %1 could not be read: %2")
+            _tr("The solution %1 could not be read; choose a solution document an adjustment wrote: %2")
             .replace("%1", path)
             .replace("%2", reason_for(error))
         )

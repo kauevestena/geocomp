@@ -215,7 +215,8 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
         map_item = _item(layout, "map", QgsLayoutItemMap)
         if map_item is None:
             raise QgsProcessingException(
-                self.tr("The template %1 has no map item with the id 'map'.").replace("%1", path)
+                self.tr("The template %1 has no map item with the id 'map'. Give the "
+                        "template's map item that id.").replace("%1", path)
             )
         drawn = layers + _base_maps(project)
         map_item.setLayers(drawn)
@@ -305,7 +306,8 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
             text = Path(path).read_text(encoding="utf-8")
         except OSError as error:
             raise QgsProcessingException(
-                self.tr("The template %1 could not be read: %2").replace("%1", path).replace(
+                self.tr("The template %1 could not be read; check that the file is "
+                        "complete: %2").replace("%1", path).replace(
                     "%2", str(error)
                 )
             ) from error
@@ -315,7 +317,8 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
         _items, ok = layout.loadFromTemplate(document, QgsReadWriteContext())
         if not ok:
             raise QgsProcessingException(
-                self.tr("The template %1 is not a QGIS layout template.").replace("%1", path)
+                self.tr("The template %1 is not a QGIS layout template. Save the layout "
+                        "as a template from QGIS's layout designer.").replace("%1", path)
             )
         return layout
 

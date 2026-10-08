@@ -202,7 +202,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         source = Path(self.parameterAsFile(parameters, SOURCE, context))
         if not source.is_file():
             raise QgsProcessingException(
-                self.tr("The field book '%1' does not exist.").replace("%1", str(source))
+                self.tr("The field book '%1' does not exist. Check the path.").replace("%1", str(source))
             )
 
         try:
@@ -211,7 +211,8 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(message_for(error)) from error
         if not rows:
             raise QgsProcessingException(
-                self.tr("The field book '%1' is empty.").replace("%1", str(source))
+                self.tr("The field book '%1' is empty. Check that you chose the book the "
+                        "instrument exported.").replace("%1", str(source))
             )
 
         mapping = load_mapping(self.parameterAsFile(parameters, MAPPING, context), rows[0])
@@ -259,7 +260,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
 
         if result.rejected_rows and self.parameterAsBool(parameters, FAIL_ON_REJECTED, context):
             raise QgsProcessingException(
-                self.tr("%1 record(s) were rejected; see the findings.").replace(
+                self.tr("%1 record(s) were rejected; correct them from the findings.").replace(
                     "%1", str(len(result.rejected_rows))
                 )
             )

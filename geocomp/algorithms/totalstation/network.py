@@ -347,8 +347,8 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                     "A CRS authority code is required, for example 'EPSG:31982'. GeoComp "
                     "does not infer one: the adjusted coordinates are meaningless without "
                     "knowing what they are coordinates in, and a guess would be recorded "
-                    "on the solution as though it had been chosen. For a local survey with "
-                    "no datum, use the projected CRS of the area it sits in."
+                    "on the solution as though it had been chosen. Give one; for a local "
+                    "survey with no datum, use the projected CRS of the area it sits in."
                 )
             )
         confidence = self.parameterAsDouble(parameters, CONFIDENCE, context)
@@ -356,7 +356,8 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         missing = sorted(set(fixed_names or ()) - set(approximate))
         if missing:
             raise QgsProcessingException(
-                self.tr("These fixed stations have no approximate coordinates: %1").replace(
+                self.tr("These fixed stations have no approximate coordinates; add them: "
+                        "%1").replace(
                     "%1", ", ".join(missing)
                 )
             )
@@ -394,7 +395,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 feedback.pushInfo(line)
         if blocking:
             raise QgsProcessingException(
-                self.tr("The network cannot be adjusted: %1").replace(
+                self.tr("The network cannot be adjusted; correct these first: %1").replace(
                     "%1", "; ".join(finding_text(f) for f in blocking)
                 )
             )
@@ -507,13 +508,15 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             except (TypeError, ValueError) as exc:
                 raise QgsProcessingException(
                     self.tr(
-                        "Approximate coordinates for station '%1' are not three numbers."
+                        "Approximate coordinates for station '%1' are not three numbers. "
+                        "Give three numbers: easting, northing and height."
                     ).replace("%1", str(station))
                 ) from exc
             coordinates[str(station)] = (easting, northing, up)
         if not coordinates:
             raise QgsProcessingException(
-                self.tr("The approximate coordinates document is empty.")
+                self.tr("The approximate coordinates document is empty. Add its entries, "
+                        "or choose another document.")
             )
         return coordinates
 
@@ -594,7 +597,8 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             factors = crs.factors(QgsPoint(point.x(), point.y()))
             if not factors.isValid():
                 raise QgsProcessingException(
-                    self.tr("QGIS gives no scale factor for %1 at %2, %3.")
+                    self.tr("QGIS gives no scale factor for %1 at %2, %3. Check that the "
+                            "coordinates are inside the CRS's area of use.")
                     .replace("%1", crs_code)
                     .replace("%2", format_number(easting, 3))
                     .replace("%3", format_number(northing, 3))

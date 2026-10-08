@@ -189,7 +189,8 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(
                 self.tr(
                     "No usable setup was read. Every row was rejected; the report lists "
-                    "why, row by row."
+                    "why, row by row. Correct the rows the report lists, or the field "
+                    "mapping."
                 )
             )
 
@@ -238,7 +239,10 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
             from geocomp.services.messages import reason_for
 
             raise QgsProcessingException(
-                self.tr("'%1' could not be read as a levelling field mapping: %2")
+                self.tr(
+                    "'%1' could not be read as a levelling field mapping; correct it, or "
+                    "choose another: %2"
+                )
                 .replace("%1", path)
                 .replace("%2", reason_for(exc))
             ) from exc

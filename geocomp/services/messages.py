@@ -123,7 +123,8 @@ def message_for(error: GeoCompError) -> str:
     return QCoreApplication.translate(
         _CONTEXT,
         "GeoComp could not complete the operation (%1). "
-        "See the GeoComp tab of the Log Messages panel for details.",
+        "See the GeoComp tab of the Log Messages panel for details. "
+        "This is an internal error; please report it.",
     ).replace("%1", error.code)
 
 

@@ -472,7 +472,7 @@ class ProfileLibraryDialog(QDialog):
             from geocomp.services.messages import reason_for
 
             self.status.setText(
-                _tr("%1 could not be read as instrument profiles: %2")
+                _tr("%1 could not be read as instrument profiles; choose a library this window saved: %2")
                 .replace("%1", path)
                 .replace("%2", reason_for(error))
             )
@@ -502,7 +502,7 @@ class ProfileLibraryDialog(QDialog):
             from geocomp.services.messages import reason_for
 
             self.status.setText(
-                _tr("%1 could not be read as instrument profiles: %2")
+                _tr("%1 could not be read as instrument profiles; choose a library this window saved: %2")
                 .replace("%1", path)
                 .replace("%2", reason_for(error))
             )

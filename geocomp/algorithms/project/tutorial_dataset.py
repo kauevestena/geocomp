@@ -121,7 +121,8 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
                 self.tr(
                     "No datasets ship with this build. That means the package was built "
                     "without its resources, which is a packaging fault rather than "
-                    "something you can correct here."
+                    "something you can correct here. Install the plugin again from its "
+                    "release archive, and report it if the datasets are still missing."
                 )
             )
 
@@ -130,7 +131,8 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
         destination = Path(self.parameterAsFile(parameters, DESTINATION, context))
         if not destination.is_dir():
             raise QgsProcessingException(
-                self.tr("The destination folder '%1' does not exist.").replace(
+                self.tr("The destination folder '%1' does not exist. Create it, or choose "
+                        "another.").replace(
                     "%1", str(destination)
                 )
             )

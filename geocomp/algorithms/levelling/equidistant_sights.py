@@ -159,7 +159,8 @@ class EquidistantSightsAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(
                 self.tr(
                     "A reciprocal crossing is two setups, one from each bank, so the book "
-                    "must hold an even number of at least two. It holds %1."
+                    "must hold an even number of at least two. It holds %1. Check the "
+                    "book for a missing or an extra setup."
                 ).replace("%1", str(len(setups)))
             )
         for setup in setups:
@@ -167,7 +168,8 @@ class EquidistantSightsAlgorithm(GeoCompAlgorithm):
                 raise QgsProcessingException(
                     self.tr(
                         "Setup '%1' carries several foresights. A reciprocal crossing has "
-                        "one near staff and one far staff per bank."
+                        "one near staff and one far staff per bank. Keep one foresight "
+                        "per setup."
                     ).replace("%1", setup.id)
                 )
 

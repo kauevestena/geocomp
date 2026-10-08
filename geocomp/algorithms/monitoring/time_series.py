@@ -207,7 +207,8 @@ class MonitoringTimeSeriesAlgorithm(GeoCompAlgorithm):
         solutions = sorted(read_solutions(paths), key=lambda s: s.epoch.decimal_year)
         if len(solutions) < 2:
             raise QgsProcessingException(
-                self.tr("A series needs two epochs at least; %1 was given.").replace(
+                self.tr("A series needs two epochs at least; %1 was given. Add the "
+                        "solutions of the other epochs.").replace(
                     "%1", str(len(solutions))
                 )
             )

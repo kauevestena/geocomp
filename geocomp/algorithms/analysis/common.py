@@ -143,31 +143,38 @@ def load_network(path: str, *, parameter: str) -> Network:
     """
     if not path:
         raise QgsProcessingException(
-            _tr("No network document was given for parameter '%1'.").replace("%1", parameter)
+            _tr("No network document was given for parameter '%1'. Choose the document in "
+                "that parameter.").replace("%1", parameter)
         )
 
     source = Path(path)
     if not source.is_file():
         raise QgsProcessingException(
-            _tr("The network document '%1' does not exist.").replace("%1", str(source))
+            _tr("The network document '%1' does not exist. Check the path.").replace("%1", str(source))
         )
 
     try:
         payload = json.loads(source.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise QgsProcessingException(
-            _tr("'%1' is not valid JSON: %2").replace("%1", str(source)).replace("%2", str(exc))
+            _tr("'%1' is not valid JSON; correct it, or choose the file a GeoComp "
+                "algorithm wrote: %2").replace("%1", str(source)).replace("%2", str(exc))
         ) from exc
     except OSError as exc:  # pragma: no cover - filesystem dependent
         raise QgsProcessingException(
-            _tr("'%1' could not be read: %2").replace("%1", str(source)).replace("%2", str(exc))
+            _tr("'%1' could not be read; check that the file exists and can be read: %2")
+            .replace("%1", str(source))
+            .replace("%2", str(exc))
         ) from exc
 
     try:
         return network_from_document(payload)
     except GeoCompError as exc:
         raise QgsProcessingException(
-            _tr("'%1' could not be read as a GeoComp network. %2")
+            _tr(
+                "'%1' could not be read as a GeoComp network; check that it is a network "
+                "document a GeoComp algorithm wrote. %2"
+            )
             .replace("%1", str(source))
             .replace("%2", _describe(exc))
         ) from exc

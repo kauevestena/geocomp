@@ -2806,6 +2806,33 @@ observation sessions were found in %1", "The file '%1' does not exist." NFR-006 
 
 **Not done.** Those 94; the structural test does not read them yet.
 
+#### P12c-40 — the sentences an algorithm words itself, and the GUI's failures (NFR-006)
+
+The structural test now reads the refusals an algorithm raises in words of its own, with no template: the
+literal text of each `QgsProcessingException`'s `tr` calls, and the sentences `input_problem` and
+`missing_products_message` return for a caller to raise. Of 127, 86 said what failed and stopped, and each
+now says what to do, in three languages, placed before the detail it ends with: choose the folder that holds
+the observation files, check the path or create the folder, correct the problems the log lists as blocking,
+choose the document *Import levelling field book* wrote. A second rule covers what a window, a panel or a
+layer says failed. These sentences have no single sink, so the rule is read off their wording "could not",
+and all eight lacked a remedy; among them is the fallback for a code with no template, which now says it is an
+internal error to report. A log warning the rule cannot see, a style file that is missing, was given one too.
+
+**Found while doing it.** P12c-39's count of 94 of 134 was wrong. It counted `tr` calls, not raises. And the
+extractor treated a raise that called `reason_for`, `_describe` or `about_input` as already worded. The first
+two give Python's own text for an `OSError` or a `KeyError`, and the third only puts the input's label in
+front. So nine sentences were never checked, and seven of them said nothing about what to do: two of GNSS,
+whose words are all their own, and five readers whose detail can be Python's. They are among the 86. Only the
+helpers that always give a template's words now excuse a raise.
+
+The GNSS folder scan's warnings carry their reasons as the reader's English or as an error's code and expected
+value, and the algorithms interpolate them into translated sentences: "Could not read %1: %2". That breaks
+FR-091 as well as NFR-006, and the P12c-9 rule does not see it because the text arrives in a data structure,
+not in a call.
+
+**Not done.** The scan's warnings, so NFR-006 stays partly met; they are P12c-41. A GUI failure worded other
+than "could not" is not seen by the rule. And the test checks that a remedy is there, not that it is right.
+
 ---
 
 ## P13 — Validation, documentation and release

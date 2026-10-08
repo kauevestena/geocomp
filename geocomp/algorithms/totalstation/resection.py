@@ -163,7 +163,8 @@ class ResectionAlgorithm(GeoCompAlgorithm):
         setup = next((r for r in results if r.station == station), None)
         if setup is None:
             raise QgsProcessingException(
-                self.tr("The reduced observations contain no setup at station '%1'.").replace(
+                self.tr("The reduced observations contain no setup at station '%1'. Check "
+                        "the route against the stations occupied.").replace(
                     "%1", station
                 )
             )
@@ -177,8 +178,9 @@ class ResectionAlgorithm(GeoCompAlgorithm):
         if len(directions) < 3:
             raise QgsProcessingException(
                 self.tr(
-                    "Station '%1' sighted only %2 of the known points. A resection needs at "
-                    "least three: two directions cannot fix a position and an orientation."
+                    "Station '%1' sighted only %2 of the known points. A resection needs "
+                    "at least three: two directions cannot fix a position and an "
+                    "orientation. Sight another known point from it."
                 )
                 .replace("%1", station)
                 .replace("%2", str(len(directions)))
@@ -304,12 +306,14 @@ def _known_points(path: str) -> dict[str, tuple[Quantity, Quantity]]:
             easting, northing = (float(v) for v in list(values)[:2])
         except (TypeError, ValueError) as exc:
             raise QgsProcessingException(
-                _tr("Known point '%1' is not a pair of numbers.").replace("%1", str(name))
+                _tr("Known point '%1' is not a pair of numbers. Give its easting and "
+                    "northing.").replace("%1", str(name))
             ) from exc
         points[str(name)] = (
             Quantity.exact(easting, Unit.METRE),
             Quantity.exact(northing, Unit.METRE),
         )
     if not points:
-        raise QgsProcessingException(_tr("The known points document is empty."))
+        raise QgsProcessingException(_tr("The known points document is empty. Add its "
+                                         "entries, or choose another document."))
     return points
