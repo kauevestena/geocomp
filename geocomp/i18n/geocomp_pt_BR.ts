@@ -468,10 +468,6 @@
             <translation>O teste global falha.</translation>
         </message>
         <message>
-            <source>The global test fails: %1</source>
-            <translation>O teste global falha: %1</translation>
-        </message>
-        <message>
             <source>The global test passes.</source>
             <translation>O teste global passa.</translation>
         </message>
@@ -514,6 +510,14 @@
     </context>
     <context>
         <name>CombinedAdjustmentAlgorithm</name>
+        <message>
+            <source>%1 gravity observation(s) take part, and DynAdjust has no measurement type for gravity; GeoComp's own adjustment adjusts them instead of their being dropped</source>
+            <translation>%1 observação(ões) de gravidade participam, e o DynAdjust não tem tipo de medição para gravidade; o ajustamento do próprio GeoComp as ajusta em vez de descartá-las</translation>
+        </message>
+        <message>
+            <source>%1 orthometric observation(s) take part; GeoComp's own adjustment estimates each station's geoid undulation with the model's own uncertainty, where DynAdjust would take the separations as exact</source>
+            <translation>%1 observação(ões) ortométrica(s) participam; o ajustamento do próprio GeoComp estima a ondulação geoidal de cada estação com a incerteza do próprio modelo, enquanto o DynAdjust tomaria as separações como exatas</translation>
+        </message>
         <message>
             <source>%1: %2 observation(s), %3 of the redundancy, vᵀPv/r %4.</source>
             <translation>%1: %2 observação(ões), %3 da redundância, vᵀPv/r %4.</translation>
@@ -573,6 +577,10 @@
         <message>
             <source>Datum definition</source>
             <translation>Definição do datum</translation>
+        </message>
+        <message>
+            <source>DynAdjust has no measurement type for %1; GeoComp's own adjustment adjusts the whole combination rather than a part of it</source>
+            <translation>o DynAdjust não tem tipo de medição para %1; o ajustamento do próprio GeoComp ajusta a combinação inteira em vez de uma parte dela</translation>
         </message>
         <message>
             <source>DynAdjust, when it can adjust everything</source>
@@ -703,12 +711,32 @@
             <translation>Rede de estação total (de Rede clássica)</translation>
         </message>
         <message>
+            <source>requested</source>
+            <translation>solicitado</translation>
+        </message>
+        <message>
+            <source>requested, and every observation has a DynAdjust type</source>
+            <translation>solicitado, e toda observação tem um tipo do DynAdjust</translation>
+        </message>
+        <message>
+            <source>requested; gravity observations included</source>
+            <translation>solicitado; observações de gravidade incluídas</translation>
+        </message>
+        <message>
+            <source>the combination is in a local system (%1), and DynAdjust adjusts on the ellipsoid of a named frame</source>
+            <translation>a combinação está em um sistema local (%1), e o DynAdjust ajusta sobre o elipsoide de um referencial nomeado</translation>
+        </message>
+        <message>
             <source>the inputs' own system</source>
             <translation>o próprio sistema das entradas</translation>
         </message>
         <message>
             <source>this run</source>
             <translation>esta execução</translation>
+        </message>
+        <message>
+            <source>unstated</source>
+            <translation>não informado</translation>
         </message>
     </context>
     <context>
@@ -1016,8 +1044,28 @@
             <translation>Segmentar acima deste número de estações</translation>
         </message>
         <message>
-            <source>Skipping %1: %2</source>
-            <translation>Pulando %1: %2</translation>
+            <source>Skipping %1.</source>
+            <translation>Pulando %1.</translation>
+        </message>
+        <message>
+            <source>Skipping %1: %2 stations adjust simultaneously.</source>
+            <translation>Pulando %1: %2 estações são ajustadas simultaneamente.</translation>
+        </message>
+        <message>
+            <source>Skipping %1: every height is ellipsoidal; no geoid is involved.</source>
+            <translation>Pulando %1: todas as altitudes são elipsoidais; nenhum geoide está envolvido.</translation>
+        </message>
+        <message>
+            <source>Skipping %1: the heights were converted with the job's own geoid undulations, so they reach DynAdjust ellipsoidal already.</source>
+            <translation>Pulando %1: as altitudes foram convertidas com as ondulações geoidais do próprio trabalho, portanto já chegam elipsoidais ao DynAdjust.</translation>
+        </message>
+        <message>
+            <source>Skipping %1: the input is already in the target frame and epoch.</source>
+            <translation>Pulando %1: a entrada já está no referencial e na época de destino.</translation>
+        </message>
+        <message>
+            <source>Skipping %1: the input states no frame, so %2 is taken as the frame it is already in; transforming out of an unrecorded frame would apply a shift computed from a guess.</source>
+            <translation>Pulando %1: a entrada não informa referencial, portanto %2 é tomado como o referencial em que ela já está; transformar a partir de um referencial não registrado aplicaria um deslocamento calculado a partir de um palpite.</translation>
         </message>
         <message>
             <source>Solution</source>
@@ -1643,10 +1691,6 @@
             <translation>Aplicada a</translation>
         </message>
         <message>
-            <source>Astro-geodetic</source>
-            <translation>Astrogeodésia</translation>
-        </message>
-        <message>
             <source>CANDIDATE</source>
             <translation>CANDIDATA</translation>
         </message>
@@ -1803,10 +1847,6 @@
             <translation>De</translation>
         </message>
         <message>
-            <source>GNSS</source>
-            <translation>GNSS</translation>
-        </message>
-        <message>
             <source>GeoComp</source>
             <translation>GeoComp</translation>
         </message>
@@ -1819,10 +1859,6 @@
             <translation>Modelo geoidal</translation>
         </message>
         <message>
-            <source>Geoid priors</source>
-            <translation>Informação a priori do geoide</translation>
-        </message>
-        <message>
             <source>Geoid residuals</source>
             <translation>Resíduos do geoide</translation>
         </message>
@@ -1833,10 +1869,6 @@
         <message>
             <source>Global test: %1</source>
             <translation>Teste global: %1</translation>
-        </message>
-        <message>
-            <source>Gravimetry</source>
-            <translation>Gravimetria</translation>
         </message>
         <message>
             <source>Gravity (%1)</source>
@@ -1873,10 +1905,6 @@
         <message>
             <source>Largest |w|</source>
             <translation>Maior |w|</translation>
-        </message>
-        <message>
-            <source>Levelling</source>
-            <translation>Nivelamento</translation>
         </message>
         <message>
             <source>Lower critical</source>
@@ -2151,10 +2179,6 @@
             <translation>Para</translation>
         </message>
         <message>
-            <source>Total station</source>
-            <translation>Estação total</translation>
-        </message>
-        <message>
             <source>Type</source>
             <translation>Tipo</translation>
         </message>
@@ -2205,10 +2229,6 @@
         <message>
             <source>Version</source>
             <translation>Versão</translation>
-        </message>
-        <message>
-            <source>Weighted constraints</source>
-            <translation>Injunções ponderadas</translation>
         </message>
         <message>
             <source>What a failed global test means</source>
@@ -2733,6 +2753,337 @@
         <message>
             <source>assumed: no gravimeter profile was given</source>
             <translation>suposto: nenhum perfil de gravímetro foi fornecido</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompLabels</name>
+        <message>
+            <source>%1 (%2)</source>
+            <translation>%1 (%2)</translation>
+        </message>
+        <message>
+            <source>1D gravity</source>
+            <translation>gravidade 1D</translation>
+        </message>
+        <message>
+            <source>1D heights</source>
+            <translation>altitudes 1D</translation>
+        </message>
+        <message>
+            <source>2D plane</source>
+            <translation>plano 2D</translation>
+        </message>
+        <message>
+            <source>3D geocentric</source>
+            <translation>geocêntrico 3D</translation>
+        </message>
+        <message>
+            <source>3D local</source>
+            <translation>local 3D</translation>
+        </message>
+        <message>
+            <source>Astro-geodetic</source>
+            <translation>Astrogeodésia</translation>
+        </message>
+        <message>
+            <source>Cholesky factorisation</source>
+            <translation>fatoração de Cholesky</translation>
+        </message>
+        <message>
+            <source>GNSS</source>
+            <translation>GNSS</translation>
+        </message>
+        <message>
+            <source>GNSS baseline</source>
+            <translation>linha de base GNSS</translation>
+        </message>
+        <message>
+            <source>GNSS point</source>
+            <translation>ponto GNSS</translation>
+        </message>
+        <message>
+            <source>GNSS processing</source>
+            <translation>processamento GNSS</translation>
+        </message>
+        <message>
+            <source>GeoComp's own adjustment</source>
+            <translation>ajustamento do próprio GeoComp</translation>
+        </message>
+        <message>
+            <source>Geoid priors</source>
+            <translation>Informação a priori do geoide</translation>
+        </message>
+        <message>
+            <source>Gravimetry</source>
+            <translation>Gravimetria</translation>
+        </message>
+        <message>
+            <source>Levelling</source>
+            <translation>Nivelamento</translation>
+        </message>
+        <message>
+            <source>QR factorisation</source>
+            <translation>fatoração QR</translation>
+        </message>
+        <message>
+            <source>Total station</source>
+            <translation>Estação total</translation>
+        </message>
+        <message>
+            <source>Weighted constraints</source>
+            <translation>Injunções ponderadas</translation>
+        </message>
+        <message>
+            <source>adjustment</source>
+            <translation>ajustamento</translation>
+        </message>
+        <message>
+            <source>approximate</source>
+            <translation>aproximado</translation>
+        </message>
+        <message>
+            <source>astronomic azimuth</source>
+            <translation>azimute astronômico</translation>
+        </message>
+        <message>
+            <source>astronomic latitude</source>
+            <translation>latitude astronômica</translation>
+        </message>
+        <message>
+            <source>astronomic longitude</source>
+            <translation>longitude astronômica</translation>
+        </message>
+        <message>
+            <source>azimuth</source>
+            <translation>azimute</translation>
+        </message>
+        <message>
+            <source>bordered system (minimum constraints)</source>
+            <translation>sistema orlado (injunções mínimas)</translation>
+        </message>
+        <message>
+            <source>closed</source>
+            <translation>fechada</translation>
+        </message>
+        <message>
+            <source>compass (Bowditch) rule</source>
+            <translation>regra da bússola (Bowditch)</translation>
+        </message>
+        <message>
+            <source>connected</source>
+            <translation>apoiada</translation>
+        </message>
+        <message>
+            <source>constrained</source>
+            <translation>amarrada</translation>
+        </message>
+        <message>
+            <source>decimal degrees</source>
+            <translation>graus decimais</translation>
+        </message>
+        <message>
+            <source>degrees, minutes and seconds in one column</source>
+            <translation>graus, minutos e segundos em uma coluna</translation>
+        </message>
+        <message>
+            <source>degrees, minutes and seconds in three columns</source>
+            <translation>graus, minutos e segundos em três colunas</translation>
+        </message>
+        <message>
+            <source>direction</source>
+            <translation>direção</translation>
+        </message>
+        <message>
+            <source>ellipsoidal</source>
+            <translation>elipsoidal</translation>
+        </message>
+        <message>
+            <source>ellipsoidal distance</source>
+            <translation>distância elipsoidal</translation>
+        </message>
+        <message>
+            <source>ellipsoidal height</source>
+            <translation>altitude elipsoidal</translation>
+        </message>
+        <message>
+            <source>fixed</source>
+            <translation>fixa</translation>
+        </message>
+        <message>
+            <source>fixed stations</source>
+            <translation>estações fixas</translation>
+        </message>
+        <message>
+            <source>free</source>
+            <translation>livre</translation>
+        </message>
+        <message>
+            <source>geodetic latitude</source>
+            <translation>latitude geodésica</translation>
+        </message>
+        <message>
+            <source>geodetic longitude</source>
+            <translation>longitude geodésica</translation>
+        </message>
+        <message>
+            <source>global test</source>
+            <translation>teste global</translation>
+        </message>
+        <message>
+            <source>gon</source>
+            <translation>gon</translation>
+        </message>
+        <message>
+            <source>gravity</source>
+            <translation>gravidade</translation>
+        </message>
+        <message>
+            <source>gravity difference</source>
+            <translation>diferença de gravidade</translation>
+        </message>
+        <message>
+            <source>height difference</source>
+            <translation>desnível</translation>
+        </message>
+        <message>
+            <source>horizontal angle</source>
+            <translation>ângulo horizontal</translation>
+        </message>
+        <message>
+            <source>horizontal distance</source>
+            <translation>distância horizontal</translation>
+        </message>
+        <message>
+            <source>inner constraints (free network)</source>
+            <translation>injunções internas (rede livre)</translation>
+        </message>
+        <message>
+            <source>line between benchmarks</source>
+            <translation>linha entre referências de nível</translation>
+        </message>
+        <message>
+            <source>loop</source>
+            <translation>circuito</translation>
+        </message>
+        <message>
+            <source>minimum constraints</source>
+            <translation>injunções mínimas</translation>
+        </message>
+        <message>
+            <source>no datum</source>
+            <translation>sem datum</translation>
+        </message>
+        <message>
+            <source>none</source>
+            <translation>nenhuma</translation>
+        </message>
+        <message>
+            <source>none; the observations determine the datum</source>
+            <translation>nenhuma; as observações determinam o datum</translation>
+        </message>
+        <message>
+            <source>normal</source>
+            <translation>normal</translation>
+        </message>
+        <message>
+            <source>not distributed</source>
+            <translation>não distribuído</translation>
+        </message>
+        <message>
+            <source>one row per reading</source>
+            <translation>uma linha por leitura</translation>
+        </message>
+        <message>
+            <source>one row per setup</source>
+            <translation>uma linha por estacionamento</translation>
+        </message>
+        <message>
+            <source>open</source>
+            <translation>aberta</translation>
+        </message>
+        <message>
+            <source>orthometric</source>
+            <translation>ortométrica</translation>
+        </message>
+        <message>
+            <source>orthometric height</source>
+            <translation>altitude ortométrica</translation>
+        </message>
+        <message>
+            <source>pre-analysis</source>
+            <translation>pré-análise</translation>
+        </message>
+        <message>
+            <source>radians</source>
+            <translation>radianos</translation>
+        </message>
+        <message>
+            <source>rigorous</source>
+            <translation>rigorosa</translation>
+        </message>
+        <message>
+            <source>rotation about the easting axis</source>
+            <translation>rotação em torno do eixo E</translation>
+        </message>
+        <message>
+            <source>rotation about the northing axis</source>
+            <translation>rotação em torno do eixo N</translation>
+        </message>
+        <message>
+            <source>rotation about the vertical</source>
+            <translation>rotação em torno da vertical</translation>
+        </message>
+        <message>
+            <source>scale</source>
+            <translation>escala</translation>
+        </message>
+        <message>
+            <source>section, forward and back</source>
+            <translation>seção, ida e volta</translation>
+        </message>
+        <message>
+            <source>slope distance</source>
+            <translation>distância inclinada</translation>
+        </message>
+        <message>
+            <source>sparse LU factorisation</source>
+            <translation>fatoração LU esparsa</translation>
+        </message>
+        <message>
+            <source>sparse bordered system (minimum constraints)</source>
+            <translation>sistema orlado esparso (injunções mínimas)</translation>
+        </message>
+        <message>
+            <source>transformation</source>
+            <translation>transformação</translation>
+        </message>
+        <message>
+            <source>transit rule</source>
+            <translation>regra do trânsito</translation>
+        </message>
+        <message>
+            <source>translation in easting</source>
+            <translation>translação em E</translation>
+        </message>
+        <message>
+            <source>translation in height</source>
+            <translation>translação em altitude</translation>
+        </message>
+        <message>
+            <source>translation in northing</source>
+            <translation>translação em N</translation>
+        </message>
+        <message>
+            <source>vertical angle</source>
+            <translation>ângulo vertical</translation>
+        </message>
+        <message>
+            <source>weighted</source>
+            <translation>ponderada</translation>
+        </message>
+        <message>
+            <source>zenith angle</source>
+            <translation>ângulo zenital</translation>
         </message>
     </context>
     <context>
@@ -7202,6 +7553,14 @@
             <translation>Sem redundância: há tantas observações quanto incógnitas, por isso as observações se ajustam exatamente por construção. Nada neste resultado foi verificado, nem as observações nem as suas precisões; as incertezas são as precisões declaradas das observações, propagadas.</translation>
         </message>
         <message>
+            <source>The global test fails: the variance factor is too large. Look first for blunders, among the outlier candidates; then check the a priori precisions, and that each observation measures what its type says.</source>
+            <translation>O teste global falha: o fator de variância é grande demais. Procure primeiro erros grosseiros, entre os candidatos a erro grosseiro; depois confira as precisões a priori, e se cada observação mede o que o seu tipo diz.</translation>
+        </message>
+        <message>
+            <source>The global test fails: the variance factor is too small, so the a priori precisions appear pessimistic. The survey has not failed, but the uncertainties reported are likely too large; check the precisions given.</source>
+            <translation>O teste global falha: o fator de variância é pequeno demais, portanto as precisões a priori parecem pessimistas. O levantamento não falhou, mas as incertezas relatadas provavelmente são grandes demais; confira as precisões informadas.</translation>
+        </message>
+        <message>
             <source>not defined</source>
             <translation>não definido</translation>
         </message>
@@ -8664,6 +9023,10 @@
             <translation>aceite</translation>
         </message>
         <message>
+            <source>an inner constraint: the mean of the station values is held, so every value is relative to that mean and none is an absolute gravity</source>
+            <translation>uma injunção interna: a média dos valores das estações é mantida, portanto cada valor é relativo a essa média e nenhum é uma gravidade absoluta</translation>
+        </message>
+        <message>
             <source>approximate: %1</source>
             <translation>aproximada: %1</translation>
         </message>
@@ -8678,6 +9041,10 @@
         <message>
             <source>fitted to base %1 first</source>
             <translation>ajustada antes à base %1</translation>
+        </message>
+        <message>
+            <source>gravity held fixed at %1</source>
+            <translation>gravidade mantida fixa em %1</translation>
         </message>
         <message>
             <source>held</source>
@@ -8710,6 +9077,10 @@
         <message>
             <source>w-test</source>
             <translation>teste w</translation>
+        </message>
+        <message>
+            <source>weighted absolute gravity at %1</source>
+            <translation>gravidade absoluta ponderada em %1</translation>
         </message>
     </context>
     <context>
@@ -10270,8 +10641,8 @@
             <translation>Deficiência de datum</translation>
         </message>
         <message>
-            <source>Datum defect: %1 (removed by: %2).</source>
-            <translation>Deficiência de datum: %1 (removida por: %2).</translation>
+            <source>Datum defect: %1. Solved by %2.</source>
+            <translation>Deficiência de datum: %1. Resolvido por %2.</translation>
         </message>
         <message>
             <source>Datum definition</source>
@@ -10460,10 +10831,6 @@
         <message>
             <source>Std dev Z (m)</source>
             <translation>Desvio padrão Z (m)</translation>
-        </message>
-        <message>
-            <source>The global test fails: %1</source>
-            <translation>O teste global falha: %1</translation>
         </message>
         <message>
             <source>The global test passes.</source>

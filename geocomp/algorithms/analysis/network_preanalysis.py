@@ -51,6 +51,7 @@ from geocomp.algorithms.analysis.common import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import defect_words, in_words
 from geocomp.core.errors import GeoCompError
 from geocomp.core.preanalysis.design import simulate
 
@@ -297,7 +298,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
             .replace("%2", str(design.observation_count))
             .replace("%3", str(design.parameter_count))
         )
-        feedback.pushInfo(self.tr("Datum defect: %1").replace("%1", design.defect_description))
+        feedback.pushInfo(self.tr("Datum defect: %1").replace("%1", defect_words(design.defect)))
 
         if worst is not None:
             feedback.pushInfo(
@@ -339,9 +340,9 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
     def _render(self, network, frame, datum, design, confidence, tolerance, meets) -> str:
         summary_rows = [
             [escape(self.tr("Network")), escape(network.id or "—")],
-            [escape(self.tr("Coordinate frame")), escape(frame.value)],
-            [escape(self.tr("Datum definition")), escape(datum.value)],
-            [escape(self.tr("Datum defect")), escape(design.defect_description)],
+            [escape(self.tr("Coordinate frame")), escape(in_words(frame))],
+            [escape(self.tr("Datum definition")), escape(in_words(datum))],
+            [escape(self.tr("Datum defect")), escape(defect_words(design.defect))],
             [escape(self.tr("Planned observations")), escape(design.observation_count)],
             [escape(self.tr("Parameters")), escape(design.parameter_count)],
             [escape(self.tr("Degrees of freedom")), escape(design.degrees_of_freedom)],

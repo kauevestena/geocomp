@@ -207,7 +207,7 @@ class SeriesPlot(QWidget):
         hit = self.nearest(event.position() if hasattr(event, "position") else QPointF(event.pos()))
         self.setToolTip(self.describe(*hit) if hit else "")
 
-    def describe(self, station: str, index: int) -> str:
+    def caption(self, station: str, index: int) -> str:
         for curve in self.curves:
             if curve.station == station:
                 value = curve.values[index]
@@ -417,7 +417,7 @@ class TimeSeriesPanel(QgsDockWidget):
     def pick(self, station: str, index: int) -> None:
         """A point clicked in the plot: select the station on the map, show the epoch."""
         self._select_on_map([station])
-        self.status.setText(self.plot.describe(station, index))
+        self.status.setText(self.plot.caption(station, index))
 
     def _select_on_map(self, stations: list[str]) -> None:
         if self.layer is None:

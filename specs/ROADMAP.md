@@ -2861,6 +2861,35 @@ FR-091 is partly met, for the ten. The totals are unchanged.
 
 **Not done.** The ten sites, which are P12c-42. Core English under a name the list does not hold is not seen.
 
+#### P12c-42 — the core's enums and English in words, wherever a reader is shown them (FR-091 met)
+
+P12c-41's rule read the values put into a translated sentence. Widened to every place a value reaches a reader
+-- a report cell or note, the log, a widget -- it found 25 sites beside its ten. They were report cells showing
+an enum's value as it stood (a Portuguese report's datum read `minimum_constraint`, its frame `plane_2d`, an
+observation `slope_distance`) and report notes showing the global test's English note. All 35 are worded now.
+
+- `geocomp/algorithms/labels.py` says the core's values in words. `in_words` covers the twelve enums a reader
+  is shown, and a test holds every member to having words. Beside it are the technique, closure-kind,
+  test-name, solver and engine tokens, and the datum defect with its components. The report's own technique
+  labels moved there.
+- The global test's failure is said by `global_test_failed`, which tells a variance factor too large (look for
+  blunders, then the precisions and the model) from one too small (the precisions are pessimistic).
+- The DynAdjust stages and the integration's routing carry a code and its values beside their English reason,
+  which stays in the provenance and the prepared job's manifest. The algorithms word them. A job an older
+  release prepared has no code, and its skipped stage is said without the why rather than in English.
+- The gravity datum report says which definition held it and at which stations. The pre-analysis design keeps
+  its `DatumDefect`.
+
+**Found while doing it.** Two values the rule reads as the core's were the plugin's own translated words:
+the grid reduction's `note` and the time-series plot's `describe`. They were renamed rather than excused.
+The adjustment log said "removed by: cholesky" -- the solver, not the datum -- and now says "Solved by
+Cholesky factorisation".
+
+**Register.** FR-091 is met: 166 met, 9 partly met, 1 open.
+
+**Not done.** Core English under a name the rule does not hold, or reaching a reader by a path it does not
+read, is not seen. The English in the provenance and in JSON documents is data, and stays.
+
 ---
 
 ## P13 — Validation, documentation and release

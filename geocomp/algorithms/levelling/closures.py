@@ -28,6 +28,7 @@ from qgis.core import (
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.labels import closure_kind_label
 from geocomp.algorithms.levelling.common import (
     findings_table,
     levelling_class_from_parameters,
@@ -294,7 +295,7 @@ class LevellingClosureAlgorithm(GeoCompAlgorithm):
         summary = render_table(
             [escape(self.tr("Quantity")), escape(self.tr("Value"))],
             [
-                [escape(self.tr("Kind")), escape(check.kind)],
+                [escape(self.tr("Kind")), escape(closure_kind_label(check.kind))],
                 [escape(self.tr("Misclosure (mm)")), format_number(check.misclosure * 1000.0, 2)],
                 [
                     escape(self.tr("Permissible (mm)")),

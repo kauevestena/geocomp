@@ -67,7 +67,7 @@ from geocomp.algorithms.reporting import (
     render_table,
 )
 from geocomp.core.errors import GeoCompError
-from geocomp.core.models import ObservationType, Provenance
+from geocomp.core.models import DatumDefinition, ObservationType, Provenance
 from geocomp.core.techniques.gravimetry import (
     AbsoluteGravity,
     DriftMode,
@@ -461,7 +461,7 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
             .replace("%2", format_number(run.variance_factor_aposteriori, 4))
         )
         feedback.pushInfo(
-            self.tr("Datum: %1.").replace("%1", result.datum.removed_by)
+            self.tr("Datum: %1.").replace("%1", self._datum_words(result.datum))
         )
         test = result.solution.statistics.global_test
         if test is not None and not test.tested:
@@ -540,7 +540,7 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
                     escape(self.tr("Datum defect of the differences")),
                     str(result.datum.defect),
                 ],
-                [escape(self.tr("Datum")), escape(result.datum.removed_by)],
+                [escape(self.tr("Datum")), escape(self._datum_words(result.datum))],
                 [escape(self.tr("Uncertainty")), escape(self._mode(solution))],
                 [escape(self.tr("Tide system")), escape(result.tide_system)],
             ],
@@ -733,6 +733,18 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
         )
         with open(path, "w", encoding="utf-8") as handle:
             handle.write(render_document(self.tr("Gravimetric network adjustment"), body))
+
+    def _datum_words(self, datum) -> str:
+        """How the datum was removed, in words (P12c-42); ``removed_by`` is the English."""
+        held = ", ".join(datum.held)
+        if datum.definition is DatumDefinition.FIXED:
+            return self.tr("gravity held fixed at %1").replace("%1", held)
+        if datum.definition is DatumDefinition.CONSTRAINED:
+            return self.tr("weighted absolute gravity at %1").replace("%1", held)
+        return self.tr(
+            "an inner constraint: the mean of the station values is held, so every value is "
+            "relative to that mean and none is an absolute gravity"
+        )
 
     def _mode(self, solution) -> str:
         """Rigorous, or approximate and why (FR-203): the strategies by name."""

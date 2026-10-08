@@ -32,6 +32,7 @@ from qgis.core import (
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.labels import in_words
 from geocomp.algorithms.reporting import escape, render_document, render_table
 from geocomp.algorithms.totalstation.common import (
     findings_table,
@@ -316,7 +317,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         summary = [
             [escape(self.tr("Field book")), escape(source.name)],
             [escape(self.tr("Field mapping")), escape(mapping.name)],
-            [escape(self.tr("Angle format")), escape(mapping.angle_format.value)],
+            [escape(self.tr("Angle format")), escape(in_words(mapping.angle_format))],
             [escape(self.tr("Rows read")), escape(result.row_count)],
             [escape(self.tr("Records")), escape(len(result.records))],
             [escape(self.tr("Setups")), escape(len(result.setups))],

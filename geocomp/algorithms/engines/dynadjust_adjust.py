@@ -596,9 +596,33 @@ def report_plan(prepared: PreparedJob, feedback: QgsProcessingFeedback) -> None:
     feedback.pushInfo(_tr("Pipeline: %1").replace("%1", " -> ".join(running)))
     for stage in prepared.stages:
         if not stage.included:
-            feedback.pushInfo(
-                _tr("Skipping %1: %2").replace("%1", stage.program).replace("%2", stage.reason)
-            )
+            feedback.pushInfo(skipped_stage(stage))
+
+
+def skipped_stage(stage) -> str:
+    """Why *stage* is left out of the pipeline, in words (P12c-42).
+
+    The stage's ``reason`` says it in English for the provenance; until P12c-42
+    that sentence was shown as it stood. A job prepared by an older release has
+    no code, and is said without the why.
+    """
+    context = stage.context
+    sentences = {
+        "already_in_target": _tr("Skipping %1: the input is already in the target frame and epoch."),
+        "input_states_no_frame": _tr(
+            "Skipping %1: the input states no frame, so %2 is taken as the frame it is already "
+            "in; transforming out of an unrecorded frame would apply a shift computed from a guess."
+        ).replace("%2", str(context.get("frame", ""))),
+        "undulations_applied": _tr(
+            "Skipping %1: the heights were converted with the job's own geoid undulations, so "
+            "they reach DynAdjust ellipsoidal already."
+        ),
+        "all_ellipsoidal": _tr("Skipping %1: every height is ellipsoidal; no geoid is involved."),
+        "simultaneous": _tr("Skipping %1: %2 stations adjust simultaneously.").replace(
+            "%2", str(context.get("stations", ""))
+        ),
+    }
+    return sentences.get(stage.code, _tr("Skipping %1.")).replace("%1", stage.program)
 
 
 def run_and_read(

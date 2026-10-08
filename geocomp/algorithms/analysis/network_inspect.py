@@ -41,6 +41,7 @@ from geocomp.algorithms.analysis.common import (
     render_table,
 )
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.labels import in_words
 from geocomp.core.preanalysis.inspection import Severity, inspect
 from geocomp.services.messages import finding_text
 
@@ -248,7 +249,7 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
 
         summary_rows = [
             [escape(self.tr("Network")), escape(network.id or "—")],
-            [escape(self.tr("Coordinate frame")), escape(frame.value)],
+            [escape(self.tr("Coordinate frame")), escape(in_words(frame))],
             [escape(self.tr("Stations")), escape(report.station_count)],
             [escape(self.tr("Observations")), escape(report.observation_count)],
             [escape(self.tr("Active observations")), escape(report.active_observation_count)],

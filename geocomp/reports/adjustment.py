@@ -39,6 +39,7 @@ from typing import Any
 
 from qgis.PyQt.QtCore import QCoreApplication
 
+from geocomp.algorithms.labels import in_words, technique_label, test_name_label
 from geocomp.algorithms.reporting import (
     _STYLE,
     escape,
@@ -106,10 +107,10 @@ def _identification(solution: Solution) -> str:
     rows = [
         [escape(_tr("Solution")), escape(solution.id)],
         [escape(_tr("Network")), escape(solution.network_id or "—")],
-        [escape(_tr("Kind")), escape(solution.kind.value)],
+        [escape(_tr("Kind")), escape(in_words(solution.kind))],
         [escape(_tr("Coordinate reference system")), escape(solution.crs)],
         [escape(_tr("Epoch")), epoch],
-        [escape(_tr("Datum definition")), escape(solution.datum_definition.value)],
+        [escape(_tr("Datum definition")), escape(in_words(solution.datum_definition))],
     ]
     # FR-804: two solutions computed with different geoid models are not
     # comparable, so which one related the height systems is part of saying
@@ -214,7 +215,7 @@ def _inputs(solution: Solution, network: Network | None) -> str:
         [
             [
                 escape(station.id),
-                escape(station.constraint.mode.value),
+                escape(in_words(station.constraint.mode)),
                 escape(", ".join(sorted(station.constraint.components))),
             ]
             for station in sorted(constrained, key=lambda s: s.id)
@@ -255,7 +256,7 @@ def _set_aside(observations: list) -> str:
         rows.append(
             [
                 escape(observation.id),
-                escape(observation.type.value),
+                escape(in_words(observation.type)),
                 escape(status.get(observation.status.value, observation.status.value)),
                 escape(record.reason if record is not None else ""),
                 escape(record.test if record is not None else ""),
@@ -452,7 +453,7 @@ def _statistics(solution: Solution) -> str:
         ],
         [
             [
-                escape(test.name),
+                escape(test_name_label(test.name)),
                 format_number(test.statistic, 5),
                 format_number(test.critical_low, 5),
                 format_number(test.critical_high, 5),
@@ -472,19 +473,6 @@ def _statistics(solution: Solution) -> str:
             label=_tr("What a failed global test means"),
         )
     return body
-
-
-def _technique_label(group: str) -> str:
-    labels = {
-        "gnss": _tr("GNSS"),
-        "total_station": _tr("Total station"),
-        "levelling": _tr("Levelling"),
-        "gravimetry": _tr("Gravimetry"),
-        "astro_geodetic": _tr("Astro-geodetic"),
-        "constraints": _tr("Weighted constraints"),
-        "geoid": _tr("Geoid priors"),
-    }
-    return labels.get(group, group)
 
 
 def _techniques(solution: Solution) -> str:
@@ -507,7 +495,7 @@ def _techniques(solution: Solution) -> str:
         [escape(_tr("Inputs")), escape(", ".join(combination.get("inputs", [])))],
         [
             escape(_tr("Techniques")),
-            escape(", ".join(_technique_label(t) for t in combination.get("techniques", []))),
+            escape(", ".join(technique_label(t) for t in combination.get("techniques", []))),
         ],
         [escape(_tr("Frame")), escape(combination.get("frame") or "—")],
         [
@@ -565,7 +553,7 @@ def _techniques(solution: Solution) -> str:
             ],
             [
                 [
-                    escape(_technique_label(row["technique"])),
+                    escape(technique_label(row["technique"])),
                     escape(row["observations"]),
                     escape(row["rows"]),
                     format_number(row["redundancy"], 2),
@@ -608,7 +596,7 @@ def _techniques(solution: Solution) -> str:
             ],
             [
                 [
-                    escape(_technique_label(group)),
+                    escape(technique_label(group)),
                     format_number(value.get("factor"), 3),
                     format_number(value.get("std_dev"), 3),
                     format_number(value.get("redundancy"), 2),
@@ -898,7 +886,7 @@ def _software(solution: Solution, context: ReportContext, template: Template) ->
         [escape(_tr("QGIS")), escape(context.qgis_version or "—")],
         [
             escape(_tr("Uncertainty mode")),
-            escape(solution.uncertainty_mode.value),
+            escape(in_words(solution.uncertainty_mode)),
         ],
         [
             escape(_tr("Report template")),

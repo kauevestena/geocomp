@@ -24,6 +24,7 @@ from geocomp.core.number_format import localised
 __all__ = [
     "escape",
     "format_number",
+    "global_test_failed",
     "no_redundancy",
     "not_tested",
     "render_document",
@@ -60,6 +61,26 @@ def no_redundancy() -> str:
         "observations fit exactly by construction. Nothing in this result has been "
         "checked, neither the observations nor their precisions; the uncertainties "
         "are the stated precisions of the observations, propagated."
+    )
+
+
+def global_test_failed(test: Any) -> str:
+    """Why a global test failed, and what to look at, in words (P12c-42).
+
+    The core's ``note`` says the same in English, for logs and documents; until
+    P12c-42 it was put into this sentence as it stood. A variance factor too
+    large and one too small call for different things.
+    """
+    if test.statistic > test.critical_high:
+        return _tr(
+            "The global test fails: the variance factor is too large. Look first for "
+            "blunders, among the outlier candidates; then check the a priori precisions, "
+            "and that each observation measures what its type says."
+        )
+    return _tr(
+        "The global test fails: the variance factor is too small, so the a priori "
+        "precisions appear pessimistic. The survey has not failed, but the uncertainties "
+        "reported are likely too large; check the precisions given."
     )
 
 

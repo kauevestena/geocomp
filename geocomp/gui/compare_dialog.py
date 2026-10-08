@@ -30,6 +30,7 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from geocomp.algorithms.labels import in_words
 from geocomp.core.errors import GeoCompError
 from geocomp.core.number_format import localised
 
@@ -69,7 +70,7 @@ def check_compatibility(first_path: str, second_path: str) -> Compatibility:
             .replace("%1", solution.id)
             .replace("%2", localised(f"{solution.epoch.decimal_year:.4f}"))
             .replace("%3", solution.crs)
-            .replace("%4", solution.datum_definition.value)
+            .replace("%4", in_words(solution.datum_definition))
         )
     lines.append(
         _tr("%1 stations in both epochs.").replace("%1", str(len(comparison.stations)))

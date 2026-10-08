@@ -60,11 +60,12 @@ from geocomp.algorithms.defaults import (
     run_epoch,
 )
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import defect_words, in_words, solver_label
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
 )
-from geocomp.algorithms.reporting import no_redundancy, not_tested
+from geocomp.algorithms.reporting import global_test_failed, no_redundancy, not_tested
 from geocomp.core.adjustment.least_squares import (
     AdjustmentOptions,
     adjust,
@@ -489,9 +490,9 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             .replace("%2", str(run.degrees_of_freedom))
         )
         feedback.pushInfo(
-            self.tr("Datum defect: %1 (removed by: %2).")
-            .replace("%1", run.defect.describe())
-            .replace("%2", run.method)
+            self.tr("Datum defect: %1. Solved by %2.")
+            .replace("%1", defect_words(run.defect))
+            .replace("%2", solver_label(run.method))
         )
 
         if not test.tested:
@@ -499,7 +500,7 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
         elif test.passed:
             feedback.pushInfo(self.tr("The global test passes."))
         else:
-            feedback.pushWarning(self.tr("The global test fails: %1").replace("%1", test.note))
+            feedback.pushWarning(global_test_failed(test))
 
         if snooping.candidates:
             feedback.pushWarning(
@@ -687,10 +688,10 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
     def _summary_rows(self, network, options, run, confidence) -> list[list[str]]:
         return [
             [escape(self.tr("Network")), escape(network.id or "—")],
-            [escape(self.tr("Coordinate frame")), escape(options.frame.value)],
-            [escape(self.tr("Datum definition")), escape(options.datum.value)],
-            [escape(self.tr("Datum defect")), escape(run.defect.describe())],
-            [escape(self.tr("Solving method")), escape(run.method)],
+            [escape(self.tr("Coordinate frame")), escape(in_words(options.frame))],
+            [escape(self.tr("Datum definition")), escape(in_words(options.datum))],
+            [escape(self.tr("Datum defect")), escape(defect_words(run.defect))],
+            [escape(self.tr("Solving method")), escape(solver_label(run.method))],
             [escape(self.tr("Observation equations")), escape(run.system.observation_count)],
             [escape(self.tr("Parameters")), escape(run.layout.size)],
             [escape(self.tr("Degrees of freedom")), escape(run.degrees_of_freedom)],
@@ -727,8 +728,8 @@ class NetworkAdjustAlgorithm(GeoCompAlgorithm):
             ],
         ]
         block = render_table([escape(self.tr("Quantity")), escape(self.tr("Value"))], rows)
-        if test.note:
-            block += render_note(test.note)
+        if not test.passed:
+            block += render_note(global_test_failed(test))
         return block
 
     def _stations_table(self, solution) -> str:

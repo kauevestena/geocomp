@@ -739,13 +739,18 @@ class DatumReport:
             for any connected network of differences (``specs/12`` section 5).
             Absolute values then remove it, which :attr:`removed_by` says.
         components: Which components, by name.
-        removed_by: In words: a fixed station, weighted absolute values, or an
-            inner constraint that leaves every value relative to their mean.
+        removed_by: In English, for logs and documents: a fixed station,
+            weighted absolute values, or an inner constraint that leaves every
+            value relative to their mean.
+        definition: Which of the three it is, for words in the language (P12c-42).
+        held: The stations that hold it: fixed, or with absolute values.
     """
 
     defect: int
     components: tuple[str, ...]
     removed_by: str
+    definition: DatumDefinition = DatumDefinition.NONE
+    held: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -803,7 +808,7 @@ def adjust_gravity_network(
 ) -> GravityNetworkResult:
     """Adjust, test and report a gravity network (FR-700, FR-702, FR-250..FR-253)."""
     network = built.network
-    datum, removed_by = _datum(network)
+    datum, held, removed_by = _datum(network)
     options = AdjustmentOptions(
         frame=Frame.GRAVITY_1D,
         datum=datum,
@@ -873,6 +878,8 @@ def adjust_gravity_network(
             defect=defect.size,
             components=tuple(c.value for c in defect.components),
             removed_by=removed_by,
+            definition=datum,
+            held=held,
         ),
         sessions=dict(built.sessions),
         drift=drift,
@@ -882,7 +889,7 @@ def adjust_gravity_network(
     )
 
 
-def _datum(network: Network) -> tuple[DatumDefinition, str]:
+def _datum(network: Network) -> tuple[DatumDefinition, tuple[str, ...], str]:
     fixed = sorted(
         s.id
         for s in network.stations.values()
@@ -897,13 +904,13 @@ def _datum(network: Network) -> tuple[DatumDefinition, str]:
         o.stations[0] for o in network.active_observations if o.type is ObservationType.GRAVITY
     )
     if fixed:
-        return DatumDefinition.FIXED, "gravity held fixed at " + ", ".join(fixed)
+        return DatumDefinition.FIXED, tuple(fixed), "gravity held fixed at " + ", ".join(fixed)
     if absolute or weighted:
-        return DatumDefinition.CONSTRAINED, "weighted absolute gravity at " + ", ".join(
-            sorted(set(absolute) | set(weighted))
-        )
+        held = tuple(sorted(set(absolute) | set(weighted)))
+        return DatumDefinition.CONSTRAINED, held, "weighted absolute gravity at " + ", ".join(held)
     return (
         DatumDefinition.INNER_CONSTRAINT,
+        (),
         "an inner constraint: the mean of the station values is held, so every value "
         "is relative to that mean and none is an absolute gravity",
     )

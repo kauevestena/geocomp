@@ -172,11 +172,17 @@ class AppliedTransformation:
 
 @dataclass(frozen=True)
 class Routing:
-    """Which engine adjusts the combination, and why (``specs/13`` section 6)."""
+    """Which engine adjusts the combination, and why (``specs/13`` section 6).
+
+    ``reason`` is the why in English, for the provenance; ``code`` and
+    ``context`` are the same for words in the language (P12c-42).
+    """
 
     engine: str
     reason: str
     gravity_observations: tuple[str, ...] = ()
+    code: str = ""
+    context: Mapping[str, Any] = field(default_factory=dict, compare=False)
 
 
 @dataclass(frozen=True)
@@ -389,6 +395,8 @@ def route(network: Network, requested: str = "in_house") -> Routing:
                 "their being dropped"
             ),
             gravity_observations=gravity,
+            code="gravity_in_house",
+            context={"count": len(gravity)},
         )
     if requested == "dynadjust":
         missing = sorted(
@@ -406,6 +414,8 @@ def route(network: Network, requested: str = "in_house") -> Routing:
                     "(specs/07 section 4.2); the in-house core adjusts the whole "
                     "combination rather than a part of it"
                 ),
+                code="type_without_dynadjust",
+                context={"types": tuple(missing)},
             )
         if not _in_a_frame(network):
             return Routing(
@@ -414,6 +424,8 @@ def route(network: Network, requested: str = "in_house") -> Routing:
                     f"the combination is in a local system ({network.crs or 'unstated'}), "
                     "and DynAdjust adjusts on the ellipsoid of a named frame"
                 ),
+                code="local_system",
+                context={"crs": network.crs},
             )
         orthometric = [o.id for o in network.observations.values() if _is_orthometric(o)]
         if orthometric:
@@ -425,12 +437,20 @@ def route(network: Network, requested: str = "in_house") -> Routing:
                     "uncertainty (specs/13 section 3.2), where DynAdjust would take the "
                     "separations as exact"
                 ),
+                code="orthometric_in_house",
+                context={"count": len(orthometric)},
             )
-        return Routing(engine="dynadjust", reason="requested, and every observation has a DynAdjust type")
+        return Routing(
+            engine="dynadjust",
+            reason="requested, and every observation has a DynAdjust type",
+            code="dynadjust_requested",
+        )
     return Routing(
         engine="in_house",
         reason="requested" + (" (gravity observations included)" if gravity else ""),
         gravity_observations=gravity,
+        code="in_house_requested",
+        context={"gravity": len(gravity)},
     )
 
 

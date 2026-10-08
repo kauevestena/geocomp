@@ -52,6 +52,7 @@ from geocomp.algorithms.defaults import (
     run_epoch,
 )
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import defect_words
 from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
@@ -60,6 +61,7 @@ from geocomp.algorithms.reporting import (
     escape,
     exact,
     format_number,
+    global_test_failed,
     no_redundancy,
     render_document,
     render_note,
@@ -124,7 +126,8 @@ class _GridOutcome:
 
     records: tuple[GridReduction, ...] = ()
     reason: str = ""
-    note: str = ""
+    #: In words, translated where it was said.
+    said: str = ""
 
     @property
     def applied(self) -> bool:
@@ -542,7 +545,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
         def not_reduced(reason: str, note: str) -> tuple[Any, _GridOutcome]:
             feedback.pushInfo(note)
-            return network, _GridOutcome(reason=reason, note=note)
+            return network, _GridOutcome(reason=reason, said=note)
 
         if not wanted:
             return not_reduced("not_asked", self.tr("No: the reduction was turned off."))
@@ -590,7 +593,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 .replace("%2", ", ".join(outside))
             )
             feedback.pushWarning(note)
-            return network, _GridOutcome(reason="outside_area", note=note)
+            return network, _GridOutcome(reason="outside_area", said=note)
 
         def scale_factor(easting: float, northing: float) -> float:
             point = to_geographic.transform(QgsPointXY(easting, northing))
@@ -632,7 +635,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             .replace("%3", format_number(max(ppm), 1))
         )
         feedback.pushInfo(self.tr("Reduced to the grid: %1").replace("%1", note))
-        return reduced, _GridOutcome(records=records, note=note)
+        return reduced, _GridOutcome(records=records, said=note)
 
     def _push_summary(self, run, test, snooping, feedback) -> None:
         feedback.pushInfo(
@@ -650,7 +653,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         elif test.passed:
             feedback.pushInfo(self.tr("The global test passes."))
         else:
-            feedback.pushWarning(self.tr("The global test fails: %1").replace("%1", test.note))
+            feedback.pushWarning(global_test_failed(test))
         if snooping.candidates:
             feedback.pushWarning(
                 self.tr(
@@ -730,14 +733,14 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             [escape(self.tr("Network")), escape(network.id)],
             [escape(self.tr("Stations")), escape(len(network.stations))],
             [escape(self.tr("Observations")), escape(len(network.observations))],
-            [escape(self.tr("Datum defect")), escape(run.defect.describe())],
+            [escape(self.tr("Datum defect")), escape(defect_words(run.defect))],
             [escape(self.tr("Degrees of freedom")), escape(run.degrees_of_freedom)],
             [escape(self.tr("Iterations")), escape(run.iterations)],
             [
                 escape(self.tr("Variance factor")),
                 format_number(run.variance_factor_aposteriori),
             ],
-            [escape(self.tr("Distances reduced to the grid")), escape(grid.note)],
+            [escape(self.tr("Distances reduced to the grid")), escape(grid.said)],
         ]
 
         shown = display_format()
@@ -796,8 +799,8 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 ],
             ),
         ]
-        if test.note and test.tested:
-            body.append(render_note(test.note))
+        if test.tested and not test.passed:
+            body.append(render_note(global_test_failed(test)))
 
         body.append(f"<h2>{escape(self.tr('Data snooping'))}</h2>")
         body.append(

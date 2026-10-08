@@ -620,70 +620,92 @@ def test_every_failure_a_window_or_panel_reports_says_what_to_do():
 
 
 #: What the core writes in English for its own logs and documents, not for a
-#: reader: a ``describe()``, and these attributes. Put into a translated sentence,
-#: each leaves an English phrase in a Portuguese one, and P12c-9's rule, which
+#: reader: a ``describe()``, an enum's ``value``, and these attributes. Shown as
+#: it stands, each leaves an English phrase -- or a token like
+#: ``minimum_constraint`` -- in a Portuguese report, and P12c-9's rule, which
 #: reads the templates, does not see it: the text arrives in an object.
 _CORE_ENGLISH_ATTRIBUTES = frozenset(
-    {"defect_description", "detail", "group", "method", "note", "reason", "removed_by", "technique"}
-)
-
-#: Those still put into a sentence when P12c-41 counted, by file and expression.
-#: P12c-41 worded the GNSS ones -- a product's name, why it could not be had, a
-#: batch row the engine solved nothing for -- and the rest are P12c-42's. The
-#: list may only shrink: a site worded must leave it, and a new one fails.
-_STILL_ENGLISH = frozenset(
     {
-        "geocomp/algorithms/analysis/network_adjust.py: run.defect.describe()",
-        "geocomp/algorithms/analysis/network_adjust.py: run.method",
-        "geocomp/algorithms/analysis/network_adjust.py: test.note",
-        "geocomp/algorithms/analysis/network_preanalysis.py: design.defect_description",
-        "geocomp/algorithms/engines/dynadjust_adjust.py: stage.reason",
-        "geocomp/algorithms/gravimetry/network_adjust.py: result.datum.removed_by",
-        "geocomp/algorithms/integration/common.py: routing.reason",
-        "geocomp/algorithms/integration/common.py: summary.technique",
-        "geocomp/algorithms/levelling/network_adjust.py: component.group",
-        "geocomp/algorithms/totalstation/network.py: test.note",
+        "defect_description",
+        "detail",
+        "group",
+        "kind",
+        "method",
+        "note",
+        "reason",
+        "removed_by",
+        "technique",
+        "value",
     }
 )
 
+#: Where a value reaches a reader: a report's cell or note, the log, a widget.
+_SHOWN_BY = frozenset(
+    {"escape", "render_note", "pushInfo", "pushWarning", "reportError", "setText", "setToolTip"}
+)
 
-def _core_english_in_sentences() -> set[str]:
-    """Each ``.replace("%N", value)`` outside the core whose value is the core's English."""
+
+def _core_english(value: ast.expr) -> bool:
+    return (isinstance(value, ast.Attribute) and value.attr in _CORE_ENGLISH_ATTRIBUTES) or (
+        isinstance(value, ast.Call)
+        and isinstance(value.func, ast.Attribute)
+        and value.func.attr == "describe"
+    )
+
+
+def _core_english_shown() -> set[str]:
+    """Each value outside the core that reaches a reader as the core's English.
+
+    Put into a translated sentence by ``.replace("%N", value)``, or handed
+    straight to something that shows it (:data:`_SHOWN_BY`).
+    """
     found = set()
     for path in python_sources(PLUGIN_DIR):
         if path.relative_to(PLUGIN_DIR).parts[0] in {"core", "io", "engines"}:
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
-            if not (
-                isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Attribute)
+            if not isinstance(node, ast.Call):
+                continue
+            shown: list[ast.expr] = []
+            if (
+                isinstance(node.func, ast.Attribute)
                 and node.func.attr == "replace"
                 and len(node.args) == 2
                 and isinstance(node.args[0], ast.Constant)
                 and str(node.args[0].value).startswith("%")
             ):
-                continue
-            value = node.args[1]
-            english = (
-                isinstance(value, ast.Attribute) and value.attr in _CORE_ENGLISH_ATTRIBUTES
-            ) or (
-                isinstance(value, ast.Call)
-                and isinstance(value.func, ast.Attribute)
-                and value.func.attr == "describe"
-            )
-            if english:
-                found.add(f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}: {ast.unparse(value)}")
+                shown = [node.args[1]]
+            elif _callee(node.func) in _SHOWN_BY:
+                shown = list(node.args)
+            for value in shown:
+                if _core_english(value):
+                    where = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{node.lineno}"
+                    found.add(f"{where}: {ast.unparse(value)}")
     return found
 
 
-def test_no_sentence_carries_the_cores_english():
-    """FR-091 for what the core hands over in objects, not templates (P12c-41)."""
-    found = _core_english_in_sentences()
-    new = sorted(found - _STILL_ENGLISH)
-    assert not new, (
-        "These put the core's English into a translated sentence (FR-091). Say the "
-        "value in words where the sentence is made:\n" + "\n".join(new)
+def test_the_core_english_extractor_sees_a_value_shown():
+    """It would have found the sites P12c-42 worded, written as they were."""
+    tree = ast.parse("escape(options.datum.value)\nlog.replace('%1', run.defect.describe())")
+    values = [node.args[-1] for node in ast.walk(tree) if isinstance(node, ast.Call) and node.args]
+    assert all(_core_english(value) for value in values)
+
+
+def test_no_reader_is_shown_the_cores_english():
+    """FR-091 for what the core hands over in objects, not templates (P12c-41, P12c-42).
+
+    When P12c-41 counted, ten log lines put the core's English into a translated
+    sentence. Read over every place a value is shown, P12c-42 found 25 more:
+    report cells and notes showing an enum's value, the defect's ``describe()``
+    or the global test's English note. All 35 say it in words now --
+    :mod:`geocomp.algorithms.labels` for the enums -- and there is no exemption.
+    Two more were the plugin's own translated words under a name the rule reads
+    (a ``note``, a ``describe``), and were renamed rather than excused.
+    """
+    found = sorted(_core_english_shown())
+    assert not found, (
+        "These show a reader the core's English or an enum's value (FR-091). Say it "
+        "in words where it is shown -- geocomp.algorithms.labels has the enums:\n"
+        + "\n".join(found)
     )
-    gone = sorted(_STILL_ENGLISH - found)
-    assert not gone, "Worded now; take them off _STILL_ENGLISH:\n" + "\n".join(gone)
