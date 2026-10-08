@@ -2734,6 +2734,33 @@ them is recorded as not done. The `SessionQuality.dilution_of_precision` justifi
 **Not done.** Cycle slips and rejections, from the same lines. A `.pos` read on its own, without the run that
 produced it, has no geometry and so no DOP.
 
+#### P12c-36 — cycle slips and rejected observations, as the engine reports them
+
+specs/11 §5 lists cycle slips and rejected epochs among the quality indicators; P12c-35 found that the status
+file it reads carries both and recorded reading them as not done. They are read now, in the same pass: a slip
+is the slip flag's first bit on a signal flagged valid, a rejection the outlier counter changing to a value
+other than zero (specs/11 §5 says why each rule is what it is). Each epoch carries the signals, the session the
+counts and the satellites, the JSON summary all four, and the trajectory layer `slips`, `slipped`,
+`rejections` and `rejected`.
+
+**Where the evidence comes from.** RTKLIB's sample is clean -- no slip and no outlier in 120 epochs -- so a
+reader tested on it would pass reading nothing. `tests/gnss_faults.py` puts faults into the sample's real
+rover file where the answer is known: five and three cycles on G20's carriers from 00:30 with no loss-of-lock
+flag, and 500 m on G19's pseudoranges at 00:45. The engine flags the slip on both of G20's carriers at 00:30
+and rejects both of G19's signals at 00:45, and nothing else; the committed status file of that run is read in
+tier 1, and the same faults are put in and the engine run live in tier 4 (`tests/test_cycle_slips.py`).
+
+**Found while doing it.** RTKLIB's rejection counter read 3 at the outlier's epoch: the engine passes over the
+residuals up to three times an epoch and counts each rejection, so summing the counter would have reported
+three outliers for one. It is read as changes, one per signal per epoch. The sample's rover file holds a RINEX
+event record (a splice, flag 4) that a fault-insertion helper written for flag 0 alone refused; the helper
+passes event records over.
+
+**Not done.** Which band a frequency number is depends on the constellation and on RTKLIB's code priorities, so
+a signal is named `G20/1` and not `G20 L1`. A `.pos` read on its own, as the baseline algorithm reads one,
+has no status file beside it and reports neither -- `None`, not zero. GNSS processing writes no HTML report;
+the counts are in the JSON summary (single and batch runs alike), the layer and the log.
+
 ---
 
 ## P13 — Validation, documentation and release

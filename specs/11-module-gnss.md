@@ -295,9 +295,25 @@ carries the satellite count, the ambiguity ratio, the age of differential and no
 the baseline layer carries the fixed fraction and the status of the epoch its vector came from. The
 processing algorithms also write the whole `SessionQuality` as a JSON summary beside the `.pos`.
 
-**Cycle slips and rejected observations are reported by the engine and not yet read.** P7c recorded them as
-reported in no output format; that was wrong. The same `$SAT` lines carry a slip flag and slip and rejection
-counters per satellite and frequency (`outsolstat` in `src/rtkpos.c`), and reading them is work not done.
+**Cycle slips and rejected observations are the engine's own detections, read from the same file** (P12c-36).
+P7c recorded them as reported in no output format; that was wrong. The `$SAT` lines carry, per satellite and
+frequency -- a *signal*, named `G20/1` by the satellite and RTKLIB's frequency number -- a slip flag and an outlier
+counter (`outsolstat` in `src/rtkpos.c`), and GeoComp reports what they say rather than detecting anything itself:
+
+- **a cycle slip** is the slip flag's first bit on a signal flagged valid. Valid matters: RTKLIB clears the flag
+  each epoch only for satellites both receivers observe, so a satellite the base has lost carries its last flag
+  forward on lines that are not valid.
+- **a rejected observation** is the outlier counter changing to a value other than zero. The counter is not itself
+  a count: RTKLIB raises it once for each pass over the residuals that rejects the signal -- three in one epoch of
+  the test run -- and resets it when it restarts the signal's ambiguity. It misses a rejection only where the
+  engine reset the counter and rejected that signal as many times again in the same epoch.
+
+Each epoch carries the signals of either kind; the session carries how many there were and which satellites
+they were on -- `None`, not zero, where the engine reported on no epoch. A slip found from the two carriers
+together is two signals. The trajectory layer carries `slips` and `rejections` as counts and `slipped` and
+`rejected` as the signals. Checked against faults put where the answer is known -- a slip on one satellite, an
+outlier on another, in the sample's real observations (`tests/gnss_faults.py`) -- which the engine finds at the
+epochs and on the signals they were put on, and nowhere else (`tests/test_cycle_slips.py`).
 
 ---
 

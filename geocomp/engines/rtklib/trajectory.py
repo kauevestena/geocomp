@@ -96,6 +96,8 @@ def _quality(epoch: PosEpoch, solution: PosSolution) -> EpochQuality:
         ratio=epoch.ratio,
         age=epoch.age,
         dop=solution.dop_at(epoch.time),
+        slips=solution.slips_at(epoch.time),
+        rejections=solution.rejections_at(epoch.time),
     )
 
 

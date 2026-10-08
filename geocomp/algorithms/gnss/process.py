@@ -113,8 +113,10 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             "atmospheric models and the ambiguity ratio threshold.</p>"
             "<p>Outputs the engine's <code>.pos</code> solution and a JSON summary "
             "of the run's quality indicators: solution status per epoch, the "
-            "fraction of epochs with resolved ambiguities, satellite counts and "
-            "the ambiguity ratio.</p>"
+            "fraction of epochs with resolved ambiguities, satellite counts, "
+            "the ambiguity ratio, the dilution of precision, and the cycle slips "
+            "and outlying observations the engine detected, with the satellites "
+            "they were on.</p>"
         )
         body += configuration_help()
         if self.is_absolute:
@@ -332,6 +334,24 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             .replace("%1", str(quality.epochs))
             .replace("%2", localised(f"{quality.fixed_fraction * 100:.1f}"))
         )
+        # The engine's own detections (specs/11 section 5); None when it
+        # reported on no epoch, which is not the same as reporting none.
+        if quality.cycle_slips is not None:
+            feedback.pushInfo(
+                _tr("Cycle slips detected by the engine: %1, on %2.")
+                .replace("%1", str(quality.cycle_slips))
+                .replace("%2", ", ".join(quality.satellites_slipped))
+                if quality.cycle_slips
+                else _tr("The engine detected no cycle slip.")
+            )
+        if quality.rejections is not None:
+            feedback.pushInfo(
+                _tr("Observations the engine rejected as outliers: %1, on %2.")
+                .replace("%1", str(quality.rejections))
+                .replace("%2", ", ".join(quality.satellites_rejected))
+                if quality.rejections
+                else _tr("The engine rejected no observation as an outlier.")
+            )
 
         outputs: dict[str, Any] = {}
         if destination:

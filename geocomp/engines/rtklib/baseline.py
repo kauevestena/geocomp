@@ -207,6 +207,8 @@ def quality_from_solution(
             ratio=epoch.ratio,
             age=epoch.age,
             dop=solution.dop_at(epoch.time),
+            slips=solution.slips_at(epoch.time),
+            rejections=solution.rejections_at(epoch.time),
         )
         for epoch in solution.epochs
     ]

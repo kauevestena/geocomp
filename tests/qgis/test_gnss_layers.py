@@ -482,6 +482,44 @@ class TestTheTrajectoryLayer:
             for column in ("pdop", "hdop", "vdop"):
                 assert feature[column] == pytest.approx(float(row[column]), abs=1e-6), column
 
+    def test_the_slip_and_rejection_columns_are_the_engines(self, geocomp_provider, tmp_path):
+        """P12c-36: the run with a slip put on G20 at 00:30 and an outlier on
+        G19 at 00:45 (tests/gnss_faults.py, tests/data/rtklib/stat/)."""
+        import gzip
+        from datetime import datetime
+
+        from geocomp.engines.rtklib.read_pos import read_pos
+        from geocomp.engines.rtklib.read_stat import read_status
+        from geocomp.engines.rtklib.trajectory import trajectory_from_solution
+        from geocomp.layers.builders import gnss_trajectory_layer
+
+        stat = REPO_ROOT / "tests" / "data" / "rtklib" / "stat"
+        status_file = tmp_path / "slip-and-outlier.pos.stat"
+        status_file.write_bytes(gzip.decompress((stat / "slip-and-outlier.pos.stat.gz").read_bytes()))
+        solution = read_pos(REPO_ROOT / "tests" / "data" / "rtklib" / "pos" / "llh.pos")
+
+        bare = gnss_trajectory_layer(trajectory_from_solution(solution))
+        # Read on its own the solution says nothing about slips: NULL, not 0.
+        assert all(
+            value is None or (hasattr(value, "isNull") and value.isNull())
+            for column in ("slips", "slipped", "rejections", "rejected")
+            for value in _values(bare, column)
+        )
+
+        status = read_status(status_file)
+        solution.slips = {time: epoch.slips for time, epoch in status.items()}
+        solution.rejections = {time: epoch.rejections for time, epoch in status.items()}
+        layer = gnss_trajectory_layer(trajectory_from_solution(solution))
+        rows = {
+            datetime.fromisoformat(feature["epoch"]).strftime("%H:%M:%S"): (
+                feature["slips"], feature["slipped"], feature["rejections"], feature["rejected"]
+            )
+            for feature in layer.getFeatures()
+        }
+        assert rows.pop("00:30:00") == (2, "G20/1 G20/2", 0, "")
+        assert rows.pop("00:45:00") == (0, "", 2, "G19/1 G19/2")
+        assert set(rows.values()) == {(0, "", 0, "")}
+
     def test_qgis_accepts_the_trajectory_style(self, geocomp_provider):
         from qgis.core import QgsVectorLayer
 

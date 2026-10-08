@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-36 — Cycle slips and rejected observations for GNSS sessions
+
+#### Added
+
+- GNSS processing reports the cycle slips the engine detected and the observations it rejected as outliers,
+  per epoch and per session, with the satellites they were on. The trajectory layer gains `slips`, `slipped`,
+  `rejections` and `rejected` columns; the JSON quality summary carries the counts and satellites.
+
 ### P12c-35 — Dilution of precision for GNSS sessions
 
 #### Added
