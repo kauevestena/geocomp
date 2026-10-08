@@ -213,6 +213,13 @@ Discovery also: pairs observation files with navigation files, groups sessions b
 decompresses them into the working area, and reports files it could not interpret without aborting the scan
 (FR-166).
 
+**What it reports is findings, not sentences (P12c-41).** A file skipped and a file doubted are each a
+`Finding` with a code and its values -- `rinex_unreadable` (carrying the refusal), `rinex_neither_observation_nor_navigation`,
+`file_name_claims_another_station`, `file_name_claims_another_day`, `navigation_paired_by_fallback`,
+`session_span_unknown` -- and the algorithm words each by its template, in the language, with what to do
+([`18`](./18-i18n-and-profiles.md) §2). The scan's JSON keeps the code and the developer's English beside
+each file.
+
 **Antenna height is a first-class field, not metadata.** Its measurement method — vertical or slant, to which
 antenna reference point — must be recorded, because an unrecorded slant height is one of the most common
 sources of a systematic height error in GNSS work.

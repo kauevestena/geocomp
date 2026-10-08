@@ -511,6 +511,47 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "session",
         "project",
     ),
+    # -- what a folder scan skipped or doubted (P12c-41) --------------------------
+    # Until P12c-41 the scan said these in its own English, and the algorithms put
+    # that into a translated sentence: "Could not read %1: data.rinex_header_missing".
+    "finding.rinex_unreadable": MessageTemplate(
+        "Could not read %1: %2",
+        "file",
+        "reason",
+    ),
+    "finding.rinex_neither_observation_nor_navigation": MessageTemplate(
+        "Skipped %1: it is a RINEX file of type %2, neither observation nor navigation. If it "
+        "holds observations, check the RINEX VERSION / TYPE line of its header.",
+        "file",
+        "type",
+    ),
+    "finding.navigation_paired_by_fallback": MessageTemplate(
+        "%1: no navigation file's name states this session's day, so every navigation file in "
+        "the folder (%2) is offered to it. Name the navigation files by their day, or keep only "
+        "this session's in the folder.",
+        "file",
+        "count",
+    ),
+    "finding.session_span_unknown": MessageTemplate(
+        "%1 states no TIME OF LAST OBS and its last epoch cannot be read, so its span is "
+        "unknown and it cannot be matched with sessions observed at the same time. Decompress "
+        "it, or add TIME OF LAST OBS to its header.",
+        "file",
+    ),
+    "finding.file_name_claims_another_station": MessageTemplate(
+        "%1: the file name says station %2 and the header says marker %3; the header is used. "
+        "Check which is right, and correct the other.",
+        "file",
+        "claimed",
+        "marker",
+    ),
+    "finding.file_name_claims_another_day": MessageTemplate(
+        "%1: the file name says %2 and the first observation is on %3; the header is used. "
+        "Check which is right, and correct the other.",
+        "file",
+        "claimed",
+        "observed",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

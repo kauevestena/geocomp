@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import Any
 
 from geocomp.core.errors import DataError, GeoCompError
+from geocomp.core.findings import Finding, Severity
 from geocomp.core.models import GnssSession
 from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
@@ -71,12 +72,18 @@ _CANDIDATE_SUFFIXES = (
 class SessionScan:
     """What a scan found, and what it could not read.
 
+    Both lists hold :class:`~geocomp.core.findings.Finding` objects, each with
+    the file in ``context["file"]``: a code and the values to word it with, as
+    everything the core reports. Until P12c-41 they were ``(file, reason)``
+    pairs whose reason was this module's English -- "navigation files paired
+    by fallback: ..." -- and the algorithms put it into a translated sentence.
+
     Attributes:
-        skipped: ``(file, reason)`` for every candidate that could not be read.
+        skipped: One finding for every candidate that could not be read.
             **Never silently empty**: FR-166 requires a scan to report every bad
             file rather than stopping at the first, and a session missing from
             this list and from ``sessions`` both is a session nobody knows about.
-        warnings: ``(file, reason)`` for files that were read but say something
+        warnings: One finding for each file that was read but says something
             inconsistent -- a marker that disagrees with the name, a navigation
             file paired by fallback. Not errors: the data is usable and the
             user is the one who can say whether it is right.
@@ -84,16 +91,21 @@ class SessionScan:
 
     sessions: tuple[GnssSession, ...] = ()
     navigation: tuple[Path, ...] = ()
-    skipped: list[tuple[str, str]] = field(default_factory=list)
-    warnings: list[tuple[str, str]] = field(default_factory=list)
+    skipped: list[Finding] = field(default_factory=list)
+    warnings: list[Finding] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """The scan as JSON: the reasons by code, with the developer's sentence beside each."""
         return {
             "sessions": [session.to_dict() for session in self.sessions],
             "navigation": [str(path) for path in self.navigation],
-            "skipped": [{"file": name, "reason": reason} for name, reason in self.skipped],
-            "warnings": [{"file": name, "reason": reason} for name, reason in self.warnings],
+            "skipped": [_noted(finding) for finding in self.skipped],
+            "warnings": [_noted(finding) for finding in self.warnings],
         }
+
+
+def _noted(finding: Finding) -> dict[str, str]:
+    return {"file": finding.context["file"], "code": finding.code, "reason": finding.message}
 
 
 def scan_folder(folder: str | Path, *, recursive: bool = False) -> SessionScan:
@@ -124,7 +136,15 @@ def scan_folder(folder: str | Path, *, recursive: bool = False) -> SessionScan:
         try:
             header = read_rinex_header(path)
         except GeoCompError as error:
-            scan.skipped.append((str(path), _reason(error)))
+            scan.skipped.append(
+                Finding(
+                    "rinex_unreadable",
+                    Severity.WARNING,
+                    _reason(error),
+                    context={"file": str(path)},
+                    error=error,
+                )
+            )
             continue
         if header.is_observation:
             observations.append((path, header))
@@ -132,7 +152,12 @@ def scan_folder(folder: str | Path, *, recursive: bool = False) -> SessionScan:
             navigation.append((path, header))
         else:
             scan.skipped.append(
-                (str(path), f"RINEX file type {header.file_type!r} is neither observation nor navigation")
+                Finding(
+                    "rinex_neither_observation_nor_navigation",
+                    Severity.WARNING,
+                    f"RINEX file type {header.file_type!r} is neither observation nor navigation",
+                    context={"file": str(path), "type": header.file_type},
+                )
             )
 
     scan.navigation = tuple(path for path, _ in navigation)
@@ -164,11 +189,15 @@ def session_from_header(
 
     nav_files, fell_back = _navigation_for(header, hints, navigation or [])
     if scan is not None and fell_back and nav_files:
-        scan.warnings.append((
-            str(path),
-            "navigation files paired by fallback: no file name stated a matching date, "
-            f"so all {len(nav_files)} navigation files in the scan are offered",
-        ))
+        scan.warnings.append(
+            Finding(
+                "navigation_paired_by_fallback",
+                Severity.WARNING,
+                "navigation files paired by fallback: no file name stated a matching date, "
+                f"so all {len(nav_files)} navigation files in the scan are offered",
+                context={"file": str(path), "count": len(nav_files)},
+            )
+        )
 
     # TIME OF LAST OBS is optional and RTKLIB's own sample files omit it. Two
     # sessions with no end cannot be tested for simultaneity at all, so the very
@@ -180,11 +209,15 @@ def session_from_header(
     if end is None:
         end = read_last_epoch(path, header)
         if scan is not None and end is None and header.first_observation is not None:
-            scan.warnings.append((
-                str(path),
-                "neither TIME OF LAST OBS nor a readable final epoch, so the session's span "
-                "is unknown and it cannot be matched with simultaneous sessions",
-            ))
+            scan.warnings.append(
+                Finding(
+                    "session_span_unknown",
+                    Severity.WARNING,
+                    "neither TIME OF LAST OBS nor a readable final epoch, so the session's "
+                    "span is unknown and it cannot be matched with simultaneous sessions",
+                    context={"file": str(path)},
+                )
+            )
 
     height = header.antenna_delta.height if header.antenna_delta else None
     return GnssSession(
@@ -271,20 +304,36 @@ def _cross_check(path: Path, header: RinexHeader, hints: Any, scan: SessionScan)
         marker, claimed = header.marker_name.upper(), hints.station.upper()
         width = min(len(marker), len(claimed), 4)
         if marker[:width] != claimed[:width]:
-            scan.warnings.append((
-                str(path),
-                f"the file name claims station {hints.station!r} and the header states "
-                f"marker {header.marker_name!r}; the header is used",
-            ))
+            scan.warnings.append(
+                Finding(
+                    "file_name_claims_another_station",
+                    Severity.WARNING,
+                    f"the file name claims station {hints.station!r} and the header states "
+                    f"marker {header.marker_name!r}; the header is used",
+                    context={
+                        "file": str(path),
+                        "claimed": hints.station,
+                        "marker": header.marker_name,
+                    },
+                )
+            )
 
     if hints.has_date and header.first_observation is not None:
         named = datetime(hints.year, 1, 1, tzinfo=UTC) + timedelta(days=hints.day_of_year - 1)
         if named.date() != header.first_observation.date():
-            scan.warnings.append((
-                str(path),
-                f"the file name claims {named.date().isoformat()} and the first observation is "
-                f"{header.first_observation.date().isoformat()}; the header is used",
-            ))
+            scan.warnings.append(
+                Finding(
+                    "file_name_claims_another_day",
+                    Severity.WARNING,
+                    f"the file name claims {named.date().isoformat()} and the first observation "
+                    f"is {header.first_observation.date().isoformat()}; the header is used",
+                    context={
+                        "file": str(path),
+                        "claimed": named.date().isoformat(),
+                        "observed": header.first_observation.date().isoformat(),
+                    },
+                )
+            )
 
 
 def _navigation_for(

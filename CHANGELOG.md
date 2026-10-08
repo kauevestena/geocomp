@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-41 — GNSS says files and products in your language
+
+#### Changed
+
+- What a folder scan skipped or doubted is said in your language, with what to do: a file it could not read, a
+  name that claims another station or day, navigation paired by fallback. Until now these were the scanner's
+  own English inside a translated sentence.
+- Products are named in words ("final orbit for 2025-01-02"), and a product that cannot be had says why and
+  what to do, instead of "(not found)".
+- A batch session the engine solved nothing for says what to check, instead of an English phrase.
+- Batch GNSS processing now warns of a scan's doubts, as single-session processing does.
+
 ### P12c-40 — Every error an algorithm or a window words itself says what to do
 
 #### Changed

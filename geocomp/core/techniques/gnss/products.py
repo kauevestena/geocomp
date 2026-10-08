@@ -58,6 +58,8 @@ from geocomp.core.errors import DataError, ValidationError
 __all__ = [
     "BUILTIN_SERVICES",
     "NOAA",
+    "NOT_FOUND",
+    "NO_DOWNLOAD_SERVICE",
     "Availability",
     "Fetcher",
     "Latency",
@@ -102,6 +104,12 @@ class Latency(Enum):
     BROADCAST = "broadcast"
 
 
+#: Why a product could not be had: no local copy and no service had it, or no
+#: local copy and no service to ask. Machine values, for the JSON report and
+#: provenance; the algorithms say them in words (P12c-41).
+NOT_FOUND = "not found"
+NO_DOWNLOAD_SERVICE = "no download service"
+
 #: The latency classes an orbit falls back through, best first.
 ORBIT_LATENCIES = (Latency.FINAL, Latency.RAPID)
 
@@ -127,6 +135,7 @@ class ProductRequest:
         return f"{self.kind.value}/{self.latency.value}"
 
     def fields(self) -> dict[str, str]:
+        """The values a service's URL template and the cache path are filled from."""
         week, dow = gps_week(self.day)
         return {
             "yyyy": f"{self.day.year:04d}",
@@ -139,13 +148,20 @@ class ProductRequest:
         }
 
     def cache_directory(self, root: Path) -> Path:
+        """Where under the cache *root* this product is kept: kind, latency, centre, year, day."""
         f = self.fields()
         return root / self.kind.value / self.latency.value / self.centre / f["yyyy"] / f["doy"]
 
     def describe(self) -> str:
+        """``orbit final 2005-04-02``: the product as the JSON report and provenance name it.
+
+        Machine English, not words for a reader: the algorithms say a product with
+        ``product_label`` in :mod:`geocomp.algorithms.gnss.common` (P12c-41).
+        """
         return f"{self.kind.value} {self.latency.value} {self.day.isoformat()}"
 
     def with_latency(self, latency: Latency) -> ProductRequest:
+        """The same product for the same day, at *latency*: how an orbit falls back."""
         return ProductRequest(self.kind, self.day, latency, self.centre)
 
 
@@ -594,7 +610,7 @@ def resolve(
                     substituted.append((request, candidate.latency))
                 break
         else:
-            reason = "not found" if reasons or fetcher is not None else "no download service"
+            reason = NOT_FOUND if reasons or fetcher is not None else NO_DOWNLOAD_SERVICE
             missing.append((request, reason))
     return Resolution(tuple(resolved), tuple(missing), tuple(substituted))
 
@@ -728,12 +744,12 @@ def _available(
     if local is not None:
         return Availability(request, local.record.origin, "")
     if fetcher is None:
-        return Availability(request, reason="no download service")
+        return Availability(request, reason=NO_DOWNLOAD_SERVICE)
     for service in services:
         for url in service.urls(request):
             if fetcher.exists(url, service.authcfg):
                 return Availability(request, service.id, url)
-    return Availability(request, reason="not found")
+    return Availability(request, reason=NOT_FOUND)
 
 
 def _download(

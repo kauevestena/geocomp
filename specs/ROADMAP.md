@@ -2833,6 +2833,34 @@ not in a call.
 **Not done.** The scan's warnings, so NFR-006 stays partly met; they are P12c-41. A GUI failure worded other
 than "could not" is not seen by the rule. And the test checks that a remedy is there, not that it is right.
 
+#### P12c-41 — GNSS says files and products in words; the core's English held to a list (FR-091, NFR-006)
+
+The GNSS folder scan reported what it skipped or doubted as `(file, reason)` pairs in its own English, and four
+algorithms put the reason into a translated sentence. It now reports findings, with six codes: a file it
+could not read (worded with the refusal's own template), a RINEX file that is neither observation nor
+navigation, a name that claims another station or another day, navigation paired by fallback, and a session
+whose span cannot be known. Each template says what to do. One helper, `report_scan`, says them for the four
+algorithms; batch processing now warns of the doubts as single-session processing does.
+
+A product was named by `ProductRequest.describe()` in eight sentences, and why it could not be had by the bare
+"not found" or "no download service". It is now named in words, "final orbit for 2025-01-02", and each reason
+is a sentence with what to do. The two reasons are constants in the core, `NOT_FOUND` and
+`NO_DOWNLOAD_SERVICE`, so the algorithms compare against a name, not a copied string. A batch row the engine
+solved nothing for said the batch's English `detail`; it now says what to check in the log.
+
+**Found while doing it.** The same mistake is made outside GNSS. A sentence an algorithm makes takes a value
+the core wrote in English for its own logs: the datum defect and how it was removed, the global test's note,
+the integration's routing reason, the techniques and variance-component groups, the DynAdjust stages' reasons.
+P12c-9's rule reads templates and cannot see it. FR-091 was recorded as met, and is partly met. The structural
+test now reads every value put into a translated sentence outside the core: a `describe()`, or an attribute
+the core fills with English. The ten sites left are frozen in a list that may only shrink.
+
+**Register.** NFR-006 is met: every refusal template, every sentence an algorithm raises itself, every failure
+a window reports in the words "could not", and the scan's warnings say what to do, each held by a test.
+FR-091 is partly met, for the ten. The totals are unchanged.
+
+**Not done.** The ten sites, which are P12c-42. Core English under a name the list does not hold is not seen.
+
 ---
 
 ## P13 — Validation, documentation and release

@@ -90,7 +90,7 @@ class TestSpans:
             handle.write((DATA / BASE_NAME).read_text(encoding="ascii"))
         result = scan_folder(tmp_path)
         assert result.sessions[0].end is None
-        assert any("span is unknown" in reason for _, reason in result.warnings)
+        assert [finding.code for finding in result.warnings] == ["session_span_unknown"]
 
 
 class TestSimultaneity:
@@ -157,17 +157,19 @@ class TestCrossChecks:
         shutil.copy(DATA / BASE_NAME, tmp_path / "99990920.05o")
         result = scan_folder(tmp_path)
         assert result.sessions[0].station_id == "0759"
-        assert any("9999" in reason and "0759" in reason for _, reason in result.warnings)
+        (doubt,) = [f for f in result.warnings if f.code == "file_name_claims_another_station"]
+        assert (doubt.context["claimed"], doubt.context["marker"]) == ("9999", "0759")
 
     def test_a_name_claiming_another_day_is_warned_about(self, tmp_path):
         shutil.copy(DATA / BASE_NAME, tmp_path / "07591230.05o")
         result = scan_folder(tmp_path)
-        assert any("2005-05-03" in reason for _, reason in result.warnings)
+        (doubt,) = [f for f in result.warnings if f.code == "file_name_claims_another_day"]
+        assert (doubt.context["claimed"], doubt.context["observed"]) == ("2005-05-03", "2005-04-02")
 
     def test_agreement_produces_no_warning(self, tmp_path):
         shutil.copy(DATA / BASE_NAME, tmp_path / BASE_NAME)
         result = scan_folder(tmp_path)
-        assert not any("header states marker" in reason for _, reason in result.warnings)
+        assert not any(f.code.startswith("file_name_claims") for f in result.warnings)
 
     def test_the_name_supplies_the_station_when_the_header_has_no_marker(self, tmp_path):
         """A marker-less observation file is unusual but legal, and the name is
@@ -199,7 +201,12 @@ class TestNavigationPairing:
         wrong place."""
         session = _by_id(scan)[BASE_NAME]
         assert [Path(name).name for name in session.nav_files] == ["brdc_0759.05n.gz"]
-        assert any("paired by fallback" in reason for _, reason in scan.warnings)
+        (fallback,) = [
+            f
+            for f in scan.warnings
+            if f.code == "navigation_paired_by_fallback" and f.context["file"] == session.obs_file
+        ]
+        assert fallback.context["count"] == 1
 
     def test_no_navigation_is_not_an_error(self, tmp_path):
         shutil.copy(DATA / BASE_NAME, tmp_path / BASE_NAME)
@@ -216,10 +223,10 @@ class TestUnreadableFiles:
         (tmp_path / "30400920.05o").write_text("this is not RINEX\n", encoding="ascii")
         result = scan_folder(tmp_path)
         assert [session.id for session in result.sessions] == [BASE_NAME]
-        assert len(result.skipped) == 1
-        name, reason = result.skipped[0]
-        assert "30400920.05o" in name
-        assert "rinex_header_missing" in reason
+        (skipped,) = result.skipped
+        assert skipped.context["file"].endswith("30400920.05o")
+        assert skipped.code == "rinex_unreadable"
+        assert skipped.error is not None and skipped.error.code.endswith("rinex_header_missing")
 
     def test_files_that_are_not_rinex_at_all_are_passed_over_silently(self, tmp_path):
         """Different from skipped: a project folder holds shapefiles and notes,
@@ -288,5 +295,6 @@ class TestOtherRinexTypes:
         )
         result = scan_folder(tmp_path)
         assert result.sessions == ()
-        assert len(result.skipped) == 1
-        assert "neither observation nor navigation" in result.skipped[0][1]
+        (skipped,) = result.skipped
+        assert skipped.code == "rinex_neither_observation_nor_navigation"
+        assert skipped.context["type"] == "M"

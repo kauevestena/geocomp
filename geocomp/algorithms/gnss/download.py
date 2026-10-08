@@ -47,8 +47,12 @@ from geocomp.algorithms.gnss.common import (
     gnss_setting,
     product_cache,
     product_directory,
+    product_label,
     product_services,
+    product_words,
+    report_scan,
     translate_error,
+    unavailable_message,
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.core.techniques.gnss.products import (
@@ -265,10 +269,9 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
                 scan = scan_folder(Path(folder))
             except GeoCompError as exc:
                 raise QgsProcessingException(translate_error(exc)) from exc
-            for path, reason in scan.skipped:
-                feedback.pushWarning(
-                    self.tr("Could not read %1: %2").replace("%1", str(path)).replace("%2", reason)
-                )
+            # Only the days are taken from the scan: a doubt about a marker or a
+            # pairing is the processing's to report.
+            report_scan(feedback, scan, doubts=False)
             spans += [(session.start, session.end) for session in scan.sessions]
         first = self.parameterAsDateTime(parameters, FIRST_DAY, context)
         last = self.parameterAsDateTime(parameters, LAST_DAY, context)
@@ -299,9 +302,7 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
         return days
 
     def _not_available(self, feedback: QgsProcessingFeedback, request, reason: str) -> None:
-        feedback.pushWarning(
-            self.tr("%1: not available (%2)").replace("%1", request.describe()).replace("%2", reason)
-        )
+        feedback.pushWarning(unavailable_message(request, reason))
 
     def _check(self, requests, cache, directory, services, fetcher, fallback, feedback):
         report = []
@@ -319,7 +320,9 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
                 )
             except GeoCompError as exc:
                 feedback.pushWarning(
-                    self.tr("%1: %2").replace("%1", request.describe()).replace("%2", translate_error(exc))
+                    self.tr("%1: %2")
+                    .replace("%1", product_label(request))
+                    .replace("%2", translate_error(exc))
                 )
                 report.append({"product": request.describe(), "available": False, "reason": exc.code})
                 continue
@@ -335,11 +338,13 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
             if found.available:
                 feedback.pushInfo(
                     self.tr("%1: available from %2%3")
-                    .replace("%1", request.describe())
+                    .replace("%1", product_label(request))
                     .replace("%2", found.source)
                     .replace(
                         "%3",
-                        self.tr(" (as %1)").replace("%1", found.fallback.value) if found.fallback else "",
+                        self.tr(" (as the %1)").replace("%1", product_words(request.kind, found.fallback))
+                        if found.fallback
+                        else "",
                     )
                 )
             else:
@@ -366,7 +371,9 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
                 # A failed download is reported against its product and the rest
                 # are still fetched (specs/08 section 9).
                 feedback.pushWarning(
-                    self.tr("%1: %2").replace("%1", request.describe()).replace("%2", translate_error(exc))
+                    self.tr("%1: %2")
+                    .replace("%1", product_label(request))
+                    .replace("%2", translate_error(exc))
                 )
                 missing.append((request, exc.code.split(".")[-1]))
                 continue
@@ -376,7 +383,7 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
             for product in one.resolved:
                 feedback.pushInfo(
                     self.tr("%1: %2 (%3)")
-                    .replace("%1", request.describe())
+                    .replace("%1", product_label(request))
                     .replace("%2", product.record.name)
                     .replace("%3", product.record.origin)
                 )
@@ -384,9 +391,9 @@ class DownloadProductsAlgorithm(GeoCompAlgorithm):
                 self._not_available(feedback, request, reason)
             for _request, used in one.substituted:
                 feedback.pushWarning(
-                    self.tr("%1: used the %2 orbit, as Global Settings allow.")
-                    .replace("%1", request.describe())
-                    .replace("%2", used.value)
+                    self.tr("%1: used the %2 instead, as Global Settings allow.")
+                    .replace("%1", product_label(request))
+                    .replace("%2", product_words(request.kind, used))
                 )
             feedback.setProgress(int(100 * (index + 1) / len(requests)))
         resolution = Resolution(tuple(resolved), tuple(missing), tuple(substituted))

@@ -54,6 +54,7 @@ from geocomp.algorithms.gnss.common import (
     frame_choices,
     gnss_engine,
     ppp_limitation_notice,
+    report_scan,
     run_frame,
     session_products,
     timeout_parameter,
@@ -230,16 +231,9 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         except GeoCompError as exc:
             raise QgsProcessingException(translate_error(exc)) from exc
 
-        # Both are (file, reason) pairs -- FR-166's rule that a scan reports
-        # every file it could not use rather than stopping at the first.
-        for path, reason in scan.skipped:
-            feedback.pushWarning(
-                _tr("Skipped %1: %2").replace("%1", str(path)).replace("%2", reason)
-            )
-        for path, reason in scan.warnings:
-            feedback.pushWarning(
-                _tr("%1: %2").replace("%1", str(path)).replace("%2", reason)
-            )
+        # FR-166: a scan reports every file it could not use, rather than
+        # stopping at the first, and every one it doubts.
+        report_scan(feedback, scan)
         if not scan.sessions:
             raise QgsProcessingException(
                 _tr("No RINEX observation sessions were found in %1. Choose the folder "

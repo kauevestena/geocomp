@@ -32,8 +32,12 @@ from geocomp.core.errors import GeoCompError
 from geocomp.core.number_format import localised
 from geocomp.core.techniques.gnss.products import (
     BUILTIN_SERVICES,
+    NO_DOWNLOAD_SERVICE,
     Fetcher,
+    Latency,
+    ProductKind,
     ProductRecord,
+    ProductRequest,
     ProductService,
     Resolution,
     local_record,
@@ -53,6 +57,7 @@ from geocomp.engines.rtklib.config import (
 if TYPE_CHECKING:
     from geocomp.core.models import GnssSession
     from geocomp.engines.rtklib.engine import RtklibEngine
+    from geocomp.io.gnss_discovery import SessionScan
 
 __all__ = [
     "PPP_NOTICE_CODE",
@@ -70,12 +75,16 @@ __all__ = [
     "ppp_limitation_notice",
     "product_cache",
     "product_directory",
+    "product_label",
     "product_services",
+    "product_words",
     "reference_stations",
+    "report_scan",
     "run_frame",
     "session_products",
     "timeout_parameter",
     "translate_error",
+    "unavailable_message",
     "user_configuration",
 ]
 
@@ -317,8 +326,13 @@ class SessionProducts:
         return entry
 
     def missing(self) -> list[str]:
-        """Every product that could not be resolved, described with the reason."""
-        return [f"{request.describe()} ({reason})" for request, reason in self.resolution.missing]
+        """Every product that could not be resolved, in words with the reason."""
+        return [
+            _tr("%1 (%2)")
+            .replace("%1", product_label(request))
+            .replace("%2", _tr("no download service") if reason == NO_DOWNLOAD_SERVICE else _tr("not found"))
+            for request, reason in self.resolution.missing
+        ]
 
 
 def session_products(
@@ -383,9 +397,9 @@ def gather_products(
     )
     for request, latency in resolution.substituted:
         feedback.pushWarning(
-            _tr("%1: used the %2 orbit, as Global Settings allow; recorded in provenance.")
-            .replace("%1", request.describe())
-            .replace("%2", latency.value)
+            _tr("%1: used the %2 instead, as Global Settings allow; recorded in provenance.")
+            .replace("%1", product_label(request))
+            .replace("%2", product_words(request.kind, latency))
         )
     for record in resolution.records:
         feedback.pushInfo(
@@ -398,6 +412,46 @@ def gather_products(
     )
 
 
+def product_words(kind: ProductKind, latency: Latency) -> str:
+    """A product kind in words, in the language: "final orbit", "GPS broadcast navigation".
+
+    ``ProductRequest.describe()`` is the core's English -- "orbit final
+    2005-04-02" -- for the JSON report and provenance; until P12c-41 it was put
+    into translated sentences as it stood.
+    """
+    if kind is ProductKind.ORBIT:
+        return _tr("final orbit") if latency is Latency.FINAL else _tr("rapid orbit")
+    if kind is ProductKind.GPS_NAVIGATION:
+        return _tr("GPS broadcast navigation")
+    return _tr("GLONASS broadcast navigation")
+
+
+def product_label(request: ProductRequest) -> str:
+    """*request* in words, in the language: "final orbit for 2005-04-02"."""
+    return (
+        _tr("%1 for %2")
+        .replace("%1", product_words(request.kind, request.latency))
+        .replace("%2", request.day.isoformat())
+    )
+
+
+def unavailable_message(request: ProductRequest, reason: str) -> str:
+    """Why *request* cannot be had, in words, with what to do (P12c-41)."""
+    if reason == NO_DOWNLOAD_SERVICE:
+        text = _tr(
+            "%1 is not in the cache or the product directory, and no download service is "
+            "configured. Add one in Global Settings → GNSS, or place the file in the product "
+            "directory."
+        )
+    else:
+        text = _tr(
+            "%1 is not in the cache, the product directory or any configured download service. "
+            "Add another download service in Global Settings → GNSS, or place the file in the "
+            "product directory."
+        )
+    return text.replace("%1", product_label(request))
+
+
 def missing_products_message(missing: Sequence[str]) -> str:
     """The refusal for products nothing could supply, with the three ways out."""
     return _tr(
@@ -406,6 +460,18 @@ def missing_products_message(missing: Sequence[str]) -> str:
         "or -- for a recent session whose final orbit is not yet published -- "
         "allow rapid orbits there."
     ).replace("%1", "; ".join(missing))
+
+
+def report_scan(feedback: QgsProcessingFeedback, scan: SessionScan, *, doubts: bool = True) -> None:
+    """Warn of every file *scan* skipped, and with *doubts* of every one it doubted, in words.
+
+    Each is a finding worded by its template, with what to do (P12c-41): the
+    scan reports by code, and its own sentences are the developer's.
+    """
+    from geocomp.services.messages import finding_text
+
+    for finding in (*scan.skipped, *(scan.warnings if doubts else ())):
+        feedback.pushWarning(finding_text(finding))
 
 
 def _directory_extras(directory: Path | None) -> list[tuple[Path, str]]:
