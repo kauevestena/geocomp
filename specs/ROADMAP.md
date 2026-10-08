@@ -2761,6 +2761,22 @@ a signal is named `G20/1` and not `G20 L1`. A `.pos` read on its own, as the bas
 has no status file beside it and reports neither -- `None`, not zero. GNSS processing writes no HTML report;
 the counts are in the JSON summary (single and batch runs alike), the layer and the log.
 
+#### P12c-37 — every refusal says what the user can do (NFR-006), the ratchet and its first batch
+
+NFR-006 is partly met because nothing checked its third part, what the user can do about an error. When
+counted, 322 of the 641 refusal templates said what failed and why and stopped. The structural test now reads
+a remedy as a clause that begins with an imperative, from a fixed list of verbs, and froze those 322 in
+`tests/structural/nfr006_without_a_remedy.txt`; the list may only shrink, and a code that gains a remedy must
+leave it. This pull request gives one to 91: all 37 in the settings service and the monitoring,
+integration and project algorithms, and all 54 of gravimetry and levelling -- "Give a limit greater than
+zero.", "Save to it with the Save to project store algorithm, which takes a backup and then migrates it.",
+"Swap its near and far readings." -- each in Portuguese and Spanish too, keeping the reviewed translation and
+adding the remedy's. Six more already had remedies the first verb list missed. 225 remain: 146 in the
+analysis algorithms, 44 in GNSS and 35 in engines.
+
+**Not done.** NFR-006 stays partly met until the list is empty. The test checks that a remedy is there, not
+that it is right; the review still reads each one.
+
 ---
 
 ## P13 — Validation, documentation and release

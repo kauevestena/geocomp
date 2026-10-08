@@ -92,22 +92,26 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.monitoring_no_common_stations": MessageTemplate(
         "The solutions '%1' and '%2' have no station in common, so there is nothing to "
-        "compare. The same mark must carry the same name at every epoch.",
+        "compare. The same mark must carry the same name at every epoch; rename one solution's "
+        "stations to match the other's.",
         "first",
         "second",
     ),
     "validation.monitoring_station_not_in_both": MessageTemplate(
-        "These stations are not in both solutions: %1. Stations both epochs estimate: %2.",
+        "These stations are not in both solutions: %1. Stations both epochs estimate: %2. Name "
+        "stations from that list.",
         "stations",
         "expected",
     ),
     "validation.monitoring_station_not_compared": MessageTemplate(
-        "These stations were not compared: %1. The compared stations are: %2.",
+        "These stations were not compared: %1. The compared stations are: %2. Name stations "
+        "from that list.",
         "stations",
         "expected",
     ),
     "validation.monitoring_no_position_components": MessageTemplate(
-        "The solution '%1' has no position components to compare (%2).",
+        "The solution '%1' has no position components to compare (%2). Choose a solution that "
+        "estimates station coordinates.",
         "solution",
         "received",
     ),
@@ -144,26 +148,30 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.monitoring_cross_covariance_shape": MessageTemplate(
-        "The cross-covariance given has shape %1; it must be %2.",
+        "The cross-covariance given has shape %1; it must be %2. Give one row per component of "
+        "the first solution and one column per component of the second.",
         "received",
         "expected",
     ),
     "validation.monitoring_series_too_short": MessageTemplate(
-        "A series needs two epochs at least; %1 was given.",
+        "A series needs two epochs at least; %1 was given. Add the solutions of the other "
+        "epochs.",
         "received",
     ),
     "validation.monitoring_strain_configuration": MessageTemplate(
         "Strain cannot be computed here. It needs east and north components, and three object "
-        "points at least, spread over an area rather than along a line.",
+        "points at least, spread over an area rather than along a line. Include more object "
+        "points, or leave strain out of this comparison.",
     ),
     "validation.monitoring_alert_limit": MessageTemplate(
-        "The %1 threshold's limit is %2; it must be positive.",
+        "The %1 threshold's limit is %2; it must be positive. Give a limit greater than zero.",
         "kind",
         "received",
     ),
     "validation.monitoring_threshold_row": MessageTemplate(
         "Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in "
-        "metres, or in metres a year for a velocity. Each row is kind, limit, stations, group.",
+        "metres, or in metres a year for a velocity. Each row is kind, limit, stations, group; "
+        "correct that row.",
         "row",
         "received",
     ),

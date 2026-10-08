@@ -28,13 +28,29 @@ refusal it reports. Until P12c-8 a finding carried only an English sentence,
 which every report and panel showed whatever the language. The findings in that
 state were frozen in a list that could only shrink; two pull requests later it
 was empty and was removed. A finding, like an error, arrives with its words.
+
+Since P12c-37 it holds NFR-006's third part: a refusal says *what the user can
+do about it*, not only what failed and why. "The relative humidity must lie
+between 0 and 1; 1.4 was given" tells the user the rule; "Give it as a fraction,
+not a percentage" tells them what to change. The test reads a remedy as a clause
+that begins with an imperative -- "Give ...", "Check ...", "..., or turn the
+correction off" -- which is how GeoComp's templates already say it where they
+say it. It cannot judge whether the remedy is a good one, only that there is
+one; that is still the review's job. The templates without one when P12c-37
+first counted are frozen in ``nfr006_without_a_remedy.txt``, and the list may
+only shrink. Findings are not refusals -- a report's observations about a
+result -- and are not held to it.
 """
 
 from __future__ import annotations
 
 import ast
 import functools
+import re
 from collections import defaultdict
+from pathlib import Path
+
+import pytest
 
 from tests.conftest import PLUGIN_DIR, python_sources
 
@@ -395,3 +411,95 @@ def test_the_engine_failures_are_found():
         if any(all(key in site for site in sites) for key in DIAGNOSTIC_KEYS)
     }
     assert {"engine.rtklib_run_failed", "computation.dynadjust_stage_failed"} <= carriers
+
+
+#: The verbs a remedy begins with in GeoComp's templates. A list rather than a
+#: grammar because English imperatives look like every other verb; extend it
+#: when a remedy is written with a verb it does not have, never by matching a
+#: verb anywhere in the sentence.
+REMEDY_VERBS = (
+    "add", "adjust", "align", "apply", "ask", "assign", "attach", "bring", "change", "check",
+    "choose", "clear", "close", "compare", "compute", "configure", "connect", "convert",
+    "copy", "correct",
+    "define", "delete", "disable", "do", "download", "drop", "edit", "enable", "enter",
+    "exclude", "export", "fetch", "fill", "find", "fix", "free", "give", "grant", "hold",
+    "import", "include", "increase", "inspect", "install", "keep", "leave", "let", "list",
+    "load", "look", "lower", "make", "mark", "measure", "merge", "move", "name", "observe",
+    "open", "pass", "pick", "point", "process", "provide", "put", "raise", "re-activate",
+    "re-export", "re-import", "re-measure", "re-run", "read", "reconnect", "record",
+    "rebuild", "reduce", "remove", "rename", "repeat", "replace", "report", "reprocess",
+    "rerun", "resolve", "restart", "restore", "retry", "run", "save", "select", "set",
+    "sight", "split", "start", "state", "supply", "survey", "swap", "tick", "treat", "try", "turn",
+    "update", "use", "wait", "write",
+)
+
+#: An imperative where a clause starts: a sentence, or after a semicolon, a
+#: colon, a dash, or "or"/"and" joining a second instruction. "Please" may lead.
+_REMEDY = re.compile(
+    r"(?:^|[.!?]\s+|;\s*|:\s+|--\s*|\u2014\s*|\bor\s+|\band\s+)(?:please\s+)?(?:"
+    + "|".join(re.escape(verb) for verb in REMEDY_VERBS)
+    + r")\b",
+    re.IGNORECASE,
+)
+
+WITHOUT_A_REMEDY = Path(__file__).with_name("nfr006_without_a_remedy.txt")
+
+
+def _refusals() -> dict[str, str]:
+    """Every error template, by code: what NFR-006 holds to a remedy."""
+    return {
+        code: source
+        for code, (source, _keys, _file) in _declared_templates().items()
+        if not code.startswith("finding.")
+    }
+
+
+@functools.cache
+def _frozen_without_a_remedy() -> frozenset[str]:
+    lines = WITHOUT_A_REMEDY.read_text(encoding="utf-8").splitlines()
+    return frozenset(line.strip() for line in lines if line.strip() and not line.startswith("#"))
+
+
+def test_every_refusal_says_what_the_user_can_do():
+    """NFR-006: what failed, why, *and what the user can do about it*."""
+    without = sorted(
+        code
+        for code, source in _refusals().items()
+        if not _REMEDY.search(source) and code not in _frozen_without_a_remedy()
+    )
+    assert not without, (
+        "These templates say what failed but not what the user can do about it "
+        "(NFR-006). Add a clause that tells them -- 'Give ...', 'Check ...', "
+        "'..., or ...' -- in the template and its translations:\n" + "\n".join(without)
+    )
+
+
+def test_the_list_without_a_remedy_only_shrinks():
+    """An entry whose template now has a remedy, or no longer exists, leaves the list."""
+    refusals = _refusals()
+    stale = sorted(
+        code
+        for code in _frozen_without_a_remedy()
+        if code not in refusals or _REMEDY.search(refusals[code])
+    )
+    assert not stale, (
+        f"Remove from {WITHOUT_A_REMEDY.name}; each now says what to do, or is gone:\n"
+        + "\n".join(stale)
+    )
+
+
+@pytest.mark.parametrize(
+    ("source", "found"),
+    [
+        ("UTM zone %1 does not exist; give a zone from 1 to 60.", True),
+        ("The file '%1' is empty. Check that it is the export you meant.", True),
+        ("Connect them to a benchmark, or turn the correction off.", True),
+        ("This is an internal error; please report it.", True),
+        ("The relative humidity must lie between 0 and 1; %1 was given.", False),
+        ("There is no instrument profile '%1'; expected %2.", False),
+        # A verb inside a sentence is not an instruction.
+        ("The engine could not open the file it was given.", False),
+    ],
+)
+def test_a_remedy_is_an_imperative_where_a_clause_starts(source: str, found: bool):
+    assert bool(_REMEDY.search(source)) is found

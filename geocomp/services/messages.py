@@ -57,7 +57,7 @@ def _format(value: Any) -> str:
 #: :class:`~geocomp.core.errors.GeoCompError`.
 _TEMPLATES: dict[str, MessageTemplate] = {
     "validation.setting_not_a_choice": MessageTemplate(
-        "The setting '%1' cannot be set to '%2'. Permitted values are: %3.",
+        "The setting '%1' cannot be set to '%2'. Permitted values are: %3. Choose one of those.",
         "key",
         "received",
         "expected",
@@ -70,13 +70,14 @@ _TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.setting_below_minimum": MessageTemplate(
-        "The setting '%1' cannot be less than %2 (received %3).",
+        "The setting '%1' cannot be less than %2 (received %3). Give a value no less than that.",
         "key",
         "minimum",
         "received",
     ),
     "validation.setting_above_maximum": MessageTemplate(
-        "The setting '%1' cannot be greater than %2 (received %3).",
+        "The setting '%1' cannot be greater than %2 (received %3). Give a value no greater than "
+        "that.",
         "key",
         "maximum",
         "received",
@@ -92,7 +93,7 @@ _TEMPLATES: dict[str, MessageTemplate] = {
         "key",
     ),
     "validation.setting_scope_not_allowed": MessageTemplate(
-        "The setting '%1' cannot be set at %2 scope; it can be set at %3.",
+        "The setting '%1' cannot be set at %2 scope; it can be set at %3. Set it there instead.",
         "key",
         "scope",
         "expected",

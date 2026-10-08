@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-37 — Error messages say what to do
+
+#### Changed
+
+- 91 error messages -- settings, monitoring, integration, the project store, gravimetry and levelling -- now
+  end with what to do about them, in all three languages: which value to give, which algorithm migrates an
+  old store, which readings of a reciprocal crossing to swap. A structural test holds every new refusal to
+  it.
+
 ### P12c-36 — Cycle slips and rejected observations for GNSS sessions
 
 #### Added
