@@ -3232,6 +3232,39 @@ check of the shipped files parses them, so line endings cannot move it.
 dataset with published coordinates that may be redistributed. The Portuguese and Spanish walkthroughs.
 Worked QGIS projects.
 
+#### P13-5 — the integration tutorial (FR-952 stays partly met)
+
+*Install tutorial dataset* offers a sixth dataset, **`combined-curitiba`**
+(`geocomp/resources/datasets/combined-curitiba/`). It is the survey integration is cross-validated on, with one
+change: the total station measured three times worse than it states. That change is a new `noise` scale in
+`tests/combined_network.py::survey`; at 1 it draws exactly what the survey drew before. The inputs are the
+generator's (`tests/test_integration.py::tutorial_inputs`): the GNSS baselines in ITRF2014 at 2020.0 with the
+control marks at their known positions, and the total station's observations with no frame. The README has
+two runs of *GNSS and total station*, holding CTB1 and CTB2:
+1. Without variance components the global test fails (5.80). The log's breakdown by technique points at the
+   total station: vᵀPv/r 6.950 against the GNSS's 1.375. The README says, as the report does, that this is a
+   quick reading of fit and not a variance component.
+2. With variance components the total station gets 7.19 ± 1.76, within its uncertainty of the 9 it was made
+   with, and the GNSS 0.56 ± 0.46. The global test passes, and the README says that this is by construction
+   and not evidence.
+
+`tests/qgis/test_integration_tutorial.py` follows it and holds the components to the misweighting the survey
+was built with. The GNSS input that the presets' tier-3 test built in place moved to
+`tests/test_integration.py::gnss_input_held_at_truth`, so tier 1 can check the shipped file.
+
+**Defects found.**
+- *The generator's GNSS noise shadowed the new parameter.* A local variable called `noise` held each
+  baseline's error vector, so the terrestrial draws after the baselines saw an array and failed. The local is
+  now `error`.
+- *My first draft called vᵀPv/r "its own variance factor in effect".* The report says plainly that it is not a
+  variance component. The README now agrees with the report, and the test holds both to it.
+- *My first draft named a report section, "Variance components by technique", that the integration report
+  does not have.* It is *Techniques*, under *Variance components*, and the test reads it from the report.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has five modules of six.
+
+**Not done.** A GNSS tutorial. The Portuguese and Spanish walkthroughs. Worked QGIS projects.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

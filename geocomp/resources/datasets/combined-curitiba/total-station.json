@@ -1,0 +1,1346 @@
+{
+ "clusters": [
+  {
+   "covariance": {
+    "labels": [
+     "d-CTB1-M06",
+     "d-CTB1-M03",
+     "d-CTB1-M04"
+    ],
+    "matrix": [
+     [
+      5.288496871297025e-11,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      5.288496871297025e-11,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.288496871297025e-11
+     ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+     "RADIAN",
+     "RADIAN",
+     "RADIAN"
+    ]
+   },
+   "id": "set-CTB1",
+   "kind": "DIRECTION_SET",
+   "observation_ids": [
+    "d-CTB1-M06",
+    "d-CTB1-M03",
+    "d-CTB1-M04"
+   ]
+  },
+  {
+   "covariance": {
+    "labels": [
+     "d-M03-CTB1",
+     "d-M03-M04",
+     "d-M03-M05",
+     "d-M03-CTB2",
+     "d-M03-M06"
+    ],
+    "matrix": [
+     [
+      5.288496871297025e-11,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      5.288496871297025e-11,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.288496871297025e-11,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      5.288496871297025e-11,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      5.288496871297025e-11
+     ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+     "RADIAN",
+     "RADIAN",
+     "RADIAN",
+     "RADIAN",
+     "RADIAN"
+    ]
+   },
+   "id": "set-M03",
+   "kind": "DIRECTION_SET",
+   "observation_ids": [
+    "d-M03-CTB1",
+    "d-M03-M04",
+    "d-M03-M05",
+    "d-M03-CTB2",
+    "d-M03-M06"
+   ]
+  },
+  {
+   "covariance": {
+    "labels": [
+     "d-M05-M03",
+     "d-M05-M04",
+     "d-M05-CTB2"
+    ],
+    "matrix": [
+     [
+      5.288496871297025e-11,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      5.288496871297025e-11,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.288496871297025e-11
+     ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+     "RADIAN",
+     "RADIAN",
+     "RADIAN"
+    ]
+   },
+   "id": "set-M05",
+   "kind": "DIRECTION_SET",
+   "observation_ids": [
+    "d-M05-M03",
+    "d-M05-M04",
+    "d-M05-CTB2"
+   ]
+  },
+  {
+   "covariance": {
+    "labels": [
+     "d-M06-CTB2",
+     "d-M06-M03",
+     "d-M06-CTB1"
+    ],
+    "matrix": [
+     [
+      5.288496871297025e-11,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      5.288496871297025e-11,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      5.288496871297025e-11
+     ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+     "RADIAN",
+     "RADIAN",
+     "RADIAN"
+    ]
+   },
+   "id": "set-M06",
+   "kind": "DIRECTION_SET",
+   "observation_ids": [
+    "d-M06-CTB2",
+    "d-M06-M03",
+    "d-M06-CTB1"
+   ]
+  }
+ ],
+ "id": "total-station",
+ "observations": [
+  {
+   "id": "s-CTB1-M06",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1388.3522005310967,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-CTB1-M06",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5664286382957116,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-CTB1",
+   "id": "d-CTB1-M06",
+   "setup_id": "set-CTB1",
+   "stations": [
+    "CTB1",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.396504509868413,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-CTB1-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2191.564892378592,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-CTB1-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.56674404830631,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-CTB1",
+   "id": "d-CTB1-M03",
+   "setup_id": "set-CTB1",
+   "stations": [
+    "CTB1",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 0.023780822716059833,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-CTB1-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2668.2823043328117,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-CTB1-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "CTB1",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5735703358262045,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-CTB1",
+   "id": "d-CTB1-M04",
+   "setup_id": "set-CTB1",
+   "stations": [
+    "CTB1",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 5.829449201320283,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M03-CTB1",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2191.5619455447363,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M03-CTB1",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5750105638831737,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M03",
+   "id": "d-M03-CTB1",
+   "setup_id": "set-M03",
+   "stations": [
+    "M03",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 3.165261969049175,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M03-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1239.1211234527393,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M03-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5836749190122794,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M03",
+   "id": "d-M03-M04",
+   "setup_id": "set-M03",
+   "stations": [
+    "M03",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 4.8804605927404285,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M03-M05",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M05"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1165.476759041007,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M03-M05",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M05"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5510809460716153,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M03",
+   "id": "d-M03-M05",
+   "setup_id": "set-M03",
+   "stations": [
+    "M03",
+    "M05"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 0.11851798227411006,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M03-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1944.3363126966422,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M03-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5621736686228442,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M03",
+   "id": "d-M03-CTB2",
+   "setup_id": "set-M03",
+   "stations": [
+    "M03",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5989835180557326,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M03-M06",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2352.2800866048397,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M03-M06",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M03",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.572203526329495,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M03",
+   "id": "d-M03-M06",
+   "setup_id": "set-M03",
+   "stations": [
+    "M03",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 2.5481509741890793,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M05-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1165.468854510091,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M05-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5905092934604572,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M05",
+   "id": "d-M05-M03",
+   "setup_id": "set-M05",
+   "stations": [
+    "M05",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 3.260094585470118,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M05-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1658.7478892634185,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M05-M04",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5943948607967775,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M05",
+   "id": "d-M05-M04",
+   "setup_id": "set-M05",
+   "stations": [
+    "M05",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 4.102480109986489,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M05-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2174.679799099165,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M05-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M05",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.573750852672673,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M05",
+   "id": "d-M05-CTB2",
+   "setup_id": "set-M05",
+   "stations": [
+    "M05",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 2.1618528184655816,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M06-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1996.713112491998,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M06-CTB2",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5608710059887267,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M06",
+   "id": "d-M06-CTB2",
+   "setup_id": "set-M06",
+   "stations": [
+    "M06",
+    "CTB2"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 0.3200195206757652,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M06-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2352.279973572237,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M06-M03",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5696777874409775,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M06",
+   "id": "d-M06-M03",
+   "setup_id": "set-M06",
+   "stations": [
+    "M06",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 5.689759418876783,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "s-M06-CTB1",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "SLOPE_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1388.3664272248534,
+     "variance": 4e-06
+    }
+   ]
+  },
+  {
+   "id": "z-M06-CTB1",
+   "instrument_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.563,
+    "variance": 0.0
+   },
+   "stations": [
+    "M06",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "target_height": {
+    "mode": "RIGOROUS",
+    "unit": "METRE",
+    "value": 1.7,
+    "variance": 0.0
+   },
+   "type": "ZENITH_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 1.5751909717539594,
+     "variance": 2.11539874851881e-10
+    }
+   ]
+  },
+  {
+   "cluster_id": "set-M06",
+   "id": "d-M06-CTB1",
+   "setup_id": "set-M06",
+   "stations": [
+    "M06",
+    "CTB1"
+   ],
+   "status": "ACTIVE",
+   "type": "DIRECTION",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 4.5380331331721395,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "a-M04",
+   "stations": [
+    "M04",
+    "M03",
+    "M05"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_ANGLE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 5.505248605647845,
+     "variance": 5.288496871297025e-11
+    }
+   ]
+  },
+  {
+   "id": "b-M05-M04",
+   "stations": [
+    "M05",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "type": "AZIMUTH",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "RADIAN",
+     "value": 4.802443813407835,
+     "variance": 5.876107634774472e-10
+    }
+   ]
+  }
+ ],
+ "stations": [
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "CTB1",
+   "station_type": "MARK"
+  },
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "CTB2",
+   "station_type": "MARK"
+  },
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M03",
+   "station_type": "MARK"
+  },
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M04",
+   "station_type": "MARK"
+  },
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M05",
+   "station_type": "MARK"
+  },
+  {
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M06",
+   "station_type": "MARK"
+  }
+ ]
+}

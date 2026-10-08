@@ -1,0 +1,570 @@
+{
+ "clusters": [
+  {
+   "covariance": {
+    "labels": [
+     "m0.x",
+     "m0.y",
+     "m0.z",
+     "m1.x",
+     "m1.y",
+     "m1.z",
+     "m2.x",
+     "m2.y",
+     "m2.z",
+     "m3.x",
+     "m3.y",
+     "m3.z"
+    ],
+    "matrix": [
+     [
+      1.6e-05,
+      3e-06,
+      -2e-06,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     [
+      3e-06,
+      1.2e-05,
+      1e-06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      -2e-06,
+      1e-06,
+      3.6e-05,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -0.0,
+      1.6e-05,
+      3e-06,
+      -2e-06,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      3e-06,
+      1.2e-05,
+      1e-06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      -0.0,
+      0.0,
+      0.0,
+      -2e-06,
+      1e-06,
+      3.6e-05,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      1.6e-05,
+      3e-06,
+      -2e-06,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3e-06,
+      1.2e-05,
+      1e-06,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -2e-06,
+      1e-06,
+      3.6e-05,
+      -0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      1.6e-05,
+      3e-06,
+      -2e-06
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3e-06,
+      1.2e-05,
+      1e-06
+     ],
+     [
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -0.0,
+      0.0,
+      0.0,
+      -2e-06,
+      1e-06,
+      3.6e-05
+     ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE",
+     "METRE"
+    ]
+   },
+   "id": "gnss",
+   "kind": "GNSS_BASELINE",
+   "observation_ids": [
+    "g-CTB1-M05",
+    "g-CTB2-M04",
+    "g-CTB1-M06",
+    "g-CTB2-M03"
+   ]
+  }
+ ],
+ "crs": "ITRF2014",
+ "epoch": {
+  "decimal_year": 2020.0
+ },
+ "id": "gnss",
+ "observations": [
+  {
+   "cluster_id": "gnss",
+   "id": "g-CTB1-M05",
+   "stations": [
+    "CTB1",
+    "M05"
+   ],
+   "status": "ACTIVE",
+   "type": "GNSS_BASELINE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2446.0841869550654,
+     "variance": 1.6e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 687.4489645312769,
+     "variance": 1.2e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2188.6708068885914,
+     "variance": 3.6e-05
+    }
+   ]
+  },
+  {
+   "cluster_id": "gnss",
+   "id": "g-CTB2-M04",
+   "stations": [
+    "CTB2",
+    "M04"
+   ],
+   "status": "ACTIVE",
+   "type": "GNSS_BASELINE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": -1098.1571982712076,
+     "variance": 1.6e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": -2175.496301759068,
+     "variance": 1.2e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 2036.8183287928828,
+     "variance": 3.6e-05
+    }
+   ]
+  },
+  {
+   "cluster_id": "gnss",
+   "id": "g-CTB1-M06",
+   "stations": [
+    "CTB1",
+    "M06"
+   ],
+   "status": "ACTIVE",
+   "type": "GNSS_BASELINE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 718.2187899635336,
+     "variance": 1.6e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1006.275580039728,
+     "variance": 1.2e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": -631.7584643395126,
+     "variance": 3.6e-05
+    }
+   ]
+  },
+  {
+   "cluster_id": "gnss",
+   "id": "g-CTB2-M03",
+   "stations": [
+    "CTB2",
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "type": "GNSS_BASELINE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": -746.8167029840429,
+     "variance": 1.6e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": -1356.4499550946423,
+     "variance": 1.2e-05
+    },
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1175.9042923565878,
+     "variance": 3.6e-05
+    }
+   ]
+  },
+  {
+   "id": "r-M03",
+   "stations": [
+    "M03"
+   ],
+   "status": "ACTIVE",
+   "type": "ELLIPSOIDAL_HEIGHT",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 920.9890605890141,
+     "variance": 0.0001
+    }
+   ]
+  }
+ ],
+ "stations": [
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3761338.3986793375,
+      "variance": 0.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4368330.710123488,
+      "variance": 0.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2722560.947983094,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "CTB1",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3763650.178272518,
+      "variance": 0.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4366567.565901765,
+      "variance": 0.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2722257.507142427,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "CTB2",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3762903.6652746303,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4367924.342080292,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2721081.2378834425,
+      "variance": 1.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M03",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3762552.0732085486,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4368742.662507805,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2720220.7188850283,
+      "variance": 1.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M04",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3763784.4149610233,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4367642.9756844975,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2720371.79869817,
+      "variance": 1.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M05",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "ITRF2014",
+    "epoch": {
+     "decimal_year": 2020.0
+    },
+    "height_type": "ELLIPSOIDAL",
+    "system": "CARTESIAN",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 3762056.4923229706,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -4367323.967607445,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": -2723192.28364431,
+      "variance": 1.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "M06",
+   "station_type": "MARK"
+  }
+ ]
+}

@@ -475,3 +475,52 @@ class TestTheUsgsSurveys:
         build = _build_module()
         shipped = {path.name for path in build.collect_files() if GRAVITY in path.parents}
         assert shipped == set(GRAVITY_FILES)
+
+
+COMBINED = DATASETS_DIR / "combined-curitiba"
+COMBINED_FILES = ("README.md", "gnss.json", "total-station.json")
+
+
+class TestTheCombinedSurvey:
+    """The sixth: GNSS and a total station that overstated its precision, the integration tutorial (P13-5)."""
+
+    def test_it_is_offered_last(self):
+        assert available_datasets().index("combined-curitiba") == 5
+
+    def test_nothing_else_is_in_the_folder(self):
+        assert sorted(path.name for path in COMBINED.iterdir()) == sorted(COMBINED_FILES)
+
+    @pytest.mark.parametrize("name", ("gnss.json", "total-station.json"))
+    def test_each_network_is_the_generators(self, name):
+        """To a nanometre, as RD-08's: the values are computed, and the GNSS
+        noise comes through a Cholesky factor."""
+        from geocomp.core.models import Network
+        from tests.test_integration import tutorial_inputs
+
+        shipped = Network.from_dict(json.loads((COMBINED / name).read_text(encoding="utf-8")))
+        made = tutorial_inputs()[name]
+        assert (shipped.crs, shipped.epoch) == (made.crs, made.epoch)
+        assert list(shipped.observations) == list(made.observations)
+        for a, b in zip(shipped.observations.values(), made.observations.values(), strict=True):
+            assert a.type is b.type
+            for x, y in zip(a.values, b.values, strict=True):
+                assert x.value == pytest.approx(y.value, abs=1e-9)
+                assert x.variance == pytest.approx(y.variance, rel=1e-12)
+
+    def test_the_total_station_states_less_than_it_measured(self):
+        """The tutorial's premise, held to the generator: drawn with three times
+        the standard deviations it states."""
+        from tests import combined_network as field
+        from tests.test_integration import TUTORIAL_NOISE
+
+        shipped = json.loads((COMBINED / "total-station.json").read_text(encoding="utf-8"))
+        distances = [o for o in shipped["observations"] if o["type"] == "SLOPE_DISTANCE"]
+        assert distances
+        for observation in distances:
+            assert observation["values"][0]["variance"] == pytest.approx(field.SIGMA_DISTANCE**2)
+        assert TUTORIAL_NOISE == 3.0
+
+    def test_the_build_ships_every_file(self):
+        build = _build_module()
+        shipped = {path.name for path in build.collect_files() if COMBINED in path.parents}
+        assert shipped == set(COMBINED_FILES)
