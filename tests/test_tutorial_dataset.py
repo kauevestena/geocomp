@@ -31,6 +31,7 @@ from geocomp.io.fieldbook import read_field_book_csv
 from geocomp.io.levelbook import LevelMapping, read_level_book_csv
 from geocomp.io.mapping import FieldMapping
 from geocomp.resources import DATASET_ORDER, DATASETS_DIR, available_datasets
+from tests import monitoring_network as monitoring
 from tests import reference_levelling as levelling
 from tests import reference_rd01 as rd01
 
@@ -77,6 +78,17 @@ class TestItShips:
         suffixes = {path.suffix for path in RD01.iterdir() if path.is_file()}
         assert suffixes <= build.INCLUDE_SUFFIXES
         assert not suffixes & build.EXCLUDE_SUFFIXES
+
+    def test_every_shipped_dataset_has_its_origin_and_licence_recorded(self):
+        """Every one ships in the plugin ZIP, so every one is redistributed.
+
+        Until P13-3 ``THIRD_PARTY.md``'s table of bundled assets named none of
+        them -- including ``rtklib-sample``, under RTKLIB's own licence, which
+        had shipped since P12c-27.
+        """
+        notices = (Path(__file__).resolve().parent.parent / "THIRD_PARTY.md").read_text(encoding="utf-8")
+        for name in DATASET_ORDER:
+            assert f"| `geocomp/resources/datasets/{name}/` |" in notices, name
 
     def test_the_installer_offers_every_folder_in_the_published_order(self):
         """``available_datasets`` reads the directory, so a dataset a build left
@@ -352,3 +364,56 @@ class TestTheLevellingLoop:
         build = _build_module()
         shipped = {path.name for path in build.collect_files() if LOOP in path.parents}
         assert shipped == set(LOOP_FILES)
+
+
+DAM = DATASETS_DIR / "rd08-dam"
+DAM_FILES = ("README.md", "epoch-2025.json", "epoch-2026.json", "thresholds.csv")
+
+
+class TestTheMonitoredDam:
+    """The fourth: RD-08's synthetic two epochs, the monitoring tutorial (P13-3).
+
+    As for the loop, the README's numbers are checked by following it, in
+    ``tests/qgis/test_monitoring_tutorial.py``; here, that the files are the
+    generator's and ship.
+    """
+
+    def test_it_is_offered_after_the_three_before_it(self):
+        assert available_datasets().index("rd08-dam") == 3
+
+    def test_nothing_else_is_in_the_folder(self):
+        assert sorted(path.name for path in DAM.iterdir()) == sorted(DAM_FILES)
+
+    @pytest.mark.parametrize("name", sorted(monitoring.TUTORIAL_EPOCHS))
+    def test_each_epoch_is_the_generators(self, name):
+        """To a nanometre rather than byte for byte: the distances are computed,
+        and the last bit of a computed float is not promised across platforms."""
+        from geocomp.core.models import Network
+
+        shipped = Network.from_dict(json.loads((DAM / name).read_text(encoding="utf-8")))
+        made = monitoring.tutorial_networks()[name]
+        assert shipped.epoch == made.epoch and shipped.epoch is not None
+        assert shipped.crs == made.crs
+        assert set(shipped.stations) == set(made.stations) == set(monitoring.LAYOUT)
+        for station in made.stations.values():
+            values = shipped.stations[station.id].approx_position.values
+            for a, b in zip(values, station.approx_position.values, strict=True):
+                assert a.value == pytest.approx(b.value, abs=1e-9)
+        assert list(shipped.observations) == list(made.observations)
+        for a, b in zip(shipped.observations.values(), made.observations.values(), strict=True):
+            assert a.values[0].value == pytest.approx(b.values[0].value, abs=1e-9)
+            assert a.values[0].std_dev == pytest.approx(monitoring.SIGMA)
+
+    def test_the_thresholds_are_the_generators(self):
+        assert (DAM / "thresholds.csv").read_text(encoding="utf-8") == monitoring.tutorial_thresholds()
+
+    def test_the_motion_is_where_the_readme_says(self):
+        readme = " ".join((DAM / "README.md").read_text(encoding="utf-8").split())
+        (station, (east, north)), = monitoring.TUTORIAL_MOTION.items()
+        assert north < 0 < east
+        assert f"**{station} moved {east * 1000:.0f} mm east and {-north * 1000:.0f} mm south.**" in readme
+
+    def test_the_build_ships_every_file(self):
+        build = _build_module()
+        shipped = {path.name for path in build.collect_files() if DAM in path.parents}
+        assert shipped == set(DAM_FILES)

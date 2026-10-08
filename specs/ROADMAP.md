@@ -3155,6 +3155,46 @@ names the second shipped reference dataset.
 **Not done.** Tutorials for GNSS, gravimetry, integration and monitoring. The Portuguese and Spanish versions of
 both walkthroughs. Worked examples as QGIS projects.
 
+#### P13-3 — the monitoring tutorial (FR-952, FR-950 stay partly met)
+
+*Install tutorial dataset* offers a fourth dataset, **`rd08-dam`** (`geocomp/resources/datasets/rd08-dam/`). It
+holds two epochs of RD-08's synthetic network, as measured and not yet adjusted, and an alert threshold. The
+networks are what `tests/monitoring_network.py::tutorial_networks` makes from the seeds and the motion the
+monitoring tests already use. That function is `epoch()` split in two, with the network now stating its epoch.
+The README has four steps:
+1. Adjust 2025 on the four pillars, with minimum constraints. It passes with a variance factor of 1.14, and data
+   snooping flags three good observations at 95 %. GeoComp rejects none, and the README says why that matters in
+   monitoring.
+2. Adjust 2026 the same way. It passes too: no single epoch can show motion.
+3. Compare the epochs. The reference block is congruent (0.59 against 2.44), and the whole network is not. O2's
+   10.8 mm is significant (77.1 against 3.22), within its ellipse of the 10.0 mm it was moved, and no other
+   target's motion is. The alert is at O2 alone. The "Try this" adjusts both epochs as free networks instead, and
+   the displacements agree to a tenth of a micrometre.
+4. With O2 among the reference stations, the comparison is refused, and the refusal names O2.
+
+Tests. `tests/qgis/test_monitoring_tutorial.py` follows the README, as P13-2's does. The helpers both use
+are now one module, `tests/qgis/walkthrough.py`. It also checks every choice a step makes from a list, such as
+*Minimum constraint — over chosen stations*, against the dialog's options. `tests/test_tutorial_dataset.py::TestTheMonitoredDam`
+checks the shipped networks against the generator, to a nanometre and not byte for byte, because the
+distances are computed floats.
+
+**Defects found.**
+- *My first draft sent the reader to GeoComp ▸ Monitoring*, a menu that does not exist. Comparison is under
+  *Analysis*, where specs/15 §1.1 puts it. The test now builds the path from the registry.
+- *A check I first wrote for "nothing is rejected" was vacuous.* It read observation statuses from a solution
+  document, which holds none, so it could not fail. It now checks that all 36 observations were adjusted and
+  the degrees of freedom are 21.
+- *`THIRD_PARTY.md`'s table of bundled assets named none of the shipped datasets.* That included
+  `rtklib-sample`, which is under RTKLIB's own licence and has been in every plugin ZIP since P12c-27. P13-1's
+  contribution guide made it worse: it said third-party data "is never part of the plugin package". Each
+  dataset now has a row, a test requires one, and the guide says what is true.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has three modules of six.
+
+**Not done.** Tutorials for GNSS (`rtklib-sample` shows a run but says nothing about accuracy), gravimetry and
+integration. The time series of three or more epochs. The Portuguese and Spanish walkthroughs. Worked QGIS
+projects.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

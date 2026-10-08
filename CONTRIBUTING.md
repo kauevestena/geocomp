@@ -108,9 +108,10 @@ an observation by a number nobody stated will be asked to refuse instead.
 ## Licence
 
 GeoComp is GPL-2.0-or-later ([`LICENSE`](LICENSE)), and contributions are accepted under the same licence.
-Test data from third parties is listed with its terms in [`THIRD_PARTY.md`](THIRD_PARTY.md). It is never
-part of the plugin package, and data whose terms do not allow redistribution is not committed; a test that
-needs it fetches it and skips without it.
+Data from third parties is listed with its terms in [`THIRD_PARTY.md`](THIRD_PARTY.md). Test data stays
+under `tests/`, outside the plugin package. A tutorial dataset ships in the package only where its terms
+allow that, with its notice beside it, as RTKLIB's sample does. Data whose terms do not allow
+redistribution is not committed at all: a test that needs it fetches it, and skips without it.
 
 ## Companies and public bodies
 

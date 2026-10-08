@@ -31,7 +31,9 @@ by phase from [`specs/ROADMAP.md`](specs/ROADMAP.md). Built so far:
 writable, with a tutorial that walks the whole chain. It contains two real errors, and that is the point: the
 software catches both. The same algorithm installs the levelling tutorial,
 [`rd04-loop`](geocomp/resources/datasets/rd04-loop/README.md): a loop with one reading written down wrong,
-which an adjustment hides and two more known heights find.
+which an adjustment hides and two more known heights find; and the monitoring tutorial,
+[`rd08-dam`](geocomp/resources/datasets/rd08-dam/README.md): two epochs of a structure, one of whose targets
+moved.
 
 ## Repository layout
 

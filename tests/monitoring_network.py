@@ -80,17 +80,21 @@ def _position(e: float, n: float, sigma: float) -> Position:
     )
 
 
-def epoch(
+def epoch_network(
     year: float,
     *,
     moves: Mapping[str, tuple[float, float]] | None = None,
     seed: int = 1,
     start_error: float = 0.03,
-) -> Solution:
-    """One epoch: measured, adjusted as a free network, as a Solution."""
+) -> Network:
+    """One epoch as measured, before adjustment: approximate positions and the 36 distances.
+
+    The network states its epoch, so a solution adjusted from it carries that
+    epoch rather than an assumed one -- which the comparison would refuse.
+    """
     rng = np.random.default_rng(seed)
     points = truth(moves)
-    network = Network(id=f"dam-{year}", crs=CRS)
+    network = Network(id=f"dam-{year}", crs=CRS, epoch=Epoch.from_decimal_year(year))
     for station, xy in points.items():
         start = xy + rng.uniform(-start_error, start_error, 2)
         network.add_station(Station(id=station, approx_position=_position(*start, sigma=1.0)))
@@ -104,6 +108,18 @@ def epoch(
                 values=(Quantity.from_std_dev(distance + rng.normal(0.0, SIGMA), SIGMA, Unit.METRE),),
             )
         )
+    return network
+
+
+def epoch(
+    year: float,
+    *,
+    moves: Mapping[str, tuple[float, float]] | None = None,
+    seed: int = 1,
+    start_error: float = 0.03,
+) -> Solution:
+    """One epoch: measured, adjusted as a free network, as a Solution."""
+    network = epoch_network(year, moves=moves, seed=seed, start_error=start_error)
     options = AdjustmentOptions(frame=Frame.PLANE_2D, datum=DatumDefinition.INNER_CONSTRAINT)
     run = adjust(network, options)
     return to_solution(
@@ -114,3 +130,28 @@ def epoch(
         epoch=Epoch.from_decimal_year(year),
         datum=DatumDefinition.INNER_CONSTRAINT,
     )
+
+
+#: The shipped monitoring tutorial (P13-3): two epochs, the second after O2
+#: moved 8 mm east and 6 mm south. The same seeds and motion the tier-3 tests use.
+TUTORIAL_MOTION = {"O2": (0.008, -0.006)}
+TUTORIAL_EPOCHS: dict[str, dict] = {
+    "epoch-2025.json": {"year": 2025.0, "seed": 1},
+    "epoch-2026.json": {"year": 2026.0, "seed": 2, "moves": TUTORIAL_MOTION},
+}
+#: The alert threshold the tutorial ships, in metres, on the object points.
+TUTORIAL_THRESHOLD = 0.005
+
+
+def tutorial_networks() -> dict[str, Network]:
+    """The tutorial's two network documents, by file name, as measured and not yet adjusted."""
+    return {
+        name: epoch_network(spec["year"], moves=spec.get("moves"), seed=spec["seed"])
+        for name, spec in TUTORIAL_EPOCHS.items()
+    }
+
+
+def tutorial_thresholds() -> str:
+    """The tutorial's ``thresholds.csv``: one magnitude limit on the five object points."""
+    limit = f"{TUTORIAL_THRESHOLD:g}"
+    return f"kind,limit,stations,group\nmagnitude,{limit},{' '.join(OBJECTS)},structure\n"

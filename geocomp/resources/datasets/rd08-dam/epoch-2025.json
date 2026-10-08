@@ -1,0 +1,912 @@
+{
+ "clusters": [],
+ "crs": "EPSG:31982",
+ "epoch": {
+  "decimal_year": 2025.0
+ },
+ "id": "dam-2025.0",
+ "observations": [
+  {
+   "id": "d-R1-R2",
+   "stations": [
+    "R1",
+    "R2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1199.9992180915376,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-R3",
+   "stations": [
+    "R1",
+    "R3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1499.9997428077593,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-R4",
+   "stations": [
+    "R1",
+    "R4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 900.0000081421805,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-O1",
+   "stations": [
+    "R1",
+    "O1"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 610.3275051837799,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-O2",
+   "stations": [
+    "R1",
+    "O2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 782.6250861887407,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-O3",
+   "stations": [
+    "R1",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 743.3044440902405,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-O4",
+   "stations": [
+    "R1",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 890.2219795757638,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R1-O5",
+   "stations": [
+    "R1",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 749.998110986754,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-R3",
+   "stations": [
+    "R2",
+    "R3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 899.999825227908,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-R4",
+   "stations": [
+    "R2",
+    "R4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1499.9995778095883,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-O1",
+   "stations": [
+    "R2",
+    "O1"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 782.6240057679239,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-O2",
+   "stations": [
+    "R2",
+    "O2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 610.3279981086162,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-O3",
+   "stations": [
+    "R2",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 890.2268085769978,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-O4",
+   "stations": [
+    "R2",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 743.3023253451626,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R2-O5",
+   "stations": [
+    "R2",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 749.9996223949929,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-R4",
+   "stations": [
+    "R3",
+    "R4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 1200.0020427716074,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-O1",
+   "stations": [
+    "R3",
+    "O1"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 890.2253374412389,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-O2",
+   "stations": [
+    "R3",
+    "O2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 743.3041004292976,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-O3",
+   "stations": [
+    "R3",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 782.6232781185547,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-O4",
+   "stations": [
+    "R3",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 610.3261327115143,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R3-O5",
+   "stations": [
+    "R3",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 750.0001674647442,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R4-O1",
+   "stations": [
+    "R4",
+    "O1"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 743.303546380013,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R4-O2",
+   "stations": [
+    "R4",
+    "O2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 890.2234633861885,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R4-O3",
+   "stations": [
+    "R4",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 610.3270975600234,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R4-O4",
+   "stations": [
+    "R4",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 782.6237200812466,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-R4-O5",
+   "stations": [
+    "R4",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 749.999055248377,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O1-O2",
+   "stations": [
+    "O1",
+    "O2"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 199.99990173003215,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O1-O3",
+   "stations": [
+    "O1",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 200.00009548302748,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O1-O4",
+   "stations": [
+    "O1",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 282.8427480608561,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O1-O5",
+   "stations": [
+    "O1",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 141.42084994565118,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O2-O3",
+   "stations": [
+    "O2",
+    "O3"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 282.8433062226908,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O2-O4",
+   "stations": [
+    "O2",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 200.0008911669543,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O2-O5",
+   "stations": [
+    "O2",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 141.42167708561408,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O3-O4",
+   "stations": [
+    "O3",
+    "O4"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 199.9991817697726,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O3-O5",
+   "stations": [
+    "O3",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 141.42208788959329,
+     "variance": 1e-06
+    }
+   ]
+  },
+  {
+   "id": "d-O4-O5",
+   "stations": [
+    "O4",
+    "O5"
+   ],
+   "status": "ACTIVE",
+   "type": "HORIZONTAL_DISTANCE",
+   "values": [
+    {
+     "mode": "RIGOROUS",
+     "unit": "METRE",
+     "value": 141.42085479729104,
+     "variance": 1e-06
+    }
+   ]
+  }
+ ],
+ "stations": [
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675000.0007092975,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185000.027027822,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "R1",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 676199.9786495768,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185000.026918967,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "R2",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 676199.9887098871,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185899.995399587,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "R3",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675000.0196621557,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185899.994551948,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "R4",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675500.0029756213,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185349.971653547,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "O1",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675700.0152107865,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185350.002288599,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "O2",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675499.989783903,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185550.017305722,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "O3",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675699.9881916897,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185549.997209873,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "O4",
+   "station_type": "MARK"
+  },
+  {
+   "approx_position": {
+    "crs": "EPSG:31982",
+    "height_type": "NONE",
+    "system": "PROJECTED",
+    "values": [
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 675599.9780425018,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 7185449.9941867795,
+      "variance": 1.0
+     },
+     {
+      "mode": "RIGOROUS",
+      "unit": "METRE",
+      "value": 0.0,
+      "variance": 0.0
+     }
+    ]
+   },
+   "constraint": {
+    "mode": "FREE"
+   },
+   "id": "O5",
+   "station_type": "MARK"
+  }
+ ]
+}
