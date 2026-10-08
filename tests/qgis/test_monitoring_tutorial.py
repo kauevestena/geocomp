@@ -164,10 +164,26 @@ class TestFollowingIt:
         assert len(tests) == 36 and first["DEGREES_OF_FREEDOM"] == 36 - 2 * 9 + 3
         quoted(readme, "GeoComp rejects none of them")
 
+    def test_the_conclusions_hold_on_either_path(self, folder, compared, first, second):
+        """The README's numbers are the dense path's, which a network of nine
+        stations always takes; the tests quoting them are ``dense_only``. On the
+        sparse path the epochs carry no covariance between stations, so the
+        comparison's statistics differ -- found by CI's ``--sparse`` pass, which
+        the first version of these tests failed -- but what they conclude must
+        not: the block holds, O2 alone moved, and O2 as a pillar is refused."""
+        assert compared["REFERENCE_STABLE"] is True
+        assert compared["analysis"]["reference_check"]["test"]["test"]["passed"] is True
+        assert compared["GLOBAL_TEST_PASSED"] is False
+        assert [name for name, entry in compared["by_station"].items() if entry["significant"]] == ["O2"]
+        assert compared["ALERT_COUNT"] == 1
+        refused = refusal(COMPARE, _compare(folder, first, second, "either", reference=f"{PILLARS},O2"))
+        assert "implicates O2" in refused
+
     def test_step_2_passes_too(self, readme, second):
         assert second["GLOBAL_TEST_PASSED"] is True
         quoted(readme, f"with a variance factor of **{second['VARIANCE_FACTOR_APOSTERIORI']:.2f}**")
 
+    @pytest.mark.dense_only
     def test_step_3_the_reference_block_is_stable_and_the_network_is_not(self, readme, compared):
         assert compared["REFERENCE_STABLE"] is True
         block = compared["analysis"]["reference_check"]["test"]["test"]
@@ -185,6 +201,7 @@ class TestFollowingIt:
             f"**{whole['critical_high']:.2f}**",
         )
 
+    @pytest.mark.dense_only
     def test_step_3_finds_o2_and_only_o2(self, readme, compared):
         significant = [name for name, entry in compared["by_station"].items() if entry["significant"]]
         assert significant == ["O2"] and compared["SIGNIFICANT_COUNT"] == 1
@@ -198,6 +215,7 @@ class TestFollowingIt:
         test = o2["test"]
         quoted(readme, f"Its test gives **{test['statistic']:.1f}** against **{test['critical_high']:.2f}**")
 
+    @pytest.mark.dense_only
     def test_step_3_the_difference_from_the_truth_is_inside_the_ellipse(self, readme, compared):
         o2 = compared["by_station"]["O2"]
         moved = rd.TUTORIAL_MOTION["O2"]
@@ -230,6 +248,7 @@ class TestFollowingIt:
                 assert a == pytest.approx(b, abs=1e-7), entry["station"]
         quoted(readme, "The displacements come out the same, to the tenth of a micrometre.")
 
+    @pytest.mark.dense_only
     def test_step_4_a_moved_pillar_is_refused_and_named(self, readme, folder, first, second):
         refused = refusal(COMPARE, _compare(folder, first, second, "refused", reference=f"{PILLARS},O2"))
         quoted(readme, f"`{PILLARS},O2`")

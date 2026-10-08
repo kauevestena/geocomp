@@ -3188,6 +3188,12 @@ distances are computed floats.
   `rtklib-sample`, which is under RTKLIB's own licence and has been in every plugin ZIP since P12c-27. P13-1's
   contribution guide made it worse: it said third-party data "is never part of the plugin package". Each
   dataset now has a row, a test requires one, and the guide says what is true.
+- *The walkthrough's numbers held on the dense path only, and CI's `--sparse` pass found it.* On the sparse path
+  the epochs carry no covariance between stations, so the comparison's statistics differ: 1.07 for the block
+  where the README says 0.59, and 66.5 for O2 where it says 77.1. A nine-station network always takes the
+  dense path as shipped, so the tests that quote numbers are `dense_only`. A new test asserts what the
+  numbers conclude on either path: the block holds, O2 alone moved, and O2 held as a pillar is refused.
+  I had run neither walkthrough's QGIS tier with `--sparse`; both pass it now.
 
 **Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has three modules of six.
 
