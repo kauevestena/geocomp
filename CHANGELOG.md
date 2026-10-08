@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-42 — Reports and logs speak your language throughout
+
+#### Changed
+
+- Reports no longer show internal names: a datum definition, coordinate frame, observation type, height type,
+  traverse kind, angle format or uncertainty mode is now said in words, in your language ("minimum
+  constraints", not "minimum_constraint").
+- A failed global test says whether the variance factor was too large or too small, and what to check.
+- The datum defect is listed by its components; the gravity datum says how and at which stations it was held.
+- Why DynAdjust skips a stage, and why a combination goes to DynAdjust or to GeoComp's own adjustment, is said
+  in your language.
+
 ### P12c-41 — GNSS says files and products in your language
 
 #### Changed

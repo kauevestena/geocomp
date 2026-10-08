@@ -30,7 +30,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from geocomp.core.adjustment.datum import constraint_matrix, detect_defect
+from geocomp.core.adjustment.datum import DatumDefect, constraint_matrix, detect_defect
 from geocomp.core.adjustment.least_squares import AdjustmentOptions, starting_values
 from geocomp.core.adjustment.normal_equations import assemble, solve
 from geocomp.core.adjustment.parameters import Frame, ParameterLayout
@@ -68,7 +68,9 @@ class DesignReport:
             of the answer: a design can be precise and still unable to detect a
             blunder anywhere.
         degrees_of_freedom: Redundancy of the design.
-        defect: The datum defect of the planned observation set.
+        defect_description: The datum defect of the planned observation set, in
+            English for logs and documents.
+        defect: The same defect, for words in the language (P12c-42).
     """
 
     stations: tuple[StationDesign, ...]
@@ -77,6 +79,7 @@ class DesignReport:
     observation_count: int
     parameter_count: int
     defect_description: str
+    defect: DatumDefect | None = None
 
     def worst_station(self) -> StationDesign | None:
         """The station the design serves least well -- usually the design question."""
@@ -196,4 +199,5 @@ def simulate(
         observation_count=system.observation_count,
         parameter_count=layout.size,
         defect_description=defect.describe(),
+        defect=defect,
     )

@@ -491,7 +491,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 165 met, 10 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 166 met, 9 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -524,7 +524,7 @@ without a row.
 | FR-070 | **met** | Since P12c-13 Basic hides the advanced parameters and Advanced shows them (`tests/qgis/test_basic_advanced_identity.py::test_basic_mode_shows_the_reduced_set`). Until then both modes showed the same set and the setting changed nothing. Since P12c-21 Advanced takes hand-written configuration files for both engines: a DynAdjust configuration of options per program (FR-325) and an RTKLIB options file on the four processing modes and *Batch processing* (`tests/qgis/test_engine_runs.py::TestAUsersOwnRtklibOptions`, `tests/test_rtklib_engine.py::TestAUsersOwnOptions`; `specs/08` §2.4). Options GeoComp reads the result back by are refused in both |
 | FR-071 | **met** | As 15.7 |
 | FR-090 | **met** | As 18.2 |
-| FR-091 | **partly met** | As 18.1; every error and finding in words, `tests/structural/test_message_templates.py`. Not yet ten log lines of the adjustment, integration and DynAdjust algorithms, which put the core's English into a translated sentence -- the datum defect, the global test's note, a stage's reason -- frozen in a list that may only shrink (`tests/structural/test_message_templates.py::test_no_sentence_carries_the_cores_english`, [`18`](./18-i18n-and-profiles.md) §2) |
+| FR-091 | **met** | As 18.1; every error and finding in words, `tests/structural/test_message_templates.py`; and no reader is shown the core's English or an enum's value -- in a report cell or note, the log or a widget -- since P12c-42 (`tests/structural/test_message_templates.py::test_no_reader_is_shown_the_cores_english`, `tests/qgis/test_labels.py::test_every_member_of_every_enum_shown_has_words`) |
 | FR-092 | **met** | As 18.3 |
 | FR-093 | **met** | As 18.4 |
 | FR-094 | **met** | As 18.6 |

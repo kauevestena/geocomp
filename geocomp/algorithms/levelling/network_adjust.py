@@ -53,6 +53,7 @@ from geocomp.algorithms.defaults import (
     run_epoch,
 )
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import in_words, technique_label
 from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE
 from geocomp.algorithms.levelling.common import (
     document_source,
@@ -932,8 +933,8 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
                         else self.tr("passed") if test.passed else self.tr("FAILED")
                     ),
                 ],
-                [escape(self.tr("Datum")), escape(solution.datum_definition.value)],
-                [escape(self.tr("Height type")), escape(built.height_type.value)],
+                [escape(self.tr("Datum")), escape(in_words(solution.datum_definition))],
+                [escape(self.tr("Height type")), escape(in_words(built.height_type))],
                 [
                     escape(self.tr("Weighting")),
                     escape(weighting.describe)
@@ -1083,7 +1084,7 @@ class LevellingNetworkAlgorithm(GeoCompAlgorithm):
         for component in components.components:
             feedback.pushInfo(
                 self.tr("Variance factor of %1: %2 ± %3 (%4 observations)")
-                .replace("%1", component.group)
+                .replace("%1", technique_label(component.group))
                 .replace("%2", format_number(component.factor, 3))
                 .replace("%3", format_number(component.std_dev, 3))
                 .replace("%4", str(component.observations))

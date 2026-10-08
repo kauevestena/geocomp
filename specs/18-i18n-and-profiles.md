@@ -193,16 +193,34 @@ reasons it cannot be had are sentences that say what to do. A batch row the engi
 what to check, where it showed the batch's English `detail`. `describe()` stays, for the JSON report and
 provenance, which are data.
 
-The structural test now also reads the values put into a translated sentence outside the core: a
-`describe()`, or an attribute the core fills with English (`reason`, `note`, `detail`, `method`, `group`,
-`technique`, `removed_by`, `defect_description`). When P12c-41 counted, ten such sites remained, all in the log
-lines of the adjustment, integration and DynAdjust algorithms: the datum defect and how it was removed, the
-global test's note, the integration's routing reason and techniques, the DynAdjust stages' reasons, and the
-variance components' groups. They are frozen in a list that may only shrink, and are the next change.
+The structural test now also reads the values a reader is shown outside the core: put into a translated
+sentence, or handed straight to a report cell, a report note, the log or a widget. It flags a `describe()`, an
+enum's `value`, or an attribute the core fills with English (`reason`, `note`, `detail`, `method`, `group`,
+`kind`, `technique`, `removed_by`, `defect_description`). When P12c-41 counted only the sentences, ten sites
+remained. They were the log lines of the adjustment, integration and DynAdjust algorithms: the datum defect and
+how it was removed, the global test's note, the integration's routing reason and techniques, the DynAdjust
+stages' reasons, and the variance components' groups.
+
+**The core's enums in words (P12c-42).** Read over every place a value is shown, P12c-42 found 25 more.
+Report cells showed an enum's value as it stood -- a Portuguese report's datum read `minimum_constraint`, its
+frame `plane_2d`, an observation's type `slope_distance` -- and report notes showed the global test's English
+note. `geocomp.algorithms.labels` is now where a value becomes words: `in_words` for every member of the enums a
+reader is shown (a test holds each to having words), and the technique, closure-kind, test-name, solver and
+engine tokens. The sentences are said where they are shown:
+- the global test's failure says which way it failed and what to look at;
+- the datum defect lists its components;
+- the gravity datum says how and at which stations it was held.
+
+The DynAdjust stages and the integration's routing now carry a code and its values beside their English reason,
+and the algorithms word them. The English stays in the provenance and the prepared job's manifest, which are
+documents. A job an older release prepared has no code, and its skipped stage is said without the why rather
+than in English. All 35 sites say it in words, and there is no list and no exemption. Two that the rule reads
+as the core's were the plugin's own translated words under the names `note` and `describe`; they were renamed
+rather than excused.
 
 **What the rules do not reach.** A failure outside the algorithms that is not worded "could not" is left to the
-review, and so is the core's English under a name the list above does not hold. A warning an algorithm pushes
-about part of its work is not a refusal, and is not held to the remedy rule.
+review. So is the core's English under a name the rule does not hold, or reaching a reader by a path it does not
+read. A warning an algorithm pushes about part of its work is not a refusal, and is not held to the remedy rule.
 
 ## 3. Terminology (FR-093)
 

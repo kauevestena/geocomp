@@ -115,7 +115,7 @@ class TestThePlot:
         panel.plot.image()  # paints, placing the points
         point, station, index = panel.plot._points[2]
         assert panel.plot.nearest(point) == (station, index) == ("O1", 2)
-        text = panel.plot.describe("O1", 2)
+        text = panel.plot.caption("O1", 2)
         assert "2026.0000" in text and "dam-2026.0" in text
 
 

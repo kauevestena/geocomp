@@ -53,6 +53,7 @@ from geocomp.algorithms.analysis.common import DATUM_ORDER, datum_labels, datum_
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured, configured_epoch
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import engine_label, in_words, technique_label
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
 from geocomp.core.errors import GeoCompError, ValidationError
 from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
@@ -65,6 +66,7 @@ from geocomp.core.models import (
     DatumDefinition,
     Epoch,
     Network,
+    ObservationType,
 )
 from geocomp.core.number_format import localised
 from geocomp.core.techniques.integration import GridFrame, Velocity, adjust_combination, combine, route
@@ -345,7 +347,9 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                 network = _with(network, gravity.network)
             routing = route(network, requested)
             feedback.pushInfo(
-                self.tr("Engine: %1 (%2).").replace("%1", routing.engine).replace("%2", routing.reason)
+                self.tr("Engine: %1 (%2).")
+                .replace("%1", engine_label(routing.engine))
+                .replace("%2", self._routing_words(routing))
             )
             feedback.setProgress(30)
             if routing.engine == "dynadjust":
@@ -525,11 +529,46 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
             ),
         )
 
+    def _routing_words(self, routing) -> str:
+        """Why the combination went to its engine, in words (P12c-42).
+
+        ``routing.reason`` says it in English, for the provenance.
+        """
+        context = routing.context
+        count = str(context.get("count", ""))
+        if routing.code == "gravity_in_house":
+            return self.tr(
+                "%1 gravity observation(s) take part, and DynAdjust has no measurement type for "
+                "gravity; GeoComp's own adjustment adjusts them instead of their being dropped"
+            ).replace("%1", count)
+        if routing.code == "type_without_dynadjust":
+            types = ", ".join(in_words(ObservationType(value)) for value in context.get("types", ()))
+            return self.tr(
+                "DynAdjust has no measurement type for %1; GeoComp's own adjustment adjusts the "
+                "whole combination rather than a part of it"
+            ).replace("%1", types)
+        if routing.code == "local_system":
+            return self.tr(
+                "the combination is in a local system (%1), and DynAdjust adjusts on the "
+                "ellipsoid of a named frame"
+            ).replace("%1", context.get("crs") or self.tr("unstated"))
+        if routing.code == "orthometric_in_house":
+            return self.tr(
+                "%1 orthometric observation(s) take part; GeoComp's own adjustment estimates each "
+                "station's geoid undulation with the model's own uncertainty, where DynAdjust "
+                "would take the separations as exact"
+            ).replace("%1", count)
+        if routing.code == "dynadjust_requested":
+            return self.tr("requested, and every observation has a DynAdjust type")
+        if context.get("gravity"):
+            return self.tr("requested; gravity observations included")
+        return self.tr("requested")
+
     def _summarise(self, result, feedback) -> None:
         for summary in result.breakdown:
             feedback.pushInfo(
                 self.tr("%1: %2 observation(s), %3 of the redundancy, vᵀPv/r %4.")
-                .replace("%1", summary.technique)
+                .replace("%1", technique_label(summary.technique))
                 .replace("%2", str(summary.observations))
                 .replace("%3", localised(f"{100.0 * summary.redundancy_share:.1f}%"))
                 .replace(

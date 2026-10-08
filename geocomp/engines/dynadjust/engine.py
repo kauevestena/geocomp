@@ -215,6 +215,9 @@ class Stage:
     #: Why this stage runs, or why it does not. Kept in the provenance, because
     #: "dnareftran did not run" is only useful beside "the frames matched".
     reason: str = ""
+    #: The same why, by code and values, for words in the language (P12c-42).
+    code: str = ""
+    context: dict[str, str | int] = field(default_factory=dict, compare=False)
 
 
 @dataclass(frozen=True)
@@ -428,6 +431,7 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
             "dnaimport",
             ("-n", job.name, f"{job.name}-stn.xml", f"{job.name}-msr.xml"),
             reason="always: it validates the input and builds the binary working files",
+            code="always_import",
         )
     ]
 
@@ -448,25 +452,44 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
     if epoch_differs and job.epoch is not None:
         reftran += ["-e", dynadjust_epoch(job.epoch)]
 
+    context: dict[str, str | int] = {}
     if frame_differs and epoch_differs:
         reason = (
             f"frame {network.crs} -> {job.frame} and epoch "
             f"{network.epoch} -> {job.epoch}"
         )
+        code = "frame_and_epoch_differ"
+        context = {
+            "from": network.crs,
+            "to": job.frame,
+            "epoch_from": str(network.epoch),
+            "epoch_to": str(job.epoch),
+        }
     elif frame_differs:
         reason = f"the frame differs: {network.crs} -> {job.frame}"
+        code, context = "frame_differs", {"from": network.crs, "to": job.frame}
     elif epoch_differs:
         reason = f"the epoch differs: {network.epoch} -> {job.epoch}"
+        code, context = "epoch_differs", {"from": str(network.epoch), "to": str(job.epoch)}
     elif not network.crs:
         reason = (
             f"the input states no frame, so {job.frame} is taken as the frame it is "
             "already in; transforming out of an unrecorded frame would apply a shift "
             "computed from a guess (FR-105)"
         )
+        code, context = "input_states_no_frame", {"frame": job.frame}
     else:
         reason = "the input is already in the target frame and epoch"
+        code = "already_in_target"
     stages.append(
-        Stage("dnareftran", tuple(reftran), included=frame_differs or epoch_differs, reason=reason)
+        Stage(
+            "dnareftran",
+            tuple(reftran),
+            included=frame_differs or epoch_differs,
+            reason=reason,
+            code=code,
+            context=context,
+        )
     )
 
     # Orthometric heights need the separation applied -- but not necessarily by
@@ -491,6 +514,11 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
                     else "every height is ellipsoidal; no geoid is involved"
                 )
             ),
+            code=(
+                "orthometric_heights"
+                if geoid
+                else ("undulations_applied" if applied_by_geocomp else "all_ellipsoidal")
+            ),
         )
     )
 
@@ -511,6 +539,8 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
                     else f"{len(network.stations)} stations adjust simultaneously"
                 )
             ),
+            code="above_threshold" if large else ("phased_requested" if phased else "simultaneous"),
+            context={"stations": len(network.stations), "threshold": job.segmentation_threshold},
         )
     )
 
@@ -541,7 +571,7 @@ def plan(job: DynAdjustJob) -> tuple[Stage, ...]:
         "0",
     ]
     stages.append(
-        Stage("dnaadjust", tuple(adjust), reason="always: it is the adjustment")
+        Stage("dnaadjust", tuple(adjust), reason="always: it is the adjustment", code="always_adjust")
     )
     # The user's own options come after GeoComp's, so they add to the run
     # without moving anything GeoComp's parsers rely on (FR-325).
@@ -966,6 +996,8 @@ def _write_manifest(prepared: PreparedJob) -> None:
                 "arguments": list(stage.arguments),
                 "included": stage.included,
                 "reason": stage.reason,
+                "code": stage.code,
+                "context": dict(stage.context),
             }
             for stage in prepared.stages
         ],
@@ -1024,6 +1056,8 @@ def load_prepared(work_dir: str | Path) -> PreparedJob:
                 arguments=tuple(stage["arguments"]),
                 included=bool(stage["included"]),
                 reason=stage.get("reason", ""),
+                code=stage.get("code", ""),
+                context=dict(stage.get("context", {})),
             )
             for stage in payload["stages"]
         )

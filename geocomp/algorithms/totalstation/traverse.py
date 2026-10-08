@@ -40,6 +40,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.display import display_format
+from geocomp.algorithms.labels import in_words
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -533,8 +534,8 @@ class TraverseAlgorithm(GeoCompAlgorithm):
     def _render(self, result) -> str:
         shown = display_format()
         summary = [
-            [escape(self.tr("Kind")), escape(result.kind.value)],
-            [escape(self.tr("Distribution")), escape(result.method.value)],
+            [escape(self.tr("Kind")), escape(in_words(result.kind))],
+            [escape(self.tr("Distribution")), escape(in_words(result.method))],
             [
                 escape(self.tr("Perimeter (%1)").replace("%1", shown.distance_symbol)),
                 shown.distance(result.perimeter.value),

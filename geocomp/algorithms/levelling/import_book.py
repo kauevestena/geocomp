@@ -25,6 +25,7 @@ from qgis.core import (
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.labels import in_words
 from geocomp.algorithms.levelling.common import (
     findings_table,
     level_from_parameters,
@@ -255,7 +256,7 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
         summary = render_table(
             [escape(self.tr("Quantity")), escape(self.tr("Value"))],
             [
-                [escape(self.tr("Layout")), escape(mapping.layout.value)],
+                [escape(self.tr("Layout")), escape(in_words(mapping.layout))],
                 [escape(self.tr("Rows read")), str(result.row_count)],
                 [escape(self.tr("Setups assembled")), str(len(result.setups))],
                 [escape(self.tr("Lines assembled")), str(len(result.lines))],
