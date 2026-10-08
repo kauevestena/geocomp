@@ -304,7 +304,15 @@ test anywhere.
   (FR-954).
 - **Upstream defect reporting** (FR-955): where a failure is in DynAdjust or RTKLIB, GeoComp packages the
   exact inputs, configuration, command line and output that reproduce it, so the report is actionable. The
-  proposal names this feedback loop as an expected result of the project.
+  proposal names this feedback loop as an expected result of the project. *As built (P12c-48)*: every engine
+  run leaves its command, exit code, version and whole output in its working directory
+  ([`07`](./07-engine-dynadjust.md) §7, [`08`](./08-engine-rtklib.md) §9), and *Package an engine problem*
+  zips that directory with a README for the engine's developers. The README is in English, because both
+  projects work in English. It gives the engine and its version, each program, command and how it ended, in
+  order, and where the project takes reports: DynAdjust's repository, and the RTKLIB build GeoComp ships. It
+  removes nothing, and asks the user to look before sending, because what may be shared is theirs to decide.
+  No credential is in a working directory (NFR-010). (`tests/test_engine_problem_report.py`, which packages a
+  real DynAdjust failure in the `engine` workflow, and `tests/qgis/test_engine_problem_package.py`.)
 
 ## 9. Acceptance criteria
 
@@ -491,7 +499,7 @@ is not met says what is missing. `tests/structural/test_requirement_register.py`
 document. It was written block by block in seven pull requests, the last of which, in P12c-13, left no requirement
 without a row.
 
-**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 170 met, 5 partly met, 1 open, 0 manual, of 176.**
+**Every requirement has a row (P12c-13): the platform block, FR-001 to FR-095; data, persistence and interoperability, FR-100 to FR-167; uncertainty and adjustment, FR-200 to FR-273; engines, FR-300 to FR-359; total station and level, FR-400 to FR-505; GNSS, gravimetry, integration and multi-epoch, FR-600 to FR-838; visualisation, reporting and community, FR-900 to FR-955; and the non-functional requirements, NFR-001 to NFR-012. State now: 171 met, 4 partly met, 1 open, 0 manual, of 176.**
 
 | ID | State | Evidence, or what is missing |
 |---|---|---|
@@ -658,7 +666,7 @@ without a row.
 | FR-952 | **partly met** | RD-01 ships as a tutorial dataset with its walkthrough, and every number the walkthrough states is checked against the files (`tests/test_tutorial_dataset.py::TestTheTutorialTellsTheTruth`, `tests/qgis/test_tutorial.py::TestFollowingIt`). One module, in English; tutorials for every module in three languages and worked QGIS projects are P13's |
 | FR-953 | **met** | Public, with CI on every push (`.github/workflows/test.yml`, `.github/workflows/build.yml`), every algorithm's help held to its parameters (`tests/qgis/test_algorithm_help.py`), and the specifications in `specs/`. Teaching material is FR-952's row |
 | FR-954 | **open** | No contribution guide. §8 says what it must cover and P13 writes it; how companies and public bodies take part is the maintainer's to decide, not an audit's to draft |
-| FR-955 | **partly met** | What a report needs is kept: a DynAdjust failure that names its files leaves them and says where (`tests/qgis/test_engine_runs.py::TestADynAdjustRefusal`), an RTKLIB working directory is kept on request with its configuration (`tests/qgis/test_engine_runs.py::TestTheWorkingDirectory`), and the command and what the engine said are in the result (`tests/qgis/test_engine_runs.py::TestTheVersion`). Nothing packages them into one report for upstream, as §8 describes: P13's |
+| FR-955 | **met** | What a report needs is kept: a DynAdjust failure that names its files leaves them and says where (`tests/qgis/test_engine_runs.py::TestADynAdjustRefusal`), an RTKLIB working directory is kept on request with its configuration (`tests/qgis/test_engine_runs.py::TestTheWorkingDirectory`), and the command and what the engine said are in the result (`tests/qgis/test_engine_runs.py::TestTheVersion`). Since P12c-48 each run's command, exit code, version and whole output are in its working directory too, and *Package an engine problem* puts it in one zip with a README for the engine's developers, as §8 describes (`tests/test_engine_problem_report.py`, `tests/qgis/test_engine_problem_package.py`) |
 | NFR-001 | **met** | `metadata.txt` declares 4.0 (`tests/structural/test_version_consistency.py::test_minimum_qgis_is_the_targeted_series`); the releases under test are read from QGIS's own channels and held to this requirement's reading, stable until a 4.x LTR exists (`tests/test_qgis_versions.py`), As 21.5 |
 | NFR-002 | **met** | `tests/structural/test_no_qgis_in_core.py` |
 | NFR-003 | **met** | As 21.5. How far each engine is installed on each system is FR-301's row |

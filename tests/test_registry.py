@@ -60,6 +60,7 @@ PUBLISHED_IDS = frozenset(
         "project_export_postgis",
         "project_import_postgis",
         "project_install_engine",
+        "project_package_engine_problem",
         "project_print_layout",
         "project_report",
         "project_store",

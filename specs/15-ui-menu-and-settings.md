@@ -57,8 +57,9 @@ See [`10-module-levelling.md`](./10-module-levelling.md).
 
 **Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
 project to PostGIS · Import project from PostGIS · Add base map · Create print layout · GeoComp system report ·
-Install tutorial dataset · Install an engine. *Create print layout* joined in P12b ([`19`](./19-visualization.md)
-§6), *Install an engine* in P12c-6 ([`21`](./21-packaging-ci-release-licensing.md) §4).
+Install tutorial dataset · Install an engine · Package an engine problem. *Create print layout* joined in P12b
+([`19`](./19-visualization.md) §6), *Install an engine* in P12c-6 ([`21`](./21-packaging-ci-release-licensing.md)
+§4), *Package an engine problem* in P12c-48 ([`20`](./20-testing-and-validation.md) §8).
 
 > **P11 added the two mode switches** of [`17`](./17-persistence-and-interoperability.md) §4, beside the store
 > they move a project into and out of, and gave *Save to project store* a database mode: a PostgreSQL connection

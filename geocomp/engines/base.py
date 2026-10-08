@@ -33,6 +33,7 @@ reason.
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -46,12 +47,14 @@ from typing import Any, Protocol
 from geocomp.core.errors import ComputationError, ValidationError
 
 __all__ = [
+    "RUN_RECORD",
     "Engine",
     "EngineAbsentError",
     "EngineRun",
     "EngineVersion",
     "ProgressCallback",
     "discover",
+    "keep_record",
     "require",
     "run_process",
 ]
@@ -159,9 +162,10 @@ class EngineRun:
 
         A DynAdjust run over a large network prints tens of thousands of lines,
         and a provenance record that carries all of them is one nobody opens.
-        The retained ``work_dir`` holds the full logs; this is the part a reader
-        sees first, which is the beginning and the end -- where the version
-        banner and the error are.
+        The retained ``work_dir`` holds the full logs (:func:`keep_record`;
+        until P12c-48 this said so, and nothing wrote them); this is the part a
+        reader sees first, which is the beginning and the end -- where the
+        version banner and the error are.
         """
         return {
             "program": self.program,
@@ -332,8 +336,14 @@ def run_process(
     on_progress: ProgressCallback | None = None,
     version: EngineVersion | None = None,
     environment: dict[str, str] | None = None,
+    record: bool = True,
 ) -> EngineRun:
     """Run one engine program to completion, capturing everything (FR-304).
+
+    With *record*, the run leaves its record in *work_dir* (:func:`keep_record`).
+    A version probe passes ``False``: it runs wherever the program or the caller
+    happens to be -- QGIS's own working directory, or the folder a bundled
+    program ships in -- and a record there is litter, not a report (P12c-48).
 
     Output is read **line by line while the process runs**, not collected at the
     end, so ``on_progress`` can report and a cancelled task can stop promptly.
@@ -408,7 +418,7 @@ def run_process(
             if stream is not None:
                 stream.close()
 
-    return EngineRun(
+    run = EngineRun(
         program=program or Path(command[0]).name,
         command=tuple(str(part) for part in command),
         exit_code=process.returncode if process.returncode is not None else -1,
@@ -420,6 +430,42 @@ def run_process(
         timed_out=timed_out,
         environment=dict(environment or {}),
     )
+    if record:
+        keep_record(run)
+    return run
+
+
+#: The record every engine run leaves in its working folder, one JSON line per
+#: run, beside the full output of each program (FR-955; P12c-48).
+RUN_RECORD = "geocomp-runs.jsonl"
+
+
+def keep_record(run: EngineRun) -> None:
+    """Leave *run*'s whole output and its record in its working folder (FR-955).
+
+    Each stream whole, in ``geocomp-<program>.stdout.txt`` and ``.stderr.txt``,
+    and a line of :data:`RUN_RECORD` with the command, the exit code, the time
+    and the engine's version: what a report to the engine's developers needs,
+    beside the inputs already there. Until P12c-48 the folder held the inputs
+    and the outputs only, and the command and what the engine said were on the
+    error and in the solution's provenance, cut to their ends. The environment
+    is not recorded: it is the caller's, and may hold what is not GeoComp's to
+    write down (NFR-010). A folder that cannot be written in loses this record,
+    never the run.
+    """
+    record = {
+        key: value
+        for key, value in run.to_dict().items()
+        if key not in ("stdout", "stderr", "work_dir")
+    }
+    stem = f"geocomp-{Path(run.program).name}"
+    try:
+        (run.work_dir / f"{stem}.stdout.txt").write_text(run.stdout, encoding="utf-8")
+        (run.work_dir / f"{stem}.stderr.txt").write_text(run.stderr, encoding="utf-8")
+        with open(run.work_dir / RUN_RECORD, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, sort_keys=True) + "\n")
+    except OSError:
+        pass
 
 
 def _terminate(process: subprocess.Popen) -> None:

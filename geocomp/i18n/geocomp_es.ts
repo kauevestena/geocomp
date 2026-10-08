@@ -3911,8 +3911,8 @@
             <translation>%1 estación(es) no participan en ninguna observación activa y no pueden determinarse: %2.</translation>
         </message>
         <message>
-            <source>%1 stopped with exit code %2. Its own message: %3. Its working files are in %4. Look there, and at its message, for the cause.</source>
-            <translation>%1 se detuvo con el código de salida %2. El mensaje del propio motor: %3. Los archivos de trabajo están en %4. Busque allí, y en su mensaje, la causa.</translation>
+            <source>%1 stopped with exit code %2. Its own message: %3. Its working files are in %4. Look there, and at its message, for the cause, or package them for its developers with Package an engine problem.</source>
+            <translation>%1 se detuvo con el código de salida %2. El mensaje del propio motor: %3. Los archivos de trabajo están en %4. Busque allí, y en su mensaje, la causa, o empaquételos para los desarrolladores del motor con Empaquetar un problema de motor.</translation>
         </message>
         <message>
             <source>%1 trigonometric height difference(s) joined the network, each weighted by its own propagated uncertainty.</source>
@@ -4013,6 +4013,10 @@
         <message>
             <source>'%1' holds no job GeoComp prepared. Run Adjust network (DynAdjust) with 'Stop after writing the input' first, and give the folder it wrote.</source>
             <translation>'%1' no contiene ningún trabajo que GeoComp haya preparado. Ejecute antes Ajustar red (DynAdjust) con 'Detenerse tras escribir la entrada' e indique la carpeta que escribió.</translation>
+        </message>
+        <message>
+            <source>'%1' holds no record of an engine run. Choose the working folder a DynAdjust or RTKLIB run kept: the one its refusal names, or one the run was asked to keep. A folder kept before this version of GeoComp has no record; run it again.</source>
+            <translation>'%1' no contiene registro de una ejecución de motor. Elija la carpeta de trabajo que conservó una ejecución de DynAdjust o RTKLIB: la que indica su rechazo, o una que se pidió a la ejecución conservar. Una carpeta conservada antes de esta versión de GeoComp no tiene registro; ejecútela de nuevo.</translation>
         </message>
         <message>
             <source>'%1' holds no station coordinates. Each row gives a station, then its easting, northing and height, in metres. Add a row for each station.</source>
@@ -4667,8 +4671,8 @@
             <translation>DynAdjust necesita un marco de referencia y una época explícitos, y a esta ejecución le falta uno de ellos o ambos. GeoComp no adivina ninguno: un marco adivinado es un desplazamiento de datum escondido en los residuos. Defina el marco de referencia y la época en el diálogo, o regístrelos en la red.</translation>
         </message>
         <message>
-            <source>DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its working files and the input GeoComp wrote are kept; look there for the cause. DynAdjust's own message: %3</source>
-            <translation>El %1 de DynAdjust se detuvo con el código de salida %2. El comando fue %5, ejecutado en %4, donde se conservan los archivos de trabajo y la entrada que escribió GeoComp; busque allí la causa. El mensaje del propio DynAdjust: %3</translation>
+            <source>DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its working files and the input GeoComp wrote are kept; look there for the cause, or package them for DynAdjust's developers with Package an engine problem. DynAdjust's own message: %3</source>
+            <translation>El %1 de DynAdjust se detuvo con el código de salida %2. El comando fue %5, ejecutado en %4, donde se conservan los archivos de trabajo y la entrada que escribió GeoComp; busque allí la causa, o empaquételos para los desarrolladores de DynAdjust con Empaquetar un problema de motor. El mensaje del propio DynAdjust: %3</translation>
         </message>
         <message>
             <source>DynAdjust's %1 was stopped at its time limit of %3 s, after running for %2 s, before it finished. Raise the timeout per stage among the algorithm's advanced parameters. Its working files are kept in %4.</source>
@@ -11459,6 +11463,53 @@
         <message>
             <source>Worst station: %1 at %2 m.</source>
             <translation>Peor estación: %1, con %2 m.</translation>
+        </message>
+    </context>
+    <context>
+        <name>PackageEngineProblemAlgorithm</name>
+        <message>
+            <source>%1 runs and %2 files from %3 are in %4.</source>
+            <translation>%1 ejecuciones y %2 archivos de %3 están en %4.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;When DynAdjust or RTKLIB fails, GeoComp keeps the folder it ran in and names it in the refusal. That folder holds what reproduces the failure: the input GeoComp wrote, the configuration, each command that ran, how it ended, and everything the engine printed. This puts all of it in one zip file, with a README in English for the engine's developers saying which engine and version ran, the commands in order and how each ended, and where to report it.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Working folder&lt;/b&gt; &amp;mdash; the folder the refusal named, or one the run was asked to keep. &lt;b&gt;Package&lt;/b&gt; &amp;mdash; the zip file to write.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Look before you send.&lt;/b&gt; The files are your survey's data, and the commands name folders on this computer. Nothing is removed for you: remove what may not be shared. No password or key is ever in a working folder; downloads go through QGIS's authentication system.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;Cuando DynAdjust o RTKLIB fallan, GeoComp conserva la carpeta en la que se ejecutaron y la indica en el rechazo. Esa carpeta contiene lo que reproduce el fallo: la entrada que escribió GeoComp, la configuración, cada comando ejecutado, cómo terminó y todo lo que imprimió el motor. Este algoritmo lo pone todo en un archivo zip, con un README en inglés para los desarrolladores del motor que dice qué motor y versión se ejecutaron, los comandos en orden y cómo terminó cada uno, y dónde informar del problema.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Carpeta de trabajo&lt;/b&gt; &amp;mdash; la carpeta que indicó el rechazo, o una que se pidió a la ejecución conservar. &lt;b&gt;Paquete&lt;/b&gt; &amp;mdash; el archivo zip que se escribirá.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Mire antes de enviar.&lt;/b&gt; Los archivos son los datos de su levantamiento, y los comandos nombran carpetas de este equipo. No se elimina nada por usted: quite lo que no pueda compartirse. Ninguna contraseña o clave queda en una carpeta de trabajo; las descargas pasan por el sistema de autenticación de QGIS.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Engine</source>
+            <translation>Motor</translation>
+        </message>
+        <message>
+            <source>Look inside before you send it: the files are your survey's data and name folders on this computer. Remove what may not be shared.</source>
+            <translation>Mire el contenido antes de enviarlo: los archivos son los datos de su levantamiento y nombran carpetas de este equipo. Quite lo que no pueda compartirse.</translation>
+        </message>
+        <message>
+            <source>Package</source>
+            <translation>Paquete</translation>
+        </message>
+        <message>
+            <source>Package an engine problem</source>
+            <translation>Empaquetar un problema de motor</translation>
+        </message>
+        <message>
+            <source>Put a failed DynAdjust or RTKLIB run's folder in one file for the engine's developers.</source>
+            <translation>Poner la carpeta de una ejecución fallida de DynAdjust o RTKLIB en un solo archivo para los desarrolladores del motor.</translation>
+        </message>
+        <message>
+            <source>Report it at %1, attaching the package.</source>
+            <translation>Informe del problema en %1, adjuntando el paquete.</translation>
+        </message>
+        <message>
+            <source>Working folder</source>
+            <translation>Carpeta de trabajo</translation>
+        </message>
+        <message>
+            <source>Zip archives (*.zip)</source>
+            <translation>Archivos zip (*.zip)</translation>
+        </message>
+        <message>
+            <source>an engine GeoComp does not recognise</source>
+            <translation>un motor que GeoComp no reconoce</translation>
         </message>
     </context>
     <context>

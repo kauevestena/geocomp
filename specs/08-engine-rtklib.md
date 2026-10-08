@@ -592,6 +592,15 @@ output, as FR-302 requires; until P12c-11 only DynAdjust's adjustment did. The f
 working directory* was read by nothing; it now removes the directory after a successful run when unchecked,
 and a failed run's is always kept.
 
+*P12c-48.* Every run of every engine program now leaves its record in the working directory: the whole of its
+stdout and stderr, in `geocomp-<program>.stdout.txt` and `.stderr.txt`, and a line of `geocomp-runs.jsonl` with
+the command, the exit code, the time and the engine's version (`geocomp/engines/base.py::keep_record`). Until
+then the command and what the engine said travelled on the refusal and in the solution's provenance, cut to
+their first and last forty lines, while `EngineRun.to_dict` said the full logs were in the directory and nothing
+wrote them. The environment is not recorded (NFR-010). `rtklib_run_failed` now also names *Package an engine
+problem*, which puts the directory in one zip for the engine's developers ([`20`](./20-testing-and-validation.md)
+§8).
+
 **The quality-threshold row has no threshold to apply.** The configured threshold that exists is the ambiguity
 ratio (`gnss.ambiguity_threshold`), which RTKLIB applies epoch by epoch to choose a fixed or a float solution;
 each epoch's status reaches the quality summary and the trajectory layer. A threshold on a session as a whole --

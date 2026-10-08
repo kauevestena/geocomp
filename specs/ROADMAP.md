@@ -3038,6 +3038,40 @@ refuse. FR-064 is met on that reading of it; specs/05 §5 now says so.
 **Not done.** No setting serves a sight distance, whose precision falls back to the digits the observer wrote
 (specs/05 §2.3), or a height difference, which levelling weights by line length or setups.
 
+#### P12c-48 — an engine's failure, packaged for its developers (FR-955 met)
+
+FR-955 asks that a defect in DynAdjust or RTKLIB be straightforward to report upstream, with the inputs that
+triggered it. specs/20 §8 says how: GeoComp packages the inputs, configuration, command line and output that
+reproduce it. Half of that was there already. A failed run's working directory was kept and named, with the
+inputs and the configuration in it. The other half was not. The command and what the engine said travelled on
+the refusal and in the solution's provenance, cut to their first and last forty lines, and nothing put them
+together.
+
+- **The record.** Every run of every engine program now leaves its record in its working directory: each
+  stream whole, and a line of `geocomp-runs.jsonl` with the command, the exit code, the time and the version
+  (`keep_record` in `geocomp/engines/base.py`). The environment is not recorded (NFR-010).
+- **The package.** *Package an engine problem* (Project menu) zips the directory with an English README for
+  the engine's developers: engine and version, each program, its command and how it ended, and where that
+  project takes reports. It removes nothing, and says to look before sending.
+- **The pointer.** A failed DynAdjust stage's refusal and RTKLIB's both name the algorithm.
+
+A real DynAdjust failure is packaged in tier 4: the real `dnaimport` refuses a broken station file, and the zip
+holds the station and measurement files, the plan, `dnaimport`'s output and its exit code.
+
+**Found while doing it.** `EngineRun.to_dict` said "the retained work_dir holds the full logs", and nothing
+wrote them. It is true now. And as first written the record was kept by every run, the version probes too:
+DynAdjust's probe runs in QGIS's own working directory and RTKLIB's beside the program, which may be the copy the
+plugin ships, so each detection left three files there. A local test run left them in the repository, and they
+went into the first commit of this change. A probe keeps no record now (`run_process(..., record=False)`), and
+a test detects both engines from a folder that must stay empty
+(`tests/test_engine_problem_report.py::TestEveryRunLeavesItsRecord::test_detecting_either_engine_writes_nowhere`).
+
+**Register.** FR-955 met: 171 met, 4 partly met, 1 open.
+
+**Not done.** Nothing is filed for the user: the package is a file to attach, and where the project takes it is
+a link. A folder kept before P12c-48 holds no record and is refused, which says to run it again. The RTKLIB
+side is tested with stand-ins, not with a real `rnx2rtkp` failure.
+
 ---
 
 ## P13 — Validation, documentation and release

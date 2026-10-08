@@ -347,7 +347,7 @@ class RtklibEngine:
         if path is None:
             return None
         run = run_process(
-            [str(path), "--version"], work_dir=path.parent, program=PROGRAM, timeout=30.0
+            [str(path), "--version"], work_dir=path.parent, program=PROGRAM, timeout=30.0, record=False
         )
         # The version goes to stderr in some builds and stdout in others, so
         # both are searched rather than one being assumed.

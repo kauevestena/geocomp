@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-48 — Report an engine's problem to its developers
+
+#### Added
+
+- *Package an engine problem* (Project menu) puts a failed DynAdjust or RTKLIB run's folder in one zip file,
+  with a README for the engine's developers saying what ran, how it ended and where to report it.
+- Every engine run keeps its command, its exit code and everything it printed in its working folder.
+
+#### Changed
+
+- A failed DynAdjust stage, or a failed RTKLIB run, now points to *Package an engine problem*.
+
 ### P12c-47 — A default staff-reading standard deviation in Global Settings
 
 #### Added

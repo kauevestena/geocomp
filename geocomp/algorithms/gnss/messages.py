@@ -85,7 +85,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # -- RTKLIB: the run (P12c-7) -----------------------------------------------
     "engine.rtklib_run_failed": MessageTemplate(
         "%1 stopped with exit code %2. Its own message: %3. Its working files are in %4. Look "
-        "there, and at its message, for the cause.",
+        "there, and at its message, for the cause, or package them for its developers with "
+        "Package an engine problem.",
         "engine",
         "exit_code",
         "message",
