@@ -5,6 +5,20 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-2 — A levelling tutorial
+
+#### Added
+
+- *Install tutorial dataset* offers `rd04-loop`, the levelling tutorial. It is a loop of three lines with one
+  reading written down 12 mm wrong. The walkthrough shows the closure detecting the error, an adjustment with
+  one degree of freedom hiding it, and the benchmarks that locate it.
+
+#### Changed
+
+- *Install tutorial dataset* offers its datasets in a fixed order, and a new one is added at the end, so a
+  saved model still installs the dataset it named. Until now the order was alphabetical, and the new dataset
+  would have moved `rtklib-sample`.
+
 ### P13-1 — A contribution guide
 
 #### Added

@@ -29,7 +29,9 @@ by phase from [`specs/ROADMAP.md`](specs/ROADMAP.md). Built so far:
 **Run it on real data in five minutes:** the toolbox algorithm *Install tutorial dataset* copies
 [RD-01](geocomp/resources/datasets/rd01/README.md) — the author's own total-station triangle — somewhere
 writable, with a tutorial that walks the whole chain. It contains two real errors, and that is the point: the
-software catches both.
+software catches both. The same algorithm installs the levelling tutorial,
+[`rd04-loop`](geocomp/resources/datasets/rd04-loop/README.md): a loop with one reading written down wrong,
+which an adjustment hides and two more known heights find.
 
 ## Repository layout
 

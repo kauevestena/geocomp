@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""``geocomp:project_tutorial_dataset`` -- install RD-01 (FR-950, FR-952).
+"""``geocomp:project_tutorial_dataset`` -- install a shipped dataset (FR-950, FR-952).
 
 ``specs/20-testing-and-validation.md`` section 3.
 
@@ -15,6 +15,13 @@ pre-processing blocks, and a global test that correctly fails because the
 distances disagree by more than the instrument profile claims. Software catching
 two genuine errors in genuine data teaches more than a clean run does, so the
 copied ``README.md`` walks through both rather than around them.
+
+Two more ship beside it: ``rtklib-sample``, RTKLIB's own baseline for a GNSS
+run, and since P13-2 ``rd04-loop``, the levelling tutorial -- a loop with one
+spoiled reading, which closes badly, adjusts quietly wrong, and is found only
+by the benchmarks. The dataset is an enum whose index a saved model keeps, so
+the order is :data:`~geocomp.resources.DATASET_ORDER`'s, to which a new
+dataset is appended.
 """
 
 from __future__ import annotations
@@ -76,6 +83,11 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             "<p>The copied <code>README.md</code> walks through the whole chain and "
             "explains both, along with why a network with no known point and no azimuth "
             "can only be adjusted with inner constraints.</p>"
+            "<p><b>rd04-loop</b> is a levelling loop of three lines with one foresight "
+            "written down 12 mm wrong: the loop's closure detects the error, an adjustment "
+            "with one degree of freedom spreads it, and the known heights locate it. "
+            "<b>rtklib-sample</b> is RTKLIB's own base-and-rover pair, for a GNSS run. Each "
+            "has its own <code>README.md</code>.</p>"
             "<h3>Parameters</h3>"
             "<p><b>Dataset</b> &mdash; which shipped dataset to install. <b>Destination "
             "folder</b> &mdash; where to put it; a subfolder named after the dataset is "
