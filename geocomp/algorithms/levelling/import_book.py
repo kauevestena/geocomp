@@ -10,7 +10,6 @@ import (FR-166): a book with six bad rows needs one run.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from qgis.core import (
@@ -26,6 +25,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.labels import in_words
+from geocomp.algorithms.layer_sources import book_layer_parameter, book_rows
 from geocomp.algorithms.levelling.common import (
     findings_table,
     level_from_parameters,
@@ -37,11 +37,12 @@ from geocomp.algorithms.levelling.common import (
 )
 from geocomp.algorithms.reporting import escape, render_document, render_note, render_table
 from geocomp.core.errors import GeoCompError
-from geocomp.io.levelbook import LevelMapping, read_level_book_csv
+from geocomp.io.levelbook import LevelMapping, read_level_book
 
 __all__ = ["ImportLevelBookAlgorithm"]
 
 BOOK = "BOOK"
+BOOK_LAYER = "BOOK_LAYER"
 MAPPING = "MAPPING"
 PROFILES = "PROFILES"
 LEVEL_ID = "LEVEL_ID"
@@ -82,8 +83,10 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
             "<p>Numbers are read locale-independently: a comma decimal separator is handled "
             "here, at the boundary, and never again.</p>"
             "<h3>Parameters</h3>"
-            "<p><b>Field book</b> &mdash; the CSV. <b>Field mapping</b> &mdash; a saved "
-            "mapping document describing the layout.</p>"
+            "<p><b>Field book</b> &mdash; the CSV or .xlsx file. <b>Field book, as a layer "
+            "of the project</b> &mdash; the alternative: a table of your own design, its "
+            "fields read as the file's columns are. Give one of the two. <b>Field "
+            "mapping</b> &mdash; a saved mapping document describing the layout.</p>"
             "<p><b>Instrument profiles</b> and <b>level id</b> &mdash; where the reading "
             "precision comes from. With neither, a generic level is assumed and the report "
             "says so.</p>"
@@ -104,8 +107,10 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
                 BOOK,
                 self.tr("Field book"),
                 fileFilter=self.tr("Field books (*.csv *.xlsx);;All files (*)"),
+                optional=True,
             )
         )
+        self.addParameter(book_layer_parameter(BOOK_LAYER))
         self.addParameter(
             QgsProcessingParameterFile(
                 MAPPING, self.tr("Field mapping"), extension="json"
@@ -161,7 +166,7 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        book = self.parameterAsFile(parameters, BOOK, context)
+        rows, book_name = book_rows(self, parameters, context, file=BOOK, layer=BOOK_LAYER)
         mapping = self._mapping(
             self.parameterAsFile(parameters, MAPPING, context),
             self.parameterAsDouble(parameters, STADIA_FACTOR, context),
@@ -178,7 +183,7 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(20)
         try:
-            result = read_level_book_csv(book, mapping, level=level, defaults=defaults)
+            result = read_level_book(rows, mapping, level=level, defaults=defaults)
         except GeoCompError as exc:
             from geocomp.services.messages import message_for
 
@@ -208,7 +213,7 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
                 "level_id": level.id,
                 # The book, which every observation made from these setups
                 # names with its rows as its provenance (FR-102).
-                "source": Path(book).name,
+                "source": book_name,
                 "lines": [
                     {
                         "id": line.id,

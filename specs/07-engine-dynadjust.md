@@ -234,8 +234,19 @@ from CSV and `.xlsx` and the GNSS and integration algorithms make from their res
 QGIS, with the id of the network in it. An empty id takes the store's only network, and a store with several
 is refused, listing them. Exactly one source is given. The store is opened as it is, never created and never
 migrated, because reading an input must not change it: an older store is refused with the store's own message.
-Not read: a QGIS layer of the user's own design. Stations as points and observations as rows of an arbitrary
-table would need a field mapping that does not exist.
+*As built (P12c-44)*, **from the project's own layers** as well. A field book held as a table layer is read by
+*Import total station field book* and *Import levelling book* through the same field mapping as its file, and
+*Classical network* takes its stations from a point layer: each named by a field the user names, its height from
+a field or from the point's Z, and carried into the network's CRS when the layer is in another. Until P12c-44 this
+said a layer would need a field mapping that did not exist; the field books' own mapping was that mapping. The
+network document those algorithms write is DynAdjust's input as any other is.
+
+**Found then, not yet fixed.** A network in a projected CRS -- which every *Classical network* is -- is refused by
+*Adjust with DynAdjust*: the algorithm does not derive the projection from the CRS (§4.4), though the combination
+algorithms do (`geocomp/algorithms/integration/common.py::projection_of`), and gives no geoid undulation for
+the orthometric heights such a network carries. A 2D network's horizontal distances have, besides, no DynAdjust
+measurement type. So a total-station network does not yet reach DynAdjust, whatever it was read from; this
+section said, until P12c-44, that the field-book imports' networks did.
 
 ### 4.1 Format decision
 
