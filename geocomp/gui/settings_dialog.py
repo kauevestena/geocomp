@@ -186,6 +186,7 @@ def setting_label(key: str) -> str:
         "stochastic.default_sigma_direction": _tr("Default direction standard deviation (rad)"),
         "stochastic.default_sigma_zenith_angle": _tr("Default zenith-angle standard deviation (rad)"),
         "stochastic.default_sigma_slope_distance": _tr("Default slope-distance standard deviation (m)"),
+        "stochastic.default_sigma_staff_reading": _tr("Default staff-reading standard deviation (m)"),
         "stochastic.outlier_alpha": _tr("Outlier test significance level"),
         "stochastic.outlier_beta": _tr("Outlier test type II error rate"),
         "stochastic.confidence_level": _tr("Confidence level"),

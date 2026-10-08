@@ -135,7 +135,7 @@ class ImportLevelBookAlgorithm(GeoCompAlgorithm):
                 SIGMA_READING,
                 self.tr("Default staff-reading uncertainty (m)"),
                 type=QgsProcessingParameterNumber.Type.Double,
-                defaultValue=0.0,
+                defaultValue=configured("stochastic.default_sigma_staff_reading"),
                 minValue=0.0,
                 maxValue=1.0,
             )

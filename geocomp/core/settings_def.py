@@ -496,6 +496,18 @@ SETTINGS: tuple[SettingDef, ...] = (
         maximum=100.0,
         requirement="FR-064",
     ),
+    # A levelling book's staff reading, for a level profile that states no
+    # reading precision (P12c-47). Until then the import's own parameter was the
+    # only way to give one, and nothing in Global Settings set its default.
+    SettingDef(
+        key="stochastic.default_sigma_staff_reading",
+        section="stochastic",
+        type=SettingType.FLOAT,
+        default=0.0,
+        minimum=0.0,
+        maximum=1.0,
+        requirement="FR-064",
+    ),
     SettingDef(
         key="stochastic.outlier_alpha",
         section="stochastic",
