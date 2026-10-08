@@ -154,8 +154,16 @@ project algorithms, and the 54 of gravimetry and levelling. Six more already had
 missed, so "copy", "restore", "rebuild", "compare" and "ask" were added, and "swap" for the batch's own. 225
 remain. P12c-38 gave one to the 35 of the engine adapters and the 44 of GNSS: what to give, which run's
 output to give, and, for the two that only GeoComp's own code can reach, that it is an internal error to report.
-Four already had remedies with verbs the list lacked ("allow", "place", "decompress", "transform"). 145 remain,
-all in the analysis algorithms.
+Four already had remedies with verbs the list lacked ("allow", "place", "decompress", "transform"). P12c-39
+gave one to the last 145, those of the analysis algorithms -- among them the readers of the Adjust and Krumm
+corpora, and the arithmetic and unit checks of the core that only GeoComp's own code can reach, which say
+they are an internal error to report. The list was then empty and was removed: **a refusal template has no
+exemption**, and a new one arrives with its remedy.
+
+**What the rule does not yet reach.** An algorithm can also refuse with a sentence of its own, raised as a
+`QgsProcessingException` rather than worded from a template -- "No RINEX observation sessions were found in
+%1". When P12c-39 counted, 94 of the 134 such sentences said what failed and stopped. They are the next
+batch.
 
 ## 3. Terminology (FR-093)
 

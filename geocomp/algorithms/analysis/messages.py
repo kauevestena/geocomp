@@ -33,7 +33,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.document_not_a_network": MessageTemplate(
         "This JSON file is not a GeoComp network document: it has no network identifier. "
-        "Expected a network document, with its identifier and its list of stations.",
+        "Expected a network document, with its identifier and its list of stations. Choose "
+        "the network document an import or a pre-processing algorithm wrote.",
     ),
     "data.document_holds_several_networks": MessageTemplate(
         "This project file holds %1 networks, so GeoComp cannot tell which one you mean. "
@@ -41,8 +42,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.document_malformed_network": MessageTemplate(
-        "This network document could not be read: %1. It may have been written by a "
-        "different version of GeoComp, or edited by hand.",
+        "This network document could not be read: %1. It may have been written by a different "
+        "version of GeoComp, or edited by hand. Write it again with the current GeoComp.",
         "received",
     ),
     "data.network_integrity": MessageTemplate(
@@ -60,7 +61,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "network",
     ),
     "computation.no_observations": MessageTemplate(
-        "No observations were supplied; the adjustment needs at least one active observation.",
+        "No observations were supplied; the adjustment needs at least one active observation. "
+        "Add observations, or re-activate rejected ones.",
     ),
     "computation.no_planned_observations": MessageTemplate(
         "The planned network '%1' contains no observations, so there is no design to "
@@ -93,15 +95,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "observation",
     ),
     "data.cluster_rows_mismatch": MessageTemplate(
-        "Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. "
-        "The two must agree, in the same order.",
+        "Correlated cluster '%1' supplies %2 observation rows but a %3 covariance matrix. The "
+        "two must agree, in the same order. Check the document the cluster was read from.",
         "cluster",
         "rows",
         "covariance",
     ),
     # -- observations the adjustment cannot use ---------------------------
     "validation.observation_type_not_supported": MessageTemplate(
-        "Observation '%1' is of type %2, which the in-house adjustment does not implement. %3",
+        "Observation '%1' is of type %2, which the in-house adjustment does not implement. It "
+        "implements %3; leave this observation out.",
         "observation",
         "type",
         "expected",
@@ -115,7 +118,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.observation_not_a_gravity_type": MessageTemplate(
         "Observation '%1' is of type %2, which is not a gravity observation, so it cannot "
-        "take part in a gravity adjustment.",
+        "take part in a gravity adjustment. Leave it out of the gravity network.",
         "observation",
         "type",
     ),
@@ -149,10 +152,11 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "computation.adjustment_did_not_converge": MessageTemplate(
         "The adjustment of '%1' did not converge: after %2 iteration(s) the largest "
-        "correction was still %3, against a threshold of %4. Approximate coordinates that "
-        "are far from the truth are the usual cause; a blunder large enough to drag the "
-        "solution is the other. No coordinates are returned, because iterate %2 of a "
-        "diverging sequence is not a result.",
+        "correction was still %3, against a threshold of %4. Approximate coordinates that are "
+        "far from the truth are the usual cause; a blunder large enough to drag the solution "
+        "is the other. No coordinates are returned, because iterate %2 of a diverging "
+        "sequence is not a result. Check the approximate coordinates first, then the "
+        "observations for a blunder.",
         "network",
         "iterations",
         "max_correction",
@@ -216,7 +220,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.coordinate_table_empty": MessageTemplate(
         "'%1' holds no station coordinates. Each row gives a station, then its easting, "
-        "northing and height, in metres.",
+        "northing and height, in metres. Add a row for each station.",
         "path",
     ),
     "data.workbook_unreadable": MessageTemplate(
@@ -233,7 +237,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.negative_skip_rows": MessageTemplate(
-        "The number of rows to skip cannot be negative (%1).",
+        "The number of rows to skip cannot be negative (%1). Give zero or more.",
         "received",
     ),
     "validation.duplicate_mapped_field": MessageTemplate(
@@ -250,52 +254,57 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "field",
     ),
     "validation.unknown_mapping_field": MessageTemplate(
-        "The mapping names %1, which GeoComp does not know as a field-book field. Expected %2.",
+        "The mapping names %1, which GeoComp does not know as a field-book field. Expected "
+        "%2. Use one of those names.",
         "received",
         "expected",
     ),
     # -- total-station readings, reductions and surveys (P12c-7) ----------------
     "validation.setup_without_station": MessageTemplate(
-        "A setup names no station. Every setup needs the station the instrument occupied.",
+        "A setup names no station. Every setup needs the station the instrument occupied. "
+        "Fill in the station the instrument occupied.",
     ),
     "validation.reading_without_target": MessageTemplate(
         "A reading names no target. Every reading needs the station or point it sighted.",
     ),
     "validation.non_positive_set_number": MessageTemplate(
-        "The set number must be at least 1; %1 was given.",
+        "The set number must be at least 1; %1 was given. Give 1 or more.",
         "received",
     ),
     "validation.reading_wrong_unit": MessageTemplate(
-        "The %1 of a reading is in %2, where %3 was expected.",
+        "The %1 of a reading is in %2, where %3 was expected. Give the value in that unit.",
         "parameter",
         "received",
         "expected",
     ),
     "validation.face_pair_wrong_faces": MessageTemplate(
         "A pair of readings has the faces %1, where face left and then face right were "
-        "expected.",
+        "expected. Check the face column of that pair.",
         "received",
     ),
     "validation.face_pair_different_targets": MessageTemplate(
         "The two faces of a pair point at different targets (%1); both faces of a pair sight "
-        "the same target.",
+        "the same target. Check the targets of that pair.",
         "received",
     ),
     "validation.sight_wrong_unit": MessageTemplate(
-        "The %1 of the sight to '%2' is in %3, where %4 was expected.",
+        "The %1 of the sight to '%2' is in %3, where %4 was expected. Give the value in that "
+        "unit.",
         "parameter",
         "station",
         "received",
         "expected",
     ),
     "validation.atmosphere_wrong_unit": MessageTemplate(
-        "The %1 of the atmosphere is in %2, where %3 was expected.",
+        "The %1 of the atmosphere is in %2, where %3 was expected. Give the value in that "
+        "unit.",
         "parameter",
         "received",
         "expected",
     ),
     "validation.temperature_wrong_unit": MessageTemplate(
-        "The temperature is in %1; the atmospheric correction takes kelvin.",
+        "The temperature is in %1; the atmospheric correction takes kelvin. Give it in "
+        "kelvin.",
         "received",
     ),
     "validation.temperature_not_absolute": MessageTemplate(
@@ -304,7 +313,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.humidity_out_of_range": MessageTemplate(
-        "The relative humidity must lie between 0 and 1; %1 was given.",
+        "The relative humidity must lie between 0 and 1; %1 was given. Give it as a fraction, "
+        "not a percentage.",
         "received",
     ),
     "validation.non_positive_wavelength": MessageTemplate(
@@ -313,13 +323,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.reduction_wrong_unit": MessageTemplate(
-        "The %1 of a reduction is in %2, where %3 was expected.",
+        "The %1 of a reduction is in %2, where %3 was expected. Give the value in that unit.",
         "parameter",
         "received",
         "expected",
     ),
     "validation.scale_factor_wrong_unit": MessageTemplate(
-        "The point scale factor is in %1; it is a dimensionless number.",
+        "The point scale factor is in %1; it is a dimensionless number. Give it without a "
+        "unit.",
         "received",
     ),
     "validation.height_below_earth_centre": MessageTemplate(
@@ -353,18 +364,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.correlation_out_of_range": MessageTemplate(
-        "A correlation coefficient must lie between -1 and 1.",
+        "A correlation coefficient must lie between -1 and 1. Correct the coefficient.",
     ),
     "validation.unsupported_observation_dimension": MessageTemplate(
         "A %1-dimensional adjustment is not supported; GeoComp adjusts in 1, 2 or 3 "
-        "dimensions.",
+        "dimensions. Choose 1, 2 or 3.",
         "received",
     ),
     "validation.traverse_without_legs": MessageTemplate(
-        "The traverse has no legs. A traverse needs at least one leg between two stations.",
+        "The traverse has no legs. A traverse needs at least one leg between two stations. "
+        "Add its legs.",
     ),
     "validation.connected_traverse_without_closing_point": MessageTemplate(
-        "A connected traverse needs the known point it arrives at, and none was given.",
+        "A connected traverse needs the known point it arrives at, and none was given. Give "
+        "the known point it arrives at.",
     ),
     "validation.leg_angle_wrong_unit": MessageTemplate(
         "The angle of the leg %1 is in %2; give it in radians.",
@@ -377,18 +390,19 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.resection_needs_three_points": MessageTemplate(
-        "A resection needs at least three known points, and %1 were sighted: fewer cannot "
-        "fix both a position and an orientation.",
+        "A resection needs at least three known points, and %1 were sighted: fewer cannot fix "
+        "both a position and an orientation. Sight another known point.",
         "received",
     ),
     "validation.resection_direction_to_unknown_point": MessageTemplate(
         "The resection sights %1, which have no known position. Every point sighted in a "
-        "resection needs one.",
+        "resection needs one. Give their coordinates, or leave them out of the resection.",
         "received",
     ),
     "computation.resection_on_a_known_point": MessageTemplate(
         "The resection's station falls on the known point '%1' it sights. The occupied "
-        "station must be distinct from every point sighted.",
+        "station must be distinct from every point sighted. Check the station's name, or the "
+        "point's.",
         "point",
     ),
     "computation.resection_indeterminate": MessageTemplate(
@@ -402,12 +416,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "iterations",
     ),
     "validation.intersection_needs_two_stations": MessageTemplate(
-        "An intersection needs at least two stations sighting the target, and %1 did.",
+        "An intersection needs at least two stations sighting the target, and %1 did. Add a "
+        "sighting from another station.",
         "received",
     ),
     "computation.intersection_on_a_station": MessageTemplate(
         "The intersected target falls on the station '%1' that sights it. The target must be "
-        "distinct from every station sighting it.",
+        "distinct from every station sighting it. Check the target's name, or the station's.",
         "station",
     ),
     "computation.intersection_indeterminate": MessageTemplate(
@@ -442,7 +457,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.gravity_drift_scale_invalid": MessageTemplate(
         "The drift time scale of the gravity observation '%1' must be a positive number of "
-        "seconds; %2 was given.",
+        "seconds; %2 was given. Give a positive number of seconds.",
         "observation",
         "received",
     ),
@@ -453,14 +468,15 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "stations",
     ),
     "validation.observation_type_not_geocentric": MessageTemplate(
-        "The observation '%1' is a %2, which the geocentric adjustment cannot use; it takes %3.",
+        "The observation '%1' is a %2, which the geocentric adjustment cannot use; it takes "
+        "%3. Leave it out of the geocentric adjustment.",
         "observation",
         "type",
         "expected",
     ),
     "validation.height_type_unsupported": MessageTemplate(
         "The height observation '%1' is %2; the geocentric adjustment takes ellipsoidal or "
-        "orthometric heights.",
+        "orthometric heights. Convert it to an ellipsoidal or orthometric height first.",
         "observation",
         "received",
     ),
@@ -490,7 +506,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.weighted_constraint_components_missing": MessageTemplate(
         "The weighted constraint on '%1' has a covariance over %2, which does not cover the "
-        "constrained components %3.",
+        "constrained components %3. Give a covariance over every constrained component.",
         "station",
         "received",
         "expected",
@@ -508,16 +524,17 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "validation.unknown_defect_component": MessageTemplate(
-        "'%1' is not a datum-defect component GeoComp knows.",
+        "'%1' is not a datum-defect component GeoComp knows. Check the component's name.",
         "received",
     ),
     "validation.unknown_solver": MessageTemplate(
-        "'%1' is not a solver; expected %2.",
+        "'%1' is not a solver; expected %2. Choose one of those.",
         "received",
         "expected",
     ),
     "validation.not_a_difference_frame": MessageTemplate(
-        "A difference network is one of heights or of gravity values; %1 is neither.",
+        "A difference network is one of heights or of gravity values; %1 is neither. Use a "
+        "levelling or a gravity network.",
         "received",
     ),
     "validation.known_value_for_unknown_station": MessageTemplate(
@@ -530,16 +547,19 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.weighting_unsupported_unit": MessageTemplate(
-        "Weighting by extent is defined for height and gravity differences, not for %1.",
+        "Weighting by extent is defined for height and gravity differences, not for %1. "
+        "Choose another weighting for it.",
         "received",
     ),
     "validation.weighting_unit_mismatch": MessageTemplate(
-        "An observation in %1 cannot be weighted by a model for %2.",
+        "An observation in %1 cannot be weighted by a model for %2. Check the weighting "
+        "chosen for it.",
         "received",
         "expected",
     ),
     "validation.negative_extent": MessageTemplate(
-        "A %1 of %2 cannot weight an observation; the extent must not be negative.",
+        "A %1 of %2 cannot weight an observation; the extent must not be negative. Correct "
+        "it.",
         "kind",
         "received",
     ),
@@ -550,7 +570,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "extent",
     ),
     "validation.variance_component_group_unknown": MessageTemplate(
-        "'%1' is not a variance-component group of this adjustment; the groups are %2.",
+        "'%1' is not a variance-component group of this adjustment; the groups are %2. Choose "
+        "one of those.",
         "received",
         "expected",
     ),
@@ -564,7 +585,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     "computation.variance_component_negative": MessageTemplate(
         "The variance factor of the group '%1' came out negative (%2): its residuals are "
         "smaller than its model allows. The group has too little redundancy, or its "
-        "stochastic model is wrong in shape rather than in scale.",
+        "stochastic model is wrong in shape rather than in scale. Add observations to the "
+        "group, or merge it with another.",
         "group",
         "received",
     ),
@@ -603,29 +625,32 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.ellipsoid_unknown": MessageTemplate(
-        "'%1' is not an ellipsoid GeoComp knows; it knows %2.",
+        "'%1' is not an ellipsoid GeoComp knows; it knows %2. Choose one of those.",
         "received",
         "expected",
     ),
     "validation.ellipsoid_semi_major_axis_not_positive": MessageTemplate(
-        "The ellipsoid '%1' has a semi-major axis of %2; it must be positive.",
+        "The ellipsoid '%1' has a semi-major axis of %2; it must be positive. Correct the "
+        "ellipsoid's parameters.",
         "ellipsoid",
         "received",
     ),
     "validation.ellipsoid_inverse_flattening_invalid": MessageTemplate(
         "The ellipsoid '%1' has an inverse flattening of %2; it must be greater than 1, and a "
-        "sphere's is infinite.",
+        "sphere's is infinite. Correct the ellipsoid's parameters.",
         "ellipsoid",
         "received",
     ),
     "validation.frame_unknown": MessageTemplate(
         "'%1' is not a reference frame GeoComp holds transformations for; it holds %2. WGS 84 "
-        "is not one: its realisations differ by decimetres, and the name does not say which.",
+        "is not one: its realisations differ by decimetres, and the name does not say which. "
+        "Choose one of those.",
         "received",
         "expected",
     ),
     "validation.frame_transformation_unavailable": MessageTemplate(
-        "GeoComp holds no transformation between the frames %1.",
+        "GeoComp holds no transformation between the frames %1. Transform the coordinates "
+        "into one frame with another tool first.",
         "received",
     ),
     "validation.transformation_time_specific": MessageTemplate(
@@ -635,12 +660,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.utm_zone_out_of_range": MessageTemplate(
-        "UTM zone %1 does not exist; the zones run from 1 to 60.",
+        "UTM zone %1 does not exist; the zones run from 1 to 60. Give a zone in that range.",
         "received",
     ),
     "computation.inverse_projection_did_not_converge": MessageTemplate(
-        "The grid coordinate %1 could not be converted back to latitude and longitude; it lies "
-        "outside the projection's domain.",
+        "The grid coordinate %1 could not be converted back to latitude and longitude; it "
+        "lies outside the projection's domain. Check the coordinate, and the CRS it is given "
+        "in.",
         "received",
     ),
     "computation.projection_outside_domain": MessageTemplate(
@@ -652,12 +678,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "computation.point_scale_factor_undefined_at_the_pole": MessageTemplate(
         "The point scale factor is undefined at latitude %1 degrees, where a parallel has no "
-        "length.",
+        "length. Check the latitude.",
         "received",
     ),
     # -- statistics and error ellipses (P12c-7) ----------------------------------
     "validation.probability_out_of_range": MessageTemplate(
-        "A probability for %1 must lie between 0 and 1; %2 was given.",
+        "A probability for %1 must lie between 0 and 1; %2 was given. Give one in that range.",
         "operation",
         "received",
     ),
@@ -668,57 +694,63 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.incomplete_gamma_domain": MessageTemplate(
-        "The incomplete gamma function is undefined for a = %1, x = %2.",
+        "The incomplete gamma function is undefined for a = %1, x = %2. This is an internal "
+        "error; please report it.",
         "a",
         "x",
     ),
     "validation.incomplete_beta_domain": MessageTemplate(
-        "The incomplete beta function is undefined for a = %1, b = %2, x = %3.",
+        "The incomplete beta function is undefined for a = %1, b = %2, x = %3. This is an "
+        "internal error; please report it.",
         "a",
         "b",
         "x",
     ),
     "validation.confidence_out_of_range": MessageTemplate(
-        "The confidence level must lie strictly between 0 and 1; %1 was given.",
+        "The confidence level must lie strictly between 0 and 1; %1 was given. Give one such "
+        "as 0.95.",
         "received",
     ),
     "validation.ellipse_wrong_dimension": MessageTemplate(
-        "An error ellipse needs a 2 by 2 or 3 by 3 covariance block, and was given one of shape "
-        "%1.",
+        "An error ellipse needs a 2 by 2 or 3 by 3 covariance block, and was given one of "
+        "shape %1. This is an internal error; please report it.",
         "shape",
     ),
     "validation.relative_ellipse_dimension_mismatch": MessageTemplate(
         "A relative ellipse needs the same number of components for both stations, and was "
-        "given %1 and %2.",
+        "given %1 and %2. This is an internal error; please report it.",
         "first",
         "second",
     ),
     # -- drawing ellipses on the map (P12c-7) ------------------------------------
     "validation.ellipse_too_few_vertices": MessageTemplate(
-        "An ellipse needs at least 8 vertices to be drawn as an ellipse; %1 was given.",
+        "An ellipse needs at least 8 vertices to be drawn as an ellipse; %1 was given. Give 8 "
+        "or more.",
         "received",
     ),
     "validation.scale_reference_not_positive": MessageTemplate(
-        "The scale reference must be a positive radius, in the map's units; %1 was given.",
+        "The scale reference must be a positive radius, in the map's units; %1 was given. "
+        "Give a positive radius.",
         "received",
     ),
     "validation.extent_not_positive": MessageTemplate(
-        "The map extent %1 has no area; it needs a positive width and height.",
+        "The map extent %1 has no area; it needs a positive width and height. Check that the "
+        "stations are spread over an area.",
         "received",
     ),
     "validation.target_fraction_out_of_range": MessageTemplate(
         "The ellipse size, as a fraction of the map extent, must be above 0 and at most 1; %1 "
-        "was given.",
+        "was given. Give a fraction in that range.",
         "received",
     ),
     "validation.exaggeration_not_finite": MessageTemplate(
         "The exaggeration factor %1 is not finite; an infinite factor gives the ellipses no "
-        "size.",
+        "size. Give a finite factor, or 0 to fit one to the network.",
         "received",
     ),
     "validation.exaggeration_not_positive": MessageTemplate(
-        "The ellipse exaggeration must be a positive, finite factor; %1 was given. Every drawn "
-        "result states the factor it was drawn with.",
+        "The ellipse exaggeration must be a positive, finite factor; %1 was given. Every "
+        "drawn result states the factor it was drawn with. Give a positive factor.",
         "received",
     ),
     # -- the pre-analysis design (P12c-7) ----------------------------------------
@@ -735,14 +767,15 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "geocomp.observation_without_stations": MessageTemplate(
-        "A planned observation names no stations; it connects two.",
+        "A planned observation names no stations; it connects two. Name the two stations it "
+        "connects.",
     ),
     "geocomp.unknown_observation": MessageTemplate(
-        "The design has no observation '%1'.",
+        "The design has no observation '%1'. Check its id.",
         "observation",
     ),
     "geocomp.unknown_station": MessageTemplate(
-        "The design has no station '%1'.",
+        "The design has no station '%1'. Add the station to the design, or check its name.",
         "station",
     ),
     # -- instrument profiles and the stochastic model (P12c-7) -----------------
@@ -757,29 +790,33 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "name a profile.",
     ),
     "validation.unknown_instrument_profile": MessageTemplate(
-        "There is no instrument profile '%1'; expected %2.",
+        "There is no instrument profile '%1'; expected %2. Choose one of those, or add the "
+        "profile to the library.",
         "instrument",
         "expected",
     ),
     "validation.unknown_reflector_profile": MessageTemplate(
-        "There is no reflector profile '%1'; expected %2.",
+        "There is no reflector profile '%1'; expected %2. Choose one of those, or add the "
+        "profile to the library.",
         "reflector",
         "expected",
     ),
     "validation.unknown_level_profile": MessageTemplate(
-        "There is no level profile '%1'; expected %2.",
+        "There is no level profile '%1'; expected %2. Choose one of those, or add the profile "
+        "to the library.",
         "level",
         "expected",
     ),
     "validation.unknown_levelling_class": MessageTemplate(
-        "There is no levelling class '%1'; expected %2.",
+        "There is no levelling class '%1'; expected %2. Choose one of those.",
         "levelling_class",
         "expected",
     ),
     # -- the profile window (FR-069, P12c-16) ------------------------------------
     "data.profile_library_not_an_object": MessageTemplate(
         "%1 holds JSON, but not a profile library: a library is an object with lists of "
-        "instruments, reflectors, levels and gravimeters.",
+        "instruments, reflectors, levels and gravimeters. Choose a library the profile "
+        "manager saved.",
         "path",
     ),
     "validation.duplicate_profile": MessageTemplate(
@@ -787,7 +824,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.unknown_profile": MessageTemplate(
-        "The library has no profile with the id '%1'.",
+        "The library has no profile with the id '%1'. Check the id, or add the profile with "
+        "the profile manager.",
         "received",
     ),
     "validation.profile_value_not_a_number": MessageTemplate(
@@ -817,33 +855,37 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "gravimeter",
     ),
     "validation.profile_wrong_unit": MessageTemplate(
-        "The %1 of an instrument profile is in %2, where %3 was expected.",
+        "The %1 of an instrument profile is in %2, where %3 was expected. Give the value in "
+        "that unit in the profile.",
         "parameter",
         "received",
         "expected",
     ),
     "validation.edm_specification_negative": MessageTemplate(
-        "The EDM %1 is %2; a precision cannot be negative.",
+        "The EDM %1 is %2; a precision cannot be negative. Give zero or more in the "
+        "instrument's profile.",
         "parameter",
         "received",
     ),
     "validation.instrument_sigma_negative": MessageTemplate(
-        "The %2 of the instrument '%1' is %3; a standard deviation cannot be negative.",
+        "The %2 of the instrument '%1' is %3; a standard deviation cannot be negative. Give "
+        "zero or more in the instrument's profile.",
         "instrument",
         "parameter",
         "received",
     ),
     "validation.cyclic_error_without_wavelength": MessageTemplate(
-        "The instrument profile '%1' gives a cyclic-error amplitude without its wavelength; the "
-        "correction is periodic in the distance and means nothing without one.",
+        "The instrument profile '%1' gives a cyclic-error amplitude without its wavelength; "
+        "the correction is periodic in the distance and means nothing without one. Give the "
+        "wavelength in the profile, or remove the amplitude.",
         "instrument",
     ),
     "validation.non_positive_set_count": MessageTemplate(
-        "The number of sets must be at least 1; %1 was given.",
+        "The number of sets must be at least 1; %1 was given. Give 1 or more.",
         "received",
     ),
     "validation.unknown_observation_kind": MessageTemplate(
-        "'%1' is not a kind of observation GeoComp weights; expected %2.",
+        "'%1' is not a kind of observation GeoComp weights; expected %2. Choose one of those.",
         "kind",
         "expected",
     ),
@@ -862,7 +904,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.stated_sigma_negative": MessageTemplate(
-        "The observation '%1' states a standard deviation of %2; it cannot be negative.",
+        "The observation '%1' states a standard deviation of %2; it cannot be negative. Give "
+        "zero or more.",
         "observation",
         "received",
     ),
@@ -908,7 +951,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "mode",
     ),
     "validation.constraint_unknown_components": MessageTemplate(
-        "A constraint names components its position does not have (%1); expected among %2.",
+        "A constraint names components its position does not have (%1); expected among %2. "
+        "Name components from that list.",
         "received",
         "expected",
     ),
@@ -926,7 +970,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "mode",
     ),
     "validation.gravity_constraint_unit": MessageTemplate(
-        "A gravity constraint is in %1, where %2 was expected.",
+        "A gravity constraint is in %1, where %2 was expected. Give the value in that unit.",
         "received",
         "expected",
     ),
@@ -935,18 +979,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "constraint under another name: give its variance, or make it fixed.",
     ),
     "data.observation_source_without_reader": MessageTemplate(
-        "An observation's provenance names no reader. It must say what made the observation: a "
-        "file format or a reduction.",
+        "An observation's provenance names no reader. It must say what made the observation: "
+        "a file format or a reduction. This is an internal error; please report it.",
     ),
     "data.observation_arity": MessageTemplate(
-        "The observation '%1' is a %2 and joins %3 station(s), where that type joins %4.",
+        "The observation '%1' is a %2 and joins %3 station(s), where that type joins %4. "
+        "Correct its stations.",
         "observation",
         "type",
         "received",
         "expected",
     ),
     "data.observation_component_count": MessageTemplate(
-        "The observation '%1' is a %2 with %3 value(s), where that type has %4.",
+        "The observation '%1' is a %2 with %3 value(s), where that type has %4. Correct its "
+        "values.",
         "observation",
         "type",
         "received",
@@ -959,7 +1005,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "component",
     ),
     "data.observation_value_unit": MessageTemplate(
-        "The %2 of the observation '%1' is in %3, where %4 was expected.",
+        "The %2 of the observation '%1' is in %3, where %4 was expected. Give it in that "
+        "unit.",
         "observation",
         "component",
         "received",
@@ -978,7 +1025,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "observation",
     ),
     "data.observation_setup_height_unit": MessageTemplate(
-        "The %2 of the observation '%1' is %3, where a length in metres was expected.",
+        "The %2 of the observation '%1' is %3, where a length in metres was expected. Give it "
+        "in metres.",
         "observation",
         "field",
         "received",
@@ -993,12 +1041,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "expected",
     ),
     "validation.observation_is_not_scalar": MessageTemplate(
-        "The observation '%1' has %2 components, where one was expected.",
+        "The observation '%1' has %2 components, where one was expected. Check that "
+        "observation in its document.",
         "observation",
         "components",
     ),
     "data.baseline_frame_unknown": MessageTemplate(
-        "The baseline '%1' records its frame as '%2', which GeoComp does not know; expected %3.",
+        "The baseline '%1' records its frame as '%2', which GeoComp does not know; expected "
+        "%3. Rebuild the baseline with GeoComp's GNSS algorithms, which record one of those.",
         "observation",
         "received",
         "expected",
@@ -1009,19 +1059,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.cluster_duplicate_members": MessageTemplate(
         "The cluster '%1' lists an observation twice. Each member appears once, in the order "
-        "of the covariance.",
+        "of the covariance. Remove the repeated member.",
         "cluster",
     ),
     "data.cluster_size_mismatch": MessageTemplate(
         "The cluster '%1' has %2 observation(s) and a covariance of size %3, which does not "
-        "cover every component of every member. A GNSS baseline contributes three rows, so the "
-        "size is a whole multiple of the number of members.",
+        "cover every component of every member. A GNSS baseline contributes three rows, so "
+        "the size is a whole multiple of the number of members. Check the document the "
+        "cluster was read from.",
         "cluster",
         "observations",
         "covariance",
     ),
     "validation.position_component_count": MessageTemplate(
-        "A position has %1 component(s), where three were expected.",
+        "A position has %1 component(s), where three were expected. Give all three.",
         "received",
     ),
     "validation.position_component_not_a_quantity": MessageTemplate(
@@ -1031,7 +1082,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.position_component_unit": MessageTemplate(
-        "The %1 of a position is in %2, where %3 was expected.",
+        "The %1 of a position is in %2, where %3 was expected. Give the value in that unit.",
         "component",
         "received",
         "expected",
@@ -1041,7 +1092,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "it, such as EPSG:4674.",
     ),
     "validation.unknown_position_component": MessageTemplate(
-        "A position has no component '%1'; expected %2.",
+        "A position has no component '%1'; expected %2. Choose one of those.",
         "component",
         "expected",
     ),
@@ -1067,7 +1118,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "subject",
     ),
     "validation.adjusted_gravity_unit": MessageTemplate(
-        "The adjusted gravity of the station '%1' is in %2, where %3 was expected.",
+        "The adjusted gravity of the station '%1' is in %2, where %3 was expected. This is an "
+        "internal error; please report it.",
         "station",
         "received",
         "expected",
@@ -1090,7 +1142,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "shape",
     ),
     "data.covariance_label_count": MessageTemplate(
-        "A covariance matrix of size %2 names %1 component(s); it must name one per row.",
+        "A covariance matrix of size %2 names %1 component(s); it must name one per row. "
+        "Check the document the matrix was read from.",
         "labels",
         "size",
     ),
@@ -1099,7 +1152,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "Give each component its own name.",
     ),
     "data.covariance_unit_count": MessageTemplate(
-        "A covariance matrix of size %2 gives %1 unit(s); it must give one per row.",
+        "A covariance matrix of size %2 gives %1 unit(s); it must give one per row. Check the "
+        "document the matrix was read from.",
         "units",
         "size",
     ),
@@ -1110,13 +1164,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "at",
     ),
     "data.covariance_not_positive_semidefinite": MessageTemplate(
-        "A covariance matrix is not positive semi-definite: its smallest eigenvalue is %1. No set "
-        "of uncertainties produces such a matrix, so it was mistyped, truncated, or assembled "
-        "from parts that do not belong together.",
+        "A covariance matrix is not positive semi-definite: its smallest eigenvalue is %1. No "
+        "set of uncertainties produces such a matrix, so it was mistyped, truncated, or "
+        "assembled from parts that do not belong together. Check the matrix against its "
+        "source.",
         "smallest_eigenvalue",
     ),
     "validation.unknown_covariance_label": MessageTemplate(
-        "A covariance matrix has no component '%1'.",
+        "A covariance matrix has no component '%1'. Check the component's name.",
         "label",
     ),
     "validation.value_count_mismatch": MessageTemplate(
@@ -1126,13 +1181,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "expected",
     ),
     "validation.negative_variance": MessageTemplate(
-        "The value %1 has a variance of %2; a variance cannot be negative.",
+        "The value %1 has a variance of %2; a variance cannot be negative. Check the "
+        "uncertainty it was given.",
         "value",
         "variance",
     ),
     "validation.rigorous_with_strategies": MessageTemplate(
         "A value is marked rigorous but names approximations (%1). A value that used an "
-        "approximation is approximate; this is an internal error, please report it.",
+        "approximation is approximate. This is an internal error; please report it.",
         "strategies",
     ),
     "validation.approximate_without_strategy": MessageTemplate(
@@ -1141,7 +1197,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "value",
     ),
     "validation.relative_uncertainty_of_zero": MessageTemplate(
-        "A relative uncertainty was asked of a value of zero, where it is undefined.",
+        "A relative uncertainty was asked of a value of zero, where it is undefined. This is "
+        "an internal error; please report it.",
     ),
     "validation.correlated_scalar_path": MessageTemplate(
         "Two correlated values were combined (%1) as if they were independent, which would "
@@ -1150,18 +1207,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "operation",
     ),
     "validation.incompatible_units": MessageTemplate(
-        "%1 cannot be applied to values in %2: the units do not fit the operation.",
+        "%1 cannot be applied to values in %2: the units do not fit the operation. This is an "
+        "internal error; please report it.",
         "operation",
         "received",
     ),
     "validation.compound_unit_not_supported": MessageTemplate(
         "Values in %2 cannot be combined (%1): the result would need a compound unit, which "
-        "GeoComp does not track.",
+        "GeoComp does not track. This is an internal error; please report it.",
         "operation",
         "received",
     ),
     "validation.not_a_quantity": MessageTemplate(
-        "A %1 was given where a number or a value with its uncertainty was expected.",
+        "A %1 was given where a number or a value with its uncertainty was expected. This is "
+        "an internal error; please report it.",
         "received",
     ),
     "validation.division_by_zero": MessageTemplate(
@@ -1170,22 +1229,24 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "numerator",
     ),
     "validation.power_of_dimensioned_quantity": MessageTemplate(
-        "A value in %1 cannot be raised to the power %2: the result would need a compound unit, "
-        "which GeoComp does not track.",
+        "A value in %1 cannot be raised to the power %2: the result would need a compound "
+        "unit, which GeoComp does not track. This is an internal error; please report it.",
         "unit",
         "exponent",
     ),
     "validation.log_of_non_positive": MessageTemplate(
-        "The logarithm of %1 is undefined; it needs a positive value.",
+        "The logarithm of %1 is undefined; it needs a positive value. This is an internal "
+        "error; please report it.",
         "value",
     ),
     "validation.sqrt_of_negative": MessageTemplate(
-        "The square root of %1 is undefined; it needs a value that is not negative.",
+        "The square root of %1 is undefined; it needs a value that is not negative. This is "
+        "an internal error; please report it.",
         "value",
     ),
     "validation.sqrt_at_zero": MessageTemplate(
-        "The uncertainty of a square root cannot be propagated at zero, where its derivative is "
-        "infinite.",
+        "The uncertainty of a square root cannot be propagated at zero, where its derivative "
+        "is infinite. This is an internal error; please report it.",
     ),
     "validation.atan2_at_origin": MessageTemplate(
         "A direction was asked of two coincident points, where it is undefined. Check for two "
@@ -1228,43 +1289,49 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # Only the validation tests and scripts/ read these files, but a refusal is
     # read by whoever runs them, so it says what is wrong as any other does.
     "data.adjust_file_too_short": MessageTemplate(
-        "'%1' has %2 line(s); an Adjust file starts with a title line and a counts line.",
+        "'%1' has %2 line(s); an Adjust file starts with a title line and a counts line. "
+        "Check that it is an Adjust file.",
         "path",
         "received",
     ),
     "data.adjust_header_not_five_counts": MessageTemplate(
         "The counts line of '%1' reads '%2'; an Adjust file gives five counts: distances, "
-        "angles, azimuths, control stations and total stations.",
+        "angles, azimuths, control stations and total stations. Correct the counts line.",
         "path",
         "received",
     ),
     "data.adjust_header_not_integers": MessageTemplate(
-        "The counts line of '%1' reads '%2', which is not five whole numbers.",
+        "The counts line of '%1' reads '%2', which is not five whole numbers. Correct the "
+        "counts line.",
         "path",
         "received",
     ),
     "data.adjust_azimuths_unsupported": MessageTemplate(
-        "'%1' declares %2 azimuth observation(s), which GeoComp does not read: no example of an "
-        "azimuth row exists to check its layout against, and a guessed layout reads a "
-        "plausible wrong number.",
+        "'%1' declares %2 azimuth observation(s), which GeoComp does not read: no example of "
+        "an azimuth row exists to check its layout against, and a guessed layout reads a "
+        "plausible wrong number. Remove the azimuths from the file, and from its counts line, "
+        "if the network can be adjusted without them.",
         "path",
         "received",
     ),
     "data.adjust_fewer_stations_than_declared": MessageTemplate(
-        "'%1' has %2 line(s) after its header, fewer than the %3 stations it declares.",
+        "'%1' has %2 line(s) after its header, fewer than the %3 stations it declares. "
+        "Correct the counts line, or add the missing stations.",
         "path",
         "received",
         "expected",
     ),
     "data.adjust_file_half_valued": MessageTemplate(
         "'%1' gives values for %2 of its observation rows and not for the others. A file is "
-        "either a plan, with no values, or a set of measurements, with all of them.",
+        "either a plan, with no values, or a set of measurements, with all of them. Give "
+        "every row its value, or none.",
         "path",
         "received",
     ),
     "data.adjust_declared_counts_disagree": MessageTemplate(
         "The counts line of '%1' declares %2, but the file holds %3. The counts are the "
-        "format's own check, so GeoComp cannot tell which was intended.",
+        "format's own check, so GeoComp cannot tell which was intended. Correct the counts "
+        "line, or the rows.",
         "path",
         "declared",
         "found",
@@ -1272,25 +1339,26 @@ TEMPLATES: dict[str, MessageTemplate] = {
     "data.adjust_cannot_express_observation": MessageTemplate(
         "The network cannot be written as the Adjust file '%1': it has observations of type "
         "%2, and the format holds only horizontal distances and horizontal angles. Written "
-        "without them, the file would be a different network.",
+        "without them, the file would be a different network. Write it as a GeoComp network "
+        "document instead.",
         "path",
         "received",
     ),
     "data.adjust_not_a_number": MessageTemplate(
-        "In '%1', the %2 '%3' is not a number, on the line: %4",
+        "In '%1', the %2 '%3' is not a number; correct it on the line: %4",
         "path",
         "field",
         "received",
         "line",
     ),
     "data.adjust_station_row_too_short": MessageTemplate(
-        "A station row of '%1' is too short; it gives a name and two coordinates: %2",
+        "A station row of '%1' is too short; give it a name and two coordinates: %2",
         "path",
         "line",
     ),
     "data.adjust_observation_station_unknown": MessageTemplate(
-        "An observation row of '%1' names stations that are not in the coordinate block (%3): "
-        "%2",
+        "An observation row of '%1' names stations that are not in the coordinate block (%3); "
+        "add them to the coordinate block, or correct the row: %2",
         "path",
         "line",
         "received",
@@ -1298,14 +1366,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
     "data.adjust_control_without_sigmas": MessageTemplate(
         "The control station '%2' in '%1' gives no standard deviations. A control station in "
         "this format is weighted, not held, so two standard deviations follow its "
-        "coordinates: %3",
+        "coordinates; add them to the line: %3",
         "path",
         "station",
         "line",
     ),
     "data.adjust_observation_row_unrecognised": MessageTemplate(
         "An observation row of '%1' has %3 value(s), which is neither a distance (2 or 4) nor "
-        "an angle (3 or 7): %2",
+        "an angle (3 or 7); correct the row: %2",
         "path",
         "line",
         "received",
@@ -1318,28 +1386,28 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "data.adjust_angle_out_of_range": MessageTemplate(
-        "An angle in '%1' has minutes or seconds of 60 or more (%3): %2",
+        "An angle in '%1' has minutes or seconds of 60 or more (%3); correct that angle: %2",
         "path",
         "line",
         "received",
     ),
     "data.krumm_angle_unreadable": MessageTemplate(
-        "'%1' is not an angle in degrees, minutes and seconds, such as 12°34'56\", on the "
-        "line: %2",
+        "'%1' is not an angle in degrees, minutes and seconds, such as 12°34'56\"; correct it "
+        "on the line: %2",
         "received",
         "line",
     ),
     "data.krumm_value_not_a_number": MessageTemplate(
-        "'%1' is not a number, on the line: %2",
+        "'%1' is not a number; correct it on the line: %2",
         "received",
         "line",
     ),
     "data.krumm_coordinate_row_too_short": MessageTemplate(
-        "A coordinate row is too short: %1",
+        "A coordinate row is too short; complete it: %1",
         "line",
     ),
     "data.krumm_row_too_short": MessageTemplate(
-        "A row of the %1 section has %3 value(s), where %2 are needed: %4",
+        "A row of the %1 section has %3 value(s), where %2 are needed; complete it: %4",
         "section",
         "expected",
         "received",
@@ -1354,23 +1422,26 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.krumm_baseline_antenna_heights": MessageTemplate(
         "A baseline states antenna heights (%2). Reducing it to the marks needs each mark's "
-        "vertical, which this file does not give: %1",
+        "vertical, which this file does not give; give the baseline already reduced to the "
+        "marks: %1",
         "line",
         "received",
     ),
     "data.krumm_levelling_length_not_positive": MessageTemplate(
-        "'%1' is not a positive line length in metres; the length weights the levelled line.",
+        "'%1' is not a positive line length in metres; the length weights the levelled line. "
+        "Correct the line length.",
         "received",
     ),
     "data.krumm_section_unknown": MessageTemplate(
-        "'%2' has a section %1 that GeoComp does not know.",
+        "'%2' has a section %1 that GeoComp does not know. Check the section's name against "
+        "the format.",
         "section",
         "path",
     ),
     "data.krumm_section_unsupported": MessageTemplate(
         "The section %1 of '%2' holds %3. GeoComp reads none of the file rather than read it "
         "without that section: without one of its observations it would be a different "
-        "example.",
+        "example. Adjust it with a program that reads that section.",
         "section",
         "path",
         "reason",
@@ -1381,30 +1452,31 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "handler",
     ),
     "data.krumm_datum_unknown": MessageTemplate(
-        "'%1' is not a datum GeoComp reads; expected %2.",
+        "'%1' is not a datum GeoComp reads; expected %2. Use one of those.",
         "received",
         "expected",
     ),
     "data.krumm_dynamic_datum_unsupported": MessageTemplate(
         "'%1' has a dynamic datum, which weights the held coordinates by a covariance matrix. "
         "GeoComp does not read it: reading it as fixed would claim a certainty the example "
-        "does not.",
+        "does not. Use a fixed or a free datum instead, if that is the example you mean.",
         "path",
     ),
     "data.krumm_free_datum_partial": MessageTemplate(
         "The free datum of '%1' names different components for different stations (%2); an "
-        "inner constraint names the same components for every station.",
+        "inner constraint names the same components for every station. Name the same "
+        "components for every station.",
         "path",
         "received",
     ),
     "data.krumm_datum_token_unreadable": MessageTemplate(
-        "'%1' in the datum section is neither a station nor an axis letter and a station, such "
-        "as xA.",
+        "'%1' in the datum section is neither a station nor an axis letter and a station, "
+        "such as xA. Correct it in the datum section.",
         "received",
     ),
     "data.krumm_mixed_dimensionality": MessageTemplate(
         "No one dimension of adjustment, 1D, 2D or 3D, takes every observation of the network "
-        "'%1'.",
+        "'%1'. Split the network by dimension.",
         "network",
     ),
     "data.krumm_observation_station_unknown": MessageTemplate(
@@ -1418,43 +1490,46 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # A row the reader could not understand is reported as a finding, worded by
     # "finding.field_book_row_refused" with one of these as its reason.
     "data.missing_station": MessageTemplate(
-        "no occupied station is given.",
+        "no occupied station is given. Fill in the station the instrument occupied.",
     ),
     "data.missing_target": MessageTemplate(
-        "no station is given for '%1', so the pointing has no target.",
+        "no station is given for '%1', so the pointing has no target. Fill in the station "
+        "sighted.",
         "field",
     ),
     "data.missing_angle": MessageTemplate(
-        "the angle '%1' is empty.",
+        "the angle '%1' is empty. Fill it in.",
         "field",
     ),
     "data.unparseable_number": MessageTemplate(
-        "'%2', given for '%1', is not a number.",
+        "'%2', given for '%1', is not a number. Correct it.",
         "field",
         "received",
     ),
     "data.unparseable_angle": MessageTemplate(
-        "'%2', given for '%1', is not an angle.",
+        "'%2', given for '%1', is not an angle. Correct it.",
         "field",
         "received",
     ),
     "data.unparseable_set_number": MessageTemplate(
-        "the set number '%1' is not a whole number.",
+        "the set number '%1' is not a whole number. Correct it.",
         "received",
     ),
     "data.sexagesimal_out_of_range": MessageTemplate(
         "'%1' reads %2, but minutes and seconds must be below 60. The columns are probably in "
-        "the wrong order, or the angle is already decimal.",
+        "the wrong order, or the angle is already decimal. Check the column mapping.",
         "field",
         "received",
     ),
     "data.unknown_face_value": MessageTemplate(
-        "'%1' is not one of the face values the mapping knows (%2).",
+        "'%1' is not one of the face values the mapping knows (%2). Use one of those in that "
+        "column.",
         "received",
         "expected",
     ),
     "data.unknown_sighted_value": MessageTemplate(
-        "'%1' is not one of the sighted values the mapping knows (%2).",
+        "'%1' is not one of the sighted values the mapping knows (%2). Use one of those in "
+        "that column.",
         "received",
         "expected",
     ),
