@@ -36,10 +36,11 @@ not a percentage" tells them what to change. The test reads a remedy as a clause
 that begins with an imperative -- "Give ...", "Check ...", "..., or turn the
 correction off" -- which is how GeoComp's templates already say it where they
 say it. It cannot judge whether the remedy is a good one, only that there is
-one; that is still the review's job. The templates without one when P12c-37
-first counted are frozen in ``nfr006_without_a_remedy.txt``, and the list may
-only shrink. Findings are not refusals -- a report's observations about a
-result -- and are not held to it.
+one; that is still the review's job. When P12c-37 first counted, 322 of 641
+refusals had none; they were frozen in a list that could only shrink, and four
+pull requests later it was empty and was removed. There is no exemption: a new
+refusal arrives with its remedy. Findings are not refusals -- a report's
+observations about a result -- and are not held to it.
 """
 
 from __future__ import annotations
@@ -48,7 +49,6 @@ import ast
 import functools
 import re
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
@@ -418,18 +418,21 @@ def test_the_engine_failures_are_found():
 #: when a remedy is written with a verb it does not have, never by matching a
 #: verb anywhere in the sentence.
 REMEDY_VERBS = (
-    "add", "adjust", "align", "apply", "ask", "assign", "attach", "bring", "change", "check",
-    "choose", "clear", "close", "compare", "compute", "configure", "connect", "convert",
-    "copy", "correct",
+    "add", "adjust", "align", "allow", "apply", "ask", "assign", "attach", "bring", "build", "change",
+    "check",
+    "choose", "clear", "close", "compare", "complete", "compute", "configure", "connect", "convert",
+    "copy", "correct", "decompress",
     "define", "delete", "disable", "do", "download", "drop", "edit", "enable", "enter",
     "exclude", "export", "fetch", "fill", "find", "fix", "free", "give", "grant", "hold",
     "import", "include", "increase", "inspect", "install", "keep", "leave", "let", "list",
-    "load", "look", "lower", "make", "mark", "measure", "merge", "move", "name", "observe",
-    "open", "pass", "pick", "point", "process", "provide", "put", "raise", "re-activate",
+    "load", "look", "lower", "make", "map", "mark", "measure", "merge", "move", "name", "observe",
+    "open", "pass", "pick", "place", "point", "prepare", "process", "provide", "put", "raise",
+    "re-activate",
     "re-export", "re-import", "re-measure", "re-run", "read", "reconnect", "record",
     "rebuild", "reduce", "remove", "rename", "repeat", "replace", "report", "reprocess",
-    "rerun", "resolve", "restart", "restore", "retry", "run", "save", "select", "set",
-    "sight", "split", "start", "state", "supply", "survey", "swap", "tick", "treat", "try", "turn",
+    "rerun", "resolve", "restart", "restore", "retry", "rotate", "run", "save", "select", "set",
+    "sight", "split", "start", "state", "supply", "survey", "swap", "tick", "transform", "treat",
+    "try", "turn",
     "update", "use", "wait", "write",
 )
 
@@ -442,9 +445,6 @@ _REMEDY = re.compile(
     re.IGNORECASE,
 )
 
-WITHOUT_A_REMEDY = Path(__file__).with_name("nfr006_without_a_remedy.txt")
-
-
 def _refusals() -> dict[str, str]:
     """Every error template, by code: what NFR-006 holds to a remedy."""
     return {
@@ -454,37 +454,17 @@ def _refusals() -> dict[str, str]:
     }
 
 
-@functools.cache
-def _frozen_without_a_remedy() -> frozenset[str]:
-    lines = WITHOUT_A_REMEDY.read_text(encoding="utf-8").splitlines()
-    return frozenset(line.strip() for line in lines if line.strip() and not line.startswith("#"))
-
-
 def test_every_refusal_says_what_the_user_can_do():
     """NFR-006: what failed, why, *and what the user can do about it*."""
     without = sorted(
         code
         for code, source in _refusals().items()
-        if not _REMEDY.search(source) and code not in _frozen_without_a_remedy()
+        if not _REMEDY.search(source)
     )
     assert not without, (
         "These templates say what failed but not what the user can do about it "
         "(NFR-006). Add a clause that tells them -- 'Give ...', 'Check ...', "
         "'..., or ...' -- in the template and its translations:\n" + "\n".join(without)
-    )
-
-
-def test_the_list_without_a_remedy_only_shrinks():
-    """An entry whose template now has a remedy, or no longer exists, leaves the list."""
-    refusals = _refusals()
-    stale = sorted(
-        code
-        for code in _frozen_without_a_remedy()
-        if code not in refusals or _REMEDY.search(refusals[code])
-    )
-    assert not stale, (
-        f"Remove from {WITHOUT_A_REMEDY.name}; each now says what to do, or is gone:\n"
-        + "\n".join(stale)
     )
 
 

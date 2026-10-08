@@ -2777,6 +2777,35 @@ analysis algorithms, 44 in GNSS and 35 in engines.
 **Not done.** NFR-006 stays partly met until the list is empty. The test checks that a remedy is there, not
 that it is right; the review still reads each one.
 
+#### P12c-38 — remedies for the engine and GNSS refusals (NFR-006)
+
+The 35 refusals of the DynAdjust and RTKLIB adapters and the 44 of GNSS gain what the user can do: give the
+output of the run prepared from this network, run the adjustment again to write a damaged file afresh, use the
+DynAdjust release the *Install an engine* algorithm installs, process the session again with ECEF output. Two
+are reachable only from GeoComp's own code -- a trajectory point built over a covariance that is not local --
+and say so: an internal error, to report. Four rewordings put an existing remedy where a clause starts, so the
+test can see it ("set a measurement's Ignore to * to leave it out"); four already had remedies with verbs the
+list lacked. 145 remain, all in the analysis algorithms.
+
+**Not done.** The analysis algorithms' 145; NFR-006 stays partly met until they are done.
+
+#### P12c-39 — the last 145 refusal templates; no exemption
+
+The 145 refusals of the analysis algorithms gain what the user can do, in three languages, and the frozen list
+is empty and removed: every one of the 641 refusal templates says what failed, why and what to do, and a new
+one must. They include the readers of the Adjust and Krumm corpora, whose refusals end with the offending line
+and now say what to correct before it ("…; correct it on the line: %4"), and fourteen checks of the core that
+only GeoComp's own code can reach -- thirteen of arithmetic, units and shapes (the incomplete beta function's
+domain, a square root at zero, a covariance block of the wrong shape) and an observation without its
+provenance -- which now say they are an internal error to report.
+"build", "map" and "complete" join the verb list; two templates already used them.
+
+**Found while doing it.** The rule reads templates, and an algorithm can refuse without one: a sentence of its
+own, raised as a `QgsProcessingException`. Of the 134 such sentences, 94 say what failed and stop -- "No RINEX
+observation sessions were found in %1", "The file '%1' does not exist." NFR-006 stays partly met for them.
+
+**Not done.** Those 94; the structural test does not read them yet.
+
 ---
 
 ## P13 — Validation, documentation and release

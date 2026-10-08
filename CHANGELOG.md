@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-39 — Every error template says what to do
+
+#### Changed
+
+- The last 145 error messages without a remedy -- the analysis algorithms -- now say what to do, in all three
+  languages. Every error message GeoComp words from a template now does, and a structural test holds every new
+  one to it.
+
+### P12c-38 — Engine and GNSS error messages say what to do
+
+#### Changed
+
+- The 79 error messages of the DynAdjust and RTKLIB adapters and of GNSS processing that stopped at what failed
+  now say what to do about it, in all three languages.
+
 ### P12c-37 — Error messages say what to do
 
 #### Changed
