@@ -245,6 +245,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "the observation it belongs to.",
         "received",
     ),
+    # -- An engine's problem, for its developers (FR-955; P12c-48) ----------------
+    "validation.engine_run_record_missing": MessageTemplate(
+        "'%1' holds no record of an engine run. Choose the working folder a DynAdjust or "
+        "RTKLIB run kept: the one its refusal names, or one the run was asked to keep. A "
+        "folder kept before this version of GeoComp has no record; run it again.",
+        "folder",
+    ),
     # -- DynAdjust: the run ------------------------------------------------------
     "computation.dynadjust_program_not_found": MessageTemplate(
         "The DynAdjust program %1 was not found. Install DynAdjust from Project > Install an "
@@ -253,7 +260,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "computation.dynadjust_stage_failed": MessageTemplate(
         "DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its "
-        "working files and the input GeoComp wrote are kept; look there for the cause. "
+        "working files and the input GeoComp wrote are kept; look there for the cause, or "
+        "package them for DynAdjust's developers with Package an engine problem. "
         "DynAdjust's own message: %3",
         "program",
         "exit_code",

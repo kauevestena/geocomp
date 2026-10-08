@@ -887,6 +887,15 @@ files, so the directory was deleted as the refusal propagated. Now a stage that 
 its command line and working directory; and the algorithm keeps its temporary directory whenever the refusal
 names it, removing it otherwise (`tests/test_engine_timeouts.py`, `tests/qgis/test_engine_runs.py`).
 
+*P12c-48.* Every run of every engine program now leaves its record in the working directory: the whole of its
+stdout and stderr, in `geocomp-<program>.stdout.txt` and `.stderr.txt`, and a line of `geocomp-runs.jsonl` with
+the command, the exit code, the time and the engine's version (`geocomp/engines/base.py::keep_record`). Until
+then the command and what the engine said travelled on the refusal and in the solution's provenance, cut to
+their first and last forty lines, while `EngineRun.to_dict` said the full logs were in the directory and nothing
+wrote them. The environment is not recorded (NFR-010). A failed run's refusal now also names *Package an engine
+problem*, which puts the directory in one zip for the engine's developers ([`20`](./20-testing-and-validation.md)
+§8).
+
 ---
 
 ## 8. Acceptance criteria

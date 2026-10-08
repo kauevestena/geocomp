@@ -278,6 +278,17 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         menu="project",
         menu_order=70,
     ),
+    # An engine's failure, packaged for the engine's developers (P12c-48). Beside
+    # Install an engine, the other thing a user does about an engine as such.
+    AlgorithmSpec(
+        operation="package_engine_problem",
+        group="project",
+        module="geocomp.algorithms.engines.report_problem",
+        class_name="PackageEngineProblemAlgorithm",
+        requirement="FR-955",
+        menu="project",
+        menu_order=75,
+    ),
     # -- Phase P5: what the persistence work made reachable --------------
     #
     # All four are toolbox-only. They belong to no survey technique, which is

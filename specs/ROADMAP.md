@@ -3038,6 +3038,35 @@ refuse. FR-064 is met on that reading of it; specs/05 §5 now says so.
 **Not done.** No setting serves a sight distance, whose precision falls back to the digits the observer wrote
 (specs/05 §2.3), or a height difference, which levelling weights by line length or setups.
 
+#### P12c-48 — an engine's failure, packaged for its developers (FR-955 met)
+
+FR-955 asks that a defect in DynAdjust or RTKLIB be straightforward to report upstream, with the inputs that
+triggered it. specs/20 §8 says how: GeoComp packages the inputs, configuration, command line and output that
+reproduce it. Half of that was there already. A failed run's working directory was kept and named, with the
+inputs and the configuration in it. The other half was not. The command and what the engine said travelled on
+the refusal and in the solution's provenance, cut to their first and last forty lines, and nothing put them
+together.
+
+- **The record.** Every run of every engine program now leaves its record in its working directory: each
+  stream whole, and a line of `geocomp-runs.jsonl` with the command, the exit code, the time and the version
+  (`keep_record` in `geocomp/engines/base.py`). The environment is not recorded (NFR-010).
+- **The package.** *Package an engine problem* (Project menu) zips the directory with an English README for
+  the engine's developers: engine and version, each program, its command and how it ended, and where that
+  project takes reports. It removes nothing, and says to look before sending.
+- **The pointer.** A failed DynAdjust stage's refusal and RTKLIB's both name the algorithm.
+
+A real DynAdjust failure is packaged in tier 4: the real `dnaimport` refuses a broken station file, and the zip
+holds the station and measurement files, the plan, `dnaimport`'s output and its exit code.
+
+**Found while doing it.** `EngineRun.to_dict` said "the retained work_dir holds the full logs", and nothing
+wrote them. It is true now.
+
+**Register.** FR-955 met: 171 met, 4 partly met, 1 open.
+
+**Not done.** Nothing is filed for the user: the package is a file to attach, and where the project takes it is
+a link. A folder kept before P12c-48 holds no record and is refused, which says to run it again. The RTKLIB
+side is tested with stand-ins, not with a real `rnx2rtkp` failure.
+
 ---
 
 ## P13 — Validation, documentation and release
