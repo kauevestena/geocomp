@@ -152,7 +152,10 @@ The 322 were frozen in `tests/structural/nfr006_without_a_remedy.txt`, a list th
 pull request gave a remedy to 91: the 37 in the settings service and in the monitoring, integration and
 project algorithms, and the 54 of gravimetry and levelling. Six more already had remedies the first verb list
 missed, so "copy", "restore", "rebuild", "compare" and "ask" were added, and "swap" for the batch's own. 225
-remain.
+remain. P12c-38 gave one to the 35 of the engine adapters and the 44 of GNSS: what to give, which run's
+output to give, and, for the two that only GeoComp's own code can reach, that it is an internal error to report.
+Four already had remedies with verbs the list lacked ("allow", "place", "decompress", "transform"). 145 remain,
+all in the analysis algorithms.
 
 ## 3. Terminology (FR-093)
 

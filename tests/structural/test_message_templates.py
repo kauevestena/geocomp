@@ -418,18 +418,21 @@ def test_the_engine_failures_are_found():
 #: when a remedy is written with a verb it does not have, never by matching a
 #: verb anywhere in the sentence.
 REMEDY_VERBS = (
-    "add", "adjust", "align", "apply", "ask", "assign", "attach", "bring", "change", "check",
+    "add", "adjust", "align", "allow", "apply", "ask", "assign", "attach", "bring", "change",
+    "check",
     "choose", "clear", "close", "compare", "compute", "configure", "connect", "convert",
-    "copy", "correct",
+    "copy", "correct", "decompress",
     "define", "delete", "disable", "do", "download", "drop", "edit", "enable", "enter",
     "exclude", "export", "fetch", "fill", "find", "fix", "free", "give", "grant", "hold",
     "import", "include", "increase", "inspect", "install", "keep", "leave", "let", "list",
     "load", "look", "lower", "make", "mark", "measure", "merge", "move", "name", "observe",
-    "open", "pass", "pick", "point", "process", "provide", "put", "raise", "re-activate",
+    "open", "pass", "pick", "place", "point", "prepare", "process", "provide", "put", "raise",
+    "re-activate",
     "re-export", "re-import", "re-measure", "re-run", "read", "reconnect", "record",
     "rebuild", "reduce", "remove", "rename", "repeat", "replace", "report", "reprocess",
-    "rerun", "resolve", "restart", "restore", "retry", "run", "save", "select", "set",
-    "sight", "split", "start", "state", "supply", "survey", "swap", "tick", "treat", "try", "turn",
+    "rerun", "resolve", "restart", "restore", "retry", "rotate", "run", "save", "select", "set",
+    "sight", "split", "start", "state", "supply", "survey", "swap", "tick", "transform", "treat",
+    "try", "turn",
     "update", "use", "wait", "write",
 )
 

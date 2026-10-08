@@ -2777,6 +2777,18 @@ analysis algorithms, 44 in GNSS and 35 in engines.
 **Not done.** NFR-006 stays partly met until the list is empty. The test checks that a remedy is there, not
 that it is right; the review still reads each one.
 
+#### P12c-38 — remedies for the engine and GNSS refusals (NFR-006)
+
+The 35 refusals of the DynAdjust and RTKLIB adapters and the 44 of GNSS gain what the user can do: give the
+output of the run prepared from this network, run the adjustment again to write a damaged file afresh, use the
+DynAdjust release the *Install an engine* algorithm installs, process the session again with ECEF output. Two
+are reachable only from GeoComp's own code -- a trajectory point built over a covariance that is not local --
+and say so: an internal error, to report. Four rewordings put an existing remedy where a clause starts, so the
+test can see it ("set a measurement's Ignore to * to leave it out"); four already had remedies with verbs the
+list lacked. 145 remain, all in the analysis algorithms.
+
+**Not done.** The analysis algorithms' 145; NFR-006 stays partly met until they are done.
+
 ---
 
 ## P13 — Validation, documentation and release

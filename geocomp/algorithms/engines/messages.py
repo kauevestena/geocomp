@@ -111,7 +111,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "network",
     ),
     "validation.dynadjust_confidence_out_of_range": MessageTemplate(
-        "The confidence level must be a probability strictly between 0 and 1; %1 was given.",
+        "The confidence level must be a probability strictly between 0 and 1; %1 was given. "
+        "Give one such as 0.95.",
         "received",
     ),
     "validation.dynadjust_job_frame_or_epoch_missing": MessageTemplate(
@@ -126,8 +127,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "run or record them on the network.",
     ),
     "validation.dynadjust_configuration_unknown_program": MessageTemplate(
-        "The DynAdjust configuration names '%1', which is not a program GeoComp runs. "
-        "It may give options to: %2.",
+        "The DynAdjust configuration names '%1', which is not a program GeoComp runs. It may "
+        "give options to: %2. Name one of those.",
         "program",
         "expected",
     ),
@@ -139,7 +140,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "program",
     ),
     "data.dynadjust_configuration_unreadable": MessageTemplate(
-        "The DynAdjust configuration '%1' could not be read as JSON: %2.",
+        "The DynAdjust configuration '%1' could not be read as JSON: %2. Correct the JSON.",
         "path",
         "reason",
     ),
@@ -162,15 +163,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
     "data.dynadjust_prepared_measurements_changed": MessageTemplate(
         "The prepared measurement file '%1' now holds %2 measurements where GeoComp wrote %3. "
         "The result is matched to the network measurement by measurement, so measurements "
-        "cannot be added or removed; to leave one out, set its Ignore to *.",
+        "cannot be added or removed: set a measurement's Ignore to * to leave it out.",
         "path",
         "found",
         "written",
     ),
     "data.dynadjust_prepared_directions_changed": MessageTemplate(
-        "A direction set in the prepared measurement file '%1' now holds %2 directions after its "
-        "reference where GeoComp wrote %3 (the set whose reference is observation %4). Directions "
-        "cannot be added or removed; to leave one out, set its Ignore to *.",
+        "A direction set in the prepared measurement file '%1' now holds %2 directions after "
+        "its reference where GeoComp wrote %3 (the set whose reference is observation %4). "
+        "Directions cannot be added or removed: set a direction's Ignore to * to leave it "
+        "out.",
         "path",
         "found",
         "written",
@@ -251,7 +253,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "computation.dynadjust_stage_failed": MessageTemplate(
         "DynAdjust's %1 stopped with exit code %2. The command was %5, run in %4, where its "
-        "working files and the input GeoComp wrote are kept. DynAdjust's own message: %3",
+        "working files and the input GeoComp wrote are kept; look there for the cause. "
+        "DynAdjust's own message: %3",
         "program",
         "exit_code",
         "diagnostic",
@@ -270,7 +273,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     "computation.dynadjust_import_incomplete": MessageTemplate(
         "dnaimport reported success but did not take in everything GeoComp wrote: it counted "
         "%1, where GeoComp wrote %2. Adjusting the rest would give a plausible answer for a "
-        "different network, so the run was stopped. dnaimport's own message: %3",
+        "different network, so the run was stopped. Check the records dnaimport's own message "
+        "names: %3",
         "received",
         "expected",
         "diagnostic",
@@ -289,16 +293,18 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "expected",
     ),
     "data.dynadjust_unrecognised_output_layout": MessageTemplate(
-        "The %1 table in DynAdjust's output has columns GeoComp does not recognise, so it "
-        "was probably written by a DynAdjust version GeoComp has not been checked against. "
-        "Expected the header '%2'; found '%3'.",
+        "The %1 table in DynAdjust's output has columns GeoComp does not recognise, so it was "
+        "probably written by a DynAdjust version GeoComp has not been checked against. "
+        "Expected the header '%2'; found '%3'. Use the DynAdjust release GeoComp was checked "
+        "against, which the Install an engine algorithm installs.",
         "table",
         "expected",
         "found",
     ),
     "data.dynadjust_unknown_station_in_output": MessageTemplate(
         "DynAdjust's output names a station that is not in the network GeoComp wrote ('%1'), "
-        "so the output and the network are not from the same run.",
+        "so the output and the network are not from the same run. Give the output of the run "
+        "prepared from this network.",
         "line",
     ),
     "data.dynadjust_station_name_fills_its_column": MessageTemplate(
@@ -317,7 +323,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "line",
     ),
     "data.dynadjust_output_not_a_number": MessageTemplate(
-        "DynAdjust's output has '%1' where the %2 should be a number, in the line '%3'.",
+        "DynAdjust's output has '%1' where the %2 should be a number, in the line '%3'. Run "
+        "the adjustment again to write the output afresh.",
         "received",
         "field",
         "line",
@@ -340,68 +347,77 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.dynadjust_unknown_measurement_component": MessageTemplate(
         "DynAdjust's output has a component '%1' for measurement %2 that GeoComp does not "
-        "know to be angular or linear, in the line '%3'.",
+        "know to be angular or linear, in the line '%3'. Check that the output is from the "
+        "DynAdjust release GeoComp was tested with.",
         "component",
         "measurement",
         "line",
     ),
     "data.dynadjust_output_has_no_solution": MessageTemplate(
         "'%1' records no solution: the adjustment did not reach one. DynAdjust's messages in "
-        "the same folder say why.",
+        "the same folder say why. Read them, correct the input, and run it again.",
         "path",
     ),
     "data.dynadjust_cor_angle_unreadable": MessageTemplate(
         "An angle in DynAdjust's corrections file (.cor) could not be read: '%1', in the line "
-        "'%2'.",
+        "'%2'. Run the adjustment again to write the file afresh.",
         "received",
         "line",
     ),
     "data.dynadjust_observation_has_no_code": MessageTemplate(
         "Observation '%1' is a %2, which DynAdjust has no measurement type for, so its "
-        "adjusted value cannot be found in the output.",
+        "adjusted value cannot be found in the output. Adjust the network with GeoComp's own "
+        "adjustment, or leave that observation out.",
         "observation",
         "type",
     ),
     "data.dynadjust_measurement_count_mismatch": MessageTemplate(
         "DynAdjust's adjusted-measurement table has %1 rows where the network has %2 "
         "measurements, so the rows cannot be matched to the observations. The output and the "
-        "network are not from the same run.",
+        "network are not from the same run. Give the output of the run prepared from this "
+        "network.",
         "received",
         "expected",
     ),
     "data.dynadjust_measurement_type_mismatch": MessageTemplate(
-        "The adjusted measurement for observation '%1' is a %2 in DynAdjust's output, where "
-        "a %3 was written: the rows are not in the order of the network. The output and the "
-        "network are not from the same run.",
+        "The adjusted measurement for observation '%1' is a %2 in DynAdjust's output, where a "
+        "%3 was written: the rows are not in the order of the network. The output and the "
+        "network are not from the same run. Give the output of the run prepared from this "
+        "network.",
         "observation",
         "received",
         "expected",
     ),
     "data.dynadjust_measurement_station_mismatch": MessageTemplate(
         "The adjusted measurement for observation '%1' joins %2 in DynAdjust's output, where "
-        "it joins %3 in the network. The output and the network are not from the same run.",
+        "it joins %3 in the network. The output and the network are not from the same run. "
+        "Give the output of the run prepared from this network.",
         "observation",
         "received",
         "expected",
     ),
     "data.dynadjust_apu_row_without_a_station": MessageTemplate(
-        "A row of DynAdjust's uncertainty file (.apu) does not name a station: '%1'. The "
-        "file is damaged or in a layout GeoComp does not read.",
+        "A row of DynAdjust's uncertainty file (.apu) does not name a station: '%1'. The file "
+        "is damaged or in a layout GeoComp does not read. Run the adjustment again to write "
+        "it afresh.",
         "line",
     ),
     "data.dynadjust_apu_covariance_before_any_station": MessageTemplate(
         "DynAdjust's uncertainty file (.apu) has a covariance row before any station row: "
-        "'%1'. The file is damaged or in a layout GeoComp does not read.",
+        "'%1'. The file is damaged or in a layout GeoComp does not read. Run the adjustment "
+        "again to write it afresh.",
         "line",
     ),
     "data.dynadjust_uncertainty_for_an_unknown_station": MessageTemplate(
         "DynAdjust's uncertainty file (.apu) names stations its adjustment file (.adj) does "
-        "not: %1. The two files are not from the same run.",
+        "not: %1. The two files are not from the same run. Give the .adj and .apu files of "
+        "one run.",
         "stations",
     ),
     "data.dynadjust_covariance_for_an_unknown_station": MessageTemplate(
         "DynAdjust's uncertainty file (.apu) gives a covariance between '%1' and '%2', and "
-        "the adjustment does not have both. The two files are not from the same run.",
+        "the adjustment does not have both. The two files are not from the same run. Give the "
+        ".adj and .apu files of one run.",
         "station",
         "other",
     ),
@@ -418,52 +434,60 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.hp_angle_empty": MessageTemplate(
         "An angle in DynAdjust's output is empty where a value in DDD.MMSSsss notation was "
-        "expected.",
+        "expected. Run the adjustment again to write the output afresh.",
     ),
     "validation.hp_angle_malformed": MessageTemplate(
-        "'%1' is not an angle in DynAdjust's DDD.MMSSsss notation.",
+        "'%1' is not an angle in DynAdjust's DDD.MMSSsss notation. Give it as DDD.MMSSsss, "
+        "for example 123.4530 for 123 degrees, 45 minutes and 30 seconds.",
         "received",
     ),
     "validation.hp_angle_minutes_out_of_range": MessageTemplate(
-        "The angle '%1' has 60 or more minutes, which DDD.MMSSsss notation does not allow.",
+        "The angle '%1' has 60 or more minutes, which DDD.MMSSsss notation does not allow. "
+        "Correct the minutes.",
         "received",
     ),
     "validation.hp_angle_seconds_out_of_range": MessageTemplate(
-        "The angle '%1' has 60 or more seconds, which DDD.MMSSsss notation does not allow.",
+        "The angle '%1' has 60 or more seconds, which DDD.MMSSsss notation does not allow. "
+        "Correct the seconds.",
         "received",
     ),
     "validation.epoch_malformed": MessageTemplate(
-        "'%1' is not a date in DynAdjust's dd.mm.yyyy form.",
+        "'%1' is not a date in DynAdjust's dd.mm.yyyy form. Give it as, for example, "
+        "01.01.2020.",
         "received",
     ),
     "validation.epoch_out_of_range": MessageTemplate(
-        "'%1' is not a real date (dd.mm.yyyy).",
+        "'%1' is not a real date (dd.mm.yyyy). Correct the day or the month.",
         "received",
     ),
     # -- DynaML and DNA files read back ------------------------------------------
     "data.dynaml_unreadable": MessageTemplate(
-        "'%1' could not be read as a DynaML (DynAdjust XML) file: %2.",
+        "'%1' could not be read as a DynaML (DynAdjust XML) file: %2. Check that the file is "
+        "complete.",
         "path",
         "reason",
     ),
     "data.dynaml_wrong_root": MessageTemplate(
-        "'%1' is not a DynaML file: its root element is '%2', where DnaXmlFormat was expected.",
+        "'%1' is not a DynaML file: its root element is '%2', where DnaXmlFormat was "
+        "expected. Choose a DynaML file.",
         "path",
         "received",
     ),
     "data.dynaml_wrong_file_type": MessageTemplate(
-        "'%1' is a DynaML file of type '%2', where a %3 or a Combined File was expected.",
+        "'%1' is a DynaML file of type '%2', where a %3 or a Combined File was expected. "
+        "Choose a file of that type.",
         "path",
         "received",
         "wanted",
     ),
     "data.dynaml_station_without_coordinates": MessageTemplate(
         "A station in the DynaML file has no coordinates (no StationCoord element); every "
-        "station needs them.",
+        "station needs them. Add the station's StationCoord element, or export the file "
+        "again.",
     ),
     "data.dynaml_unknown_coordinate_type": MessageTemplate(
         "Station '%1' in the DynaML file has the coordinate type '%2', which GeoComp does not "
-        "read; it reads %3.",
+        "read; it reads %3. Export the stations in one of those types.",
         "station",
         "received",
         "expected",
@@ -484,12 +508,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.dna_unreadable": MessageTemplate(
-        "'%1' could not be read as a DynAdjust DNA file: %2.",
+        "'%1' could not be read as a DynAdjust DNA file: %2. Check that the file is complete.",
         "path",
         "reason",
     ),
     "data.dna_header_missing": MessageTemplate(
-        "'%1' is not a DynAdjust DNA file: its first line does not begin with !#=DNA.",
+        "'%1' is not a DynAdjust DNA file: its first line does not begin with !#=DNA. Choose "
+        "the DNA file DynAdjust or GeoComp wrote.",
         "path",
     ),
     "data.dna_directional_variance_scale_unsupported": MessageTemplate(

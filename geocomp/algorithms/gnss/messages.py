@@ -67,7 +67,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.product_service_malformed": MessageTemplate(
         "A download service could not be read: %1. Each needs an 'id', a 'name' and "
-        "'templates' keyed like 'orbit/final'.",
+        "'templates' keyed like 'orbit/final'. Correct that service's entry.",
         "received",
     ),
     "validation.product_service_id": MessageTemplate(
@@ -76,15 +76,16 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.product_service_template_key": MessageTemplate(
-        "The download service '%1' has templates for products GeoComp does not know: %2. "
-        "Keys are a product and a latency, such as 'orbit/final', 'orbit/rapid' or "
-        "'gps_navigation/broadcast'.",
+        "The download service '%1' has templates for products GeoComp does not know: %2. Keys "
+        "are a product and a latency, such as 'orbit/final', 'orbit/rapid' or "
+        "'gps_navigation/broadcast'. Correct those keys.",
         "service",
         "received",
     ),
     # -- RTKLIB: the run (P12c-7) -----------------------------------------------
     "engine.rtklib_run_failed": MessageTemplate(
-        "%1 stopped with exit code %2. Its own message: %3. Its working files are in %4.",
+        "%1 stopped with exit code %2. Its own message: %3. Its working files are in %4. Look "
+        "there, and at its message, for the cause.",
         "engine",
         "exit_code",
         "message",
@@ -101,8 +102,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "work_dir",
     ),
     "engine.rtklib_wrote_no_output": MessageTemplate(
-        "%1 finished without writing a solution file. Its own message: %2. Its working "
-        "files are in %3.",
+        "%1 finished without writing a solution file. Its own message: %2. Its working files "
+        "are in %3. Look there, and at its message, for the cause.",
         "engine",
         "message",
         "work_dir",
@@ -154,31 +155,36 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "observed",
     ),
     "validation.rtklib_elevation_mask_out_of_range": MessageTemplate(
-        "The elevation mask must be at least 0 and less than 90 degrees; %1 was given.",
+        "The elevation mask must be at least 0 and less than 90 degrees; %1 was given. Give a "
+        "mask in that range.",
         "received",
     ),
     "validation.rtklib_output_format_unknown": MessageTemplate(
-        "'%1' is not an RTKLIB output format; it writes llh, xyz, enu or nmea.",
+        "'%1' is not an RTKLIB output format; it writes llh, xyz, enu or nmea. Choose one of "
+        "those.",
         "received",
     ),
     "validation.rtklib_base_position_type_unknown": MessageTemplate(
-        "'%1' is not a way RTKLIB can be given the base position; expected %2.",
+        "'%1' is not a way RTKLIB can be given the base position; expected %2. Choose one of "
+        "those.",
         "received",
         "expected",
     ),
     "validation.rtklib_base_position_needs_a_matching_type": MessageTemplate(
         "Base coordinates were given with the base position type '%1'. RTKLIB uses given "
-        "coordinates only with llh or xyz, and would ignore them otherwise.",
+        "coordinates only with llh or xyz, and would ignore them otherwise. Set the base "
+        "position type to llh or xyz.",
         "received",
     ),
     "validation.rtklib_profile_unknown": MessageTemplate(
-        "'%1' is not a processing profile; expected %2.",
+        "'%1' is not a processing profile; expected %2. Choose one of those.",
         "received",
         "expected",
     ),
     # -- RTKLIB: an options file of the user's own (FR-070, P12c-21) -----------------
     "data.rtklib_configuration_unreadable": MessageTemplate(
-        "The RTKLIB configuration file '%1' could not be read: %2.",
+        "The RTKLIB configuration file '%1' could not be read: %2. Check that it is an RTKLIB "
+        "configuration file, as RTKPOST saves one.",
         "path",
         "reason",
     ),
@@ -194,7 +200,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "validation.rtklib_option_value_invalid": MessageTemplate(
-        "The RTKLIB configuration file gives '%1', where %2 was expected.",
+        "The RTKLIB configuration file gives '%1', where %2 was expected. Correct that option "
+        "in the file.",
         "received",
         "expected",
     ),
@@ -206,13 +213,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.pos_format_unrecognised": MessageTemplate(
         "'%1' is not a solution format GeoComp reads: its column header is '%2'. GeoComp "
-        "reads latitude/longitude/height, ECEF X/Y/Z and ENU baseline solutions.",
+        "reads latitude/longitude/height, ECEF X/Y/Z and ENU baseline solutions. Process the "
+        "session again in one of those formats.",
         "file",
         "received",
     ),
     "data.pos_record_too_short": MessageTemplate(
         "A record of '%1' has %2 columns, where at least %3 were expected for the %4 format. "
-        "The file is truncated or damaged.",
+        "The file is truncated or damaged. Process the session again to write it afresh.",
         "file",
         "columns",
         "required",
@@ -220,18 +228,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.pos_epoch_time_unreadable": MessageTemplate(
         "A record of '%1' has a time GeoComp cannot read: '%2'. RTKLIB writes either a GPS "
-        "week and second, or a date and time.",
+        "week and second, or a date and time. Check that the file is the .pos RTKLIB wrote, "
+        "unedited.",
         "file",
         "received",
     ),
     "data.pos_solution_status_unknown": MessageTemplate(
         "A record of '%1' has the solution status '%2'; RTKLIB writes 1 to 6 (fix, float, "
-        "SBAS, DGPS, single, PPP).",
+        "SBAS, DGPS, single, PPP). Check that the file is the .pos RTKLIB wrote, unedited.",
         "file",
         "received",
     ),
     "data.pos_value_not_a_number": MessageTemplate(
-        "A record of '%1' has '%2' where a number belongs.",
+        "A record of '%1' has '%2' where a number belongs. Check that the file is the .pos "
+        "RTKLIB wrote, unedited.",
         "file",
         "received",
     ),
@@ -274,23 +284,24 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "path",
     ),
     "data.rinex_file_empty": MessageTemplate(
-        "'%1' is empty: a RINEX file starts with a header.",
+        "'%1' is empty: a RINEX file starts with a header. Choose the file the receiver or "
+        "its converter wrote.",
         "file",
     ),
     "data.rinex_header_missing": MessageTemplate(
         "'%1' is not a RINEX file: its first record is '%2', where RINEX VERSION / TYPE was "
-        "expected.",
+        "expected. Choose the file the receiver or its converter wrote.",
         "file",
         "received",
     ),
     "data.rinex_header_unterminated": MessageTemplate(
         "The header of '%1' never ends: there is no END OF HEADER record. The file is "
-        "truncated, or is not RINEX.",
+        "truncated, or is not RINEX. Convert the receiver's data to RINEX again.",
         "file",
     ),
     "data.rinex_version_malformed": MessageTemplate(
         "'%1' gives its RINEX version as '%2', which is not a version number such as 2.11 or "
-        "3.04.",
+        "3.04. Correct the RINEX VERSION / TYPE record, or convert the data again.",
         "file",
         "received",
     ),
@@ -303,12 +314,13 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # -- baselines, loops, comparisons and reference stations (P12c-7) ---------
     "data.baseline_between_one_station": MessageTemplate(
         "The baseline '%1' starts and ends at the same station, '%2'. A baseline joins two "
-        "distinct stations.",
+        "distinct stations. Correct the station at one of its ends.",
         "baseline",
         "station",
     ),
     "data.baseline_component_count": MessageTemplate(
-        "The baseline '%1' has %2 components, where three were expected.",
+        "The baseline '%1' has %2 components, where three were expected. Give three: X, Y and "
+        "Z, or east, north and up.",
         "baseline",
         "received",
     ),
@@ -319,8 +331,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.baseline_covariance_size": MessageTemplate(
-        "The baseline '%1' has a covariance of size %2, where a 3 by 3 over its components was "
-        "expected.",
+        "The baseline '%1' has a covariance of size %2, where a 3 by 3 over its components "
+        "was expected. Give its full 3 by 3 covariance.",
         "baseline",
         "received",
     ),
@@ -331,17 +343,17 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.baseline_already_local": MessageTemplate(
         "The baseline '%1' has already been rotated into local east, north and up; it is "
-        "rotated once, from ECEF.",
+        "rotated once, from ECEF. Rotate the ECEF baseline, not the rotated one.",
         "baseline",
     ),
     "validation.antenna_height_already_reduced": MessageTemplate(
         "The baseline '%1' already carries its antenna-height reduction; a second would "
-        "double the offset.",
+        "double the offset. Reduce the baseline the engine solved, not one already reduced.",
         "baseline",
     ),
     "validation.antenna_reduction_needs_ecef": MessageTemplate(
         "The antenna heights of the baseline '%1' are reduced while it is ECEF, before it is "
-        "rotated; it is %2.",
+        "rotated; it is %2. Reduce the antenna heights before rotating it.",
         "baseline",
         "received",
     ),
@@ -353,17 +365,19 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "end",
     ),
     "data.baseline_cluster_empty": MessageTemplate(
-        "The GNSS cluster '%1' has no baselines.",
+        "The GNSS cluster '%1' has no baselines. Add its baselines, or remove the cluster.",
         "cluster",
     ),
     "data.baseline_cluster_mixed_frames": MessageTemplate(
-        "The GNSS cluster '%1' mixes frames (%2); every baseline of a cluster is in one frame.",
+        "The GNSS cluster '%1' mixes frames (%2); every baseline of a cluster is in one "
+        "frame. Split it by frame, or transform its baselines into one.",
         "cluster",
         "received",
     ),
     "validation.gnss_loop_too_short": MessageTemplate(
         "A GNSS loop needs at least three stations, and %1 were given: a two-station loop "
-        "retraces one baseline and closes by construction.",
+        "retraces one baseline and closes by construction. Add the stations that close the "
+        "loop.",
         "received",
     ),
     "validation.gnss_loop_repeats_a_station": MessageTemplate(
@@ -378,8 +392,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "rover",
     ),
     "data.gnss_loop_leg_not_ecef": MessageTemplate(
-        "The leg '%1' of a GNSS loop is in %2. A loop sums its legs, and local east, north and "
-        "up differ from station to station, so every leg must be ECEF.",
+        "The leg '%1' of a GNSS loop is in %2. A loop sums its legs, and local east, north "
+        "and up differ from station to station, so every leg must be ECEF. Process its "
+        "session again with ECEF output.",
         "baseline",
         "frame",
     ),
@@ -390,18 +405,18 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.comparison_needs_two_configurations": MessageTemplate(
         "A comparison needs at least two processing configurations, and %1 were given: a "
-        "configuration compared with itself says nothing.",
+        "configuration compared with itself says nothing. Add another configuration.",
         "received",
     ),
     "data.comparison_reference_not_found": MessageTemplate(
-        "'%1' is not one of the configurations compared; expected %2.",
+        "'%1' is not one of the configurations compared; expected %2. Choose one of those.",
         "received",
         "expected",
     ),
     "data.comparison_mixed_station_pairs": MessageTemplate(
         "The configurations compared are of different station pairs (%1). Comparing "
         "configurations needs one station pair in all of them; two different baselines "
-        "measure the network instead.",
+        "measure the network instead. Compare the configurations of one baseline at a time.",
         "received",
     ),
     "data.comparison_mixed_frames": MessageTemplate(
@@ -414,15 +429,18 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "file",
     ),
     "data.reference_station_database_unreadable": MessageTemplate(
-        "The reference station database '%1' could not be read: %2.",
+        "The reference station database '%1' could not be read: %2. Correct the file, or "
+        "choose another database.",
         "file",
         "received",
     ),
     "data.reference_station_without_id": MessageTemplate(
-        "A station in the reference station database has no id; every station needs one.",
+        "A station in the reference station database has no id; every station needs one. Give "
+        "it an id.",
     ),
     "data.duplicate_reference_station": MessageTemplate(
-        "The station '%1' appears more than once in the reference station database.",
+        "The station '%1' appears more than once in the reference station database. Remove "
+        "one of its entries.",
         "station",
     ),
     "data.reference_station_without_frame": MessageTemplate(
@@ -433,7 +451,7 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.reference_station_position_count": MessageTemplate(
         "The reference station '%1' has %2 coordinates, where three geocentric components "
-        "were expected.",
+        "were expected. Give its X, Y and Z.",
         "station",
         "received",
     ),
@@ -444,7 +462,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "received",
     ),
     "data.reference_station_not_found": MessageTemplate(
-        "The station '%1' is not in the reference station database; expected %2.",
+        "The station '%1' is not in the reference station database; expected %2. Add the "
+        "station to the database, or choose one of those.",
         "station",
         "expected",
     ),
@@ -463,12 +482,12 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "data.trajectory_point_frame": MessageTemplate(
         "A trajectory point's covariance is over %1, where local east, north and up "
-        "components were expected.",
+        "components were expected. This is an internal error; please report it.",
         "received",
     ),
     "data.trajectory_covariance_not_local": MessageTemplate(
         "A trajectory point's covariance is over %1, where local east, north and up "
-        "components were expected.",
+        "components were expected. This is an internal error; please report it.",
         "received",
     ),
     # -- GNSS sessions in the project (P12c-7) ----------------------------------
@@ -482,8 +501,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "end",
     ),
     "data.antenna_height_unit": MessageTemplate(
-        "The antenna height of the GNSS session '%1' is in %2; an antenna height is a length in "
-        "metres.",
+        "The antenna height of the GNSS session '%1' is in %2; an antenna height is a length "
+        "in metres. Give it in metres.",
         "session",
         "received",
     ),
