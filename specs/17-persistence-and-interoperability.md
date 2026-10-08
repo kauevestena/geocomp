@@ -232,6 +232,15 @@ the spreadsheet saved with them is read. A date cell arrives as its serial numbe
 a date column. **Stations as well as observations:** *Total station network*'s approximate coordinates are
 also read from a CSV or `.xlsx` table — a station, its easting, its northing and its height on each row —
 where until P12c-13 only a JSON document was accepted (`tests/test_spreadsheet_import.py`).
+**As built (P12c-44): from a layer of the project as well** (FR-320). Both book imports take the book as a
+table layer instead of a file -- its field names the header, each feature a row, every value as the text a CSV
+of it would hold, so one mapping reads the book whichever way it arrives, and a whole number held in a decimal
+field is `12`, not `12.0`, because station names are often numbers. *Classical network* takes its approximate
+coordinates from a point layer: a field names each station, a second field or the point's Z gives its height,
+and a layer in another CRS is carried into the network's horizontally, the heights kept as given. Exactly one
+of a file and a layer is given, and either refusal names both inputs. A station named twice, one without a
+name, a position or a height, and a feature of several points are each refused by station
+(`tests/qgis/test_layer_sources.py`).
 **The preview reads only what it shows.** The mapping dialog runs on the GUI thread, so a workbook is
 streamed there and left after the rows the preview displays, and its string table is read only as far as
 they reach into it (NFR-004). As first built it read the whole workbook: 0.4 s at 5,000 rows, 2 s at 20,000.

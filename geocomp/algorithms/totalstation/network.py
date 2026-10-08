@@ -32,10 +32,13 @@ from qgis.core import (
     QgsProcessingFeedback,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
+    QgsProcessingParameterField,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
+    QgsProcessingParameterVectorLayer,
+    QgsWkbTypes,
 )
 
 from geocomp.algorithms.analysis.common import (
@@ -57,6 +60,7 @@ from geocomp.algorithms.layer_outputs import (
     add_result_layer_parameters,
     write_result_layers,
 )
+from geocomp.algorithms.layer_sources import file_or_layer, point_type, stations_of_layer
 from geocomp.algorithms.reporting import (
     escape,
     exact,
@@ -96,6 +100,9 @@ __all__ = ["ClassicalNetworkAlgorithm"]
 
 REDUCTIONS = "REDUCTIONS"
 APPROXIMATE = "APPROXIMATE"
+APPROXIMATE_LAYER = "APPROXIMATE_LAYER"
+STATION_FIELD = "STATION_FIELD"
+HEIGHT_FIELD = "HEIGHT_FIELD"
 DIMENSION = "DIMENSION"
 DATUM = "DATUM"
 FIXED_STATIONS = "FIXED_STATIONS"
@@ -184,6 +191,12 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             "its easting, its northing and its height on each row. Required, not derived: "
             "the linearised model needs a point to linearise about, and a traverse or a "
             "resection is how a surveyor obtains one.</p>"
+            "<p><b>Approximate coordinates, as a point layer of the project</b> &mdash; the "
+            "alternative to the file: each point a station, named by the <b>field naming "
+            "each station</b>, its height from the <b>field holding each station's "
+            "height</b> or, with none named, from the point's Z. A layer in another CRS is "
+            "carried into the network's, horizontally; the heights are kept as given. Give "
+            "the file or the layer, not both.</p>"
             "<p><b>Dimension</b> &mdash; which of 2D, 3D and 1D to adjust in. It decides "
             "which reduced quantities become observations: a 2D adjustment takes directions "
             "and horizontal distances, a 3D one takes directions, zenith angles and slope "
@@ -237,6 +250,31 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 APPROXIMATE,
                 self.tr("Approximate coordinates"),
                 fileFilter=self.tr("Coordinates (*.json *.csv *.xlsx);;All files (*)"),
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterVectorLayer(
+                APPROXIMATE_LAYER,
+                self.tr("Approximate coordinates, as a point layer of the project"),
+                types=[point_type()],
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterField(
+                STATION_FIELD,
+                self.tr("Field naming each station"),
+                parentLayerParameterName=APPROXIMATE_LAYER,
+                optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterField(
+                HEIGHT_FIELD,
+                self.tr("Field holding each station's height (the points' Z when none)"),
+                parentLayerParameterName=APPROXIMATE_LAYER,
+                optional=True,
             )
         )
         self.addParameter(
@@ -339,8 +377,6 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         results = read_reductions(
             self.parameterAsFile(parameters, REDUCTIONS, context), needs_heights=dimension == 3
         )
-        approximate = self._approximate(self.parameterAsFile(parameters, APPROXIMATE, context))
-
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context))
         fixed_names = station_list(self.parameterAsString(parameters, FIXED_STATIONS, context))
         crs = self.parameterAsString(parameters, CRS, context).strip()
@@ -355,6 +391,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 )
             )
         confidence = self.parameterAsDouble(parameters, CONFIDENCE, context)
+        approximate = self._approximate(parameters, context, crs, feedback)
 
         missing = sorted(set(fixed_names or ()) - set(approximate))
         if missing:
@@ -496,7 +533,44 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
     # -- inputs ----------------------------------------------------------
 
-    def _approximate(self, path: str) -> dict[str, tuple[float, float, float]]:
+    def _approximate(
+        self, parameters, context, crs: str, feedback
+    ) -> dict[str, tuple[float, float, float]]:
+        """The stations to linearise about, from the file or the point layer -- exactly one (FR-320)."""
+        path, layer = file_or_layer(
+            self, parameters, context, file=APPROXIMATE, layer=APPROXIMATE_LAYER
+        )
+        if layer is None:
+            return self._approximate_file(path)
+        name_field = self.parameterAsString(parameters, STATION_FIELD, context)
+        height_field = self.parameterAsString(parameters, HEIGHT_FIELD, context)
+        if not name_field:
+            raise QgsProcessingException(
+                self.about_input(
+                    STATION_FIELD,
+                    self.tr("Name the field of '%1' that holds each station's name.").replace(
+                        "%1", layer.name()
+                    ),
+                )
+            )
+        if not height_field and not QgsWkbTypes.hasZ(layer.wkbType()):
+            raise QgsProcessingException(
+                self.about_input(
+                    HEIGHT_FIELD,
+                    self.tr("The points of '%1' have no Z. Name the field that holds each "
+                            "station's height.").replace("%1", layer.name()),
+                )
+            )
+        return stations_of_layer(
+            layer,
+            name_field=name_field,
+            height_field=height_field,
+            crs=crs,
+            context=context,
+            feedback=feedback,
+        )
+
+    def _approximate_file(self, path: str) -> dict[str, tuple[float, float, float]]:
         if path.lower().endswith((".csv", ".xlsx")):
             # FR-160: stations from a table as well as observations from a book.
             try:

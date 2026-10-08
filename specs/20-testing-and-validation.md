@@ -543,7 +543,7 @@ without a row.
 | FR-133 | **met** | As 17.2 |
 | FR-134 | **met** | `tests/test_project_store.py::TestProvenance` |
 | FR-135 | **met** | As 17.3 |
-| FR-160 | **met** | Since P12c-13, `.xlsx` as well as CSV, for both field books and for stations' coordinates (`tests/test_spreadsheet_import.py`, `tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain`); until then CSV alone. The mapping saved by name and reused, As 17.4 |
+| FR-160 | **met** | Since P12c-13, `.xlsx` as well as CSV, for both field books and for stations' coordinates (`tests/test_spreadsheet_import.py`, `tests/qgis/test_totalstation_algorithms.py::TestTheWholeChain`); until then CSV alone. Since P12c-44 a table layer of the project as well, and stations from a point layer (`tests/qgis/test_layer_sources.py`). The mapping saved by name and reused, As 17.4 |
 | FR-161 | **met** | As 17.7 |
 | FR-162 | **met** | `tests/test_export.py::TestCsv`, `tests/test_export.py::TestTheWorkbook` |
 | FR-163 | **met** | As 07.1, and the cluster at full precision As 07.2 |
@@ -585,7 +585,7 @@ without a row.
 | FR-304 | **met** | Captured (`tests/test_engines.py`); a timeout told from a failure (`tests/test_engines.py::test_a_timeout_is_distinguished_from_a_failure`) and reported with elapsed time and limit since P12c-11 (`tests/test_engine_timeouts.py`); the limit configurable on every algorithm that runs an engine (`tests/qgis/test_engine_runs.py::TestTheTimeLimit`) |
 | FR-305 | **met** | `tests/qgis/test_engine_messages.py`; every engine failure's template shows the engine's own words, `tests/structural/test_message_templates.py::test_an_engine_failure_shows_the_engines_own_message` |
 | FR-306 | **met** | As 07.7 and 21.3; `tests/test_rtklib_engine.py::TestGracefulAbsence` |
-| FR-320 | **partly met** | From a GeoComp network document (`tests/test_dynadjust_pipeline.py::TestPrepare`), which the field-book imports make from CSV and `.xlsx` and the GNSS and integration algorithms make from their results. Since P12c-24 also straight from a project store, a GeoPackage or a PostgreSQL schema (`tests/qgis/test_engine_runs.py::TestFromTheProjectStore`, `tests/qgis/test_postgis_project.py::TestAdjustingStraightFromTheDatabase`). Not from a QGIS layer of the user's own design: stations as points and observations as table rows would need a field mapping that does not exist (`specs/07` §4) |
+| FR-320 | **partly met** | From a GeoComp network document (`tests/test_dynadjust_pipeline.py::TestPrepare`), which the field-book imports make from CSV, `.xlsx` and, since P12c-44, a table layer of the project, with *Classical network*'s stations from a point layer (`tests/qgis/test_layer_sources.py`), and the GNSS and integration algorithms make from their results. Since P12c-24 also straight from a project store, a GeoPackage or a PostgreSQL schema (`tests/qgis/test_engine_runs.py::TestFromTheProjectStore`, `tests/qgis/test_postgis_project.py::TestAdjustingStraightFromTheDatabase`). Not from a total-station network, found in P12c-44: *Adjust with DynAdjust* refuses a projected network, deriving no projection from its CRS and no undulation for its orthometric heights, and a 2D network's horizontal distances have no DynAdjust measurement type (`specs/07` §4) |
 | FR-321 | **met** | As 07.3; which stages ran and why, `tests/test_dynadjust_pipeline.py::TestThePlan`. `dnaplot` is not driven: GeoComp draws the result itself (FR-324) |
 | FR-322 | **met** | As 07.4 |
 | FR-323 | **met** | `tests/test_dynadjust_solution.py`; cross-validated against the in-house Solution, As 06.6 |

@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import csv
 import json
-from pathlib import Path
 from typing import Any
 
 from qgis.core import (
@@ -33,6 +32,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.algorithms.defaults import configured
 from geocomp.algorithms.labels import in_words
+from geocomp.algorithms.layer_sources import book_layer_parameter, book_rows
 from geocomp.algorithms.reporting import escape, render_document, render_table
 from geocomp.algorithms.totalstation.common import (
     findings_table,
@@ -43,12 +43,12 @@ from geocomp.algorithms.totalstation.common import (
 )
 from geocomp.core.errors import GeoCompError
 from geocomp.io import read_field_book
-from geocomp.io.tabular import read_rows
 from geocomp.services.messages import message_for
 
 __all__ = ["ImportFieldBookAlgorithm"]
 
 SOURCE = "SOURCE"
+SOURCE_LAYER = "SOURCE_LAYER"
 MAPPING = "MAPPING"
 PROFILES = "PROFILES"
 SIGMA_DIRECTION = "SIGMA_DIRECTION"
@@ -92,8 +92,10 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
             "one the import refuses: GeoComp does not invent a standard deviation, because a "
             "fabricated weight silently corrupts every statistic computed from it.</p>"
             "<h3>Parameters</h3>"
-            "<p><b>Field book</b> &mdash; the CSV file. <b>Field mapping</b> &mdash; a saved "
-            "mapping document (JSON); empty infers one.</p>"
+            "<p><b>Field book</b> &mdash; the CSV or .xlsx file. <b>Field book, as a layer "
+            "of the project</b> &mdash; the alternative: a table of your own design, its "
+            "fields read as the file's columns are. Give one of the two. <b>Field "
+            "mapping</b> &mdash; a saved mapping document (JSON); empty infers one.</p>"
             "<p><b>Instrument profiles</b> &mdash; a profile library (JSON). Empty uses a "
             "generic total station of 2 mm + 2 ppm and 5 arcseconds, and everything computed "
             "from it is marked approximate.</p>"
@@ -115,8 +117,10 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
                 SOURCE,
                 self.tr("Field book"),
                 fileFilter=self.tr("Field books (*.csv *.xlsx);;All files (*)"),
+                optional=True,
             )
         )
+        self.addParameter(book_layer_parameter(SOURCE_LAYER))
         self.addParameter(
             QgsProcessingParameterFile(
                 MAPPING, self.tr("Field mapping"), extension="json", optional=True
@@ -200,20 +204,11 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        source = Path(self.parameterAsFile(parameters, SOURCE, context))
-        if not source.is_file():
-            raise QgsProcessingException(
-                self.tr("The field book '%1' does not exist. Check the path.").replace("%1", str(source))
-            )
-
-        try:
-            rows = read_rows(source)
-        except GeoCompError as error:
-            raise QgsProcessingException(message_for(error)) from error
+        rows, source_name = book_rows(self, parameters, context, file=SOURCE, layer=SOURCE_LAYER)
         if not rows:
             raise QgsProcessingException(
                 self.tr("The field book '%1' is empty. Check that you chose the book the "
-                        "instrument exported.").replace("%1", str(source))
+                        "instrument exported.").replace("%1", source_name)
             )
 
         mapping = load_mapping(self.parameterAsFile(parameters, MAPPING, context), rows[0])
@@ -227,7 +222,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(20)
         feedback.pushInfo(
             self.tr("Reading '%1' with mapping '%2'…")
-            .replace("%1", source.name)
+            .replace("%1", source_name)
             .replace("%2", mapping.name)
         )
         try:
@@ -238,7 +233,8 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
                 # The mapping given, or, with none, the one inferred from the
                 # field book's own header: whichever it was is the input at fault.
                 given = self.parameterAsFile(parameters, MAPPING, context)
-                message = self.about_input(MAPPING if given else SOURCE, message)
+                book = SOURCE if self.parameterAsFile(parameters, SOURCE, context) else SOURCE_LAYER
+                message = self.about_input(MAPPING if given else book, message)
             raise QgsProcessingException(message) from exc
 
         feedback.setProgress(60)
@@ -256,7 +252,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
                 )
             )
 
-        outputs = self._write(parameters, context, source, mapping, result)
+        outputs = self._write(parameters, context, source_name, mapping, result)
         feedback.setProgress(100)
 
         if result.rejected_rows and self.parameterAsBool(parameters, FAIL_ON_REJECTED, context):
@@ -275,12 +271,12 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
 
     # -- outputs ---------------------------------------------------------
 
-    def _write(self, parameters, context, source, mapping, result) -> dict[str, Any]:
+    def _write(self, parameters, context, source_name, mapping, result) -> dict[str, Any]:
         readings = self.parameterAsFileOutput(parameters, OUTPUT_READINGS, context)
         if readings:
             with open(readings, "w", encoding="utf-8") as handle:
                 json.dump(
-                    _readings_document(source, mapping, result),
+                    _readings_document(source_name, mapping, result),
                     handle,
                     indent=2,
                     sort_keys=True,
@@ -290,7 +286,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         html_target = self.parameterAsFileOutput(parameters, OUTPUT_HTML, context)
         if html_target:
             with open(html_target, "w", encoding="utf-8") as handle:
-                handle.write(self._render(source, mapping, result))
+                handle.write(self._render(source_name, mapping, result))
 
         findings_csv = self.parameterAsFileOutput(parameters, OUTPUT_FINDINGS, context)
         if findings_csv:
@@ -313,9 +309,9 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
             OUTPUT_FINDINGS: findings_csv,
         }
 
-    def _render(self, source, mapping, result) -> str:
+    def _render(self, source_name, mapping, result) -> str:
         summary = [
-            [escape(self.tr("Field book")), escape(source.name)],
+            [escape(self.tr("Field book")), escape(source_name)],
             [escape(self.tr("Field mapping")), escape(mapping.name)],
             [escape(self.tr("Angle format")), escape(in_words(mapping.angle_format))],
             [escape(self.tr("Rows read")), escape(result.row_count)],
@@ -368,7 +364,7 @@ class ImportFieldBookAlgorithm(GeoCompAlgorithm):
         )
 
 
-def _readings_document(source, mapping, result) -> dict[str, Any]:
+def _readings_document(source_name, mapping, result) -> dict[str, Any]:
     """The readings document the rest of the group consumes.
 
     Setups serialised with their face pairs and singles, each reading carrying
@@ -379,7 +375,7 @@ def _readings_document(source, mapping, result) -> dict[str, Any]:
     return {
         "kind": "geocomp.readings",
         "version": 1,
-        "source": source.name,
+        "source": source_name,
         "mapping": mapping.to_dict(),
         "setups": [
             {

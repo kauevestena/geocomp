@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-44 — Field books and stations from your project's layers
+
+#### Added
+
+- *Import total station field book* and *Import levelling book* read the field book from a table layer of
+  your project, as well as from a CSV or `.xlsx` file, through the same field mapping.
+- *Classical network* takes its approximate coordinates from a point layer: name the field that names each
+  station, and the field that holds its height, or use the points' Z. A layer in another CRS is carried into
+  the network's.
+
+#### Found
+
+- *Adjust with DynAdjust* refuses a network in a projected CRS, which every *Classical network* is, whether it
+  came from files or layers.
+
 ### P12c-43 — GNSS configurations compared side by side
 
 #### Added

@@ -2930,6 +2930,36 @@ marked when moved, and a matrix indefinite beyond that is still refused (specs/0
 with one solution, so its differences are zero. Two real runs are compared in tier 4, through the core, not
 through the algorithm and its report.
 
+#### P12c-44 — field books and stations from the project's own layers (FR-320, FR-160)
+
+FR-320 was partly met because a QGIS layer of the user's own design was not read: stations as points and
+observations as table rows "would need a field mapping that does not exist" (P12c-24). The field books' own
+mapping was that mapping. *Import total station field book* and *Import levelling book* now take the book as a
+table layer instead of a file -- the field names its header, each feature a row, each value the text a CSV of it
+would hold -- and write the same document from it as from the file, with the numeric fields typed as numbers or
+not. *Classical network* takes its approximate coordinates from a point layer: a field names each station, a
+second field or the point's Z gives its height, and a layer in another CRS is carried into the network's,
+horizontally. RD-01, moved into the area EPSG:31982 is defined for, adjusts to the same answer from a point
+layer in that CRS, exactly, and from one in
+EPSG:4326 to a few nanometres. Exactly one of a file and a layer is given; both and neither are refused,
+naming the two inputs, and a station the layer cannot place is refused by name
+(`geocomp/algorithms/layer_sources.py`, `tests/qgis/test_layer_sources.py`).
+
+**Found while doing it.** The end-to-end test was to carry RD-01 from its layers into DynAdjust's input, and it
+cannot be carried there from its files either. *Adjust with DynAdjust* refuses a network in a projected CRS:
+the job has a `projection` field the writer needs, and the algorithm never sets it, although the combination
+algorithms derive one from the CRS through QGIS. It gives no geoid undulation for a projected network's
+orthometric heights either, and a 2D network's horizontal distances have no DynAdjust measurement type. specs/07
+§4 and the register said the field-book imports' networks reached DynAdjust; a total-station network does not,
+and both now say so. That is P12c-45.
+
+**Register.** FR-320 stays partly met, for a different reason: the layers are read, and a total-station network
+does not reach DynAdjust. FR-160's row records the layer. 167 met, 8 partly met, 1 open.
+
+**Not done.** Only *Classical network* takes stations from a layer. A levelling network's known heights, a
+traverse's known stations and a gravity network's stations still come from files. A layer's geometry is not read
+as a field book's: where the book was observed from is the network's business.
+
 ---
 
 ## P13 — Validation, documentation and release
