@@ -598,6 +598,59 @@ class TestAPartialNetwork:
         assert len(prepared.skipped) == 1
         assert prepared.measurement_file.is_file()
 
+    def test_a_direction_set_of_one_does_not_make_it_partial(self, tmp_path) -> None:
+        """Leaving it out changes nothing, so it is reported and not refused (P12c-45).
+
+        Until P12c-45 it was refused with the rest, and RD-01 -- whose station 3
+        sights one target -- reached DynAdjust only with ``allow_partial``, which
+        no algorithm sets. That leaving it out changes nothing is
+        ``TestATerrestrialNetworkCrossValidates.test_the_lone_direction_set_carries_no_information``.
+        """
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+
+        network = TestATerrestrialNetworkCrossValidates.network()
+        prepared = DynAdjustEngine().prepare(
+            DynAdjustJob(
+                network=network,
+                name="rd01",
+                target_frame="GDA2020",
+                target_epoch=Epoch.from_decimal_year(2020.0),
+                projection=utm_parameters(22, southern_hemisphere=True, ellipsoid=ELLIPSOIDS["GRS80"]),
+                geoid_undulations=dict.fromkeys(network.stations, -4.0),
+            ),
+            tmp_path,
+        )
+        assert [identifier for identifier, _reason in prepared.skipped] == ["3-dir-1"]
+
+    def test_it_does_not_hide_one_that_does(self, tmp_path) -> None:
+        """RD-01 with a horizontal distance as well: partial, for the distance alone."""
+        from geocomp.core.geodesy import ELLIPSOIDS, utm_parameters
+        from geocomp.core.models import Observation, ObservationType
+
+        network = TestATerrestrialNetworkCrossValidates.network()
+        network.observations["h1"] = Observation(
+            id="h1",
+            type=ObservationType.HORIZONTAL_DISTANCE,
+            stations=("1", "2"),
+            values=(Quantity(13.18, 0.002**2, Unit.METRE),),
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            DynAdjustEngine().prepare(
+                DynAdjustJob(
+                    network=network,
+                    name="rd01",
+                    target_frame="GDA2020",
+                    target_epoch=Epoch.from_decimal_year(2020.0),
+                    projection=utm_parameters(22, southern_hemisphere=True, ellipsoid=ELLIPSOIDS["GRS80"]),
+                    geoid_undulations=dict.fromkeys(network.stations, -4.0),
+                ),
+                tmp_path,
+            )
+        assert excinfo.value.context["skipped"] == 1
+        assert excinfo.value.context["reasons"] == [
+            "DynAdjust has no measurement type for horizontal_distance"
+        ]
+
     def test_a_network_that_maps_completely_is_untouched_by_this(
         self, network, tmp_path
     ) -> None:
@@ -920,7 +973,7 @@ class TestATerrestrialNetworkCrossValidates:
                 # The one skipped observation is station 3's direction set of
                 # one, which carries its own orientation unknown and therefore
                 # no information at all -- asserted below rather than assumed.
-                allow_partial=True,
+                # Not partial, so not refused (P12c-45; allow_partial until then).
             ),
             tmp_path,
         )

@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import csv
 import json
-import math
 import tempfile
 from pathlib import Path
 from typing import Any, ClassVar
@@ -55,10 +54,9 @@ from geocomp.algorithms.defaults import configured, configured_epoch
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.labels import engine_label, in_words, technique_label
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
+from geocomp.algorithms.projection import projection_of
 from geocomp.core.errors import GeoCompError, ValidationError
-from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
 from geocomp.core.geodesy.frames import FRAME_NAMES, canonical_frame
-from geocomp.core.geodesy.projection import ProjectionParameters, utm_parameters
 from geocomp.core.models import (
     ConstraintMode,
     ConstraintSpec,
@@ -698,40 +696,6 @@ def _grids(networks: list[Network]) -> dict[str, GridFrame]:
             continue
         grids[crs] = GridFrame(frame=frame, projection=projection)
     return grids
-
-
-def projection_of(proj: str) -> ProjectionParameters | None:
-    """A UTM or Transverse Mercator PROJ definition on GRS80, as parameters.
-
-    ``None`` for anything else: the combination then refuses the input by name,
-    which is better than placing it with a projection it is not in.
-    """
-    tokens: dict[str, str] = {}
-    for token in proj.split():
-        key, _, value = token.lstrip("+").partition("=")
-        tokens[key] = value
-    # Stated, not defaulted: "+datum=WGS84" names no ellipsoid and is not GRS80.
-    if tokens.get("ellps") != "GRS80":
-        return None
-    ellipsoid = ELLIPSOIDS["GRS80"]
-    try:
-        if tokens.get("proj") == "utm":
-            return utm_parameters(
-                int(tokens["zone"]), southern_hemisphere="south" in tokens, ellipsoid=ellipsoid
-            )
-        if tokens.get("proj") == "tmerc":
-            return ProjectionParameters(
-                ellipsoid=ellipsoid,
-                central_meridian=math.radians(float(tokens.get("lon_0", 0.0))),
-                latitude_of_origin=math.radians(float(tokens.get("lat_0", 0.0))),
-                scale_factor=float(tokens.get("k", tokens.get("k_0", 1.0))),
-                false_easting=float(tokens.get("x_0", 0.0)),
-                false_northing=float(tokens.get("y_0", 0.0)),
-                name=proj,
-            )
-    except (KeyError, ValueError, GeoCompError):
-        return None
-    return None
 
 
 def _with(network: Network, other: Network) -> Network:

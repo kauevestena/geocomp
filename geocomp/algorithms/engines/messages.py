@@ -186,8 +186,8 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     "validation.dynadjust_geoid_grid_required": MessageTemplate(
         "The network '%1' has orthometric heights, and DynAdjust cannot relate them to "
-        "ellipsoidal heights without a geoid model. Give a geoid grid (NTv2) in the dialog, "
-        "or a geoid undulation for each station.",
+        "ellipsoidal heights without a geoid model. Give a geoid grid (NTv2), or, for a network "
+        "in a projected CRS, the geoid undulation N.",
         "network",
     ),
     "validation.dynadjust_network_would_be_partial": MessageTemplate(
@@ -206,11 +206,11 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "station",
     ),
     "validation.dynadjust_cannot_write_projected_coordinates": MessageTemplate(
-        "Station '%1' has projected coordinates (%2, %3), and GeoComp cannot tell which "
-        "projection that coordinate system is, so it cannot give DynAdjust the latitude and "
-        "longitude it needs. Give the stations geodetic or geocentric coordinates.",
+        "Station '%1' is in %2, a projected CRS GeoComp cannot carry to the latitude and "
+        "longitude DynAdjust needs: it inverts UTM and Transverse Mercator on GRS80, with all of "
+        "a network's stations in one CRS. Give the stations geodetic or geocentric coordinates, "
+        "or put the network in such a CRS.",
         "station",
-        "received",
         "crs",
     ),
     "validation.dynadjust_orthometric_height_needs_a_geoid_model": MessageTemplate(

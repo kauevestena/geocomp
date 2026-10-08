@@ -374,3 +374,161 @@ class TestAPointLayerRefused:
         self._refused(
             reduced, tmp_path, match, APPROXIMATE_LAYER=layer, STATION_FIELD="station", HEIGHT_FIELD="height"
         )
+
+
+class TestDynAdjustInputFromLayers:
+    """FR-320 end to end: observations and stations held in the project's layers, written for DynAdjust.
+
+    RD-01 twice through *Import field book*, *Generalised pre-processing*,
+    *Classical network* and DynAdjust stopped before running: once from its
+    files, once from a table layer and a point layer. DynAdjust's input must not
+    tell them apart. In three dimensions, because DynAdjust has no measurement
+    type for a horizontal distance; with the geoid undulation, because the
+    heights are orthometric on projected coordinates.
+    """
+
+    @staticmethod
+    def _job(
+        directory: Path, monkeypatch, *, book: dict, stations: dict, dimension: int = 1, **extra
+    ) -> tuple[Path, list[str]]:
+        """The job's folder, and what the run said."""
+        from qgis.core import QgsApplication, QgsProcessingContext
+
+        from geocomp.algorithms.engines import dynadjust_adjust
+        from tests.qgis.test_engine_runs import _feedback, _NeverDetected
+
+        directory.mkdir()
+        readings = _run(
+            "geocomp:totalstation_import_fieldbook",
+            {**book, **TOTAL_STATION, "OUTPUT_READINGS": str(directory / "readings.json")},
+        )["OUTPUT_READINGS"]
+        reduced = _run(
+            "geocomp:totalstation_preprocess",
+            {
+                "READINGS": readings,
+                "APPLY_ATMOSPHERIC": False,
+                "OUTPUT_REDUCED": str(directory / "reduced.json"),
+            },
+        )["OUTPUT_REDUCED"]
+        network = _run(
+            "geocomp:totalstation_network",
+            {
+                "REDUCTIONS": reduced,
+                **stations,
+                "DIMENSION": dimension,
+                "DATUM": 1,
+                "CRS": "EPSG:31982",
+                "OUTPUT_NETWORK": str(directory / "network.json"),
+            },
+        )["OUTPUT_NETWORK"]
+        monkeypatch.setattr(dynadjust_adjust, "dynadjust_engine", lambda directory=None: _NeverDetected())
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_dynadjust_adjust"
+        ).create({})
+        results, ok = algorithm.run(
+            {
+                "NETWORK": network,
+                **({"GEOID_UNDULATION": -4.0} | extra),
+                "FRAME": "SIRGAS2000",
+                "EPOCH": 2000.4,
+                "STOP_BEFORE_RUNNING": True,
+                "OUTPUT_WORK_DIR": str(directory / "job"),
+            },
+            QgsProcessingContext(),
+            feedback := _feedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        return Path(results["OUTPUT_WORK_DIR"]), feedback.infos
+
+    def test_dynadjust_is_given_the_same_input(self, tmp_path, monkeypatch):
+        from geocomp.engines.dynadjust.engine import MANIFEST
+
+        approximate = tmp_path / "approximate.json"
+        approximate.write_text(json.dumps(_stations()), encoding="utf-8")
+        from_files, _infos = self._job(
+            tmp_path / "files",
+            monkeypatch,
+            book={"SOURCE": str(rd01.RAW)},
+            stations={"APPROXIMATE": str(approximate)},
+        )
+        from_layers, infos = self._job(
+            tmp_path / "layers",
+            monkeypatch,
+            book={"SOURCE_LAYER": _layer(_csv_rows(rd01.RAW), rd01.RAW.name, typed=True)},
+            stations={
+                "APPROXIMATE_LAYER": _point_layer(_stations(), "EPSG:31982", with_z=True),
+                "STATION_FIELD": "station",
+            },
+        )
+        jobs = (from_files, from_layers)
+        manifests = [json.loads((job / MANIFEST).read_text(encoding="utf-8")) for job in jobs]
+        assert manifests[0]["network"]["observations"]
+        assert manifests[0]["network"]["observations"] == manifests[1]["network"]["observations"]
+        assert manifests[0]["network"]["stations"] == manifests[1]["network"]["stations"]
+        for name in ("station_file", "measurement_file"):
+            files = [
+                (job / manifest[name]).read_text(encoding="utf-8")
+                for job, manifest in zip(jobs, manifests, strict=True)
+            ]
+            assert files[0] == files[1], name
+        stations = (from_layers / manifests[1]["station_file"]).read_text(encoding="utf-8")
+        # Latitude and longitude, not an easting in XAxis; h = H + N, with N = -4 m.
+        assert stations.count("<Type>LLH</Type>") == 3 and "<Type>XYZ</Type>" not in stations
+        assert "<Height>96.2500</Height>" in stations
+        # Station 3's direction set of one is reported, and leaving it out changes nothing.
+        assert [skip[0] for skip in manifests[1]["skipped"]] == ["3-dir-1"]
+        assert "The heights of 3 station(s) are made ellipsoidal with N = -4.000 m." in infos
+
+    @staticmethod
+    def _files(tmp_path: Path) -> dict:
+        approximate = tmp_path / "approximate.json"
+        approximate.write_text(json.dumps(_stations()), encoding="utf-8")
+        return {"book": {"SOURCE": str(rd01.RAW)}, "stations": {"APPROXIMATE": str(approximate)}}
+
+    def test_a_plane_network_is_refused_for_its_horizontal_distances(self, tmp_path, monkeypatch):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException, match="have no DynAdjust equivalent"):
+            self._job(tmp_path / "run", monkeypatch, dimension=0, **self._files(tmp_path))
+
+    def test_its_orthometric_heights_need_the_undulation(self, tmp_path, monkeypatch):
+        from qgis.core import QgsProcessingException
+
+        with pytest.raises(QgsProcessingException, match="in a projected CRS, the geoid undulation N"):
+            self._job(tmp_path / "run", monkeypatch, GEOID_UNDULATION=None, **self._files(tmp_path))
+
+    def test_a_grid_and_an_undulation_are_refused(self, tmp_path, monkeypatch):
+        from qgis.core import QgsProcessingException
+
+        grid = tmp_path / "geoid.gsb"
+        grid.write_bytes(b"NUM_OREC")
+        with pytest.raises(QgsProcessingException, match="geoid grid and a geoid undulation were both given"):
+            self._job(tmp_path / "run", monkeypatch, GEOID_GRID=str(grid), **self._files(tmp_path))
+
+    @pytest.mark.parametrize(
+        ("crs", "central_meridian", "false_northing"),
+        [
+            ("EPSG:31982", -51.0, 10_000_000.0),
+            ("EPSG:31983", -45.0, 10_000_000.0),
+            ("EPSG:31976", -51.0, 0.0),
+        ],
+    )
+    def test_the_projection_is_read_from_the_crs(self, crs, central_meridian, false_northing):
+        """SIRGAS 2000 / UTM 22S, 23S and 22N, as QGIS's projection database names them."""
+        import math
+
+        from geocomp.algorithms.projection import projection_of_crs
+
+        projection = projection_of_crs(crs)
+        assert math.degrees(projection.central_meridian) == pytest.approx(central_meridian)
+        assert projection.false_northing == false_northing
+        assert projection.scale_factor == 0.9996
+        assert projection.ellipsoid.name == "GRS80"
+
+    @pytest.mark.parametrize("crs", ["EPSG:4326", "EPSG:3857", "EPSG:32722", "not a CRS"])
+    def test_a_crs_it_cannot_invert_is_none(self, crs):
+        """Geographic, not Transverse Mercator, not on GRS80 (WGS 84 / UTM 22S), and unknown."""
+        from geocomp.algorithms.projection import projection_of_crs
+
+        assert projection_of_crs(crs) is None

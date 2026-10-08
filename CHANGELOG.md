@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-45 — Classical networks adjust with DynAdjust
+
+#### Fixed
+
+- *Adjust with DynAdjust* refused every network in a projected CRS, which every *Classical network* is. It
+  now reads the projection from the network's CRS (UTM or Transverse Mercator on GRS80).
+- A station that sights a single target no longer makes DynAdjust refuse the network as partial. That
+  direction carries no information, and it is still listed as not written.
+- The log line listing the observations DynAdjust could not take failed with an error instead of listing them.
+
+#### Added
+
+- *Geoid undulation N*: for a projected network with orthometric heights, one undulation for every station,
+  in place of a geoid grid.
+
 ### P12c-44 — Field books and stations from your project's layers
 
 #### Added

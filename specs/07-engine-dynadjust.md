@@ -241,12 +241,15 @@ a field or from the point's Z, and carried into the network's CRS when the layer
 said a layer would need a field mapping that did not exist; the field books' own mapping was that mapping. The
 network document those algorithms write is DynAdjust's input as any other is.
 
-**Found then, not yet fixed.** A network in a projected CRS -- which every *Classical network* is -- is refused by
-*Adjust with DynAdjust*: the algorithm does not derive the projection from the CRS (§4.4), though the combination
-algorithms do (`geocomp/algorithms/integration/common.py::projection_of`), and gives no geoid undulation for
-the orthometric heights such a network carries. A 2D network's horizontal distances have, besides, no DynAdjust
-measurement type. So a total-station network does not yet reach DynAdjust, whatever it was read from; this
-section said, until P12c-44, that the field-book imports' networks did.
+**Found then, fixed in P12c-45.** A network in a projected CRS -- which every *Classical network* is -- was
+refused by *Adjust with DynAdjust*: the algorithm never set the job's projection, though the combination
+algorithms derived one from the CRS, and gave no geoid undulation for the orthometric heights such a network
+carries. So no total-station network reached DynAdjust, whatever it was read from, though this section said,
+until P12c-44, that the field-book imports' networks did. *As built (P12c-45)*, the algorithm reads the
+projection from the network's CRS through QGIS (§4.4) and takes a **geoid undulation N** for those heights,
+and a direction set of one no longer makes a network partial (§4.3 rule 6). RD-01 goes from its files, and from
+a table layer and a point layer, to the same DynAdjust input (`tests/qgis/test_layer_sources.py`). A 2D
+network is still refused, for its horizontal distances, which have no DynAdjust measurement type.
 
 ### 4.1 Format decision
 
@@ -435,7 +438,10 @@ GeoComp parses:
    observations were not in it. The pipeline therefore refuses unless `allow_partial` is set, which is a
    statement that a partial network is what was wanted. The writer itself still *reports* rather than
    refuses, because exporting part of a network is a legitimate thing to ask it for; the refusal belongs at
-   the layer whose promise is "adjust this network".
+   the layer whose promise is "adjust this network". *As built (P12c-45)*, an observation whose leaving out
+   changes nothing -- a direction set of one (§5.6) -- is reported with the rest and does not make the
+   network partial: adjusting the remainder is adjusting the whole. Until then RD-01, whose station 3 sights
+   one target, reached DynAdjust only with `allow_partial`, which no algorithm sets.
 
 ### 4.4 The station coordinate type follows the position [V]
 
@@ -446,9 +452,9 @@ setting. GeoComp writes:
 |---|---|---|
 | Cartesian | `XYZ` | geocentric X, Y, Z in metres |
 | Geodetic | `LLH` | latitude and longitude in HP notation, height in metres |
-| Projected | **refused** | — |
+| Projected | `LLH`, inverse-projected | latitude and longitude, height *h* = *H* + *N* for an orthometric *H* |
 
-A projected position was refused rather than converted, because DynaML's third
+A projected position was refused rather than converted until P12c-45, because DynaML's third
 type, `UTM`, needs a zone and a hemisphere, and converting to geodetic or
 geocentric needed an inverse projection GeoComp did not carry.
 
@@ -459,6 +465,18 @@ deriving the *zone and hemisphere* from a CRS string, which needs a projection
 database rather than mathematics. A caller that states the projection
 parameters can convert; one that has only an EPSG code still cannot, and the
 writer refuses that case by name rather than guessing a zone.
+
+*As built (P12c-45)*, **the algorithm is that caller.** QGIS carries the
+projection database, so *Adjust with DynAdjust* asks it which projection the
+network's CRS is (`geocomp/algorithms/projection.py`, shared with the
+combination since P9b) and states the parameters: UTM and Transverse Mercator
+on GRS80, with every projected station in one CRS. Anything else is still
+refused by name, by station. An orthometric height on a projected coordinate
+needs the undulation *N* the writer adds to it, and the algorithm takes one for
+the whole network: as good as the geoid is flat across it, which over a survey
+a few kilometres across is usually to centimetres, and the run's log names the
+value. A geoid grid applies to geodetic coordinates only, through
+`dnageoid`; both together are refused.
 
 This began as a single constant `XYZ`, with the recorded reasoning that
 GeoComp's frames "are cartesian or projected already" — and that sentence was
@@ -695,9 +713,9 @@ showed it.
 **A direction set of one has no equivalent at all.** `dnaimport` refuses the file: *"Direction set declares
 total of 0 but there aren't any non-ignored directions in the set."* Nothing is lost by leaving it out — one
 direction with its own orientation unknown is one observation and one parameter, contributing exactly zero —
-but it is **reported as skipped** rather than dropped, so the pipeline refuses unless `allow_partial` says a
-partial network is what was wanted (§5 rule 6). `tests/test_dynadjust_pipeline.py` asserts the "contributes
-zero" claim rather than resting on it.
+but it is **reported as skipped** rather than dropped. Until P12c-45 the pipeline then refused unless
+`allow_partial` said a partial network was wanted; it no longer counts it as partial (§4.3 rule 6).
+`tests/test_dynadjust_pipeline.py` asserts the "contributes zero" claim rather than resting on it.
 
 ### 5.7 A constraint on a projected station is written on the LLH axes [V]
 

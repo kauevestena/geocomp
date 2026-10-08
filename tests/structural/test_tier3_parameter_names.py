@@ -48,8 +48,9 @@ ALGORITHM_ID = re.compile(r"^geocomp:[a-z0-9_]+$")
 #: protection this module exists to give.
 NOT_PARAMETER_KEYS = frozenset(
     {
-        # Reference frames and CRS codes, in fixtures and assertions.
+        # Reference frames, ellipsoids and CRS codes, in fixtures and assertions.
         "GDA2020",
+        "GRS80",
         "SIRGAS2000",
         "WGS84",
         "ITRF2014",
