@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-35 — Dilution of precision for GNSS sessions
+
+#### Added
+
+- GNSS processing reports the dilution of precision -- GDOP, PDOP, HDOP and VDOP -- for every epoch and, per
+  session, the median of each and the worst epoch. It is computed from the satellites `rnx2rtkp` actually used,
+  by RTKLIB's own definition. The trajectory layer gains `pdop`, `hdop` and `vdop` columns; the JSON quality
+  summary carries the session's values where it used to say there were none.
+
 ### P12c-34 — `rnx2rtkp` for Windows and macOS too
 
 #### Added

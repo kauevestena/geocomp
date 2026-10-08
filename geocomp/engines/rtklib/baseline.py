@@ -206,6 +206,7 @@ def quality_from_solution(
             satellites=epoch.satellites,
             ratio=epoch.ratio,
             age=epoch.age,
+            dop=solution.dop_at(epoch.time),
         )
         for epoch in solution.epochs
     ]

@@ -777,10 +777,40 @@ class TestABaselineFromALiveRun:
                 work_dir=work,
             )
             quality = quality_from_solution(result.solution, session_id=rover.station_id)
+            # Read, then removed: the status file can run to hundreds of
+            # megabytes, and the configuration beside it reproduces it.
+            assert not list(Path(work).glob("*.stat"))
         assert quality.epochs == 120
         assert quality.fixed_fraction > 0.9
         assert quality.interval == pytest.approx(30.0)
-        assert quality.dilution_of_precision is None
+        # FR-603: the run's geometry, as RTKLIB's own dops() computes it from the
+        # same configuration's status file (tests/data/rtklib/stat/PROVENANCE.md):
+        # the worst epoch is the last, with five satellites.
+        assert quality.dilution_of_precision is not None
+        assert quality.dilution_of_precision_worst.position == pytest.approx(37.551224, abs=1e-6)
+        assert quality.dilution_of_precision.position < quality.dilution_of_precision_worst.position
+
+    def test_a_combined_solution_reads_each_epochs_satellites_once(self, sessions):
+        """A combined run writes every epoch's status twice, forward then backward;
+        read as it comes, each epoch would have its satellites twice and a DOP
+        smaller by the square root of two."""
+        base, rover = self._pair(sessions)
+        geometry = {}
+        for solution_type in ("forward", "combined"):
+            with tempfile.TemporaryDirectory() as work:
+                result = RtklibEngine().run(
+                    RtklibJob(
+                        rover=rover,
+                        base=base,
+                        config=profile("relative-static").with_options(
+                            output_format="xyz", solution_type=solution_type
+                        ),
+                    ),
+                    work_dir=work,
+                )
+            geometry[solution_type] = result.solution.geometry
+        assert len(geometry["combined"]) == 120
+        assert geometry["combined"] == geometry["forward"]
 
 
 class TestARunThatSolvesNothingSaysWhen:

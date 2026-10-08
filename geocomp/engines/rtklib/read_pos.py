@@ -59,8 +59,10 @@ from typing import Any
 import numpy as np
 
 from geocomp.core.errors import DataError
+from geocomp.core.techniques.gnss.quality import DilutionOfPrecision, dilution_of_precision
 from geocomp.core.uncertainty import Covariance, Quantity
 from geocomp.core.units import Unit
+from geocomp.engines.rtklib.read_stat import SatelliteSighting, to_millisecond
 
 __all__ = [
     "PosEpoch",
@@ -77,6 +79,7 @@ METRE = Unit.METRE
 #: civil instant is therefore approximate by the current offset and is *not*
 #: done here -- the epoch is reported as GPS time and labelled as such.
 _GPS_EPOCH = datetime(1980, 1, 6, tzinfo=UTC)
+
 
 
 class SolutionStatus(Enum):
@@ -278,11 +281,26 @@ class PosSolution:
     inputs: tuple[str, ...] = ()
     header_anomalies: list[str] = field(default_factory=list)
     comments: tuple[str, ...] = ()
+    #: Each epoch's used satellites, from the engine's solution-status file
+    #: (:func:`~geocomp.engines.rtklib.read_stat.read_satellite_geometry`), keyed
+    #: by GPS time to the millisecond. Empty for a solution read on its own.
+    geometry: dict[datetime, tuple[SatelliteSighting, ...]] = field(default_factory=dict)
 
     @property
     def components(self) -> tuple[str, str, str]:
         """The names of the three position components in the solution's format."""
         return self.format.layout.components
+
+    def dop_at(self, time: datetime) -> DilutionOfPrecision | None:
+        """The dilution of precision of the satellites the solution used at *time*.
+
+        ``None`` when the solution carries no geometry for that epoch, or the
+        geometry has fewer than four satellites.
+        """
+        sightings = self.geometry.get(to_millisecond(time))
+        if not sightings:
+            return None
+        return dilution_of_precision([(s.azimuth, s.elevation) for s in sightings])
 
     def fixed_epochs(self) -> tuple[PosEpoch, ...]:
         """The epochs whose ambiguities are fixed."""

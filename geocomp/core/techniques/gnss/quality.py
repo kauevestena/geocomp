@@ -10,19 +10,100 @@ nothing at all in appearance. A coordinate presented without its solution status
 misrepresents the survey, and the single number that summarises a kinematic run
 -- the percentage of epochs that fixed -- is not in the coordinate at all.
 
-One indicator FR-603 names is **not** here, and its absence is recorded rather
-than substituted for: see :attr:`SessionQuality.dilution_of_precision`.
+Dilution of precision is computed here from the satellite geometry an engine
+reports -- each used satellite's azimuth and elevation -- by the definition
+RTKLIB's own ``dops()`` uses (P12c-35). ``rnx2rtkp`` writes no DOP in its
+solution file, but it writes the geometry in its solution-status file, and the
+DOP of that geometry is what the engine would have reported.
 """
 
 from __future__ import annotations
 
+import math
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 from itertools import pairwise
 from typing import Any
 
-__all__ = ["EpochQuality", "SessionQuality", "summarise"]
+import numpy as np
+
+__all__ = [
+    "DilutionOfPrecision",
+    "EpochQuality",
+    "SessionQuality",
+    "dilution_of_precision",
+    "summarise",
+]
+
+
+@dataclass(frozen=True)
+class DilutionOfPrecision:
+    """How the satellite geometry scales ranging error into a solution (FR-603).
+
+    Dimensionless. ``geometric`` is GDOP, ``position`` PDOP, ``horizontal``
+    HDOP and ``vertical`` VDOP, in RTKLIB's sense: the receiver clock is the
+    fourth unknown and every satellite weighs the same.
+    """
+
+    geometric: float
+    position: float
+    horizontal: float
+    vertical: float
+
+    def to_dict(self) -> dict[str, float]:
+        """The four values as a summary records them."""
+        return {
+            "gdop": self.geometric,
+            "pdop": self.position,
+            "hdop": self.horizontal,
+            "vdop": self.vertical,
+        }
+
+
+def dilution_of_precision(
+    azimuths_elevations: list[tuple[float, float]], *, elevation_mask: float = 0.0
+) -> DilutionOfPrecision | None:
+    """The DOP of one epoch's satellites, each an ``(azimuth, elevation)`` in radians.
+
+    RTKLIB's definition (``dops()`` in ``src/rtkcmn.c`` at the pinned commit):
+    a satellite below *elevation_mask*, or at or below the horizon, does not
+    count; each that does adds the row ``[cos e sin a, cos e cos a, sin e, 1]``;
+    and the DOPs are square roots of the diagonal of the inverse of the normal
+    matrix -- all four terms for GDOP, the first three for PDOP, the first two
+    for HDOP and the third for VDOP.
+
+    Returns ``None`` for fewer than four satellites or a geometry with no
+    inverse, where RTKLIB returns zeros: a zero would read as a perfect
+    geometry, which is the opposite of what happened.
+    """
+    rows = [
+        (
+            math.cos(elevation) * math.sin(azimuth),
+            math.cos(elevation) * math.cos(azimuth),
+            math.sin(elevation),
+            1.0,
+        )
+        for azimuth, elevation in azimuths_elevations
+        if elevation >= elevation_mask and elevation > 0.0
+    ]
+    if len(rows) < 4:
+        return None
+    design = np.asarray(rows, dtype=float)
+    normal = design.T @ design
+    try:
+        cofactor = np.linalg.inv(normal)
+    except np.linalg.LinAlgError:
+        return None
+    diagonal = np.diag(cofactor)
+    if not np.all(np.isfinite(diagonal)) or np.any(diagonal < 0.0):
+        return None
+    return DilutionOfPrecision(
+        geometric=float(math.sqrt(diagonal.sum())),
+        position=float(math.sqrt(diagonal[:3].sum())),
+        horizontal=float(math.sqrt(diagonal[:2].sum())),
+        vertical=float(math.sqrt(diagonal[2])),
+    )
 
 
 @dataclass(frozen=True)
@@ -34,6 +115,7 @@ class EpochQuality:
     satellites: int
     ratio: float
     age: float
+    dop: DilutionOfPrecision | None = None
 
 
 @dataclass(frozen=True)
@@ -53,16 +135,12 @@ class SessionQuality:
             report that gave only "fixed" would not let anyone.
         satellites_least / satellites_most: The range actually tracked, which is
             what makes a solution possible in an obstructed site.
-        dilution_of_precision: **Always ``None`` today, and deliberately so.**
-            FR-603 names DOP, and ``rnx2rtkp`` does not write it: no column of
-            the ``.pos`` file in any of its four output formats carries one
-            (``specs/08`` section 7.1). It could be computed from the position
-            covariance by dividing out an assumed a-priori sigma, but that
-            number would be a function of the weighting RTKLIB happened to use
-            and presenting it as DOP would be presenting a different quantity
-            under a familiar name. The field exists so that an engine that
-            *does* report DOP has somewhere to put it, and so the gap is visible
-            rather than silently absent.
+        dilution_of_precision: The median of each DOP over the epochs that
+            have one, component by component; ``None`` when no epoch does --
+            the engine reported no geometry, or never four satellites.
+        dilution_of_precision_worst: The DOP of the epoch whose PDOP was
+            largest: a session whose median is good can still have had a
+            stretch where the geometry was not.
     """
 
     session_id: str
@@ -76,7 +154,8 @@ class SessionQuality:
     start: datetime | None = None
     end: datetime | None = None
     interval: float | None = None
-    dilution_of_precision: float | None = None
+    dilution_of_precision: DilutionOfPrecision | None = None
+    dilution_of_precision_worst: DilutionOfPrecision | None = None
     per_epoch: tuple[EpochQuality, ...] = ()
     meta: dict[str, Any] = field(default_factory=dict)
 
@@ -106,7 +185,14 @@ class SessionQuality:
             "start": self.start.isoformat() if self.start else None,
             "end": self.end.isoformat() if self.end else None,
             "interval": self.interval,
-            "dilution_of_precision": self.dilution_of_precision,
+            "dilution_of_precision": (
+                self.dilution_of_precision.to_dict() if self.dilution_of_precision else None
+            ),
+            "dilution_of_precision_worst": (
+                self.dilution_of_precision_worst.to_dict()
+                if self.dilution_of_precision_worst
+                else None
+            ),
         }
 
 
@@ -154,6 +240,8 @@ def summarise(
         for earlier, later in pairwise(times)
     )
 
+    dops = [epoch.dop for epoch in epochs if epoch.dop is not None]
+
     return SessionQuality(
         session_id=session_id,
         epochs=len(epochs),
@@ -166,7 +254,21 @@ def summarise(
         start=times[0],
         end=times[-1],
         interval=_median(gaps) if gaps else None,
+        dilution_of_precision=_median_dop(dops),
+        dilution_of_precision_worst=max(dops, key=lambda dop: dop.position) if dops else None,
         per_epoch=tuple(epochs) if keep_per_epoch else (),
+    )
+
+
+def _median_dop(dops: list[DilutionOfPrecision]) -> DilutionOfPrecision | None:
+    """Each component's median over *dops*: four medians, not the median epoch's four values."""
+    if not dops:
+        return None
+    return DilutionOfPrecision(
+        geometric=_median(sorted(dop.geometric for dop in dops)),
+        position=_median(sorted(dop.position for dop in dops)),
+        horizontal=_median(sorted(dop.horizontal for dop in dops)),
+        vertical=_median(sorted(dop.vertical for dop in dops)),
     )
 
 

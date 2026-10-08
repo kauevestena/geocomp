@@ -274,14 +274,17 @@ Per session and, for kinematic, per epoch:
 | Observation span and interval | Whether the session was long enough for the mode used |
 | Cycle slips / rejected epochs | Data quality |
 
-**DOP is not available from `rnx2rtkp`, and is recorded as absent rather than substituted for** (phase P7b).
-No column of the `.pos` file in any of its four output formats carries a dilution of precision
-([`08-engine-rtklib.md`](./08-engine-rtklib.md) §7.1). It could be computed from the position covariance by
-dividing out an assumed a-priori sigma, but that number would be a function of the weighting RTKLIB happened
-to use, and presenting it as DOP would be presenting a different quantity under a familiar name.
-`SessionQuality.dilution_of_precision` therefore exists and is always `None` today: the field is there so an
-engine that *does* report DOP has somewhere to put it, and so the gap is visible rather than silently absent.
-**This clause of FR-603 is unmet**, and the requirement is not recorded as fully closed on its account.
+**DOP is computed from the satellite geometry RTKLIB reports, by RTKLIB's definition** (P12c-35). No column
+of the `.pos` file carries a dilution of precision, and P7b recorded it as absent rather than derive one from
+the position covariance -- that number would depend on the weighting RTKLIB happened to use, a different
+quantity under a familiar name. It is still not derived that way. The engine's solution-status file carries
+each used satellite's azimuth and elevation per epoch ([`08`](./08-engine-rtklib.md) §7), and the DOP of that
+geometry is what RTKLIB's own `dops()` computes: rows `[cos e sin a, cos e cos a, sin e, 1]` for the
+satellites above the horizon, at least four of them, and the square roots of the diagonal of the inverse of
+the normal matrix. Each epoch carries GDOP, PDOP, HDOP and VDOP, or none where fewer than four satellites were
+used; the session carries each one's median and the epoch whose PDOP was worst, because a good median can hide
+a stretch where the geometry was not. They reach the JSON summary and the trajectory layer's `pdop`, `hdop`
+and `vdop` columns.
 
 These surface in the results table, in the layer attributes, in the report (FR-930), and as thematic styling
 (FR-902) — a map of sessions coloured by solution status is the fastest way to see what a campaign actually
@@ -290,9 +293,11 @@ achieved.
 **Delivered in P7c, on both layers.** The trajectory layer (§4.3.1) is categorised by solution status and
 carries the satellite count, the ambiguity ratio, the age of differential and north/east/up sigmas per epoch;
 the baseline layer carries the fixed fraction and the status of the epoch its vector came from. The
-processing algorithms also write the whole `SessionQuality` as a JSON summary beside the `.pos`. Cycle slips
-and rejected epochs remain unavailable: `rnx2rtkp` reports neither in any output format, which is the same
-situation as DOP above and is recorded the same way rather than substituted for.
+processing algorithms also write the whole `SessionQuality` as a JSON summary beside the `.pos`.
+
+**Cycle slips and rejected observations are reported by the engine and not yet read.** P7c recorded them as
+reported in no output format; that was wrong. The same `$SAT` lines carry a slip flag and slip and rejection
+counters per satellite and frequency (`outsolstat` in `src/rtkpos.c`), and reading them is work not done.
 
 ---
 
