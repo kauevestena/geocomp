@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-46 — Working directory and report templates in Global Settings
+
+#### Added
+
+- *Paths and engines* has a working directory for the engines' files, under which DynAdjust and RTKLIB runs
+  make their working folders, and a report templates folder, from which every report takes its template
+  unless a run names its own.
+
 ### P12c-45 — Classical networks adjust with DynAdjust
 
 #### Fixed

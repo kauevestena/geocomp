@@ -279,7 +279,9 @@ proposed and not adopted. Values are in millimetres; the documents keep metres.
 - HTML output as the Processing output type, viewable in the results panel and in a browser, printable to
   PDF.
 - **Template-driven** from the templates directory configured in Global Settings (FR-066), so an organisation
-  can apply its own layout and branding.
+  can apply its own layout and branding. *As built (P12c-46)*: until then no setting named that directory, and
+  a run either named its template or had the shipped one. It is `paths.report_templates` now; a template the run
+  names still wins, and a folder that lacks the one a report needs falls back to the shipped template.
 - Fully translated (FR-090); numbers formatted per locale (FR-094).
 - Data available separately as CSV/`.xlsx` (FR-162) for users who build their own reports.
 - Deterministic: the same solution produces the same report (NFR-007).

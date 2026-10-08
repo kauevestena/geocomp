@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import csv
 import json
-import tempfile
+import shutil
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -50,7 +50,7 @@ from qgis.core import (
 
 from geocomp.algorithms.analysis.common import DATUM_ORDER, datum_labels, datum_of, load_network, station_list
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured, configured_epoch
+from geocomp.algorithms.defaults import configured, configured_epoch, report_template, working_directory
 from geocomp.algorithms.display import display_format
 from geocomp.algorithms.labels import engine_label, in_words, technique_label
 from geocomp.algorithms.layer_outputs import add_result_layer_parameters, write_result_layers
@@ -354,10 +354,13 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                 from geocomp.engines.dynadjust.combination import adjust_with_dynadjust
                 from geocomp.services.engines import dynadjust_engine
 
-                with tempfile.TemporaryDirectory(prefix="geocomp-combined-") as work_dir:
+                work_dir = working_directory("geocomp-combined-")
+                try:
                     result = adjust_with_dynadjust(
-                        combination, work_dir, confidence=confidence, engine=dynadjust_engine()
+                        combination, str(work_dir), confidence=confidence, engine=dynadjust_engine()
                     )
+                finally:
+                    shutil.rmtree(work_dir, ignore_errors=True)
             else:
                 result = adjust_combination(
                     combination,
@@ -607,6 +610,7 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                     network=combination.network,
                     qgis_version=Qgis.QGIS_VERSION,
                     display=display_format(),
+                    template_directory=report_template("", "adjustment.html")[0],
                     parameter_scopes={
                         "integration.frame": (frame or combination.frame or "—", scope),
                         "integration.epoch": (f"{epoch.decimal_year:.4f}", scope),

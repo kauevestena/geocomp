@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import json
 import math
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +44,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import working_directory
 from geocomp.algorithms.gnss.common import (
     configured_profile,
     engine_record,
@@ -254,7 +254,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
             [rover, base], reference.ephemeris, reference.navigation_systems, feedback
         )
 
-        work_root = Path(tempfile.mkdtemp(prefix="geocomp-compare-"))
+        work_root = working_directory("geocomp-compare-")
         engine = gnss_engine(feedback)
         timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
         baselines = {}

@@ -25,6 +25,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import report_template
 from geocomp.algorithms.monitoring.common import fail, read_document
 from geocomp.core.errors import GeoCompError
 from geocomp.core.monitoring import read_comparison_document, read_series_document
@@ -123,15 +124,17 @@ class MonitoringReportAlgorithm(GeoCompAlgorithm):
             )
         comparison = read_document(analysis_path, read_comparison_document) if analysis_path else None
         series = read_document(series_path, read_series_document) if series_path else None
-        template = self.parameterAsFile(parameters, TEMPLATE, context) or ""
+        template_directory, template_name = report_template(
+            self.parameterAsFile(parameters, TEMPLATE, context) or "", "monitoring.html"
+        )
         try:
             html, omitted = render_monitoring_report(
                 comparison,
                 series,
                 MonitoringReportContext(
                     qgis_version=Qgis.QGIS_VERSION,
-                    template_directory=str(Path(template).parent) if template else "",
-                    template_name=Path(template).name if template else "monitoring.html",
+                    template_directory=template_directory,
+                    template_name=template_name,
                     exaggeration=self.parameterAsDouble(parameters, EXAGGERATION, context),
                 ),
             )

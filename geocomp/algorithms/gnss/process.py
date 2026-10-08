@@ -24,7 +24,6 @@ the user who already suspected something.
 from __future__ import annotations
 
 import shutil
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +44,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import working_directory
 from geocomp.algorithms.gnss.common import (
     base_coordinates,
     configuration_help,
@@ -301,7 +301,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         # Beside the solution when there is one; a run whose solution is not
         # saved used to put it in QGIS's own working directory.
         destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
-        temporary = None if destination else Path(tempfile.mkdtemp(prefix="geocomp-gnss-"))
+        temporary = None if destination else working_directory("geocomp-gnss-")
         work_dir = (temporary or Path(destination).parent) / (
             f"{self.profile_name}-{rover.station_id}"
         )

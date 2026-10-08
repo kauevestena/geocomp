@@ -316,6 +316,17 @@ directories and report templates, the rest of FR-066's list, are not settings: e
 working folder and its outputs as parameters, and the report its template (*Report template*,
 [`19`](./19-visualization.md) §7.3).
 
+**Amendment (P12c-46): the rest of FR-066's list.** Two more paths, global for the reason the engines are:
+*Working directory for the engines' files*, under which every engine run makes its working folder -- DynAdjust,
+a stopped DynAdjust job, a combination sent to DynAdjust, RTKLIB's batch and comparison runs, and its single
+run when the solution is not saved (a saved one keeps its working folder beside it, as before) -- and
+*Report templates folder*, from which every template-driven report takes its template: the adjustment report,
+the combination's, the monitoring report, and the comparison's and the time series' own. Each is the default a
+run falls back to, not a replacement for its parameter: a folder or template the run names still wins. Empty,
+they are the system's temporary directory and the shipped templates, as before. A working directory that
+cannot be written in is refused by name, saying where it is set; a templates folder without the template a
+report needs falls back to the shipped one (`tests/qgis/test_paths_settings.py`).
+
 ### 2.2 Instrument profiles (FR-069)
 
 Instrument settings are **named profiles**, not a single set of values: add, edit, duplicate, delete, import,

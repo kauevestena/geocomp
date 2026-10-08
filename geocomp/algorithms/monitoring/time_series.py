@@ -41,7 +41,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
-from geocomp.algorithms.defaults import configured
+from geocomp.algorithms.defaults import configured, report_template
 from geocomp.algorithms.inputs import file_list_type
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, write_styled_sink
 from geocomp.algorithms.monitoring.common import (
@@ -315,7 +315,12 @@ class MonitoringTimeSeriesAlgorithm(GeoCompAlgorithm):
         html_path = self.parameterAsFileOutput(parameters, OUTPUT_HTML, context)
         if html_path:
             html, _omitted = render_monitoring_report(
-                None, document, MonitoringReportContext(qgis_version=Qgis.QGIS_VERSION)
+                None,
+                document,
+                MonitoringReportContext(
+                    qgis_version=Qgis.QGIS_VERSION,
+                    template_directory=report_template("", "monitoring.html")[0],
+                ),
             )
             Path(html_path).write_text(html, encoding="utf-8")
         return {OUTPUT_SERIES: series_path, OUTPUT_CSV: csv_path, OUTPUT_HTML: html_path}

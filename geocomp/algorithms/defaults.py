@@ -26,6 +26,8 @@ that finds a setting's readers searches for the literal key.
 
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from qgis.PyQt.QtCore import QCoreApplication
@@ -39,7 +41,14 @@ if TYPE_CHECKING:
     from geocomp.core.models.network import Network
     from geocomp.core.models.solution import Solution
 
-__all__ = ["configured", "configured_epoch", "recorded_epoch", "run_epoch"]
+__all__ = [
+    "configured",
+    "configured_epoch",
+    "recorded_epoch",
+    "report_template",
+    "run_epoch",
+    "working_directory",
+]
 
 _CONTEXT = "GeoCompDefaults"
 
@@ -53,6 +62,47 @@ def configured(key: str) -> Any:
     from geocomp.services.settings_service import settings
 
     return settings.value(key)
+
+
+def working_directory(prefix: str) -> Path:
+    """A new folder for an engine's working files (FR-066; P12c-46).
+
+    Under ``paths.working_directory`` when one is set, created if it is not
+    there yet; under the system's temporary directory otherwise, as before.
+    Whether the folder is kept afterwards is each algorithm's to say.
+
+    Raises:
+        QgsProcessingException: when the configured directory cannot be
+            created or written in, naming it and where it is set.
+    """
+    from qgis.core import QgsProcessingException
+
+    base = str(configured("paths.working_directory") or "").strip()
+    try:
+        if base:
+            Path(base).mkdir(parents=True, exist_ok=True)
+        return Path(tempfile.mkdtemp(prefix=prefix, dir=base or None))
+    except OSError as error:
+        raise QgsProcessingException(
+            _tr("The working directory '%1' set in Global Settings cannot be written in (%2). "
+                "Choose another under Paths and engines, or clear it.")
+            .replace("%1", base)
+            .replace("%2", error.strerror or str(error))
+        ) from error
+
+
+def report_template(path: str, default: str) -> tuple[str, str]:
+    """The folder and the name of a report's template (FR-931, FR-066; P12c-46).
+
+    The template the run names, *path*, when it names one; otherwise *default*
+    -- ``adjustment.html``, say -- from the folder ``paths.report_templates``
+    sets, which an organisation keeps its own layouts in. A name that folder
+    does not hold falls back to the shipped template, as it always has
+    (``geocomp.reports.templates.load_template``).
+    """
+    if path:
+        return str(Path(path).parent), Path(path).name
+    return str(configured("paths.report_templates") or "").strip(), default
 
 
 def configured_epoch(fallback: float) -> float:

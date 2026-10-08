@@ -610,6 +610,26 @@ SETTINGS: tuple[SettingDef, ...] = (
         requirement="FR-066",
         scopes=frozenset({Scope.GLOBAL}),
     ),
+    # Where an engine's working files go, and where an organisation keeps its
+    # report templates (P12c-46). Global for the reason the engines are: both
+    # are places on a machine. Empty: the system's temporary directory, and the
+    # shipped templates.
+    SettingDef(
+        key="paths.working_directory",
+        section="paths",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-066",
+        scopes=frozenset({Scope.GLOBAL}),
+    ),
+    SettingDef(
+        key="paths.report_templates",
+        section="paths",
+        type=SettingType.DIRECTORY,
+        default="",
+        requirement="FR-066",
+        scopes=frozenset({Scope.GLOBAL}),
+    ),
 
     # -- Base maps (FR-167). Added in phase P5. -------------------------------
     #

@@ -13,7 +13,6 @@ is QGIS-free and tested without one; this is the Processing surface over it.
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +27,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.defaults import working_directory
 from geocomp.algorithms.gnss.common import (
     SessionProducts,
     base_coordinates,
@@ -208,7 +208,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             profile_name, user_options=user["options"] if user else None, **held
         )
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
-        work_root = Path(tempfile.mkdtemp(prefix="geocomp-batch-"))
+        work_root = working_directory("geocomp-batch-")
 
         # specs/08 section 5: availability is checked before the batch starts.
         # Every session's products are resolved now; what nothing can supply is
