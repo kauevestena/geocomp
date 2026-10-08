@@ -528,7 +528,7 @@ def _inline_refusals() -> dict[str, str]:
                                 and call.args
                                 and isinstance(call.args[0], ast.Constant)
                             ):
-                                where = f"{path.relative_to(PLUGIN_DIR.parent)}:{node.lineno}"
+                                where = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{node.lineno}"
                                 found[call.args[0].value] = where
         for node in ast.walk(tree):
             if not (
@@ -549,7 +549,7 @@ def _inline_refusals() -> dict[str, str]:
                     if isinstance(text, ast.Constant) and isinstance(text.value, str):
                         texts.append(text.value)
             if texts:
-                found[" ".join(texts)] = f"{path.relative_to(PLUGIN_DIR.parent)}:{node.lineno}"
+                found[" ".join(texts)] = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{node.lineno}"
     return found
 
 
@@ -598,7 +598,7 @@ def _failures_outside_the_algorithms() -> dict[str, str]:
                 text = call.args[index]
                 if isinstance(text, ast.Constant) and isinstance(text.value, str):
                     if _FAILED.search(text.value):
-                        found[text.value] = f"{path.relative_to(PLUGIN_DIR.parent)}:{call.lineno}"
+                        found[text.value] = f"{path.relative_to(PLUGIN_DIR.parent).as_posix()}:{call.lineno}"
     return found
 
 
