@@ -142,7 +142,8 @@ def read_thresholds(path: str) -> tuple[AlertThreshold, ...]:
             return thresholds_from_rows(list(csv.reader(handle)))
     except OSError as error:
         raise QgsProcessingException(
-            _tr("The alert thresholds file '%1' could not be read: %2")
+            _tr("The alert thresholds file '%1' could not be read; check that it exists "
+                "and can be read: %2")
             .replace("%1", path)
             .replace("%2", str(error))
         ) from error

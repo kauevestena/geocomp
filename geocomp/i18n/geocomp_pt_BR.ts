@@ -90,12 +90,12 @@
             <translation>Informe a estação base explicitamente; a pasta contém: %1</translation>
         </message>
         <message>
-            <source>No RINEX observation sessions were found in %1</source>
-            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1</translation>
+            <source>No RINEX observation sessions were found in %1. Choose the folder that holds the observation files.</source>
+            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1. Escolha a pasta que contém os arquivos de observação.</translation>
         </message>
         <message>
-            <source>No session for base station %1</source>
-            <translation>Nenhuma sessão para a estação base %1</translation>
+            <source>No session for base station %1. Check the base station's name against the folder's sessions.</source>
+            <translation>Nenhuma sessão para a estação base %1. Confira o nome da estação base com as sessões da pasta.</translation>
         </message>
         <message>
             <source>Process every session in a folder; one failure does not stop the rest.</source>
@@ -173,12 +173,12 @@
             <translation>Rede</translation>
         </message>
         <message>
-            <source>No .pos solutions were found in %1</source>
-            <translation>Nenhuma solução .pos foi encontrada em %1</translation>
+            <source>No .pos solutions were found in %1. Choose the folder the GNSS processing wrote them to.</source>
+            <translation>Nenhuma solução .pos foi encontrada em %1. Escolha a pasta em que o processamento GNSS as gravou.</translation>
         </message>
         <message>
-            <source>No baseline could be built from the solutions in %1</source>
-            <translation>Não foi possível construir nenhuma linha de base a partir das soluções em %1</translation>
+            <source>No baseline could be built from the solutions in %1. Check the log for why each was refused.</source>
+            <translation>Não foi possível construir nenhuma linha de base a partir das soluções em %1. Confira no registro por que cada uma foi recusada.</translation>
         </message>
         <message>
             <source>Not stated</source>
@@ -193,8 +193,8 @@
             <translation>Ignorado %1: %2</translation>
         </message>
         <message>
-            <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's.</source>
-            <translation>O documento de rede precisa do referencial em que as coordenadas da base foram dadas. Um arquivo .pos não o informa e o GeoComp não presume um: um vetor sem referencial não pode ser levado a outro.</translation>
+            <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's. Choose the frame they were given in.</source>
+            <translation>O documento de rede precisa do referencial em que as coordenadas da base foram dadas. Um arquivo .pos não o informa e o GeoComp não presume um: um vetor sem referencial não pode ser levado a outro. Escolha o referencial em que foram dadas.</translation>
         </message>
         <message>
             <source>Turn processed sessions into baseline observations with covariance.</source>
@@ -236,8 +236,8 @@
             <translation>&lt;p&gt;Reúne as visadas reduzidas em uma rede geodésica e a ajusta por mínimos quadrados, com o teste global, o data snooping e a análise de confiabilidade.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Triangulação, trilateração e triangulateração não são três cálculos diferentes.&lt;/b&gt; São um único ajustamento sobre três conjuntos de observações diferentes, e qual deles um levantamento é depende do que foi medido. Este algoritmo ajusta o que quer que as visadas contenham.&lt;/p&gt;&lt;p&gt;Soluções livres e amarradas estão ambas disponíveis, que é a comparação entre &lt;i&gt;redes livres&lt;/i&gt; e &lt;i&gt;redes amarradas&lt;/i&gt; que o projeto de pesquisa nomeia como objetivo pedagógico. Uma rede livre é ajustada com injunções internas e é a escolha honesta quando nada externo orienta ou posiciona o levantamento.&lt;/p&gt;&lt;p&gt;O documento da rede é gravado além da solução, de modo que a cadeia &lt;i&gt;pré-processar &amp;rarr; construir &amp;rarr; inspecionar &amp;rarr; ajustar&lt;/i&gt; possa ser montada no modelador gráfico usando os algoritmos de Análise.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nenhuma observação é rejeitada automaticamente.&lt;/b&gt; O data snooping relata candidatas e a decisão é sua.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Observações reduzidas&lt;/b&gt; &amp;mdash; o documento produzido pelo Pré-processamento generalizado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordenadas aproximadas&lt;/b&gt; &amp;mdash; um objeto JSON associando cada estação a &lt;code&gt;[E, N, altitude]&lt;/code&gt;, ou uma tabela CSV ou .xlsx com uma estação, seu E, seu N e sua altitude em cada linha. Exigidas, não derivadas: o modelo linearizado precisa de um ponto em torno do qual linearizar, e uma poligonal ou uma interseção à ré é como um topógrafo o obtém.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dimensão&lt;/b&gt; &amp;mdash; em qual de 2D, 3D e 1D ajustar. Isso decide quais grandezas reduzidas se tornam observações: um ajustamento 2D toma direções e distâncias horizontais, um 3D toma direções, ângulos zenitais e distâncias inclinadas. Emitir todas elas usaria a mesma medida duas vezes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Definição do datum&lt;/b&gt; &amp;mdash; como a deficiência de datum é removida. &lt;b&gt;Estações fixas&lt;/b&gt; &amp;mdash; separadas por vírgula; suas coordenadas aproximadas são mantidas exatamente.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt;, &lt;b&gt;época de referência&lt;/b&gt; e &lt;b&gt;SRC&lt;/b&gt; &amp;mdash; registrados na solução.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Reduzir as distâncias medidas à quadrícula&lt;/b&gt; &amp;mdash; uma estação total mede uma distância no terreno, e um ajustamento plano a calcula a partir de coordenadas da quadrícula. Num SRC projetado as duas diferem pela redução ao elipsoide, cerca de 157 ppm por quilômetro de altitude, e pelo fator de escala da projeção, no UTM de &amp;minus;400 ppm no meridiano central a cerca de +1000 ppm na borda de um fuso. Num ajustamento 2D cada distância horizontal é reduzida pelos dois, na altitude média de suas extremidades e com o fator de escala de sua linha, e o relatório informa o intervalo aplicado. Coordenadas fora da área para a qual o SRC é definido são lidas como um plano local e não são reduzidas; nem uma rede num SRC que não é projetado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Ondulação geoidal N&lt;/b&gt; (m) &amp;mdash; as altitudes aproximadas são ortométricas, e a redução ao elipsoide precisa de altitudes elipsoidais, &lt;i&gt;h = H + N&lt;/i&gt;. Cada 10 m de N omitidos são 1,6 ppm.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; e &lt;b&gt;Solução&lt;/b&gt; &amp;mdash; documentos JSON; o primeiro alimenta os algoritmos de Análise, o segundo contém as coordenadas ajustadas com sua matriz de covariâncias completa e a proveniência. &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Estações ajustadas&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;OUTLIER_COUNT&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Camadas de resultado&lt;/b&gt; &amp;mdash; cinco camadas opcionais, que chegam estilizadas e prontas para leitura (FR-905): estações ajustadas dimensionadas pela sua incerteza posicional, elipses de erro, observações coloridas conforme a decisão do teste w, a rede medida por tipo de observação e os vetores de correção de coordenadas. Nenhuma é criada sem ser solicitada, de modo que um ajustamento executado para alimentar outro algoritmo não escreve nada a mais.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero das elipses&lt;/b&gt; &amp;mdash; elipses reais são invisíveis na escala do mapa, por isso são desenhadas ampliadas. Deixe em 0 e um fator é ajustado à própria extensão da rede. Qualquer que seja o fator usado, ele é declarado no nome da camada, que é o que chega à legenda: um exagero não declarado transforma uma visualização de qualidade em uma representação enganosa.&lt;/p&gt;</translation>
         </message>
         <message>
-            <source>A CRS authority code is required, for example 'EPSG:31982'. GeoComp does not infer one: the adjusted coordinates are meaningless without knowing what they are coordinates in, and a guess would be recorded on the solution as though it had been chosen. For a local survey with no datum, use the projected CRS of the area it sits in.</source>
-            <translation>É obrigatório informar um código de SRC, por exemplo 'EPSG:31982'. O GeoComp não deduz um: as coordenadas ajustadas não têm sentido sem saber em que sistema elas estão, e um palpite ficaria registrado na solução como se tivesse sido escolhido. Para um levantamento local sem datum, use o SRC projetado da região em que ele se situa.</translation>
+            <source>A CRS authority code is required, for example 'EPSG:31982'. GeoComp does not infer one: the adjusted coordinates are meaningless without knowing what they are coordinates in, and a guess would be recorded on the solution as though it had been chosen. Give one; for a local survey with no datum, use the projected CRS of the area it sits in.</source>
+            <translation>É obrigatório informar um código de SRC, por exemplo 'EPSG:31982'. O GeoComp não deduz um: as coordenadas ajustadas não têm sentido sem saber em que sistema elas estão, e um palpite ficaria registrado na solução como se tivesse sido escolhido. Informe um; para um levantamento local sem datum, use o SRC projetado da região em que ele se situa.</translation>
         </message>
         <message>
             <source>Adjusted stations</source>
@@ -252,8 +252,8 @@
             <translation>Coordenadas aproximadas</translation>
         </message>
         <message>
-            <source>Approximate coordinates for station '%1' are not three numbers.</source>
-            <translation>As coordenadas aproximadas da estação '%1' não são três números.</translation>
+            <source>Approximate coordinates for station '%1' are not three numbers. Give three numbers: easting, northing and height.</source>
+            <translation>As coordenadas aproximadas da estação '%1' não são três números. Informe três números: E, N e altitude.</translation>
         </message>
         <message>
             <source>Build a triangulation, trilateration or triangulateration network from reduced pointings and adjust it.</source>
@@ -396,8 +396,8 @@
             <translation>Propriedade</translation>
         </message>
         <message>
-            <source>QGIS gives no scale factor for %1 at %2, %3.</source>
-            <translation>O QGIS não fornece fator de escala para %1 em %2, %3.</translation>
+            <source>QGIS gives no scale factor for %1 at %2, %3. Check that the coordinates are inside the CRS's area of use.</source>
+            <translation>O QGIS não fornece fator de escala para %1 em %2, %3. Verifique se as coordenadas estão dentro da área de uso do SRC.</translation>
         </message>
         <message>
             <source>Quantity</source>
@@ -460,8 +460,8 @@
             <translation>Desvio padrão Y (mm)</translation>
         </message>
         <message>
-            <source>The approximate coordinates document is empty.</source>
-            <translation>O documento de coordenadas aproximadas está vazio.</translation>
+            <source>The approximate coordinates document is empty. Add its entries, or choose another document.</source>
+            <translation>O documento de coordenadas aproximadas está vazio. Adicione as entradas, ou escolha outro documento.</translation>
         </message>
         <message>
             <source>The global test fails.</source>
@@ -476,12 +476,12 @@
             <translation>O teste global passa.</translation>
         </message>
         <message>
-            <source>The network cannot be adjusted: %1</source>
-            <translation>A rede não pode ser ajustada: %1</translation>
+            <source>The network cannot be adjusted; correct these first: %1</source>
+            <translation>A rede não pode ser ajustada; corrija primeiro isto: %1</translation>
         </message>
         <message>
-            <source>These fixed stations have no approximate coordinates: %1</source>
-            <translation>Estas estações fixas não possuem coordenadas aproximadas: %1</translation>
+            <source>These fixed stations have no approximate coordinates; add them: %1</source>
+            <translation>Estas estações fixas não possuem coordenadas aproximadas; adicione-as: %1</translation>
         </message>
         <message>
             <source>Upper critical value</source>
@@ -659,8 +659,8 @@
             <translation>Rede de nivelamento (de Ajustamento de rede)</translation>
         </message>
         <message>
-            <source>Line %1 of the velocities file does not hold numbers.</source>
-            <translation>A linha %1 do arquivo de velocidades não contém números.</translation>
+            <source>Line %1 of the velocities file does not hold numbers. Correct that line.</source>
+            <translation>A linha %1 do arquivo de velocidades não contém números. Corrija essa linha.</translation>
         </message>
         <message>
             <source>Line %1 of the velocities file has %2 numbers. Write station, vx, vy, vz in metres a year, and optionally their three standard deviations.</source>
@@ -687,8 +687,8 @@
             <translation>Velocidades das estações (CSV: estação, vx, vy, vz em m/ano)</translation>
         </message>
         <message>
-            <source>These fixed stations have no position any input could hold them at: %1. In a combination with GNSS, a station is held at its GNSS position.</source>
-            <translation>Estas estações fixas não têm posição em que alguma entrada possa fixá-las: %1. Em uma combinação com GNSS, a estação é fixada na sua posição GNSS.</translation>
+            <source>These fixed stations have no position any input could hold them at: %1. In a combination with GNSS, a station is held at its GNSS position. Hold stations the GNSS inputs observe.</source>
+            <translation>Estas estações fixas não têm posição em que alguma entrada possa fixá-las: %1. Em uma combinação com GNSS, a estação é fixada na sua posição GNSS. Fixe estações que as entradas GNSS observam.</translation>
         </message>
         <message>
             <source>This combination needs at least %1 techniques and was given %2. Use the two-technique combination that matches your inputs.</source>
@@ -738,8 +738,8 @@
             <translation>Comparação</translation>
         </message>
         <message>
-            <source>Comparison needs exactly one pair of simultaneously observing sessions in the folder.</source>
-            <translation>A comparação exige exatamente um par de sessões observando simultaneamente na pasta.</translation>
+            <source>Comparison needs exactly one pair of simultaneously observing sessions in the folder. Choose a folder that holds two sessions observed at the same time.</source>
+            <translation>A comparação exige exatamente um par de sessões observando simultaneamente na pasta. Escolha uma pasta que contenha duas sessões observadas no mesmo período.</translation>
         </message>
         <message>
             <source>Comparison table</source>
@@ -750,16 +750,16 @@
             <translation>Confiança para o teste de significância</translation>
         </message>
         <message>
-            <source>Could not read the elevation masks from %1</source>
-            <translation>Não foi possível ler as máscaras de elevação de %1</translation>
+            <source>Could not read the elevation masks from %1. Give them as numbers of degrees separated by commas.</source>
+            <translation>Não foi possível ler as máscaras de elevação de %1. Informe-as como números de graus separados por vírgulas.</translation>
         </message>
         <message>
             <source>Elevation masks to compare (degrees)</source>
             <translation>Máscaras de elevação a comparar (graus)</translation>
         </message>
         <message>
-            <source>Fewer than two configurations produced a baseline to compare.</source>
-            <translation>Menos de duas configurações produziram uma linha de base para comparar.</translation>
+            <source>Fewer than two configurations produced a baseline to compare. Check the log for why the others produced none.</source>
+            <translation>Menos de duas configurações produziram uma linha de base para comparar. Confira no registro por que as outras não produziram nenhuma.</translation>
         </message>
         <message>
             <source>Folder of RINEX observations</source>
@@ -917,8 +917,8 @@
             <translation>Rápida</translation>
         </message>
         <message>
-            <source>The last day, %1, is before the first, %2.</source>
-            <translation>O último dia, %1, é anterior ao primeiro, %2.</translation>
+            <source>The last day, %1, is before the first, %2. Swap them.</source>
+            <translation>O último dia, %1, é anterior ao primeiro, %2. Inverta-os.</translation>
         </message>
     </context>
     <context>
@@ -932,8 +932,8 @@
             <translation>&lt;p&gt;Ajusta uma rede geodésica usando o &lt;b&gt;DynAdjust&lt;/b&gt;, o conjunto de programas de mínimos quadrados da Geoscience Australia, e lê sua saída de volta na mesma estrutura de solução que o ajustamento próprio do GeoComp produz. Tudo a jusante &amp;mdash; relatórios, camadas de mapa, armazenamento, comparação multiépoca &amp;mdash; funciona da mesma maneira, qualquer que seja o motor que produziu o resultado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O DynAdjust precisa ser instalado separadamente.&lt;/b&gt; Ele não é distribuído junto: é um programa nativo grande, sob outra licença, e embarcar uma cópia dentro de um complemento do QGIS tornaria o GeoComp responsável pela compilação dele. Se não for encontrado, este algoritmo avisa e diz o que está faltando.&lt;/p&gt;&lt;p&gt;O DynAdjust é um conjunto de programas, não um só. Este algoritmo executa, nesta ordem, &lt;code&gt;dnaimport&lt;/code&gt;, depois &lt;code&gt;dnareftran&lt;/code&gt; se o referencial ou a época de destino diferirem dos da rede, depois &lt;code&gt;dnageoid&lt;/code&gt; se altitudes ortométricas participarem, depois &lt;code&gt;dnasegment&lt;/code&gt; para uma rede grande demais para ser ajustada de uma vez, e por fim &lt;code&gt;dnaadjust&lt;/code&gt;. Quais etapas foram executadas, e por que cada uma das outras não foi, fica registrado na proveniência da solução.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Rede&lt;/b&gt; &amp;mdash; um documento de rede do GeoComp (JSON). Ou, em vez dele, um &lt;b&gt;repositório do projeto&lt;/b&gt;: um GeoPackage, ou um esquema de uma conexão PostgreSQL, com o identificador da &lt;b&gt;rede no repositório&lt;/b&gt; (vazio: a sua única rede). O repositório é lido e nunca alterado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Referencial&lt;/b&gt; e &lt;b&gt;Época de referência&lt;/b&gt; &amp;mdash; o referencial e a época em que ajustar. Deixe vazios para usar os da própria rede. Nenhum dos dois é jamais adivinhado: um referencial que o GeoComp inferiu em vez de saber é um deslocamento de datum absorvido pelos resíduos.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Grade geoidal&lt;/b&gt; &amp;mdash; um arquivo NTv2, obrigatório quando a rede tem altitudes ortométricas, porque os sistemas de altitudes não podem ser relacionados sem ele.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt; &amp;mdash; para o teste qui-quadrado e as incertezas posicionais. &lt;b&gt;Limiar de convergência&lt;/b&gt; e &lt;b&gt;Número máximo de iterações&lt;/b&gt; &amp;mdash; repassados ao DynAdjust sem alteração.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiar de segmentação&lt;/b&gt; &amp;mdash; acima deste número de estações a rede é segmentada e ajustada em fases, o que é rigoroso: as soluções dos blocos e suas variâncias são iguais às simultâneas.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Diretório do DynAdjust&lt;/b&gt; &amp;mdash; onde estão os programas, para esta execução. Vazio, o GeoComp usa o diretório definido em Configurações Globais, na seção Caminhos e motores, depois a sua própria instalação (Projeto &amp;rsaquo; Instalar um motor), depois o caminho do sistema. &lt;b&gt;Tempo limite&lt;/b&gt; &amp;mdash; segundos antes de uma etapa ser abandonada e seu grupo de processos encerrado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Manter os arquivos de trabalho&lt;/b&gt; &amp;mdash; escreve a entrada gerada e a saída bruta do DynAdjust em uma pasta em vez de um diretório temporário. Um ajustamento que surpreende só pode ser respondido a partir dos arquivos que o produziram.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Configuração do DynAdjust&lt;/b&gt; &amp;mdash; um arquivo JSON com opções suas para cada programa, acrescentadas depois das do GeoComp: &lt;code&gt;{"dnaadjust": ["--free-stn-sd", "10"]}&lt;/code&gt;. As opções que o próprio GeoComp define, como a confiança ou os arquivos de saída, são recusadas: cada uma tem aqui um parâmetro, e o GeoComp lê a saída de volta por elas. As opções ficam registradas na proveniência da solução.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Parar depois de escrever a entrada&lt;/b&gt; &amp;mdash; escreve os arquivos de entrada e o plano na pasta de arquivos de trabalho e para, sem executar o DynAdjust, que nem precisa estar instalado. Inspecione ou edite os arquivos ali e depois execute-os com &lt;b&gt;Executar um trabalho preparado do DynAdjust&lt;/b&gt;. Os arquivos editados ficam registrados no resultado.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solução&lt;/b&gt; &amp;mdash; JSON: coordenadas ajustadas, a matriz de variâncias completa, resíduos por observação, as estatísticas e a proveniência registrando cada linha de comando executada.&lt;/p&gt;&lt;p&gt;Saídas escalares: &lt;code&gt;ENGINE_VERSION&lt;/code&gt;, &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;ITERATIONS&lt;/code&gt;, &lt;code&gt;CONVERGED&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt; e &lt;code&gt;ADJUSTMENT_MODE&lt;/code&gt;.&lt;/p&gt;</translation>
         </message>
         <message>
-            <source>A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a suite, and a partial installation fails part way through.</source>
-            <translation>Falta um programa do DynAdjust de que o fluxo precisa: %1. O DynAdjust é um conjunto de programas, e uma instalação parcial falha no meio do caminho.</translation>
+            <source>A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a suite, and a partial installation fails part way through. Install DynAdjust again with the Install an engine algorithm.</source>
+            <translation>Falta um programa do DynAdjust de que o fluxo precisa: %1. O DynAdjust é um conjunto de programas, e uma instalação parcial falha no meio do caminho. Instale o DynAdjust de novo com o algoritmo Instalar um motor.</translation>
         </message>
         <message>
             <source>Adjust a network with Geoscience Australia's DynAdjust and read the result back.</source>
@@ -1059,12 +1059,12 @@
             <translation>%1 grandeza(s) discordam.</translation>
         </message>
         <message>
-            <source>'%1' could not be read as JSON: %2</source>
-            <translation>'%1' não pôde ser lido como JSON: %2</translation>
+            <source>'%1' could not be read as JSON; correct it, or choose the file a GeoComp algorithm wrote: %2</source>
+            <translation>'%1' não pôde ser lido como JSON; corrija-o, ou escolha o arquivo que um algoritmo do GeoComp gravou: %2</translation>
         </message>
         <message>
-            <source>'%1' is not a GeoComp solution document: %2</source>
-            <translation>'%1' não é um documento de solução do GeoComp: %2</translation>
+            <source>'%1' is not a GeoComp solution document; choose the one an adjustment wrote: %2</source>
+            <translation>'%1' não é um documento de solução do GeoComp; escolha o que um ajustamento gravou: %2</translation>
         </message>
         <message>
             <source>&lt;p&gt;Compares two solution documents of the same network and reports, quantity by quantity, where they agree and where they do not.&lt;/p&gt;&lt;p&gt;Its first purpose is cross-validating GeoComp's own least-squares core against &lt;b&gt;DynAdjust&lt;/b&gt;: two independent implementations of the same problem, so agreement is evidence about both and a disagreement is a real finding about one of them. It is not limited to that. Any two solutions compare on the same terms &amp;mdash; the same network adjusted with a different stochastic model, or before and after an observation was rejected &amp;mdash; because every engine fills the same structure.&lt;/p&gt;&lt;h3&gt;What is compared&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Degrees of freedom, observation count and parameter count&lt;/b&gt; must match &lt;i&gt;exactly&lt;/i&gt;. They are properties of the model rather than of the arithmetic, so a difference means the two solved different problems &amp;mdash; and comparing residuals after that would be meaningless.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The variance factor&lt;/b&gt; is compared relatively, because an absolute tolerance is wrong at both ends: it is a large error on a variance factor of 0.001 and negligible on one of 100.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinates&lt;/b&gt;, per station, as the largest difference over the three components &amp;mdash; but only when both solutions are in the same frame. Differencing a geocentric X against a projected easting produces a number, and the number means nothing, so a frame mismatch is reported as &lt;i&gt;not compared&lt;/i&gt; with both frames named.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Residuals&lt;/b&gt;, per observation. These move before the coordinates do: a sign error in a Jacobian or a dropped correlation between the components of a GNSS baseline shows here first.&lt;/p&gt;&lt;p&gt;A quantity that could not be compared does &lt;b&gt;not&lt;/b&gt; count as a disagreement. Absence of evidence is not evidence, and treating it as such would make an unconvertible frame look like a defect in an engine.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reference solution&lt;/b&gt; and &lt;b&gt;Other solution&lt;/b&gt; &amp;mdash; JSON documents. The comparison is symmetric; the names decide only which column is which.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Coordinate tolerance&lt;/b&gt; &amp;mdash; metres. The default of 0.1 mm is far below any observation's precision and far above the last-digit differences two orderings of the same arithmetic produce.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Variance factor tolerance&lt;/b&gt; &amp;mdash; relative. The default of 1% accommodates DynAdjust printing sigma-nought to three decimals.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Report&lt;/b&gt; &amp;mdash; plain text, one line per quantity. &lt;b&gt;Differences&lt;/b&gt; &amp;mdash; JSON, per station and per observation, for a plot or a spreadsheet.&lt;/p&gt;&lt;p&gt;Scalar outputs: &lt;code&gt;AGREES&lt;/code&gt;, &lt;code&gt;LARGEST_COORDINATE_DIFFERENCE&lt;/code&gt;, &lt;code&gt;LARGEST_RESIDUAL_DIFFERENCE&lt;/code&gt; and &lt;code&gt;DISAGREEMENT_COUNT&lt;/code&gt;.&lt;/p&gt;</source>
@@ -1091,8 +1091,8 @@
             <translation>Diferenças</translation>
         </message>
         <message>
-            <source>No solution document was given for parameter '%1'.</source>
-            <translation>Nenhum documento de solução foi informado para o parâmetro '%1'.</translation>
+            <source>No solution document was given for parameter '%1'. Choose the document in that parameter.</source>
+            <translation>Nenhum documento de solução foi informado para o parâmetro '%1'. Escolha o documento nesse parâmetro.</translation>
         </message>
         <message>
             <source>Other solution</source>
@@ -1103,8 +1103,8 @@
             <translation>Solução de referência</translation>
         </message>
         <message>
-            <source>The solution document '%1' does not exist.</source>
-            <translation>O documento de solução '%1' não existe.</translation>
+            <source>The solution document '%1' does not exist. Check the path.</source>
+            <translation>O documento de solução '%1' não existe. Confira o caminho.</translation>
         </message>
         <message>
             <source>The two solutions name different networks (%1 and %2). Comparing them is only meaningful if they are in fact the same network under two names.</source>
@@ -1304,8 +1304,8 @@
             <translation>&lt;p&gt;Combina observações recíprocas através de um obstáculo &amp;mdash; um rio é o caso que a proposta refere &amp;mdash; onde um estacionamento de visadas iguais é impossível.&lt;/p&gt;&lt;p&gt;O instrumento de cada margem lê a mira do seu próprio lado numa visada curta e a mira do outro lado da água numa visada longa. A visada longa carrega quase todo o erro, e este entra nas duas determinações com &lt;b&gt;sinal contrário&lt;/b&gt;, de modo que se cancela na média. Esse cancelamento é o método.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A incerteza é deliberadamente mais conservadora do que a das visadas iguais.&lt;/b&gt; A refração sobre a água varia rápida e assimetricamente, e as duas observações não foram simultâneas, de modo que a simetria em que o método assenta só se verifica aproximadamente. A variância propagada é multiplicada pelo fator de inflação e o resultado é marcado como escalonamento empírico, que o acompanha em todos os relatórios. Definir o fator como um é permitido e é reportado como aviso, porque afirma que as duas observações viram exatamente o mesmo ar.&lt;/p&gt;&lt;p&gt;A &lt;b&gt;discrepância&lt;/b&gt; entre as duas determinações é reportada. O seu valor esperado é zero; uma discrepância grande indica que a refração mudou entre elas, que é precisamente o pressuposto do método, de modo que é mostrada em vez de ser diluída na média.&lt;/p&gt;&lt;h3&gt;Disposição dos dados&lt;/h3&gt;&lt;p&gt;Cada travessia são &lt;b&gt;dois estacionamentos&lt;/b&gt; na caderneta importada, cada uma com uma visada de ré (a mira próxima) e uma de vante (a mira afastada), observando o segundo estacionamento as mesmas duas estações no sentido inverso. Os estacionamentos são emparelhados pela ordem em que surgem.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Estacionamentos&lt;/b&gt; &amp;mdash; o documento produzido pelo importador. &lt;b&gt;Inflação da variância&lt;/b&gt; &amp;mdash; pelo menos um. &lt;b&gt;Tolerância da discrepância&lt;/b&gt; (m) &amp;mdash; acima da qual a divergência entre as margens é reportada; zero desativa a verificação.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Desníveis&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Travessias&lt;/b&gt; &amp;mdash; CSV. Escalares: &lt;code&gt;CROSSING_COUNT&lt;/code&gt; e &lt;code&gt;WORST_DISCREPANCY&lt;/code&gt; em metros.&lt;/p&gt;</translation>
         </message>
         <message>
-            <source>A reciprocal crossing is two setups, one from each bank, so the book must hold an even number of at least two. It holds %1.</source>
-            <translation>Uma travessia recíproca são dois estacionamentos, um de cada margem, de modo que a caderneta tem de conter um número par de pelo menos dois. Contém %1.</translation>
+            <source>A reciprocal crossing is two setups, one from each bank, so the book must hold an even number of at least two. It holds %1. Check the book for a missing or an extra setup.</source>
+            <translation>Uma travessia recíproca são dois estacionamentos, um de cada margem, de modo que a caderneta tem de conter um número par de pelo menos dois. Contém %1. Confira se falta ou sobra um estacionamento na caderneta.</translation>
         </message>
         <message>
             <source>CSV files (*.csv)</source>
@@ -1376,8 +1376,8 @@
             <translation>Relatório</translation>
         </message>
         <message>
-            <source>Setup '%1' carries several foresights. A reciprocal crossing has one near staff and one far staff per bank.</source>
-            <translation>O estacionamento '%1' tem várias visadas de vante. Uma travessia recíproca tem uma mira próxima e uma mira afastada por margem.</translation>
+            <source>Setup '%1' carries several foresights. A reciprocal crossing has one near staff and one far staff per bank. Keep one foresight per setup.</source>
+            <translation>O estacionamento '%1' tem várias visadas de vante. Uma travessia recíproca tem uma mira próxima e uma mira afastada por margem. Mantenha uma visada de vante por estacionamento.</translation>
         </message>
         <message>
             <source>Setups</source>
@@ -2278,20 +2278,20 @@
     <context>
         <name>GeoCompAlgorithm</name>
         <message>
-            <source>%1 is required, and none was given.</source>
-            <translation>%1 é obrigatório, e nenhum foi informado.</translation>
+            <source>%1 is required, and none was given. Give one.</source>
+            <translation>%1 é obrigatório, e nenhum foi informado. Informe um.</translation>
         </message>
         <message>
             <source>%1: %2</source>
             <translation>%1: %2</translation>
         </message>
         <message>
-            <source>%1: the file '%2' does not exist.</source>
-            <translation>%1: o arquivo '%2' não existe.</translation>
+            <source>%1: the file '%2' does not exist. Check the path.</source>
+            <translation>%1: o arquivo '%2' não existe. Confira o caminho.</translation>
         </message>
         <message>
-            <source>%1: the folder '%2' does not exist.</source>
-            <translation>%1: a pasta '%2' não existe.</translation>
+            <source>%1: the folder '%2' does not exist. Check the path, or create the folder.</source>
+            <translation>%1: a pasta '%2' não existe. Confira o caminho, ou crie a pasta.</translation>
         </message>
         <message>
             <source>%1: this value cannot be used.</source>
@@ -2353,16 +2353,16 @@
     <context>
         <name>GeoCompAnalysis</name>
         <message>
-            <source>'%1' could not be read as a GeoComp network. %2</source>
-            <translation>Não foi possível ler '%1' como uma rede do GeoComp. %2</translation>
+            <source>'%1' could not be read as a GeoComp network; check that it is a network document a GeoComp algorithm wrote. %2</source>
+            <translation>Não foi possível ler '%1' como uma rede do GeoComp; verifique se é um documento de rede que um algoritmo do GeoComp gravou. %2</translation>
         </message>
         <message>
-            <source>'%1' could not be read: %2</source>
-            <translation>Não foi possível ler '%1': %2</translation>
+            <source>'%1' could not be read; check that the file exists and can be read: %2</source>
+            <translation>Não foi possível ler '%1'; verifique se o arquivo existe e pode ser lido: %2</translation>
         </message>
         <message>
-            <source>'%1' is not valid JSON: %2</source>
-            <translation>'%1' não é um JSON válido: %2</translation>
+            <source>'%1' is not valid JSON; correct it, or choose the file a GeoComp algorithm wrote: %2</source>
+            <translation>'%1' não é um JSON válido; corrija-o, ou escolha o arquivo que um algoritmo do GeoComp gravou: %2</translation>
         </message>
         <message>
             <source>1D — gravity values</source>
@@ -2397,12 +2397,12 @@
             <translation>Injunção mínima — sobre as estações escolhidas</translation>
         </message>
         <message>
-            <source>No network document was given for parameter '%1'.</source>
-            <translation>Nenhum documento de rede foi informado para o parâmetro '%1'.</translation>
+            <source>No network document was given for parameter '%1'. Choose the document in that parameter.</source>
+            <translation>Nenhum documento de rede foi informado para o parâmetro '%1'. Escolha o documento nesse parâmetro.</translation>
         </message>
         <message>
-            <source>The network document '%1' does not exist.</source>
-            <translation>O documento de rede '%1' não existe.</translation>
+            <source>The network document '%1' does not exist. Check the path.</source>
+            <translation>O documento de rede '%1' não existe. Confira o caminho.</translation>
         </message>
     </context>
     <context>
@@ -2424,8 +2424,8 @@
             <translation>Não oferecer novamente</translation>
         </message>
         <message>
-            <source>The base map service could not be loaded: </source>
-            <translation>Não foi possível carregar o serviço de mapa de fundo: </translation>
+            <source>The base map service could not be loaded; check its address: </source>
+            <translation>Não foi possível carregar o serviço de mapa de fundo; confira o seu endereço: </translation>
         </message>
     </context>
     <context>
@@ -2513,8 +2513,8 @@
             <translation>Base %1: publicada em %2 na época %3, transformada para %4 na época %5 para esta execução.</translation>
         </message>
         <message>
-            <source>Could not read the download services file %1: %2</source>
-            <translation>Não foi possível ler o arquivo de serviços de download %1: %2</translation>
+            <source>Could not read the download services file %1; check that it exists and can be read: %2</source>
+            <translation>Não foi possível ler o arquivo de serviços de download %1; verifique se ele existe e pode ser lido: %2</translation>
         </message>
         <message>
             <source>Product %1 (%2)</source>
@@ -2533,32 +2533,32 @@
             <translation>Opções do RTKLIB (*.conf);;Todos os arquivos (*)</translation>
         </message>
         <message>
-            <source>The configured antenna file does not exist: %1</source>
-            <translation>O arquivo de antena configurado não existe: %1</translation>
+            <source>The configured antenna file does not exist: %1. Correct its path in Global Settings, under GNSS.</source>
+            <translation>O arquivo de antena configurado não existe: %1. Corrija o caminho nas Configurações Globais, em GNSS.</translation>
         </message>
         <message>
-            <source>The configured product directory does not exist: %1</source>
-            <translation>O diretório de produtos configurado não existe: %1</translation>
+            <source>The configured product directory does not exist: %1. Correct its path in Global Settings, under GNSS.</source>
+            <translation>O diretório de produtos configurado não existe: %1. Corrija o caminho nas Configurações Globais, em GNSS.</translation>
         </message>
         <message>
             <source>The project's: the preferred CRS's frame</source>
             <translation>O do projeto: o referencial do SRC preferido</translation>
         </message>
         <message>
-            <source>The session of base %1 states no start time, so its published coordinates cannot be brought to the epoch it was observed at.</source>
-            <translation>A sessão da base %1 não declara hora de início, por isso as suas coordenadas publicadas não podem ser levadas à época em que foi observada.</translation>
+            <source>The session of base %1 states no start time, so its published coordinates cannot be brought to the epoch it was observed at. Check that its RINEX header has a TIME OF FIRST OBS record.</source>
+            <translation>A sessão da base %1 não declara hora de início, por isso as suas coordenadas publicadas não podem ser levadas à época em que foi observada. Verifique se o cabeçalho RINEX tem um registro TIME OF FIRST OBS.</translation>
         </message>
         <message>
             <source>Timeout per run (s)</source>
             <translation>Tempo limite por execução (s)</translation>
         </message>
         <message>
-            <source>Unknown download service: %1. Known services: %2</source>
-            <translation>Serviço de download desconhecido: %1. Serviços conhecidos: %2</translation>
+            <source>Unknown download service: %1. Known services: %2. Choose one of those.</source>
+            <translation>Serviço de download desconhecido: %1. Serviços conhecidos: %2. Escolha um deles.</translation>
         </message>
         <message>
-            <source>Unknown processing profile: %1</source>
-            <translation>Perfil de processamento desconhecido: %1</translation>
+            <source>Unknown processing profile: %1. Choose one of the profiles the algorithm offers.</source>
+            <translation>Perfil de processamento desconhecido: %1. Escolha um dos perfis que o algoritmo oferece.</translation>
         </message>
         <message>
             <source>Using %1 %2 from %3.</source>
@@ -2624,12 +2624,12 @@
             <translation>Informe a estação %1 explicitamente; a pasta contém: %2</translation>
         </message>
         <message>
-            <source>No %1 session for station %2; found: %3</source>
-            <translation>Nenhuma sessão %1 para a estação %2; encontradas: %3</translation>
+            <source>No %1 session for station %2; found: %3. Choose one of those stations.</source>
+            <translation>Nenhuma sessão %1 para a estação %2; encontradas: %3. Escolha uma dessas estações.</translation>
         </message>
         <message>
-            <source>No RINEX observation sessions were found in %1</source>
-            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1</translation>
+            <source>No RINEX observation sessions were found in %1. Choose the folder that holds the observation files.</source>
+            <translation>Nenhuma sessão de observação RINEX foi encontrada em %1. Escolha a pasta que contém os arquivos de observação.</translation>
         </message>
         <message>
             <source>Observations the engine rejected as outliers: %1, on %2.</source>
@@ -2648,8 +2648,8 @@
             <translation>Solução RTKLIB (*.pos)</translation>
         </message>
         <message>
-            <source>Relative processing needs two sessions that observed at the same time; the folder's sessions do not overlap.</source>
-            <translation>O processamento relativo exige duas sessões observadas ao mesmo tempo; as sessões da pasta não se sobrepõem.</translation>
+            <source>Relative processing needs two sessions that observed at the same time; the folder's sessions do not overlap. Add the other receiver's session for the same time.</source>
+            <translation>O processamento relativo exige duas sessões observadas ao mesmo tempo; as sessões da pasta não se sobrepõem. Adicione a sessão do outro receptor no mesmo período.</translation>
         </message>
         <message>
             <source>Rover station</source>
@@ -2683,16 +2683,16 @@
     <context>
         <name>GeoCompGravimetry</name>
         <message>
-            <source>'%1' could not be read as a gravimeter profile library: %2 is missing or invalid.</source>
-            <translation>Não foi possível ler '%1' como uma biblioteca de perfis de gravímetro: %2 está ausente ou é inválido.</translation>
+            <source>'%1' could not be read as a gravimeter profile library: %2 is missing or invalid. Choose a library the profile manager saved.</source>
+            <translation>Não foi possível ler '%1' como uma biblioteca de perfis de gravímetro: %2 está ausente ou é inválido. Escolha uma biblioteca que o gerenciador de perfis salvou.</translation>
         </message>
         <message>
-            <source>'%1' could not be read as reduced gravity readings: %2</source>
-            <translation>Não foi possível ler '%1' como leituras gravimétricas reduzidas: %2</translation>
+            <source>'%1' could not be read as reduced gravity readings; choose the document the gravity reduction wrote: %2</source>
+            <translation>Não foi possível ler '%1' como leituras gravimétricas reduzidas; escolha o documento que a redução gravimétrica gravou: %2</translation>
         </message>
         <message>
-            <source>'%1' holds no readings.</source>
-            <translation>'%1' não contém leituras.</translation>
+            <source>'%1' holds no readings. Choose the document the gravity reduction wrote.</source>
+            <translation>'%1' não contém leituras. Escolha o documento que a redução gravimétrica gravou.</translation>
         </message>
         <message>
             <source>'%1' is not a reduced gravity readings document. Run 'Pre-processing (scale, tide, drift)' on the gravimeter file first.</source>
@@ -2850,12 +2850,12 @@
             <translation>A solução geocêntrica é desenhada em %1: coordenada leste, coordenada norte e altitude elipsoidal.</translation>
         </message>
         <message>
-            <source>The style file '%1' could not be applied: %2</source>
-            <translation>O arquivo de estilo '%1' não pôde ser aplicado: %2</translation>
+            <source>The style file '%1' could not be applied, so the layer is unstyled; install the plugin again from its release archive: %2</source>
+            <translation>O arquivo de estilo '%1' não pôde ser aplicado, portanto a camada ficou sem estilo; instale o plugin de novo a partir do arquivo de lançamento: %2</translation>
         </message>
         <message>
-            <source>The style file '%1' is missing, so the layer is unstyled.</source>
-            <translation>O arquivo de estilo '%1' não foi encontrado, portanto a camada ficou sem estilo.</translation>
+            <source>The style file '%1' is missing, so the layer is unstyled. Install the plugin again from its release archive.</source>
+            <translation>O arquivo de estilo '%1' não foi encontrado, portanto a camada ficou sem estilo. Instale o plugin de novo a partir do arquivo de lançamento.</translation>
         </message>
         <message>
             <source>Velocities, one year's motion (%1)</source>
@@ -2877,12 +2877,12 @@
             <translation>Não foi possível ler '%1' como uma biblioteca de perfis de instrumento. %2</translation>
         </message>
         <message>
-            <source>'%1' could not be read as levelling lines: %2</source>
-            <translation>'%1' não pôde ser lido como linhas de nivelamento: %2</translation>
+            <source>'%1' could not be read as levelling lines; choose the document 'Import levelling field book' wrote: %2</source>
+            <translation>'%1' não pôde ser lido como linhas de nivelamento; escolha o documento que 'Importar caderneta de nivelamento' gravou: %2</translation>
         </message>
         <message>
-            <source>'%1' does not contain a GeoComp document: its top level is not an object.</source>
-            <translation>'%1' não contém um documento do GeoComp: seu nível superior não é um objeto.</translation>
+            <source>'%1' does not contain a GeoComp document: its top level is not an object. Choose the file a GeoComp algorithm wrote.</source>
+            <translation>'%1' não contém um documento do GeoComp: seu nível superior não é um objeto. Escolha o arquivo que um algoritmo do GeoComp gravou.</translation>
         </message>
         <message>
             <source>'%1' holds no levelling lines. Run 'Import levelling field book' first.</source>
@@ -2893,12 +2893,12 @@
             <translation>'%1' não contém linhas de nivelamento reduzidas. Execute primeiro 'Visadas iguais'.</translation>
         </message>
         <message>
-            <source>'%1' is not a levelling reduction document.</source>
-            <translation>'%1' não é um documento de redução de nivelamento.</translation>
+            <source>'%1' is not a levelling reduction document. Choose the document the levelling reduction wrote.</source>
+            <translation>'%1' não é um documento de redução de nivelamento. Escolha o documento que a redução do nivelamento gravou.</translation>
         </message>
         <message>
-            <source>'%1' is not valid JSON: %2</source>
-            <translation>'%1' não é um JSON válido: %2</translation>
+            <source>'%1' is not valid JSON; correct it, or choose the file a GeoComp algorithm wrote: %2</source>
+            <translation>'%1' não é um JSON válido; corrija-o, ou escolha o arquivo que um algoritmo do GeoComp gravou: %2</translation>
         </message>
         <message>
             <source>Blocking</source>
@@ -2925,8 +2925,8 @@
             <translation>Envolve</translation>
         </message>
         <message>
-            <source>No file was given for parameter '%1'.</source>
-            <translation>Nenhum arquivo foi informado para o parâmetro '%1'.</translation>
+            <source>No file was given for parameter '%1'. Choose the file in that parameter.</source>
+            <translation>Nenhum arquivo foi informado para o parâmetro '%1'. Escolha o arquivo nesse parâmetro.</translation>
         </message>
         <message>
             <source>Nothing to report.</source>
@@ -2937,8 +2937,8 @@
             <translation>Severidade</translation>
         </message>
         <message>
-            <source>The file '%1' does not exist.</source>
-            <translation>O arquivo '%1' não existe.</translation>
+            <source>The file '%1' does not exist. Check the path.</source>
+            <translation>O arquivo '%1' não existe. Confira o caminho.</translation>
         </message>
         <message>
             <source>Warning</source>
@@ -2956,12 +2956,12 @@
             <translation>%1 (obrigatório)</translation>
         </message>
         <message>
-            <source>'%1' could not be read as a field mapping: %2</source>
-            <translation>'%1' não pôde ser lido como um mapeamento de campos: %2</translation>
+            <source>'%1' could not be read as a field mapping; correct it, or choose another: %2</source>
+            <translation>'%1' não pôde ser lido como um mapeamento de campos; corrija-o, ou escolha outro: %2</translation>
         </message>
         <message>
-            <source>'%1' could not be written: %2</source>
-            <translation>'%1' não pôde ser gravado: %2</translation>
+            <source>'%1' could not be written; check that its folder exists and can be written to: %2</source>
+            <translation>'%1' não pôde ser gravado; verifique se a pasta existe e permite gravação: %2</translation>
         </message>
         <message>
             <source>(none)</source>
@@ -4094,8 +4094,8 @@
             <translation>O GeoComp não consegue determinar o sentido da diferença GMT deste arquivo, e o cálculo da maré precisa de UTC. Informe explicitamente o deslocamento dos horários do arquivo em relação ao UTC, ou mantenha a correção de maré do próprio instrumento.</translation>
         </message>
         <message>
-            <source>GeoComp could not complete the operation (%1). See the GeoComp tab of the Log Messages panel for details.</source>
-            <translation>O GeoComp não conseguiu concluir a operação (%1). Consulte a aba GeoComp do painel Mensagens de Log para mais detalhes.</translation>
+            <source>GeoComp could not complete the operation (%1). See the GeoComp tab of the Log Messages panel for details. This is an internal error; please report it.</source>
+            <translation>O GeoComp não conseguiu concluir a operação (%1). Consulte a aba GeoComp do painel Mensagens de Log para mais detalhes. Este é um erro interno; por favor, relate-o.</translation>
         </message>
         <message>
             <source>GeoComp has no assumed precision for a planned %1, and will not invent one. State its precision.</source>
@@ -6089,8 +6089,8 @@
             <translation>Similaridade: translação, rotação e escala</translation>
         </message>
         <message>
-            <source>The alert thresholds file '%1' could not be read: %2</source>
-            <translation>O arquivo de limiares de alerta '%1' não pôde ser lido: %2</translation>
+            <source>The alert thresholds file '%1' could not be read; check that it exists and can be read: %2</source>
+            <translation>O arquivo de limiares de alerta '%1' não pôde ser lido; verifique se ele existe e pode ser lido: %2</translation>
         </message>
         <message>
             <source>Translation</source>
@@ -6796,8 +6796,8 @@
             <translation>%1 copiado para %2.</translation>
         </message>
         <message>
-            <source>%1 could not be read as instrument profiles: %2</source>
-            <translation>%1 não pôde ser lido como perfis de instrumento: %2</translation>
+            <source>%1 could not be read as instrument profiles; choose a library this window saved: %2</source>
+            <translation>%1 não pôde ser lido como perfis de instrumento; escolha uma biblioteca que esta janela salvou: %2</translation>
         </message>
         <message>
             <source>%1 deleted.</source>
@@ -7357,8 +7357,8 @@
             <translation>Estatística de teste</translation>
         </message>
         <message>
-            <source>The solution %1 could not be read: %2</source>
-            <translation>Não foi possível ler a solução %1: %2</translation>
+            <source>The solution %1 could not be read; choose a solution document an adjustment wrote: %2</source>
+            <translation>Não foi possível ler a solução %1; escolha um documento de solução que um ajustamento gravou: %2</translation>
         </message>
         <message>
             <source>This solution's uncertainties are approximate; its report names the strategies used.</source>
@@ -8226,8 +8226,8 @@
             <translation>Selecione estações numa camada de velocidades, ou abra um documento de série.</translation>
         </message>
         <message>
-            <source>The series document could not be read: %1</source>
-            <translation>O documento da série não pôde ser lido: %1</translation>
+            <source>The series document could not be read; choose the one 'Time series and velocities' wrote: %1</source>
+            <translation>O documento da série não pôde ser lido; escolha o que 'Séries temporais e velocidades' gravou: %1</translation>
         </message>
         <message>
             <source>Up</source>
@@ -8237,24 +8237,24 @@
     <context>
         <name>GeoCompTotalStation</name>
         <message>
-            <source>'%1' contains no setups, so there is nothing to process.</source>
-            <translation>'%1' não contém estacionamentos, portanto não há nada a processar.</translation>
+            <source>'%1' contains no setups, so there is nothing to process. Check that it is the document the import wrote.</source>
+            <translation>'%1' não contém estacionamentos, portanto não há nada a processar. Verifique se é o documento que a importação gravou.</translation>
         </message>
         <message>
-            <source>'%1' could not be read as a field mapping: %2</source>
-            <translation>Não foi possível ler '%1' como um mapeamento de campos: %2</translation>
+            <source>'%1' could not be read as a field mapping; correct it, or choose another: %2</source>
+            <translation>'%1' não pôde ser lido como um mapeamento de campos; corrija-o, ou escolha outro: %2</translation>
         </message>
         <message>
             <source>'%1' could not be read as an instrument profile library. %2</source>
             <translation>Não foi possível ler '%1' como uma biblioteca de perfis de instrumento. %2</translation>
         </message>
         <message>
-            <source>'%1' could not be read as readings: %2</source>
-            <translation>Não foi possível ler '%1' como leituras: %2</translation>
+            <source>'%1' could not be read as readings; choose the document 'Import field book' wrote: %2</source>
+            <translation>Não foi possível ler '%1' como leituras; escolha o documento que 'Importar caderneta de campo' gravou: %2</translation>
         </message>
         <message>
-            <source>'%1' does not contain a GeoComp document: its top level is not an object.</source>
-            <translation>'%1' não contém um documento do GeoComp: seu nível superior não é um objeto.</translation>
+            <source>'%1' does not contain a GeoComp document: its top level is not an object. Choose the file a GeoComp algorithm wrote.</source>
+            <translation>'%1' não contém um documento do GeoComp: seu nível superior não é um objeto. Escolha o arquivo que um algoritmo do GeoComp gravou.</translation>
         </message>
         <message>
             <source>'%1' is not a GeoComp readings document. Run Import field book first, or choose the file it produced.</source>
@@ -8265,8 +8265,8 @@
             <translation>'%1' não é um documento de reduções do GeoComp. Execute primeiro o Pré-processamento generalizado, ou escolha o arquivo que ele produziu.</translation>
         </message>
         <message>
-            <source>'%1' is not valid JSON: %2</source>
-            <translation>'%1' não é um JSON válido: %2</translation>
+            <source>'%1' is not valid JSON; correct it, or choose the file a GeoComp algorithm wrote: %2</source>
+            <translation>'%1' não é um JSON válido; corrija-o, ou escolha o arquivo que um algoritmo do GeoComp gravou: %2</translation>
         </message>
         <message>
             <source>'%1' was written by an earlier Generalised pre-processing, which did not record the instrument and target heights. A 3D network needs them: without them every zenith angle and slope distance would be adjusted as though it ran from mark to mark. Run Generalised pre-processing again on the readings.</source>
@@ -8293,8 +8293,8 @@
             <translation>Envolve</translation>
         </message>
         <message>
-            <source>No file was given for parameter '%1'.</source>
-            <translation>Nenhum arquivo foi informado para o parâmetro '%1'.</translation>
+            <source>No file was given for parameter '%1'. Choose the file in that parameter.</source>
+            <translation>Nenhum arquivo foi informado para o parâmetro '%1'. Escolha o arquivo nesse parâmetro.</translation>
         </message>
         <message>
             <source>Nothing to report.</source>
@@ -8305,8 +8305,8 @@
             <translation>Severidade</translation>
         </message>
         <message>
-            <source>The file '%1' does not exist.</source>
-            <translation>O arquivo '%1' não existe.</translation>
+            <source>The file '%1' does not exist. Check the path.</source>
+            <translation>O arquivo '%1' não existe. Confira o caminho.</translation>
         </message>
         <message>
             <source>Warning</source>
@@ -8316,8 +8316,8 @@
     <context>
         <name>GravimetryNetworkAlgorithm</name>
         <message>
-            <source>'%1' does not hold a number.</source>
-            <translation>'%1' não contém um número.</translation>
+            <source>'%1' does not hold a number. Correct it.</source>
+            <translation>'%1' não contém um número. Corrija-o.</translation>
         </message>
         <message>
             <source>'%1' is not a known gravity. Write it as station=value in mGal, for example RG26=979197.5759, and add ±sigma to weight it as an absolute determination rather than hold it.</source>
@@ -8568,8 +8568,8 @@
             <translation>O teste global falhou. Ou as observações divergem entre si mais do que os seus pesos permitem, ou os pesos estão errados — o teste não distingue os dois casos.</translation>
         </message>
         <message>
-            <source>The station '%1' is given a known gravity twice.</source>
-            <translation>A estação '%1' recebeu uma gravidade conhecida duas vezes.</translation>
+            <source>The station '%1' is given a known gravity twice. Remove one of the two.</source>
+            <translation>A estação '%1' recebeu uma gravidade conhecida duas vezes. Remova um dos dois.</translation>
         </message>
         <message>
             <source>Tide system</source>
@@ -8762,8 +8762,8 @@
             <translation>%1 registro(s) lido(s) em %2 estacionamento(s); %3 rejeitado(s).</translation>
         </message>
         <message>
-            <source>%1 record(s) were rejected; see the findings.</source>
-            <translation>%1 registro(s) foram rejeitados; veja as constatações.</translation>
+            <source>%1 record(s) were rejected; correct them from the findings.</source>
+            <translation>%1 registro(s) foram rejeitados; corrija-os a partir das constatações.</translation>
         </message>
         <message>
             <source>(constant %1)</source>
@@ -8898,12 +8898,12 @@
             <translation>Coluna de origem</translation>
         </message>
         <message>
-            <source>The field book '%1' does not exist.</source>
-            <translation>A caderneta de campo '%1' não existe.</translation>
+            <source>The field book '%1' does not exist. Check the path.</source>
+            <translation>A caderneta de campo '%1' não existe. Confira o caminho.</translation>
         </message>
         <message>
-            <source>The field book '%1' is empty.</source>
-            <translation>A caderneta de campo '%1' está vazia.</translation>
+            <source>The field book '%1' is empty. Check that you chose the book the instrument exported.</source>
+            <translation>A caderneta de campo '%1' está vazia. Verifique se escolheu a caderneta que o instrumento exportou.</translation>
         </message>
         <message>
             <source>Unit</source>
@@ -8948,8 +8948,8 @@
             <translation>%1 estacionamento(s) em %2 linha(s).</translation>
         </message>
         <message>
-            <source>'%1' could not be read as a levelling field mapping: %2</source>
-            <translation>'%1' não pôde ser lido como um mapeamento de campos de nivelamento: %2</translation>
+            <source>'%1' could not be read as a levelling field mapping; correct it, or choose another: %2</source>
+            <translation>'%1' não pôde ser lido como um mapeamento de campos de nivelamento; corrija-o, ou escolha outro: %2</translation>
         </message>
         <message>
             <source>&lt;p&gt;Reads a levelling field book and assembles it into instrument setups and lines, attaching an uncertainty to every reading.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two layouts are recognised&lt;/b&gt;, and which one a file is in is worked out from the columns the mapping names rather than asked for. One row per setup, backsight and foresight side by side, is what a spreadsheet naturally produces. One row per reading, each carrying a setup identifier, is what an instrument exports &amp;mdash; and the only layout that can express a setup with several foresights at all.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Three-wire readings&lt;/b&gt; may replace a single reading in either layout. They buy the sight distance for free by stadia, which is what makes the sight-balance check possible on a book that never recorded a distance, and a half-sum check that catches a misread wire.&lt;/p&gt;&lt;p&gt;Numbers are read locale-independently: a comma decimal separator is handled here, at the boundary, and never again.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Field book&lt;/b&gt; &amp;mdash; the CSV. &lt;b&gt;Field mapping&lt;/b&gt; &amp;mdash; a saved mapping document describing the layout.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Instrument profiles&lt;/b&gt; and &lt;b&gt;level id&lt;/b&gt; &amp;mdash; where the reading precision comes from. With neither, a generic level is assumed and the report says so.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Default staff-reading uncertainty&lt;/b&gt; (m) &amp;mdash; the last resort before refusing. Zero means not configured; GeoComp does not invent a sigma, because a fabricated weight corrupts every statistic computed from it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Stadia factor&lt;/b&gt; &amp;mdash; used only when three wires are read and no level profile is available.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Setups&lt;/b&gt; &amp;mdash; JSON, the input to the reduction algorithms. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. Scalars: &lt;code&gt;SETUP_COUNT&lt;/code&gt;, &lt;code&gt;LINE_COUNT&lt;/code&gt; and &lt;code&gt;REJECTED_ROWS&lt;/code&gt;.&lt;/p&gt;</source>
@@ -9028,8 +9028,8 @@
             <translation>Linhas montadas</translation>
         </message>
         <message>
-            <source>No usable setup was read. Every row was rejected; the report lists why, row by row.</source>
-            <translation>Nenhum estacionamento utilizável foi lido. Todas as linhas foram rejeitadas; o relatório indica porquê, linha a linha.</translation>
+            <source>No usable setup was read. Every row was rejected; the report lists why, row by row. Correct the rows the report lists, or the field mapping.</source>
+            <translation>Nenhum estacionamento utilizável foi lido. Todas as linhas foram rejeitadas; o relatório indica porquê, linha a linha. Corrija as linhas que o relatório lista, ou o mapeamento de campos.</translation>
         </message>
         <message>
             <source>Quantity</source>
@@ -9168,8 +9168,8 @@
  "B": {"position": [1000, 0], "azimuth": 300.02}}&lt;/pre&gt;&lt;p&gt;Posições em metros, azimutes em graus a partir do norte, no sentido horário. Azimutes e não leituras de círculo: uma interseção direta é calculada a partir de estações &lt;i&gt;orientadas&lt;/i&gt;, e onde a orientação é desconhecida a estação precisa antes ser determinada por interseção inversa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Alvo&lt;/b&gt; &amp;mdash; o nome a dar ao ponto calculado. &lt;b&gt;Precisão do azimute&lt;/b&gt; (graus) &amp;mdash; aplicada a toda visada que não declare a sua, e é por ela que a elipse resultante é escalada.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Nível de confiança&lt;/b&gt; &amp;mdash; para a elipse relatada.&lt;/p&gt;&lt;h3&gt;Saídas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Posição&lt;/b&gt; &amp;mdash; um documento JSON no formato que a Rede clássica toma como coordenadas aproximadas. &lt;b&gt;Relatório&lt;/b&gt; &amp;mdash; HTML. Escalares: &lt;code&gt;EASTING&lt;/code&gt;, &lt;code&gt;NORTHING&lt;/code&gt;, &lt;code&gt;SEMI_MAJOR&lt;/code&gt;, &lt;code&gt;SEMI_MINOR&lt;/code&gt; em metros e &lt;code&gt;WEAK_GEOMETRY&lt;/code&gt;.&lt;/p&gt;</translation>
         </message>
         <message>
-            <source>At least two sightings are needed; the document holds %1.</source>
-            <translation>São necessárias ao menos duas visadas; o documento contém %1.</translation>
+            <source>At least two sightings are needed; the document holds %1. Add a sighting from another station.</source>
+            <translation>São necessárias ao menos duas visadas; o documento contém %1. Adicione uma visada de outra estação.</translation>
         </message>
         <message>
             <source>Azimuth precision (°)</source>
@@ -9260,12 +9260,12 @@
             <translation>Semieixo menor (mm)</translation>
         </message>
         <message>
-            <source>Sighting '%1' does not hold numbers.</source>
-            <translation>A visada '%1' não contém números.</translation>
+            <source>Sighting '%1' does not hold numbers. Correct that sighting.</source>
+            <translation>A visada '%1' não contém números. Corrija essa visada.</translation>
         </message>
         <message>
-            <source>Sighting '%1' must be an object with a 'position' pair and an 'azimuth'.</source>
-            <translation>A visada '%1' deve ser um objeto com um par 'position' e um 'azimuth'.</translation>
+            <source>Sighting '%1' must be an object with a 'position' pair and an 'azimuth'. Correct that sighting.</source>
+            <translation>A visada '%1' deve ser um objeto com um par 'position' e um 'azimuth'. Corrija essa visada.</translation>
         </message>
         <message>
             <source>Sightings</source>
@@ -9470,12 +9470,12 @@
             <translation>%1 fechamento(s) falharam na tolerância: %2. O GeoComp não ajusta uma linha que falhou na tolerância sem um reconhecimento explícito. Refaça a linha, ou ative 'Ajustar linhas que falharam na tolerância' nesta execução ou nas Configurações Globais (Nivelamento).</translation>
         </message>
         <message>
-            <source>%1 is not the height-difference document Trigonometric levelling writes.</source>
-            <translation>%1 não é o documento de desníveis que o Nivelamento trigonométrico escreve.</translation>
+            <source>%1 is not the height-difference document Trigonometric levelling writes. Choose the document it wrote.</source>
+            <translation>%1 não é o documento de desníveis que o Nivelamento trigonométrico escreve. Escolha o documento que ele gravou.</translation>
         </message>
         <message>
-            <source>'%1' does not hold a number.</source>
-            <translation>'%1' não contém um número.</translation>
+            <source>'%1' does not hold a number. Correct it.</source>
+            <translation>'%1' não contém um número. Corrija-o.</translation>
         </message>
         <message>
             <source>'%1' is not a benchmark. Write them as id=height, for example BM1=100.000, and add a tolerance as BM2=103.750±0.002 to hold one with a weight rather than exactly.</source>
@@ -9790,8 +9790,8 @@
             <translation>A camada de posições das estações não tem um SRC válido, então seus pontos não podem ser lidos como latitudes. Defina o SRC da camada.</translation>
         </message>
         <message>
-            <source>The trigonometric height differences cannot be read: %1</source>
-            <translation>Os desníveis trigonométricos não podem ser lidos: %1</translation>
+            <source>The trigonometric height differences cannot be read; choose the document Trigonometric levelling wrote: %1</source>
+            <translation>Os desníveis trigonométricos não podem ser lidos; escolha o documento que o Nivelamento trigonométrico gravou: %1</translation>
         </message>
         <message>
             <source>To</source>
@@ -10055,8 +10055,8 @@
             <translation>&lt;p&gt;Acompanha cada estação ao longo de qualquer número de épocas: o seu afastamento em relação à primeira época com a incerteza própria de cada época, e a sua velocidade por mínimos quadrados ponderados, com a incerteza da velocidade e um teste de que difere de zero.&lt;/p&gt;&lt;p&gt;Cada época é referida às &lt;b&gt;estações de referência&lt;/b&gt; por uma transformação S, e a sua congruência com a primeira época é testada em cada época: uma velocidade medida contra um pilar que se moveu é a do pilar. A execução recusa-se na primeira época em que o bloco falha, e nomeia-a. Deixe o campo vazio para usar as estações marcadas REFERENCE no documento da rede; sem nenhuma também lá, as épocas são tomadas nos seus próprios datums, o que só está certo se foram todas fixadas do mesmo modo.&lt;/p&gt;&lt;p&gt;A camada de velocidades está ligada à sua série: selecione nela uma estação e o painel de séries temporais desenha essa estação.&lt;/p&gt;&lt;p&gt;As épocas são tomadas como independentes, e o resultado é marcado como aproximado.&lt;/p&gt;&lt;h3&gt;Parâmetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Soluções&lt;/b&gt; &amp;mdash; dois ou mais documentos de solução da mesma rede, em qualquer ordem; são ordenados por época.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Limiares de alerta&lt;/b&gt; &amp;mdash; um arquivo CSV de &lt;code&gt;kind, limit, stations, group&lt;/code&gt;; uma linha &lt;i&gt;velocity&lt;/i&gt; define um limite em metros por ano sobre a rapidez horizontal, ou sobre a taxa vertical de uma série só de altitudes.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Exagero&lt;/b&gt; &amp;mdash; o fator com que se desenha o movimento de um ano; 0 ajusta-o à rede.&lt;/p&gt;</translation>
         </message>
         <message>
-            <source>A series needs two epochs at least; %1 was given.</source>
-            <translation>Uma série precisa de pelo menos duas épocas; foi dada %1.</translation>
+            <source>A series needs two epochs at least; %1 was given. Add the solutions of the other epochs.</source>
+            <translation>Uma série precisa de pelo menos duas épocas; foi dada %1. Adicione as soluções das outras épocas.</translation>
         </message>
         <message>
             <source>Alert thresholds (CSV)</source>
@@ -10601,8 +10601,8 @@
             <translation>A rede não pode ser ajustada como está.</translation>
         </message>
         <message>
-            <source>The network has %1 blocking problem(s) and cannot be adjusted.</source>
-            <translation>A rede possui %1 problema(s) impeditivo(s) e não pode ser ajustada.</translation>
+            <source>The network has %1 blocking problem(s) and cannot be adjusted. Correct the problems the log lists as blocking.</source>
+            <translation>A rede possui %1 problema(s) impeditivo(s) e não pode ser ajustada. Corrija os problemas que o registro lista como impeditivos.</translation>
         </message>
         <message>
             <source>Value</source>
@@ -11070,16 +11070,16 @@
             <translation>Modelo próprio (.qpt)</translation>
         </message>
         <message>
-            <source>The template %1 could not be read: %2</source>
-            <translation>Não foi possível ler o modelo %1: %2</translation>
+            <source>The template %1 could not be read; check that the file is complete: %2</source>
+            <translation>Não foi possível ler o modelo %1; verifique se o arquivo está completo: %2</translation>
         </message>
         <message>
-            <source>The template %1 has no map item with the id 'map'.</source>
-            <translation>O modelo %1 não tem um item de mapa com o identificador 'map'.</translation>
+            <source>The template %1 has no map item with the id 'map'. Give the template's map item that id.</source>
+            <translation>O modelo %1 não tem um item de mapa com o identificador 'map'. Atribua esse identificador ao item de mapa do modelo.</translation>
         </message>
         <message>
-            <source>The template %1 is not a QGIS layout template.</source>
-            <translation>O modelo %1 não é um modelo de layout do QGIS.</translation>
+            <source>The template %1 is not a QGIS layout template. Save the layout as a template from QGIS's layout designer.</source>
+            <translation>O modelo %1 não é um modelo de layout do QGIS. Salve o layout como modelo no editor de layouts do QGIS.</translation>
         </message>
         <message>
             <source>There is nothing to draw: no layers were chosen and the project holds no GeoComp result layers for this map. Run an adjustment with its layers, or choose the layers.</source>
@@ -11121,8 +11121,8 @@
             <translation>Identificador do serviço (vazio para o padrão configurado)</translation>
         </message>
         <message>
-            <source>The base map service could not be loaded: </source>
-            <translation>Não foi possível carregar o serviço de mapa de fundo: </translation>
+            <source>The base map service could not be loaded; check its address: </source>
+            <translation>Não foi possível carregar o serviço de mapa de fundo; confira o seu endereço: </translation>
         </message>
     </context>
     <context>
@@ -11357,8 +11357,8 @@
             <translation>Estações conhecidas</translation>
         </message>
         <message>
-            <source>No point could be radiated. A setup needs known coordinates, an orientation, and at least one pointing with a distance to a station that is not itself known.</source>
-            <translation>Nenhum ponto pôde ser irradiado. Um estacionamento precisa de coordenadas conhecidas, uma orientação e ao menos uma visada com distância para uma estação que não seja ela própria conhecida.</translation>
+            <source>No point could be radiated. A setup needs known coordinates, an orientation, and at least one pointing with a distance to a station that is not itself known. Check the known stations, the orientations and the distances.</source>
+            <translation>Nenhum ponto pôde ser irradiado. Um estacionamento precisa de coordenadas conhecidas, uma orientação e ao menos uma visada com distância para uma estação que não seja ela própria conhecida. Confira as estações conhecidas, as orientações e as distâncias.</translation>
         </message>
         <message>
             <source>Northing (m)</source>
@@ -11417,8 +11417,8 @@
             <translation>A estação '%1' não possui coordenadas conhecidas; seus pontos foram ignorados.</translation>
         </message>
         <message>
-            <source>Station '%1' is not three numbers.</source>
-            <translation>A estação '%1' não é composta por três números.</translation>
+            <source>Station '%1' is not three numbers. Give three numbers: easting, northing and height.</source>
+            <translation>A estação '%1' não é composta por três números. Informe três números: E, N e altitude.</translation>
         </message>
         <message>
             <source>Station '%1' sighted no known point and has no orientation given; its points were skipped.</source>
@@ -11445,12 +11445,12 @@
             <translation>Os pontos conhecidos visados de '%1' implicam orientações dispersas em %2 %4, contra %3 %4 esperados pela precisão de pontaria. Um deles provavelmente não está onde foi registrado, e todo ponto irradiado deste estacionamento carrega esse erro.</translation>
         </message>
         <message>
-            <source>The known stations document is empty.</source>
-            <translation>O documento de estações conhecidas está vazio.</translation>
+            <source>The known stations document is empty. Add its entries, or choose another document.</source>
+            <translation>O documento de estações conhecidas está vazio. Adicione as entradas, ou escolha outro documento.</translation>
         </message>
         <message>
-            <source>The orientations document must map each station to a number of degrees.</source>
-            <translation>O documento de orientações deve associar cada estação a um número de graus.</translation>
+            <source>The orientations document must map each station to a number of degrees. Correct the document.</source>
+            <translation>O documento de orientações deve associar cada estação a um número de graus. Corrija o documento.</translation>
         </message>
         <message>
             <source>The three coordinates of a radiated point come from one pointing and are correlated through it. The CSV carries the full covariance so nothing downstream has to assume they are independent.</source>
@@ -11542,8 +11542,8 @@
             <translation>Ponto conhecido</translation>
         </message>
         <message>
-            <source>Known point '%1' is not a pair of numbers.</source>
-            <translation>O ponto conhecido '%1' não é um par de números.</translation>
+            <source>Known point '%1' is not a pair of numbers. Give its easting and northing.</source>
+            <translation>O ponto conhecido '%1' não é um par de números. Informe o seu E e o seu N.</translation>
         </message>
         <message>
             <source>Known points</source>
@@ -11602,8 +11602,8 @@
             <translation>Estação</translation>
         </message>
         <message>
-            <source>Station '%1' sighted only %2 of the known points. A resection needs at least three: two directions cannot fix a position and an orientation.</source>
-            <translation>A estação '%1' visou apenas %2 dos pontos conhecidos. Uma interseção à ré precisa de ao menos três: duas direções não determinam uma posição e uma orientação.</translation>
+            <source>Station '%1' sighted only %2 of the known points. A resection needs at least three: two directions cannot fix a position and an orientation. Sight another known point from it.</source>
+            <translation>A estação '%1' visou apenas %2 dos pontos conhecidos. Uma interseção à ré precisa de ao menos três: duas direções não determinam uma posição e uma orientação. Vise outro ponto conhecido a partir dela.</translation>
         </message>
         <message>
             <source>Std dev E (mm)</source>
@@ -11614,12 +11614,12 @@
             <translation>Desvio padrão N (mm)</translation>
         </message>
         <message>
-            <source>The known points document is empty.</source>
-            <translation>O documento de pontos conhecidos está vazio.</translation>
+            <source>The known points document is empty. Add its entries, or choose another document.</source>
+            <translation>O documento de pontos conhecidos está vazio. Adicione as entradas, ou escolha outro documento.</translation>
         </message>
         <message>
-            <source>The reduced observations contain no setup at station '%1'.</source>
-            <translation>As observações reduzidas não contêm estacionamento na estação '%1'.</translation>
+            <source>The reduced observations contain no setup at station '%1'. Check the route against the stations occupied.</source>
+            <translation>As observações reduzidas não contêm estacionamento na estação '%1'. Confira o percurso com as estações ocupadas.</translation>
         </message>
         <message>
             <source>Three known points give a unique solution, so the residuals are zero by construction and say nothing about the quality of the observations. A fourth point is what makes them informative.</source>
@@ -11799,12 +11799,12 @@
             <translation>Uma distribuição clássica não é mínimos quadrados: não produz resíduos nem covariância rigorosa, de modo que estas coordenadas são aproximadas. Para o caminho rigoroso, use Rede clássica sobre os mesmos dados.</translation>
         </message>
         <message>
-            <source>A connected traverse arrives at a known point, so the closing easting and northing are required. Without them there is no closure and nothing about the traverse can be checked.</source>
-            <translation>Uma poligonal enquadrada chega a um ponto conhecido, portanto a coordenada E e a coordenada N de fechamento são obrigatórias. Sem elas não há fechamento e nada na poligonal pode ser verificado.</translation>
+            <source>A connected traverse arrives at a known point, so the closing easting and northing are required. Without them there is no closure and nothing about the traverse can be checked. Give them, or compute it as an open traverse.</source>
+            <translation>Uma poligonal enquadrada chega a um ponto conhecido, portanto a coordenada E e a coordenada N de fechamento são obrigatórias. Sem elas não há fechamento e nada na poligonal pode ser verificado. Informe-as, ou calcule-a como poligonal aberta.</translation>
         </message>
         <message>
-            <source>A traverse needs at least two stations in its route.</source>
-            <translation>Uma poligonal precisa de ao menos duas estações em seu percurso.</translation>
+            <source>A traverse needs at least two stations in its route. Add the stations of its route.</source>
+            <translation>Uma poligonal precisa de ao menos duas estações em seu percurso. Adicione as estações do seu percurso.</translation>
         </message>
         <message>
             <source>Angular misclosure %1 %2.</source>
@@ -11963,24 +11963,24 @@
             <translation>Estação</translation>
         </message>
         <message>
-            <source>Station '%1' has no usable pointing to '%2'.</source>
-            <translation>A estação '%1' não possui visada utilizável para '%2'.</translation>
+            <source>Station '%1' has no usable pointing to '%2'. Check the route against the pointings.</source>
+            <translation>A estação '%1' não possui visada utilizável para '%2'. Confira o percurso com as visadas.</translation>
         </message>
         <message>
             <source>Stations</source>
             <translation>Estações</translation>
         </message>
         <message>
-            <source>The initial backsight station is required: it is what the start azimuth refers to.</source>
-            <translation>A estação de ré inicial é obrigatória: é a ela que o azimute inicial se refere.</translation>
+            <source>The initial backsight station is required: it is what the start azimuth refers to. Give it.</source>
+            <translation>A estação de ré inicial é obrigatória: é a ela que o azimute inicial se refere. Informe-a.</translation>
         </message>
         <message>
-            <source>The pointing from '%1' to '%2' carries no distance.</source>
-            <translation>A visada de '%1' para '%2' não possui distância.</translation>
+            <source>The pointing from '%1' to '%2' carries no distance. Measure it, or give its distance.</source>
+            <translation>A visada de '%1' para '%2' não possui distância. Meça-a, ou informe a sua distância.</translation>
         </message>
         <message>
-            <source>The reduced observations contain no setup at station '%1'.</source>
-            <translation>As observações reduzidas não contêm estacionamento na estação '%1'.</translation>
+            <source>The reduced observations contain no setup at station '%1'. Check the route against the stations occupied.</source>
+            <translation>As observações reduzidas não contêm estacionamento na estação '%1'. Confira o percurso com as estações ocupadas.</translation>
         </message>
         <message>
             <source>Transit</source>
@@ -12070,8 +12070,8 @@
             <translation>Modo</translation>
         </message>
         <message>
-            <source>No height difference could be computed. Radial mode needs pointings with a distance; leap-frog mode needs setups that sighted exactly two targets.</source>
-            <translation>Nenhum desnível pôde ser calculado. O modo radial precisa de visadas com distância; o modo leap-frog precisa de estacionamentos que visaram exatamente dois alvos.</translation>
+            <source>No height difference could be computed. Radial mode needs pointings with a distance; leap-frog mode needs setups that sighted exactly two targets. Check that the mode matches how the survey was observed.</source>
+            <translation>Nenhum desnível pôde ser calculado. O modo radial precisa de visadas com distância; o modo leap-frog precisa de estacionamentos que visaram exatamente dois alvos. Verifique se o modo corresponde à forma como o levantamento foi observado.</translation>
         </message>
         <message>
             <source>Radial</source>
@@ -12161,8 +12161,8 @@
             <translation>Instalar conjunto de dados do tutorial</translation>
         </message>
         <message>
-            <source>No datasets ship with this build. That means the package was built without its resources, which is a packaging fault rather than something you can correct here.</source>
-            <translation>Nenhum conjunto de dados acompanha esta compilação. Isso significa que o pacote foi construído sem seus recursos, o que é uma falha de empacotamento e não algo que você possa corrigir aqui.</translation>
+            <source>No datasets ship with this build. That means the package was built without its resources, which is a packaging fault rather than something you can correct here. Install the plugin again from its release archive, and report it if the datasets are still missing.</source>
+            <translation>Nenhum conjunto de dados acompanha esta compilação. Isso significa que o pacote foi construído sem seus recursos, o que é uma falha de empacotamento e não algo que você possa corrigir aqui. Instale o plugin de novo a partir do arquivo de lançamento, e relate o problema se os conjuntos de dados continuarem faltando.</translation>
         </message>
         <message>
             <source>Overwrite existing files</source>
@@ -12173,8 +12173,8 @@
             <translation>Comece pelo README.md que está lá: ele percorre toda a cadeia.</translation>
         </message>
         <message>
-            <source>The destination folder '%1' does not exist.</source>
-            <translation>A pasta de destino '%1' não existe.</translation>
+            <source>The destination folder '%1' does not exist. Create it, or choose another.</source>
+            <translation>A pasta de destino '%1' não existe. Crie-a, ou escolha outra.</translation>
         </message>
     </context>
 </TS>

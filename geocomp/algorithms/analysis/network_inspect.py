@@ -181,7 +181,8 @@ class NetworkInspectAlgorithm(GeoCompAlgorithm):
 
             raise QgsProcessingException(
                 self.tr(
-                    "The network has %1 blocking problem(s) and cannot be adjusted."
+                    "The network has %1 blocking problem(s) and cannot be adjusted. "
+                    "Correct the problems the log lists as blocking."
                 ).replace("%1", str(len(report.blocking)))
             )
 

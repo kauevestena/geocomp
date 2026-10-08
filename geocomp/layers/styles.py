@@ -54,16 +54,20 @@ def apply_style(layer: QgsMapLayer, name: str) -> bool:
     path = style_path(name)
     if not path.is_file():
         log.warning(
-            _tr("The style file '%1' is missing, so the layer is unstyled.").replace(
-                "%1", str(path)
-            )
+            _tr(
+                "The style file '%1' is missing, so the layer is unstyled. Install the "
+                "plugin again from its release archive."
+            ).replace("%1", str(path))
         )
         return False
 
     message, ok = layer.loadNamedStyle(str(path))
     if not ok:
         log.warning(
-            _tr("The style file '%1' could not be applied: %2")
+            _tr(
+                "The style file '%1' could not be applied, so the layer is unstyled; "
+                "install the plugin again from its release archive: %2"
+            )
             .replace("%1", str(path))
             .replace("%2", str(message))
         )

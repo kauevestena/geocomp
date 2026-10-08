@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P12c-40 — Every error an algorithm or a window words itself says what to do
+
+#### Changed
+
+- 86 errors that algorithms word themselves, without a template, now say what to do, in all three languages:
+  which folder or document to choose, what to check, what to correct. So do the eight failures a window, a
+  panel or a layer reports -- a file it cannot read or write, a base map it cannot load -- and a style file
+  that is missing. Structural tests hold every new one to it.
+
 ### P12c-39 — Every error template says what to do
 
 #### Changed

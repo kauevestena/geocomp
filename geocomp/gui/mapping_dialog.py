@@ -339,7 +339,7 @@ class FieldMappingDialog(QDialog):
             QMessageBox.warning(
                 self,
                 _tr("Mapping not loaded"),
-                _tr("'%1' could not be read as a field mapping: %2")
+                _tr("'%1' could not be read as a field mapping; correct it, or choose another: %2")
                 .replace("%1", path)
                 .replace("%2", reason),
             )
@@ -371,7 +371,7 @@ class FieldMappingDialog(QDialog):
             QMessageBox.warning(
                 self,
                 _tr("Mapping not saved"),
-                _tr("'%1' could not be written: %2")
+                _tr("'%1' could not be written; check that its folder exists and can be written to: %2")
                 .replace("%1", str(target))
                 .replace("%2", str(exc)),
             )

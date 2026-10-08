@@ -64,23 +64,27 @@ def load_json(path: str, *, parameter: str) -> dict:
     """
     if not path:
         raise QgsProcessingException(
-            _tr("No file was given for parameter '%1'.").replace("%1", parameter)
+            _tr(
+                "No file was given for parameter '%1'. Choose the file in that parameter."
+            ).replace("%1", parameter)
         )
     source = Path(path)
     if not source.is_file():
         raise QgsProcessingException(
-            _tr("The file '%1' does not exist.").replace("%1", str(source))
+            _tr("The file '%1' does not exist. Check the path.").replace("%1", str(source))
         )
     try:
         payload = json.loads(source.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise QgsProcessingException(
-            _tr("'%1' is not valid JSON: %2").replace("%1", str(source)).replace("%2", str(exc))
+            _tr("'%1' is not valid JSON; correct it, or choose the file a GeoComp "
+                "algorithm wrote: %2").replace("%1", str(source)).replace("%2", str(exc))
         ) from exc
     if not isinstance(payload, dict):
         raise QgsProcessingException(
             _tr(
-                "'%1' does not contain a GeoComp document: its top level is not an object."
+                "'%1' does not contain a GeoComp document: its top level is not an "
+                "object. Choose the file a GeoComp algorithm wrote."
             ).replace("%1", str(source))
         )
     return payload
@@ -169,7 +173,7 @@ def load_mapping(path: str, header: list[str]) -> FieldMapping:
         from geocomp.services.messages import reason_for
 
         raise QgsProcessingException(
-            _tr("'%1' could not be read as a field mapping: %2")
+            _tr("'%1' could not be read as a field mapping; correct it, or choose another: %2")
             .replace("%1", path)
             .replace("%2", reason_for(exc))
         ) from exc
@@ -285,7 +289,10 @@ def read_readings(path: str, *, parameter: str = "READINGS") -> list[Setup]:
             from geocomp.services.messages import reason_for
 
             raise QgsProcessingException(
-                _tr("'%1' could not be read as readings: %2")
+                _tr(
+                    "'%1' could not be read as readings; choose the document 'Import field book' "
+                    "wrote: %2"
+                )
                 .replace("%1", path)
                 .replace("%2", reason_for(exc))
             ) from exc
@@ -293,7 +300,8 @@ def read_readings(path: str, *, parameter: str = "READINGS") -> list[Setup]:
 
     if not setups:
         raise QgsProcessingException(
-            _tr("'%1' contains no setups, so there is nothing to process.").replace("%1", path)
+            _tr("'%1' contains no setups, so there is nothing to process. Check that it "
+                "is the document the import wrote.").replace("%1", path)
         )
     return setups
 

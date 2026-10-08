@@ -65,23 +65,27 @@ def load_json(path: str, *, parameter: str) -> dict:
     """Read a JSON document, failing with a message that names the parameter."""
     if not path:
         raise QgsProcessingException(
-            _tr("No file was given for parameter '%1'.").replace("%1", parameter)
+            _tr(
+                "No file was given for parameter '%1'. Choose the file in that parameter."
+            ).replace("%1", parameter)
         )
     source = Path(path)
     if not source.is_file():
         raise QgsProcessingException(
-            _tr("The file '%1' does not exist.").replace("%1", str(source))
+            _tr("The file '%1' does not exist. Check the path.").replace("%1", str(source))
         )
     try:
         payload = json.loads(source.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise QgsProcessingException(
-            _tr("'%1' is not valid JSON: %2").replace("%1", str(source)).replace("%2", str(exc))
+            _tr("'%1' is not valid JSON; correct it, or choose the file a GeoComp "
+                "algorithm wrote: %2").replace("%1", str(source)).replace("%2", str(exc))
         ) from exc
     if not isinstance(payload, dict):
         raise QgsProcessingException(
             _tr(
-                "'%1' does not contain a GeoComp document: its top level is not an object."
+                "'%1' does not contain a GeoComp document: its top level is not an "
+                "object. Choose the file a GeoComp algorithm wrote."
             ).replace("%1", str(source))
         )
     return payload
@@ -297,7 +301,10 @@ def read_lines(path: str, *, parameter: str = "SETUPS") -> list[LevellingLine]:
         from geocomp.services.messages import reason_for
 
         raise QgsProcessingException(
-            _tr("'%1' could not be read as levelling lines: %2")
+            _tr(
+                "'%1' could not be read as levelling lines; choose the document "
+                "'Import levelling field book' wrote: %2"
+            )
             .replace("%1", path)
             .replace("%2", reason_for(exc))
         ) from exc
@@ -348,7 +355,8 @@ def read_reductions(path: str, *, parameter: str = "REDUCTIONS") -> list[dict[st
     for line in lines:
         if "height_difference" not in line:
             raise QgsProcessingException(
-                _tr("'%1' is not a levelling reduction document.").replace("%1", path)
+                _tr("'%1' is not a levelling reduction document. Choose the document the "
+                    "levelling reduction wrote.").replace("%1", path)
             )
     return lines
 

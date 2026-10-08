@@ -267,14 +267,16 @@ class TraverseAlgorithm(GeoCompAlgorithm):
         ]
         if len(route) < 2:
             raise QgsProcessingException(
-                self.tr("A traverse needs at least two stations in its route.")
+                self.tr("A traverse needs at least two stations in its route. Add the "
+                        "stations of its route.")
             )
 
         backsight = self.parameterAsString(parameters, BACKSIGHT, context).strip()
         if not backsight:
             raise QgsProcessingException(
                 self.tr(
-                    "The initial backsight station is required: it is what the start azimuth refers to."
+                    "The initial backsight station is required: it is what the start "
+                    "azimuth refers to. Give it."
                 )
             )
 
@@ -300,7 +302,8 @@ class TraverseAlgorithm(GeoCompAlgorithm):
                     self.tr(
                         "A connected traverse arrives at a known point, so the closing "
                         "easting and northing are required. Without them there is no "
-                        "closure and nothing about the traverse can be checked."
+                        "closure and nothing about the traverse can be checked. Give "
+                        "them, or compute it as an open traverse."
                     )
                 )
             close_to = (
@@ -417,14 +420,16 @@ class TraverseAlgorithm(GeoCompAlgorithm):
             if setup is None:
                 raise QgsProcessingException(
                     self.tr(
-                        "The reduced observations contain no setup at station '%1'."
+                        "The reduced observations contain no setup at station '%1'. Check "
+                        "the route against the stations occupied."
                     ).replace("%1", occupied)
                 )
             pointings = {p.target: p for p in setup.usable}
             for needed in (back, foresight):
                 if needed not in pointings:
                     raise QgsProcessingException(
-                        self.tr("Station '%1' has no usable pointing to '%2'.")
+                        self.tr("Station '%1' has no usable pointing to '%2'. Check the "
+                                "route against the pointings.")
                         .replace("%1", occupied)
                         .replace("%2", needed)
                     )
@@ -443,7 +448,8 @@ class TraverseAlgorithm(GeoCompAlgorithm):
             basic = pointings[foresight].basic
             if basic is None:
                 raise QgsProcessingException(
-                    self.tr("The pointing from '%1' to '%2' carries no distance.")
+                    self.tr("The pointing from '%1' to '%2' carries no distance. Measure "
+                            "it, or give its distance.")
                     .replace("%1", occupied)
                     .replace("%2", foresight)
                 )

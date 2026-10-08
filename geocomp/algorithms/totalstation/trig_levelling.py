@@ -246,8 +246,9 @@ class TrigonometricLevellingAlgorithm(GeoCompAlgorithm):
             raise QgsProcessingException(
                 self.tr(
                     "No height difference could be computed. Radial mode needs pointings "
-                    "with a distance; leap-frog mode needs setups that sighted exactly two "
-                    "targets."
+                    "with a distance; leap-frog mode needs setups that sighted exactly "
+                    "two targets. Check that the mode matches how the survey was "
+                    "observed."
                 )
             )
 

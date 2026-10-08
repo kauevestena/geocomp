@@ -141,7 +141,8 @@ def configured_profile(
     """
     if profile_name not in PROFILES:
         raise QgsProcessingException(
-            _tr("Unknown processing profile: %1").replace("%1", profile_name)
+            _tr("Unknown processing profile: %1. Choose one of the profiles the algorithm "
+                "offers.").replace("%1", profile_name)
         )
     configured: dict[str, Any] = {
         "elevation_mask": float(gnss_setting(ELEVATION_MASK)),
@@ -161,7 +162,8 @@ def configured_profile(
         location = Path(antenna_file)
         if not location.is_file():
             raise QgsProcessingException(
-                _tr("The configured antenna file does not exist: %1").replace(
+                _tr("The configured antenna file does not exist: %1. Correct its path in "
+                    "Global Settings, under GNSS.").replace(
                     "%1", str(location)
                 )
             )
@@ -243,7 +245,8 @@ def product_directory() -> Path | None:
     root = Path(directory)
     if not root.is_dir():
         raise QgsProcessingException(
-            _tr("The configured product directory does not exist: %1").replace("%1", str(root))
+            _tr("The configured product directory does not exist: %1. Correct its path in "
+                "Global Settings, under GNSS.").replace("%1", str(root))
         )
     return root
 
@@ -279,7 +282,8 @@ def product_services() -> list[ProductService]:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
             raise QgsProcessingException(
-                _tr("Could not read the download services file %1: %2")
+                _tr("Could not read the download services file %1; check that it exists "
+                    "and can be read: %2")
                 .replace("%1", str(path))
                 .replace("%2", str(exc))
             ) from exc
@@ -290,7 +294,7 @@ def product_services() -> list[ProductService]:
     unknown = [name for name in names if name not in known]
     if unknown:
         raise QgsProcessingException(
-            _tr("Unknown download service: %1. Known services: %2")
+            _tr("Unknown download service: %1. Known services: %2. Choose one of those.")
             .replace("%1", ", ".join(unknown))
             .replace("%2", ", ".join(sorted(known)))
         )
@@ -542,8 +546,9 @@ def base_coordinates(
     if session.start is None:
         raise QgsProcessingException(
             _tr(
-                "The session of base %1 states no start time, so its published coordinates cannot "
-                "be brought to the epoch it was observed at."
+                "The session of base %1 states no start time, so its published "
+                "coordinates cannot be brought to the epoch it was observed at. Check "
+                "that its RINEX header has a TIME OF FIRST OBS record."
             ).replace("%1", session.station_id)
         )
     published = database.get(session.station_id)

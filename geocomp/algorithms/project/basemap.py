@@ -131,7 +131,7 @@ class ProjectBaseMapAlgorithm(GeoCompAlgorithm):
 
         if outcome == "invalid":
             raise QgsProcessingException(
-                self.tr("The base map service could not be loaded: ") + service.url
+                self.tr("The base map service could not be loaded; check its address: ") + service.url
             )
 
         feedback.pushInfo(f"{service.name} ({outcome})")

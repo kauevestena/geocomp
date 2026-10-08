@@ -150,7 +150,7 @@ class BaseMapOffer:
         if outcome == "invalid":
             self._bar.pushMessage(
                 _tr("Base map"),
-                _tr("The base map service could not be loaded: ") + service.url,
+                _tr("The base map service could not be loaded; check its address: ") + service.url,
                 Qgis.MessageLevel.Warning,
                 0,
             )

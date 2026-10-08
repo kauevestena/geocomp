@@ -313,8 +313,9 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
         if unplaced:
             raise QgsProcessingException(
                 self.tr(
-                    "These fixed stations have no position any input could hold them at: %1. In a "
-                    "combination with GNSS, a station is held at its GNSS position."
+                    "These fixed stations have no position any input could hold them at: "
+                    "%1. In a combination with GNSS, a station is held at its GNSS "
+                    "position. Hold stations the GNSS inputs observe."
                 ).replace("%1", ", ".join(unplaced))
             )
         frame = FRAME_NAMES[self.parameterAsEnum(parameters, FRAME, context)] if geocentric else None
@@ -451,7 +452,8 @@ class _CombinedAdjustmentAlgorithm(GeoCompAlgorithm):
                     values = [float(cell) for cell in cells[1:]]
                 except ValueError:
                     raise QgsProcessingException(
-                        self.tr("Line %1 of the velocities file does not hold numbers.").replace(
+                        self.tr("Line %1 of the velocities file does not hold numbers. "
+                                "Correct that line.").replace(
                             "%1", str(number)
                         )
                     ) from None

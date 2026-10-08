@@ -619,8 +619,9 @@ def run_and_read(
     except EngineAbsentError as error:
         raise QgsProcessingException(
             _tr(
-                "A DynAdjust program the pipeline needs is missing: %1. DynAdjust is "
-                "a suite, and a partial installation fails part way through."
+                "A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a "
+                "suite, and a partial installation fails part way through. Install "
+                "DynAdjust again with the Install an engine algorithm."
             ).replace("%1", str(error.context.get("program", "")))
         ) from error
     except GeoCompError as error:

@@ -167,7 +167,8 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             )
         if not scan.sessions:
             raise QgsProcessingException(
-                self.tr("No RINEX observation sessions were found in %1").replace(
+                self.tr("No RINEX observation sessions were found in %1. Choose the "
+                        "folder that holds the observation files.").replace(
                     "%1", str(folder)
                 )
             )
@@ -184,7 +185,8 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             if base_name:
                 if base_name not in by_station:
                     raise QgsProcessingException(
-                        self.tr("No session for base station %1").replace("%1", base_name)
+                        self.tr("No session for base station %1. Check the base station's "
+                                "name against the folder's sessions.").replace("%1", base_name)
                     )
                 base = by_station[base_name]
             elif len(overlapping) == 2:

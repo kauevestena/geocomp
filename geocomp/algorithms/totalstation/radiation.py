@@ -249,7 +249,8 @@ class RadiationAlgorithm(GeoCompAlgorithm):
                 self.tr(
                     "No point could be radiated. A setup needs known coordinates, an "
                     "orientation, and at least one pointing with a distance to a station "
-                    "that is not itself known."
+                    "that is not itself known. Check the known stations, the orientations "
+                    "and the distances."
                 )
             )
 
@@ -471,7 +472,8 @@ def _known_stations(path: str) -> dict[str, tuple[Quantity, Quantity, Quantity]]
             easting, northing, up = (float(v) for v in list(values)[:3])
         except (TypeError, ValueError) as exc:
             raise QgsProcessingException(
-                _tr("Station '%1' is not three numbers.").replace("%1", str(name))
+                _tr("Station '%1' is not three numbers. Give three numbers: easting, "
+                    "northing and height.").replace("%1", str(name))
             ) from exc
         stations[str(name)] = (
             Quantity.exact(easting, Unit.METRE),
@@ -479,7 +481,8 @@ def _known_stations(path: str) -> dict[str, tuple[Quantity, Quantity, Quantity]]
             Quantity.exact(up, Unit.METRE),
         )
     if not stations:
-        raise QgsProcessingException(_tr("The known stations document is empty."))
+        raise QgsProcessingException(_tr("The known stations document is empty. Add its "
+                                         "entries, or choose another document."))
     return stations
 
 
@@ -491,5 +494,6 @@ def _orientations(path: str) -> dict[str, float]:
         return {str(name): math.radians(float(value)) for name, value in payload.items()}
     except (TypeError, ValueError) as exc:
         raise QgsProcessingException(
-            _tr("The orientations document must map each station to a number of degrees.")
+            _tr("The orientations document must map each station to a number of degrees. "
+                "Correct the document.")
         ) from exc

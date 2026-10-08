@@ -321,7 +321,10 @@ class TimeSeriesPanel(QgsDockWidget):
         from geocomp.services.messages import reason_for
 
         self.status.setText(
-            _tr("The series document could not be read: %1").replace("%1", reason_for(error))
+            _tr(
+                "The series document could not be read; choose the one 'Time series and "
+                "velocities' wrote: %1"
+            ).replace("%1", reason_for(error))
         )
 
     def set_document(self, document: dict[str, Any]) -> None:

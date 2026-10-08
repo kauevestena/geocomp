@@ -282,7 +282,8 @@ def _read_sightings(path: str, default_sigma: float):
         if not isinstance(entry, dict) or "position" not in entry or "azimuth" not in entry:
             raise QgsProcessingException(
                 _tr(
-                    "Sighting '%1' must be an object with a 'position' pair and an 'azimuth'."
+                    "Sighting '%1' must be an object with a 'position' pair and an "
+                    "'azimuth'. Correct that sighting."
                 ).replace("%1", str(name))
             )
         try:
@@ -290,7 +291,7 @@ def _read_sightings(path: str, default_sigma: float):
             azimuth = math.radians(float(entry["azimuth"]))
         except (TypeError, ValueError) as exc:
             raise QgsProcessingException(
-                _tr("Sighting '%1' does not hold numbers.").replace("%1", str(name))
+                _tr("Sighting '%1' does not hold numbers. Correct that sighting.").replace("%1", str(name))
             ) from exc
 
         sigma = entry.get("sigma")
@@ -302,7 +303,8 @@ def _read_sightings(path: str, default_sigma: float):
 
     if len(sightings) < 2:
         raise QgsProcessingException(
-            _tr("At least two sightings are needed; the document holds %1.").replace(
+            _tr("At least two sightings are needed; the document holds %1. Add a sighting "
+                "from another station.").replace(
                 "%1", str(len(sightings))
             )
         )
