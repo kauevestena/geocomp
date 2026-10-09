@@ -46,7 +46,14 @@ def icon_path(name: str) -> str:
 #: turned a model's ``rtklib-sample`` into the levelling loop. A new dataset is
 #: appended here; ``tests/test_tutorial_dataset.py`` holds the list and the
 #: folders to each other both ways.
-DATASET_ORDER: tuple[str, ...] = ("rd01", "rtklib-sample", "rd04-loop", "rd08-dam", "rd07-usgs")
+DATASET_ORDER: tuple[str, ...] = (
+    "rd01",
+    "rtklib-sample",
+    "rd04-loop",
+    "rd08-dam",
+    "rd07-usgs",
+    "combined-curitiba",
+)
 
 
 def available_datasets() -> list[str]:

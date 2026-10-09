@@ -126,8 +126,15 @@ def correlated_normal(rng: np.random.Generator, covariance: np.ndarray) -> np.nd
     return np.linalg.cholesky(covariance) @ rng.standard_normal(len(covariance))
 
 
-def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET) -> Network:
+def survey(
+    *, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET, noise: float = 1.0
+) -> Network:
     """The network, its measurements drawn once from their stated precision.
+
+    *noise* scales what the terrestrial measurements are drawn with, and not
+    what they state: at 3 the total station measures three times worse than it
+    claims, which is the integration tutorial's case (P13-5). At 1 the draws
+    are exactly those of a survey without it.
 
     *target* is the reflector's height above each station. For a slope
     distance DynAdjust carries it along the **instrument's** vertical rather
@@ -160,7 +167,8 @@ def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET
                 type=kind,
                 stations=stations,
                 values=tuple(
-                    Quantity.from_std_dev(float(v) + rng.normal(0.0, sigma), sigma, unit) for v in values
+                    Quantity.from_std_dev(float(v) + rng.normal(0.0, sigma * noise), sigma, unit)
+                    for v in values
                 ),
                 **extra,
             )
@@ -210,7 +218,7 @@ def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET
 
     baselines = []
     for base, rover in (("CTB1", "M05"), ("CTB2", "M04"), ("CTB1", "M06")):
-        noise = correlated_normal(rng, GNSS_COVARIANCE)
+        error = correlated_normal(rng, GNSS_COVARIANCE)
         identifier = f"g-{base}-{rover}"
         network.add_observation(
             Observation(
@@ -219,7 +227,7 @@ def survey(*, seed: int = 20260926, perturb: float = 0.5, target: float = TARGET
                 stations=(base, rover),
                 values=tuple(
                     Quantity(float(v + n), float(GNSS_COVARIANCE[k, k]), Unit.METRE)
-                    for k, (v, n) in enumerate(zip(TRUTH[rover] - TRUTH[base], noise, strict=True))
+                    for k, (v, n) in enumerate(zip(TRUTH[rover] - TRUTH[base], error, strict=True))
                 ),
                 cluster_id="gnss",
                 meta={BASELINE_FRAME_KEY: BaselineFrame.ECEF.value},

@@ -61,21 +61,10 @@ def _write(path: Path, network) -> str:
 
 
 def _gnss():
-    """The GNSS input, its two control marks starting exactly where they are
-    -- the base coordinates a processing would have used -- so holding them
-    there holds the truth."""
-    from dataclasses import replace
+    """The GNSS input, its control marks held at the truth (``gnss_input_held_at_truth``)."""
+    from tests.test_integration import gnss_input_held_at_truth
 
-    from geocomp.core.geodesy.frames import transform_point
-    from tests.test_integration import _cartesian, gnss_input
-
-    network = gnss_input()
-    for name in field.HELD:
-        xyz = transform_point(field.TRUTH[name], source="ITRF2020", target="ITRF2014", epoch=2020.0).xyz
-        network.stations[name] = replace(
-            network.stations[name], approx_position=_cartesian(xyz, "ITRF2014", network.epoch)
-        )
-    return network
+    return gnss_input_held_at_truth()
 
 
 def _geoid_file(path: Path) -> str:

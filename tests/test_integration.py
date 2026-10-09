@@ -220,9 +220,12 @@ def sirgas_velocities() -> dict[str, Velocity]:
     return velocities
 
 
-def total_station_input() -> Network:
-    """The survey's terrestrial half: no frame, as a total station has none."""
-    survey = field.survey(seed=7)
+def total_station_input(*, noise: float = 1.0) -> Network:
+    """The survey's terrestrial half: no frame, as a total station has none.
+
+    *noise* as in :func:`tests.combined_network.survey`.
+    """
+    survey = field.survey(seed=7, noise=noise)
     network = Network(id="total-station")
     for name in field.OFFSETS:
         network.add_station(Station(id=name))
@@ -234,6 +237,35 @@ def total_station_input() -> Network:
         if cluster.kind is ClusterKind.DIRECTION_SET:
             network.add_cluster(cluster)
     return network
+
+
+def gnss_input_held_at_truth() -> Network:
+    """The GNSS input, its two control marks starting exactly where they are.
+
+    They are the base coordinates a processing would have used, so holding
+    them there holds the truth. What the integration presets and their
+    tutorial are given.
+    """
+    network = gnss_input()
+    for name in field.HELD:
+        xyz = transform_point(field.TRUTH[name], source="ITRF2020", target="ITRF2014", epoch=2020.0).xyz
+        network.stations[name] = replace(
+            network.stations[name], approx_position=_cartesian(xyz, "ITRF2014", network.epoch)
+        )
+    return network
+
+
+#: The integration tutorial (P13-5): the total station measured three times
+#: worse than its stated precision, which variance components are for.
+TUTORIAL_NOISE = 3.0
+
+
+def tutorial_inputs() -> dict[str, Network]:
+    """The integration tutorial's two network documents, by file name."""
+    return {
+        "gnss.json": gnss_input_held_at_truth(),
+        "total-station.json": total_station_input(noise=TUTORIAL_NOISE),
+    }
 
 
 LOOP = (("M03", "M04"), ("M04", "M05"), ("M05", "M06"), ("M06", "M03"))

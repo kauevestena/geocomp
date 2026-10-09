@@ -22,7 +22,8 @@ spoiled reading, which closes badly, adjusts quietly wrong, and is found only
 by the benchmarks; and since P13-3 ``rd08-dam``, the monitoring tutorial -- two
 epochs of a structure, one of whose targets moved; and since P13-4
 ``rd07-usgs``, the gravimetry tutorial -- two of USGS's synthetic surveys, the
-first tutorial whose answer someone else published. The dataset is an enum whose index a saved model keeps, so
+first tutorial whose answer someone else published; and since P13-5
+``combined-curitiba``, the integration tutorial. The dataset is an enum whose index a saved model keeps, so
 the order is :data:`~geocomp.resources.DATASET_ORDER`'s, to which a new
 dataset is appended.
 """
@@ -96,6 +97,10 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             "published: the first comes back within a few microgal of it, and the second, "
             "from a meter that reads 3 % high, passes every test until a second known value "
             "exposes its scale. "
+            "<b>combined-curitiba</b> is GNSS and a total station adjusted together, the "
+            "total station having measured three times worse than it states: the "
+            "breakdown by technique points at it, and variance components weigh it by "
+            "what it measured. "
             "<b>rtklib-sample</b> is RTKLIB's own base-and-rover pair, for a GNSS run. Each "
             "has its own <code>README.md</code>.</p>"
             "<h3>Parameters</h3>"

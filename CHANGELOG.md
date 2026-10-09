@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-5 — An integration tutorial
+
+#### Added
+
+- *Install tutorial dataset* offers `combined-curitiba`, the integration tutorial: GNSS and a total station
+  adjusted together, the total station having measured three times worse than it states. The walkthrough
+  shows the global test failing, the breakdown by technique pointing at the total station, and variance
+  components weighing it by what it measured.
+
 ### P13-4 — A gravimetry tutorial
 
 #### Added
