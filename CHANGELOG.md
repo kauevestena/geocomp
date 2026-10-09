@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-14 — *Build baselines* closes every loop
+
+#### Added
+
+- *Build baselines* closes the loop each dependent baseline makes through the others, and says how well it
+  closed. The log gives each loop's misclosure in millimetres and parts per million, and the JSON output a
+  new `closures` list with the components and their propagated uncertainty. Loops are closed whether or not
+  the dependent baselines are kept.
+
 ### P13-13 — Every help names the tutorials that run it
 
 #### Added

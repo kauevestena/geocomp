@@ -182,6 +182,20 @@ demonstrates it: 2025-001 carries a contaminated hour and still closes to a quar
 Closure is therefore necessary and not sufficient, and [`20`](./20-testing-and-validation.md) §6 pairs
 it with a repeatability criterion for exactly that reason.
 
+**From the menu since P13-14.** Until then nothing in QGIS called the closure: a reader could build three
+baselines round a triangle and never learn whether they agreed. *Build baselines* now closes every loop it can.
+- **Which loops.** Each dependent baseline joins two stations the independent forest already connects, so
+  exactly one path joins them through it. That path and the dependent baseline back are the loop
+  (`closing_loops`). One loop per dependent baseline is a basis: every other circuit is a combination of them.
+- **Closed whether kept or not.** Keeping a dependent baseline is the adjustment's question; whether it agrees
+  with the others is a check, and is made either way.
+- **Where it is reported.** The log gives each loop's misclosure in millimetres over its perimeter, and in
+  parts per million. The JSON output's `closures` gives the components and their propagated sigma, in the
+  form `scripts/check_rd06.py` records (`LoopClosure.to_dict`).
+- **The same pair twice is not a loop.** A two-station circuit retraces itself, so a repeated pair is left
+  out; comparing two determinations of one vector is repeatability, and nothing in the menu compares them yet.
+- **Nothing to close is said.** With no loop to close, the log says what one needs.
+
 ### 4.2 Antenna height reduction happens once **[V]**
 
 The reduction is recorded **on the baseline it produced**, not beside it: `Baseline.antenna_reduction` is

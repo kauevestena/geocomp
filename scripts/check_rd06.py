@@ -1122,8 +1122,6 @@ def measure_closure(solutions: dict, reference: dict) -> dict:
     repeatability, and why day 2025-001 closes to a quarter of a millimetre
     despite carrying the contaminated hour section 5.1 attributes.
     """
-    import numpy as np
-
     from geocomp.core.techniques.gnss import loop_closure
     from geocomp.engines.rtklib.baseline import baseline_from_solution
 
@@ -1140,17 +1138,11 @@ def measure_closure(solutions: dict, reference: dict) -> dict:
             continue
         closure = loop_closure(legs, list(TRIANGLE))
         by_day[f"2025-{day:03d}"] = {
-            "loop": list(closure.loop),
-            "legs": list(closure.legs),
-            # The case each leg came from, so the record shows all three were
-            # processed rather than two processed and one differenced.
+            # As Build baselines records it, with the case each leg came from, so
+            # the record shows all three were processed rather than two
+            # processed and one differenced.
+            **closure.to_dict(),
             "cases": cases,
-            "misclosure_xyz_mm": [q.value * 1000 for q in closure.misclosure],
-            "magnitude_mm": closure.magnitude_m * 1000,
-            "perimeter_m": closure.perimeter_m,
-            "parts_per_million": closure.parts_per_million,
-            "propagated_sigma_xyz_mm": (np.sqrt(np.diag(closure.covariance.matrix)) * 1000).tolist(),
-            "covariance_is_approximate": closure.covariance.mode.name == "APPROXIMATE",
         }
     return by_day
 

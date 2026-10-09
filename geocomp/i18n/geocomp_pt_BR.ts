@@ -121,6 +121,10 @@
             <translation>%1 linha(s) de base: %2 independentes, %3 dependentes</translation>
         </message>
         <message>
+            <source>&lt;p&gt;&lt;b&gt;Every loop is closed.&lt;/b&gt; Each dependent baseline joins two stations the independent ones already connect, so it closes a loop through them: the vectors summed round it should come back to zero. The log gives each loop's misclosure, and the JSON output its components and their propagated uncertainty, which assumes the legs independent and so understates it. A closure needs no published coordinate: it asks whether the baselines agree with each other. It cannot see an error common to every baseline at one station, which enters the loop twice with opposite signs and cancels, so a loop that closes does not show that its stations are right.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;Todo circuito é fechado.&lt;/b&gt; Cada linha de base dependente une duas estações que as independentes já conectam, então fecha um circuito através delas: os vetores somados ao longo dele deveriam voltar a zero. O registro dá o erro de fechamento de cada circuito, e a saída JSON as suas componentes e a sua incerteza propagada, que supõe os lados independentes e por isso a subestima. Um fechamento não precisa de nenhuma coordenada publicada: ele pergunta se as linhas de base concordam entre si. Ele não vê um erro comum a todas as linhas de base de uma estação, que entra no circuito duas vezes com sinais opostos e se cancela; por isso, um circuito que fecha não mostra que as suas estações estão certas.&lt;/p&gt;</translation>
+        </message>
+        <message>
             <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The network document&lt;/b&gt; is what the Integration menu combines with other techniques: the baselines at their sessions' mid-epochs and each mark's starting position. It needs &lt;i&gt;Frame of the base coordinates&lt;/i&gt;, which a &lt;code&gt;.pos&lt;/code&gt; file does not state and GeoComp will not assume.&lt;/p&gt;</source>
             <translation>&lt;p&gt;Lê cada solução &lt;code&gt;.pos&lt;/code&gt; ECEF de uma pasta e constrói a linha de base que cada uma determinou: o vetor entre os dois marcos, com sua covariância 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;As alturas de antena são reduzidas uma única vez.&lt;/b&gt; O vetor determinado pelo motor é entre pontos de referência de antena; o ajustamento quer o vetor entre os marcos. Aplicar a redução duas vezes é detectado e recusado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Por padrão, apenas o subconjunto independente é mantido.&lt;/b&gt; Processar todos os pares de n estações observando simultaneamente produz n(n-1)/2 linhas de base, das quais apenas n-1 são independentes; usar todas infla a redundância aparente do ajustamento. As dependentes são marcadas na saída em vez de descartadas.&lt;/p&gt;&lt;p&gt;O resultado é um agrupamento: as observações compartilham uma matriz variância-covariância e chegam ao DynAdjust como uma medição G ou X com ela intacta.&lt;/p&gt;&lt;p&gt;&lt;b&gt;A camada opcional desenha todas as linhas de base construídas&lt;/b&gt;, incluindo as dependentes quando não foram mantidas, porque ver quais pares não trouxeram informação nova é justamente o motivo de desenhá-las. A coluna &lt;code&gt;independent&lt;/code&gt; e o símbolo tracejado dizem qual é qual; a saída JSON carrega apenas o que foi mantido.&lt;/p&gt;&lt;p&gt;&lt;b&gt;O documento de rede&lt;/b&gt; é o que o menu Integração combina com outras técnicas: as linhas de base nas épocas médias das suas sessões e a posição inicial de cada marco. Ele precisa de &lt;i&gt;Referencial das coordenadas da base&lt;/i&gt;, que um arquivo &lt;code&gt;.pos&lt;/code&gt; não informa e o GeoComp não presume.&lt;/p&gt;</translation>
         </message>
@@ -169,6 +173,14 @@
             <translation>Mantendo %1 linha(s) de base dependente(s). Elas não trazem informação nova, e um ajustamento que as trate como independentes relatará uma incerteza menor do que os dados sustentam.</translation>
         </message>
         <message>
+            <source>Loop %1 closes to %2 mm over %3 m of baselines (%4 ppm).</source>
+            <translation>O circuito %1 fecha com %2 mm em %3 m de linhas de base (%4 ppm).</translation>
+        </message>
+        <message>
+            <source>Loop %1 could not be closed: %2</source>
+            <translation>O circuito %1 não pôde ser fechado: %2</translation>
+        </message>
+        <message>
             <source>Network</source>
             <translation>Rede</translation>
         </message>
@@ -179,6 +191,10 @@
         <message>
             <source>No baseline could be built from the solutions in %1. Check the log for why each was refused.</source>
             <translation>Não foi possível construir nenhuma linha de base a partir das soluções em %1. Confira no registro por que cada uma foi recusada.</translation>
+        </message>
+        <message>
+            <source>No loop was closed: a loop needs a baseline between two stations the others already join through a third.</source>
+            <translation>Nenhum circuito foi fechado: um circuito precisa de uma linha de base entre duas estações que as outras já unem através de uma terceira.</translation>
         </message>
         <message>
             <source>Not stated</source>

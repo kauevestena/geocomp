@@ -38,6 +38,7 @@ from geocomp.core.models import (
 from geocomp.core.techniques.gnss import (
     AntennaOffset,
     Baseline,
+    closing_loops,
     components_from_covariance,
     independent_subset,
     loop_closure,
@@ -567,3 +568,89 @@ class TestAClosureThatWouldBeMeaninglessIsRefused:
         )
         with pytest.raises(DataError, match="gnss_loop_mixed_antenna_reduction"):
             loop_closure(legs, ["A", "B", "C"])
+
+
+#: Four marks, metres apart, and the vector between any two of them.
+_MARKS = {
+    "A": np.array([0.0, 0.0, 0.0]),
+    "B": np.array([100.0, 0.0, 0.0]),
+    "C": np.array([100.0, 200.0, 50.0]),
+    "D": np.array([-30.0, 150.0, 20.0]),
+}
+
+
+def _between(base, rover, *, variance=1e-6, error=(0.0, 0.0, 0.0)):
+    vector = _MARKS[rover] - _MARKS[base] + np.array(error)
+    return _leg(f"{base}{rover}", base, rover, vector, variance=variance)
+
+
+class TestEveryLoopIsFound:
+    """P13-14: the loop each dependent baseline closes through the independent
+    ones, which is what *Build baselines* sums (specs/11 section 4.1.1)."""
+
+    def test_a_triangle_gives_one_loop_of_all_three(self):
+        independent, dependent = independent_subset(
+            [_between("A", "B"), _between("B", "C"), _between("A", "C", variance=1e-4)]
+        )
+        ((loop, legs),) = closing_loops(independent, dependent)
+        assert loop == ("A", "B", "C")
+        assert sorted(line.id for line in legs) == ["AB", "AC", "BC"]
+        assert loop_closure(legs, loop).magnitude_m == pytest.approx(0.0, abs=1e-12)
+
+    def test_every_dependent_baseline_closes_one_loop_through_the_others(self):
+        stations = sorted(_MARKS)
+        every = [
+            _between(first, second, variance=1e-6 * (1 + index))
+            for index, (first, second) in enumerate(
+                (a, b) for i, a in enumerate(stations) for b in stations[i + 1 :]
+            )
+        ]
+        independent, dependent = independent_subset(every)
+        loops = closing_loops(independent, dependent)
+        assert len(loops) == len(dependent) == 3
+        for (loop, legs), closing in zip(loops, dependent, strict=True):
+            assert closing in legs and len(legs) == len(loop) >= 3
+            assert {line.id for line in legs} - {closing.id} <= {line.id for line in independent}
+            assert loop_closure(legs, loop).magnitude_m == pytest.approx(0.0, abs=1e-9)
+
+    def test_an_error_shows_in_the_loop_of_the_baseline_that_carries_it(self):
+        """In a dependent baseline it is that loop's alone: each loop is that
+        baseline and independent ones, so the others never see it."""
+        stations = sorted(_MARKS)
+        every = [
+            _between(a, b, variance=1e-4 if (a, b) == ("B", "D") else 1e-6,
+                     error=(0.0, 0.004, 0.0) if (a, b) == ("B", "D") else (0.0, 0.0, 0.0))
+            for i, a in enumerate(stations)
+            for b in stations[i + 1 :]
+        ]
+        independent, dependent = independent_subset(every)
+        assert "BD" in {line.id for line in dependent}
+        for loop, legs in closing_loops(independent, dependent):
+            closure = loop_closure(legs, loop)
+            if "BD" in closure.legs:
+                assert closure.magnitude_m == pytest.approx(0.004, abs=1e-9)
+            else:
+                assert closure.magnitude_m == pytest.approx(0.0, abs=1e-9)
+
+    def test_the_same_pair_twice_makes_no_loop(self):
+        """Two determinations of one vector are a repeat, not a circuit: a
+        two-station loop retraces itself and closes by construction."""
+        independent, dependent = independent_subset(
+            [_between("A", "B"), _between("A", "B", variance=1e-4)]
+        )
+        assert len(dependent) == 1
+        assert closing_loops(independent, dependent) == []
+
+    def test_disconnected_pairs_make_no_loop(self):
+        independent, dependent = independent_subset([_between("A", "B"), _between("C", "D")])
+        assert closing_loops(independent, dependent) == []
+
+    def test_the_record_is_in_millimetres(self):
+        legs = _triangle(error=(0.003, -0.004, 0.012))
+        record = loop_closure(legs, ["A", "B", "C"]).to_dict()
+        assert record["loop"] == ["A", "B", "C"]
+        assert record["legs"] == ["ab", "bc", "ca"]
+        assert record["misclosure_xyz_mm"] == pytest.approx([3.0, -4.0, 12.0])
+        assert record["magnitude_mm"] == pytest.approx(13.0)
+        assert record["propagated_sigma_xyz_mm"] == pytest.approx([math.sqrt(3e-6) * 1000] * 3)
+        assert record["covariance_is_approximate"] is True

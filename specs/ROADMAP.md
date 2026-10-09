@@ -3550,6 +3550,50 @@ already met; the reference is §8's prose.
 walkthrough runs them: the GNSS algorithms but one, the analysis tools, the exports, the engines'. Most
 helps still do not name their method's published source.
 
+#### P13-14 — *Build baselines* closes every loop (specs/11 §4.1.1)
+
+The GNSS loop closure has been in the core since P7e. RD-06's criterion rests on it, and engine CI runs it.
+Nothing in QGIS called it, so a reader could build three baselines round a triangle and never learn whether
+they agreed. Scoping a GNSS tutorial found the gap: the tutorial's lesson is the closure, and the menu could
+not show it.
+
+**What changed.**
+- **The loops.** *Build baselines* now closes the loop each dependent baseline makes through the independent
+  ones. `core/techniques/gnss/baselines.py::closing_loops` finds the one path through the independent forest.
+  One loop per dependent baseline is a basis for every circuit in the graph.
+- **The record.** The log gives each loop's misclosure in millimetres, its perimeter, and parts per million.
+  The JSON output's new `closures` key gives the components and their propagated sigma.
+  `LoopClosure.to_dict` writes the record, and `scripts/check_rd06.py` now uses it too, so RD-06's record and
+  the menu's are one form.
+- **Kept or not.** A loop is closed whether or not its dependent baseline is kept for the adjustment.
+- **Nothing to close.** A run with no loop to close says what one needs.
+- **Help.** The help gains a paragraph on what a closure checks, and on the station-wide error it cannot see.
+
+**Tests.**
+- `tests/test_gnss_baselines.py::TestEveryLoopIsFound`:
+  - a triangle gives one loop of all three stations;
+  - four stations observed pairwise give one loop per dependent baseline, each through independent ones;
+  - an error in a dependent baseline shows in its own loop alone;
+  - a repeated pair and two disconnected pairs give no loop;
+  - the record is in millimetres.
+- `tests/qgis/test_gnss_layers.py::TestEveryLoopIsClosed` runs the algorithm on the three-solution triangle
+  that file already builds:
+  - the JSON's closure is the core's;
+  - the log line states it;
+  - it is the same whether the dependent baseline is kept;
+  - two baselines close nothing and say so.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-602's row names the closure.
+
+**Not done.**
+- The same pair observed twice is not compared. That is repeatability, and the menu has no tool for it.
+- A closure is reported, not judged: no tolerance is applied. The propagated sigma assumes the legs
+  independent and understates the truth, so a test against it would flag sound loops. RD-06's 2 mm is a
+  criterion for one dataset, not a setting.
+- *Build baselines* still reduces every baseline with one base and one rover antenna height. In a network
+  where a station is the base of one baseline and the rover of another, the reduction differs between its
+  legs unless the two heights are equal, and the loop's misclosure carries the difference.
+
 ---
 
 ## Mapping to the research project's 24-month schedule
