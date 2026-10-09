@@ -31,6 +31,11 @@ places it in the public domain in the United States and dedicates it worldwide
 under CC0 1.0. These files are USGS's own work — synthetic surveys generated
 from a stated truth, drift and calibration — so that dedication covers them.
 
+`Test2.txt` and `Test3.txt` also ship with the plugin as the gravimetry tutorial
+(`geocomp/resources/datasets/rd07-usgs/`, P13-4), byte for byte the same as these,
+with GSadjust's `LICENSE.md` beside them; `tests/test_tutorial_dataset.py` holds
+the two copies together.
+
 The workbook states the truth each survey was generated from, and that is what
 makes it a reference rather than a fixture: a result that recovers it is not
 recovering GeoComp's own assumptions. `tests/test_gravimetry_network.py`

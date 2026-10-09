@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-4 — A gravimetry tutorial
+
+#### Added
+
+- *Install tutorial dataset* offers `rd07-usgs`, the gravimetry tutorial: two of USGS's synthetic gravity
+  surveys, whose truth USGS published. The walkthrough recovers that truth from the first. The second comes
+  from a meter that reads 3 % high, and the walkthrough shows that error passing every test until a second
+  known station exposes it.
+
 ### P13-3 — A monitoring tutorial
 
 #### Added

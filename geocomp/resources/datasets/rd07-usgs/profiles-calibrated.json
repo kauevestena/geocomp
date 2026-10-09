@@ -1,0 +1,23 @@
+{
+  "default_gravimeter": "B44",
+  "gravimeters": [
+    {
+      "applies_tide": true,
+      "calibration_factor": {
+        "mode": "RIGOROUS",
+        "unit": "DIMENSIONLESS",
+        "value": 0.970873786407767,
+        "variance": 0.0
+      },
+      "id": "B44",
+      "name": "USGS synthetic meter B44",
+      "reading_unit": "gravity",
+      "sigma_reading": 3e-08,
+      "source": "USGS GSadjust synthetic surveys; calibration from Test 3's stated 1.03"
+    }
+  ],
+  "instruments": [],
+  "levelling_classes": [],
+  "levels": [],
+  "reflectors": []
+}

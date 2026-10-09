@@ -34,6 +34,7 @@ from geocomp.resources import DATASET_ORDER, DATASETS_DIR, available_datasets
 from tests import monitoring_network as monitoring
 from tests import reference_levelling as levelling
 from tests import reference_rd01 as rd01
+from tests import usgs_gravity as usgs
 
 RD01 = DATASETS_DIR / "rd01"
 FILES = ("README.md", "approximate.json", "mapping.json", "profiles.json", "raw_data.csv")
@@ -417,3 +418,60 @@ class TestTheMonitoredDam:
         build = _build_module()
         shipped = {path.name for path in build.collect_files() if DAM in path.parents}
         assert shipped == set(DAM_FILES)
+
+
+GRAVITY = DATASETS_DIR / "rd07-usgs"
+GRAVITY_FILES = (
+    "GSadjust-LICENSE.md",
+    "README.md",
+    "Test2.txt",
+    "Test3.txt",
+    "profiles-calibrated.json",
+    "profiles.json",
+)
+
+
+class TestTheUsgsSurveys:
+    """The fifth: two of USGS's synthetic surveys, the gravimetry tutorial (P13-4).
+
+    The first tutorial dataset that is someone else's, with a truth someone else
+    published; ``tests/qgis/test_gravimetry_tutorial.py`` follows it.
+    """
+
+    def test_it_is_offered_after_the_four_before_it(self):
+        assert available_datasets().index("rd07-usgs") == 4
+
+    def test_nothing_else_is_in_the_folder(self):
+        assert sorted(path.name for path in GRAVITY.iterdir()) == sorted(GRAVITY_FILES)
+
+    @pytest.mark.parametrize("survey", usgs.TUTORIAL_SURVEYS)
+    def test_each_survey_is_the_vendored_copy_byte_for_byte(self, survey):
+        """``tests/data/rd07/PROVENANCE.md`` pins the vendored copies to USGS's
+        commit by SHA-256, so the shipped ones are pinned through them."""
+        name = f"{survey}.txt"
+        assert (GRAVITY / name).read_bytes() == (usgs.DATA / name).read_bytes()
+
+    @pytest.mark.parametrize(
+        ("name", "calibrated"), (("profiles.json", False), ("profiles-calibrated.json", True))
+    )
+    def test_the_profiles_are_the_generators(self, name, calibrated):
+        shipped = ProfileLibrary.from_dict(json.loads((GRAVITY / name).read_text(encoding="utf-8")))
+        assert shipped.to_dict() == usgs.tutorial_profiles(calibrated=calibrated).to_dict()
+
+    def test_the_calibration_undoes_test_3s_stated_scale(self):
+        library = ProfileLibrary.from_dict(
+            json.loads((GRAVITY / "profiles-calibrated.json").read_text(encoding="utf-8"))
+        )
+        (meter,) = library.gravimeters.values()
+        stated = usgs.CASES["Test3"]["calibration"]["B44"]
+        assert meter.calibration_factor.value * stated == pytest.approx(1.0, abs=1e-15)
+        assert usgs.CASES["Test2"]["calibration"]["B44"] == 1.0
+
+    def test_the_licence_travels_with_the_surveys(self):
+        text = " ".join((GRAVITY / "GSadjust-LICENSE.md").read_text(encoding="utf-8").split())
+        assert "CC0 1.0 Universal" in text and "United States Geological Survey" in text
+
+    def test_the_build_ships_every_file(self):
+        build = _build_module()
+        shipped = {path.name for path in build.collect_files() if GRAVITY in path.parents}
+        assert shipped == set(GRAVITY_FILES)

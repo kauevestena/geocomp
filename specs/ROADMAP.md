@@ -3201,6 +3201,37 @@ distances are computed floats.
 integration. The time series of three or more epochs. The Portuguese and Spanish walkthroughs. Worked QGIS
 projects.
 
+#### P13-4 — the gravimetry tutorial (FR-952, FR-950 stay partly met)
+
+*Install tutorial dataset* offers a fifth dataset, **`rd07-usgs`** (`geocomp/resources/datasets/rd07-usgs/`).
+It holds two of USGS's synthetic surveys for GSadjust, byte for byte the copies RD-07 vendored in P8a, with
+GSadjust's CC0 licence beside them, and two profiles of meter B44: one uncalibrated and one with Test 3's
+stated calibration. It is the first tutorial whose answer is someone else's. The README walks six steps in
+three pairs:
+1. Test 2: pre-processing fits the drift to the base, 0.01008 ± 0.00142 mGal per hour. The network, holding
+   sta1, passes (1.17) and estimates the drift with the stations at 0.00915 ± 0.00109, against the 0.01 USGS
+   put in. The four unknown stations come back within 2.6 µGal of USGS's truth, each within its own
+   standard deviation.
+2. Test 3, uncalibrated, with sta3 known as well: the global test fails (525). With sta1 alone it passes
+   (1.51) and sta3 is 154 µGal wrong. The variance factor is the same to every digit as with the calibration,
+   so the network cannot see the scale.
+3. Test 3, calibrated, both stations known: it passes (1.56), and every station is within 2.5 µGal.
+
+The truth USGS published moved from `tests/test_gravimetry_network.py` to `tests/usgs_gravity.py`, which
+both that test and the tutorial's use. `tests/qgis/walkthrough.py` gained `run_logged`, because the drift
+the README quotes is in the run's log and not in any output.
+
+**Defect found, by CI.** The shipped `Test2.txt` and `Test3.txt` failed their byte-for-byte check on Windows.
+Git checked them out with CRLF, because only the vendored copies were marked `-text` in `.gitattributes`.
+The plugin's copies are now marked the same way, as RTKLIB's sample has been since P12c-27. Every other
+check of the shipped files parses them, so line endings cannot move it.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has four modules of six.
+
+**Not done.** Tutorials for GNSS and integration. GNSS's needs RD-06's accuracy criterion met, or another
+dataset with published coordinates that may be redistributed. The Portuguese and Spanish walkthroughs.
+Worked QGIS projects.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

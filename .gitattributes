@@ -16,3 +16,8 @@ tests/data/dynadjust/DynaML.xsd -text -whitespace
 # (tests/test_tutorial_dataset.py), so it is kept as committed too.
 tests/data/rtklib/** -text
 geocomp/resources/datasets/rtklib-sample/*.05o -text
+
+# The gravimetry tutorial ships two of those USGS surveys, and its test holds them
+# to the vendored copies byte for byte -- which a Windows checkout broke, handing
+# the plugin's copies CRLF (P13-4, found by CI).
+geocomp/resources/datasets/rd07-usgs/*.txt -text -whitespace
