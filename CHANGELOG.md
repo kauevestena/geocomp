@@ -5,6 +5,20 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-10 — The total-station tutorial in Portuguese and Spanish
+
+#### Added
+
+- `rd01` ships its walkthrough in Portuguese (`README.pt_BR.md`) and Spanish (`README.es.md`). Every tutorial
+  is now in all three languages.
+
+#### Fixed
+
+- RD-01's walkthrough quoted, as GeoComp's words, a paraphrase of an older message. It now quotes what step 2
+  writes to the log.
+- In Spanish, the message about a face pair whose distances disagree said *los dos círculos*, then *la media
+  de las dos*. It now says *de los dos*.
+
 ### P13-9 — RD-01's walkthrough held to the dialogs, and the datum removed once
 
 #### Added

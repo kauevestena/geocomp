@@ -3405,6 +3405,36 @@ hold the core.
 sample's walkthrough has never been held to them either. Holding some stations and constraining the rest of
 the defect is refused rather than supported.
 
+#### P13-10 — the total-station walkthrough in Portuguese and Spanish (FR-952 stays partly met)
+
+`rd01` ships `README.pt_BR.md` and `README.es.md`, and its English README points to them. With it, every
+tutorial walkthrough is in all three languages.
+
+The translation is held like the others:
+- **Tier 1.** `TRANSLATED` names all five walkthroughs.
+- **Tier 3.** `tests/qgis/test_tutorial.py::TestInEachLanguage` checks every dialog, input and choice name in
+  each language, and the labels and datum choices the *Try this* names. It runs step 2 in that language, and
+  the translation's quoted log line must be what GeoComp writes.
+
+**Defects found.**
+- **A quote that was not GeoComp's.** RD-01's walkthrough block-quoted "the two faces of the pointing from
+  station 3 to station 2 disagree in distance by 1.000 m". That is a paraphrase of an older core message, not
+  what step 2 logs. Every later walkthrough quotes GeoComp's words and has its tests check them. The English
+  now quotes the log line, and a tier-3 test holds it there. The prose keeps naming the pointing and the round
+  metre, which tier 1 checks, and that check now ignores line breaks.
+- **A Spanish agreement error.** The message for that finding said *Los dos círculos …* and then *La media de
+  las dos*. It now says *de los dos*. The tier-3 test found it, holding the Spanish quote to the log.
+
+The Portuguese message calls the faces *as duas posições*, where the glossary's term is *pontaria* (PD/PI).
+It was left alone: all six Portuguese strings about faces say *posições*, so changing one would make them
+disagree. Whether to change all six is the native speakers' review's.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952's row now says all five walkthroughs are
+translated; what keeps it partly met is a GNSS tutorial and worked QGIS projects.
+
+**Not done.** *Install tutorial dataset* still says "Start with README.md" in every language. The GNSS
+sample's README is untranslated, and has never been held to the dialogs.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

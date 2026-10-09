@@ -37,7 +37,15 @@ from tests import reference_rd01 as rd01
 from tests import usgs_gravity as usgs
 
 RD01 = DATASETS_DIR / "rd01"
-FILES = ("README.md", "approximate.json", "mapping.json", "profiles.json", "raw_data.csv")
+FILES = (
+    "README.es.md",
+    "README.md",
+    "README.pt_BR.md",
+    "approximate.json",
+    "mapping.json",
+    "profiles.json",
+    "raw_data.csv",
+)
 
 
 @pytest.fixture(scope="module")
@@ -184,7 +192,7 @@ class TestTheTutorialTellsTheTruth:
             if not pointing.is_usable
         ]
         assert blocked == [("3", "2")]
-        assert "from station 3 to station 2" in readme
+        assert "from station 3 to station 2" in " ".join(readme.split())
 
     def test_the_blunder_is_the_round_metre_the_tutorial_quotes(self, readme):
         assert "1.000 m" in readme

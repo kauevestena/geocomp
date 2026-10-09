@@ -1,6 +1,7 @@
 # RD-01 — a total-station triangle, with two real errors in it
 
 **Reference dataset RD-01** (`specs/20-testing-and-validation.md` §3, FR-950, FR-952).
+*Em português: README.pt_BR.md. En español: README.es.md.*
 
 Three stations, six pointings, each observed on both faces of the instrument. It is
 the smallest complete total-station survey there is, and it exercises the whole of
@@ -60,10 +61,12 @@ for, because a silent substitution would make every number after it wrong in a
 way nothing could detect.
 
 Six pointings reduced from twelve face readings. **Five are usable and one is
-blocked**, and the blocked one is the first real error:
+blocked**, and the blocked one is the first real error: the pointing from station 3 to
+station 2, whose two faces disagree in distance by 1.000 m. The log says, of station 3:
 
-> the two faces of the pointing from station 3 to station 2 disagree in distance by
-> 1.000 m
+> The two faces to 2 disagree on the distance by +1.0000 m, against a tolerance of
+> 0.0087 m. The mean of the two is not a measurement of anything; check the field book
+> before using this pair.
 
 A face pair measures the same line twice. The angles agree to seconds; the distances
 differ by a round metre. That is not noise, it is a transcription error — a digit
