@@ -409,7 +409,7 @@
         </message>
         <message>
             <source>Property</source>
-            <translation>Propriedad</translation>
+            <translation>Propiedad</translation>
         </message>
         <message>
             <source>QGIS gives no scale factor for %1 at %2, %3. Check that the coordinates are inside the CRS's area of use.</source>
@@ -1049,7 +1049,7 @@
         </message>
         <message>
             <source>Network document</source>
-            <translation>Documento de red</translation>
+            <translation>Documento de la red</translation>
         </message>
         <message>
             <source>Network in the store (empty: its only network)</source>
@@ -6488,11 +6488,11 @@
         </message>
         <message>
             <source>The variance component of the group '%1' cannot be estimated: its redundancy is only %2, so its residuals barely depend on its own weights. Fix its weights, or merge it with another group.</source>
-            <translation>La componente de varianza del grupo '%1' no puede estimarse: su redundancia es de solo %2, por lo que sus residuos apenas dependen de sus propios pesos. Fije sus pesos, o únalo a otro grupo.</translation>
+            <translation>El componente de varianza del grupo '%1' no puede estimarse: su redundancia es de solo %2, por lo que sus residuos apenas dependen de sus propios pesos. Fije sus pesos, o únalo a otro grupo.</translation>
         </message>
         <message>
             <source>The variance components did not settle in %1 iterations (last factors: %2). A group with little redundancy can oscillate; merge it with another, or fix its weights.</source>
-            <translation>Las componentes de varianza no se estabilizaron en %1 iteraciones (últimos factores: %2). Un grupo con poca redundancia puede oscilar; únalo a otro, o fije sus pesos.</translation>
+            <translation>Los componentes de varianza no se estabilizaron en %1 iteraciones (últimos factores: %2). Un grupo con poca redundancia puede oscilar; únalo a otro, o fije sus pesos.</translation>
         </message>
         <message>
             <source>The variance factor of the group '%1' came out negative (%2): its residuals are smaller than its model allows. The group has too little redundancy, or its stochastic model is wrong in shape rather than in scale. Add observations to the group, or merge it with another.</source>
@@ -7590,11 +7590,11 @@
         </message>
         <message>
             <source>Largest imbalance along a line (m)</source>
-            <translation>Mayor desbalance a lo largo de una línea (m)</translation>
+            <translation>Mayor desequilibrio a lo largo de una línea (m)</translation>
         </message>
         <message>
             <source>Largest imbalance per setup (m)</source>
-            <translation>Mayor desbalance por estacionamiento (m)</translation>
+            <translation>Mayor desequilibrio por estacionamiento (m)</translation>
         </message>
         <message>
             <source>Levelling classes</source>
@@ -9444,7 +9444,7 @@
         </message>
         <message>
             <source>Angle format</source>
-            <translation>Formato del ángulo</translation>
+            <translation>Formato de los ángulos</translation>
         </message>
         <message>
             <source>CSV files (*.csv)</source>
@@ -9528,7 +9528,7 @@
         </message>
         <message>
             <source>Property</source>
-            <translation>Propriedad</translation>
+            <translation>Propiedad</translation>
         </message>
         <message>
             <source>Read a CSV field book through a saved, reusable field mapping.</source>
@@ -10089,7 +10089,7 @@
         </message>
         <message>
             <source>Share</source>
-            <translation>Parte</translation>
+            <translation>Proporción</translation>
         </message>
         <message>
             <source>The misclosure is consistent with the readings' own precision, which is the case proportional distribution is correct for.</source>
@@ -10148,7 +10148,7 @@
         </message>
         <message>
             <source>&lt;p&gt;Adjusts reduced levelling lines as a one-dimensional network: the same least squares, the same global test, the same data snooping and reliability as any other GeoComp adjustment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Two weighting models, and the choice is yours.&lt;/b&gt; A reduced line arrives carrying an uncertainty propagated from its staff readings. That figure is rigorous and usually optimistic: it knows nothing of refraction, of staff calibration, or of a tripod settling between backsight and foresight. The &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; and &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; models are fitted to lines that suffered all three. Length weighting suits long lines with consistent sight lengths; setup weighting suits short, irregular ones where the per-setup reading error dominates. Leaving both coefficients at zero keeps the propagated uncertainty, and the report says which was used.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Benchmarks&lt;/b&gt; are entered as &lt;code&gt;id=height&lt;/code&gt; pairs, separated by commas or semicolons; add &lt;code&gt;±sigma&lt;/code&gt; to hold one with a weight rather than exactly, for example &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. With none, the network is free, which is often the right thing to adjust first: it shows the observations' internal consistency without a datum's errors mixed in.&lt;/p&gt;&lt;p&gt;Mixing orthometric and ellipsoidal heights without a geoid model is refused. The error would be the geoid undulation &amp;mdash; tens of metres across much of Brazil &amp;mdash; and the result would look entirely reasonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The report gives relative height uncertainties between pairs of benchmarks&lt;/b&gt;, which is the 1D analogue of the error ellipse and usually the number a levelling network was built to produce. It is not the difference of the two individual uncertainties, because adjusted heights are correlated.&lt;/p&gt;&lt;h3&gt;Parameters&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Reduced lines&lt;/b&gt; &amp;mdash; the document a reduction produced. &lt;b&gt;Benchmarks&lt;/b&gt; &amp;mdash; as above. &lt;b&gt;Weighting&lt;/b&gt;, and the coefficient for each model (m per root km, m per root setup); zero means that model is not configured.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Trigonometric height differences&lt;/b&gt; &amp;mdash; optional: the document &lt;i&gt;Trigonometric levelling&lt;/i&gt; writes. Its differences join the lines as one network, each with its own propagated uncertainty, and a point only they reach is added. &lt;b&gt;Estimate a variance component per technique&lt;/b&gt; (advanced) &amp;mdash; scales each technique's uncertainties by a factor estimated from the residuals, and reports the factors.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Free network&lt;/b&gt; &amp;mdash; ignore the benchmarks and remove the datum defect with an inner constraint.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confidence&lt;/b&gt;, &lt;b&gt;alpha&lt;/b&gt; and &lt;b&gt;beta&lt;/b&gt; &amp;mdash; for the global test, data snooping and the minimal detectable bias.&lt;/p&gt;&lt;h3&gt;Outputs&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solution&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Report&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Heights&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;No map layers.&lt;/b&gt; A levelling network has no planimetry: it determines heights and nothing else, so every station would be drawn at the same point. Use the network algorithm in the Analysis menu on a network document that carries coordinates, or wait for the project store that holds both. Scalars: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; and &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; in metres.&lt;/p&gt;</source>
-            <translation>&lt;p&gt;Ajusta líneas de nivelación reducidas como una red unidimensional: los mismos mínimos cuadrados, la misma prueba global, el mismo data snooping y la misma fiabilidad que cualquier otro ajuste de GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dos modelos de ponderación, y la elección es suya.&lt;/b&gt; Una línea reducida llega con una incertidumbre propagada a partir de sus lecturas de mira. Ese valor es riguroso y habitualmente optimista: no sabe nada de la refracción, de la calibración de la mira, ni del asentamiento del trípode entre la espalda y el frente. Los modelos &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; y &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; se ajustaron a líneas que sufrieron los tres. La ponderación por longitud conviene a líneas largas con visuales de longitud consistente; la ponderación por estacionamientos conviene a líneas cortas e irregulares, donde domina el error de lectura por estacionamiento. Dejar ambos coeficientes en cero mantiene la incertidumbre propagada, y el informe indica cuál se usó.&lt;/p&gt;&lt;p&gt;Los &lt;b&gt;puntos de referencia&lt;/b&gt; se introducen como pares &lt;code&gt;id=altitud&lt;/code&gt;, separados por comas o puntos y comas; añada &lt;code&gt;±sigma&lt;/code&gt; para fijar uno con peso en lugar de exactamente, por ejemplo &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. Sin ninguno, la red es libre, lo que a menudo es el primer ajuste correcto: muestra la consistencia interna de las observaciones sin los errores de un datum de por medio.&lt;/p&gt;&lt;p&gt;Mezclar alturas ortométricas y elipsoidales sin un modelo geoidal se rechaza. El error sería la ondulación geoidal &amp;mdash; decenas de metros en gran parte de Brasil &amp;mdash; y el resultado parecería perfectamente razonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El informe presenta las incertidumbres relativas de altitud entre pares de referencias&lt;/b&gt;, que son el análogo 1D de la elipse de error y habitualmente el número que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales, porque las altitudes ajustadas están correlacionadas.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Puntos de referencia&lt;/b&gt; &amp;mdash; como arriba. &lt;b&gt;Ponderación&lt;/b&gt;, y el coeficiente de cada modelo (m por raíz de km, m por raíz de estacionamiento); cero significa que ese modelo no está configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Desniveles trigonométricos&lt;/b&gt; &amp;mdash; opcional: el documento que escribe la &lt;i&gt;Nivelación trigonométrica&lt;/i&gt;. Sus desniveles se unen a las líneas en una sola red, cada uno con su propia incertidumbre propagada, y se añade un punto que solo ellos alcanzan. &lt;b&gt;Estimar una componente de varianza por técnica&lt;/b&gt; (avanzado) &amp;mdash; escala las incertidumbres de cada técnica por un factor estimado a partir de los residuos, e informa de los factores.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Red libre&lt;/b&gt; &amp;mdash; ignora los puntos de referencia y elimina la deficiencia de datum con una constricción interna.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confianza&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; y &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para la prueba global, el data snooping y el sesgo mínimo detectable.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Altitudes&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin capas de mapa.&lt;/b&gt; Una red de nivelación no tiene planimetría: determina altitudes y nada más, por lo que todas las estaciones se dibujarían en el mismo punto. Use el algoritmo de red del menú Análisis sobre un documento de red que contenga coordenadas, o espere al repositorio de proyecto que contenga ambos. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; y &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
+            <translation>&lt;p&gt;Ajusta líneas de nivelación reducidas como una red unidimensional: los mismos mínimos cuadrados, la misma prueba global, el mismo data snooping y la misma fiabilidad que cualquier otro ajuste de GeoComp.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Dos modelos de ponderación, y la elección es suya.&lt;/b&gt; Una línea reducida llega con una incertidumbre propagada a partir de sus lecturas de mira. Ese valor es riguroso y habitualmente optimista: no sabe nada de la refracción, de la calibración de la mira, ni del asentamiento del trípode entre la espalda y el frente. Los modelos &lt;code&gt;k &amp;times; &amp;radic;L&lt;/code&gt; y &lt;code&gt;k &amp;times; &amp;radic;n&lt;/code&gt; se ajustaron a líneas que sufrieron los tres. La ponderación por longitud conviene a líneas largas con visuales de longitud consistente; la ponderación por estacionamientos conviene a líneas cortas e irregulares, donde domina el error de lectura por estacionamiento. Dejar ambos coeficientes en cero mantiene la incertidumbre propagada, y el informe indica cuál se usó.&lt;/p&gt;&lt;p&gt;Los &lt;b&gt;puntos de referencia&lt;/b&gt; se introducen como pares &lt;code&gt;id=altitud&lt;/code&gt;, separados por comas o puntos y comas; añada &lt;code&gt;±sigma&lt;/code&gt; para fijar uno con peso en lugar de exactamente, por ejemplo &lt;code&gt;BM1=100.000, BM2=103.750±0.002&lt;/code&gt;. Sin ninguno, la red es libre, lo que a menudo es el primer ajuste correcto: muestra la consistencia interna de las observaciones sin los errores de un datum de por medio.&lt;/p&gt;&lt;p&gt;Mezclar alturas ortométricas y elipsoidales sin un modelo geoidal se rechaza. El error sería la ondulación geoidal &amp;mdash; decenas de metros en gran parte de Brasil &amp;mdash; y el resultado parecería perfectamente razonable.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El informe presenta las incertidumbres relativas de altitud entre pares de referencias&lt;/b&gt;, que son el análogo 1D de la elipse de error y habitualmente el número que una red de nivelación fue construida para producir. No es la diferencia de las dos incertidumbres individuales, porque las altitudes ajustadas están correlacionadas.&lt;/p&gt;&lt;h3&gt;Parámetros&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Líneas reducidas&lt;/b&gt; &amp;mdash; el documento producido por una reducción. &lt;b&gt;Puntos de referencia&lt;/b&gt; &amp;mdash; como arriba. &lt;b&gt;Ponderación&lt;/b&gt;, y el coeficiente de cada modelo (m por raíz de km, m por raíz de estacionamiento); cero significa que ese modelo no está configurado.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Desniveles trigonométricos&lt;/b&gt; &amp;mdash; opcional: el documento que escribe la &lt;i&gt;Nivelación trigonométrica&lt;/i&gt;. Sus desniveles se unen a las líneas en una sola red, cada uno con su propia incertidumbre propagada, y se añade un punto que solo ellos alcanzan. &lt;b&gt;Estimar un componente de varianza por técnica&lt;/b&gt; (avanzado) &amp;mdash; escala las incertidumbres de cada técnica por un factor estimado a partir de los residuos, e informa de los factores.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Red libre&lt;/b&gt; &amp;mdash; ignora los puntos de referencia y elimina la deficiencia de datum con una constricción interna.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Confianza&lt;/b&gt;, &lt;b&gt;alfa&lt;/b&gt; y &lt;b&gt;beta&lt;/b&gt; &amp;mdash; para la prueba global, el data snooping y el sesgo mínimo detectable.&lt;/p&gt;&lt;h3&gt;Salidas&lt;/h3&gt;&lt;p&gt;&lt;b&gt;Solución&lt;/b&gt; &amp;mdash; JSON. &lt;b&gt;Informe&lt;/b&gt; &amp;mdash; HTML. &lt;b&gt;Altitudes&lt;/b&gt; &amp;mdash; CSV.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sin capas de mapa.&lt;/b&gt; Una red de nivelación no tiene planimetría: determina altitudes y nada más, por lo que todas las estaciones se dibujarían en el mismo punto. Use el algoritmo de red del menú Análisis sobre un documento de red que contenga coordenadas, o espere al repositorio de proyecto que contenga ambos. Escalares: &lt;code&gt;VARIANCE_FACTOR_APOSTERIORI&lt;/code&gt;, &lt;code&gt;DEGREES_OF_FREEDOM&lt;/code&gt;, &lt;code&gt;GLOBAL_TEST_PASSED&lt;/code&gt;, &lt;code&gt;OUTLIER_COUNT&lt;/code&gt; y &lt;code&gt;WORST_HEIGHT_UNCERTAINTY&lt;/code&gt; en metros.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>Adjust levelling lines as a 1D network, by length or setup weighting.</source>
@@ -10244,7 +10244,7 @@
         </message>
         <message>
             <source>Estimate a variance component per technique</source>
-            <translation>Estimar una componente de varianza por técnica</translation>
+            <translation>Estimar un componente de varianza por técnica</translation>
         </message>
         <message>
             <source>FAILED</source>

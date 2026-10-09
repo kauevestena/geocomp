@@ -3327,6 +3327,39 @@ and translated after that. The GNSS sample's walkthrough is untranslated. *Insta
 says "Start with README.md" in every language. A native speaker's review of these texts belongs with the
 catalogues' (specs/18 §3.1).
 
+#### P13-8 — one English string, one translation (FR-093)
+
+Translating the integration walkthrough (P13-7) turned up *Estimate a variance component per technique* worded
+two ways in each language. The integration dialog said *um componente* and the levelling one *uma
+componente*, *un* and *una* in Spanish. A reader who learns a label in one dialog looks for the same words in
+the next.
+
+`tests/structural/test_translations.py::test_one_english_string_reads_the_same_in_every_dialog` makes it a
+rule. An English string that appears in several contexts, 278 of them in each catalogue, reads one way in
+all of them, unless `TRANSLATED_BY_CONTEXT` lists it with what it means in each place. Seven strings are
+listed:
+- *(none)*, whose gender is the quantity's;
+- levelling's *Differences*, which are height differences;
+- the two broadcast-navigation product kinds, which are also written into the middle of a sentence;
+- *Layout*, both a level book's column layout and a print layout;
+- *To*, both a line's end and a transformation's target frame;
+- *Uncheckable*, both a column of counts and one observation's decision.
+
+`test_every_string_translated_by_context_still_differs` removes an exception no catalogue needs any more. On
+the old catalogues the rule failed with ten strings, every one named (specs/18 §3), and each was unified:
+- *componente* is masculine, the general noun in both languages, and two messages about variance components
+  changed their agreement with it;
+- the rest took the wording most of their dialogs already used;
+- in the profiles window, *Largest imbalance along a line (m)* changed with the label beside it.
+
+No English string changed, and no walkthrough named a changed label.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. Row 18.4 cites the new test.
+
+**Not done.** The rule checks that a string reads one way. It cannot check that two different English strings
+for one idea read alike, nor whether the wording chosen is the best one. Both are the native speakers'
+review's (specs/18 §3.1).
+
 ---
 
 ## Mapping to the research project's 24-month schedule

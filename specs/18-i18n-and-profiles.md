@@ -255,6 +255,29 @@ replaced (*ficheiro*, *registo*, *folha de cálculo*, *partilhar*, *detetável*)
 que* and *tem de*, about twenty strings, were left for that review, and P12c-5 converted the ones that are
 European and not merely formal (§3.1).
 
+**One English string, one translation (P13-6, P13-8).** A reader who learns a label in one dialog looks for
+the same words in the next, and a message that names a control sends the reader looking for its label. So an
+English string that appears in several contexts has one translation in all of them. The exception is a string
+that means something else in another place, such as levelling's *Differences*, which are height differences.
+`tests/structural/test_translations.py` holds both rules:
+- `test_a_label_a_message_quotes_is_the_label_shown` (P13-6): a label an English message quotes is the
+  label the translation quotes;
+- `test_one_english_string_reads_the_same_in_every_dialog` (P13-8): every repeated string reads one way,
+  unless `TRANSLATED_BY_CONTEXT` lists it, with what it means in each place. A listed string that no longer
+  differs must be removed from the list.
+
+Its first run found ten strings worded two ways:
+- in both languages: *Estimate a variance component per technique*, whose noun was masculine in the
+  integration dialog and feminine in the levelling one (*um*/*uma componente*, *un*/*una*); *Network
+  document* (*de rede*/*da rede*); *Angle format*; and *Largest imbalance per setup (m)*, *desequilíbrio*
+  (*desequilibrio*) in the levelling dialogs and *desbalanceamento* (*desbalance*) in the profiles window;
+- in Portuguese only: *Verdict*, *Length (km)*, *Longest sight (m)* and *GeoComp in-house core*;
+- in Spanish only: *Share*, and *Property*, spelt *Propriedad* in two dialogs.
+
+All now read one way. *componente* is masculine, the general noun in both languages, and two messages about
+variance components changed their agreement to match. In the profiles window, *Largest imbalance along a line
+(m)* changed with the label beside it.
+
 ### 3.1 The native-speaker review (P12c-5)
 
 **Not yet held.** It needs people who speak the languages natively and know the subject, and none has been
