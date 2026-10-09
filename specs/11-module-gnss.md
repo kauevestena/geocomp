@@ -309,6 +309,14 @@ Per session and, for kinematic, per epoch:
 | Observation span and interval | Whether the session was long enough for the mode used |
 | Cycle slips / rejected epochs | Data quality |
 
+**A float baseline is named where it is built (P13-18).** A static baseline is its run's last epoch
+([`08`](./08-engine-rtklib.md) §8.1), so that epoch's status is the baseline's. *Build baselines* warns of every
+baseline whose last epoch's ambiguities were not fixed, with its ambiguity ratio, and its JSON output lists them
+under `float`. Until P13-18 only the layer's `solution_status` column said so, and the log said nothing.
+[`22`](./22-reference-data-sources.md) §5.1 measured a float GODN–GODS baseline 872 mm wrong with a 7.6 mm formal
+sigma: a float baseline's covariance does not describe its error. It is named rather than dropped, because
+leaving out an observation is the surveyor's decision, and data snooping in the adjustment is there to judge it.
+
 **DOP is computed from the satellite geometry RTKLIB reports, by RTKLIB's definition** (P12c-35). No column
 of the `.pos` file carries a dilution of precision, and P7b recorded it as absent rather than derive one from
 the position covariance -- that number would depend on the weighting RTKLIB happened to use, a different

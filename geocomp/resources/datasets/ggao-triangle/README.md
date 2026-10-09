@@ -138,6 +138,13 @@ The side without GODN fixes as well as any side at midnight.
 - **Folder of .pos solutions**: `solutions-11`
 - **Baselines**: somewhere you can find it
 
+Before it closes the loop, it says what two of the baselines are made of:
+
+> GODN-GODE is taken from an epoch whose ambiguities were not fixed (ambiguity ratio 1.0). A float baseline can be
+> wrong by far more than its covariance says: process the session again, over a longer span, or leave it out.
+
+And the same of GODN-GODS. Then:
+
 > Loop GODN → GODE → GODS → GODN closes to 7.62 mm over 282.3 m of baselines (26.98 ppm).
 
 **The triangle misses by 7.62 mm**, twenty times the midnight loop over the same ground. The hour's baselines
@@ -147,9 +154,10 @@ disagree with each other.
 
 ## What to take from it
 
-- **A loop closure detects; it does not locate.** The loop says one of the three sides is wrong, not which. Here
-  the runs themselves point: GODN's two sides fixed half their epochs, and a baseline is taken from the last
-  epoch, which on both is not fixed. Process those two again — a longer span, another hour — before using them.
+- **A loop closure detects; it does not locate.** The loop says one of the three sides is wrong, not which.
+  Here the runs themselves point: GODN's two sides fixed half their epochs, and a baseline is taken from the
+  last epoch, which on both is not fixed, as *Build baselines* says. Process those two again — a longer span,
+  another hour — before using them.
 - **A loop that closes does not mean the stations are right.** An error common to both of a station's sides
   enters the loop twice, with opposite signs, and cancels. With GeoComp's default settings these runs apply no
   antenna calibration at all, and the midnight loop still closes to 0.37 mm, because each antenna's error is on

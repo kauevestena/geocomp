@@ -235,7 +235,7 @@ class TestFollowingIt:
     def test_the_log_says_everything_it_quotes(self, readme, followed):
         log = _flat(followed["hour-00"] + "\n" + followed["hour-11"])
         said = quotes(readme)
-        assert len(said) == 9
+        assert len(said) == 10
         for quote in said:
             assert _flat(quote) in log, quote
 
@@ -275,6 +275,15 @@ class TestFollowingIt:
         assert int(eleven["magnitude_mm"] / midnight["magnitude_mm"]) == 20
         quoted(readme, "twenty times the midnight loop")
 
+    def test_the_float_sides_are_named_and_only_they(self, followed):
+        """P13-18: a baseline is its last epoch, and *Build baselines* says when
+        that epoch's ambiguities were not fixed. At midnight none; at eleven,
+        GODN's two sides."""
+        midnight, eleven = (json.loads(followed[f"{hour}.json"])["float"] for hour in HOURS)
+        assert midnight == [] and sorted(eleven) == ["GODN-GODE", "GODN-GODS"]
+        assert followed["hour-11"].count("is taken from an epoch whose ambiguities were not fixed") == 2
+        assert "is taken from an epoch" not in followed["hour-00"]
+
     def test_the_build_counts_one_dependent_baseline(self, followed):
         assert "3 baseline(s): 2 independent, 1 dependent" in followed["hour-00"]
         assert len(CLOSURE.findall(followed["hour-00"])) == 1
@@ -297,6 +306,6 @@ class TestInEachLanguage:
         logs = _follow(folder, language)
         log = _flat(logs["hour-00"] + "\n" + logs["hour-11"])
         said = quotes(translated)
-        assert len(said) == 9
+        assert len(said) == 10
         for quote in said:
             assert _flat(quote) in log, quote

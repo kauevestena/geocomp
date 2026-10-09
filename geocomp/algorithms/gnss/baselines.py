@@ -251,6 +251,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
 
         built = []
+        floating: list[str] = []
         quality: dict[str, dict[str, Any]] = {}
         sessions: dict[str, _Session] = {}
         for index, path in enumerate(solutions):
@@ -287,6 +288,22 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 )
                 quality[baseline.id] = summary.to_dict()
                 sessions[baseline.id] = _session(solution, baseline)
+                # The baseline is the last epoch, so its last epoch's status is
+                # the baseline's (P13-18). Until then a float one was taken in
+                # silence, and specs/22 §5.1 measured one 872 mm wrong whose
+                # covariance said 7.6 mm.
+                last = solution.last()
+                if not last.is_ambiguity_fixed:
+                    floating.append(baseline.id)
+                    feedback.pushWarning(
+                        self.tr(
+                            "%1 is taken from an epoch whose ambiguities were not fixed (ambiguity "
+                            "ratio %2). A float baseline can be wrong by far more than its covariance "
+                            "says: process the session again, over a longer span, or leave it out."
+                        )
+                        .replace("%1", baseline.id)
+                        .replace("%2", f"{last.ratio:.1f}")
+                    )
             except GeoCompError as exc:
                 # One unreadable solution does not lose the rest (FR-166).
                 feedback.pushWarning(
@@ -344,6 +361,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "independent_only": independent_only,
                         "quality": quality,
                         "closures": closures,
+                        "float": floating,
                     },
                     indent=2,
                 )

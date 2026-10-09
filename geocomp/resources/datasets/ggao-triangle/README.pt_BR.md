@@ -140,6 +140,14 @@ O lado sem a GODN fixa tão bem quanto qualquer lado à meia-noite.
 - **Pasta com soluções .pos**: `solutions-11`
 - **Linhas de base**: algum lugar onde você as encontre
 
+Antes de fechar o circuito, ele diz de que são feitas duas das linhas de base:
+
+> GODN-GODE é tirada de uma época cujas ambiguidades não foram fixadas (razão de ambiguidades 1.0). Uma linha de
+> base flutuante pode estar errada por muito mais do que a sua covariância diz: processe a sessão de novo, num
+> intervalo mais longo, ou deixe-a de fora.
+
+E o mesmo da GODN-GODS. Depois:
+
 > O circuito GODN → GODE → GODS → GODN fecha com 7.62 mm em 282.3 m de linhas de base (26.98 ppm).
 
 **O triângulo erra por 7,62 mm**, vinte vezes o circuito da meia-noite sobre o mesmo terreno. As linhas de base
@@ -150,9 +158,9 @@ dessa hora discordam entre si.
 ## O que levar disto
 
 - **O fechamento de um circuito detecta; não localiza.** O circuito diz que um dos três lados está errado, não
-  qual. Aqui as próprias execuções apontam: os dois lados da GODN fixaram metade das épocas, e uma linha de base
-  é tirada da última época, que nos dois não está fixada. Processe esses dois de novo — um intervalo mais longo,
-  outra hora — antes de usá-los.
+  qual. Aqui as próprias execuções apontam: os dois lados da GODN fixaram metade das épocas, e uma linha de
+  base é tirada da última época, que nos dois não está fixada, como o *Construir linhas de base* diz. Processe
+  esses dois de novo — um intervalo mais longo, outra hora — antes de usá-los.
 - **Um circuito que fecha não quer dizer que as estações estão certas.** Um erro comum aos dois lados de uma
   estação entra no circuito duas vezes, com sinais opostos, e se cancela. Com as configurações padrão do GeoComp
   estas execuções não aplicam calibração de antena nenhuma, e o circuito da meia-noite ainda fecha com 0,37 mm,
