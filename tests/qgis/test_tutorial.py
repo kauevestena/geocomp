@@ -28,6 +28,15 @@ INNER = "Inner constraint — free network, trace minimum"
 MINIMUM = "Minimum constraint — over chosen stations"
 CONSTRAINED = "Constrained — hold the stations the network fixes"
 README = Path(__file__).resolve().parents[2] / "geocomp" / "resources" / "datasets" / "rd01" / "README.md"
+SHIPPED = (
+    "README.es.md",
+    "README.md",
+    "README.pt_BR.md",
+    "approximate.json",
+    "mapping.json",
+    "profiles.json",
+    "raw_data.csv",
+)
 
 
 def _algorithm(algorithm_id: str):
@@ -91,18 +100,12 @@ class TestInstalling:
     def installed(self, geocomp_provider, tmp_path_factory) -> Path:
         directory = tmp_path_factory.mktemp("tutorial")
         results = _run(TUTORIAL_ALGORITHM, {"DATASET": 0, "DESTINATION": str(directory)})
-        assert results["FILE_COUNT"] == 5
+        assert results["FILE_COUNT"] == len(SHIPPED)
         return Path(results["OUTPUT_DIRECTORY"])
 
     def test_every_file_lands_in_a_folder_named_for_the_dataset(self, installed):
         assert installed.name == "rd01"
-        assert sorted(path.name for path in installed.iterdir()) == [
-            "README.md",
-            "approximate.json",
-            "mapping.json",
-            "profiles.json",
-            "raw_data.csv",
-        ]
+        assert sorted(path.name for path in installed.iterdir()) == sorted(SHIPPED)
 
     def test_a_second_install_leaves_edited_files_alone(self, geocomp_provider, tmp_path):
         """Overwrite is off by default. A reader who annotated the tutorial and
@@ -124,7 +127,7 @@ class TestInstalling:
             TUTORIAL_ALGORITHM,
             {"DATASET": 0, "DESTINATION": str(tmp_path), "OVERWRITE": True},
         )
-        assert results["FILE_COUNT"] == 5
+        assert results["FILE_COUNT"] == len(SHIPPED)
         assert marked.read_text(encoding="utf-8") != "my notes"
 
     def test_a_destination_that_does_not_exist_is_refused_by_name(
@@ -193,6 +196,21 @@ class TestFollowingIt:
         assert reduced["POINTING_COUNT"] == 6
         assert reduced["BLOCKING_COUNT"] == 1
         assert reduced["USABLE_COUNT"] == 5
+
+    def test_step_two_says_what_the_tutorial_quotes(self, workspace, imported):
+        """Until P13-10 the quote was a paraphrase of an older message, in GeoComp's voice."""
+        from tests.qgis.walkthrough import quote, run_logged
+
+        _results, log = run_logged(
+            "geocomp:totalstation_preprocess",
+            {
+                "READINGS": imported["OUTPUT_READINGS"],
+                "PROFILES": str(workspace / "profiles.json"),
+                "OUTPUT_REDUCED": str(workspace / "reduced-logged.json"),
+            },
+        )
+        readme = README.read_text(encoding="utf-8")
+        assert quote(readme) in log, (quote(readme), log)
 
     @pytest.fixture(scope="class")
     def adjusted(self, workspace, reduced):
@@ -341,3 +359,51 @@ class TestTheNetworkIsFree:
             NETWORK, _network(workspace, reduced, "one", datum=CONSTRAINED, FIXED_STATIONS="1")
         )
         assert "does not determine 1 combination" in said and "orientation" in said, said
+
+
+@pytest.mark.parametrize("language", ("pt_BR", "es"))
+class TestInEachLanguage:
+    """The translations, held to GeoComp speaking their language (P13-10), as the others' are."""
+
+    def test_every_name_it_uses_is_the_dialogs(self, geocomp_provider, language):
+        from tests.qgis.test_language import _Installed
+        from tests.qgis.walkthrough import algorithm, check_names, label, option, quoted
+
+        translated = README.with_name(f"README.{language}.md").read_text(encoding="utf-8")
+        # By their English names, before the language changes.
+        indices = [option(NETWORK, "DATUM", choice) for choice in (MINIMUM, CONSTRAINED)]
+        with _Installed(language):
+            check_names(translated)
+            for name in ("DATUM", "DATUM_STATIONS", "FIXED_STATIONS"):
+                quoted(translated, f"**{label(NETWORK, name)}**")
+            network = algorithm(NETWORK)  # held: the definition is the algorithm's
+            choices = [network.parameterDefinition("DATUM").options()[index] for index in indices]
+        for choice in choices:
+            quoted(translated, f"*{choice}*")
+
+    def test_it_quotes_step_two_in_that_language(self, geocomp_provider, language, tmp_path):
+        from tests.qgis.test_language import _Installed
+        from tests.qgis.walkthrough import quote, run, run_logged
+
+        translated = README.with_name(f"README.{language}.md").read_text(encoding="utf-8")
+        installed = run(TUTORIAL_ALGORITHM, {"DATASET": 0, "DESTINATION": str(tmp_path)})
+        folder = Path(installed["OUTPUT_DIRECTORY"])
+        readings = run(
+            "geocomp:totalstation_import_fieldbook",
+            {
+                "SOURCE": str(folder / "raw_data.csv"),
+                "MAPPING": str(folder / "mapping.json"),
+                "PROFILES": str(folder / "profiles.json"),
+                "OUTPUT_READINGS": str(folder / "readings.json"),
+            },
+        )
+        with _Installed(language):
+            _results, log = run_logged(
+                "geocomp:totalstation_preprocess",
+                {
+                    "READINGS": readings["OUTPUT_READINGS"],
+                    "PROFILES": str(folder / "profiles.json"),
+                    "OUTPUT_REDUCED": str(folder / "reduced.json"),
+                },
+            )
+        assert quote(translated) in log, (quote(translated), log)

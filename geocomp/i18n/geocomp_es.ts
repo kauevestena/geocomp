@@ -6436,7 +6436,7 @@
         </message>
         <message>
             <source>The two faces to %1 disagree on the distance by %2 m, against a tolerance of %3 m. The mean of the two is not a measurement of anything; check the field book before using this pair.</source>
-            <translation>Los dos círculos hacia %1 discrepan en la distancia en %2 m, frente a una tolerancia de %3 m. La media de las dos no es la medida de nada; compruebe la libreta de campo antes de usar este par.</translation>
+            <translation>Los dos círculos hacia %1 discrepan en la distancia en %2 m, frente a una tolerancia de %3 m. La media de los dos no es la medida de nada; compruebe la libreta de campo antes de usar este par.</translation>
         </message>
         <message>
             <source>The two pairs of a reciprocal crossing join different stations: the second joins %1, where %2 was expected. Check the stations of the second pair.</source>
