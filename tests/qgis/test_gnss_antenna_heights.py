@@ -87,6 +87,18 @@ def _closure(built):
     return loop_closure(legs, loop)
 
 
+def _round_the_triangle(built) -> np.ndarray:
+    """GODN -> GODE -> GODS -> GODN, in metres, always that way round.
+
+    Not through ``closing_loops``: which baseline it closes with is the
+    independent subset's choice, by covariance trace, and a tie can go either
+    way on another platform -- so two sets can be closed in opposite
+    directions, and their misclosures not subtracted.
+    """
+    vectors = {b.id: np.array([c.value for c in b.components]) for b in built}
+    return vectors["GODN-GODE"] + vectors["GODE-GODS"] - vectors["GODN-GODS"]
+
+
 def _vectors(document: dict) -> dict[str, list[float]]:
     return {
         observation["id"].removeprefix("gnss-"): [value["value"] for value in observation["values"]]
@@ -156,10 +168,9 @@ class TestTwoHeightsForOneStationAreRefused:
 
     def test_what_it_refuses_would_have_missed_by_the_difference(self):
         """The defect P13-19 removes: the loop the old reduction gave."""
-        missed = _closure(_baselines({}, base=HEADER["GODN"], rover=HEADER["GODE"])).to_dict()
-        closed = _closure(_baselines()).to_dict()
-        difference = np.subtract(missed["misclosure_xyz_mm"], closed["misclosure_xyz_mm"])
-        assert np.linalg.norm(difference) == pytest.approx((HEADER["GODN"] - HEADER["GODE"]) * 1000, abs=0.01)
+        missed = _round_the_triangle(_baselines({}, base=HEADER["GODN"], rover=HEADER["GODE"]))
+        closed = _round_the_triangle(_baselines())
+        assert np.linalg.norm(missed - closed) == pytest.approx(HEADER["GODN"] - HEADER["GODE"], abs=1e-6)
 
     def test_equal_base_and_rover_heights_are_one_height(self, tmp_path):
         document, _log = _build(tmp_path, BASE_HEIGHT=1.5, ROVER_HEIGHT=1.5)
