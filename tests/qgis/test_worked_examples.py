@@ -44,6 +44,7 @@ STATED = {
         ("stated", "VARIANCE_FACTOR_APOSTERIORI", "with a variance factor of **{:.2f}**"),
     ),
     "rtklib-sample": (),
+    "ggao-triangle": (),
 }
 
 
@@ -104,6 +105,12 @@ def ran(name, model):
             from tests.qgis.test_engine_runs import _Rtklib
 
             patch.setattr(engines, "rtklib_engine", _Rtklib)
+        if name == "ggao-triangle":
+            # And here the solutions it gave for each hour's three pairs.
+            from geocomp.services import engines
+            from tests.qgis.test_gnss_tutorial import _Recorded
+
+            patch.setattr(engines, "rtklib_engine", _Recorded)
         results, ok = model.run(
             _defaults(model), QgsProcessingContext(), QgsProcessingFeedback(), catchExceptions=False
         )
@@ -161,7 +168,23 @@ class TestRunningIt:
         ]
         assert written
         for path in written:
-            assert path.parent == folder / "results" and path.is_file(), path
+            # Or a folder inside it, where a later step reads them back together.
+            assert folder / "results" in (path.parent, path.parent.parent) and path.is_file(), path
+
+    def test_the_gnss_tutorial_closes_its_two_loops_as_the_readme_states(self, name, ran):
+        if name != "ggao-triangle":
+            pytest.skip("the GNSS tutorial's own check")
+        readme = (DATASETS_DIR / name / "README.md").read_text(encoding="utf-8")
+        children = ran["CHILD_RESULTS"]
+        midnight, eleven = (
+            json.loads(Path(children[f"baselines{hour}"]["OUTPUT_JSON"]).read_text(encoding="utf-8"))
+            for hour in ("00", "11")
+        )
+        quoted(readme, f"**The triangle closes to {midnight['closures'][0]['magnitude_mm']:.2f} mm.**")
+        quoted(readme, f"**The triangle misses by {eleven['closures'][0]['magnitude_mm']:.2f} mm**")
+        # Each hour's three sides, and only those: the folders keep the hours apart.
+        assert len(midnight["observations"]) == len(eleven["observations"]) == 2
+        assert midnight["dependent"] and eleven["dependent"]
 
     def test_the_gnss_sample_gives_its_epochs(self, name, installed, ran):
         if name != "rtklib-sample":

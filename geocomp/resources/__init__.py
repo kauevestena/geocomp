@@ -53,6 +53,7 @@ DATASET_ORDER: tuple[str, ...] = (
     "rd08-dam",
     "rd07-usgs",
     "combined-curitiba",
+    "ggao-triangle",
 )
 
 

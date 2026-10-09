@@ -21,3 +21,8 @@ geocomp/resources/datasets/rtklib-sample/*.05o -text
 # to the vendored copies byte for byte -- which a Windows checkout broke, handing
 # the plugin's copies CRLF (P13-4, found by CI).
 geocomp/resources/datasets/rd07-usgs/*.txt -text -whitespace
+
+# The GNSS tutorial's hours, held byte for byte to what scripts/make_ggao_triangle.py
+# makes from NOAA's files, and the solutions the real engine gave for them (P13-17).
+geocomp/resources/datasets/ggao-triangle/hour-*/** -text -whitespace
+tests/data/ggao/** -text -whitespace

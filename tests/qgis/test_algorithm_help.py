@@ -133,6 +133,7 @@ def test_every_help_names_the_tutorials_that_run_it():
         datasets = runs.get(algorithm.id(), [])
         if datasets:
             assert "<b>Worked example</b>" in help_text, algorithm.id()
-            assert f"the {', '.join(datasets)} tutorial runs it" in help_text, algorithm.id()
+            said = "tutorial runs it" if len(datasets) == 1 else "tutorials run it"
+            assert f"the {', '.join(datasets)} {said}" in help_text, algorithm.id()
         else:
             assert "<b>Worked example</b>" not in help_text, algorithm.id()

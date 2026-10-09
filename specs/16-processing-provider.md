@@ -191,7 +191,7 @@ walkthrough and its model are. The list is read from the walkthroughs' declared 
 (`geocomp/algorithms/project/worked_examples.py`), which the tier-3 tests hold to each README. A walkthrough
 that starts or stops running an algorithm therefore changes its help, and
 `tests/qgis/test_algorithm_help.py::test_every_help_names_the_tutorials_that_run_it` checks every help
-against the chains. Thirteen of the 49 algorithms have one. The rest have no walkthrough that runs them;
+against the chains. Fourteen of the 49 algorithms have one, *Build baselines* since P13-17. The rest have no walkthrough that runs them;
 that is the gap, not a help that leaves it out.
 
 ## 9. Chainability (FR-033)

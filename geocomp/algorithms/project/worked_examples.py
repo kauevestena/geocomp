@@ -35,6 +35,7 @@ from qgis.core import (
     QgsApplication,
     QgsProcessingModelAlgorithm,
     QgsProcessingModelChildAlgorithm,
+    QgsProcessingModelChildDependency,
     QgsProcessingModelChildParameterSource,
     QgsProcessingModelOutput,
     QgsProcessingModelParameter,
@@ -70,12 +71,19 @@ class Step:
         id: The child's id, which the model's outputs are named by.
         algorithm: The GeoComp algorithm it runs.
         files: Inputs read from an installed file, by name; ``"."`` is the
-            dataset's folder itself. Each becomes an input of the model, whose
-            default is that file.
+            dataset's folder itself, and a name ending ``/`` a folder in it.
+            Each becomes an input of the model, whose default is that file.
         wires: Inputs taken from an earlier step's output, as ``(step, output)``.
         values: Every other input the walkthrough fills.
-        results: Outputs the model exposes. A file is written into ``results``;
-            a layer is loaded when the model finishes.
+        results: Outputs the model exposes. A file is written into ``results``,
+            or into :attr:`folder` inside it; a layer is loaded when the model
+            finishes.
+        folder: The folder inside ``results`` this step's files go to, when
+            its files are read back together, as a folder (P13-17).
+        reads: Inputs that are a folder inside ``results``, by name: the files
+            earlier steps wrote there.
+        after: Steps this one runs after. A step reading a folder takes nothing
+            from the steps that fill it, so the model is told.
     """
 
     id: str
@@ -84,6 +92,9 @@ class Step:
     wires: dict[str, tuple[str, str]] = field(default_factory=dict)
     values: dict[str, Any] = field(default_factory=dict)
     results: tuple[str, ...] = ()
+    folder: str = ""
+    reads: dict[str, str] = field(default_factory=dict)
+    after: tuple[str, ...] = ()
 
 
 _PLANE = FRAME_ORDER.index(Frame.PLANE_2D)
@@ -248,6 +259,36 @@ def _gnss() -> tuple[Step, ...]:
     )
 
 
+def _ggao() -> tuple[Step, ...]:
+    """Each hour's three sides, then its closure; the solutions of an hour in a folder of their own."""
+    steps: list[Step] = []
+    for hour in ("00", "11"):
+        sides = []
+        for base, rover in (("GODN", "GODE"), ("GODN", "GODS"), ("GODE", "GODS")):
+            side = f"{base}{rover}{hour}".lower()
+            sides.append(side)
+            steps.append(
+                Step(
+                    side,
+                    "geocomp:gnss_relative_static",
+                    files={"FOLDER": f"hour-{hour}/"},
+                    values={"BASE_STATION": base, "ROVER_STATION": rover},
+                    results=("OUTPUT_POS",),
+                    folder=f"solutions-{hour}",
+                )
+            )
+        steps.append(
+            Step(
+                f"baselines{hour}",
+                "geocomp:gnss_build_baselines",
+                reads={"FOLDER": f"solutions-{hour}"},
+                results=("OUTPUT_JSON",),
+                after=tuple(sides),
+            )
+        )
+    return tuple(steps)
+
+
 #: Each shipped dataset's walkthrough, as the steps its model runs. A step the
 #: README describes but GeoComp refuses -- the levelling loop's last, the dam's
 #: moved pillar -- is the reader's to try, and is not in the model.
@@ -258,11 +299,12 @@ WORKED: dict[str, Callable[[], tuple[Step, ...]]] = {
     "rd08-dam": _monitoring,
     "rd07-usgs": _gravimetry,
     "combined-curitiba": _integration,
+    "ggao-triangle": _ggao,
 }
 
 
 def _input_name(file: str) -> str:
-    return "FOLDER" if file == "." else re.sub(r"\W+", "_", Path(file).stem).upper()
+    return "FOLDER" if file == "." else re.sub(r"\W+", "_", Path(file.rstrip("/")).stem).upper()
 
 
 def build_model(name: str, folder: Path) -> QgsProcessingModelAlgorithm:
@@ -295,15 +337,16 @@ def build_model(name: str, folder: Path) -> QgsProcessingModelAlgorithm:
             if key not in inputs:
                 inputs.add(key)
                 label = definitions[parameter].description()
+                is_folder = file == "." or file.endswith("/")
                 definition = QgsProcessingParameterFile(
                     key,
-                    f"{label} — {file}" if file != "." else label,
+                    f"{label} — {file.rstrip('/')}" if file != "." else label,
                     behavior=(
                         QgsProcessingParameterFile.Behavior.Folder
-                        if file == "."
+                        if is_folder
                         else QgsProcessingParameterFile.Behavior.File
                     ),
-                    defaultValue=str(folder if file == "." else folder / file),
+                    defaultValue=str(folder if file == "." else folder / file.rstrip("/")),
                 )
                 model.addModelParameter(definition, QgsProcessingModelParameter(key))
             child.addParameterSources(
@@ -317,6 +360,13 @@ def build_model(name: str, folder: Path) -> QgsProcessingModelAlgorithm:
             child.addParameterSources(
                 parameter, [QgsProcessingModelChildParameterSource.fromStaticValue(value)]
             )
+        for parameter, read in step.reads.items():
+            child.addParameterSources(
+                parameter,
+                [QgsProcessingModelChildParameterSource.fromStaticValue(str(folder / "results" / read))],
+            )
+        if step.after:
+            child.setDependencies([QgsProcessingModelChildDependency(earlier) for earlier in step.after])
         outputs = {}
         for result in step.results:
             destination = definitions[result]
@@ -329,7 +379,7 @@ def build_model(name: str, folder: Path) -> QgsProcessingModelAlgorithm:
             if isinstance(destination, QgsProcessingParameterFileDestination):
                 stem = f"{step.id}-{result.removeprefix('OUTPUT_').lower()}"
                 output.setDefaultValue(
-                    str(folder / "results" / f"{stem}.{destination.defaultFileExtension()}")
+                    str(folder / "results" / step.folder / f"{stem}.{destination.defaultFileExtension()}")
                 )
             outputs[label] = output
         child.setModelOutputs(outputs)
@@ -341,6 +391,9 @@ def build_model(name: str, folder: Path) -> QgsProcessingModelAlgorithm:
 def write_project(name: str, folder: Path, path: Path) -> None:
     """Write a QGIS project at *path* holding *name*'s walkthrough model."""
     (folder / "results").mkdir(exist_ok=True)
+    for step in WORKED[name]():
+        if step.folder:
+            (folder / "results" / step.folder).mkdir(exist_ok=True)
     model = build_model(name, folder)
     project = QgsProject()
     project.setTitle(model.name())

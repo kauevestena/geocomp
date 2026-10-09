@@ -3678,6 +3678,78 @@ Seven of the eight fail on the old code. The eighth is the behaviour kept.
   campaign of days that is micrometres of plate motion, but it is not each session's own epoch.
 - A base logged in several files over one rover session is refused rather than joined.
 
+#### P13-17 — the GNSS tutorial: a triangle that closes, and one that does not (FR-952 met)
+
+*Install tutorial dataset* offers a seventh dataset, **`ggao-triangle`**. It holds two hours of 1 January 2025
+at RD-06's three GGAO stations, GODN, GODE and GODS, each hour in its own folder.
+- **`hour-00`** is ordinary. Every side of the triangle fixes 96.7% of its epochs, and the triangle closes to
+  **0.37 mm**.
+- **`hour-11`** is the hour `specs/22` §5.1 found failing. GODN's two sides fix under half their epochs and end
+  float, and the triangle misses by **7.62 mm**, twenty times the midnight loop.
+
+The walkthrough is nine steps: install, then three *Relative — Static* runs and *Build baselines* for each hour.
+Its lesson is what a loop closure is:
+- it needs no published coordinate;
+- it detects without locating;
+- it cannot see an error common to a station's two sides. These runs apply no antenna calibration, and the
+  midnight loop still closes.
+
+**The data.** NOAA's files, which RD-06 already pins by hash:
+- each observation file is cut to its hour, with the header's first and last times set to the epochs kept;
+- each is reduced to GPS and the eight observables a dual-frequency GPS solution reads, every value
+  unchanged (`scripts/make_ggao_triangle.py`);
+- the navigation file is NOAA's, unchanged.
+
+The six solutions solved from these files are the same bytes below their headers as those solved from the full
+hours. The dataset is 1.3 MB, against 18 MB for one station's full day. `NOTICE.md` gives NOAA's attribution
+and terms, and `THIRD_PARTY.md` has its row.
+
+**Found on the way, each fixed first in its own pull request.**
+- *Build baselines* closed no loop (P13-14).
+- It could not read what *Relative — Static* wrote (P13-15).
+- A station's two hours in one folder were processed as whichever came last (P13-16).
+
+The tutorial also found that *Install tutorial dataset* copied files only, so it now copies folders too.
+And it is the first to share an algorithm with another tutorial: *Relative — Static*'s help said "the
+rtklib-sample, ggao-triangle tutorial runs it", so P13-13's sentence now has its plural.
+
+**The worked project.** The chain needed what no earlier one had, and `worked_examples.Step` gained it:
+- a folder as an input, written with a trailing `/`;
+- a step's files written to a folder inside `results`;
+- an input that reads such a folder;
+- the steps a step runs after. *Build baselines* takes nothing from the runs that fill its folder, so the
+  model has to be told.
+
+**Tests.**
+- `tests/test_ggao_triangle.py`:
+  - what ships, and that the build ships both hours;
+  - the notice;
+  - the navigation file against RD-06's pinned digest;
+  - each file's header saying how it was made;
+  - each hour as one session per station;
+  - the README's closures from the recorded solutions, through the core;
+  - wherever RD-06's sources are fetched, the files rebuilt and compared byte for byte;
+  - at tier 4, the engine on the shipped files giving the recorded solutions.
+- Engine CI runs the script's `--check` after fetching the sources, and the real-engine class with the
+  pipeline's.
+- `tests/qgis/test_gnss_tutorial.py` follows the README, with each run answered by the real engine's solution
+  and residual file for that hour's pair (`tests/data/ggao`):
+  - every quote is GeoComp's log;
+  - every number is the run's;
+  - every name is the dialog's, in all three languages.
+- `tests/qgis/test_worked_examples.py` runs the project, which closes both loops as stated.
+
+**Register.** FR-952 met, from partly met. Every module now has a tutorial, in three languages, with its
+worked project. 172 met, 4 partly met, 0 open. P13's exit criterion on tutorials is met: they cover every
+module in all three languages. Fourteen of the 49 algorithms now have a worked example in their help.
+
+**Not done.**
+- A native speaker's review of the translations, `specs/18` §3.1's.
+- The QGIS tier answers with the recorded solutions. Only engine CI runs the engine on the tutorial's files,
+  and only on Linux.
+- *Build baselines* builds a baseline from a float last epoch without a word. The eleven o'clock sides end
+  float, and only the fixed share in the processing log says so.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

@@ -32,7 +32,9 @@ from tests.qgis.walkthrough import CHOICE, steps
 
 LANGUAGES = ("pt_BR", "es")
 #: The walkthroughs that have been translated; each must have both languages.
-TRANSLATED = ("rd01", "rd04-loop", "rd08-dam", "rd07-usgs", "combined-curitiba", "rtklib-sample")
+TRANSLATED = (
+    "rd01", "rd04-loop", "rd08-dam", "rd07-usgs", "combined-curitiba", "rtklib-sample", "ggao-triangle",
+)
 CODE = re.compile(r"`([^`]+)`")
 NUMBER = re.compile(r"(?<![\w.,])[\u2212-]?\d+(?:[.,]\d+)?(?![\w])")
 
