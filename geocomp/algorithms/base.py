@@ -33,10 +33,22 @@ from geocomp.registry import ALGORITHMS, AlgorithmSpec
 #: The context of the base class's own words: the help's headings, the group names.
 _CONTEXT = "GeoCompAlgorithm"
 
-__all__ = ["GeoCompAlgorithm"]
+__all__ = ["GeoCompAlgorithm", "worked_examples_of"]
 
 _BY_CLASS: dict[str, AlgorithmSpec] = {spec.class_name: spec for spec in ALGORITHMS}
 
+
+def worked_examples_of(algorithm_id: str) -> list[str]:
+    """The shipped datasets whose walkthrough runs *algorithm_id*, in the order they install.
+
+    Read from the walkthroughs' declared chains
+    (:mod:`geocomp.algorithms.project.worked_examples`), which the tier-3 tests
+    hold to each README's steps. Imported here, not at the top: that module
+    imports algorithm modules, which import this one.
+    """
+    from geocomp.algorithms.project.worked_examples import WORKED
+
+    return [name for name, chain in WORKED.items() if any(s.algorithm == algorithm_id for s in chain())]
 
 class GeoCompAlgorithm(QgsProcessingAlgorithm):
     """Common behaviour for GeoComp algorithms.
@@ -174,7 +186,9 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
         body did until P12c: each parameter with its unit, and each output.
         They are the parameters' own labels, which state their units -- a test
         holds every number to it -- so the list cannot drift from the dialog.
-        Then the requirement, so a reader can find the specification.
+        Then, since P13-13, the tutorials whose walkthrough runs it, so a reader
+        can see it used on real data; and the requirement, so a reader can find
+        the specification.
         """
         body = self.help_body().strip()
         spec = self.spec()
@@ -192,6 +206,16 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
                 f"<p><b>{_tr('Outputs')}</b></p><ul>"
                 + "".join(f"<li>{html.escape(text, quote=False)}</li>" for text in outputs.values())
                 + "</ul>"
+            )
+        worked = worked_examples_of(spec.id)
+        if worked:
+            sentence = _tr(
+                "the %1 tutorial runs it. Install it with Install tutorial dataset: its README "
+                "walks through each step, and the project it installs holds the walkthrough as "
+                "a model to run."
+            ).replace("%1", ", ".join(worked))
+            parts.append(
+                f"<p><b>{_tr('Worked example')}</b> &mdash; {html.escape(sentence, quote=False)}</p>"
             )
         parts.append(f"<p><i>{_tr('Requirement')}: {spec.requirement}</i></p>")
         return "\n\n".join(parts)

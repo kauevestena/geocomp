@@ -3527,6 +3527,29 @@ tutorial is what keeps it partly met.
 - The model's labels are in the language of the installer's run. Changing QGIS's language afterwards leaves
   them as they were.
 
+#### P13-13 — every help names the tutorials that run it (specs/16 §8)
+
+`specs/16` §8 asks every algorithm's help for *a worked example reference*, and P12c recorded it as not built.
+With the walkthroughs declared as chains (P13-12), the base class can say which tutorials run an algorithm,
+and it now does.
+
+`GeoCompAlgorithm.shortHelpString` adds a *Worked example* paragraph after the outputs, naming the tutorials
+in the order they install. For example: *the rd08-dam tutorial runs it. Install it with Install tutorial
+dataset: its README walks through each step, and the project it installs holds the walkthrough as a model to
+run.* `worked_examples_of` reads the chains lazily, because their module imports algorithm modules, which
+import the base class. It is one translated sentence, so no help needed translating again.
+
+`tests/qgis/test_algorithm_help.py::test_every_help_names_the_tutorials_that_run_it` holds every help to the
+chains. An algorithm a walkthrough runs names exactly those tutorials, and one no walkthrough runs has no
+such paragraph. The heading is among the base class's words that the marking translator checks.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. Row 16.6, the help's parameters and units, was
+already met; the reference is §8's prose.
+
+**Not done.** Thirteen of the 49 algorithms have a worked example. The rest have none, because no
+walkthrough runs them: the GNSS algorithms but one, the analysis tools, the exports, the engines'. Most
+helps still do not name their method's published source.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

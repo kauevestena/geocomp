@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-13 — Every help names the tutorials that run it
+
+#### Added
+
+- The help of every algorithm a tutorial's walkthrough runs ends with a *Worked example* paragraph, naming
+  those tutorials and where to find the walkthrough and its model.
+
 ### P13-12 — Worked examples as QGIS projects
 
 #### Added

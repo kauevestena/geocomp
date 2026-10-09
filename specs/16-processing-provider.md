@@ -183,8 +183,16 @@ help can leave it out:
 A number's label states its unit — `(m)`, `(rad)`, `(hPa)` — or the parameter is named dimensionless, with what
 it is instead, in `tests/qgis/test_algorithm_help.py`, which holds all 46 algorithms to both. The audit found
 one label without its unit: *Trigonometric levelling*'s imbalance tolerance, a fraction of the longer sight. The
-label now says so. **Not built:** a worked-example reference in every help; some name their method and
-source, most do not.
+label now says so. **Not built:** some helps name their method and source, most do not.
+
+*Worked-example reference (P13-13).* The base class adds a *Worked example* paragraph to the help of every
+algorithm a tutorial's walkthrough runs. It names those tutorials, and says how to install one and where the
+walkthrough and its model are. The list is read from the walkthroughs' declared chains
+(`geocomp/algorithms/project/worked_examples.py`), which the tier-3 tests hold to each README. A walkthrough
+that starts or stops running an algorithm therefore changes its help, and
+`tests/qgis/test_algorithm_help.py::test_every_help_names_the_tutorials_that_run_it` checks every help
+against the chains. Thirteen of the 49 algorithms have one. The rest have no walkthrough that runs them;
+that is the gap, not a help that leaves it out.
 
 ## 9. Chainability (FR-033)
 
