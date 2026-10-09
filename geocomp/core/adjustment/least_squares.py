@@ -155,6 +155,9 @@ class AdjustmentRun:
     geoid_model: str | None = None
     #: ``"dense"`` or ``"sparse"`` -- which path ran (NFR-008).
     solver: str = DENSE
+    #: The parameters the first iteration started from, indexed as
+    #: :attr:`parameters` is: what each station's correction is measured from.
+    starting: np.ndarray | None = None
 
     @property
     def variance_factor(self) -> float:
@@ -220,6 +223,7 @@ def adjust(
     for station_id, undulation in undulations.items():
         values[station_id][UNDULATION] = undulation.value
     x = np.array([values[slot.owner][slot.component] for slot in layout.slots])
+    starting = x.copy()
 
     defect = detect_defect(observations, options.frame)
     constraints = _constraints_for(options, layout, values, defect)
@@ -350,6 +354,7 @@ def adjust(
         undulations=undulations,
         geoid_model=options.geoid.id if undulations and options.geoid is not None else None,
         solver=choice.solver,
+        starting=starting,
     )
 
 
@@ -534,6 +539,34 @@ def _horizontal_block(position: list[float], covariance: np.ndarray) -> np.ndarr
     latitude, longitude, _height = cartesian_to_geodetic(*position, ELLIPSOID)
     rotation = enu_rotation(latitude, longitude)
     return (rotation @ covariance @ rotation.T)[:2, :2]
+
+
+def _correction(
+    run: AdjustmentRun, columns: dict[str, int], position: list[float]
+) -> tuple[float, float, float] | None:
+    """The shift from where the station started to where it was adjusted to, east, north and up.
+
+    specs/04 section 2.8. A held component did not move, so it is zero; a
+    geocentric shift is turned into the station's own horizon, as DynAdjust
+    states its corrections and as the map draws them. Until P13-12 only
+    DynAdjust's reader set this, and every in-house solution's corrections layer
+    came out empty.
+    """
+    if run.starting is None:
+        return None
+    frame = run.layout.frame
+    shift = [0.0, 0.0, 0.0]
+    for component, index in zip(frame.components, frame.position_indices, strict=True):
+        column = columns.get(component)
+        if column is not None:
+            shift[index] = float(run.parameters[column] - run.starting[column])
+    if frame is Frame.GEOCENTRIC_3D:
+        from geocomp.core.adjustment.geocentric import ELLIPSOID
+        from geocomp.core.geodesy.cartesian import cartesian_to_geodetic, enu_rotation
+
+        latitude, longitude, _height = cartesian_to_geodetic(*position, ELLIPSOID)
+        shift = [float(v) for v in enu_rotation(latitude, longitude) @ np.asarray(shift)]
+    return (shift[0], shift[1], shift[2])
 
 
 def _from_position(station, component: str, frame: Frame) -> float:
@@ -829,6 +862,7 @@ def to_solution(
                 # only DynAdjust's reader did -- so every report, table, layer
                 # and thematic map of an in-house solution showed it as missing.
                 positional_uncertainty=ellipse.semi_major if ellipse is not None else None,
+                correction=_correction(run, columns, [q.value for q in quantities]),
             )
         )
 

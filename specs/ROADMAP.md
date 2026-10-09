@@ -3470,6 +3470,63 @@ that each translation names its own file, and that every dataset ships it.
 **Not done.** A GNSS tutorial: it needs RD-06's accuracy criterion met, or another redistributable dataset
 with published coordinates. Worked QGIS projects. A native speaker's review of the walkthroughs.
 
+#### P13-12 — worked examples as QGIS projects (FR-952 stays partly met)
+
+`specs/20` §8 asks for *worked examples shipped as QGIS projects a student can open and run*. *Install
+tutorial dataset* now writes one beside the files: `<dataset>.qgz`, holding the walkthrough as one
+Processing model. Opened in QGIS, the model is in the toolbox under *Project models*. Its inputs default to
+the installed files, its files go to `results/`, and its layers load when it finishes.
+
+**How.**
+- **Embedding.** The model is embedded the way QGIS's own project provider embeds one
+  (`processing/modeler/ProjectProvider.py`): a `projectModels` element under `qgis`, holding the model's
+  variant. `worked_examples.write_project` writes the element, and `read_models` reads it back the same way.
+- **Written at install time.** The project is written when the dataset is installed, not shipped, because a
+  model's inputs are absolute paths and only the installer knows where the files went.
+- **Declared chains.** Each chain is declared as data (`Step`): the algorithm, the files it reads, the
+  earlier outputs it takes and the values the walkthrough gives. Choices are indices from GeoComp's own
+  order constants, so a model built in Portuguese chooses what one built in English does. Its labels are in
+  the language of the installer's run.
+- **Left out.** A step the README leaves to the reader is not in the model: the levelling loop's three
+  benchmarks, which GeoComp refuses, and the dam's moved pillar.
+- **Main thread.** The installer now runs on the main thread, where a `QgsProject` is built, as *Add print
+  layout* already did. `_no_threading` gained a docstring now that two modules use it.
+- **Declared outputs.** The installer declares its outputs: `OUTPUT_DIRECTORY`, `FILE_COUNT`, and the new
+  `OUTPUT_PROJECT`. It had returned the first two without declaring them, so a model could not use them.
+
+**Tests.** `tests/qgis/test_worked_examples.py` installs each of the six datasets and reads its project back
+as QGIS does. For each, it checks:
+- the project holds one model, whose steps are the README's, less installing the dataset;
+- the model's inputs are the installed files;
+- run with nothing changed, it writes its files to `results/` and gives the numbers the README states;
+- the GNSS sample runs with the stand-in engine of P13-11.
+
+`test_rd01s_model_draws_its_map` runs RD-01's model with temporary layers, as its dialog would, and finds the
+five layers, each with features. It needs a QGIS whose field API is current, so it runs in CI and not on a
+3.34 machine. The listing of each tutorial's installed folder now includes the project and `results/`
+(`tests/qgis/walkthrough.installed`).
+
+**Found: the corrections layer was empty for every in-house solution.** That test failed in CI on all three
+platforms: RD-01's *Coordinate corrections* layer had no features, though step 4 of the README promises the
+correction vectors. The in-house adjustment never set a station's correction (`specs/04` §2.8); only
+DynAdjust's reader did. P12c's audit found the same of the positional uncertainty, and missed this one,
+because nothing counted the corrections layer's features. `to_solution` now gives each station the shift from
+the parameters the adjustment started at (`AdjustmentRun.starting`) to the adjusted ones. A held component is
+zero, and a geocentric shift is turned into the station's horizon, as DynAdjust states it and as the map draws
+it. Tests: `tests/test_adjustment.py::TestSolutionAssembly`, the plane case and the solution document;
+`tests/test_geocentric_frame.py`, the geocentric case; `tests/qgis/test_result_layers.py`, the layer, one
+arrow per station at the stated factor. The layer is now in `specs/19` §1's table, where it had never been.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952's row now names the worked projects; a GNSS
+tutorial is what keeps it partly met.
+
+**Not done.**
+- A GNSS tutorial.
+- The project opens with no map: its layers appear when the model runs. A project with the inputs already on
+  the map, and a print layout of the results, would teach more, and is not built.
+- The model's labels are in the language of the installer's run. Changing QGIS's language afterwards leaves
+  them as they were.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

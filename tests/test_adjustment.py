@@ -964,6 +964,33 @@ class TestSolutionAssembly:
                 )
             )
 
+    def test_every_station_carries_the_correction_from_its_start(self, run):
+        """specs/04 section 2.8: the shift from the approximate coordinates to the
+        adjusted ones. Found by P13-12, when RD-01's worked example drew an empty
+        corrections layer: only DynAdjust's reader set it."""
+        network = trilateration().network
+        solution = self._solution(run)
+        assert solution.adjusted_stations
+        for station in solution.adjusted_stations:
+            start = network.stations[station.station_id].approx_position.values
+            east, north, up = station.correction
+            assert east == pytest.approx(station.position.values[0].value - start[0].value, abs=1e-9)
+            assert north == pytest.approx(station.position.values[1].value - start[1].value, abs=1e-9)
+            # A plane network estimates no height, so moved none.
+            assert up == 0.0
+            # Each free station started 0.3 m east and 0.2 m south of the truth.
+            assert (east, north) == pytest.approx((-0.3, 0.2), abs=0.02)
+
+    def test_the_correction_survives_the_solution_document(self, run):
+        from geocomp.core.models import Solution
+
+        solution = self._solution(run)
+        again = Solution.from_dict(solution.to_dict())
+        assert all(s.correction is not None for s in again.adjusted_stations)
+        assert [s.correction for s in again.adjusted_stations] == [
+            s.correction for s in solution.adjusted_stations
+        ]
+
     def test_the_confidence_level_reaches_the_ellipse(self, run):
         """A larger confidence must give a larger ellipse; if the parameter were
         ignored the two would come back identical."""

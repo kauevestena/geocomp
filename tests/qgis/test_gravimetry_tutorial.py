@@ -19,6 +19,7 @@ import pytest
 from geocomp.resources import DATASETS_DIR, available_datasets
 from tests import usgs_gravity as usgs
 from tests.conftest import requires_qgis
+from tests.qgis import walkthrough
 from tests.qgis.walkthrough import check_names, flat, option, quoted, run, run_logged, steps
 
 pytestmark = [pytest.mark.qgis, requires_qgis]
@@ -143,7 +144,7 @@ def test3_calibrated(folder):
 class TestFollowingIt:
     def test_it_installs_the_surveys_their_profiles_and_licence(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
+        assert sorted(path.name for path in folder.iterdir()) == walkthrough.installed(NAME, SHIPPED)
 
     def test_step_1_reads_one_session_and_says_what_it_assumed(self, readme, test2):
         results, log = test2

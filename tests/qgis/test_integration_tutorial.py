@@ -17,6 +17,7 @@ import pytest
 
 from geocomp.resources import DATASETS_DIR, available_datasets
 from tests.conftest import requires_qgis
+from tests.qgis import walkthrough
 from tests.qgis.walkthrough import check_names, label, quote, quoted, run, run_logged, steps
 
 pytestmark = [pytest.mark.qgis, requires_qgis]
@@ -96,8 +97,10 @@ def weighed(folder):
 
 class TestFollowingIt:
     def test_it_installs_the_two_networks(self, folder):
-        installed = sorted(path.name for path in folder.iterdir() if not path.name.startswith("combined-"))
-        assert installed == sorted(SHIPPED)
+        # Not the runs' own outputs, combined-False.json and the like, which land beside them.
+        ours = ("combined-True", "combined-False")
+        installed = sorted(path.name for path in folder.iterdir() if not path.name.startswith(ours))
+        assert installed == walkthrough.installed(NAME, SHIPPED)
 
     def test_the_inputs_are_what_it_says(self, readme, folder):
         gnss = json.loads((folder / "gnss.json").read_text(encoding="utf-8"))

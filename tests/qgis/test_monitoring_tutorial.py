@@ -18,6 +18,7 @@ import pytest
 from geocomp.resources import DATASETS_DIR, available_datasets
 from tests import monitoring_network as rd
 from tests.conftest import requires_qgis
+from tests.qgis import walkthrough
 from tests.qgis.walkthrough import check_names, label, mm, option, quote, quoted, refusal, run, steps
 
 pytestmark = [pytest.mark.qgis, requires_qgis]
@@ -141,7 +142,7 @@ def _w_tests(adjusted: dict) -> list[dict]:
 class TestFollowingIt:
     def test_it_installs_the_two_epochs_and_the_thresholds(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
+        assert sorted(path.name for path in folder.iterdir()) == walkthrough.installed(NAME, SHIPPED)
 
     def test_step_1_passes_its_global_test(self, readme, first):
         assert first["DEGREES_OF_FREEDOM"] == 21

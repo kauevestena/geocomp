@@ -24,6 +24,7 @@ import pytest
 
 from geocomp.resources import DATASETS_DIR, available_datasets
 from tests.conftest import requires_qgis
+from tests.qgis import walkthrough
 from tests.qgis.walkthrough import check_names, label, mm, quote, quoted, refusal, run, steps
 
 pytestmark = [pytest.mark.qgis, requires_qgis]
@@ -117,7 +118,7 @@ class TestFollowingIt:
 
     def test_it_installs_into_a_folder_of_its_own(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
+        assert sorted(path.name for path in folder.iterdir()) == walkthrough.installed(NAME, SHIPPED)
 
     def test_step_1_reads_ten_setups_in_three_lines(self, readme, imported):
         quoted(readme, "Ten setups in three lines, no row rejected.")

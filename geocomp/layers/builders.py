@@ -850,6 +850,10 @@ def correction_features(solution: Solution, *, exaggeration: float) -> Iterator[
         if station.correction is None:
             continue
         east, north, up = station.correction
+        # A levelling solution's correction is all height: there is no arrow to
+        # draw, and a line of no length is not a valid geometry.
+        if east == 0.0 and north == 0.0:
+            continue
         # The correction moved the station *to* where it now is, so the arrow
         # starts from the adjusted position less the correction.
         adjusted = _plan(station)

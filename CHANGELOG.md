@@ -5,6 +5,24 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-12 — Worked examples as QGIS projects
+
+#### Added
+
+- *Install tutorial dataset* writes a QGIS project beside the files, `<dataset>.qgz`, holding the
+  walkthrough as one model. Open the project, and the model is in the Processing toolbox under *Project
+  models*. Its inputs are already the installed files; it writes its files to a `results` folder and loads
+  its layers when it finishes.
+- *Install tutorial dataset* declares its outputs, the new `OUTPUT_PROJECT` among them, so a model can use
+  them. It runs on the main thread, where a QGIS project is built.
+
+#### Fixed
+
+- The *Coordinate corrections* layer was empty for every adjustment GeoComp computed itself; only a DynAdjust
+  solution filled it. Each adjusted station now carries its correction: east, north and up, from where the
+  adjustment started to where it ended. A combined solution's are in each station's horizon. The solution
+  document records them.
+
 ### P13-11 — The GNSS sample in three languages, and the installer pointing to each
 
 #### Added
