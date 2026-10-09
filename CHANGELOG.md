@@ -5,6 +5,20 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-19 — Each station has one antenna height
+
+#### Fixed
+
+- *Build baselines* reduced every baseline by one base height and one rover height. A station that was the
+  base of one baseline and the rover of another had its mark put in two places, and every loop through it
+  missed by the difference. A station is now reduced by one height wherever it is an end, and a run that would
+  give one two heights is refused.
+
+#### Added
+
+- *Antenna height by station* in *Build baselines*: a height for each station, base or rover. Its JSON output
+  records the heights applied, under `antenna_heights`.
+
 ### P13-18 — A float baseline is named where it is built
 
 #### Added

@@ -121,8 +121,20 @@
             <translation>%1 línea(s) base: %2 independientes, %3 dependientes</translation>
         </message>
         <message>
+            <source>%1 is given two heights, %2 m and %3 m. Give it one.</source>
+            <translation>%1 tiene dos alturas, %2 m y %3 m. Dele una.</translation>
+        </message>
+        <message>
             <source>%1 is taken from an epoch whose ambiguities were not fixed (ambiguity ratio %2). A float baseline can be wrong by far more than its covariance says: process the session again, over a longer span, or leave it out.</source>
             <translation>%1 se toma de una época cuyas ambigüedades no se fijaron (razón de ambigüedades %2). Una línea base flotante puede estar equivocada por mucho más de lo que dice su covarianza: procese la sesión de nuevo, en un intervalo más largo, o déjela fuera.</translation>
+        </message>
+        <message>
+            <source>%1 is the base of %2 and the rover of %3, so it would be reduced by %4 m on one and %5 m on the other, and every loop through it would miss by the difference. Give its height in %6.</source>
+            <translation>%1 es la base de %2 y el móvil de %3, así que se reduciría %4 m en una y %5 m en la otra, y todo circuito que pase por ella fallaría por la diferencia. Dé su altura en %6.</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;&lt;b&gt;A station has one antenna height.&lt;/b&gt; In a network a station is the base of one baseline and the rover of another, and its mark has to be put in the same place on both, or every loop through it misses by the difference. Give each station's height in &lt;i&gt;Antenna height by station&lt;/i&gt;. A station not listed takes the base height where it is the base and the rover height where it is the rover, and one that would take both, when they differ, is refused. Once any height is given, every baseline is reduced, by zero where that is the height, because a loop of reduced and unreduced baselines cannot be closed.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;Una estación tiene una sola altura de antena.&lt;/b&gt; En una red, una estación es la base de una línea base y el móvil de otra, y su marca tiene que quedar en el mismo lugar en las dos, o todo circuito que pase por ella falla por la diferencia. Dé la altura de cada estación en &lt;i&gt;Altura de la antena por estación&lt;/i&gt;. Una estación que no está en la lista toma la altura de la base donde es la base y la altura del móvil donde es el móvil, y una que tomaría las dos, cuando difieren, se rechaza. En cuanto se da cualquier altura, toda línea base se reduce, en cero donde esa es la altura, porque un circuito de líneas base reducidas y sin reducir no se puede cerrar.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>&lt;p&gt;&lt;b&gt;Every loop is closed.&lt;/b&gt; Each dependent baseline joins two stations the independent ones already connect, so it closes a loop through them: the vectors summed round it should come back to zero. The log gives each loop's misclosure, and the JSON output its components and their propagated uncertainty, which assumes the legs independent and so understates it. A closure needs no published coordinate: it asks whether the baselines agree with each other. It cannot see an error common to every baseline at one station, which enters the loop twice with opposite signs and cancels, so a loop that closes does not show that its stations are right.&lt;/p&gt;</source>
@@ -131,6 +143,14 @@
         <message>
             <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The network document&lt;/b&gt; is what the Integration menu combines with other techniques: the baselines at their sessions' mid-epochs and each mark's starting position. It needs &lt;i&gt;Frame of the base coordinates&lt;/i&gt;, which a &lt;code&gt;.pos&lt;/code&gt; file does not state and GeoComp will not assume.&lt;/p&gt;</source>
             <translation>&lt;p&gt;Lee cada solución &lt;code&gt;.pos&lt;/code&gt; ECEF de una carpeta y construye la línea base que cada una determinó: el vector entre las dos marcas, con su covarianza 3x3 completa.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Las alturas de antena se reducen una sola vez.&lt;/b&gt; El vector que determinó el motor es entre puntos de referencia de antena; el ajuste quiere el vector entre las marcas. Aplicar la reducción dos veces se detecta y se rechaza.&lt;/p&gt;&lt;p&gt;&lt;b&gt;De forma predeterminada solo se conserva el subconjunto independiente.&lt;/b&gt; Procesar todos los pares de n estaciones observando simultáneamente produce n(n-1)/2 líneas base, de las cuales solo n-1 son independientes; usarlas todas infla la redundancia aparente del ajuste. Las dependientes se marcan en la salida en lugar de descartarse.&lt;/p&gt;&lt;p&gt;El resultado es un agrupamiento: las observaciones comparten una matriz de varianza-covarianza y llegan a DynAdjust como una medición G o X con ella intacta.&lt;/p&gt;&lt;p&gt;&lt;b&gt;La capa opcional dibuja todas las líneas base construidas&lt;/b&gt;, incluidas las dependientes cuando no se conservaron, porque ver qué pares no aportaron información nueva es precisamente el motivo de dibujarlas. La columna &lt;code&gt;independent&lt;/code&gt; y el símbolo discontinuo dicen cuál es cuál; la salida JSON lleva solo lo que se conservó.&lt;/p&gt;&lt;p&gt;&lt;b&gt;El documento de red&lt;/b&gt; es lo que el menú Integración combina con otras técnicas: las líneas base en las épocas medias de sus sesiones y la posición inicial de cada marca. Necesita &lt;i&gt;Marco de las coordenadas de la base&lt;/i&gt;, que un archivo &lt;code&gt;.pos&lt;/code&gt; no indica y GeoComp no supone.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>Antenna height above the mark (m)</source>
+            <translation>Altura de la antena sobre la marca (m)</translation>
+        </message>
+        <message>
+            <source>Antenna height by station</source>
+            <translation>Altura de la antena por estación</translation>
         </message>
         <message>
             <source>Base antenna height above the mark (m)</source>
@@ -165,6 +185,10 @@
             <translation>Red GeoComp (*.json)</translation>
         </message>
         <message>
+            <source>Give each row a station and its height.</source>
+            <translation>Dé a cada fila una estación y su altura.</translation>
+        </message>
+        <message>
             <source>JSON files (*.json)</source>
             <translation>Archivos JSON (*.json)</translation>
         </message>
@@ -197,6 +221,10 @@
             <translation>No se pudo construir ninguna línea base a partir de las soluciones en %1. Compruebe en el registro por qué se rechazó cada una.</translation>
         </message>
         <message>
+            <source>No baseline has %1, so the height given for it in %2 was not used. Check the name against the stations the solutions name.</source>
+            <translation>Ninguna línea base tiene %1, así que la altura dada para ella en %2 no se usó. Compare el nombre con las estaciones que nombran las soluciones.</translation>
+        </message>
+        <message>
             <source>No loop was closed: a loop needs a baseline between two stations the others already join through a third.</source>
             <translation>No se cerró ningún circuito: un circuito necesita una línea base entre dos estaciones que las otras ya unen a través de una tercera.</translation>
         </message>
@@ -213,8 +241,16 @@
             <translation>Omitido %1: %2</translation>
         </message>
         <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
             <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's. Choose the frame they were given in.</source>
             <translation>El documento de red necesita el marco en que se dieron las coordenadas de la base. Un archivo .pos no lo indica y GeoComp no supone uno: un vector sin marco no puede llevarse a otro. Elija el marco en que se dieron.</translation>
+        </message>
+        <message>
+            <source>The row %1 is not a station and an antenna height from 0 to %2 m. Correct it, or clear the row.</source>
+            <translation>La fila %1 no es una estación y una altura de antena de 0 a %2 m. Corríjala, o vacíe la fila.</translation>
         </message>
         <message>
             <source>Turn processed sessions into baseline observations with covariance.</source>
