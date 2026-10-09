@@ -43,6 +43,7 @@ import scipy.sparse.linalg as spla
 from geocomp.core.adjustment.blocks import BlockDiagonal
 from geocomp.core.adjustment.normal_equations import (
     RANK_TOLERANCE,
+    ROUNDING_TOLERANCE,
     NullSpaceFinding,
     SolveResult,
     _condition_number,
@@ -446,4 +447,22 @@ def _sweep(factor: _Factor, layout: ParameterLayout, system: SparseSystem) -> Sp
 
     # Qvv = P^-1 - A Qxx A^T, over P's blocks; both made exactly symmetric.
     residuals = (weight.inverse() - weight.like(product)).symmetrised()
-    return SparseCofactor(owners.like(owner).symmetrised(), factor, residuals, np.sqrt(squares))
+    return SparseCofactor(
+        _zero_rounded(owners.like(owner).symmetrised()), factor, residuals, np.sqrt(squares)
+    )
+
+
+def _zero_rounded(blocks: BlockDiagonal) -> BlockDiagonal:
+    """The blocks with each variance rounding took below zero set to zero, as the dense path's
+    :func:`~geocomp.core.adjustment.normal_equations.zero_rounded_variances` does."""
+    diagonal = blocks.diagonal()
+    scale = float(np.max(np.abs(diagonal))) if diagonal.size else 0.0
+    matrices = {}
+    for size, (_rows, block) in blocks.groups.items():
+        variances = np.diagonal(block, axis1=1, axis2=2)
+        which, position = np.nonzero((variances < 0.0) & (variances >= -ROUNDING_TOLERANCE * scale))
+        block = block.copy()
+        block[which, position, :] = 0.0
+        block[which, :, position] = 0.0
+        matrices[size] = block
+    return blocks.like(matrices)

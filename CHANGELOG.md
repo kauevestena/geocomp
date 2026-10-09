@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-9 — RD-01's walkthrough held to the dialogs, and the datum removed once
+
+#### Added
+
+- *Classical network* has **Datum stations (comma-separated; empty = all)**, the stations *Minimum
+  constraint — over chosen stations* defines the datum over.
+
+#### Fixed
+
+- Holding stations under inner or minimum constraints removed the datum twice, and the over-constrained
+  network was adjusted without a word. In *Classical network*, choosing minimum constraints held the fixed
+  stations as well. GeoComp now refuses the combination, and says which stations are held.
+- A variance a datum constraint makes exactly zero could come out a hair below zero, and the solution was
+  then refused as having a negative variance. RD-01 over stations 1 and 2 did. Such a variance is now zero.
+- RD-01's walkthrough named four inputs and choices differently from the dialogs. Its *Try this*, holding
+  station 1, was refused by GeoComp. It now names what the dialogs show, and its *Try this* runs.
+
 ### P13-8 — One English string, one translation
 
 #### Fixed

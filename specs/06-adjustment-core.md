@@ -231,6 +231,25 @@ constraint carrying it was not in the system. The lesson is recorded rather than
 shape of it — a mode that validates, stores and displays correctly while doing nothing — is one that a test
 of the model layer alone will never catch.
 
+**The datum is removed once (P13-9).** The defect is counted from the observations, so inner and minimum
+constraints remove all of it, whatever the network holds. A held station has already removed part of it, and
+the constraints on top remove that part a second time: the network is over-constrained, and its variance
+factor measures the clash rather than the observations. Nothing refused it until P13-9. RD-01's tutorial held
+station 1 under minimum constraints, and the variance factor went from 141 to 15,388.
+
+The adjustment now refuses held stations together with inner or minimum constraints. The refusal is
+`datum_removed_twice`, and it names the held stations (`tests/test_adjustment.py::TestTheDatumIsRemovedOnce`).
+Holding a station partly and constraining the rest would need the remaining defect counted with the holds
+taken into account. GeoComp does not do that, and refuses the combination instead of distorting it.
+
+**A variance the datum makes zero is zero (P13-9).** Minimum constraints over two stations, one due north of
+the other, fix both their eastings exactly, and the variance of each is zero. Computed, it comes out a few
+units of rounding either side of zero, and one below zero was refused when the solution was built. RD-01
+over stations 1 and 2 gave −2 × 10⁻²⁴ m². Both the dense and the sparse constrained solvers now set such a
+variance to zero, with its row and column, since a quantity known exactly covaries with nothing. They do so
+only within the tolerance `Covariance` allows a computed matrix's eigenvalues, 10⁻¹² of the largest variance.
+Anything further below zero is still refused (`tests/test_adjustment.py::TestRoundedVariances`).
+
 ### 3.1 Dimensionality (FR-227)
 
 1D (heights only), 2D (planimetric) and 3D adjustment are each supported, in geodetic, cartesian or

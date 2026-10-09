@@ -324,6 +324,27 @@ class TestTheSweep:
                 )
 
 
+
+class TestRoundedVariances:
+    """The sparse path's blocks, held to what the dense path does (P13-9)."""
+
+    def test_a_variance_rounding_took_below_zero_is_zero_with_its_row_and_column(self):
+        from geocomp.core.adjustment.blocks import BlockDiagonal
+
+        blocks = BlockDiagonal.from_blocks(
+            3,
+            [
+                (np.array([0, 1]), np.array([[4e-6, 1e-25], [1e-25, -2e-24]])),
+                (np.array([2]), np.array([[-1e-9]])),
+            ],
+        )
+        cleaned = sparse._zero_rounded(blocks).to_dense()
+        assert not cleaned[1].any() and not cleaned[:, 1].any()
+        assert cleaned[0, 0] == 4e-6
+        # Further below zero than rounding explains: left for the refusal to name.
+        assert cleaned[2, 2] == -1e-9
+
+
 class TestAnUndeterminedNetwork:
     """FR-226 on the sparse path: the diagnosis, not a factorisation error."""
 

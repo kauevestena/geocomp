@@ -289,6 +289,16 @@ with the full statistical treatment of [`06-adjustment-core.md`](./06-adjustment
 constrained solutions are both available (FR-222) — this is precisely the "redes livres e amarradas"
 comparison the proposal names as a pedagogical goal.
 
+*As built (P13-9).* *Classical network* has the four datum definitions of
+[`06-adjustment-core.md`](./06-adjustment-core.md) §3:
+- *Constrained* and *Fixed* hold the **Fixed stations** at their approximate coordinates.
+- *Inner constraint* holds none, and defines the datum over every station.
+- *Minimum constraint* defines it over the **Datum stations**, all of them when that field is left empty.
+
+Until P13-9 there was no *Datum stations* input. *Minimum constraint* took the fixed stations as its stations
+and held them as well, removing the datum twice. *Datum stations* is not an advanced input, because the
+choice that reads it is offered in Basic mode.
+
 ### 4.5 Trigonometric levelling (FR-410)
 
 Height differences from zenith angles and slope distances, with curvature and refraction (§2.6) and
