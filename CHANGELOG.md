@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-6 — The levelling tutorial in Portuguese and Spanish
+
+#### Added
+
+- `rd04-loop` ships its walkthrough in Portuguese (`README.pt_BR.md`) and Spanish (`README.es.md`).
+
+#### Fixed
+
+- In Portuguese, the levelling network's switch for lines that failed their tolerance had a different name in
+  the dialog than in Global Settings, so its refusal sent the reader to a label Global Settings does not have.
+  Both now read *Ajustar linhas que não cumpriram a tolerância*.
+
 ### P13-5 — An integration tutorial
 
 #### Added

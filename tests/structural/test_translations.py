@@ -97,6 +97,42 @@ def test_placeholders_survive_translation(locale, sources):
     assert not problems, "Placeholder mismatch:\n" + "\n".join(problems)
 
 
+@pytest.mark.parametrize("locale", TARGET_LOCALES)
+def test_a_label_a_message_quotes_is_the_label_shown(locale):
+    """A message that names a control by its label sends the reader looking for those words.
+
+    Found in P13-6, translating the levelling walkthrough: the network's refusal
+    told a Portuguese reader to turn on 'Ajustar linhas que falharam na
+    tolerância' in the run or in Global Settings, and Global Settings labels the
+    same setting 'Ajustar linhas que não cumpriram a tolerância'. English used
+    one label in both places, so nothing in English could show it.
+
+    So: wherever an English string quotes another English string that is a
+    label -- capitalised, as dialog labels are, unlike the lowercase keys of a
+    document a message may also quote -- the label has one translation across
+    every context, and the message quotes that translation.
+    """
+    catalogue = read_catalogue(catalogue_path(locale))
+    shown: dict[str, set[str]] = {}
+    for entries in catalogue.values():
+        for source, translation in entries.items():
+            shown.setdefault(source, set()).add(translation)
+    labels = [s for s in shown if 3 <= len(s) <= 80 and s[0].isupper() and "%" not in s and "'" not in s]
+    checked, problems = 0, []
+    for context, entries in catalogue.items():
+        for source, translation in entries.items():
+            for label in labels:
+                if f"'{label}'" not in source:
+                    continue
+                checked += 1
+                if len(shown[label]) > 1:
+                    problems.append(f"{label!r} is shown as {sorted(shown[label])}")
+                elif not any(f"'{word}'" in translation for word in shown[label]):
+                    problems.append(f"[{context}] {source[:50]!r} does not quote {sorted(shown[label])}")
+    assert checked >= 5, "the check found almost nothing to check; the label filter is wrong"
+    assert not problems, "\n".join(problems)
+
+
 def test_qm_files_are_not_committed():
     """.qm are build artefacts generated at packaging (specs/18 section 4).
     Committing them means shipping a stale translation nobody notices."""

@@ -3265,6 +3265,41 @@ was built with. The GNSS input that the presets' tier-3 test built in place move
 
 **Not done.** A GNSS tutorial. The Portuguese and Spanish walkthroughs. Worked QGIS projects.
 
+#### P13-6 — the levelling walkthrough in Portuguese and Spanish (FR-952 stays partly met)
+
+`rd04-loop` now ships `README.pt_BR.md` and `README.es.md` beside its `README.md`, and the English one points to
+them. In the translations, the prose uses the decimal comma. Values the reader types stay as typed, and the
+translations explain why: the *Benchmarks* field separates its entries with commas, so a height in it takes a
+decimal point.
+
+Two checks hold a translation, and both apply to every walkthrough translated later:
+- `tests/test_tutorial_translations.py` holds it to its English original, without QGIS. It must have the same
+  steps naming the same algorithms in the same order, and the same values in backticks. It must have the same
+  numbers outside them, with the decimal comma and no decimal point left in the prose. Every input it fills,
+  and every choice from a list, must be named as the catalogue translates the English label. Changing a
+  number, a label and a choice in the Portuguese file each made it fail.
+- `tests/qgis/test_levelling_tutorial.py::TestInEachLanguage` installs each catalogue, as
+  `tests/qgis/test_language.py` does. It checks the translated walkthrough's names against the translated
+  dialogs, and its quoted refusal against the refusal GeoComp gives in that language.
+
+**Defect found.** Translating the refusal turned up a Portuguese inconsistency. The levelling network's
+dialog and its refusal called the failing-line switch 'Ajustar linhas que falharam na tolerância'. Global
+Settings, where the refusal also sends the reader, labels it 'Ajustar linhas que não cumpriram a tolerância'.
+English and Spanish use one label in both places, so nothing in English could show the problem. The
+Portuguese label, the refusal, the network's help and two related messages now use the Global Settings
+wording. `tests/structural/test_translations.py::test_a_label_a_message_quotes_is_the_label_shown` checks
+every catalogue: whenever an English string quotes a capitalised label, the label must have one translation
+across every context, and the translated string must quote it. It covers ten quotations. It failed on the
+old catalogue and passes on the new one. As first written it paired possessive apostrophes as quotation marks
+and missed the help text; it now searches for each label directly.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open.
+
+**Not done.** The other walkthroughs in Portuguese and Spanish: RD-01's, the monitoring one, the gravimetry one,
+the integration one and the GNSS sample's. *Install tutorial dataset* still says "Start with README.md" in
+every language, which becomes right per language once every dataset has its translations. A native speaker's
+review of these texts belongs with the catalogues' (specs/18 §3.1).
+
 ---
 
 ## Mapping to the research project's 24-month schedule

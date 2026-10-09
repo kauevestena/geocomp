@@ -3848,7 +3848,7 @@
         </message>
         <message>
             <source>%1 misclosed by %2 mm over %3 km, beyond the %4 mm permitted by class %5. GeoComp will not adjust a line that failed its tolerance without an explicit acknowledgement.</source>
-            <translation>%1 tem erro de fechamento de %2 mm em %3 km, além dos %4 mm permitidos pela classe %5. O GeoComp não ajusta uma linha que falhou na tolerância sem uma confirmação explícita.</translation>
+            <translation>%1 tem erro de fechamento de %2 mm em %3 km, além dos %4 mm permitidos pela classe %5. O GeoComp não ajusta uma linha que não cumpriu a tolerância sem uma confirmação explícita.</translation>
         </message>
         <message>
             <source>%1 misclosed by %2 mm, %3 times its own propagated standard deviation. That is consistent with accumulated random error, which is the case proportional distribution is correct for.</source>
@@ -10132,7 +10132,7 @@
         </message>
         <message>
             <source>%1 closure(s) failed their tolerance: %2. GeoComp does not adjust a line that failed its tolerance without an explicit acknowledgement. Re-run the line, or turn on 'Adjust lines that failed their tolerance' for this run or in Global Settings (Levelling).</source>
-            <translation>%1 fechamento(s) falharam na tolerância: %2. O GeoComp não ajusta uma linha que falhou na tolerância sem um reconhecimento explícito. Refaça a linha, ou ative 'Ajustar linhas que falharam na tolerância' nesta execução ou nas Configurações Globais (Nivelamento).</translation>
+            <translation>%1 fechamento(s) não cumpriram a tolerância: %2. O GeoComp não ajusta uma linha que não cumpriu a tolerância sem um reconhecimento explícito. Refaça a linha, ou ative 'Ajustar linhas que não cumpriram a tolerância' nesta execução ou nas Configurações Globais (Nivelamento).</translation>
         </message>
         <message>
             <source>%1 is not the height-difference document Trigonometric levelling writes. Choose the document it wrote.</source>
@@ -10156,11 +10156,11 @@
         </message>
         <message>
             <source>Adjust lines that failed their tolerance</source>
-            <translation>Ajustar linhas que falharam na tolerância</translation>
+            <translation>Ajustar linhas que não cumpriram a tolerância</translation>
         </message>
         <message>
             <source>Adjusted although it failed its tolerance, as acknowledged: %1.</source>
-            <translation>Ajustado embora tenha falhado na tolerância, conforme reconhecido: %1.</translation>
+            <translation>Ajustado embora não tenha cumprido a tolerância, conforme reconhecido: %1.</translation>
         </message>
         <message>
             <source>Adjusted heights</source>
@@ -10236,7 +10236,7 @@
         </message>
         <message>
             <source>Each line between two benchmarks against the difference of their heights, and each section levelled more than once against its first run, on the section's one-way length. A line that failed is adjusted only when 'Adjust lines that failed their tolerance' is on, and the provenance records which.</source>
-            <translation>Cada linha entre duas referências de nível, face à diferença das suas altitudes, e cada seção nivelada mais de uma vez, face à sua primeira corrida, sobre o comprimento da seção em um só sentido. Uma linha que falhou só é ajustada quando 'Ajustar linhas que falharam na tolerância' está ativo, e a proveniência registra quais.</translation>
+            <translation>Cada linha entre duas referências de nível, face à diferença das suas altitudes, e cada seção nivelada mais de uma vez, face à sua primeira corrida, sobre o comprimento da seção em um só sentido. Uma linha que não cumpriu a tolerância só é ajustada quando 'Ajustar linhas que não cumpriram a tolerância' está ativo, e a proveniência registra quais.</translation>
         </message>
         <message>
             <source>Each technique's declared uncertainties were scaled by its factor, estimated from the residuals until both settled. A factor near one says the technique was declared about right; four says its uncertainties were half what they should have been.</source>
