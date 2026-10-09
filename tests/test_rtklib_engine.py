@@ -128,6 +128,12 @@ class TestConfiguration:
         assert profile("relative-static").mode.is_relative
         assert not profile("absolute-static").mode.is_relative
 
+    def test_a_static_baseline_is_written_in_ecef(self):
+        """P13-15. specs/08 section 8.1 builds a baseline from ECEF alone, and an
+        options file may not change an ``out-`` key, so until this profile wrote
+        ECEF no solution processed from the menu could become a baseline."""
+        assert profile("relative-static").settings()["out-solformat"] == "xyz"
+
     def test_writing_is_deterministic(self, tmp_path):
         """NFR-007: a run reproduced from its recorded configuration must be the
         same run, which needs the same bytes."""
@@ -552,6 +558,25 @@ class TestAgainstTheRealEngine:
             assert len(solution.fixed_epochs()) == 117
             assert solution.last().is_ambiguity_fixed
 
+    def test_the_static_profiles_solution_becomes_a_baseline(self, sessions):
+        """P13-15: the menu's chain, *Relative — Static* then *Build baselines*,
+        with the real engine. The tier-3 stand-in answers with ``xyz.pos``, so
+        until this ran the chain was only ever tested on a format the profile
+        did not write."""
+        from geocomp.engines.rtklib.baseline import baseline_from_solution
+
+        base, rover = sessions
+        with tempfile.TemporaryDirectory() as work:
+            result = RtklibEngine().run(
+                RtklibJob(rover=rover, base=base, config=profile("relative-static")),
+                work_dir=work,
+            )
+            baseline = baseline_from_solution(
+                result.solution, base_station=base.station_id, rover_station=rover.station_id
+            )
+        # specs/08 section 8.1's length for this pair, from the committed ECEF file.
+        assert np.linalg.norm([q.value for q in baseline.components]) == pytest.approx(3335.39, abs=0.01)
+
     def test_a_window_selects_the_epochs_it_names(self, sessions):
         """The flag is only a claim until an engine acts on it.
 
@@ -587,7 +612,8 @@ class TestAgainstTheRealEngine:
         with tempfile.TemporaryDirectory() as work:
             result = RtklibEngine().run(RtklibJob(rover=rover, base=base), work_dir=work)
             covariance = result.solution.last().covariance
-            assert covariance.labels == ("n", "e", "u")
+            # ECEF, the static profile's format since P13-15; north, east and up before.
+            assert covariance.labels == ("x", "y", "z")
             off_diagonal = covariance.matrix - np.diag(np.diag(covariance.matrix))
             assert np.count_nonzero(off_diagonal) == 6
             assert max(np.sqrt(np.diag(covariance.matrix))) < 0.05

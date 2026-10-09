@@ -202,15 +202,33 @@ class TestTheWorkingDirectory:
     def test_it_is_kept_and_said_where(self, geocomp_provider, rtklib, tmp_path):
         rtklib()
         _results, feedback, out = _process(tmp_path, KEEP_WORK_DIR=True)
-        work_dir = out / "relative-static-0759"
+        work_dir = out / "relative-static-3040-0759"
         assert (work_dir / "rnx2rtkp.conf").is_file()
         assert any(str(work_dir) in info for info in feedback.infos)
+
+    def test_it_is_named_by_the_pair(self, geocomp_provider, rtklib, tmp_path):
+        """P13-15. Named by the rover alone, two baselines to one rover saved
+        side by side wrote one directory, and the second run replaced the
+        first's configuration and output."""
+        rtklib()
+        _results, _feedback, out = _process(tmp_path, KEEP_WORK_DIR=True)
+        (tmp_path / "again").mkdir()
+        _process(
+            tmp_path / "again",
+            KEEP_WORK_DIR=True,
+            BASE_STATION="0759",
+            ROVER_STATION="3040",
+            OUTPUT_POS=str(out / "reversed.pos"),
+            OUTPUT_JSON=str(out / "reversed.json"),
+        )
+        assert (out / "relative-static-3040-0759" / "rnx2rtkp.conf").is_file()
+        assert (out / "relative-static-0759-3040" / "rnx2rtkp.conf").is_file()
 
     def test_it_is_removed_when_not_wanted(self, geocomp_provider, rtklib, tmp_path):
         """Until P12c-11 unchecking the box changed nothing."""
         rtklib()
         _results, _feedback, out = _process(tmp_path, KEEP_WORK_DIR=False)
-        assert not (out / "relative-static-0759").exists()
+        assert not (out / "relative-static-3040-0759").exists()
         assert (out / "solution.pos").is_file()
 
 

@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-15 — A static solution from the menu becomes a baseline
+
+#### Fixed
+
+- *Build baselines* skipped every solution *Relative — Static* or a static *Batch processing* had written,
+  because they were in latitude and longitude and a baseline is built from ECEF. The static profile now writes
+  ECEF, so the two steps chain.
+- Two *Relative — Static* runs to the same rover, saved in one folder, shared one engine working directory,
+  and the second replaced the first's files. The directory is now named by the base and the rover.
+
 ### P13-14 — *Build baselines* closes every loop
 
 #### Added

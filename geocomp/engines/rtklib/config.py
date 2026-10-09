@@ -229,8 +229,15 @@ _COMMENTS = {
 #: run records *which* configuration produced it and a comparison (FR-359) has
 #: something to compare.
 PROFILES: dict[str, RtklibConfig] = {
+    # ECEF, because a static baseline is what *Build baselines* makes of it and
+    # specs/08 section 8.1 builds one from ECEF alone. Until P13-15 this wrote
+    # latitude and longitude, an options file may not change an ``out-`` key,
+    # and no solution processed from the menu could become a baseline.
     "relative-static": RtklibConfig(
-        name="relative-static", mode=PositioningMode.STATIC, static_output="all"
+        name="relative-static",
+        mode=PositioningMode.STATIC,
+        static_output="all",
+        output_format="xyz",
     ),
     "relative-kinematic": RtklibConfig(
         name="relative-kinematic", mode=PositioningMode.KINEMATIC

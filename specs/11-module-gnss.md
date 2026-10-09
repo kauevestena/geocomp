@@ -87,6 +87,13 @@ than leave the engine to fail on something else or to run on broadcast orbits pr
 Batch processing resolves every session's products before the first session runs. Every run's JSON names its
 products by origin and checksum ([`08`](./08-engine-rtklib.md) §5).
 
+**The process arrow did not reach the baselines arrow until P13-15.** *Relative — Static* and a static batch
+wrote latitude, longitude and height, *Build baselines* takes ECEF alone ([`08`](./08-engine-rtklib.md) §8.1),
+and an options file may not change an `out-` key, so no solution processed from the menu could become a
+baseline. Every test of the chain answered with an ECEF solution from a stand-in engine; the real profile was
+never asked. The static profile now writes ECEF. The kinematic one still writes latitude and longitude: a
+trajectory is not a baseline, and its layer reads every format.
+
 ---
 
 ## 3. Positioning modes
