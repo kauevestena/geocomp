@@ -5,6 +5,23 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-11 — The GNSS sample in three languages, and the installer pointing to each
+
+#### Added
+
+- `rtklib-sample` ships its run-through in Portuguese and Spanish.
+
+#### Changed
+
+- *Install tutorial dataset* ends by naming the README in the reader's language: `README.pt_BR.md` in
+  Portuguese, `README.es.md` in Spanish.
+
+#### Fixed
+
+- The GNSS sample's README said the log calls the navigation file *paired by fallback*, wording retired in
+  P12c-41. It now quotes what the log says. It also said the installer was in the toolbox under *GeoComp*; it
+  is in the menu under *GeoComp ▸ Project*.
+
 ### P13-10 — The total-station tutorial in Portuguese and Spanish
 
 #### Added

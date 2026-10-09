@@ -26,13 +26,13 @@ from pathlib import Path
 
 import pytest
 
-from geocomp.resources import DATASETS_DIR
+from geocomp.resources import DATASETS_DIR, available_datasets
 from scripts.translations import catalogue_path, read_catalogue
 from tests.qgis.walkthrough import CHOICE, steps
 
 LANGUAGES = ("pt_BR", "es")
 #: The walkthroughs that have been translated; each must have both languages.
-TRANSLATED = ("rd01", "rd04-loop", "rd08-dam", "rd07-usgs", "combined-curitiba")
+TRANSLATED = ("rd01", "rd04-loop", "rd08-dam", "rd07-usgs", "combined-curitiba", "rtklib-sample")
 CODE = re.compile(r"`([^`]+)`")
 NUMBER = re.compile(r"(?<![\w.,])[\u2212-]?\d+(?:[.,]\d+)?(?![\w])")
 
@@ -93,7 +93,8 @@ class TestTheTranslationSaysTheSame:
         them to what GeoComp says.
         """
         text = "\n".join(line for line in _readme(name, language).splitlines() if not line.startswith(">"))
-        prose = CODE.sub(" ", text)
+        # Nor in a comment, such as a licence header: GPL-2.0-or-later is a name.
+        prose = CODE.sub(" ", re.sub(r"<!--.*?-->", " ", text, flags=re.DOTALL))
         # A section number, as in specs/22 §5.6, is not a decimal.
         assert not re.findall(r"(?<![\w.§])\d+\.\d+(?![\w])", prose)
 
@@ -112,6 +113,29 @@ class TestTheTranslationSaysTheSame:
                     # shown as itself; the tier-3 tests hold it to the translated dialog.
                     expected = shown.get(choice["choice"], {choice["choice"]})
                     assert choice_t["choice"] in expected, (choice["choice"], value_t)
+
+
+
+@pytest.mark.parametrize("language", LANGUAGES)
+def test_the_installer_sends_each_language_to_its_own_walkthrough(language):
+    """*Install tutorial dataset* ends by naming the README to start with (P13-11).
+
+    Once every dataset had its translations, each language could name its own;
+    until then it named README.md, in English, in every language. Whatever file
+    a translation names, every dataset must ship it.
+    """
+    source = "Start with README.md there: it walks through the whole chain."
+    said = {
+        translation
+        for entries in read_catalogue(catalogue_path(language)).values()
+        for text, translation in entries.items()
+        if text == source
+    }
+    assert len(said) == 1, said
+    names = re.findall(r"README[\w.]*\.md", said.pop())
+    assert names == [f"README.{language}.md"]
+    for dataset in available_datasets():
+        assert (DATASETS_DIR / dataset / names[0]).is_file(), dataset
 
 
 def test_the_number_reader_reads_both_ways():

@@ -339,13 +339,15 @@ test anywhere.
 ## 8. Documentation and community (FR-952…FR-955)
 
 - **Tutorials** for each module, each built on a reference dataset, in all three languages, published as
-  project documentation. *As built (P13-2 to P13-10)*: each tutorial dataset carries its walkthrough as
+  project documentation. *As built (P13-2 to P13-11)*: each tutorial dataset carries its walkthrough as
   `README.md`, and its translations as `README.pt_BR.md` and `README.es.md`. A translation is held to its
   English original by `tests/test_tutorial_translations.py`: the same steps, the same typed values, the same
   numbers with the decimal comma, and every dialog name as the catalogue translates it. It is held to
   GeoComp speaking its language by the tier-3 walkthrough tests, which install the catalogue. The levelling
-  (P13-6), monitoring, gravimetry and integration (P13-7) and RD-01's (P13-10) walkthroughs are translated;
-  the GNSS sample's, which is not a tutorial, is not yet.
+  (P13-6), monitoring, gravimetry and integration (P13-7) and RD-01's (P13-10) walkthroughs are translated,
+  and so is the GNSS sample's run-through (P13-11). It is not a tutorial, but it is held the same way, its run
+  answered by the solution RTKLIB gave for that pair. *Install tutorial dataset* ends by naming the README in
+  the reader's language, which every dataset ships.
 - **Worked examples** shipped as QGIS projects a student can open and run.
 - **Contribution guide** covering the specification process ([`README.md`](./README.md)), the tiers above,
   and the structural checks — so a contributor knows what "done" means before opening a pull request

@@ -3435,6 +3435,41 @@ translated; what keeps it partly met is a GNSS tutorial and worked QGIS projects
 **Not done.** *Install tutorial dataset* still says "Start with README.md" in every language. The GNSS
 sample's README is untranslated, and has never been held to the dialogs.
 
+#### P13-11 — the GNSS sample held to the dialogs, in three languages, and the installer pointing to each
+
+`rtklib-sample`'s README was the last walkthrough no test held to the dialogs. It was a numbered list rather
+than steps that name their algorithms. It is now in the walkthrough form, and
+`tests/qgis/test_gnss_sample.py` follows it through *Relative — Static*. `rnx2rtkp` is tier 4, so the engine
+is the stand-in `tests/qgis/test_engine_runs.py` uses, answering with the solution RTKLIB-EX 2.5.1 gave for this
+pair (`tests/data/rtklib/pos/xyz.pos`). The algorithm, its log and its outputs are GeoComp's own. The test checks:
+- every dialog, input and choice name, and where each step is in the menu;
+- the three log lines the README quotes, against the log;
+- the 120 epochs and 117 fixed it states, from the log's summary line;
+- the engine line, *Using RTKLIB-EX* `2.5.1`.
+
+**Defects found.**
+- **A retired log line.** The README said the log reports the navigation file *paired by fallback*. P12c-41
+  replaced that wording with a sentence, and `tests/qgis/test_gnss_words.py` asserts the old words are gone. The
+  README had kept them, quoted as GeoComp's.
+- **The wrong place for the installer.** The README said *toolbox ▸ GeoComp ▸ Install tutorial dataset*. In
+  the toolbox it is under *Project and data*, and in the menu under *GeoComp ▸ Project*.
+
+Then the translations, `README.pt_BR.md` and `README.es.md`, held as every other walkthrough is, at tier 1 and
+under each catalogue at tier 3. Two refinements to the tier-1 check came with them:
+- The log's summary line, *120 epochs, 97.5% with resolved ambiguities*, is quoted as a block quote, like
+  GeoComp's other words. A percentage with a decimal point in italics would read as untranslated prose.
+- The decimal-point check skips comments. The licence header, `GPL-2.0-or-later`, is a name.
+
+Every dataset now ships its README in all three languages, so *Install tutorial dataset* ends by naming the one
+in the reader's language: *Comece pelo README.pt_BR.md*, *Empiece por el README.es.md*.
+`tests/test_tutorial_translations.py::test_the_installer_sends_each_language_to_its_own_walkthrough` checks
+that each translation names its own file, and that every dataset ships it.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open.
+
+**Not done.** A GNSS tutorial: it needs RD-06's accuracy criterion met, or another redistributable dataset
+with published coordinates. Worked QGIS projects. A native speaker's review of the walkthroughs.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

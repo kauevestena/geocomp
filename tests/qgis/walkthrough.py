@@ -57,6 +57,19 @@ def quote(readme: str) -> str:
     return flat("\n".join(line for line in readme.splitlines() if line.startswith(">")))
 
 
+def quotes(readme: str) -> list[str]:
+    """Each of the README's block quotes, as one line: for a README that quotes GeoComp more than once."""
+    found: list[list[str]] = []
+    inside = False
+    for line in readme.splitlines():
+        if line.startswith(">"):
+            if not inside:
+                found.append([])
+            found[-1].append(line)
+        inside = line.startswith(">")
+    return [flat("\n".join(lines)) for lines in found]
+
+
 def quoted(readme: str, text: str) -> None:
     """Assert the README says *text*, however its lines wrap."""
     assert text in flat(readme), f"the README does not say {text!r}"
