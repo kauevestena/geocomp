@@ -32,7 +32,7 @@ from tests.qgis.walkthrough import CHOICE, steps
 
 LANGUAGES = ("pt_BR", "es")
 #: The walkthroughs that have been translated; each must have both languages.
-TRANSLATED = ("rd04-loop",)
+TRANSLATED = ("rd04-loop", "rd08-dam", "rd07-usgs", "combined-curitiba")
 CODE = re.compile(r"`([^`]+)`")
 NUMBER = re.compile(r"(?<![\w.,])[\u2212-]?\d+(?:[.,]\d+)?(?![\w])")
 
@@ -86,9 +86,16 @@ class TestTheTranslationSaysTheSame:
         assert translated == english, (translated - english, english - translated)
 
     def test_no_decimal_point_in_the_prose(self, name, language):
-        """A number like 15.7 in Portuguese or Spanish prose is an untranslated one."""
-        prose = CODE.sub(" ", _readme(name, language))
-        assert not re.findall(r"(?<![\w.])\d+\.\d+(?![\w])", prose)
+        """A number like 15.7 in Portuguese or Spanish prose is an untranslated one.
+
+        Not in a block quote: those are GeoComp's own words, which write a
+        statistic with a point in every language, and the tier-3 tests hold
+        them to what GeoComp says.
+        """
+        text = "\n".join(line for line in _readme(name, language).splitlines() if not line.startswith(">"))
+        prose = CODE.sub(" ", text)
+        # A section number, as in specs/22 §5.6, is not a decimal.
+        assert not re.findall(r"(?<![\w.§])\d+\.\d+(?![\w])", prose)
 
     def test_every_input_and_choice_is_named_as_the_dialog_names_it(self, name, language, shown):
         english, translated = steps(_readme(name)), steps(_readme(name, language))
@@ -101,7 +108,9 @@ class TestTheTranslationSaysTheSame:
                 choice, choice_t = CHOICE.match(value), CHOICE.match(value_t)
                 assert bool(choice) == bool(choice_t), (label, value_t)
                 if choice:
-                    expected = shown.get(choice["choice"], set())
+                    # A choice the catalogue does not translate, such as a frame's name, is
+                    # shown as itself; the tier-3 tests hold it to the translated dialog.
+                    expected = shown.get(choice["choice"], {choice["choice"]})
                     assert choice_t["choice"] in expected, (choice["choice"], value_t)
 
 

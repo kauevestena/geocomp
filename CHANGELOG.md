@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-7 — The monitoring, gravimetry and integration tutorials in Portuguese and Spanish
+
+#### Added
+
+- `rd08-dam`, `rd07-usgs` and `combined-curitiba` ship their walkthroughs in Portuguese (`README.pt_BR.md`)
+  and Spanish (`README.es.md`).
+
 ### P13-6 — The levelling tutorial in Portuguese and Spanish
 
 #### Added

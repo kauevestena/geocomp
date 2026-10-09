@@ -25,6 +25,14 @@ pytestmark = [pytest.mark.qgis, requires_qgis]
 NAME = "rd08-dam"
 README = DATASETS_DIR / NAME / "README.md"
 INSTALL = "geocomp:project_tutorial_dataset"
+SHIPPED = (
+    "README.es.md",
+    "README.md",
+    "README.pt_BR.md",
+    "epoch-2025.json",
+    "epoch-2026.json",
+    "thresholds.csv",
+)
 ADJUST = "geocomp:analysis_network_adjust"
 COMPARE = "geocomp:monitoring_compare_epochs"
 PILLARS = ",".join(rd.REFERENCE)
@@ -79,7 +87,7 @@ def folder(tmp_path_factory) -> Path:
             "DESTINATION": str(tmp_path_factory.mktemp("monitoring-tutorial")),
         },
     )
-    assert results["FILE_COUNT"] == 4
+    assert results["FILE_COUNT"] == len(SHIPPED)
     return Path(results["OUTPUT_DIRECTORY"])
 
 
@@ -133,12 +141,7 @@ def _w_tests(adjusted: dict) -> list[dict]:
 class TestFollowingIt:
     def test_it_installs_the_two_epochs_and_the_thresholds(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == [
-            "README.md",
-            "epoch-2025.json",
-            "epoch-2026.json",
-            "thresholds.csv",
-        ]
+        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
 
     def test_step_1_passes_its_global_test(self, readme, first):
         assert first["DEGREES_OF_FREEDOM"] == 21
@@ -256,3 +259,36 @@ class TestFollowingIt:
         assert "implicates O2" in refused
         assert "The localisation is recorded in:" in refused
         quoted(readme, "and says where it wrote the localisation.")
+
+
+@pytest.mark.parametrize("language", ("pt_BR", "es"))
+class TestInEachLanguage:
+    """The translations, held to GeoComp speaking their language (P13-7), as the levelling one's are."""
+
+    def test_every_name_it_uses_is_the_dialogs(self, language):
+        from geocomp.gui.menu import menu_label
+        from geocomp.registry import ALGORITHMS
+        from tests.qgis.test_language import _Installed
+        from tests.qgis.walkthrough import algorithm
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        free_index = option(ADJUST, "DATUM", FREE)  # by its English name, before the language changes
+        with _Installed(language):
+            check_names(translated)
+            spec = next(spec for spec in ALGORITHMS if spec.id == COMPARE)
+            quoted(translated, f"*GeoComp ▸ {menu_label(spec.menu)} ▸ {algorithm(COMPARE).displayName()}*")
+            quoted(translated, f"**{label(COMPARE, 'REFERENCE')}**")
+            quoted(translated, f"*{label(ADJUST, 'DATUM')}*")
+            adjust = algorithm(ADJUST)  # held: the definition is the algorithm's
+            free = adjust.parameterDefinition("DATUM").options()[free_index]
+        quoted(translated, f"*{free}*")
+
+    @pytest.mark.dense_only
+    def test_it_quotes_the_refusal_in_that_language(self, language, folder, first, second):
+        from tests.qgis.test_language import _Installed
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        parameters = _compare(folder, first, second, f"refused-{language}", reference=f"{PILLARS},O2")
+        with _Installed(language):
+            refused = refusal(COMPARE, parameters)
+        assert refused.startswith(quote(translated)), refused

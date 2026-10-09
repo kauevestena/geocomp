@@ -2,6 +2,7 @@
 
 **Reference dataset RD-08, its synthetic half** (`specs/20-testing-and-validation.md` §3, FR-950, FR-952), the
 monitoring tutorial.
+*Em português: README.pt_BR.md. En español: README.es.md.*
 
 Four reference pillars on stable ground around a structure, R1 to R4, on a site 1200 m by 900 m, and five
 targets on the structure itself, O1 to O5. Every pair of the nine is measured by distance, 36 distances at each

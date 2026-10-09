@@ -3300,6 +3300,33 @@ the integration one and the GNSS sample's. *Install tutorial dataset* still says
 every language, which becomes right per language once every dataset has its translations. A native speaker's
 review of these texts belongs with the catalogues' (specs/18 §3.1).
 
+#### P13-7 — the monitoring, gravimetry and integration walkthroughs in Portuguese and Spanish (FR-952 stays partly met)
+
+`rd08-dam`, `rd07-usgs` and `combined-curitiba` now ship `README.pt_BR.md` and `README.es.md`, and each English
+README points to them. All three are held by P13-6's tier-1 checks, so `TRANSLATED` in
+`tests/test_tutorial_translations.py` now names four walkthroughs. Each tier-3 test gains its checks in each
+language:
+- **Monitoring.** It checks every dialog, input and choice name, the menu path, the labels and the datum
+  choice named in the prose, under the installed catalogue. The quoted refusal must be the one GeoComp gives in
+  that language. Like the English one, that check runs on the dense path only.
+- **Gravimetry.** It checks every name, and the known-gravity label named in the prose.
+- **Integration.** It checks every name, and that the two runs differ only in the components switch. GeoComp
+  is run in each language: the log line, the per-technique breakdown and the report's two section headings
+  the translation quotes must be what GeoComp writes. Changing a number in the breakdown, a word in the log
+  line, a label or a heading in the Spanish file each made it fail.
+
+A block quote is GeoComp's own words, which write a statistic with a decimal point in every language, so the
+tier-1 check for a decimal point left in the prose skips block quotes; tier 3 holds those to GeoComp. That
+check also skips section numbers (`specs/22 §5.6`). A choice the catalogue does not translate, such as the
+frame *ITRF2020*, is expected unchanged; tier 3 holds it to the translated dialog's options.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open.
+
+**Not done.** RD-01's walkthrough has never been held to the dialogs as the later four are. It should be,
+and translated after that. The GNSS sample's walkthrough is untranslated. *Install tutorial dataset* still
+says "Start with README.md" in every language. A native speaker's review of these texts belongs with the
+catalogues' (specs/18 §3.1).
+
 ---
 
 ## Mapping to the research project's 24-month schedule

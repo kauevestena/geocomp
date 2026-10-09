@@ -26,6 +26,16 @@ pytestmark = [pytest.mark.qgis, requires_qgis]
 NAME = "rd07-usgs"
 README = DATASETS_DIR / NAME / "README.md"
 INSTALL = "geocomp:project_tutorial_dataset"
+SHIPPED = (
+    "GSadjust-LICENSE.md",
+    "README.es.md",
+    "README.md",
+    "README.pt_BR.md",
+    "Test2.txt",
+    "Test3.txt",
+    "profiles-calibrated.json",
+    "profiles.json",
+)
 PREPROCESS = "geocomp:gravimetry_preprocess"
 NETWORK = "geocomp:gravimetry_network"
 JOINT = "Estimated with the station values"
@@ -73,7 +83,7 @@ def folder(tmp_path_factory) -> Path:
             "DESTINATION": str(tmp_path_factory.mktemp("gravimetry-tutorial")),
         },
     )
-    assert results["FILE_COUNT"] == 6
+    assert results["FILE_COUNT"] == len(SHIPPED)
     return Path(results["OUTPUT_DIRECTORY"])
 
 
@@ -133,14 +143,7 @@ def test3_calibrated(folder):
 class TestFollowingIt:
     def test_it_installs_the_surveys_their_profiles_and_licence(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == [
-            "GSadjust-LICENSE.md",
-            "README.md",
-            "Test2.txt",
-            "Test3.txt",
-            "profiles-calibrated.json",
-            "profiles.json",
-        ]
+        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
 
     def test_step_1_reads_one_session_and_says_what_it_assumed(self, readme, test2):
         results, log = test2
@@ -210,3 +213,15 @@ class TestFollowingIt:
         joint = DRIFT.search(test2_network[1]).group(2)
         quoted(readme, f"(±{joint} against ±{base} mGal per hour here)")
         assert float(joint) < float(base)
+
+
+@pytest.mark.parametrize("language", ("pt_BR", "es"))
+def test_each_translation_names_what_the_dialogs_show_in_its_language(language):
+    """The translations, held to GeoComp speaking their language (P13-7)."""
+    from tests.qgis.test_language import _Installed
+    from tests.qgis.walkthrough import label
+
+    translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+    with _Installed(language):
+        check_names(translated)
+        quoted(translated, f"*{label(NETWORK, 'KNOWN_GRAVITY')}*")
