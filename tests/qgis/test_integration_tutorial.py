@@ -25,6 +25,7 @@ NAME = "combined-curitiba"
 README = DATASETS_DIR / NAME / "README.md"
 INSTALL = "geocomp:project_tutorial_dataset"
 PRESET = "geocomp:integration_gnss_total_station"
+SHIPPED = ("README.es.md", "README.md", "README.pt_BR.md", "gnss.json", "total-station.json")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -60,11 +61,11 @@ def folder(tmp_path_factory) -> Path:
             "DESTINATION": str(tmp_path_factory.mktemp("integration-tutorial")),
         },
     )
-    assert results["FILE_COUNT"] == 3
+    assert results["FILE_COUNT"] == len(SHIPPED)
     return Path(results["OUTPUT_DIRECTORY"])
 
 
-def _combine(folder: Path, components: bool) -> tuple[dict, str, dict]:
+def _combine(folder: Path, components: bool, tag: str = "") -> tuple[dict, str, dict]:
     import tests.combined_network as field
 
     results, log = run_logged(
@@ -75,8 +76,8 @@ def _combine(folder: Path, components: bool) -> tuple[dict, str, dict]:
             "FRAME": 0,
             "FIXED_STATIONS": ",".join(field.HELD),
             "VARIANCE_COMPONENTS": components,
-            "OUTPUT_SOLUTION": str(folder / f"combined-{components}.json"),
-            "OUTPUT_HTML": str(folder / f"combined-{components}.html"),
+            "OUTPUT_SOLUTION": str(folder / f"combined-{components}{tag}.json"),
+            "OUTPUT_HTML": str(folder / f"combined-{components}{tag}.html"),
         },
     )
     solution = json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
@@ -95,8 +96,8 @@ def weighed(folder):
 
 class TestFollowingIt:
     def test_it_installs_the_two_networks(self, folder):
-        names = sorted(path.name for path in folder.iterdir())
-        assert names == ["README.md", "gnss.json", "total-station.json"]
+        installed = sorted(path.name for path in folder.iterdir() if not path.name.startswith("combined-"))
+        assert installed == sorted(SHIPPED)
 
     def test_the_inputs_are_what_it_says(self, readme, folder):
         gnss = json.loads((folder / "gnss.json").read_text(encoding="utf-8"))
@@ -154,3 +155,37 @@ class TestFollowingIt:
         quoted(readme, "The report's *Techniques* section, under *Variance components*")
         assert "not its variance component" in html
         quoted(readme, "it is not yet a variance component")
+
+
+@pytest.mark.parametrize("language", ("pt_BR", "es"))
+class TestInEachLanguage:
+    """The translations, held to GeoComp speaking their language (P13-7), as the others' are."""
+
+    def test_every_name_it_uses_is_the_dialogs(self, language):
+        from tests.qgis.test_language import _Installed
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        with _Installed(language):
+            check_names(translated)
+            components = label(PRESET, "VARIANCE_COMPONENTS")
+        first, second = (dict(step.filled) for step in steps(translated))
+        assert first.pop(components) != second.pop(components)
+        assert first == second
+
+    def test_it_quotes_the_log_and_the_report_in_that_language(self, language, folder):
+        from geocomp.reports.adjustment import _tr
+        from tests.qgis.test_language import _Installed
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        with _Installed(language):
+            _results, log, _solution = _combine(folder, False, f"-{language}")
+            results, _log, _solution = _combine(folder, True, f"-{language}")
+            techniques, components = _tr("Techniques"), _tr("Variance components")
+        assert techniques != "Techniques" and components != "Variance components"
+        line = next(part for part in log.split(". ") if "(gnss, total_station)" in part)
+        quoted(translated, f"*{line}.*")
+        assert quote(translated) in log, (quote(translated), log)
+        html = Path(results["OUTPUT_HTML"]).read_text(encoding="utf-8")
+        assert f"<h2>{techniques}</h2>" in html and components in html
+        quoted(translated, f"*{techniques}*")
+        quoted(translated, f"*{components}*")

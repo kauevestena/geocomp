@@ -2,6 +2,7 @@
 
 **Reference dataset RD-07, its USGS half** (`specs/20-testing-and-validation.md` §3,
 `specs/22-reference-data-sources.md` §5.6, FR-950, FR-952), the gravimetry tutorial.
+*Em português: README.pt_BR.md. En español: README.es.md.*
 
 Two relative-gravity surveys of five stations, sta1 to sta5, each station visited two or three times in one
 afternoon with meter B44, eleven readings a survey. They are **USGS's synthetic test surveys for GSadjust**,
@@ -49,8 +50,9 @@ readings of sta1 alone, the base: **0.01008 ± 0.00142 mGal per hour**.
 - **Known gravity (mGal)**: `sta1=50.000`
 - **Drift treatment**: *Estimated with the station values*
 
-The adjustment has **5 degrees of freedom**, and the global test passes with a variance factor of **1.17**. The drift is estimated with the stations, from every reading rather than the
-base's three: **0.00915 ± 0.00109 mGal per hour**, against the 0.01 USGS put in.
+The adjustment has **5 degrees of freedom**, and the global test passes with a variance factor of **1.17**.
+The drift is estimated with the stations, from every reading rather than the base's three:
+**0.00915 ± 0.00109 mGal per hour**, against the 0.01 USGS put in.
 
 And the stations come back as USGS published them. sta2 is **1.3 µGal** from its truth, sta3 **2.6**, sta4
 **0.9** and sta5 **2.0**, each within its own standard deviation of about 3 µGal.

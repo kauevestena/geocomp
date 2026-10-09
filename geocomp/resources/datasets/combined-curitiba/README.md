@@ -1,6 +1,7 @@
 # Combined survey, Curitiba — GNSS and a total station adjusted together, and the one that overstated its precision
 
 The integration tutorial (`specs/13-module-integration.md`, FR-952).
+*Em português: README.pt_BR.md. En español: README.es.md.*
 
 Six stations over about 3 km near Curitiba. GNSS baselines tie two control marks, CTB1 and CTB2, to the other
 four, processed in ITRF2014 at 2020.0. A total station occupies four of the stations and measures directions,

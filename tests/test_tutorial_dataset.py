@@ -368,7 +368,14 @@ class TestTheLevellingLoop:
 
 
 DAM = DATASETS_DIR / "rd08-dam"
-DAM_FILES = ("README.md", "epoch-2025.json", "epoch-2026.json", "thresholds.csv")
+DAM_FILES = (
+    "README.es.md",
+    "README.md",
+    "README.pt_BR.md",
+    "epoch-2025.json",
+    "epoch-2026.json",
+    "thresholds.csv",
+)
 
 
 class TestTheMonitoredDam:
@@ -423,7 +430,9 @@ class TestTheMonitoredDam:
 GRAVITY = DATASETS_DIR / "rd07-usgs"
 GRAVITY_FILES = (
     "GSadjust-LICENSE.md",
+    "README.es.md",
     "README.md",
+    "README.pt_BR.md",
     "Test2.txt",
     "Test3.txt",
     "profiles-calibrated.json",
@@ -478,7 +487,7 @@ class TestTheUsgsSurveys:
 
 
 COMBINED = DATASETS_DIR / "combined-curitiba"
-COMBINED_FILES = ("README.md", "gnss.json", "total-station.json")
+COMBINED_FILES = ("README.es.md", "README.md", "README.pt_BR.md", "gnss.json", "total-station.json")
 
 
 class TestTheCombinedSurvey:
