@@ -302,9 +302,13 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         # saved used to put it in QGIS's own working directory.
         destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
         temporary = None if destination else working_directory("geocomp-gnss-")
-        work_dir = (temporary or Path(destination).parent) / (
-            f"{self.profile_name}-{rover.station_id}"
-        )
+        # Named by the pair, not the rover alone: until P13-15 two baselines to
+        # one rover, saved side by side, wrote one directory and the second run
+        # replaced the first's configuration and output.
+        pair = [rover.station_id]
+        if "base" in job_kwargs:
+            pair.insert(0, job_kwargs["base"].station_id)
+        work_dir = (temporary or Path(destination).parent) / "-".join((self.profile_name, *pair))
         engine = gnss_engine(feedback)
         try:
             result = engine.run(

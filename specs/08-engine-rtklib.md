@@ -511,7 +511,9 @@ different format. **They agree to 0.05 mm.** No rotation, no projection, and not
 
 The other formats are refused rather than converted (`pos_not_geocentric`): deriving a baseline from the LLH
 or ENU output means inverting a projection or a rotation the engine has already applied, losing precision to
-no purpose.
+no purpose. **So the `relative-static` profile writes ECEF** (`out-solformat = xyz`), since P13-15; before it
+wrote LLH, and the menu's own solutions were refused here
+([`11`](./11-module-gnss.md) §2).
 
 **The last epoch is the answer.** A static run writes the filter's state at every epoch, so the earlier ones
 are a converging filter's guesses — `xyz.pos`'s first epoch is a float solution two metres out.

@@ -3594,6 +3594,42 @@ not show it.
   where a station is the base of one baseline and the rover of another, the reduction differs between its
   legs unless the two heights are equal, and the loop's misclosure carries the difference.
 
+#### P13-15 — a static solution from the menu becomes a baseline
+
+Following the GNSS tutorial's walkthrough with the real engine, before writing it, found that its two steps did
+not connect. *Relative — Static* wrote latitude, longitude and height. *Build baselines* takes ECEF alone, by
+`specs/08` §8.1's decision, and skipped all three solutions. An options file may not change an `out-` key, so
+the reader had no way round it.
+
+**Why nothing caught it.** Every tier-3 test of the GNSS algorithms answers with the stand-in engine, and the
+stand-in answers with `xyz.pos`, an ECEF file. The real engine's tier-4 tests built baselines from
+configurations that asked for ECEF explicitly. No test ran the profile the menu uses and then asked for a
+baseline.
+
+**What changed.**
+- **The profile.** `relative-static` writes ECEF (`out-solformat = xyz`). Its layer, quality summary and base
+  record read any format and are unchanged. `relative-kinematic` still writes latitude and longitude: a
+  trajectory is not a baseline.
+- **The working directory.** The engine's working directory is named by the pair, `relative-static-<base>-<rover>`.
+  Named by the rover alone, two baselines to one rover saved side by side wrote one directory, and the second
+  run replaced the first's configuration and output. The same walkthrough found it.
+
+**Tests.**
+- `tests/test_rtklib_engine.py::TestConfiguration::test_a_static_baseline_is_written_in_ecef`.
+- `TestAgainstTheRealEngine::test_the_static_profiles_solution_becomes_a_baseline`, tier 4: the profile's
+  solution from the real engine becomes §8.1's 3335.39 m baseline.
+- `tests/qgis/test_engine_runs.py::TestTheWorkingDirectory::test_it_is_named_by_the_pair`.
+
+Each fails without its change. One tier-4 test asserted the old format's labels:
+`test_the_covariance_survives_the_whole_chain` runs a job with the default configuration, which is this
+profile, and now expects X, Y and Z. What it checks, that the cross terms reach a covariance from a live run,
+is unchanged.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open.
+
+**Not done.** *Batch processing* takes the base and processes every other session against it. It cannot give
+the third leg of a triangle, so a triangle still needs one run per leg.
+
 ---
 
 ## Mapping to the research project's 24-month schedule
