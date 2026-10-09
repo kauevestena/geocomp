@@ -108,4 +108,31 @@ def test_the_base_class_words_are_translated():
     finally:
         QCoreApplication.removeTranslator(translator)
     assert "«Requirement»" in help_text and "«Parameters»" in help_text
+    assert "«Worked example»" in help_text
     assert group == "«Analysis»"
+
+
+def test_every_help_names_the_tutorials_that_run_it():
+    """specs/16 section 8 asks every help for a worked-example reference (P13-13).
+
+    The walkthroughs' declared chains say which algorithms they run, and the
+    tier-3 tests hold the chains to the READMEs; the help is built from them, so
+    a walkthrough that starts or stops running an algorithm changes its help.
+    """
+    from geocomp.algorithms.project.worked_examples import WORKED
+
+    runs: dict[str, list[str]] = {}
+    for name, chain in WORKED.items():
+        for step in chain():
+            runs.setdefault(step.algorithm, [])
+            if name not in runs[step.algorithm]:
+                runs[step.algorithm].append(name)
+    assert len(runs) >= 12, sorted(runs)
+    for algorithm in _algorithms():
+        help_text = algorithm.shortHelpString()
+        datasets = runs.get(algorithm.id(), [])
+        if datasets:
+            assert "<b>Worked example</b>" in help_text, algorithm.id()
+            assert f"the {', '.join(datasets)} tutorial runs it" in help_text, algorithm.id()
+        else:
+            assert "<b>Worked example</b>" not in help_text, algorithm.id()
