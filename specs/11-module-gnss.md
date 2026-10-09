@@ -231,9 +231,11 @@ The geometry, including why each end is rotated at its *own* horizon, is in
 **A station has one height (P13-19).** Once is not enough in a network: a station is the base of one baseline
 and the rover of another, and its mark has to be put in the same place on both, or every loop through it misses
 by the difference — which reads as a measurement error. Until P13-19 *Build baselines* reduced every baseline by
-one *Base antenna height* and one *Rover antenna height*. GGAO's midnight triangle, given GODN's header
-height as the base's and GODE's as the rover's, put GODE's mark in two places 53 mm apart, and closed to 52.73 mm
-instead of 0.37 mm.
+one *Base antenna height* and one *Rover antenna height*. Take GGAO's midnight triangle, whose headers give GODE
+0.0614 m and GODN and GODS 0.0083 m. With the base height at 0.0614 m and the rover height at 0.0083 m, which is
+right for GODE-GODS, GODE's mark was put in two places 53 mm apart, and the loop closed to 52.73 mm instead of
+0.37 mm. GODN, the base of both its baselines, was given GODE's height on both; that error cancels round the
+loop, and nothing showed it. (P13-19 first wrote GODN's and GODE's heights the other way round; P13-20 found it.)
 - ***Antenna height by station*** gives a station its height at either end. Names are matched in upper case,
   as the solutions give them, and a decimal comma is read.
 - **A station not listed** takes the base height where it is the base and the rover height where it is the
@@ -243,9 +245,25 @@ instead of 0.37 mm.
   height, since a loop of reduced and unreduced legs is refused (§4.1.1).
 - **What is refused or said.** A row that is not a station and a height from 0 to 10 m is refused, and so is a
   station given two heights. A listed station no baseline has is warned of, as a name typed wrong would be.
-- The heights applied are in the JSON output, under `antenna_heights`.
+- The heights applied are in the JSON output, under `antenna_heights`: by baseline, then by station, since
+  read from the files (below) one station can have a height per session.
 
-The heights are given, not read: the observation files' `ANTENNA: DELTA H/E/N` is not used here.
+**Heights from the observation files (P13-20).** *Take antenna heights from the observation files* reduces each
+end by what its own session's observation file states in `ANTENNA: DELTA H/E/N`.
+- **Precedence.** A station listed in *Antenna height by station* keeps its listed height. Every other end
+  takes its file's, so the base and rover heights are not used, and no station can be given two by them. Given
+  anyway, the log warns that they are not used.
+- **Per session.** A station set up twice, at two heights, is reduced by each session's own.
+- **Where the file is.** At the path the solution names, which is absolute, as `rnx2rtkp` was given it; failing
+  that, beside the solution, by name, split on either separator. A name that is not absolute is looked for
+  only beside the solution, never in whatever folder QGIS was started in. Missing, it is refused, naming the
+  file and the station, and so is a file that states no height. Neither is ever taken as zero.
+- **Eccentricity is applied.** A non-zero east or north is reduced too, and said in the log, since it is rare
+  enough to be either deliberate or a mistake (`io/rinex.py`).
+- **The method stays unstated.** A RINEX height is by definition vertical, to the antenna reference point. Whether
+  someone reduced a slant measurement to get it, the file does not record. The offset is carried as `unstated`,
+  as the reader gives it, and the log says to check the heights against the field book.
+- The JSON output says which way the heights came, under `antenna_heights_from_files`.
 
 ### 4.3 Result layers (FR-357) **[V]**
 

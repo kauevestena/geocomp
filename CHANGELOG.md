@@ -5,6 +5,19 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-20 — Antenna heights from the observation files
+
+#### Added
+
+- *Build baselines* can take each station's antenna height from its session's observation file, eccentricity
+  included, with *Take antenna heights from the observation files*. A station listed in *Antenna height by
+  station* keeps its listed height. A file that is missing, or states no height, is refused.
+
+#### Changed
+
+- *Build baselines*' JSON output records the heights applied by baseline, then station, under
+  `antenna_heights`: read from the files, one station can have a height per session.
+
 ### P13-19 — Each station has one antenna height
 
 #### Fixed
