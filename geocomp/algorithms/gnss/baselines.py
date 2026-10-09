@@ -24,6 +24,7 @@ refused, because a vector with no frame cannot be brought into another.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, replace
 from datetime import UTC
 from pathlib import Path
@@ -68,6 +69,7 @@ from geocomp.core.units import Unit
 from geocomp.engines.rtklib.baseline import baseline_from_solution, quality_from_solution
 from geocomp.engines.rtklib.read_pos import read_pos
 from geocomp.io.mapping import parse_number
+from geocomp.io.rinex import read_rinex_header
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_baseline_features
 
 FOLDER = "FOLDER"
@@ -75,6 +77,7 @@ INDEPENDENT_ONLY = "INDEPENDENT_ONLY"
 BASE_HEIGHT = "BASE_HEIGHT"
 ROVER_HEIGHT = "ROVER_HEIGHT"
 STATION_HEIGHTS = "STATION_HEIGHTS"
+HEIGHTS_FROM_FILES = "HEIGHTS_FROM_FILES"
 HEIGHT_SIGMA = "HEIGHT_SIGMA"
 FRAME = "FRAME"
 OUTPUT_JSON = "OUTPUT_JSON"
@@ -148,6 +151,16 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             "would take both, when they differ, is refused. Once any height is "
             "given, every baseline is reduced, by zero where that is the height, "
             "because a loop of reduced and unreduced baselines cannot be closed.</p>"
+        ) + self.tr(
+            "<p><b>Heights from the observation files.</b> With <i>Take antenna "
+            "heights from the observation files</i>, each end is reduced by the "
+            "height its own session's observation file states, eccentricity "
+            "included, unless its station is listed; the base and rover heights "
+            "are then not used. A file is looked for where the solution says it "
+            "was, then beside the solution, and one that is missing or states no "
+            "height is refused. A RINEX file's height is the vertical height of the "
+            "antenna reference point, and how it was measured is not recorded "
+            "there: check the heights against the field book.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -185,6 +198,13 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 hasFixedNumberRows=False,
                 headers=[self.tr("Station"), self.tr("Antenna height above the mark (m)")],
                 optional=True,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                HEIGHTS_FROM_FILES,
+                self.tr("Take antenna heights from the observation files"),
+                defaultValue=False,
             )
         )
         self.addAdvancedParameter(
@@ -254,11 +274,12 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         base_height = self.parameterAsDouble(parameters, BASE_HEIGHT, context)
         rover_height = self.parameterAsDouble(parameters, ROVER_HEIGHT, context)
         listed = self._station_heights(parameters, context)
+        from_files = self.parameterAsBool(parameters, HEIGHTS_FROM_FILES, context)
         sigma = self.parameterAsDouble(parameters, HEIGHT_SIGMA, context)
         # Every baseline or none: a loop of reduced and unreduced legs is refused
         # (specs/11 section 4.1.1), so a zero height, once any height is given,
         # is a reduction by zero rather than none.
-        reducing = bool(listed) or bool(base_height) or bool(rover_height)
+        reducing = from_files or bool(listed) or bool(base_height) or bool(rover_height)
         frame_index = self.parameterAsEnum(parameters, FRAME, context)
         frame = FRAME_NAMES[frame_index - 1] if frame_index > 0 else ""
         network_path = self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context)
@@ -283,7 +304,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
 
         built = []
-        heights: dict[str, float] = {}
+        heights: dict[str, dict[str, float]] = {}
         floating: list[str] = []
         quality: dict[str, dict[str, Any]] = {}
         sessions: dict[str, _Session] = {}
@@ -298,22 +319,17 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                     solution, base_station=stations[0], rover_station=stations[1]
                 )
                 if reducing:
-                    # A station listed has its own height at either end; one
-                    # not listed takes the height of the end it is (P13-19).
-                    ends = (
-                        listed.get(stations[0], base_height),
-                        listed.get(stations[1], rover_height),
+                    # A station listed has its own height at either end (P13-19).
+                    # One not listed takes its session's observation file's
+                    # (P13-20), or else the height of the end it is.
+                    files = _observation_files(solution, path) if from_files else (None, None)
+                    ends = tuple(
+                        self._offset(station, file, number, listed, sigma, feedback)
+                        for station, file, number in zip(
+                            stations, files, (base_height, rover_height), strict=True
+                        )
                     )
-                    baseline = reduce_to_marks(
-                        baseline,
-                        *(
-                            AntennaOffset(
-                                up=Quantity.from_std_dev(height, sigma, Unit.METRE),
-                                method="vertical",
-                            )
-                            for height in ends
-                        ),
-                    )
+                    baseline = reduce_to_marks(baseline, *ends)
                 # FR-603: the quality is part of the answer, not a diagnostic.
                 # The fraction of epochs that fixed travels on the baseline
                 # because that is where a reader of the map or of the JSON will
@@ -352,7 +368,9 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 continue
             built.append(baseline)
             if reducing:
-                heights.update(zip(stations, ends, strict=True))
+                heights[baseline.id] = {
+                    station: end.up.value for station, end in zip(stations, ends, strict=True)
+                }
 
         if not built:
             raise QgsProcessingException(
@@ -362,7 +380,27 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 )
             )
 
-        self._one_height_each(built, listed, base_height, rover_height)
+        if from_files:
+            if base_height or rover_height:
+                feedback.pushWarning(
+                    self.tr(
+                        "%1 and %2 are not used: every height is a listed one or its observation "
+                        "file's. Leave them at zero, or clear %3 to use them."
+                    )
+                    .replace("%1", self.parameterDefinition(BASE_HEIGHT).description())
+                    .replace("%2", self.parameterDefinition(ROVER_HEIGHT).description())
+                    .replace("%3", self.parameterDefinition(HEIGHTS_FROM_FILES).description())
+                )
+            feedback.pushInfo(
+                self.tr(
+                    "Each height read from an observation file is taken as the vertical height "
+                    "of the antenna reference point above the mark, which is what a RINEX file "
+                    "means by it. How it was measured is not recorded there: check the heights "
+                    "against the field book."
+                )
+            )
+        else:
+            self._one_height_each(built, listed, base_height, rover_height)
         unused = sorted(set(listed) - {s for b in built for s in (b.base_station, b.rover_station)})
         if unused:
             feedback.pushWarning(
@@ -415,6 +453,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "closures": closures,
                         "float": floating,
                         "antenna_heights": dict(sorted(heights.items())),
+                        "antenna_heights_from_files": from_files,
                     },
                     indent=2,
                 )
@@ -446,6 +485,65 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(100)
         return outputs
+
+    def _offset(self, station: str, file, number: float, listed, sigma: float, feedback) -> AntennaOffset:
+        """Where *station*'s antenna stood above its mark on one baseline.
+
+        A listed height first, because the user stated it; then the session's
+        observation file, when *file* is given; then *number*, the base or rover
+        height. A file's height is used as the file states it -- ``unstated``
+        method, eccentricity included -- and a file that cannot be read, or
+        states none, is refused rather than taken as zero.
+        """
+        if station in listed:
+            return AntennaOffset(
+                up=Quantity.from_std_dev(listed[station], sigma, Unit.METRE), method="vertical"
+            )
+        if file is None:
+            return AntennaOffset(up=Quantity.from_std_dev(number, sigma, Unit.METRE), method="vertical")
+        name, found = file
+        if found is None:
+            raise QgsProcessingException(
+                self.tr(
+                    "The solution names %1 as the observation file of %2, and it is not there "
+                    "or beside the solution. Put it back, or give %2's height in %3."
+                )
+                .replace("%1", name)
+                .replace("%2", station)
+                .replace("%3", self.parameterDefinition(STATION_HEIGHTS).description())
+            )
+        try:
+            delta = read_rinex_header(found).antenna_delta
+        except GeoCompError as exc:
+            raise QgsProcessingException(translate_error(exc)) from exc
+        if delta is None:
+            raise QgsProcessingException(
+                self.tr("%1 states no antenna height. Give %2's height in %3.")
+                .replace("%1", found.name)
+                .replace("%2", station)
+                .replace("%3", self.parameterDefinition(STATION_HEIGHTS).description())
+            )
+        eccentric = {}
+        if delta.is_eccentric:
+            feedback.pushInfo(
+                self.tr(
+                    "%1's antenna stood %2 m east and %3 m north of its mark, as %4 states, "
+                    "and the reduction includes it."
+                )
+                .replace("%1", station)
+                .replace("%2", f"{delta.east.value:g}")
+                .replace("%3", f"{delta.north.value:g}")
+                .replace("%4", found.name)
+            )
+            eccentric = {
+                "east": Quantity.from_std_dev(delta.east.value, sigma, Unit.METRE),
+                "north": Quantity.from_std_dev(delta.north.value, sigma, Unit.METRE),
+            }
+        return AntennaOffset(
+            up=Quantity.from_std_dev(delta.height.value, sigma, Unit.METRE),
+            method=delta.method.value,
+            **eccentric,
+        )
 
     def _station_heights(self, parameters, context) -> dict[str, float]:
         """Each listed station's antenna height, by the station's name in upper case.
@@ -616,6 +714,30 @@ def _start(xyz, frame: str, epoch: Epoch) -> Position:
         epoch=epoch,
         height_type=HeightType.ELLIPSOIDAL,
     )
+
+
+def _observation_files(solution, path: Path) -> tuple[tuple[str, Path | None], tuple[str, Path | None]]:
+    """The base's and the rover's observation files, as the solution names them.
+
+    ``rnx2rtkp`` writes the rover's first and the base's second, each by the
+    absolute path it was given. A file not at that path is looked for beside
+    the solution, by name, in case the folders were moved together; the name
+    is split on either separator, since the solution may have been written on
+    another system. A name that is not absolute is never looked for anywhere
+    else: relative to whatever folder QGIS was started in, it could find the
+    wrong file.
+    """
+    named = [*solution.inputs[:2], "", ""]
+
+    def find(name: str) -> tuple[str, Path | None]:
+        base_name = re.split(r"[\\/]", name)[-1]
+        written = Path(name)
+        for candidate in ((written,) if written.is_absolute() else ()) + (path.parent / base_name,):
+            if base_name and candidate.is_file():
+                return base_name, candidate
+        return base_name or name, None
+
+    return find(named[1]), find(named[0])
 
 
 def _stations_from(solution, path: Path) -> tuple[str, str]:

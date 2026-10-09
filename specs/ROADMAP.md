@@ -3779,10 +3779,12 @@ status says whether the engine fixed; a fix that passed a low threshold is still
 P13-14's last *Not done*. *Build baselines* reduced every baseline by one *Base antenna height* and one *Rover
 antenna height*. In a network a station is the base of one baseline and the rover of another, so unless the two
 were equal its mark was put in two places, and every loop through it missed by the difference.
-- On the GNSS tutorial's midnight triangle, the base height was set to GODN's header height (0.0614 m) and the
-  rover height to GODE's (0.0083 m). GODN is only ever a base and GODS only ever a rover, so both came out
-  right; GODE is both.
+- On the GNSS tutorial's midnight triangle, the base height was set to 0.0614 m and the rover height to
+  0.0083 m. GODE is both a base and a rover, so its mark was put in two places.
 - The loop closed to 52.73 mm instead of 0.37 mm, and nothing said why.
+- *Corrected in P13-20:* this entry first called 0.0614 m GODN's header height and 0.0083 m GODE's. The
+  headers give GODE 0.0614 m and GODN 0.0083 m, so GODN, the base of both its baselines, was given GODE's
+  height on both. That error cancels round the loop, and nothing showed it either.
 
 **What changed** (`specs/11` §4.2).
 - ***Antenna height by station***, a table of station and height, gives a station its height at either end.
@@ -3816,6 +3818,51 @@ refusal prevents.
 - The heights are given, not read. Each observation file states its own in `ANTENNA: DELTA H/E/N`, and a
   station set up twice in one folder, at two heights, still needs two runs.
 - A slant height is still refused, as `specs/08` §8.3 says.
+
+#### P13-20 — antenna heights from the observation files
+
+P13-19's first *Not done*. Every observation file states its antenna height in `ANTENNA: DELTA H/E/N`, and
+*Build baselines* made the user type them.
+
+**What changed** (`specs/11` §4.2).
+- ***Take antenna heights from the observation files*** reduces each end by its own session's file. The file is
+  looked for at the path the solution names, then beside the solution.
+- **A listed station keeps its listed height**, and the base and rover heights are not used; given anyway, the
+  log says so.
+- **Heights are per session**, so a station set up twice at two heights is reduced by each.
+- **Eccentricity** in the file is applied and said in the log.
+- **Refused:** a missing file, and a file that states no height. Neither is taken as zero. A name that is not
+  absolute is looked for only beside the solution, not in the folder QGIS was started in.
+- **The method stays `unstated`**, as a RINEX file leaves it, and the log says to check the heights against the
+  field book.
+- **The JSON output's `antenna_heights` is now by baseline, then station**, since one station can have a height
+  per session. `antenna_heights_from_files` says which way they came.
+- **Translations:** seven strings in pt_BR and es.
+
+**Found on the way.** P13-19's tests, `specs/11` §4.2 and its ROADMAP entry had the tutorial's header heights
+wrong: they gave GODN 0.0614 m and GODE 0.0083 m. The files say the reverse, and reading them showed it at
+once.
+- What P13-19 tested is unaffected: its tests use the heights as given, and the refusal is of GODE's two.
+- The corrections are in all three places, each marked.
+
+**Tests.** `tests/qgis/test_gnss_antenna_heights.py::TestFromTheObservationFiles`, ten, all failing on the
+old code. They use the tutorial's recorded solutions beside its observation files:
+- each end is reduced by its file's height, and each baseline is the core's reduction by those heights;
+- the log says what a RINEX height is and is not;
+- a listed station keeps its height, and needs no file;
+- two sessions of one station, at two heights, are each reduced by their own;
+- an eccentric antenna is said in the log and moves the baseline by its offset;
+- a missing file is refused, and so is one with no height;
+- the base and rover heights are not used, and the log says so;
+- a relative name is not looked for in the folder QGIS was started in.
+
+The P13-19 tests now read the heights from the per-baseline record.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-602's row names the change.
+
+**Not done.**
+- A repeated pair still shares one key in the JSON output, as its quality record always has.
+- A slant height is still refused, as `specs/08` §8.3 says; a RINEX file cannot say it has one.
 
 ---
 

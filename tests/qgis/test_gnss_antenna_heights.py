@@ -9,8 +9,10 @@ measurement error (specs/11 section 4.2).
 
 The solutions are the GNSS tutorial's midnight triangle as the real engine
 solved it (``tests/data/ggao/hour-00``), and the heights are the ones its RINEX
-headers state: GODN's antenna reference point 0.0614 m above its mark, GODE's
+headers state: GODE's antenna reference point 0.0614 m above its mark, GODN's
 and GODS's 0.0083 m. GODE is the rover of GODN-GODE and the base of GODE-GODS.
+(P13-19 had GODN's and GODE's the other way round; P13-20, reading the files,
+found it.)
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from geocomp.resources import DATASETS_DIR
 from tests.conftest import REPO_ROOT
 from tests.qgis.walkthrough import label, refusal, run_logged
 
@@ -28,9 +31,11 @@ pytestmark = pytest.mark.qgis
 
 ALGORITHM = "geocomp:gnss_build_baselines"
 RECORDED = REPO_ROOT / "tests" / "data" / "ggao" / "hour-00"
+#: The observation files those solutions were solved from.
+OBSERVED = DATASETS_DIR / "ggao-triangle" / "hour-00"
 LEGS = (("GODN", "GODE"), ("GODN", "GODS"), ("GODE", "GODS"))
 #: ``ANTENNA: DELTA H/E/N`` in each station's header.
-HEADER = {"GODN": 0.0614, "GODE": 0.0083, "GODS": 0.0083}
+HEADER = {"GODN": 0.0083, "GODE": 0.0614, "GODS": 0.0083}
 SIGMA = 0.002
 
 
@@ -87,6 +92,15 @@ def _closure(built):
     return loop_closure(legs, loop)
 
 
+def _by_station(document: dict) -> dict[str, float]:
+    """The heights applied, by station, each station's the same on every baseline it is an end of."""
+    heights: dict[str, float] = {}
+    for ends in document["antenna_heights"].values():
+        for station, height in ends.items():
+            assert heights.setdefault(station, height) == height, (station, document["antenna_heights"])
+    return heights
+
+
 def _round_the_triangle(built) -> np.ndarray:
     """GODN -> GODE -> GODS -> GODN, in metres, always that way round.
 
@@ -109,7 +123,7 @@ def _vectors(document: dict) -> dict[str, list[float]]:
 class TestEachStationItsOwnHeight:
     def test_the_marks_are_where_each_stations_height_puts_them(self, tmp_path):
         document, _log = _build(tmp_path, STATION_HEIGHTS=_rows(HEADER))
-        assert document["antenna_heights"] == HEADER
+        assert _by_station(document) == HEADER
         vectors = _vectors(document)
         for baseline in _baselines(HEADER):
             np.testing.assert_allclose(
@@ -128,17 +142,17 @@ class TestEachStationItsOwnHeight:
             tmp_path, BASE_HEIGHT=HEADER["GODN"], ROVER_HEIGHT=HEADER["GODS"],
             STATION_HEIGHTS=_rows({"GODE": HEADER["GODE"]}),
         )
-        assert document["antenna_heights"] == HEADER
+        assert _by_station(document) == HEADER
 
     def test_names_are_matched_in_upper_case_and_a_decimal_comma_is_read(self, tmp_path):
-        document, _log = _build(tmp_path, STATION_HEIGHTS=["godn", "0,0614"])
-        assert document["antenna_heights"]["GODN"] == HEADER["GODN"]
+        document, _log = _build(tmp_path, STATION_HEIGHTS=["godn", "0,0083"])
+        assert _by_station(document)["GODN"] == HEADER["GODN"]
 
 
 class TestOneHeightOrNone:
     def test_with_no_height_nothing_is_reduced(self, tmp_path):
         document, _log = _build(tmp_path)
-        assert document["antenna_heights"] == {}
+        assert _by_station(document) == {}
         vectors = _vectors(document)
         for baseline in _baselines():
             assert baseline.antenna_reduction is None
@@ -149,7 +163,7 @@ class TestOneHeightOrNone:
     def test_once_any_height_is_given_every_baseline_is_reduced(self, tmp_path):
         """GODE-GODS by zero at both ends: a loop of reduced and unreduced legs cannot be closed."""
         document, log = _build(tmp_path, STATION_HEIGHTS=["GODN", "0.0614"])
-        assert document["antenna_heights"] == {"GODN": 0.0614, "GODE": 0.0, "GODS": 0.0}
+        assert _by_station(document) == {"GODN": 0.0614, "GODE": 0.0, "GODS": 0.0}
         assert len(document["closures"]) == 1
         assert "could not be closed" not in log
 
@@ -158,7 +172,7 @@ class TestTwoHeightsForOneStationAreRefused:
     def test_the_base_and_rover_heights_on_a_station_at_both_ends(self):
         said = refusal(
             ALGORITHM,
-            {"FOLDER": str(RECORDED), "BASE_HEIGHT": HEADER["GODN"], "ROVER_HEIGHT": HEADER["GODE"]},
+            {"FOLDER": str(RECORDED), "BASE_HEIGHT": HEADER["GODE"], "ROVER_HEIGHT": HEADER["GODS"]},
         )
         assert said.startswith(
             "GODE is the base of GODE-GODS and the rover of GODN-GODE, so it would be reduced by "
@@ -168,13 +182,13 @@ class TestTwoHeightsForOneStationAreRefused:
 
     def test_what_it_refuses_would_have_missed_by_the_difference(self):
         """The defect P13-19 removes: the loop the old reduction gave."""
-        missed = _round_the_triangle(_baselines({}, base=HEADER["GODN"], rover=HEADER["GODE"]))
+        missed = _round_the_triangle(_baselines({}, base=HEADER["GODE"], rover=HEADER["GODS"]))
         closed = _round_the_triangle(_baselines())
-        assert np.linalg.norm(missed - closed) == pytest.approx(HEADER["GODN"] - HEADER["GODE"], abs=1e-6)
+        assert np.linalg.norm(missed - closed) == pytest.approx(HEADER["GODE"] - HEADER["GODS"], abs=1e-6)
 
     def test_equal_base_and_rover_heights_are_one_height(self, tmp_path):
         document, _log = _build(tmp_path, BASE_HEIGHT=1.5, ROVER_HEIGHT=1.5)
-        assert document["antenna_heights"] == dict.fromkeys(HEADER, 1.5)
+        assert _by_station(document) == dict.fromkeys(HEADER, 1.5)
 
 
 class TestTheTable:
@@ -196,7 +210,7 @@ class TestTheTable:
 
     def test_the_same_height_twice_and_an_empty_row_are_fine(self, tmp_path):
         document, _log = _build(tmp_path, STATION_HEIGHTS=["GODN", "1", "", "", "GODN", "1.0"])
-        assert document["antenna_heights"]["GODN"] == 1.0
+        assert _by_station(document)["GODN"] == 1.0
 
     def test_a_station_no_baseline_has_is_said(self, tmp_path):
         """In the name it is matched by, which is how a reader finds the one typed wrong."""
@@ -205,3 +219,144 @@ class TestTheTable:
             "No baseline has GODX, so the height given for it in "
             f"{label(ALGORITHM, 'STATION_HEIGHTS')} was not used."
         ) in log
+
+
+def _solved_beside_their_files(folder: Path) -> Path:
+    """The recorded solutions with the observation files they name, in one folder.
+
+    The recorded solutions name their inputs by file name alone, so a file is
+    found beside the solution -- the case of folders moved together.
+    """
+    folder.mkdir(parents=True, exist_ok=True)
+    for source in (*RECORDED.glob("*.pos"), *OBSERVED.glob("*.25o")):
+        (folder / source.name).write_bytes(source.read_bytes())
+    return folder
+
+
+def _restate(observation: Path, east: float = 0.0, north: float = 0.0, *, height: float | None = None,
+             drop: bool = False) -> None:
+    """Rewrite *observation*'s ``ANTENNA: DELTA H/E/N``, or drop it."""
+    lines = []
+    for line in observation.read_text(encoding="ascii").splitlines(keepends=True):
+        if line[60:80].rstrip() == "ANTENNA: DELTA H/E/N":
+            if drop:
+                continue
+            up = float(line[:14]) if height is None else height
+            line = f"{up:14.4f}{east:14.4f}{north:14.4f}{'':18}ANTENNA: DELTA H/E/N\n"
+        lines.append(line)
+    observation.write_text("".join(lines), encoding="ascii")
+
+
+def _from_files(folder: Path, tmp_path: Path, **extra) -> tuple[dict, str]:
+    results, log = run_logged(
+        ALGORITHM,
+        {
+            "FOLDER": str(folder),
+            "INDEPENDENT_ONLY": False,
+            "HEIGHTS_FROM_FILES": True,
+            "OUTPUT_JSON": str(tmp_path / f"{folder.name}.json"),
+            **extra,
+        },
+    )
+    return json.loads(Path(results["OUTPUT_JSON"]).read_text(encoding="utf-8")), log
+
+
+class TestFromTheObservationFiles:
+    """P13-20: each end's height as its session's observation file states it."""
+
+    def test_each_end_is_reduced_by_its_files_height(self, tmp_path):
+        document, _log = _from_files(_solved_beside_their_files(tmp_path / "in"), tmp_path)
+        assert document["antenna_heights_from_files"] is True
+        assert document["antenna_heights"] == {
+            "GODE-GODS": {"GODE": 0.0614, "GODS": 0.0083},
+            "GODN-GODE": {"GODN": 0.0083, "GODE": 0.0614},
+            "GODN-GODS": {"GODN": 0.0083, "GODS": 0.0083},
+        }
+        vectors = _vectors(document)
+        for baseline in _baselines(HEADER):
+            np.testing.assert_allclose(
+                vectors[baseline.id], [c.value for c in baseline.components], atol=1e-9
+            )
+
+    def test_it_says_what_a_rinex_height_is_and_is_not(self, tmp_path):
+        _document, log = _from_files(_solved_beside_their_files(tmp_path / "in"), tmp_path)
+        assert (
+            "Each height read from an observation file is taken as the vertical height of the "
+            "antenna reference point above the mark"
+        ) in log
+        assert "check the heights against the field book." in log
+
+    def test_a_listed_station_is_given_its_listed_height(self, tmp_path):
+        document, _log = _from_files(
+            _solved_beside_their_files(tmp_path / "in"), tmp_path, STATION_HEIGHTS=["GODN", "1.5"]
+        )
+        assert _by_station(document) == {**HEADER, "GODN": 1.5}
+
+    def test_each_session_is_its_own_file(self, tmp_path):
+        """As two setups would be: GODE-GODS names another GODE file, at another height."""
+        folder = _solved_beside_their_files(tmp_path / "in")
+        other = folder / "gode0011.25o"
+        other.write_bytes((folder / "gode0010.25o").read_bytes())
+        _restate(other, height=0.5)
+        solution = folder / "gode-gods.pos"
+        solution.write_text(
+            solution.read_text(encoding="ascii").replace("gode0010.25o", "gode0011.25o"), encoding="ascii"
+        )
+        document, _log = _from_files(folder, tmp_path)
+        assert document["antenna_heights"]["GODE-GODS"]["GODE"] == 0.5
+        assert document["antenna_heights"]["GODN-GODE"]["GODE"] == 0.0614
+
+    def test_an_eccentric_antenna_is_said_and_reduced(self, tmp_path):
+        folder = _solved_beside_their_files(tmp_path / "in")
+        _restate(folder / "gods0010.25o", east=0.0100, north=-0.0200)
+        centred, _log = _from_files(_solved_beside_their_files(tmp_path / "centred"), tmp_path)
+        off, log = _from_files(folder, tmp_path)
+        assert "GODS's antenna stood 0.01 m east and -0.02 m north of its mark, as gods0010.25o states" in log
+        moved = np.subtract(_vectors(off)["GODN-GODS"], _vectors(centred)["GODN-GODS"])
+        assert np.linalg.norm(moved) == pytest.approx(np.hypot(0.01, 0.02), abs=1e-9)
+
+    def test_a_file_that_is_not_there_is_refused(self, tmp_path):
+        folder = _solved_beside_their_files(tmp_path / "in")
+        (folder / "gods0010.25o").unlink()
+        said = refusal(ALGORITHM, {"FOLDER": str(folder), "HEIGHTS_FROM_FILES": True})
+        assert said.startswith(
+            "The solution names gods0010.25o as the observation file of GODS, and it is not there "
+            "or beside the solution."
+        ), said
+        assert f"give GODS's height in {label(ALGORITHM, 'STATION_HEIGHTS')}." in said
+
+    def test_a_file_that_states_no_height_is_refused(self, tmp_path):
+        folder = _solved_beside_their_files(tmp_path / "in")
+        _restate(folder / "godn0010.25o", drop=True)
+        said = refusal(ALGORITHM, {"FOLDER": str(folder), "HEIGHTS_FROM_FILES": True})
+        assert said == (
+            "godn0010.25o states no antenna height. "
+            f"Give GODN's height in {label(ALGORITHM, 'STATION_HEIGHTS')}."
+        ), said
+
+    def test_a_listed_station_needs_no_file(self, tmp_path):
+        folder = _solved_beside_their_files(tmp_path / "in")
+        (folder / "gods0010.25o").unlink()
+        document, _log = _from_files(folder, tmp_path, STATION_HEIGHTS=["GODS", "0.0083"])
+        assert _by_station(document) == HEADER
+
+    def test_the_base_and_rover_heights_are_not_used_and_it_says_so(self, tmp_path):
+        """Every end is a file's or a listed height, so they cannot give a station two."""
+        document, log = _from_files(
+            _solved_beside_their_files(tmp_path / "in"), tmp_path, BASE_HEIGHT=1.0, ROVER_HEIGHT=2.0
+        )
+        assert _by_station(document) == HEADER
+        assert (
+            f"{label(ALGORITHM, 'BASE_HEIGHT')} and {label(ALGORITHM, 'ROVER_HEIGHT')} are not used"
+        ) in log
+
+    def test_a_relative_name_is_looked_for_only_beside_the_solution(self, tmp_path, monkeypatch):
+        """Not in whatever folder QGIS was started in, where another file of that name may be."""
+        folder = _solved_beside_their_files(tmp_path / "in")
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        (elsewhere / "gods0010.25o").write_bytes((folder / "gods0010.25o").read_bytes())
+        _restate(elsewhere / "gods0010.25o", height=9.0)
+        monkeypatch.chdir(elsewhere)
+        document, _log = _from_files(folder, tmp_path)
+        assert _by_station(document)["GODS"] == HEADER["GODS"]

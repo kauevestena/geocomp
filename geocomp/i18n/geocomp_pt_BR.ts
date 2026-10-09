@@ -117,6 +117,10 @@
     <context>
         <name>BuildBaselinesAlgorithm</name>
         <message>
+            <source>%1 and %2 are not used: every height is a listed one or its observation file's. Leave them at zero, or clear %3 to use them.</source>
+            <translation>%1 e %2 não são usadas: toda altura é uma da lista ou a do seu arquivo de observação. Deixe-as em zero, ou desmarque %3 para usá-las.</translation>
+        </message>
+        <message>
             <source>%1 baseline(s): %2 independent, %3 dependent</source>
             <translation>%1 linha(s) de base: %2 independentes, %3 dependentes</translation>
         </message>
@@ -133,12 +137,24 @@
             <translation>%1 é a base de %2 e o móvel de %3, então seria reduzida de %4 m numa e de %5 m na outra, e todo circuito que passa por ela erraria pela diferença. Dê a sua altura em %6.</translation>
         </message>
         <message>
+            <source>%1 states no antenna height. Give %2's height in %3.</source>
+            <translation>%1 não declara altura de antena. Dê a altura de %2 em %3.</translation>
+        </message>
+        <message>
+            <source>%1's antenna stood %2 m east and %3 m north of its mark, as %4 states, and the reduction includes it.</source>
+            <translation>A antena de %1 estava %2 m a leste e %3 m a norte do seu marco, como %4 declara, e a redução inclui isso.</translation>
+        </message>
+        <message>
             <source>&lt;p&gt;&lt;b&gt;A station has one antenna height.&lt;/b&gt; In a network a station is the base of one baseline and the rover of another, and its mark has to be put in the same place on both, or every loop through it misses by the difference. Give each station's height in &lt;i&gt;Antenna height by station&lt;/i&gt;. A station not listed takes the base height where it is the base and the rover height where it is the rover, and one that would take both, when they differ, is refused. Once any height is given, every baseline is reduced, by zero where that is the height, because a loop of reduced and unreduced baselines cannot be closed.&lt;/p&gt;</source>
             <translation>&lt;p&gt;&lt;b&gt;Uma estação tem uma só altura de antena.&lt;/b&gt; Numa rede, uma estação é a base de uma linha de base e o móvel de outra, e o seu marco precisa ficar no mesmo lugar nas duas, ou todo circuito que passa por ela erra pela diferença. Dê a altura de cada estação em &lt;i&gt;Altura da antena por estação&lt;/i&gt;. Uma estação que não está na lista recebe a altura da base onde é a base e a altura do móvel onde é o móvel, e uma que receberia as duas, quando diferem, é recusada. Assim que qualquer altura é dada, toda linha de base é reduzida, por zero onde essa é a altura, porque um circuito de linhas de base reduzidas e não reduzidas não pode ser fechado.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>&lt;p&gt;&lt;b&gt;Every loop is closed.&lt;/b&gt; Each dependent baseline joins two stations the independent ones already connect, so it closes a loop through them: the vectors summed round it should come back to zero. The log gives each loop's misclosure, and the JSON output its components and their propagated uncertainty, which assumes the legs independent and so understates it. A closure needs no published coordinate: it asks whether the baselines agree with each other. It cannot see an error common to every baseline at one station, which enters the loop twice with opposite signs and cancels, so a loop that closes does not show that its stations are right.&lt;/p&gt;</source>
             <translation>&lt;p&gt;&lt;b&gt;Todo circuito é fechado.&lt;/b&gt; Cada linha de base dependente une duas estações que as independentes já conectam, então fecha um circuito através delas: os vetores somados ao longo dele deveriam voltar a zero. O registro dá o erro de fechamento de cada circuito, e a saída JSON as suas componentes e a sua incerteza propagada, que supõe os lados independentes e por isso a subestima. Um fechamento não precisa de nenhuma coordenada publicada: ele pergunta se as linhas de base concordam entre si. Ele não vê um erro comum a todas as linhas de base de uma estação, que entra no circuito duas vezes com sinais opostos e se cancela; por isso, um circuito que fecha não mostra que as suas estações estão certas.&lt;/p&gt;</translation>
+        </message>
+        <message>
+            <source>&lt;p&gt;&lt;b&gt;Heights from the observation files.&lt;/b&gt; With &lt;i&gt;Take antenna heights from the observation files&lt;/i&gt;, each end is reduced by the height its own session's observation file states, eccentricity included, unless its station is listed; the base and rover heights are then not used. A file is looked for where the solution says it was, then beside the solution, and one that is missing or states no height is refused. A RINEX file's height is the vertical height of the antenna reference point, and how it was measured is not recorded there: check the heights against the field book.&lt;/p&gt;</source>
+            <translation>&lt;p&gt;&lt;b&gt;Alturas dos arquivos de observação.&lt;/b&gt; Com &lt;i&gt;Tomar as alturas de antena dos arquivos de observação&lt;/i&gt;, cada extremo é reduzido pela altura que o arquivo de observação da sua própria sessão declara, excentricidade incluída, a menos que a sua estação esteja na lista; as alturas da base e do móvel então não são usadas. Um arquivo é procurado onde a solução diz que estava, depois ao lado da solução, e um que falta ou não declara altura é recusado. A altura de um arquivo RINEX é a altura vertical do ponto de referência da antena, e como foi medida não fica registrado ali: confira as alturas com a caderneta de campo.&lt;/p&gt;</translation>
         </message>
         <message>
             <source>&lt;p&gt;Reads every ECEF &lt;code&gt;.pos&lt;/code&gt; solution in a folder and builds the baseline each determined: the vector between the two marks, with its full 3x3 covariance.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Antenna heights are reduced once.&lt;/b&gt; The vector the engine determined is between antenna reference points; the adjustment wants the vector between the marks. Applying the reduction twice is detected and refused.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Only the independent subset is kept by default.&lt;/b&gt; Processing every pair of n simultaneously observing stations yields n(n-1)/2 baselines of which only n-1 are independent; using them all inflates the apparent redundancy of the adjustment. The dependent ones are marked in the output rather than discarded.&lt;/p&gt;&lt;p&gt;The result is a cluster: the observations share one covariance matrix and reach DynAdjust as a G or X measurement with it intact.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The optional layer draws every baseline that was built&lt;/b&gt;, including the dependent ones when they were not kept, because seeing which pairs carried no new information is the point of drawing them at all. The &lt;code&gt;independent&lt;/code&gt; column and the dashed symbol say which is which; the JSON output carries only what was kept.&lt;/p&gt;&lt;p&gt;&lt;b&gt;The network document&lt;/b&gt; is what the Integration menu combines with other techniques: the baselines at their sessions' mid-epochs and each mark's starting position. It needs &lt;i&gt;Frame of the base coordinates&lt;/i&gt;, which a &lt;code&gt;.pos&lt;/code&gt; file does not state and GeoComp will not assume.&lt;/p&gt;</source>
@@ -167,6 +183,10 @@
         <message>
             <source>Build baselines</source>
             <translation>Construir linhas de base</translation>
+        </message>
+        <message>
+            <source>Each height read from an observation file is taken as the vertical height of the antenna reference point above the mark, which is what a RINEX file means by it. How it was measured is not recorded there: check the heights against the field book.</source>
+            <translation>Cada altura lida de um arquivo de observação é tomada como a altura vertical do ponto de referência da antena sobre o marco, que é o que um arquivo RINEX quer dizer com ela. Como foi medida não fica registrado ali: confira as alturas com a caderneta de campo.</translation>
         </message>
         <message>
             <source>Folder of .pos solutions</source>
@@ -245,12 +265,20 @@
             <translation>Estação</translation>
         </message>
         <message>
+            <source>Take antenna heights from the observation files</source>
+            <translation>Tomar as alturas de antena dos arquivos de observação</translation>
+        </message>
+        <message>
             <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's. Choose the frame they were given in.</source>
             <translation>O documento de rede precisa do referencial em que as coordenadas da base foram dadas. Um arquivo .pos não o informa e o GeoComp não presume um: um vetor sem referencial não pode ser levado a outro. Escolha o referencial em que foram dadas.</translation>
         </message>
         <message>
             <source>The row %1 is not a station and an antenna height from 0 to %2 m. Correct it, or clear the row.</source>
             <translation>A linha %1 não é uma estação e uma altura de antena de 0 a %2 m. Corrija-a, ou limpe a linha.</translation>
+        </message>
+        <message>
+            <source>The solution names %1 as the observation file of %2, and it is not there or beside the solution. Put it back, or give %2's height in %3.</source>
+            <translation>A solução nomeia %1 como o arquivo de observação de %2, e ele não está lá nem ao lado da solução. Coloque-o de volta, ou dê a altura de %2 em %3.</translation>
         </message>
         <message>
             <source>Turn processed sessions into baseline observations with covariance.</source>
