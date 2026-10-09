@@ -2831,6 +2831,10 @@
     <context>
         <name>GeoCompGnssProcess</name>
         <message>
+            <source>%1 and %2 observed together once in this folder, %3, and that is the session processed.</source>
+            <translation>%1 e %2 observaram juntas uma vez nesta pasta, %3, e essa é a sessão processada.</translation>
+        </message>
+        <message>
             <source>%1 epochs, %2% with resolved ambiguities</source>
             <translation>%1 épocas, %2% com ambiguidades resolvidas</translation>
         </message>
@@ -2841,6 +2845,14 @@
         <message>
             <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
             <translation>O processamento Absoluto (PPP) no RTKLIB é limitado e tipicamente decimétrico. Prefira o processamento Relativo quando houver uma estação base disponível.</translation>
+        </message>
+        <message>
+            <source>Base %1 and rover %2 never observed at the same time in this folder. Add the base's session for the rover's time, or choose another base.</source>
+            <translation>A base %1 e a móvel %2 nunca observaram ao mesmo tempo nesta pasta. Acrescente a sessão da base para o horário da móvel, ou escolha outra base.</translation>
+        </message>
+        <message>
+            <source>Base %1 and rover %2 observed together %3 times in this folder: %4. One baseline needs one session: keep only that session's files in the folder, or use Batch processing, which processes each.</source>
+            <translation>A base %1 e a móvel %2 observaram juntas %3 vezes nesta pasta: %4. Uma linha de base precisa de uma sessão: mantenha na pasta apenas os arquivos dessa sessão, ou use o Processamento em lote, que processa cada uma.</translation>
         </message>
         <message>
             <source>Base %1 → rover %2</source>
@@ -2921,6 +2933,10 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas da solução (camada)</translation>
+        </message>
+        <message>
+            <source>Station %1 has %2 sessions in this folder: %3. One run needs one session: keep only that session's files in the folder, or use Batch processing, which processes each.</source>
+            <translation>A estação %1 tem %2 sessões nesta pasta: %3. Uma execução precisa de uma sessão: mantenha na pasta apenas os arquivos dessa sessão, ou use o Processamento em lote, que processa cada uma.</translation>
         </message>
         <message>
             <source>The engine detected no cycle slip.</source>
@@ -5317,6 +5333,14 @@
         <message>
             <source>The archive refused the login for %1 (HTTP %2). Check the QGIS authentication configuration named for this service in the download services file.</source>
             <translation>O arquivo recusou o login para %1 (HTTP %2). Verifique a configuração de autenticação do QGIS indicada para este serviço no arquivo de serviços de download.</translation>
+        </message>
+        <message>
+            <source>The base %1 did not observe at the same time as this session (%2), so it has no baseline. Add the base's session for that time.</source>
+            <translation>A base %1 não observou ao mesmo tempo que esta sessão (%2), por isso ela não tem linha de base. Acrescente a sessão da base para esse horário.</translation>
+        </message>
+        <message>
+            <source>The base %1 has %2 sessions overlapping this one (%3), and GeoComp does not choose between them. Join the base's files for that time into one, or keep only one of them in the folder.</source>
+            <translation>A base %1 tem %2 sessões que se sobrepõem a esta (%3), e o GeoComp não escolhe entre elas. Junte os arquivos da base para esse horário em um só, ou mantenha apenas um deles na pasta.</translation>
         </message>
         <message>
             <source>The base map catalogue '%1' could not be read (%2). Correct the file, or clear the catalogue in Global Settings, under Base maps, to use the built-in services.</source>

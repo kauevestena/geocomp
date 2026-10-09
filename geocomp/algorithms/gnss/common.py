@@ -474,6 +474,37 @@ def report_scan(feedback: QgsProcessingFeedback, scan: SessionScan, *, doubts: b
         feedback.pushWarning(finding_text(finding))
 
 
+def sessions_by_station(sessions: Sequence[GnssSession]) -> dict[str, list[GnssSession]]:
+    """Every session of each station, in time order.
+
+    A station observed on two days has two sessions. Until P13-16 the GNSS
+    algorithms kept one session per station in a dict, the last the scan
+    listed, and processed it without a word about the others.
+    """
+    stations: dict[str, list[GnssSession]] = {}
+    for session in sessions:
+        stations.setdefault(session.station_id, []).append(session)
+    for listed in stations.values():
+        listed.sort(key=lambda session: (session.start is None, session.start or 0))
+    return stations
+
+
+def session_span(session: GnssSession) -> str:
+    """When *session* observed, to the minute, for a message: ``2025-01-01 00:00/00:59``.
+
+    An ISO 8601 interval, whose separator is the same in every language: a word
+    such as "to" would put English inside a translated sentence (FR-091).
+    """
+    if session.start is None:
+        return session.station_id
+    start = f"{session.start:%Y-%m-%d %H:%M}"
+    if session.end is None:
+        return start
+    if session.end.date() == session.start.date():
+        return f"{start}/{session.end:%H:%M}"
+    return f"{start}/{session.end:%Y-%m-%d %H:%M}"
+
+
 def _directory_extras(directory: Path | None) -> list[tuple[Path, str]]:
     """Clock and ionosphere files in the directory, which P10c does not resolve by day."""
     if directory is None:

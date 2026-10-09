@@ -57,6 +57,8 @@ from geocomp.algorithms.gnss.common import (
     report_scan,
     run_frame,
     session_products,
+    session_span,
+    sessions_by_station,
     timeout_parameter,
     translate_error,
     user_configuration,
@@ -243,8 +245,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
         feedback.setProgress(20)
 
-        by_station = {session.station_id: session for session in scan.sessions}
-        rover = self._pick(by_station, rover_name, "rover")
+        stations = sessions_by_station(scan.sessions)
+        rover_id = self._pick(stations, rover_name, "rover")
         overrides: dict[str, Any] = {}
         if mask >= 0:
             overrides["elevation_mask"] = mask
@@ -260,12 +262,13 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                         "receiver's session for the same time."
                     )
                 )
-            base = self._pick(
+            base_id = self._pick(
                 {s.station_id: s for group in groups if len(group) >= 2 for s in group},
                 base_name,
                 "base",
-                exclude=rover.station_id,
+                exclude=rover_id,
             )
+            base, rover = self._pair(stations[base_id], stations[rover_id], feedback)
             job_kwargs["base"] = base
             feedback.pushInfo(
                 _tr("Base %1 → rover %2")
@@ -276,6 +279,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 base, run_frame(self.parameterAsEnum(parameters, FRAME, context)), feedback
             )
             overrides.update(held)
+        else:
+            rover = self._only(stations[rover_id])
 
         configuration = configured_profile(
             self.profile_name, user_options=user["options"] if user else None, **overrides
@@ -419,8 +424,63 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(100)
         return outputs
 
-    def _pick(self, sessions: dict, name: str, role: str, *, exclude: str = ""):
-        """Choose a session by name, or the only candidate there is.
+    def _pair(self, bases: list, rovers: list, feedback: QgsProcessingFeedback):
+        """The base and rover sessions that observed at the same time.
+
+        One pair is a baseline. None is refused, and so are several: until
+        P13-16 each station's last session in the folder was taken, whether or
+        not the two had observed together, and the others were dropped without
+        a word.
+        """
+        pairs = [(base, rover) for rover in rovers for base in bases if base.overlaps(rover)]
+        base_id, rover_id = bases[0].station_id, rovers[0].station_id
+        if not pairs:
+            raise QgsProcessingException(
+                _tr(
+                    "Base %1 and rover %2 never observed at the same time in this folder. Add "
+                    "the base's session for the rover's time, or choose another base."
+                )
+                .replace("%1", base_id)
+                .replace("%2", rover_id)
+            )
+        if len(pairs) > 1:
+            raise QgsProcessingException(
+                _tr(
+                    "Base %1 and rover %2 observed together %3 times in this folder: %4. One "
+                    "baseline needs one session: keep only that session's files in the folder, "
+                    "or use Batch processing, which processes each."
+                )
+                .replace("%1", base_id)
+                .replace("%2", rover_id)
+                .replace("%3", str(len(pairs)))
+                .replace("%4", "; ".join(session_span(rover) for _base, rover in pairs))
+            )
+        if len(bases) > 1 or len(rovers) > 1:
+            feedback.pushInfo(
+                _tr("%1 and %2 observed together once in this folder, %3, and that is the session processed.")
+                .replace("%1", base_id)
+                .replace("%2", rover_id)
+                .replace("%3", session_span(pairs[0][1]))
+            )
+        return pairs[0]
+
+    def _only(self, sessions: list):
+        """The station's one session, or a refusal naming them all."""
+        if len(sessions) > 1:
+            raise QgsProcessingException(
+                _tr(
+                    "Station %1 has %2 sessions in this folder: %3. One run needs one session: "
+                    "keep only that session's files in the folder, or use Batch processing, "
+                    "which processes each."
+                )
+                .replace("%1", sessions[0].station_id)
+                .replace("%2", str(len(sessions)))
+                .replace("%3", "; ".join(session_span(session) for session in sessions))
+            )
+        return sessions[0]
+
+    def _pick(self, sessions: dict, name: str, role: str, *, exclude: str = "") -> str:
+        """Choose a station by name, or the only candidate there is.
 
         Guessing between two candidates is refused: a mis-assigned base yields a
         baseline that is confidently wrong in the opposite direction, which
@@ -436,14 +496,14 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                     .replace("%2", name)
                     .replace("%3", ", ".join(sorted(candidates)) or "none")
                 )
-            return candidates[name]
+            return name
         if len(candidates) != 1:
             raise QgsProcessingException(
                 _tr("Name the %1 station explicitly; the folder holds: %2")
                 .replace("%1", role)
                 .replace("%2", ", ".join(sorted(candidates)))
             )
-        return next(iter(candidates.values()))
+        return next(iter(candidates))
 
 
 class RelativeStaticAlgorithm(_GnssProcessAlgorithm):
