@@ -141,6 +141,14 @@ El lado sin GODN fija tan bien como cualquier lado a medianoche.
 - **Carpeta con soluciones .pos**: `solutions-11`
 - **Líneas base**: algún lugar donde las encuentre
 
+Antes de cerrar el circuito, dice de qué están hechas dos de las líneas base:
+
+> GODN-GODE se toma de una época cuyas ambigüedades no se fijaron (razón de ambigüedades 1.0). Una línea base
+> flotante puede estar equivocada por mucho más de lo que dice su covarianza: procese la sesión de nuevo, en un
+> intervalo más largo, o déjela fuera.
+
+Y lo mismo de GODN-GODS. Después:
+
 > El circuito GODN → GODE → GODS → GODN cierra con 7.62 mm en 282.3 m de líneas base (26.98 ppm).
 
 **El triángulo falla por 7,62 mm**, veinte veces el circuito de medianoche sobre el mismo terreno. Las líneas
@@ -151,9 +159,9 @@ base de esa hora están en desacuerdo entre sí.
 ## Qué sacar de esto
 
 - **El cierre de un circuito detecta; no localiza.** El circuito dice que uno de los tres lados está mal, no
-  cuál. Aquí las propias ejecuciones señalan: los dos lados de GODN fijaron la mitad de sus épocas, y una línea
-  base se toma de la última época, que en los dos no está fijada. Procese esos dos de nuevo — un intervalo más
-  largo, otra hora — antes de usarlos.
+  cuál. Aquí las propias ejecuciones señalan: los dos lados de GODN fijaron la mitad de sus épocas, y una
+  línea base se toma de la última época, que en los dos no está fijada, como dice *Construir líneas base*.
+  Procese esos dos de nuevo — un intervalo más largo, otra hora — antes de usarlos.
 - **Un circuito que cierra no significa que las estaciones estén bien.** Un error común a los dos lados de una
   estación entra en el circuito dos veces, con signos opuestos, y se cancela. Con la configuración por defecto
   de GeoComp estas ejecuciones no aplican ninguna calibración de antena, y el circuito de medianoche todavía

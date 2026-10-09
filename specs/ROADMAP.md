@@ -3750,6 +3750,30 @@ module in all three languages. Fourteen of the 49 algorithms now have a worked e
 - *Build baselines* builds a baseline from a float last epoch without a word. The eleven o'clock sides end
   float, and only the fixed share in the processing log says so.
 
+#### P13-18 — a float baseline is named where it is built
+
+P13-17's last *Not done*. A static baseline is its run's last epoch (`specs/08` §8.1), so that epoch's status
+is the baseline's. *Build baselines* built one from a float epoch without a word: the layer's `solution_status`
+column said so, and the log did not. `specs/22` §5.1 measured such a baseline, GODN–GODS at eleven o'clock on
+2025-001, 872 mm wrong with a 7.6 mm formal sigma.
+
+**What changed.**
+- *Build baselines* warns of each such baseline, with its ambiguity ratio and what to do. Its JSON output lists
+  them under `float`.
+- It still builds them. Leaving out an observation is the surveyor's decision, and the adjustment's data
+  snooping is there to judge it.
+- The GNSS tutorial's step 9 quotes the warning, in all three languages.
+- One string in pt_BR and es.
+
+**Tests.** `tests/qgis/test_gnss_tutorial.py::TestFollowingIt::test_the_float_sides_are_named_and_only_they`:
+none at midnight; GODN's two sides at eleven, in the log and the JSON. The README's quotes go from nine to ten,
+each held to GeoComp's log in its language.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-603's row names the warning.
+
+**Not done.** A baseline's ambiguity ratio is not judged against the threshold the run was configured with. The
+status says whether the engine fixed; a fix that passed a low threshold is still reported as fixed.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

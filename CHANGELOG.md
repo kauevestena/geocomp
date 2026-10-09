@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-18 — A float baseline is named where it is built
+
+#### Added
+
+- *Build baselines* warns of every baseline taken from an epoch whose ambiguities were not fixed, with its
+  ambiguity ratio. A float baseline can be wrong by far more than its covariance says. Its JSON output lists them
+  under `float`.
+
 ### P13-17 — The GNSS tutorial
 
 #### Added
