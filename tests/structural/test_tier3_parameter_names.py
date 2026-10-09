@@ -88,6 +88,10 @@ FOREIGN_KEYS: dict[str, str] = {
     "BM2": "RD-04 benchmark; see BM1.",
     "BM3": "RD-04 benchmark; see BM1.",
     "BM4": "RD-04 benchmark; see BM1.",
+    # The GNSS tutorial's stations (P13-17), NOAA's four-character marker names,
+    # listed for the same reason as the benchmarks above.
+    "GODE": "A GGAO station in the GNSS tutorial, tests/qgis/test_gnss_tutorial.py.",
+    "GODS": "A GGAO station in the GNSS tutorial; see GODE.",
     "B44": (
         "USGS's ZLS Burris meter in the GSadjust test surveys: an instrument id in "
         "tests/data/rd07/gsadjust, named in a profile the gravimetry test writes."

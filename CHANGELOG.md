@@ -5,6 +5,16 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-17 — The GNSS tutorial
+
+#### Added
+
+- *Install tutorial dataset* offers `ggao-triangle`. It holds two hours of NOAA CORS data at NASA Goddard's
+  three GGAO stations, one hour whose triangle of baselines closes to 0.37 mm and one whose does not. The
+  walkthrough runs *Relative — Static* and *Build baselines* on each, in English, Portuguese and Spanish, with
+  its worked QGIS project. Every module now has a tutorial.
+- *Install tutorial dataset* copies a dataset's folders as well as its files.
+
 ### P13-16 — A station observed more than once is never guessed between
 
 #### Fixed

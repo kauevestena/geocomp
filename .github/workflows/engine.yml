@@ -33,6 +33,10 @@ on:
       - "tests/data/rtklib/**"
       - "tests/data/rd06/**"
       - "tests/test_rd06.py"
+      - "tests/data/ggao/**"
+      - "tests/test_ggao_triangle.py"
+      - "geocomp/resources/datasets/ggao-triangle/**"
+      - "scripts/make_ggao_triangle.py"
       - "tests/test_gnss_baselines.py"
       - "tests/conftest.py"
       - "pyproject.toml"
@@ -273,7 +277,7 @@ jobs:
       # that the configuration GeoComp writes is one rnx2rtkp accepts and that
       # the chain from a folder of RINEX to a fixed solution runs.
       - name: The pipeline, against the real engine
-        run: pytest -q tests/test_rtklib_engine.py -k AgainstTheRealEngine
+        run: pytest -q tests/test_rtklib_engine.py tests/test_ggao_triangle.py -k AgainstTheRealEngine
 
       # RD-06 is judged on loop closure and repeatability since 24 September
       # 2026 (specs/20 section 6), and both are met, so this step is expected
@@ -287,6 +291,11 @@ jobs:
       # Never continue-on-error: processing, closure and repeatability matter.
       - name: Acquire RD-06 processing inputs and enforce their recorded hashes
         run: python3 scripts/check_rd06.py --fetch-inputs --verify-inputs
+
+      # The GNSS tutorial ships two hours of these files, cut and reduced
+      # (P13-17); held here to what the script makes of them, byte for byte.
+      - name: The GNSS tutorial is NOAA's files, cut
+        run: python3 scripts/make_ggao_triangle.py --check
 
       - name: RD-06 must reproduce the published NGS coordinates
         env:

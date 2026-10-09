@@ -191,13 +191,17 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
 
         copied = 0
         skipped: list[str] = []
-        for path in sorted(source.iterdir()):
+        # Folders too, since P13-17: the GNSS tutorial keeps each hour in its
+        # own, because one folder of one station's two hours is refused.
+        for path in sorted(source.rglob("*")):
             if not path.is_file():
                 continue
-            landing = target / path.name
+            relative = path.relative_to(source)
+            landing = target / relative
             if landing.exists() and not overwrite:
-                skipped.append(path.name)
+                skipped.append(relative.as_posix())
                 continue
+            landing.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(path, landing)
             copied += 1
 

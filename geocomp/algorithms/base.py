@@ -209,10 +209,20 @@ class GeoCompAlgorithm(QgsProcessingAlgorithm):
             )
         worked = worked_examples_of(spec.id)
         if worked:
-            sentence = _tr(
-                "the %1 tutorial runs it. Install it with Install tutorial dataset: its README "
-                "walks through each step, and the project it installs holds the walkthrough as "
-                "a model to run."
+            # Two sentences, not one with a plural made up: since P13-17 the GNSS
+            # tutorial and the GNSS sample both run Relative — Static.
+            sentence = (
+                _tr(
+                    "the %1 tutorial runs it. Install it with Install tutorial dataset: its README "
+                    "walks through each step, and the project it installs holds the walkthrough as "
+                    "a model to run."
+                )
+                if len(worked) == 1
+                else _tr(
+                    "the %1 tutorials run it. Install one with Install tutorial dataset: its README "
+                    "walks through each step, and the project it installs holds the walkthrough as "
+                    "a model to run."
+                )
             ).replace("%1", ", ".join(worked))
             parts.append(
                 f"<p><b>{_tr('Worked example')}</b> &mdash; {html.escape(sentence, quote=False)}</p>"

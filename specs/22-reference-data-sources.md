@@ -334,6 +334,9 @@ The frozen data records the sources, redistribution terms, hashes, complete obse
 station logs, NGS IGS20 antenna calibration and IGS final orbit. `scripts/check_rd06.py` and
 `tests/test_rd06.py` process the **current working tree**, retaining configurations, outputs and metrics.
 [`PROVENANCE.md`](../tests/data/rd06/PROVENANCE.md) documents the complete reproduction and reuse terms.
+Since P13-17 two hours of 2025-001 also ship as the GNSS tutorial, `ggao-triangle`: the files cut to the hour
+and reduced to GPS and eight observables by `scripts/make_ggao_triangle.py`, which engine CI runs against the
+pinned sources ([`20`](./20-testing-and-validation.md) §8).
 Everything except `ngs20.atx` is served by `noaa-cors-pds.s3.amazonaws.com`, which is reachable from the
 development environment and serves bytes identical to `geodesy.noaa.gov`'s, checked by hash.
 

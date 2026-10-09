@@ -2441,6 +2441,10 @@
             <source>the %1 tutorial runs it. Install it with Install tutorial dataset: its README walks through each step, and the project it installs holds the walkthrough as a model to run.</source>
             <translation>el tutorial %1 lo ejecuta. Instálelo con Instalar conjunto de datos del tutorial: su README recorre cada paso, y el proyecto que instala contiene el paso a paso como un modelo para ejecutar.</translation>
         </message>
+        <message>
+            <source>the %1 tutorials run it. Install one with Install tutorial dataset: its README walks through each step, and the project it installs holds the walkthrough as a model to run.</source>
+            <translation>los tutoriales %1 lo ejecutan. Instale uno de ellos con Instalar conjunto de datos del tutorial: su README recorre cada paso, y el proyecto que instala contiene el paso a paso como un modelo para ejecutar.</translation>
+        </message>
     </context>
     <context>
         <name>GeoCompAnalysis</name>
