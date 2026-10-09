@@ -39,6 +39,7 @@ from qgis.core import (
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
+    QgsProcessingParameterMatrix,
     QgsProcessingParameterNumber,
     QgsWkbTypes,
 )
@@ -50,6 +51,7 @@ from geocomp.algorithms.gnss.common import (
     translate_error,
 )
 from geocomp.algorithms.layer_outputs import LINE_SOURCE_TYPE, write_styled_sink
+from geocomp.algorithms.layer_sources import cell_text
 from geocomp.core.errors import GeoCompError
 from geocomp.core.geodesy.frames import FRAME_NAMES
 from geocomp.core.models import CoordinateSystem, Epoch, HeightType, Network, Position, Station
@@ -65,12 +67,14 @@ from geocomp.core.uncertainty import Quantity
 from geocomp.core.units import Unit
 from geocomp.engines.rtklib.baseline import baseline_from_solution, quality_from_solution
 from geocomp.engines.rtklib.read_pos import read_pos
+from geocomp.io.mapping import parse_number
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_baseline_features
 
 FOLDER = "FOLDER"
 INDEPENDENT_ONLY = "INDEPENDENT_ONLY"
 BASE_HEIGHT = "BASE_HEIGHT"
 ROVER_HEIGHT = "ROVER_HEIGHT"
+STATION_HEIGHTS = "STATION_HEIGHTS"
 HEIGHT_SIGMA = "HEIGHT_SIGMA"
 FRAME = "FRAME"
 OUTPUT_JSON = "OUTPUT_JSON"
@@ -79,6 +83,10 @@ OUTPUT_LAYER = "OUTPUT_LAYER"
 
 #: A starting position is only a start; this says so in its uncertainty.
 _START_SIGMA = 1.0
+
+#: The range *Base antenna height* and *Rover antenna height* accept, which a
+#: station's own height is held to as well.
+_MAX_HEIGHT = 10.0
 
 
 class BuildBaselinesAlgorithm(GeoCompAlgorithm):
@@ -130,6 +138,16 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             "cannot see an error common to every baseline at one station, which "
             "enters the loop twice with opposite signs and cancels, so a loop that "
             "closes does not show that its stations are right.</p>"
+        ) + self.tr(
+            "<p><b>A station has one antenna height.</b> In a network a station is "
+            "the base of one baseline and the rover of another, and its mark has to "
+            "be put in the same place on both, or every loop through it misses by "
+            "the difference. Give each station's height in <i>Antenna height by "
+            "station</i>. A station not listed takes the base height where it is "
+            "the base and the rover height where it is the rover, and one that "
+            "would take both, when they differ, is refused. Once any height is "
+            "given, every baseline is reduced, by zero where that is the height, "
+            "because a loop of reduced and unreduced baselines cannot be closed.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -147,7 +165,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0.0,
                 minValue=0.0,
-                maxValue=10.0,
+                maxValue=_MAX_HEIGHT,
             )
         )
         self.addParameter(
@@ -157,7 +175,16 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 type=QgsProcessingParameterNumber.Type.Double,
                 defaultValue=0.0,
                 minValue=0.0,
-                maxValue=10.0,
+                maxValue=_MAX_HEIGHT,
+            )
+        )
+        self.addParameter(
+            QgsProcessingParameterMatrix(
+                STATION_HEIGHTS,
+                self.tr("Antenna height by station"),
+                hasFixedNumberRows=False,
+                headers=[self.tr("Station"), self.tr("Antenna height above the mark (m)")],
+                optional=True,
             )
         )
         self.addAdvancedParameter(
@@ -226,7 +253,12 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         independent_only = self.parameterAsBool(parameters, INDEPENDENT_ONLY, context)
         base_height = self.parameterAsDouble(parameters, BASE_HEIGHT, context)
         rover_height = self.parameterAsDouble(parameters, ROVER_HEIGHT, context)
+        listed = self._station_heights(parameters, context)
         sigma = self.parameterAsDouble(parameters, HEIGHT_SIGMA, context)
+        # Every baseline or none: a loop of reduced and unreduced legs is refused
+        # (specs/11 section 4.1.1), so a zero height, once any height is given,
+        # is a reduction by zero rather than none.
+        reducing = bool(listed) or bool(base_height) or bool(rover_height)
         frame_index = self.parameterAsEnum(parameters, FRAME, context)
         frame = FRAME_NAMES[frame_index - 1] if frame_index > 0 else ""
         network_path = self.parameterAsFileOutput(parameters, OUTPUT_NETWORK, context)
@@ -251,6 +283,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
 
         built = []
+        heights: dict[str, float] = {}
         floating: list[str] = []
         quality: dict[str, dict[str, Any]] = {}
         sessions: dict[str, _Session] = {}
@@ -264,16 +297,21 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 baseline = baseline_from_solution(
                     solution, base_station=stations[0], rover_station=stations[1]
                 )
-                if base_height or rover_height:
+                if reducing:
+                    # A station listed has its own height at either end; one
+                    # not listed takes the height of the end it is (P13-19).
+                    ends = (
+                        listed.get(stations[0], base_height),
+                        listed.get(stations[1], rover_height),
+                    )
                     baseline = reduce_to_marks(
                         baseline,
-                        AntennaOffset(
-                            up=Quantity.from_std_dev(base_height, sigma, Unit.METRE),
-                            method="vertical",
-                        ),
-                        AntennaOffset(
-                            up=Quantity.from_std_dev(rover_height, sigma, Unit.METRE),
-                            method="vertical",
+                        *(
+                            AntennaOffset(
+                                up=Quantity.from_std_dev(height, sigma, Unit.METRE),
+                                method="vertical",
+                            )
+                            for height in ends
                         ),
                     )
                 # FR-603: the quality is part of the answer, not a diagnostic.
@@ -313,6 +351,8 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 )
                 continue
             built.append(baseline)
+            if reducing:
+                heights.update(zip(stations, ends, strict=True))
 
         if not built:
             raise QgsProcessingException(
@@ -320,6 +360,18 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "log for why each was refused.").replace(
                     "%1", str(folder)
                 )
+            )
+
+        self._one_height_each(built, listed, base_height, rover_height)
+        unused = sorted(set(listed) - {s for b in built for s in (b.base_station, b.rover_station)})
+        if unused:
+            feedback.pushWarning(
+                self.tr(
+                    "No baseline has %1, so the height given for it in %2 was not used. "
+                    "Check the name against the stations the solutions name."
+                )
+                .replace("%1", ", ".join(unused))
+                .replace("%2", self.parameterDefinition(STATION_HEIGHTS).description())
             )
 
         independent, dependent = independent_subset(built)
@@ -362,6 +414,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "quality": quality,
                         "closures": closures,
                         "float": floating,
+                        "antenna_heights": dict(sorted(heights.items())),
                     },
                     indent=2,
                 )
@@ -393,6 +446,85 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(100)
         return outputs
+
+    def _station_heights(self, parameters, context) -> dict[str, float]:
+        """Each listed station's antenna height, by the station's name in upper case.
+
+        The names a solution gives its stations are its input files' first four
+        characters in upper case (``_stations_from``), so a name is matched in
+        upper case too. A row left empty is skipped; anything else that is not a
+        station and a height in range is refused, since a height silently not
+        applied is a baseline wrong by it.
+        """
+        matrix = self.parameterAsMatrix(parameters, STATION_HEIGHTS, context)
+        cells = [cell_text(cell).strip() for cell in matrix]
+        if not any(cells):
+            # Left out, Processing gives one null cell rather than none.
+            return {}
+        if len(cells) % 2:
+            raise QgsProcessingException(
+                self.about_input(STATION_HEIGHTS, self.tr("Give each row a station and its height."))
+            )
+        heights: dict[str, float] = {}
+        for station, text in zip(cells[::2], cells[1::2], strict=True):
+            if not station and not text:
+                continue
+            try:
+                height = parse_number(text, "auto")
+            except ValueError:
+                height = None
+            if not station or height is None or not 0.0 <= height <= _MAX_HEIGHT:
+                raise QgsProcessingException(
+                    self.about_input(
+                        STATION_HEIGHTS,
+                        self.tr(
+                            "The row %1 is not a station and an antenna height from 0 to %2 m. "
+                            "Correct it, or clear the row."
+                        )
+                        .replace("%1", f"{station} {text}".strip())
+                        .replace("%2", f"{_MAX_HEIGHT:g}"),
+                    )
+                )
+            station = station.upper()
+            if heights.get(station, height) != height:
+                raise QgsProcessingException(
+                    self.about_input(
+                        STATION_HEIGHTS,
+                        self.tr("%1 is given two heights, %2 m and %3 m. Give it one.")
+                        .replace("%1", station)
+                        .replace("%2", f"{heights[station]:g}")
+                        .replace("%3", f"{height:g}"),
+                    )
+                )
+            heights[station] = height
+        return heights
+
+    def _one_height_each(self, built, listed, base_height: float, rover_height: float) -> None:
+        """Refuse a station the base and rover heights would reduce by two heights.
+
+        A station not listed takes *Base antenna height* where it is the base and
+        *Rover antenna height* where it is the rover. When it is both, on two
+        baselines, and the two differ, its mark is put in two places, and every
+        loop through it misses by the difference -- which reads as a measurement
+        error (specs/11 section 4.2).
+        """
+        both = ({b.base_station for b in built} & {b.rover_station for b in built}) - set(listed)
+        if base_height == rover_height or not both:
+            return
+        station = min(both)
+        raise QgsProcessingException(
+            self.tr(
+                "%1 is the base of %2 and the rover of %3, so it would be reduced by %4 m "
+                "on one and %5 m on the other, and every loop through it would miss by the "
+                "difference. Give its height in %6."
+            )
+            .replace("%1", station)
+            .replace("%2", next(b.id for b in built if b.base_station == station))
+            .replace("%3", next(b.id for b in built if b.rover_station == station))
+            .replace("%4", f"{base_height:g}")
+            .replace("%5", f"{rover_height:g}")
+            .replace("%6", self.parameterDefinition(STATION_HEIGHTS).description())
+        )
 
     def _close_loops(self, independent, dependent, feedback) -> list[dict[str, Any]]:
         """Close the loop each dependent baseline makes, and say how well it closed.

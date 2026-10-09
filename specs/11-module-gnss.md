@@ -228,6 +228,25 @@ components out can separate the record from the thing it describes.
 The geometry, including why each end is rotated at its *own* horizon, is in
 [`08-engine-rtklib.md`](./08-engine-rtklib.md) §8.3.
 
+**A station has one height (P13-19).** Once is not enough in a network: a station is the base of one baseline
+and the rover of another, and its mark has to be put in the same place on both, or every loop through it misses
+by the difference — which reads as a measurement error. Until P13-19 *Build baselines* reduced every baseline by
+one *Base antenna height* and one *Rover antenna height*. GGAO's midnight triangle, given GODN's header
+height as the base's and GODE's as the rover's, put GODE's mark in two places 53 mm apart, and closed to 52.73 mm
+instead of 0.37 mm.
+- ***Antenna height by station*** gives a station its height at either end. Names are matched in upper case,
+  as the solutions give them, and a decimal comma is read.
+- **A station not listed** takes the base height where it is the base and the rover height where it is the
+  rover. One that would take both, when they differ, is refused, naming the station and a baseline of each
+  kind.
+- **Every baseline or none.** Once any height is given, every baseline is reduced, by zero where that is the
+  height, since a loop of reduced and unreduced legs is refused (§4.1.1).
+- **What is refused or said.** A row that is not a station and a height from 0 to 10 m is refused, and so is a
+  station given two heights. A listed station no baseline has is warned of, as a name typed wrong would be.
+- The heights applied are in the JSON output, under `antenna_heights`.
+
+The heights are given, not read: the observation files' `ANTENNA: DELTA H/E/N` is not used here.
+
 ### 4.3 Result layers (FR-357) **[V]**
 
 Delivered in phase P7c as `layers/builders.py::gnss_baseline_layer` and the optional `OUTPUT_LAYER` of

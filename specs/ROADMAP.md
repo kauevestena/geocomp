@@ -3774,6 +3774,49 @@ each held to GeoComp's log in its language.
 **Not done.** A baseline's ambiguity ratio is not judged against the threshold the run was configured with. The
 status says whether the engine fixed; a fix that passed a low threshold is still reported as fixed.
 
+#### P13-19 — each station has one antenna height
+
+P13-14's last *Not done*. *Build baselines* reduced every baseline by one *Base antenna height* and one *Rover
+antenna height*. In a network a station is the base of one baseline and the rover of another, so unless the two
+were equal its mark was put in two places, and every loop through it missed by the difference.
+- On the GNSS tutorial's midnight triangle, the base height was set to GODN's header height (0.0614 m) and the
+  rover height to GODE's (0.0083 m). GODN is only ever a base and GODS only ever a rover, so both came out
+  right; GODE is both.
+- The loop closed to 52.73 mm instead of 0.37 mm, and nothing said why.
+
+**What changed** (`specs/11` §4.2).
+- ***Antenna height by station***, a table of station and height, gives a station its height at either end.
+- **A station not listed** takes the base or the rover height by its end. One that would take both, when they
+  differ, is refused, naming it and a baseline of each kind.
+- **Every baseline or none.** Once any height is given, every baseline is reduced, by zero where that is the
+  height. A loop of reduced and unreduced legs is refused (§4.1.1), and a station listed with the others left at
+  zero would have made one.
+- **Refused or warned.**
+  - Refused: a row that is not a station and a height from 0 to 10 m, and a station given two heights.
+  - Warned: a listed station that no baseline has.
+- **The JSON output** records the heights applied, under `antenna_heights`.
+- **Translations:** nine strings in pt_BR and es.
+
+**Tests.** `tests/qgis/test_gnss_antenna_heights.py`, seventeen, on the tutorial's recorded midnight solutions
+and its stations' header heights.
+- each baseline is what the core's reduction gives for its two stations' heights;
+- the loop closes as it did between the antennas;
+- an unlisted station takes its end's height;
+- names are matched in upper case, and a decimal comma is read;
+- nothing is reduced with no height, and everything once one is given;
+- the refusal of GODE's two heights, and the 53.1 mm it would have put in the loop;
+- each table refusal, and the warning.
+
+Fifteen fail on the old code. The other two hold the core: the closure between the antennas, and the error the
+refusal prevents.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-602's row names the change.
+
+**Not done.**
+- The heights are given, not read. Each observation file states its own in `ANTENNA: DELTA H/E/N`, and a
+  station set up twice in one folder, at two heights, still needs two runs.
+- A slant height is still refused, as `specs/08` §8.3 says.
+
 ---
 
 ## Mapping to the research project's 24-month schedule
