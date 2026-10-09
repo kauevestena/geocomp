@@ -133,6 +133,62 @@ def test_a_label_a_message_quotes_is_the_label_shown(locale):
     assert not problems, "\n".join(problems)
 
 
+#: English strings that mean different things in different places, and may be
+#: translated differently there. Everything else reads the same in every dialog.
+TRANSLATED_BY_CONTEXT = {
+    "(none)": "a spin box's empty value, whose gender is the quantity's: a tolerance, a constant",
+    "Differences": "height differences in levelling, and between two runs in DynAdjust's comparison",
+    "GPS broadcast navigation": "a choice in a list, and a product kind in the middle of a sentence",
+    "GLONASS broadcast navigation": "a choice in a list, and a product kind in the middle of a sentence",
+    "Layout": "how a level book's columns are arranged, and a QGIS print layout",
+    "To": "where a levelling line ends, and the frame a transformation goes to",
+    "Uncheckable": "a column counting observations, and one observation's decision",
+}
+
+
+def _shown(locale: str) -> dict[str, set[str]]:
+    shown: dict[str, set[str]] = {}
+    for entries in read_catalogue(catalogue_path(locale)).values():
+        for source, translation in entries.items():
+            shown.setdefault(source, set()).add(translation)
+    return shown
+
+
+@pytest.mark.parametrize("locale", TARGET_LOCALES)
+def test_one_english_string_reads_the_same_in_every_dialog(locale):
+    """A reader who learns a label in one dialog looks for the same words in the next.
+
+    Found in P13-7, translating the integration walkthrough: the integration and
+    levelling dialogs offered 'Estimate a variance component per technique' as
+    'um componente' and 'uma componente' in Portuguese, 'un' and 'una' in Spanish.
+    The same check found eight more labels worded two ways, and 'Property' spelt
+    'Propriedad' in two Spanish dialogs and 'Propiedad' in six.
+
+    A string listed in TRANSLATED_BY_CONTEXT says what it means in each place.
+    """
+    shown = _shown(locale)
+    catalogue = read_catalogue(catalogue_path(locale))
+    repeated = sum(1 for source in shown if sum(source in entries for entries in catalogue.values()) > 1)
+    assert repeated >= 100, f"only {repeated} strings are in two contexts or more; the read is wrong"
+    problems = [
+        f"{source!r} is shown as {sorted(translations)}"
+        for source, translations in shown.items()
+        if len(translations) > 1 and source not in TRANSLATED_BY_CONTEXT
+    ]
+    assert not problems, "\n".join(problems)
+
+
+def test_every_string_translated_by_context_still_differs():
+    """An exception no catalogue needs any more is removed, so the list stays a list of reasons."""
+    differing = {
+        source
+        for locale in TARGET_LOCALES
+        for source, translations in _shown(locale).items()
+        if len(translations) > 1
+    }
+    assert not sorted(set(TRANSLATED_BY_CONTEXT) - differing)
+
+
 def test_qm_files_are_not_committed():
     """.qm are build artefacts generated at packaging (specs/18 section 4).
     Committing them means shipping a stale translation nobody notices."""

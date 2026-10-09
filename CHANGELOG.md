@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-8 — One English string, one translation
+
+#### Fixed
+
+- Ten labels read differently in different dialogs in Portuguese, Spanish or both. Among them, *Estimate a
+  variance component per technique* changed the noun's gender between the integration and levelling dialogs,
+  and *Property* was spelt *Propriedad* in two Spanish dialogs. Each now reads one way everywhere.
+
 ### P13-7 — The monitoring, gravimetry and integration tutorials in Portuguese and Spanish
 
 #### Added
