@@ -34,7 +34,7 @@ assembles as one model in the graphical modeller.
 
 ### 1. Import field book — `geocomp:totalstation_import_fieldbook`
 
-- **Source**: `raw_data.csv`
+- **Field book**: `raw_data.csv`
 - **Field mapping**: `mapping.json`
 - **Instrument profiles**: `profiles.json`
 
@@ -80,17 +80,18 @@ instrument needs adjusting.
 
 - **Reduced observations**: the document step 2 wrote
 - **Approximate coordinates**: `approximate.json`
-- **Dimension**: 2D
-- **Datum definition**: inner constraint
-- **CRS**: `EPSG:31982` (UTM 22S), or the projected CRS of your own area
+- **Dimension**: *2D — planimetric*
+- **Datum definition**: *Inner constraint — free network, trace minimum*
+- **CRS authority code, e.g. EPSG:31982**: `EPSG:31982` (UTM 22S), or the projected CRS of your own area
 
 RD-01's coordinates are local, but a CRS is still required and GeoComp will not
 invent one: adjusted coordinates are meaningless without knowing what they are
 coordinates *in*, and a guess would be recorded on the solution as though someone
 had chosen it.
 
-The adjustment converges and **the global test fails**. That is the correct answer,
-and the second thing this dataset teaches.
+The adjustment converges with **4 degrees of freedom**, and **the global test fails**,
+with a variance factor of **140.67**. That is the correct answer, and the second thing
+this dataset teaches.
 
 The distances between stations disagree by about 15 mm depending on which end they
 were measured from, against the 2 mm precision the instrument profile claims. The
@@ -107,9 +108,10 @@ the survey, not an arithmetic step.
 
 ### 4. The map
 
-Ask step 3 for the result layers. They arrive styled: stations sized by their
-positional uncertainty, error ellipses, residuals by significance, the network by
-observation type, and the correction vectors.
+Ask step 3 for the result layers, its outputs whose names end in *(layer)*. They
+arrive styled: stations sized by their positional uncertainty, error ellipses,
+residuals by significance, the network by observation type, and the correction
+vectors.
 
 **The ellipse layer's name states its exaggeration factor.** A 2 mm semi-axis is
 invisible at any map scale, so drawn ellipses are always enlarged, and an
@@ -126,10 +128,20 @@ scale; nothing fixes where the triangle is or which way it faces.
 
 A free network can only be adjusted with inner or minimum constraints. That is not a
 limitation of the software, it is a property of the data: the survey genuinely does
-not know where it is. Try the adjustment with *Fixed stations* naming station 1 and
-compare — the residuals and the variance factor are identical, and only the
-coordinates move. Which is the lesson: the constraint chooses a frame, it does not
-add information.
+not know where it is.
+
+**Try this:** run step 3 again with **Datum definition** set to *Minimum constraint —
+over chosen stations* and **Datum stations (comma-separated; empty = all)** set to
+`1,2`, so that two of the three stations define the datum instead of all of them, and
+compare. The residuals, the 4 degrees of freedom and the variance factor of 140.67 are
+the same, and only the coordinates move. Which is the lesson: the constraint chooses a
+frame, it does not add information.
+
+Holding station 1 as well, by naming it in **Fixed stations (comma-separated)**, is
+refused. A held station removes part of the datum defect already, and the constraints
+would remove it a second time, distorting the network to fit both. Nor can station 1
+be the datum alone, held under *Constrained — hold the stations the network fixes*: it
+fixes the two translations and leaves the rotation, and GeoComp says so.
 
 ---
 

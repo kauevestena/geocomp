@@ -223,6 +223,23 @@ def adjust(
 
     defect = detect_defect(observations, options.frame)
     constraints = _constraints_for(options, layout, values, defect)
+    # The defect is counted from the observations, so G removes all of it. A
+    # held station has already removed part, and G on top removes it twice: an
+    # over-constrained network whose variance factor measures the clash. Found
+    # in P13-9, when RD-01's tutorial held station 1 under minimum constraints
+    # and the variance factor went from 141 to 15,388.
+    held = sorted({station_id for station_id, _component in layout.fixed_values})
+    if constraints is not None and held:
+        raise ComputationError(
+            "datum_removed_twice",
+            network=network.id,
+            stations=", ".join(held),
+            expected=(
+                "either held stations or inner or minimum constraints, not both. Hold "
+                "them with a fixed or constrained datum, or release them and define the "
+                "datum over them with minimum constraints"
+            ),
+        )
     # FR-222. A weighted benchmark is an observation of its own coordinates, so
     # it belongs in the system beside the levelled differences rather than in a
     # datum-removal step -- see WeightedConstraint for what happened while these

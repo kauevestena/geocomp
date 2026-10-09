@@ -33,6 +33,7 @@ from geocomp.core.units import Unit, wrap_to_pi
 
 __all__ = [
     "CONSTRAINT_ROW_PREFIX",
+    "ROUNDING_TOLERANCE",
     "Linearisation",
     "LinearisedSystem",
     "NullSpaceFinding",
@@ -43,6 +44,7 @@ __all__ = [
     "linearise",
     "solve",
     "weight_blocks",
+    "zero_rounded_variances",
 ]
 
 #: Below this ratio to the largest, an eigenvalue of the normal matrix counts as
@@ -50,6 +52,11 @@ __all__ = [
 #: relative, while a merely weak network produces 1e-8, and calling the latter
 #: singular would refuse to adjust networks that are poor but solvable.
 RANK_TOLERANCE = 1e-12
+
+#: A variance of a computed cofactor this far below zero, relative to the
+#: largest, is rounding, at the tolerance :class:`~geocomp.core.uncertainty.Covariance`
+#: allows an eigenvalue of a matrix GeoComp computed.
+ROUNDING_TOLERANCE = 1e-12
 
 
 @dataclass
@@ -505,6 +512,29 @@ def _weight_square_root(weight: np.ndarray) -> np.ndarray:
     return np.diag(np.sqrt(eigenvalues)) @ eigenvectors.T
 
 
+def zero_rounded_variances(cofactor: np.ndarray) -> np.ndarray:
+    """*cofactor* with each variance rounding took below zero set to zero, row and column too.
+
+    A datum constraint can determine a combination of unknowns exactly: minimum
+    constraints over two stations, one due east of the other, fix both their
+    northings, whose variance is then zero. Computed, it comes out a few units
+    of rounding either side, and a variance below zero is refused when the
+    solution is built (P13-9, RD-01 with minimum constraints over stations 1
+    and 2: -2e-24 m^2). A variance that is zero has zero covariance with every
+    other unknown, so the whole row and column are zeroed. A variance further
+    below zero than rounding explains is left for the refusal to name.
+    """
+    diagonal = np.diag(cofactor)
+    scale = float(np.max(np.abs(diagonal))) if diagonal.size else 0.0
+    rounded = (diagonal < 0.0) & (diagonal >= -ROUNDING_TOLERANCE * scale)
+    if not rounded.any():
+        return cofactor
+    cleaned = np.array(cofactor, dtype=float)
+    cleaned[rounded, :] = 0.0
+    cleaned[:, rounded] = 0.0
+    return cleaned
+
+
 def _solve_bordered(
     normal: np.ndarray, vector: np.ndarray, constraints: np.ndarray, condition: float
 ) -> SolveResult:
@@ -537,7 +567,7 @@ def _solve_bordered(
         x=solution[:size],
         # The leading block of the bordered inverse is the constrained cofactor
         # matrix -- the pseudo-inverse of N subject to G^T x = 0.
-        cofactor=inverse[:size, :size],
+        cofactor=zero_rounded_variances(inverse[:size, :size]),
         condition_number=condition,
         rank_deficiency=count,
         method="bordered",

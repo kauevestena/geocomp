@@ -23,6 +23,11 @@ import pytest
 pytestmark = pytest.mark.qgis
 
 TUTORIAL_ALGORITHM = "geocomp:project_tutorial_dataset"
+NETWORK = "geocomp:totalstation_network"
+INNER = "Inner constraint — free network, trace minimum"
+MINIMUM = "Minimum constraint — over chosen stations"
+CONSTRAINED = "Constrained — hold the stations the network fixes"
+README = Path(__file__).resolve().parents[2] / "geocomp" / "resources" / "datasets" / "rd01" / "README.md"
 
 
 def _algorithm(algorithm_id: str):
@@ -31,6 +36,21 @@ def _algorithm(algorithm_id: str):
     algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id)
     assert algorithm is not None, f"{algorithm_id} is not registered"
     return algorithm
+
+
+def _network(workspace: Path, reduced: dict, name: str, *, datum: str, **more) -> dict:
+    """Step 3's parameters, as the README fills them, with *datum* chosen by its name."""
+    from tests.qgis.walkthrough import option
+
+    return {
+        "REDUCTIONS": reduced["OUTPUT_REDUCED"],
+        "APPROXIMATE": str(workspace / "approximate.json"),
+        "DIMENSION": option(NETWORK, "DIMENSION", "2D — planimetric"),
+        "DATUM": option(NETWORK, "DATUM", datum),
+        "CRS": "EPSG:31982",
+        "OUTPUT_SOLUTION": str(workspace / f"{name}.json"),
+        **more,
+    }
 
 
 def _run(algorithm_id: str, parameters: dict):
@@ -162,8 +182,9 @@ class TestFollowingIt:
                 "READINGS": imported["OUTPUT_READINGS"],
                 # The same library as step 1: the readings record which
                 # instrument took them, and the reduction needs its constants.
+                # Nothing else: until P13-9 this turned the atmospheric
+                # correction off, which the README never asks a reader to do.
                 "PROFILES": str(workspace / "profiles.json"),
-                "APPLY_ATMOSPHERIC": False,
                 "OUTPUT_REDUCED": str(workspace / "reduced.json"),
             },
         )
@@ -175,17 +196,7 @@ class TestFollowingIt:
 
     @pytest.fixture(scope="class")
     def adjusted(self, workspace, reduced):
-        return _run(
-            "geocomp:totalstation_network",
-            {
-                "REDUCTIONS": reduced["OUTPUT_REDUCED"],
-                "APPROXIMATE": str(workspace / "approximate.json"),
-                "DIMENSION": 0,
-                "DATUM": 1,
-                "CRS": "EPSG:31982",
-                "OUTPUT_SOLUTION": str(workspace / "solution.json"),
-            },
-        )
+        return _run(NETWORK, _network(workspace, reduced, "solution", datum=INNER))
 
     def test_step_three_fails_its_global_test_as_the_tutorial_warns(self, adjusted):
         """Correctly. The distances disagree by about 15 mm against a claimed
@@ -200,3 +211,133 @@ class TestFollowingIt:
             json.loads(Path(adjusted["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
         )
         assert {station.station_id for station in solution.adjusted_stations} == {"1", "2", "3"}
+
+
+class TestItNamesWhatTheDialogsShow:
+    """Held to the dialogs since P13-9, as the later walkthroughs were from the start.
+
+    Doing it found four names that were not the dialog's -- *Source* for *Field
+    book*, *CRS* for its full label, and the dimension and datum written as
+    words rather than chosen from the list -- and a *Try this* that GeoComp
+    refused.
+    """
+
+    @pytest.fixture(scope="class")
+    def readme(self) -> str:
+        return README.read_text(encoding="utf-8")
+
+    def test_every_title_input_and_choice_is_the_dialogs(self, geocomp_provider, readme):
+        from tests.qgis.walkthrough import check_names, steps
+
+        assert [step.algorithm_id for step in steps(readme)] == [
+            "geocomp:totalstation_import_fieldbook",
+            "geocomp:totalstation_preprocess",
+            NETWORK,
+        ]
+        check_names(readme)
+
+    def test_the_try_this_names_the_dialogs_inputs_and_choices(self, geocomp_provider, readme):
+        from tests.qgis.walkthrough import label, quoted
+
+        for name in ("DATUM", "DATUM_STATIONS", "FIXED_STATIONS"):
+            quoted(readme, f"**{label(NETWORK, name)}**")
+        for choice in (MINIMUM, CONSTRAINED):
+            quoted(readme, f"*{choice}*")
+
+
+class TestTheNetworkIsFree:
+    """What the README's section on the datum says happens, happens."""
+
+    @pytest.fixture(scope="class")
+    def workspace(self, geocomp_provider, tmp_path_factory):
+        directory = str(tmp_path_factory.mktemp("free"))
+        results = _run(TUTORIAL_ALGORITHM, {"DATASET": 0, "DESTINATION": directory})
+        return Path(results["OUTPUT_DIRECTORY"])
+
+    @pytest.fixture(scope="class")
+    def reduced(self, workspace):
+        readings = _run(
+            "geocomp:totalstation_import_fieldbook",
+            {
+                "SOURCE": str(workspace / "raw_data.csv"),
+                "MAPPING": str(workspace / "mapping.json"),
+                "PROFILES": str(workspace / "profiles.json"),
+                "OUTPUT_READINGS": str(workspace / "readings.json"),
+            },
+        )
+        return _run(
+            "geocomp:totalstation_preprocess",
+            {
+                "READINGS": readings["OUTPUT_READINGS"],
+                "PROFILES": str(workspace / "profiles.json"),
+                "OUTPUT_REDUCED": str(workspace / "reduced.json"),
+            },
+        )
+
+    @pytest.fixture(scope="class")
+    def free(self, workspace, reduced):
+        return _run(NETWORK, _network(workspace, reduced, "inner", datum=INNER))
+
+    @pytest.fixture(scope="class")
+    def chosen(self, workspace, reduced):
+        """Over stations 1 and 2: station 2 is due north of 1, so the datum fixes
+        both eastings exactly, and their variance is zero. Rounding made one
+        -2e-24 m^2, refused as a negative variance until P13-9."""
+        return _run(
+            NETWORK, _network(workspace, reduced, "minimum", datum=MINIMUM, DATUM_STATIONS="1,2")
+        )
+
+    def test_step_3_has_the_degrees_of_freedom_and_variance_factor_it_quotes(self, free):
+        from tests.qgis.walkthrough import quoted
+
+        readme = README.read_text(encoding="utf-8")
+        quoted(readme, f"**{free['DEGREES_OF_FREEDOM']} degrees of freedom**")
+        quoted(readme, f"variance factor of **{free['VARIANCE_FACTOR']:.2f}**")
+
+    def test_two_stations_as_the_datum_change_only_the_coordinates(self, free, chosen):
+        from tests.qgis.walkthrough import quoted
+
+        readme = README.read_text(encoding="utf-8")
+        assert chosen["DEGREES_OF_FREEDOM"] == free["DEGREES_OF_FREEDOM"]
+        assert chosen["VARIANCE_FACTOR"] == pytest.approx(free["VARIANCE_FACTOR"], rel=1e-9)
+        quoted(
+            readme,
+            f"The residuals, the {chosen['DEGREES_OF_FREEDOM']} degrees of freedom and the "
+            f"variance factor of {chosen['VARIANCE_FACTOR']:.2f} are the same",
+        )
+        residuals = [
+            json.loads(Path(result["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))["observation_results"]
+            for result in (free, chosen)
+        ]
+        assert [r["residual"] for r in residuals[1]] == pytest.approx(
+            [r["residual"] for r in residuals[0]], abs=1e-9
+        )
+        positions = [
+            {
+                station["station_id"]: station["position"]
+                for station in json.loads(Path(result["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))[
+                    "adjusted_stations"
+                ]
+            }
+            for result in (free, chosen)
+        ]
+        assert positions[0] != positions[1]
+
+    def test_holding_station_1_as_well_is_refused(self, workspace, reduced):
+        from tests.qgis.walkthrough import refusal
+
+        said = refusal(
+            NETWORK,
+            _network(
+                workspace, reduced, "both", datum=MINIMUM, DATUM_STATIONS="1,2", FIXED_STATIONS="1"
+            ),
+        )
+        assert "These stations are held" in said and "remove it twice" in said, said
+
+    def test_station_1_alone_leaves_the_rotation(self, workspace, reduced):
+        from tests.qgis.walkthrough import refusal
+
+        said = refusal(
+            NETWORK, _network(workspace, reduced, "one", datum=CONSTRAINED, FIXED_STATIONS="1")
+        )
+        assert "does not determine 1 combination" in said and "orientation" in said, said

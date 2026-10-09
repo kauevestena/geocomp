@@ -32,7 +32,12 @@ from geocomp.core.adjustment.least_squares import (
     to_observation_results,
     to_solution,
 )
-from geocomp.core.adjustment.normal_equations import assemble, diagnose_rank, solve
+from geocomp.core.adjustment.normal_equations import (
+    assemble,
+    diagnose_rank,
+    solve,
+    zero_rounded_variances,
+)
 from geocomp.core.differentiation import central_difference_jacobian, is_complex_safe
 from geocomp.core.errors import ComputationError, DataError, ValidationError
 from geocomp.core.models import (
@@ -746,6 +751,73 @@ class TestFreeNetworkAndDatum:
                 for station_id in free.layout.station_ids()
             )
             assert abs(total) < 1e-6, component
+
+
+
+class TestTheDatumIsRemovedOnce:
+    """Held stations remove the datum, and so do inner or minimum constraints; never both (P13-9).
+
+    The defect is counted from the observations, so the constraints remove all
+    of it whatever the network holds. RD-01's tutorial held station 1 under
+    minimum constraints, and the variance factor went from 141 to 15,388.
+    """
+
+    def test_holding_a_station_under_inner_constraints_is_refused(self):
+        with pytest.raises(ComputationError) as caught:
+            adjust(triangulateration().network, inner(Frame.PLANE_2D))
+        assert caught.value.code == "computation.datum_removed_twice"
+        assert caught.value.context["stations"] == "A"
+
+    def test_holding_a_station_under_minimum_constraints_is_refused(self):
+        options = AdjustmentOptions(
+            frame=Frame.PLANE_2D,
+            datum=DatumDefinition.MINIMUM_CONSTRAINT,
+            datum_stations=["B", "C"],
+        )
+        with pytest.raises(ComputationError) as caught:
+            adjust(triangulateration().network, options)
+        assert caught.value.code == "computation.datum_removed_twice"
+
+    def test_minimum_constraints_over_chosen_stations_move_only_the_network(self):
+        """Any minimal datum fits the observations equally well: specs/06 section 3."""
+        free = free_triangulateration().network
+        everywhere = adjust(free, inner(Frame.PLANE_2D))
+        chosen = adjust(
+            free,
+            AdjustmentOptions(
+                frame=Frame.PLANE_2D,
+                datum=DatumDefinition.MINIMUM_CONSTRAINT,
+                datum_stations=["B", "C"],
+            ),
+        )
+        assert chosen.degrees_of_freedom == everywhere.degrees_of_freedom
+        assert chosen.variance_factor_aposteriori == pytest.approx(
+            everywhere.variance_factor_aposteriori, rel=1e-9
+        )
+        assert chosen.residuals == pytest.approx(everywhere.residuals, abs=1e-9)
+        column = chosen.layout.station_columns("A")["e"]
+        assert chosen.parameters[column] != pytest.approx(everywhere.parameters[column], abs=1e-6)
+
+
+class TestRoundedVariances:
+    """A datum constraint can fix a combination of unknowns exactly, and rounding then
+    leaves its variance a hair either side of zero (P13-9)."""
+
+    def test_a_variance_rounding_took_below_zero_is_zero_with_its_row_and_column(self):
+        cofactor = np.array(
+            [[4e-6, 1e-25, 2e-6], [1e-25, -2e-24, 3e-25], [2e-6, 3e-25, 5e-6]]
+        )
+        cleaned = zero_rounded_variances(cofactor)
+        assert not cleaned[1].any() and not cleaned[:, 1].any()
+        assert cleaned[0, 2] == cofactor[0, 2] and cleaned[2, 2] == cofactor[2, 2]
+
+    def test_a_variance_further_below_zero_is_left_for_the_refusal(self):
+        cofactor = np.diag([4e-6, -1e-9])
+        assert zero_rounded_variances(cofactor)[1, 1] == -1e-9
+
+    def test_a_sound_cofactor_is_returned_as_it_was(self):
+        cofactor = np.diag([4e-6, 0.0])
+        assert zero_rounded_variances(cofactor) is cofactor
 
 
 class TestFailureModes:

@@ -3360,6 +3360,51 @@ No English string changed, and no walkthrough named a changed label.
 for one idea read alike, nor whether the wording chosen is the best one. Both are the native speakers'
 review's (specs/18 §3.1).
 
+#### P13-9 — RD-01's walkthrough held to the dialogs, and the datum removed once (FR-952 stays partly met)
+
+RD-01's walkthrough was written before `tests/qgis/walkthrough.py` existed, and had never been checked
+against the dialogs. Checking it found four names that were not the dialog's:
+- *Source*, where the dialog says *Field book*;
+- *CRS*, where the dialog says *CRS authority code, e.g. EPSG:31982*;
+- *2D* and *inner constraint* written as words, not chosen from the lists.
+
+Its *Try this* asked the reader to name station 1 in *Fixed stations* and promised the same residuals.
+GeoComp refused it under *Inner constraint*. Under *Minimum constraint* it ran, with a variance factor of
+15,388 instead of 141.
+
+That turned up two defects in the core and one in *Classical network*:
+- **The datum removed twice.** The defect is counted from the observations, so inner and minimum
+  constraints remove all of it even when held stations have removed part. The adjustment now refuses held
+  stations under either, with `datum_removed_twice`, naming them (specs/06 §3). No existing caller relied on
+  the combination: every tier passed with the refusal in place.
+- **Nowhere to choose the minimum constraint's stations.** *Classical network* offered *Minimum constraint
+  — over chosen stations* but had no input to choose them in, so it took the fixed stations and held them
+  too. It now has **Datum stations (comma-separated; empty = all)**, as *Adjust network* has, not hidden in
+  Basic mode (specs/09 §4.4). Its help and both translations say which datum reads which input.
+- **A zero variance refused.** Minimum constraints over RD-01's stations 1 and 2, the second due north of
+  the first, fix both eastings exactly. Computed, one variance came out −2 × 10⁻²⁴ m², and the solution was
+  refused as having a negative variance. Over 2 and 3 the rounding fell the other way. The dense and sparse
+  constrained solvers now zero a variance that rounding took below zero, with its row and column, within
+  `Covariance`'s tolerance for computed matrices.
+
+The walkthrough now names what the dialogs show. Its *Try this* defines the datum over stations 1 and 2, and
+says why holding station 1 as well is refused, and why station 1 alone cannot be the datum. The tier-3 test
+checks every name and runs every claim:
+- step 3's 4 degrees of freedom and variance factor of 140.67;
+- the same residuals, degrees of freedom and variance factor over stations 1 and 2, with different
+  coordinates;
+- both refusals.
+
+It also stopped turning the atmospheric correction off in step 2, which the walkthrough never asks a reader
+to do; the counts are the same either way. At tier 1, `TestTheDatumIsRemovedOnce` and `TestRoundedVariances`
+hold the core.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-222's and FR-952's rows cite the new tests.
+
+**Not done.** RD-01's walkthrough in Portuguese and Spanish, now that it is held to the dialogs. The GNSS
+sample's walkthrough has never been held to them either. Holding some stations and constraining the rest of
+the defect is refused rather than supported.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

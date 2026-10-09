@@ -106,6 +106,7 @@ HEIGHT_FIELD = "HEIGHT_FIELD"
 DIMENSION = "DIMENSION"
 DATUM = "DATUM"
 FIXED_STATIONS = "FIXED_STATIONS"
+DATUM_STATIONS = "DATUM_STATIONS"
 CONFIDENCE = "CONFIDENCE"
 EPOCH = "EPOCH"
 CRS = "CRS"
@@ -201,9 +202,13 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
             "which reduced quantities become observations: a 2D adjustment takes directions "
             "and horizontal distances, a 3D one takes directions, zenith angles and slope "
             "distances. Emitting all of them would use the same measurement twice.</p>"
-            "<p><b>Datum definition</b> &mdash; how the datum defect is removed. <b>Fixed "
-            "stations</b> &mdash; comma-separated; their approximate coordinates are held "
-            "exactly.</p>"
+            "<p><b>Datum definition</b> &mdash; how the datum defect is removed. "
+            "<i>Constrained</i> and <i>Fixed</i> hold the <b>fixed stations</b>, "
+            "comma-separated, at their approximate coordinates. <i>Inner constraint</i> "
+            "holds none and defines the datum as the trace minimum over every station; "
+            "<i>Minimum constraint</i> does the same over the <b>datum stations</b>, "
+            "comma-separated, all of them when empty. Holding stations and constraining "
+            "the network as well would remove the datum twice, and is refused.</p>"
             "<p><b>Confidence level</b>, <b>reference epoch</b> and <b>CRS</b> &mdash; "
             "recorded on the solution.</p>"
             "<p><b>Reduce measured distances to the grid</b> &mdash; a total station "
@@ -301,6 +306,15 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                 optional=True,
             )
         )
+        # Not advanced: the datum choice that reads it is offered in Basic mode.
+        self.addParameter(
+            QgsProcessingParameterString(
+                DATUM_STATIONS,
+                self.tr("Datum stations (comma-separated; empty = all)"),
+                defaultValue="",
+                optional=True,
+            )
+        )
         self.addAdvancedParameter(
             QgsProcessingParameterNumber(
                 CONFIDENCE,
@@ -379,6 +393,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
         )
         datum = datum_of(self.parameterAsEnum(parameters, DATUM, context))
         fixed_names = station_list(self.parameterAsString(parameters, FIXED_STATIONS, context))
+        datum_names = station_list(self.parameterAsString(parameters, DATUM_STATIONS, context))
         crs = self.parameterAsString(parameters, CRS, context).strip()
         if not crs:
             raise QgsProcessingException(
@@ -400,6 +415,13 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                         "%1").replace(
                     "%1", ", ".join(missing)
                 )
+            )
+        missing = sorted(set(datum_names or ()) - set(approximate))
+        if missing:
+            raise QgsProcessingException(
+                self.tr(
+                    "These datum stations are not in the network; check their names: %1"
+                ).replace("%1", ", ".join(missing))
             )
 
         feedback.setProgress(15)
@@ -442,7 +464,9 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
 
         feedback.setProgress(40)
         feedback.pushInfo(self.tr("Adjusting…"))
-        options = AdjustmentOptions(frame=frame, datum=datum, confidence=confidence)
+        options = AdjustmentOptions(
+            frame=frame, datum=datum, datum_stations=datum_names, confidence=confidence
+        )
         try:
             run = adjust(network, options)
         except GeoCompError as exc:
@@ -493,6 +517,7 @@ class ClassicalNetworkAlgorithm(GeoCompAlgorithm):
                         "dimension": dimension,
                         "datum": datum.value,
                         "fixed": list(fixed_names or ()),
+                        "datum_stations": list(datum_names or ()),
                         "confidence": confidence,
                         "grid_reduction": grid.provenance(undulation),
                     },

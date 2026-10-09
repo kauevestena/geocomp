@@ -144,6 +144,14 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "deficiency",
         "undetermined",
     ),
+    "computation.datum_removed_twice": MessageTemplate(
+        "These stations are held, and inner or minimum constraints are to define the datum "
+        "as well: %1. Holding a station already removes part of the datum defect, so "
+        "constraining the network too would remove it twice and distort the result. Hold "
+        "them with a fixed or constrained datum, or release them and define the datum over "
+        "them with minimum constraints.",
+        "stations",
+    ),
     "computation.constrained_system_singular": MessageTemplate(
         "The datum constraints do not remove the network's remaining freedom (%1 "
         "constraint(s) applied). Check that the stations defining the datum are enough to "
