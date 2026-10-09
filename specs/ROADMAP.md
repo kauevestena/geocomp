@@ -3502,9 +3502,20 @@ as QGIS does. For each, it checks:
 - the GNSS sample runs with the stand-in engine of P13-11.
 
 `test_rd01s_model_draws_its_map` runs RD-01's model with temporary layers, as its dialog would, and finds the
-five layers. It needs a QGIS whose field API is current, so it runs in CI and not on a 3.34 machine. The
-listing of each tutorial's installed folder now includes the project and `results/`
+five layers, each with features. It needs a QGIS whose field API is current, so it runs in CI and not on a
+3.34 machine. The listing of each tutorial's installed folder now includes the project and `results/`
 (`tests/qgis/walkthrough.installed`).
+
+**Found: the corrections layer was empty for every in-house solution.** That test failed in CI on all three
+platforms: RD-01's *Coordinate corrections* layer had no features, though step 4 of the README promises the
+correction vectors. The in-house adjustment never set a station's correction (`specs/04` §2.8); only
+DynAdjust's reader did. P12c's audit found the same of the positional uncertainty, and missed this one,
+because nothing counted the corrections layer's features. `to_solution` now gives each station the shift from
+the parameters the adjustment started at (`AdjustmentRun.starting`) to the adjusted ones. A held component is
+zero, and a geocentric shift is turned into the station's horizon, as DynAdjust states it and as the map draws
+it. Tests: `tests/test_adjustment.py::TestSolutionAssembly`, the plane case and the solution document;
+`tests/test_geocentric_frame.py`, the geocentric case; `tests/qgis/test_result_layers.py`, the layer, one
+arrow per station at the stated factor. The layer is now in `specs/19` §1's table, where it had never been.
 
 **Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952's row now names the worked projects; a GNSS
 tutorial is what keeps it partly met.

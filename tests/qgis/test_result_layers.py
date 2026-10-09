@@ -206,6 +206,39 @@ class TestTheLayersArrive:
             centre = stations[feature["station"]]
             assert feature.geometry().contains(QgsGeometry.fromPointXY(centre))
 
+    def test_every_adjusted_station_has_its_correction_drawn(self, adjusted):
+        """P13-12. The in-house adjustment never set a station's correction, so
+        this layer came out empty for every solution but DynAdjust's; RD-01's
+        worked example found it. The trilateration starts each free station
+        0.3 m east and 0.2 m south of where it is."""
+        _results, layers, _context = adjusted
+        layer = layers["OUTPUT_CORRECTION_LAYER"]
+        assert sorted(_values(layer, "station")) == ["B", "C", "D", "E"]
+        for feature in layer.getFeatures():
+            assert feature["correction_e"] == pytest.approx(-0.3, abs=0.02)
+            assert feature["correction_n"] == pytest.approx(0.2, abs=0.02)
+            # Drawn from the start to the adjusted point, at the stated factor.
+            tail, tip = feature.geometry().asPolyline()
+            assert tip.x() - tail.x() == pytest.approx(250.0 * feature["correction_e"])
+
+    def test_a_correction_all_in_height_has_no_arrow(self, adjusted):
+        """A levelling solution's: a line of no length is not a valid geometry."""
+        from dataclasses import replace
+
+        from geocomp.core.models import Solution
+        from geocomp.layers.builders import correction_features
+
+        results, _layers, _context = adjusted
+        solution = Solution.from_dict(
+            json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
+        )
+        first, *rest = solution.adjusted_stations
+        levelled = replace(
+            solution, adjusted_stations=(replace(first, correction=(0.0, 0.0, 0.012)), *rest)
+        )
+        drawn = [f["station"] for f in correction_features(levelled, exaggeration=1.0)]
+        assert drawn == [s.station_id for s in rest]
+
 
 @requires_modern_field_api
 class TestTheExaggerationReachesTheReader:

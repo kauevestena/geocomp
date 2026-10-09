@@ -20,6 +20,7 @@ the standard this module is held to.
 | Relative ellipses | Polygon | The two stations, the line's length, semi-axes, orientation, confidence level, exaggeration factor, drawn at the middle of the line |
 | Residual vectors | Line | Residual, standardised residual, w-test decision, redundancy number |
 | Observations | Line | Type, value, uncertainty, status, residual |
+| Coordinate corrections | Line | The shift from the approximate coordinates to the adjusted ones by component, its horizontal length, exaggeration factor |
 | GNSS baselines | Line | Components, covariance, solution status, quality indicators |
 | Gravity stations | Point | Gravity and its sigma in the display unit and in SI, how it was determined (held, absolute, relative), the w-test's decision on its absolute value |
 | Gravity differences | Line | Difference, sigma, residual, standardised residual, redundancy, MDB, w-test decision; uncheckable drawn as prominently as a blunder candidate |

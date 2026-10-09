@@ -240,7 +240,10 @@ This is what makes everything downstream engine-agnostic (see [`03-architecture.
 | `superseded_by` | str \| None | Solutions are never overwritten (FR-135) |
 
 `AdjustedStation`: station id, `Position`, its covariance block, error ellipse/ellipsoid parameters,
-positional uncertainty, and the correction applied to the approximate coordinates. In a gravity solution it
+positional uncertainty, and the correction applied to the approximate coordinates: east, north and up, from
+where the adjustment started to where it ended, a held component zero, and a geocentric shift turned into the
+station's own horizon as DynAdjust states its corrections. Until P13-12 only DynAdjust's reader set it, and
+every in-house solution's corrections layer was empty. In a gravity solution it
 also carries `gravity`, the adjusted value in m·s⁻², and its `Position` is the station's own location carried
 through unadjusted: a gravity network estimates gravity, not where the gravimeter stood. A gravity station
 without a location is refused when the solution is written, rather than placed at an invented point.

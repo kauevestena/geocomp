@@ -401,6 +401,30 @@ class TestTheNetworkIsRecovered:
         assert station.ellipse.semi_minor / eigen.min() == pytest.approx(ratio, rel=1e-9)
 
 
+    def test_the_correction_is_stated_in_each_stations_horizon(self):
+        """P13-12. A geocentric shift is turned into east, north and up at the
+        station, as DynAdjust states its corrections and as the map draws them;
+        X, Y and Z would be drawn as an arrow pointing nowhere in particular."""
+        started = network(perturb=5.0)
+        run = adjust(started, OPTIONS)
+        solution = to_solution(
+            run,
+            started,
+            solution_id="g",
+            crs="EPSG:4988",
+            epoch=Epoch.from_decimal_year(2026.7),
+            datum=DatumDefinition.FIXED,
+        )
+        assert solution.adjusted_stations
+        for station in solution.adjusted_stations:
+            adjusted = np.array([q.value for q in station.position.values])
+            start = np.array([q.value for q in started.stations[station.station_id].approx_position.values])
+            latitude, longitude, _ = cartesian_to_geodetic(*adjusted, ELLIPSOID)
+            expected = enu_rotation(latitude, longitude) @ (adjusted - start)
+            assert station.correction == pytest.approx(tuple(expected), abs=1e-9)
+            assert np.linalg.norm(station.correction) == pytest.approx(np.linalg.norm(adjusted - start))
+
+
 class TestWhyTheFrameExists:
     def test_a_flat_frame_misreads_a_zenith_angle_three_kilometres_away(self):
         """The same zenith angle, A to C, read against A's vertical in the
