@@ -22,6 +22,7 @@ import pytest
 
 from geocomp.resources import DATASETS_DIR, available_datasets
 from tests.conftest import requires_qgis
+from tests.qgis import walkthrough
 from tests.qgis.walkthrough import algorithm, check_names, quoted, quotes, run, run_logged, steps
 
 pytestmark = [pytest.mark.qgis, requires_qgis]
@@ -118,7 +119,7 @@ class TestItNamesWhatTheDialogsShow:
 
 class TestFollowingIt:
     def test_it_installs_the_session_and_its_licence(self, folder):
-        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
+        assert sorted(path.name for path in folder.iterdir()) == walkthrough.installed(NAME, SHIPPED)
 
     def test_the_log_says_what_it_quotes(self, readme, followed):
         log, _quality = followed

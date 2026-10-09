@@ -93,6 +93,12 @@ QUALITY_THEMES = (
 
 
 def _no_threading() -> Any:
+    """The flag that keeps an algorithm on the main thread, in either QGIS's spelling.
+
+    An algorithm that builds a QGIS object only the main thread may own -- a
+    print layout here, a project for *Install tutorial dataset* -- adds it to
+    its flags.
+    """
     # QGIS 4 spells it Qgis.ProcessingAlgorithmFlag.NoThreading; QGIS 3 kept it
     # on the algorithm class.
     flags = getattr(Qgis, "ProcessingAlgorithmFlag", None)

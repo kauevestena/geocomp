@@ -20,6 +20,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.qgis import walkthrough
+
 pytestmark = pytest.mark.qgis
 
 TUTORIAL_ALGORITHM = "geocomp:project_tutorial_dataset"
@@ -105,7 +107,7 @@ class TestInstalling:
 
     def test_every_file_lands_in_a_folder_named_for_the_dataset(self, installed):
         assert installed.name == "rd01"
-        assert sorted(path.name for path in installed.iterdir()) == sorted(SHIPPED)
+        assert sorted(path.name for path in installed.iterdir()) == walkthrough.installed("rd01", SHIPPED)
 
     def test_a_second_install_leaves_edited_files_alone(self, geocomp_provider, tmp_path):
         """Overwrite is off by default. A reader who annotated the tutorial and

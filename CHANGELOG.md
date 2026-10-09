@@ -5,6 +5,17 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-12 — Worked examples as QGIS projects
+
+#### Added
+
+- *Install tutorial dataset* writes a QGIS project beside the files, `<dataset>.qgz`, holding the
+  walkthrough as one model. Open the project, and the model is in the Processing toolbox under *Project
+  models*. Its inputs are already the installed files; it writes its files to a `results` folder and loads
+  its layers when it finishes.
+- *Install tutorial dataset* declares its outputs, the new `OUTPUT_PROJECT` among them, so a model can use
+  them. It runs on the main thread, where a QGIS project is built.
+
 ### P13-11 — The GNSS sample in three languages, and the installer pointing to each
 
 #### Added

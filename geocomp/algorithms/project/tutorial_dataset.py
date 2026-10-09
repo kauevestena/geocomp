@@ -38,12 +38,17 @@ from qgis.core import (
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
+    QgsProcessingOutputFile,
+    QgsProcessingOutputFolder,
+    QgsProcessingOutputNumber,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
     QgsProcessingParameterFile,
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.project.print_layout import _no_threading
+from geocomp.algorithms.project.worked_examples import WORKED, write_project
 from geocomp.resources import available_datasets, dataset_dir
 
 __all__ = ["TutorialDatasetAlgorithm"]
@@ -53,6 +58,7 @@ DESTINATION = "DESTINATION"
 OVERWRITE = "OVERWRITE"
 OUTPUT_DIRECTORY = "OUTPUT_DIRECTORY"
 FILE_COUNT = "FILE_COUNT"
+OUTPUT_PROJECT = "OUTPUT_PROJECT"
 
 
 class TutorialDatasetAlgorithm(GeoCompAlgorithm):
@@ -62,6 +68,10 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
 
     def displayName(self) -> str:
         return self.tr("Install tutorial dataset")
+
+    def flags(self):
+        # It writes a QGIS project, which is built on the main thread.
+        return super().flags() | _no_threading()
 
     def shortDescription(self) -> str:
         return self.tr(
@@ -102,7 +112,13 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             "breakdown by technique points at it, and variance components weigh it by "
             "what it measured. "
             "<b>rtklib-sample</b> is RTKLIB's own base-and-rover pair, for a GNSS run. Each "
-            "has its own <code>README.md</code>.</p>"
+            "has its own <code>README.md</code>, in English, Portuguese and Spanish.</p>"
+            "<p><b>A worked example to open and run.</b> Beside the files it writes a QGIS "
+            "project named after the dataset, holding the walkthrough as one model. Open the "
+            "project, and the model is in the Processing toolbox under <i>Project models</i>: "
+            "its inputs are the installed files, its files go to a <code>results</code> folder, "
+            "and its map layers are loaded when it finishes. A step the README leaves for you "
+            "to try, such as one GeoComp refuses, is not in it.</p>"
             "<h3>Parameters</h3>"
             "<p><b>Dataset</b> &mdash; which shipped dataset to install. <b>Destination "
             "folder</b> &mdash; where to put it; a subfolder named after the dataset is "
@@ -110,7 +126,9 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             "is off by default so an edited tutorial file is not lost.</p>"
             "<h3>Outputs</h3>"
             "<p><code>OUTPUT_DIRECTORY</code> &mdash; where the files landed. "
-            "<code>FILE_COUNT</code> &mdash; how many were copied.</p>"
+            "<code>FILE_COUNT</code> &mdash; how many were copied. <code>OUTPUT_PROJECT</code> "
+            "&mdash; the project, left alone like the files when it is already there and "
+            "<b>Overwrite</b> is off.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -135,6 +153,9 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
                 OVERWRITE, self.tr("Overwrite existing files"), defaultValue=False
             )
         )
+        self.addOutput(QgsProcessingOutputFolder(OUTPUT_DIRECTORY, self.tr("Installed in")))
+        self.addOutput(QgsProcessingOutputNumber(FILE_COUNT, self.tr("Files copied")))
+        self.addOutput(QgsProcessingOutputFile(OUTPUT_PROJECT, self.tr("Worked example project")))
 
     def processAlgorithm(
         self,
@@ -198,4 +219,19 @@ class TutorialDatasetAlgorithm(GeoCompAlgorithm):
             self.tr("Start with README.md there: it walks through the whole chain.")
         )
 
-        return {OUTPUT_DIRECTORY: str(target), FILE_COUNT: copied}
+        project = target / f"{name}.qgz"
+        if name in WORKED and (overwrite or not project.exists()):
+            write_project(name, target, project)
+            feedback.pushInfo(
+                self.tr(
+                    "%1 is a QGIS project holding the walkthrough as one model. Open it, and "
+                    "the model is in the Processing toolbox under Project models, its inputs "
+                    "already the installed files."
+                ).replace("%1", str(project))
+            )
+
+        return {
+            OUTPUT_DIRECTORY: str(target),
+            FILE_COUNT: copied,
+            OUTPUT_PROJECT: str(project) if project.exists() else "",
+        }

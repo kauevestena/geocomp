@@ -75,6 +75,12 @@ def quoted(readme: str, text: str) -> None:
     assert text in flat(readme), f"the README does not say {text!r}"
 
 
+def installed(name: str, shipped: tuple[str, ...]) -> list[str]:
+    """What *Install tutorial dataset* leaves in the dataset's folder: the files it ships,
+    and the worked example's project and results folder (P13-12)."""
+    return sorted((*shipped, f"{name}.qgz", "results"))
+
+
 def mm(metres: float, places: int = 1) -> str:
     """Millimetres as the README writes them, with a typographic minus."""
     return f"{metres * 1000:.{places}f}".replace("-", "\N{MINUS SIGN}")

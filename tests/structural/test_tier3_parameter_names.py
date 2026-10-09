@@ -75,6 +75,10 @@ NOT_PARAMETER_KEYS = frozenset(
 #: algorithm, each with the reason it is not declared in this repository.
 FOREIGN_KEYS: dict[str, str] = {
     "OUTPUT": "Processing's own conventional output name, defined by QGIS.",
+    "CHILD_RESULTS": (
+        "The results a Processing model gives of each of its steps, keyed by step: "
+        "QGIS's, read by tests/qgis/test_worked_examples.py (P13-12)."
+    ),
     # RD-04's benchmarks. "BM1" is the conventional name for a benchmark and is
     # four characters, so it matches the key shape by coincidence. Listed rather
     # than renamed: bending reference data to satisfy a lint heuristic is
