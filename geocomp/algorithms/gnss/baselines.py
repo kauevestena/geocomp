@@ -55,7 +55,9 @@ from geocomp.core.geodesy.frames import FRAME_NAMES
 from geocomp.core.models import CoordinateSystem, Epoch, HeightType, Network, Position, Station
 from geocomp.core.techniques.gnss import (
     AntennaOffset,
+    closing_loops,
     independent_subset,
+    loop_closure,
     reduce_to_marks,
     to_cluster,
 )
@@ -117,6 +119,17 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             "and each mark's starting position. It needs <i>Frame of the base "
             "coordinates</i>, which a <code>.pos</code> file does not state and "
             "GeoComp will not assume.</p>"
+        ) + self.tr(
+            "<p><b>Every loop is closed.</b> Each dependent baseline joins two "
+            "stations the independent ones already connect, so it closes a loop "
+            "through them: the vectors summed round it should come back to zero. "
+            "The log gives each loop's misclosure, and the JSON output its "
+            "components and their propagated uncertainty, which assumes the legs "
+            "independent and so understates it. A closure needs no published "
+            "coordinate: it asks whether the baselines agree with each other. It "
+            "cannot see an error common to every baseline at one station, which "
+            "enters the loop twice with opposite signs and cancels, so a loop that "
+            "closes does not show that its stations are right.</p>"
         )
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -308,6 +321,8 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 ).replace("%1", str(len(dependent)))
             )
 
+        closures = self._close_loops(independent, dependent, feedback)
+
         # The marked copies, not the originals: `independent_subset` returns
         # every baseline with `is_independent` set, and it is those the layer
         # must draw -- an unmarked baseline renders as "not assessed".
@@ -328,6 +343,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "dependent": [b.id for b in dependent],
                         "independent_only": independent_only,
                         "quality": quality,
+                        "closures": closures,
                     },
                     indent=2,
                 )
@@ -359,6 +375,42 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(100)
         return outputs
+
+    def _close_loops(self, independent, dependent, feedback) -> list[dict[str, Any]]:
+        """Close the loop each dependent baseline makes, and say how well it closed.
+
+        specs/11 section 4.1.1. Whether a dependent baseline is kept is a
+        question for the adjustment; whether it agrees with the others is a
+        check, and is made either way.
+        """
+        closures = []
+        for loop, legs in closing_loops(independent, dependent):
+            circuit = " → ".join((*loop, loop[0]))
+            try:
+                closure = loop_closure(legs, loop)
+            except GeoCompError as exc:
+                feedback.pushWarning(
+                    self.tr("Loop %1 could not be closed: %2")
+                    .replace("%1", circuit)
+                    .replace("%2", translate_error(exc))
+                )
+                continue
+            feedback.pushInfo(
+                self.tr("Loop %1 closes to %2 mm over %3 m of baselines (%4 ppm).")
+                .replace("%1", circuit)
+                .replace("%2", f"{closure.magnitude_m * 1000:.2f}")
+                .replace("%3", f"{closure.perimeter_m:.1f}")
+                .replace("%4", f"{closure.parts_per_million:.2f}")
+            )
+            closures.append(closure.to_dict())
+        if not closures:
+            feedback.pushInfo(
+                self.tr(
+                    "No loop was closed: a loop needs a baseline between two stations "
+                    "the others already join through a third."
+                )
+            )
+        return closures
 
 
 @dataclass(frozen=True)

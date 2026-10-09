@@ -250,6 +250,80 @@ class TestTheLayerArrives:
         assert layer.featureCount() == 3
 
 
+class TestEveryLoopIsClosed:
+    """P13-14: specs/11 section 4.1.1 reached from the menu. The core had the
+    closure since P7e and nothing in QGIS called it, so a reader could build
+    three baselines round a triangle and never learn whether they agreed."""
+
+    @pytest.fixture(scope="class")
+    def closed(self, geocomp_provider, solution_folder, tmp_path_factory):
+        from tests.qgis.walkthrough import run_logged
+
+        folder = tmp_path_factory.mktemp("closed")
+        results, log = run_logged(
+            "geocomp:gnss_build_baselines",
+            {"FOLDER": str(solution_folder), "OUTPUT_JSON": str(folder / "baselines.json")},
+        )
+        return json.loads(Path(results["OUTPUT_JSON"]).read_text(encoding="utf-8")), log
+
+    def test_the_triangle_is_closed_and_recorded(self, closed, marked_baselines):
+        from geocomp.core.techniques.gnss import closing_loops, loop_closure
+
+        document, _log = closed
+        (record,) = document["closures"]
+        independent = [b for b in marked_baselines if b.is_independent]
+        dependent = [b for b in marked_baselines if not b.is_independent]
+        ((loop, legs),) = closing_loops(independent, dependent)
+        assert record == pytest.approx(loop_closure(legs, loop).to_dict())
+        assert sorted(record["loop"]) == ["0759", "1111", "3040"]
+
+    def test_the_log_says_how_well_it_closed(self, closed):
+        document, log = closed
+        (record,) = document["closures"]
+        circuit = " → ".join([*record["loop"], record["loop"][0]])
+        assert (
+            f"Loop {circuit} closes to {record['magnitude_mm']:.2f} mm over "
+            f"{record['perimeter_m']:.1f} m of baselines ({record['parts_per_million']:.2f} ppm)."
+        ) in log
+
+    def test_it_is_closed_whether_or_not_the_dependent_baseline_is_kept(
+        self, geocomp_provider, solution_folder, tmp_path
+    ):
+        from tests.qgis.walkthrough import run
+
+        kept, set_aside = (
+            json.loads(
+                Path(
+                    run(
+                        "geocomp:gnss_build_baselines",
+                        {
+                            "FOLDER": str(solution_folder),
+                            "INDEPENDENT_ONLY": only,
+                            "OUTPUT_JSON": str(tmp_path / f"{only}.json"),
+                        },
+                    )["OUTPUT_JSON"]
+                ).read_text(encoding="utf-8")
+            )
+            for only in (False, True)
+        )
+        assert len(kept["observations"]) == 3 and len(set_aside["observations"]) == 2
+        assert kept["closures"] == set_aside["closures"] != []
+
+    def test_two_baselines_close_nothing_and_say_so(self, geocomp_provider, solution_folder, tmp_path):
+        from tests.qgis.walkthrough import run_logged
+
+        two = tmp_path / "two"
+        two.mkdir()
+        for name in ("a.pos", "b.pos"):
+            (two / name).write_bytes((solution_folder / name).read_bytes())
+        results, log = run_logged(
+            "geocomp:gnss_build_baselines",
+            {"FOLDER": str(two), "OUTPUT_JSON": str(tmp_path / "two.json")},
+        )
+        assert json.loads(Path(results["OUTPUT_JSON"]).read_text(encoding="utf-8"))["closures"] == []
+        assert "No loop was closed" in log
+
+
 @pytest.fixture(scope="module")
 def marked_baselines(solution_folder):
     """The same three baselines, built through the core rather than the

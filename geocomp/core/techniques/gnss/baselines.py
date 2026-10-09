@@ -63,6 +63,7 @@ __all__ = [
     "AntennaReduction",
     "Baseline",
     "LoopClosure",
+    "closing_loops",
     "components_from_covariance",
     "independent_subset",
     "loop_closure",
@@ -478,6 +479,70 @@ class LoopClosure:
         if self.perimeter_m <= 0.0:
             return 0.0
         return 1.0e6 * self.magnitude_m / self.perimeter_m
+
+    def to_dict(self) -> dict[str, Any]:
+        """The closure as *Build baselines* and ``scripts/check_rd06.py`` record it, in millimetres."""
+        return {
+            "loop": list(self.loop),
+            "legs": list(self.legs),
+            "misclosure_xyz_mm": [q.value * 1000 for q in self.misclosure],
+            "magnitude_mm": self.magnitude_m * 1000,
+            "perimeter_m": self.perimeter_m,
+            "parts_per_million": self.parts_per_million,
+            "propagated_sigma_xyz_mm": (np.sqrt(np.diag(self.covariance.matrix)) * 1000).tolist(),
+            "covariance_is_approximate": self.covariance.mode is UncertaintyMode.APPROXIMATE,
+        }
+
+
+def closing_loops(
+    independent: list[Baseline], dependent: list[Baseline]
+) -> list[tuple[tuple[str, ...], list[Baseline]]]:
+    """The circuit each dependent baseline closes, through the independent ones.
+
+    A dependent baseline joins two stations the independent forest already
+    connects, so there is exactly one path between them through it: that path
+    and the dependent baseline back are a loop, and :func:`loop_closure` can
+    sum it. Each dependent baseline gives one loop, and together they are a
+    basis: every other circuit in the graph is a combination of them.
+
+    A dependent baseline between two stations an independent one already joins
+    -- the same pair observed twice -- makes no loop of three, and is left out:
+    comparing two determinations of one vector is repeatability, not closure.
+
+    Returns:
+        ``(loop, legs)`` for each, in the order of *dependent*: the stations in
+        circuit order, from the dependent baseline's base through the forest to
+        its rover, and exactly the baselines that loop traverses.
+    """
+    adjacent: dict[str, list[tuple[str, Baseline]]] = {}
+    for line in independent:
+        adjacent.setdefault(line.base_station, []).append((line.rover_station, line))
+        adjacent.setdefault(line.rover_station, []).append((line.base_station, line))
+
+    loops: list[tuple[tuple[str, ...], list[Baseline]]] = []
+    for closing in dependent:
+        start, end = closing.base_station, closing.rover_station
+        # Breadth first from the base; a forest has one path, so the first
+        # arrival is it.
+        reached: dict[str, tuple[str, Baseline] | None] = {start: None}
+        queue = [start]
+        while queue and end not in reached:
+            here = queue.pop(0)
+            for there, line in adjacent.get(here, []):
+                if there not in reached:
+                    reached[there] = (here, line)
+                    queue.append(there)
+        if end not in reached:
+            continue
+        stations, legs = [end], [closing]
+        while (step := reached[stations[-1]]) is not None:
+            previous, line = step
+            stations.append(previous)
+            legs.append(line)
+        if len(stations) < 3:
+            continue
+        loops.append((tuple(reversed(stations)), legs))
+    return loops
 
 
 def loop_closure(baselines: list[Baseline], loop: Sequence[str]) -> LoopClosure:
