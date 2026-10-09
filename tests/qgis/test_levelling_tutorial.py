@@ -31,6 +31,7 @@ pytestmark = [pytest.mark.qgis, requires_qgis]
 NAME = "rd04-loop"
 README = DATASETS_DIR / NAME / "README.md"
 INSTALL = "geocomp:project_tutorial_dataset"
+SHIPPED = ("README.es.md", "README.md", "README.pt_BR.md", "loop.csv", "mapping.json", "profiles.json")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -61,57 +62,67 @@ class TestItNamesWhatTheDialogsShow:
         quoted(readme, f"turn on *{label(network, 'ADJUST_FAILING')}*")
 
 
+@pytest.fixture(scope="module")
+def folder(tmp_path_factory) -> Path:
+    results = run(
+        INSTALL,
+        {
+            "DATASET": available_datasets().index(NAME),
+            "DESTINATION": str(tmp_path_factory.mktemp("levelling-tutorial")),
+        },
+    )
+    assert results["FILE_COUNT"] == len(SHIPPED)
+    return Path(results["OUTPUT_DIRECTORY"])
+
+
+@pytest.fixture(scope="module")
+def imported(folder) -> dict:
+    return run(
+        "geocomp:levelling_import",
+        {
+            "BOOK": str(folder / "loop.csv"),
+            "MAPPING": str(folder / "mapping.json"),
+            "PROFILES": str(folder / "profiles.json"),
+            "OUTPUT_SETUPS": str(folder / "setups.json"),
+        },
+    )
+
+
+@pytest.fixture(scope="module")
+def reduced(folder, imported) -> dict:
+    return run(
+        "geocomp:levelling_equal_sights",
+        {
+            "SETUPS": imported["OUTPUT_SETUPS"],
+            "PROFILES": str(folder / "profiles.json"),
+            "OUTPUT_REDUCTIONS": str(folder / "reduced.json"),
+        },
+    )
+
+
+def _network(folder, reduced, benchmarks: str, name: str, **extra) -> dict:
+    return {
+        "REDUCTIONS": reduced["OUTPUT_REDUCTIONS"],
+        "BENCHMARKS": benchmarks,
+        "TOLERANCE_COEFFICIENT": 0.008,
+        "SIGMA_PER_KM": 0.0007,
+        "OUTPUT_SOLUTION": str(folder / f"{name}.json"),
+        "OUTPUT_CSV": str(folder / f"{name}.csv"),
+        **extra,
+    }
+
+
 class TestFollowingIt:
     """Install, then the five steps in order, each step's output the next one's input."""
 
-    @pytest.fixture(scope="class")
-    def folder(self, tmp_path_factory) -> Path:
-        results = run(
-            INSTALL,
-            {
-                "DATASET": available_datasets().index(NAME),
-                "DESTINATION": str(tmp_path_factory.mktemp("levelling-tutorial")),
-            },
-        )
-        assert results["FILE_COUNT"] == 4
-        return Path(results["OUTPUT_DIRECTORY"])
-
     def test_it_installs_into_a_folder_of_its_own(self, folder):
         assert folder.name == NAME
-        assert sorted(path.name for path in folder.iterdir()) == [
-            "README.md",
-            "loop.csv",
-            "mapping.json",
-            "profiles.json",
-        ]
-
-    @pytest.fixture(scope="class")
-    def imported(self, folder) -> dict:
-        return run(
-            "geocomp:levelling_import",
-            {
-                "BOOK": str(folder / "loop.csv"),
-                "MAPPING": str(folder / "mapping.json"),
-                "PROFILES": str(folder / "profiles.json"),
-                "OUTPUT_SETUPS": str(folder / "setups.json"),
-            },
-        )
+        assert sorted(path.name for path in folder.iterdir()) == sorted(SHIPPED)
 
     def test_step_1_reads_ten_setups_in_three_lines(self, readme, imported):
         quoted(readme, "Ten setups in three lines, no row rejected.")
         assert (imported["SETUP_COUNT"], imported["LINE_COUNT"]) == (10, 3)
         assert imported["REJECTED_ROWS"] == 0
-
-    @pytest.fixture(scope="class")
-    def reduced(self, folder, imported) -> dict:
-        return run(
-            "geocomp:levelling_equal_sights",
-            {
-                "SETUPS": imported["OUTPUT_SETUPS"],
-                "PROFILES": str(folder / "profiles.json"),
-                "OUTPUT_REDUCTIONS": str(folder / "reduced.json"),
-            },
-        )
 
     def test_step_2_balances_every_line_and_quotes_the_worst(self, readme, reduced):
         assert reduced["LINE_COUNT"] == 3
@@ -150,20 +161,9 @@ class TestFollowingIt:
         assert unjudged["PASSED"] == -1
         quoted(readme, "there is no verdict, neither passed nor failed")
 
-    def _network(self, folder, reduced, benchmarks: str, name: str, **extra) -> dict:
-        return {
-            "REDUCTIONS": reduced["OUTPUT_REDUCTIONS"],
-            "BENCHMARKS": benchmarks,
-            "TOLERANCE_COEFFICIENT": 0.008,
-            "SIGMA_PER_KM": 0.0007,
-            "OUTPUT_SOLUTION": str(folder / f"{name}.json"),
-            "OUTPUT_CSV": str(folder / f"{name}.csv"),
-            **extra,
-        }
-
     @pytest.fixture(scope="class")
     def held_at_bm1(self, folder, reduced) -> dict:
-        results = run("geocomp:levelling_network", self._network(folder, reduced, "BM1=100.000", "bm1"))
+        results = run("geocomp:levelling_network", _network(folder, reduced, "BM1=100.000", "bm1"))
         results["solution"] = json.loads(Path(results["OUTPUT_SOLUTION"]).read_text(encoding="utf-8"))
         return results
 
@@ -216,7 +216,7 @@ class TestFollowingIt:
 
         benchmarks = ",".join(f"{name}={HEIGHTS[name]:.3f}" for name in ("BM1", "BM2", "BM4"))
         quoted(readme, f"`{benchmarks}`")
-        refused = refusal("geocomp:levelling_network", self._network(folder, reduced, benchmarks, "all"))
+        refused = refusal("geocomp:levelling_network", _network(folder, reduced, benchmarks, "all"))
         assert quote(readme) == refused
         assert "BM2-BM4" in refused
 
@@ -226,8 +226,39 @@ class TestFollowingIt:
         benchmarks = ",".join(f"{name}={HEIGHTS[name]:.3f}" for name in ("BM1", "BM2", "BM4"))
         refused = refusal(
             "geocomp:levelling_network",
-            self._network(folder, reduced, benchmarks, "acknowledged", ADJUST_FAILING=True),
+            _network(folder, reduced, benchmarks, "acknowledged", ADJUST_FAILING=True),
         )
         assert "BM2-BM4" not in refused
         quoted(readme, "with all three benchmarks held there is nothing left to estimate")
         assert "held fixed, so there is nothing to estimate" in refused, refused
+
+
+@pytest.mark.parametrize("language", ("pt_BR", "es"))
+class TestInEachLanguage:
+    """The translations, held to GeoComp speaking their language (P13-6).
+
+    ``tests/test_tutorial_translations.py`` holds each translation to the
+    English; this holds it to the dialogs and the refusal as a Portuguese or
+    Spanish reader sees them, with that catalogue installed.
+    """
+
+    def test_every_title_input_and_choice_is_the_dialogs(self, language):
+        from tests.qgis.test_language import _Installed
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        with _Installed(language):
+            check_names(translated)
+            network = "geocomp:levelling_network"
+            quoted(translated, f"**{label(network, 'BENCHMARKS')}**")
+            quoted(translated, f"*{label(network, 'ADJUST_FAILING')}*")
+
+    def test_it_quotes_the_refusal_in_that_language(self, language, folder, reduced):
+        from tests.qgis.test_language import _Installed
+        from tests.reference_levelling import HEIGHTS
+
+        translated = (DATASETS_DIR / NAME / f"README.{language}.md").read_text(encoding="utf-8")
+        benchmarks = ",".join(f"{name}={HEIGHTS[name]:.3f}" for name in ("BM1", "BM2", "BM4"))
+        parameters = _network(folder, reduced, benchmarks, f"all-{language}")
+        with _Installed(language):
+            refused = refusal("geocomp:levelling_network", parameters)
+        assert quote(translated) == refused

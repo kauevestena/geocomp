@@ -1,6 +1,7 @@
 # RD-04 loop — a levelling loop that does not close, and why the adjustment cannot say where
 
 **Reference dataset RD-04** (`specs/20-testing-and-validation.md` §3, FR-950, FR-952), the levelling tutorial.
+*Em português: README.pt_BR.md. En español: README.es.md.*
 
 Three lines of spirit levelling between three benchmarks — BM1 to BM2, BM2 to BM4 and back to BM1 — ten
 setups and twenty staff readings, with sights balanced on every setup. One foresight on the line BM2 to BM4

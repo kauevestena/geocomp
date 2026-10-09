@@ -294,7 +294,7 @@ class TestTheGnssSample:
 
 
 LOOP = DATASETS_DIR / "rd04-loop"
-LOOP_FILES = ("README.md", "loop.csv", "mapping.json", "profiles.json")
+LOOP_FILES = ("README.es.md", "README.md", "README.pt_BR.md", "loop.csv", "mapping.json", "profiles.json")
 
 
 def _build_module():
