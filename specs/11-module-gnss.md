@@ -94,6 +94,20 @@ baseline. Every test of the chain answered with an ECEF solution from a stand-in
 never asked. The static profile now writes ECEF. The kinematic one still writes latitude and longitude: a
 trajectory is not a baseline, and its layer reads every format.
 
+**A station observed more than once is never guessed between (P13-16).** A campaign observes a mark on
+several days, and a folder holds them all. Until P13-16 every processing algorithm kept one session per
+station, the last the scan listed, and dropped the others without a word: *Relative — Static* processed that
+pair whether or not the two had observed together, and *Batch processing* keyed its rows by station, so a mark
+observed on two days was processed twice as the second day. Now:
+- **One baseline, one pair.** The relative modes take the base and rover sessions that overlap. One pair is
+  processed, and the log names it when either station has other sessions. Several are refused with their
+  spans, since choosing one is a guess; none is refused too.
+- **One position, one session.** The absolute modes refuse a station with several sessions, naming them.
+- **A batch row per session.** Each rover session runs against the base session it overlaps, and is keyed by
+  its station and span where the station has more than one. A session the base did not observe with fails
+  with that reason, and so does one two base sessions overlap; the rest of the batch runs.
+- **Spans are written `2025-01-01 00:00/00:59`**, an ISO 8601 interval, whose separator needs no translation.
+
 ---
 
 ## 3. Positioning modes

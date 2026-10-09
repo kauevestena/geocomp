@@ -2831,6 +2831,10 @@
     <context>
         <name>GeoCompGnssProcess</name>
         <message>
+            <source>%1 and %2 observed together once in this folder, %3, and that is the session processed.</source>
+            <translation>%1 y %2 observaron juntas una vez en esta carpeta, %3, y esa es la sesión procesada.</translation>
+        </message>
+        <message>
             <source>%1 epochs, %2% with resolved ambiguities</source>
             <translation>%1 épocas, %2% con ambigüedades resueltas</translation>
         </message>
@@ -2841,6 +2845,14 @@
         <message>
             <source>Absolute (PPP) processing in RTKLIB is limited and typically decimetre-level. Prefer Relative processing where a base station is available.</source>
             <translation>El procesamiento Absoluto (PPP) en RTKLIB es limitado y típicamente decimétrico. Prefiera el procesamiento Relativo cuando haya una estación base disponible.</translation>
+        </message>
+        <message>
+            <source>Base %1 and rover %2 never observed at the same time in this folder. Add the base's session for the rover's time, or choose another base.</source>
+            <translation>La base %1 y la móvil %2 nunca observaron al mismo tiempo en esta carpeta. Añada la sesión de la base para el horario de la móvil, o elija otra base.</translation>
+        </message>
+        <message>
+            <source>Base %1 and rover %2 observed together %3 times in this folder: %4. One baseline needs one session: keep only that session's files in the folder, or use Batch processing, which processes each.</source>
+            <translation>La base %1 y la móvil %2 observaron juntas %3 veces en esta carpeta: %4. Una línea base necesita una sesión: deje en la carpeta solo los archivos de esa sesión, o use el Procesamiento por lotes, que procesa cada una.</translation>
         </message>
         <message>
             <source>Base %1 → rover %2</source>
@@ -2921,6 +2933,10 @@
         <message>
             <source>Solution epochs (layer)</source>
             <translation>Épocas de la solución (capa)</translation>
+        </message>
+        <message>
+            <source>Station %1 has %2 sessions in this folder: %3. One run needs one session: keep only that session's files in the folder, or use Batch processing, which processes each.</source>
+            <translation>La estación %1 tiene %2 sesiones en esta carpeta: %3. Una ejecución necesita una sesión: deje en la carpeta solo los archivos de esa sesión, o use el Procesamiento por lotes, que procesa cada una.</translation>
         </message>
         <message>
             <source>The engine detected no cycle slip.</source>
@@ -5317,6 +5333,14 @@
         <message>
             <source>The archive refused the login for %1 (HTTP %2). Check the QGIS authentication configuration named for this service in the download services file.</source>
             <translation>El archivo rechazó el inicio de sesión para %1 (HTTP %2). Compruebe la configuración de autenticación de QGIS indicada para este servicio en el archivo de servicios de descarga.</translation>
+        </message>
+        <message>
+            <source>The base %1 did not observe at the same time as this session (%2), so it has no baseline. Add the base's session for that time.</source>
+            <translation>La base %1 no observó al mismo tiempo que esta sesión (%2), por eso no tiene línea base. Añada la sesión de la base para ese horario.</translation>
+        </message>
+        <message>
+            <source>The base %1 has %2 sessions overlapping this one (%3), and GeoComp does not choose between them. Join the base's files for that time into one, or keep only one of them in the folder.</source>
+            <translation>La base %1 tiene %2 sesiones que se superponen a esta (%3), y GeoComp no elige entre ellas. Una los archivos de la base para ese horario en uno solo, o deje solo uno de ellos en la carpeta.</translation>
         </message>
         <message>
             <source>The base map catalogue '%1' could not be read (%2). Correct the file, or clear the catalogue in Global Settings, under Base maps, to use the built-in services.</source>

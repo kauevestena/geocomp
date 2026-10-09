@@ -3630,6 +3630,54 @@ is unchanged.
 **Not done.** *Batch processing* takes the base and processes every other session against it. It cannot give
 the third leg of a triangle, so a triangle still needs one run per leg.
 
+#### P13-16 — a station observed more than once is never guessed between
+
+The GNSS tutorial's two hours of one triangle, put in one folder, found it. *Relative — Static* processed the
+eleven o'clock hour and said nothing about midnight's.
+
+**The defect.** Every processing algorithm built `{session.station_id: session}`, which keeps a station's last
+session and drops the rest.
+- ***Relative — Static* and *Kinematic*** took the base's last session and the rover's last, whether or not
+  they had observed together. When they had not, the engine solved nothing.
+- **The absolute modes** took the last session too.
+- ***Batch processing*** keyed every row by station. A mark observed on two days was processed twice, both
+  times as the second day, under one key, into one working directory. The first day was lost. Products were
+  keyed by station too, and the base was its last session for every rover.
+
+A campaign of several days in one folder is the ordinary case, so this was the batch's main use.
+
+**What changed.**
+- `sessions_by_station` and `session_span` (`algorithms/gnss/common.py`) give every session of each station,
+  and write when one observed as an ISO 8601 interval, whose separator needs no translation.
+- **The relative modes** take the one base and rover pair that overlaps, and say which when either station has
+  other sessions. Several pairs are refused, naming their spans, and so is none.
+- **The absolute modes** refuse a station with several sessions, naming them.
+- **The batch** gives each rover session its own row, keyed by station and span where the station has more
+  than one, run against the base session it overlaps, with its own products and working directory. A session
+  the base did not observe with fails with `computation.gnss_batch_no_base_session`, and one that two base
+  sessions overlap fails with `gnss_batch_base_sessions_ambiguous`. Each has a template, and the rest of the
+  batch runs.
+
+**Tests.** `tests/qgis/test_gnss_sessions.py` uses RTKLIB's 2005 pair and copies moved a day later.
+- **Single runs:**
+  - observed together twice is refused, naming both days;
+  - the one day they shared is processed and named, whether it is the first or the second;
+  - a base that only ever observed with another receiver is refused;
+  - absolute processing refuses a station with two sessions.
+- **Batch:**
+  - two days give two rows, each against its own day's base;
+  - a day the base missed fails with its reason;
+  - one session per station keeps the station as its key.
+
+Seven of the eight fail on the old code. The eighth is the behaviour kept.
+
+**Register.** Unchanged: 171 met, 5 partly met, 0 open.
+
+**Not done.**
+- The batch holds the base at coordinates propagated to its first session's epoch for every row. Over a
+  campaign of days that is micrometres of plate motion, but it is not each session's own epoch.
+- A base logged in several files over one rover session is refused rather than joined.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

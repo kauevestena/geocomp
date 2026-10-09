@@ -375,6 +375,20 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "cluster",
         "received",
     ),
+    "computation.gnss_batch_no_base_session": MessageTemplate(
+        "The base %1 did not observe at the same time as this session (%2), so it has no "
+        "baseline. Add the base's session for that time.",
+        "base",
+        "session",
+    ),
+    "computation.gnss_batch_base_sessions_ambiguous": MessageTemplate(
+        "The base %1 has %2 sessions overlapping this one (%3), and GeoComp does not choose "
+        "between them. Join the base's files for that time into one, or keep only one of them "
+        "in the folder.",
+        "base",
+        "count",
+        "sessions",
+    ),
     "validation.gnss_loop_too_short": MessageTemplate(
         "A GNSS loop needs at least three stations, and %1 were given: a two-station loop "
         "retraces one baseline and closes by construction. Add the stations that close the "

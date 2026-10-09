@@ -41,11 +41,13 @@ from geocomp.algorithms.gnss.common import (
     missing_products_message,
     report_scan,
     run_frame,
+    session_span,
+    sessions_by_station,
     timeout_parameter,
     translate_error,
     user_configuration,
 )
-from geocomp.core.errors import GeoCompError
+from geocomp.core.errors import ComputationError, GeoCompError
 from geocomp.core.techniques.gnss.batch import run_batch
 from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import quality_from_solution
@@ -171,7 +173,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 )
             )
 
-        by_station = {s.station_id: s for s in scan.sessions}
+        by_station = sessions_by_station(scan.sessions)
         base = None
         if not is_absolute:
             overlapping = {
@@ -186,9 +188,9 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                         self.tr("No session for base station %1. Check the base station's "
                                 "name against the folder's sessions.").replace("%1", base_name)
                     )
-                base = by_station[base_name]
+                base = by_station[base_name][0]
             elif len(overlapping) == 2:
-                base = by_station[sorted(overlapping)[0]]
+                base = by_station[sorted(overlapping)[0]][0]
             else:
                 raise QgsProcessingException(
                     self.tr("Name the base station explicitly; the folder holds: %1").replace(
@@ -208,6 +210,39 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             profile_name, user_options=user["options"] if user else None, **held
         )
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
+        # One row per session, not per station (P13-16): a campaign observes a
+        # mark on several days, and keyed by station every row but the last
+        # was lost and the last processed in their place.
+        keys = {
+            id(session): session.station_id
+            if len(by_station[session.station_id]) == 1
+            else f"{session.station_id} {session_span(session)}"
+            for session in rovers
+        }
+        by_key = {keys[id(session)]: session for session in rovers}
+        # Each session against the base session it observed with. The base's
+        # first session is no longer every rover's, observed then or not.
+        partners: dict[str, Any] = {}
+        unreachable: dict[str, GeoCompError] = {}
+        if base is not None:
+            bases = by_station[base.station_id]
+            for key, session in by_key.items():
+                overlapping = [candidate for candidate in bases if candidate.overlaps(session)]
+                if len(overlapping) == 1:
+                    partners[key] = overlapping[0]
+                elif not overlapping:
+                    unreachable[key] = ComputationError(
+                        "gnss_batch_no_base_session",
+                        base=base.station_id,
+                        session=session_span(session),
+                    )
+                else:
+                    unreachable[key] = ComputationError(
+                        "gnss_batch_base_sessions_ambiguous",
+                        base=base.station_id,
+                        count=len(overlapping),
+                        sessions="; ".join(session_span(candidate) for candidate in overlapping),
+                    )
         work_root = working_directory("geocomp-batch-")
 
         # specs/08 section 5: availability is checked before the batch starts.
@@ -215,47 +250,50 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         # refused for all sessions at once, and a download that failed is held
         # against its session for the batch to report (section 9).
         products: dict[str, SessionProducts] = {}
-        unreachable: dict[str, GeoCompError] = {}
         lacking: list[str] = []
-        for session in rovers:
+        for key, session in by_key.items():
+            if key in unreachable:
+                continue
             try:
                 found = gather_products(
-                    [session, *([base] if base is not None else [])],
+                    [session, *([partners[key]] if key in partners else [])],
                     configuration.ephemeris,
                     configuration.navigation_systems,
                     feedback,
                 )
             except GeoCompError as exc:
-                unreachable[session.station_id] = exc
+                unreachable[key] = exc
                 continue
-            products[session.station_id] = found
-            lacking += [f"{session.station_id}: {item}" for item in found.missing()]
+            products[key] = found
+            lacking += [f"{key}: {item}" for item in found.missing()]
         if lacking:
             raise QgsProcessingException(missing_products_message(lacking))
 
         engine = gnss_engine(feedback)
         timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
 
-        def process(station_id: str):
-            if station_id in unreachable:
-                raise unreachable[station_id]
-            session = by_station[station_id]
-            kwargs = {"base": base} if base is not None else {}
+        def process(key: str):
+            if key in unreachable:
+                raise unreachable[key]
+            session = by_key[key]
+            kwargs = {"base": partners[key]} if key in partners else {}
             result = engine.run(
                 RtklibJob(
                     rover=session,
                     config=configuration,
-                    products=products[station_id].paths,
+                    products=products[key].paths,
                     timeout=timeout,
                     **kwargs,
                 ),
-                work_dir=work_root / station_id,
+                # A name a file system takes: the key's span has a colon and a slash.
+                work_dir=work_root / "".join(c if c.isalnum() else "-" for c in key),
             )
             return {
-                "station": station_id,
-                "quality": quality_from_solution(result.solution, session_id=station_id).to_dict(),
+                "station": session.station_id,
+                **({"session": session_span(session)} if key != session.station_id else {}),
+                "quality": quality_from_solution(result.solution, session_id=key).to_dict(),
                 "solution": str(result.output_file),
-                "products": products[station_id].provenance(),
+                "products": products[key].provenance(),
                 # FR-036: what was run for this session, and what it said.
                 "run": result.run.to_dict(),
             }
@@ -265,7 +303,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 feedback.setProgress(int(fraction * 100))
 
         outcome = run_batch(
-            [s.station_id for s in rovers],
+            list(by_key),
             process,
             token=_Feedback(feedback),
             progress=report,

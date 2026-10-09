@@ -5,6 +5,19 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-16 — A station observed more than once is never guessed between
+
+#### Fixed
+
+- With several sessions of one station in a folder, the GNSS processing algorithms used the last and ignored
+  the rest without saying so.
+  - *Relative — Static* and *Kinematic* now process the base and rover sessions that observed together, and
+    refuse, naming the sessions, when there are several such pairs or none.
+  - *Absolute* processing refuses a station with several sessions.
+- *Batch processing* processed a mark observed on two days twice, both times as the second day. Each session
+  is now its own row, run against the base session that observed with it, and one the base missed fails with
+  that reason.
+
 ### P13-15 — A static solution from the menu becomes a baseline
 
 #### Fixed
