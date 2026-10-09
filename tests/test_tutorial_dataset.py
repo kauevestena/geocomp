@@ -242,7 +242,9 @@ RTKLIB_FILES = (
     "07590920.05o",
     "30400920.05o",
     "RTKLIB-license.txt",
+    "README.es.md",
     "README.md",
+    "README.pt_BR.md",
     "brdc_0759.05n.gz",
 )
 

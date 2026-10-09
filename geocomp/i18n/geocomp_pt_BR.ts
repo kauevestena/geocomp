@@ -12882,7 +12882,7 @@
         </message>
         <message>
             <source>Start with README.md there: it walks through the whole chain.</source>
-            <translation>Comece pelo README.md que está lá: ele percorre toda a cadeia.</translation>
+            <translation>Comece pelo README.pt_BR.md que está lá: ele percorre toda a cadeia, em português.</translation>
         </message>
         <message>
             <source>The destination folder '%1' does not exist. Create it, or choose another.</source>
