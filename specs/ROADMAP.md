@@ -3221,6 +3221,11 @@ The truth USGS published moved from `tests/test_gravimetry_network.py` to `tests
 both that test and the tutorial's use. `tests/qgis/walkthrough.py` gained `run_logged`, because the drift
 the README quotes is in the run's log and not in any output.
 
+**Defect found, by CI.** The shipped `Test2.txt` and `Test3.txt` failed their byte-for-byte check on Windows.
+Git checked them out with CRLF, because only the vendored copies were marked `-text` in `.gitattributes`.
+The plugin's copies are now marked the same way, as RTKLIB's sample has been since P12c-27. Every other
+check of the shipped files parses them, so line endings cannot move it.
+
 **Register.** Unchanged: 171 met, 5 partly met, 0 open. FR-952 now has four modules of six.
 
 **Not done.** Tutorials for GNSS and integration. GNSS's needs RD-06's accuracy criterion met, or another
