@@ -3676,7 +3676,8 @@ Seven of the eight fail on the old code. The eighth is the behaviour kept.
 
 **Not done.**
 - The batch holds the base at coordinates propagated to its first session's epoch for every row. Over a
-  campaign of days that is micrometres of plate motion, but it is not each session's own epoch.
+  campaign of days that is micrometres of plate motion, but it is not each session's own epoch. *(Done in
+  P13-23.)*
 - A base logged in several files over one rover session is refused rather than joined.
 
 #### P13-17 — the GNSS tutorial: a triangle that closes, and one that does not (FR-952 met)
@@ -3926,6 +3927,39 @@ The tutorials' folder listings now include the stations file.
 **Register.** Unchanged: 172 met, 4 partly met, 0 open.
 
 **Not done.** A print layout of the results, the other half of P13-12's *Not done*.
+
+#### P13-23 — each batch row holds the base at its own epoch
+
+P13-16's first *Not done*. *Batch processing* resolved the base's coordinates once, at the epoch of the base
+station's first session, and gave every row that configuration.
+- **What that cost.** A base in the reference-station database moves along its published velocity. Every row
+  after the first was held where the base had been on the first day.
+- **Its size.** Over a campaign of days, micrometres to tenths of a millimetre of plate motion, but not each
+  session's own epoch.
+
+**What changed** (`specs/11` §2 and §7).
+- **Per base session.** The base's coordinates are resolved for each base session a row runs against. Each
+  row runs with its own configuration.
+- **Recorded per row.** Each row records its `base_coordinates`, with the base session's span. The report's
+  `configuration` is what the rows share; the top-level `base_coordinates` is gone, since no one record was
+  every row's.
+- **A base held at its RINEX header** is the same whatever the day, so it is decided once, and the log says
+  so once.
+- **A base session no row runs against is not resolved.** A batch in which every row fails before running no
+  longer stops on the base's coordinates.
+
+**Tests.** `tests/qgis/test_gnss_sessions.py::TestABatch`, two, on the 2005 pair and a copy a day later:
+- **With 3040 in a database, moving 3 cm a year.** The two days' bases differ by the velocity times the day
+  between, to a nanometre. Each row's record names its own day's span and epoch, and each job holds the base
+  at its row's record.
+- **Not in the database.** The header holds it, the log says so once, and each row's record names its day.
+
+Both fail on the old code.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.** A base logged in several files over one rover session is still refused rather than joined, as
+P13-16 left it.
 
 ---
 

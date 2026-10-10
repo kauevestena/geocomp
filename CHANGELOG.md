@@ -5,6 +5,18 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-23 — Each batch row holds the base at its own epoch
+
+#### Fixed
+
+- *Batch processing* held a base from the reference-station database where its first session put it for
+  every row. Each row now holds it at the epoch of the base session that row runs against.
+
+#### Changed
+
+- The batch report records `base_coordinates` on each session's row, with the base session's span, not once
+  for the whole batch.
+
 ### P13-22 — A worked project opens on its stations
 
 #### Added
