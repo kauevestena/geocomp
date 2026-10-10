@@ -5,6 +5,21 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-24 — A worked project holds a print layout of its results
+
+#### Added
+
+- Each worked project *Install tutorial dataset* writes holds a print layout, `<dataset> — results`. Its map
+  and legend follow the project: the stations when it opens, and the results beside them once the model has
+  run. The levelling loop has no map, and no layout.
+- The gravity, integration and GNSS tutorials' models now load their result layers when they finish: the
+  calibrated gravity run's, the weighed integration run's, and each hour's baselines.
+
+#### Fixed
+
+- The installer's help did not name the GNSS tutorial, ggao-triangle. It now does, and says what each
+  project opens on and what its layout shows.
+
 ### P13-23 — Each batch row holds the base at its own epoch
 
 #### Fixed

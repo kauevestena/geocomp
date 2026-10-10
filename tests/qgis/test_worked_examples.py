@@ -11,6 +11,7 @@ steps, and give the numbers the README states.
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -94,23 +95,29 @@ def _defaults(model, *, layers: str | None = None) -> dict:
     return parameters
 
 
-@pytest.fixture(scope="module")
-def ran(name, model):
-    from qgis.core import QgsProcessingContext, QgsProcessingFeedback
-
+@contextmanager
+def _engines_standing_in(name: str):
+    """rnx2rtkp is tier 4: the solutions it gave for a GNSS tutorial's pairs stand in."""
     with pytest.MonkeyPatch.context() as patch:
         if name == "rtklib-sample":
-            # rnx2rtkp is tier 4: the solution it gave for this pair stands in.
             from geocomp.services import engines
             from tests.qgis.test_engine_runs import _Rtklib
 
             patch.setattr(engines, "rtklib_engine", _Rtklib)
         if name == "ggao-triangle":
-            # And here the solutions it gave for each hour's three pairs.
+            # Each hour's three pairs.
             from geocomp.services import engines
             from tests.qgis.test_gnss_tutorial import _Recorded
 
             patch.setattr(engines, "rtklib_engine", _Recorded)
+        yield
+
+
+@pytest.fixture(scope="module")
+def ran(name, model):
+    from qgis.core import QgsProcessingContext, QgsProcessingFeedback
+
+    with _engines_standing_in(name):
         results, ok = model.run(
             _defaults(model), QgsProcessingContext(), QgsProcessingFeedback(), catchExceptions=False
         )
@@ -198,6 +205,66 @@ class TestTheMap:
         assert view.contains(layer.extent()) and view.width() > 0 and view.height() > 0
 
 
+class TestTheLayout:
+    """P13-24: a print layout of the map as it stands -- the stations, and the results once loaded."""
+
+    def test_it_holds_one_named_after_the_dataset(self, name, installed):
+        from geocomp.algorithms.project.worked_examples import layout_name
+
+        opened = _opened(installed)
+        layouts = opened.layoutManager().printLayouts()
+        if name not in ON_THE_MAP:
+            assert layouts == []
+            return
+        (layout,) = layouts
+        assert layout.name() == layout_name(name)
+        assert layout.itemById("title").text() == layout_name(name)
+        assert opened.crs().authid() in layout.itemById("footer").text()
+        assert "exaggerated" in layout.itemById("notes").text()
+
+    def test_its_map_draws_the_project_at_the_stations(self, name, installed):
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        opened = _opened(installed)
+        (layout,) = opened.layoutManager().printLayouts()
+        (stations,) = opened.mapLayers().values()
+        drawing = layout.itemById("map")
+        # No layers of its own: it draws what the project shows.
+        assert drawing.layers() == [] and not drawing.keepLayerSet()
+        assert not drawing.followVisibilityPreset()
+        assert [layer.id() for layer in drawing.layersToRender()] == [stations.id()]
+        assert drawing.crs() == stations.crs()
+        assert drawing.extent().contains(stations.extent())
+
+    def test_a_layer_loaded_later_is_drawn_and_listed(self, name, installed):
+        """What the model's result layers do when it finishes and they are loaded."""
+        from qgis.core import QgsVectorLayer
+
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        opened = _opened(installed)
+        (layout,) = opened.layoutManager().printLayouts()
+        (stations,) = opened.mapLayers().values()
+        result = QgsVectorLayer(f"Point?crs={stations.crs().authid()}", "a result", "memory")
+        opened.addMapLayer(result)
+        drawing = layout.itemById("map")
+        assert {stations.id(), result.id()} <= {layer.id() for layer in drawing.layersToRender()}
+        legend = layout.itemById("legend")
+        assert legend.linkedMap() == drawing
+        assert {stations.id(), result.id()} <= set(legend.model().rootGroup().findLayerIds())
+
+
+def test_the_installers_help_names_every_dataset():
+    """Found by P13-24: the help named every tutorial but the GNSS one, which P13-17 added."""
+    from geocomp.algorithms.project.tutorial_dataset import TutorialDatasetAlgorithm
+
+    algorithm = TutorialDatasetAlgorithm()
+    body = algorithm.help_body()
+    for name in available_datasets():
+        assert f"<b>{ {'rd01': 'RD-01'}.get(name, name) }</b>" in body, name
+    assert "print layout" in body
+
+
 class TestTheProject:
     def test_the_installer_writes_it_beside_the_files(self, name, installed):
         folder, project = installed
@@ -274,31 +341,61 @@ class TestRunningIt:
         assert "120" in json.dumps(quality)
 
 
+#: How many result layers each model loads when it finishes (P13-24). The
+#: gravity tutorial's is the calibrated run's, and the integration tutorial's
+#: the weighed one's: the runs the walkthroughs end on.
+DRAWN = {
+    "rd01": 5,
+    "rtklib-sample": 1,
+    "rd04-loop": 0,
+    "rd08-dam": 2,
+    "rd07-usgs": 2,
+    "combined-curitiba": 5,
+    "ggao-triangle": 2,
+}
+
+
 @requires_modern_field_api
-def test_rd01s_model_draws_its_map(tmp_path):
-    """The layers a student sees when it finishes: the adjustment's, temporary as the dialog makes them."""
+def test_its_model_draws_its_results_into_the_layout(name, installed, model):
+    """The layers a student sees when it finishes, temporary as the dialog makes them and
+    loaded as it loads them: each has features, and the layout draws and lists them."""
     from qgis.core import (
         QgsProcessing,
         QgsProcessingContext,
+        QgsProcessingDestinationParameter,
         QgsProcessingFeedback,
+        QgsProcessingParameterFileDestination,
         QgsProcessingUtils,
     )
 
-    from geocomp.algorithms.project.worked_examples import read_models
-
-    results = run(INSTALL, {"DATASET": available_datasets().index("rd01"), "DESTINATION": str(tmp_path)})
-    (model,) = read_models(Path(results["OUTPUT_PROJECT"]))
+    opened = _opened(installed)
     context = QgsProcessingContext()
-    outcome, ok = model.run(
-        _defaults(model, layers=QgsProcessing.TEMPORARY_OUTPUT),
-        context,
-        QgsProcessingFeedback(),
-        catchExceptions=False,
-    )
+    context.setProject(opened)
+    with _engines_standing_in(name):
+        outcome, ok = model.run(
+            _defaults(model, layers=QgsProcessing.TEMPORARY_OUTPUT),
+            context,
+            QgsProcessingFeedback(),
+            catchExceptions=False,
+        )
     assert ok
-    # The outputs are named by their labels, which end in "(layer)" for a map layer.
-    layers = {key: value for key, value in outcome.items() if "(layer)" in key}
-    assert len(layers) == 5, sorted(outcome)
-    for key, value in layers.items():
-        layer = QgsProcessingUtils.mapLayerFromString(value, context)
+    drawn = [
+        definition.name()
+        for definition in model.parameterDefinitions()
+        if isinstance(definition, QgsProcessingDestinationParameter)
+        and not isinstance(definition, QgsProcessingParameterFileDestination)
+    ]
+    assert len(drawn) == DRAWN[name], drawn
+    results = []
+    for key in drawn:
+        layer = QgsProcessingUtils.mapLayerFromString(outcome[key], context)
         assert layer is not None and layer.featureCount() > 0, key
+        context.temporaryLayerStore().takeMapLayer(layer)
+        opened.addMapLayer(layer)
+        results.append(layer.id())
+    if name not in ON_THE_MAP:
+        assert opened.layoutManager().printLayouts() == []
+        return
+    (layout,) = opened.layoutManager().printLayouts()
+    assert set(results) <= {layer.id() for layer in layout.itemById("map").layersToRender()}
+    assert set(results) <= set(layout.itemById("legend").model().rootGroup().findLayerIds())
