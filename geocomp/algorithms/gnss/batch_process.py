@@ -38,6 +38,7 @@ from geocomp.algorithms.gnss.common import (
     frame_choices,
     gather_products,
     gnss_engine,
+    joined_occupations,
     missing_products_message,
     report_scan,
     run_frame,
@@ -205,13 +206,28 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         configuration = configured_profile(
             profile_name, user_options=user["options"] if user else None
         )
-        rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
+        made: list[Path] = []
+
+        def work_root() -> Path:
+            # Made when first needed, so a batch refused before it leaves no folder.
+            if not made:
+                made.append(working_directory("geocomp-batch-"))
+            return made[0]
+
+        # Each rover's occupations, one session however many files it was logged
+        # in (P13-29): a morning logged hourly was a row an hour.
+        occupied = {
+            station: joined_occupations(sessions, lambda: work_root() / "occupations", feedback)
+            for station, sessions in by_station.items()
+            if base is None or station != base.station_id
+        }
+        rovers = [session for sessions in occupied.values() for session in sessions]
         # One row per session, not per station (P13-16): a campaign observes a
         # mark on several days, and keyed by station every row but the last
         # was lost and the last processed in their place.
         keys = {
             id(session): session.station_id
-            if len(by_station[session.station_id]) == 1
+            if len(occupied[session.station_id]) == 1
             else f"{session.station_id} {session_span(session)}"
             for session in rovers
         }
@@ -221,13 +237,6 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         partners: dict[str, Any] = {}
         unreachable: dict[str, GeoCompError] = {}
         joined: dict[tuple[str, ...], Any] = {}
-        made: list[Path] = []
-
-        def work_root() -> Path:
-            # Made when first needed, so a batch refused before it leaves no folder.
-            if not made:
-                made.append(working_directory("geocomp-batch-"))
-            return made[0]
 
         if base is not None:
             bases = by_station[base.station_id]

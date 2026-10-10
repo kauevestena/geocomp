@@ -54,6 +54,7 @@ from geocomp.algorithms.gnss.common import (
     engine_record,
     frame_choices,
     gnss_engine,
+    joined_occupations,
     ppp_limitation_notice,
     report_scan,
     run_frame,
@@ -283,11 +284,16 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 "base",
                 exclude=rover_id,
             )
+            # The rover's occupation logged in several files is one session
+            # (P13-29); the base's files over it are joined by _pair (P13-26).
+            def here() -> Path:
+                return root() / "-".join((self.profile_name, base_id, rover_id))
+
             base, rover = self._pair(
                 stations[base_id],
-                stations[rover_id],
+                joined_occupations(stations[rover_id], here, feedback),
                 feedback,
-                lambda: root() / "-".join((self.profile_name, base_id, rover_id)),
+                here,
             )
             job_kwargs["base"] = base
             feedback.pushInfo(
@@ -300,7 +306,13 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             )
             overrides.update(held)
         else:
-            rover = self._only(stations[rover_id])
+            rover = self._only(
+                joined_occupations(
+                    stations[rover_id],
+                    lambda: root() / "-".join((self.profile_name, rover_id)),
+                    feedback,
+                )
+            )
 
         configuration = configured_profile(
             self.profile_name, user_options=user["options"] if user else None, **overrides

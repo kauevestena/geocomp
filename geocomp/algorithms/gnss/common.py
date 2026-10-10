@@ -15,7 +15,7 @@ first commit that declares them so they never join that list.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -71,6 +71,7 @@ __all__ = [
     "gather_products",
     "gnss_engine",
     "gnss_setting",
+    "joined_occupations",
     "missing_products_message",
     "ppp_limitation_notice",
     "product_cache",
@@ -133,6 +134,49 @@ def say_joined(feedback: QgsProcessingFeedback, joined: GnssSession, rover: Gnss
         .replace("%3", str(len(files)))
         .replace("%4", ", ".join(files))
     )
+
+
+def joined_occupations(
+    sessions: list[GnssSession], directory: Callable[[], Path], feedback: QgsProcessingFeedback
+) -> list[GnssSession]:
+    """One station's sessions, each occupation it logged in several files joined into one (P13-29).
+
+    A receiver logging hourly leaves an occupation of a morning in several
+    files; processed as they were, each was a session of its own. Files that
+    follow one another and were recorded one way
+    (:func:`~geocomp.io.gnss_discovery.occupations`) are joined in the folder
+    *directory* gives, which is made only if one is. Files that follow one
+    another but cannot be joined -- compressed in a form GeoComp cannot read --
+    are kept as they are, and the log says why.
+    """
+    from geocomp.io.gnss_discovery import join_sessions, occupations
+
+    joined: list[GnssSession] = []
+    for group in occupations(sessions):
+        if len(group) == 1:
+            joined.append(group[0])
+            continue
+        names = ", ".join(Path(session.obs_file).name for session in group)
+        try:
+            session = join_sessions(list(group), directory())
+        except GeoCompError as exc:
+            feedback.pushWarning(
+                _tr("The files %1 of %2 follow one another, but are processed apart: %3")
+                .replace("%1", names)
+                .replace("%2", group[0].station_id)
+                .replace("%3", translate_error(exc))
+            )
+            joined.extend(group)
+            continue
+        feedback.pushInfo(
+            _tr("%1 logged %2 in %3 files, one after another, joined into one session: %4.")
+            .replace("%1", session.station_id)
+            .replace("%2", session_span(session))
+            .replace("%3", str(len(group)))
+            .replace("%4", names)
+        )
+        joined.append(session)
+    return joined
 
 
 def gnss_setting(key: str) -> Any:
