@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-25 — A pair held twice is two baselines, each named
+
+#### Fixed
+
+- *Build baselines* named every baseline `BASE-ROVER`, so a folder holding one pair from two sessions kept one
+  quality record for both, gave the network document's baseline the other session's epoch, and refused the
+  run outright when the dependent baselines were kept. Each baseline of a repeated pair is now named by its
+  session's span, `GODN-GODE 2025-01-01 00:00/00:59`, and the log says so.
+
 ### P13-24 — A worked project holds a print layout of its results
 
 #### Added
