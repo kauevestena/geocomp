@@ -77,8 +77,12 @@ def quoted(readme: str, text: str) -> None:
 
 def installed(name: str, shipped: tuple[str, ...]) -> list[str]:
     """What *Install tutorial dataset* leaves in the dataset's folder: the files it ships,
-    and the worked example's project and results folder (P13-12)."""
-    return sorted((*shipped, f"{name}.qgz", "results"))
+    the worked example's project and results folder (P13-12), and the stations its
+    map opens on, where its inputs place any (P13-22)."""
+    from geocomp.algorithms.project.worked_examples import PLACED
+
+    placed = (f"{name}-stations.gpkg",) if name in PLACED else ()
+    return sorted((*shipped, f"{name}.qgz", "results", *placed))
 
 
 def mm(metres: float, places: int = 1) -> str:

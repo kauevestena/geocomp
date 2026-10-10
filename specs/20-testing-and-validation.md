@@ -368,6 +368,18 @@ test anywhere.
   - the model's steps are the README's;
   - its inputs are the installed files;
   - run with nothing changed, it writes its files to `results/` and gives the numbers the README states.
+
+  *Since P13-22 the map is not empty when the project opens.* Where a dataset's inputs place its stations,
+  they are written to `<dataset>-stations.gpkg` beside the project, and the project opens on that layer,
+  labelled, in its CRS:
+  - a network document's approximate positions, in its own projected CRS;
+  - a RINEX header's or a geocentric document's, as longitude and latitude;
+  - a gravity survey's latitude and longitude;
+  - rd01's approximate coordinates, in the CRS its walkthrough adjusts in, so the adjusted stations fall on
+    them.
+
+  rd04-loop's levelling book places no station, and its map stays empty. The tests check each project's
+  layer, CRS, stations, labels and opening view, and one station's position in each.
 - **Contribution guide** covering the specification process ([`README.md`](./README.md)), the tiers above,
   and the structural checks — so a contributor knows what "done" means before opening a pull request
   (FR-954). *As built (P13-1)*: [`CONTRIBUTING.md`](../CONTRIBUTING.md). It covers the ways to take part:

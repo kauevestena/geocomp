@@ -117,6 +117,15 @@ FOREIGN_KEYS: dict[str, str] = {
         "RD-06's base, an NGS CORS identifier: the station tests/qgis/"
         "test_base_station_frame.py writes into a reference-station database."
     ),
+    # The integration tutorial's stations (combined-curitiba), named in the set
+    # of stations its worked project's map shows (P13-22), listed for the same
+    # reason as the benchmarks above.
+    "CTB1": "A combined-curitiba station, tests/qgis/test_worked_examples.py::ON_THE_MAP.",
+    "CTB2": "A combined-curitiba station; see CTB1.",
+    "M03": "A combined-curitiba station; see CTB1.",
+    "M04": "A combined-curitiba station; see CTB1.",
+    "M05": "A combined-curitiba station; see CTB1.",
+    "M06": "A combined-curitiba station; see CTB1.",
 }
 
 

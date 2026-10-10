@@ -118,6 +118,86 @@ def ran(name, model):
     return results
 
 
+#: Each dataset's stations as its project's map shows them (P13-22): the CRS,
+#: the stations, and where one of them is -- in longitude and latitude where
+#: the CRS is geographic, which is what puts a RINEX header's Japan in Japan.
+#: rd04-loop's levelling book places no station, and its map is empty.
+ON_THE_MAP = {
+    "rd01": ("EPSG:31982", {"1", "2", "3"}, ("1", 0.0, 0.0)),
+    "rtklib-sample": ("EPSG:4326", {"0759", "3040"}, ("3040", 139.6243, 35.1321)),
+    "rd08-dam": (
+        "EPSG:31982",
+        {"R1", "R2", "R3", "R4", "O1", "O2", "O3", "O4", "O5"},
+        ("R1", 675000.0007, 7185000.0270),
+    ),
+    "rd07-usgs": ("EPSG:4326", {"sta1", "sta2", "sta3", "sta4", "sta5"}, ("sta1", -110.0, 32.5)),
+    "combined-curitiba": (
+        "EPSG:4326",
+        {"CTB1", "CTB2", "M03", "M04", "M05", "M06"},
+        ("CTB1", -49.2700, -25.4300),
+    ),
+    "ggao-triangle": ("EPSG:4326", {"GODN", "GODE", "GODS"}, ("GODN", -76.8271, 39.0212)),
+}
+
+
+def _opened(installed):
+    """The installed project, read as QGIS reads it.
+
+    Opened in the test, not by a fixture: pytest keeps a fixture's value on the
+    test item until the session ends, and a project still holding a GeoPackage
+    layer when QGIS has shut down crashes the interpreter on its way out.
+    """
+    from qgis.core import QgsProject
+
+    _folder, path = installed
+    project = QgsProject()
+    assert project.read(str(path)), project.error()
+    return project
+
+
+class TestTheMap:
+    """P13-22: the project opens on the stations, before the model has run."""
+
+    def test_it_opens_on_the_stations_the_inputs_place(self, name, installed):
+        from geocomp.algorithms.project.worked_examples import stations_file
+
+        folder, _path = installed
+        opened = _opened(installed)
+        layers = list(opened.mapLayers().values())
+        if name not in ON_THE_MAP:
+            assert layers == []
+            assert not stations_file(name, folder).exists()
+            return
+        crs, stations, _one = ON_THE_MAP[name]
+        (layer,) = layers
+        assert layer.isValid()
+        # As paths: QGIS writes the source with forward slashes on Windows too.
+        assert Path(layer.source().split("|")[0]) == stations_file(name, folder)
+        assert layer.crs().authid() == crs == opened.crs().authid()
+        assert {feature["station"] for feature in layer.getFeatures()} == stations
+
+    def test_each_station_is_where_its_input_puts_it(self, name, installed):
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        _crs, _stations, (station, x, y) = ON_THE_MAP[name]
+        opened = _opened(installed)
+        (layer,) = opened.mapLayers().values()
+        (feature,) = [f for f in layer.getFeatures() if f["station"] == station]
+        point = feature.geometry().asPoint()
+        assert (point.x(), point.y()) == pytest.approx((x, y), abs=1e-4)
+
+    def test_it_is_labelled_and_opens_on_them(self, name, installed):
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        opened = _opened(installed)
+        (layer,) = opened.mapLayers().values()
+        assert layer.labelsEnabled()
+        assert layer.labeling().settings().fieldName == "station"
+        view = opened.viewSettings().defaultViewExtent()
+        assert view.crs() == layer.crs()
+        assert view.contains(layer.extent()) and view.width() > 0 and view.height() > 0
+
+
 class TestTheProject:
     def test_the_installer_writes_it_beside_the_files(self, name, installed):
         folder, project = installed
