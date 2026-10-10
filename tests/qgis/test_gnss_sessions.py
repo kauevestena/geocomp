@@ -153,14 +153,79 @@ class TestOneBaseline:
         assert engine.jobs == []
 
 
+#: Where the 2005 sample's base is said to move, for a database that knows it.
+#: The pair's own header position; the velocity is large enough to see in a day.
+BASE_XYZ = (-3978242.4348, 3382841.1715, 3649902.7667)
+BASE_VELOCITY = (-0.030, 0.020, 0.010)
+
+
+@pytest.fixture
+def base_in_the_database(tmp_path):
+    """3040 in a reference-station database, at 2005.0 and moving, for the length of a test."""
+    from geocomp.core.models.epoch import Epoch
+    from geocomp.core.techniques.gnss.stations import ReferenceStation, StationDatabase
+    from geocomp.core.uncertainty import Quantity
+    from geocomp.core.units import Unit
+    from geocomp.services.settings_service import settings
+
+    stations = StationDatabase()
+    stations.add(
+        ReferenceStation(
+            id="3040",
+            position=tuple(Quantity.from_std_dev(v, 0.002, Unit.METRE) for v in BASE_XYZ),
+            frame="ITRF2020",
+            epoch=Epoch(decimal_year=2005.0),
+            velocity_per_year=BASE_VELOCITY,
+            source="a test's own",
+        )
+    )
+    path = tmp_path / "stations.json"
+    stations.write(path)
+    settings.set_global("gnss.reference_station_database", str(path))
+    yield
+    settings.reset_global("gnss.reference_station_database")
+
+
 class TestABatch:
-    def _batch(self, folder: Path, tmp_path: Path):
+    def _batch(self, folder: Path, tmp_path: Path, **extra):
         report = tmp_path / "batch.json"
         _results, feedback = _run(
             "geocomp:gnss_batch",
-            {"FOLDER": str(folder), "BASE_STATION": "3040", "OUTPUT_JSON": str(report)},
+            {"FOLDER": str(folder), "BASE_STATION": "3040", "OUTPUT_JSON": str(report), **extra},
         )
         return json.loads(report.read_text(encoding="utf-8")), feedback
+
+    def test_each_session_holds_the_base_at_its_own_epoch(self, rtklib, tmp_path, base_in_the_database):  # noqa: F811
+        """P13-23: each day's base where its velocity has carried it by that day.
+
+        Until P13-23 every row held the base where the first session put it.
+        """
+        import numpy as np
+
+        engine = rtklib()
+        # 1: the base's own frame, so only its epoch moves it.
+        document, _feedback = self._batch(_folder(tmp_path, base=(1, 2), rover=(1, 2)), tmp_path, FRAME=1)
+        jobs = sorted(engine.jobs, key=lambda job: job.base.start)
+        assert [job.config.base_position_type for job in jobs] == ["xyz", "xyz"]
+        records = sorted((row["base_coordinates"] for row in document["sessions"]), key=lambda r: r["epoch"])
+        assert [record["session"] for record in records] == [DAY_ONE, DAY_TWO]
+        years = records[1]["epoch"] - records[0]["epoch"]
+        assert years == pytest.approx(1 / 365, rel=1e-6)
+        moved = np.subtract(jobs[1].config.base_position, jobs[0].config.base_position)
+        np.testing.assert_allclose(moved, np.multiply(BASE_VELOCITY, years), atol=1e-9)
+        for job, record in zip(jobs, records, strict=True):
+            assert list(job.config.base_position) == pytest.approx(record["xyz"], abs=1e-9)
+
+    def test_a_base_held_at_its_header_is_said_once(self, rtklib, tmp_path):  # noqa: F811
+        """Not in the database: the header holds it whatever the day, and the log says so once."""
+        engine = rtklib()
+        document, feedback = self._batch(_folder(tmp_path, base=(1, 2), rover=(1, 2)), tmp_path)
+        said = [line for line in feedback.infos if "is not in the reference-station database" in line]
+        assert len(said) == 1
+        assert {job.config.base_position_type for job in engine.jobs} == {"rinexhead"}
+        records = [row["base_coordinates"] for row in document["sessions"]]
+        assert sorted(record["session"] for record in records) == [DAY_ONE, DAY_TWO]
+        assert {record["source"] for record in records} == {"RINEX header"}
 
     def test_every_session_is_a_row_against_the_base_it_observed_with(self, rtklib, tmp_path):  # noqa: F811
         engine = rtklib()

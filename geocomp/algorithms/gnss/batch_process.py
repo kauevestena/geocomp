@@ -199,15 +199,10 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 )
             feedback.pushInfo(self.tr("Base: %1").replace("%1", base.station_id))
 
-        held: dict[str, Any] = {}
-        base_record: dict[str, Any] | None = None
-        if base is not None:
-            held, base_record = base_coordinates(
-                base, run_frame(self.parameterAsEnum(parameters, FRAME, context)), feedback
-            )
-        # Every session with the same configuration, the user's options included.
+        # Every session with the same configuration, the user's options included,
+        # but for where the base is held: that is each base session's own (below).
         configuration = configured_profile(
-            profile_name, user_options=user["options"] if user else None, **held
+            profile_name, user_options=user["options"] if user else None
         )
         rovers = [s for s in scan.sessions if base is None or s.station_id != base.station_id]
         # One row per session, not per station (P13-16): a campaign observes a
@@ -243,6 +238,11 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                         count=len(overlapping),
                         sessions="; ".join(session_span(candidate) for candidate in overlapping),
                     )
+        # Each base session at its own epoch (P13-23). Until then every row held the
+        # base where the first session put it: over a campaign of days, the
+        # published velocity times the days between, on every row but the first.
+        frame = run_frame(self.parameterAsEnum(parameters, FRAME, context))
+        held_at, held_record = self._held(partners, profile_name, user, frame, feedback)
         work_root = working_directory("geocomp-batch-")
 
         # specs/08 section 5: availability is checked before the batch starts.
@@ -277,10 +277,11 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 raise unreachable[key]
             session = by_key[key]
             kwargs = {"base": partners[key]} if key in partners else {}
+            partner = id(partners[key]) if key in partners else None
             result = engine.run(
                 RtklibJob(
                     rover=session,
-                    config=configuration,
+                    config=held_at.get(partner, configuration),
                     products=products[key].paths,
                     timeout=timeout,
                     **kwargs,
@@ -291,6 +292,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             return {
                 "station": session.station_id,
                 **({"session": session_span(session)} if key != session.station_id else {}),
+                **({"base_coordinates": held_record[partner]} if partner in held_record else {}),
                 "quality": quality_from_solution(result.solution, session_id=key).to_dict(),
                 "solution": str(result.output_file),
                 "products": products[key].provenance(),
@@ -352,11 +354,11 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                     {
                         "profile": profile_name,
                         **({"base": base.station_id} if base else {}),
-                        **({"base_coordinates": base_record} if base_record else {}),
                         # FR-302: the engine version every session was run with.
                         "engine": engine_record(engine),
                         # The configuration every session ran with, and the
-                        # user's own options in it (FR-070).
+                        # user's own options in it (FR-070). Where the base was
+                        # held is each session's, under its base_coordinates.
                         "configuration": configuration.to_dict(),
                         **({"user_configuration": user} if user else {}),
                         **outcome.to_dict(),
@@ -369,6 +371,31 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
             )
             outputs[OUTPUT_JSON] = destination
         return outputs
+
+    @staticmethod
+    def _held(partners, profile_name, user, frame, feedback) -> tuple[dict[int, Any], dict[int, Any]]:
+        """The configuration and record for each base session a row runs against.
+
+        Keyed by the session's ``id``, as ``partners`` holds them. A base not in
+        the reference-station database is held where its header puts it,
+        whatever the epoch, so it is decided once and said once.
+        """
+        configurations: dict[int, Any] = {}
+        records: dict[int, Any] = {}
+        unique = {id(session): session for session in partners.values()}
+        header_only: tuple[dict[str, Any], dict[str, Any]] | None = None
+        for key, session in sorted(unique.items(), key=lambda item: str(item[1].start)):
+            if header_only is not None:
+                held, record = header_only
+            else:
+                held, record = base_coordinates(session, frame, feedback)
+                if not held:  # no coordinates to give: RTKLIB reads the header
+                    header_only = held, record
+            configurations[key] = configured_profile(
+                profile_name, user_options=user["options"] if user else None, **held
+            )
+            records[key] = {**record, "session": session_span(session)}
+        return configurations, records
 
 
 class _Feedback:

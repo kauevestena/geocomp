@@ -106,6 +106,10 @@ observed on two days was processed twice as the second day. Now:
 - **A batch row per session.** Each rover session runs against the base session it overlaps, and is keyed by
   its station and span where the station has more than one. A session the base did not observe with fails
   with that reason, and so does one two base sessions overlap; the rest of the batch runs.
+- **Each row's base at its own epoch (P13-23).** A base in the reference-station database is brought to the
+  epoch of the base session that row runs against, and the row records it under `base_coordinates`, with
+  that session's span. Until P13-23 every row held the base where the first session put it. A base held at
+  its RINEX header is the same whatever the day, so it is decided once and said once.
 - **Spans are written `2025-01-01 00:00/00:59`**, an ISO 8601 interval, whose separator needs no translation.
 
 ---
@@ -487,7 +491,8 @@ approximate position in no stated frame. Now:
   Helmert steps run at the published epoch, and a change of epoch moves the base along its published velocity.
   RTKLIB gets the result as explicit `xyz` coordinates.
 - **The record.** The run's summary records what was published, where the base was held, and every step with
-  its stated accuracy, under `base_coordinates`.
+  its stated accuracy, under `base_coordinates`. In a batch each session's row carries its own (P13-23), and the
+  report's `configuration` is what every row shares, with where the base was held left to the rows.
 - **What cannot be done is refused** before the engine runs, each case by name:
   - a session with no start time;
   - a station with no epoch;
