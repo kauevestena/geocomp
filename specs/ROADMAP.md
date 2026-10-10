@@ -4006,7 +4006,7 @@ ggao-triangle and not its sentence. Now it does, and a test holds the help to th
 
 **Not done.**
 - The layout's map stays where it opened. A result drawn beyond the stations, such as a long exaggerated
-  vector, can fall outside it until the map is zoomed.
+  vector, can fall outside it until the map is zoomed. *(P13-27: it follows them.)*
 - The model's labels, and now the layout's title and notes, are in the language of the installer's run
   (P13-12's third *Not done*).
 
@@ -4087,6 +4087,39 @@ it, and *Relative — Static* keeps it unless *Keep the engine's working directo
 
 **Not done.** A rover logged in several files is still several sessions, each processed against the base.
 Joining the rover's too would make one baseline of them, which is what a static session wants.
+
+#### P13-27 — the worked layout's map holds every layer drawn
+
+P13-24's first *Not done*: the layout's map stayed at the view the project opened on, so a result beyond the
+stations, such as a long exaggerated vector, fell outside it until the map was zoomed.
+
+**What changed** (`specs/20` §8).
+- **The extent is data-defined.** Its four bounds are expressions over the project's layers, re-evaluated
+  whenever the layout is refreshed or exported:
+  - the box of every layer drawn that has features, brought into the project's CRS;
+  - a fifth of its larger side added round it, at least 50 m or 0.01°, as the stations' opening view has;
+  - widened to the map item's own proportions, since an extent of other proportions would stretch the map.
+- **Rasters and base maps do not count.** They have no feature count, so a base map of the world does not zoom
+  the map out to it. Layers are chosen by count rather than by `layer_property(…, 'type')`, which returns a
+  translated word.
+- **With nothing drawn** the expressions are null, and the map keeps the view the installer gave it.
+- **The scale bar fits a width.** Its segments were fixed in metres for the stations' view. Once the results
+  zoomed the map out, the bar shrank to an unreadable stub with its labels on top of each other; it now chooses
+  its segments to fill 30 to 60 mm.
+
+Found by rendering it, not by a test: the scale bar. The extent test passed with the stub drawn.
+
+**Tests** (`tests/qgis/test_worked_examples.py::TestTheLayout`).
+`test_its_extent_holds_a_layer_loaded_beyond_the_stations`, for each project, fails on the old code. A layer
+three of the network's widths east of it is loaded into QGIS's own project. Once the layout is refreshed, the
+map holds it and the stations, keeps its size and proportions, and its scale bar fits a width. It reads the
+project into QGIS's own: on QGIS 3.34 an expression finds layers there and nowhere else.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.** The view is evaluated when the layout is refreshed or exported, as QGIS evaluates any
+data-defined extent; that is what the test does. Whether a layout already open in QGIS's designer when the
+model finishes follows without its *Refresh* button was not tried: no test here drives the designer.
 
 ---
 

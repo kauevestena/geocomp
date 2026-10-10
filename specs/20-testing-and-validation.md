@@ -387,7 +387,11 @@ test anywhere.
   - its map has no layers of its own, so it draws what the project shows: the stations when the project
     opens, and the results beside them once the model has run and loaded its layers;
   - its legend follows the project's layers, at a label size that keeps a long name on the page;
-  - it opens on the stations, and its footer names the project's CRS.
+  - it opens on the stations, and its footer names the project's CRS;
+  - *since P13-27* its extent follows too: data-defined, it holds every layer drawn that has features, in
+    the item's own proportions, so a result beyond the stations -- a long exaggerated vector -- is not cut
+    off at the view the project opened on. Its scale bar's segments fit a width rather than a length, so it
+    measures the map it shows.
 
   A layout fixed to the result layers cannot be made before they exist. A step making one inside the model
   would fail the run whenever its layers were not asked for, and could not be tested on a QGIS too old to
