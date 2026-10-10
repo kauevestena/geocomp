@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-27 — The worked layout's map holds every layer drawn
+
+#### Changed
+
+- A worked project's print layout no longer stays at the view the project opened on: its map's extent holds
+  every layer drawn with features, the results included, and its scale bar fits the map it shows.
+
 ### P13-26 — A base logged in several files is joined
 
 #### Added
