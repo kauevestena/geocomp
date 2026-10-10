@@ -687,6 +687,145 @@ def loop_closure(baselines: list[Baseline], loop: Sequence[str]) -> LoopClosure:
     )
 
 
+@dataclass(frozen=True)
+class Repeatability:
+    """How far several determinations of one vector agree with each other (P13-28).
+
+    A campaign observes a pair on several days. Closing a loop cannot see an
+    error common to every baseline at one station; repeating one can, and
+    ``specs/20`` section 6 rests RD-06's criterion on both for that reason.
+
+    Attributes:
+        base_station: The pair's base, as the first determination has it.
+        rover_station: Its rover. A determination the other way round is
+            negated, which is the same information.
+        baselines: The determinations' ids, in the order given.
+        departures_enu: Each determination's departure from their mean, in
+            metres, in the local east, north and up at the base station.
+        sigmas_enu: Each determination's formal standard deviations in the
+            same axes: what its own covariance claims, to set beside the
+            departures. RTKLIB's are commonly optimistic, so no verdict is
+            drawn from them here.
+        length_m: The mean vector's length.
+    """
+
+    base_station: str
+    rover_station: str
+    baselines: tuple[str, ...]
+    departures_enu: tuple[tuple[float, float, float], ...]
+    sigmas_enu: tuple[tuple[float, float, float], ...]
+    length_m: float
+
+    @property
+    def scatter_enu_m(self) -> tuple[float, float, float]:
+        """The sample standard deviation of each axis: a sample of a process, so ``ddof=1``."""
+        spread = np.std(np.array(self.departures_enu), axis=0, ddof=1)
+        return tuple(float(value) for value in spread)  # type: ignore[return-value]
+
+    @property
+    def largest_m(self) -> float:
+        """The largest departure of any determination from the mean, in metres."""
+        return float(max(np.linalg.norm(departure) for departure in self.departures_enu))
+
+    @property
+    def parts_per_million(self) -> float:
+        """:attr:`largest_m` against the length, as a closure is stated."""
+        if self.length_m <= 0.0:
+            return 0.0
+        return 1.0e6 * self.largest_m / self.length_m
+
+    def to_dict(self) -> dict[str, Any]:
+        """The comparison as *Build baselines* records it, in millimetres."""
+        return {
+            "base": self.base_station,
+            "rover": self.rover_station,
+            "baselines": list(self.baselines),
+            "departures_enu_mm": {
+                name: [value * 1000 for value in departure]
+                for name, departure in zip(self.baselines, self.departures_enu, strict=True)
+            },
+            "sigmas_enu_mm": {
+                name: [value * 1000 for value in sigma]
+                for name, sigma in zip(self.baselines, self.sigmas_enu, strict=True)
+            },
+            "scatter_enu_mm": [value * 1000 for value in self.scatter_enu_m],
+            "largest_mm": self.largest_m * 1000,
+            "length_m": self.length_m,
+            "parts_per_million": self.parts_per_million,
+        }
+
+
+def repeatability(baselines: Sequence[Baseline]) -> Repeatability:
+    """Compare several determinations of one vector with each other (P13-28).
+
+    Each is taken in ECEF, oriented as the first is, and its departure from
+    the mean is rotated into the local horizon at the first's base station:
+    east, north and up are what a surveyor reads a disagreement in, and the
+    up axis is where a wrong antenna height or a bad hour shows.
+
+    Raises:
+        ValidationError: fewer than two determinations
+            (``gnss_repeat_too_few``), or two that do not join the same
+            stations (``gnss_repeat_different_stations``).
+        DataError: one is not ECEF (``gnss_repeat_not_ecef``), or some are
+            reduced to the marks and some are not
+            (``gnss_repeat_mixed_antenna_reduction``) -- they would differ by
+            the antenna heights, which is not a measurement error.
+    """
+    if len(baselines) < 2:
+        raise ValidationError(
+            "gnss_repeat_too_few",
+            received=len(baselines),
+            expected="two or more determinations of one baseline",
+        )
+    first = baselines[0]
+    ends = {first.base_station, first.rover_station}
+    vectors = []
+    for baseline in baselines:
+        if {baseline.base_station, baseline.rover_station} != ends:
+            raise ValidationError(
+                "gnss_repeat_different_stations",
+                baseline=baseline.id,
+                base=first.base_station,
+                rover=first.rover_station,
+                expected="a determination between the first one's two stations",
+            )
+        if baseline.frame is not BaselineFrame.ECEF:
+            raise DataError(
+                "gnss_repeat_not_ecef",
+                baseline=baseline.id,
+                frame=baseline.frame.value,
+                expected="ECEF, in which determinations from different sessions can be averaged",
+            )
+        sign = 1.0 if baseline.base_station == first.base_station else -1.0
+        vectors.append(sign * np.array([component.value for component in baseline.components]))
+    if len({baseline.antenna_reduction is not None for baseline in baselines}) > 1:
+        raise DataError(
+            "gnss_repeat_mixed_antenna_reduction",
+            baseline=first.id,
+            expected="every determination reduced to the marks, or none of them",
+        )
+
+    latitude, longitude = first.base_horizon
+    rotation = enu_rotation(latitude, longitude)
+    mean = np.mean(vectors, axis=0)
+    departures = tuple(
+        tuple(float(value) for value in rotation @ (vector - mean)) for vector in vectors
+    )
+    sigmas = tuple(
+        tuple(float(value) for value in np.sqrt(np.diag(rotation @ baseline.covariance.matrix @ rotation.T)))
+        for baseline in baselines
+    )
+    return Repeatability(
+        base_station=first.base_station,
+        rover_station=first.rover_station,
+        baselines=tuple(baseline.id for baseline in baselines),
+        departures_enu=departures,  # type: ignore[arg-type]
+        sigmas_enu=sigmas,  # type: ignore[arg-type]
+        length_m=float(np.linalg.norm(mean)),
+    )
+
+
 def to_cluster(baselines: list[Baseline], *, cluster_id: str) -> tuple[list[Observation], Cluster]:
     """Build the correlated observation cluster an adjustment takes (FR-104).
 

@@ -63,6 +63,7 @@ from geocomp.core.techniques.gnss import (
     independent_subset,
     loop_closure,
     reduce_to_marks,
+    repeatability,
     to_cluster,
 )
 from geocomp.core.uncertainty import Quantity
@@ -463,6 +464,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
             )
 
         closures = self._close_loops(independent, dependent, feedback)
+        repeats = self._compare_repeats(built, feedback)
 
         # The marked copies, not the originals: `independent_subset` returns
         # every baseline with `is_independent` set, and it is those the layer
@@ -485,6 +487,7 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "independent_only": independent_only,
                         "quality": quality,
                         "closures": closures,
+                        "repeatability": repeats,
                         "float": floating,
                         "antenna_heights": dict(sorted(heights.items())),
                         "antenna_heights_from_files": from_files,
@@ -693,6 +696,47 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                 )
             )
         return closures
+
+
+    def _compare_repeats(self, built, feedback) -> list[dict[str, Any]]:
+        """Compare the determinations of each pair the folder holds more than once (P13-28).
+
+        ``specs/11`` section 4.1.1: closure cannot see an error common to every
+        baseline at one station, and a repeated pair can. Until P13-28 the
+        determinations were named apart (P13-25) and never set side by side.
+        Either orientation of a pair is the same vector, and both are compared.
+        """
+        pairs: dict[frozenset[str], list] = {}
+        for baseline in built:
+            pairs.setdefault(frozenset((baseline.base_station, baseline.rover_station)), []).append(baseline)
+        compared = []
+        for group in sorted((g for g in pairs.values() if len(g) > 1), key=lambda g: g[0].id):
+            try:
+                result = repeatability(group)
+            except GeoCompError as exc:
+                feedback.pushWarning(
+                    self.tr("The determinations of %1 could not be compared: %2")
+                    .replace("%1", f"{group[0].base_station}-{group[0].rover_station}")
+                    .replace("%2", translate_error(exc))
+                )
+                continue
+            east, north, up = (f"{value * 1000:.2f}" for value in result.scatter_enu_m)
+            feedback.pushInfo(
+                self.tr(
+                    "%1 was determined %2 times: the determinations depart from their mean by up "
+                    "to %3 mm over %4 m (%5 ppm), scattering %6, %7 and %8 mm in east, north and up."
+                )
+                .replace("%1", f"{result.base_station}-{result.rover_station}")
+                .replace("%2", str(len(group)))
+                .replace("%3", f"{result.largest_m * 1000:.2f}")
+                .replace("%4", f"{result.length_m:.1f}")
+                .replace("%5", f"{result.parts_per_million:.2f}")
+                .replace("%6", east)
+                .replace("%7", north)
+                .replace("%8", up)
+            )
+            compared.append(result.to_dict())
+        return compared
 
 
 @dataclass(frozen=True)
