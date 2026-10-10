@@ -81,6 +81,7 @@ __all__ = [
     "reference_stations",
     "report_scan",
     "run_frame",
+    "say_joined",
     "session_products",
     "timeout_parameter",
     "translate_error",
@@ -120,6 +121,18 @@ PPP_NOTICE_CODE = "gnss.ppp_limitation"
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate(_CONTEXT, text)
+
+
+def say_joined(feedback: QgsProcessingFeedback, joined: GnssSession, rover: GnssSession) -> None:
+    """Say that the base's files over *rover*'s session were joined, and which (P13-26)."""
+    files = joined.meta.get("joined_from", [])
+    feedback.pushInfo(
+        _tr("Base %1 logged the session %2 in %3 files, joined into one: %4.")
+        .replace("%1", joined.station_id)
+        .replace("%2", session_span(rover))
+        .replace("%3", str(len(files)))
+        .replace("%4", ", ".join(files))
+    )
 
 
 def gnss_setting(key: str) -> Any:

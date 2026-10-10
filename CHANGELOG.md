@@ -5,6 +5,19 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-26 — A base logged in several files is joined
+
+#### Added
+
+- *Batch processing* and *Relative — Static* join a base logged in several files over one rover session
+  into one, as a receiver logging hourly leaves it. Both refused it before. The files must be one setup
+  of one receiver; a station set up again is refused, naming both files and what differs.
+
+#### Fixed
+
+- *Relative — Static* refused such a base as "observed together 2 times", listing the one rover session
+  twice. It now counts rover sessions.
+
 ### P13-25 — A pair held twice is two baselines, each named
 
 #### Fixed

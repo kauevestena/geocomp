@@ -708,7 +708,7 @@ without a row.
 | FR-352 | **met** | As 08.6 |
 | FR-353 | **met** | As 08.7 |
 | FR-354 | **met** | `tests/test_rtklib_engine.py::TestConfiguration`; fed back to the engine, As 08.2 |
-| FR-355 | **met** | As 08.5; the run's time limit and its record since P12c-11 and P12c-13 (`tests/qgis/test_engine_runs.py`). Since P13-16 a batch row is a session, not a station, run against the base session it overlaps (`tests/qgis/test_gnss_sessions.py::TestABatch`) |
+| FR-355 | **met** | As 08.5; the run's time limit and its record since P12c-11 and P12c-13 (`tests/qgis/test_engine_runs.py`). Since P13-16 a batch row is a session, not a station, run against the base session it overlaps (`tests/qgis/test_gnss_sessions.py::TestABatch`), and since P13-26 against a base logged in several files joined into one (`tests/qgis/test_gnss_split_base.py`, `tests/test_gnss_join.py`) |
 | FR-356 | **met** | As 08.3 and 08.4 |
 | FR-357 | **met** | Baselines and trajectories as layers, and the network document for a joint adjustment (`tests/qgis/test_gnss_layers.py`) |
 | FR-358 | **met** | Static and kinematic profiles, precise ephemerides and the atmospheric models as configuration (`tests/test_rtklib_engine.py::TestConfiguration`); quality indicators read back, As 08.3; the products, As 08.6 |

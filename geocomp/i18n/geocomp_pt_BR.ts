@@ -2697,6 +2697,10 @@
             <translation>A base %1 não está no banco de estações de referência, por isso o RTKLIB a mantém na posição aproximada do cabeçalho RINEX, e os resultados não estão em nenhum referencial declarado.</translation>
         </message>
         <message>
+            <source>Base %1 logged the session %2 in %3 files, joined into one: %4.</source>
+            <translation>A base %1 registrou a sessão %2 em %3 arquivos, unidos em um só: %4.</translation>
+        </message>
+        <message>
             <source>Base %1: published in %2 at %3, transformed to %4 at %5 for this run.</source>
             <translation>Base %1: publicada em %2 na época %3, transformada para %4 na época %5 para esta execução.</translation>
         </message>
@@ -4075,6 +4079,10 @@
             <translation>%1: o nome do arquivo indica a estação %2 e o cabeçalho indica o marco %3; usa-se o cabeçalho. Verifique qual está certo, e corrija o outro.</translation>
         </message>
         <message>
+            <source>'%1' and '%2' cannot be joined into one session: their %3 records differ (%4 and %5). Files one receiver recorded one way are one session; a station set up again is another. Process them as separate sessions, or correct the header that is wrong.</source>
+            <translation>'%1' e '%2' não podem ser unidos em uma só sessão: os seus registros %3 diferem (%4 e %5). Arquivos que um receptor gravou de um mesmo modo são uma sessão; uma estação instalada de novo é outra. Processe-os como sessões separadas, ou corrija o cabeçalho que estiver errado.</translation>
+        </message>
+        <message>
             <source>'%1' contains no solution epoch. Check that the observations, the base station's and the products cover the same time.</source>
             <translation>'%1' não contém nenhuma época de solução. Verifique se as observações, as da estação base e os produtos cobrem o mesmo período.</translation>
         </message>
@@ -4333,6 +4341,10 @@
         <message>
             <source>'%1' records no solution: the adjustment did not reach one. DynAdjust's messages in the same folder say why. Read them, correct the input, and run it again.</source>
             <translation>'%1' não registra nenhuma solução: o ajustamento não chegou a uma. As mensagens do DynAdjust na mesma pasta dizem por quê. Leia-as, corrija a entrada e execute de novo.</translation>
+        </message>
+        <message>
+            <source>'%1' states no first observation, so it cannot be put in order with the other files of its session. Add TIME OF FIRST OBS to its header, or convert the receiver's data again.</source>
+            <translation>'%1' não declara a primeira observação, e por isso não pode ser posto em ordem com os outros arquivos da sua sessão. Acrescente TIME OF FIRST OBS ao seu cabeçalho, ou converta de novo os dados do receptor.</translation>
         </message>
         <message>
             <source>'%1' was written by DynAdjust %2, whose output layout GeoComp does not read; it reads the layouts of %3. Run one of those versions.</source>
@@ -5051,6 +5063,10 @@
             <translation>A sessão '%1' contém leituras de vários instrumentos (%2). A deriva pertence a um instrumento, então cada um precisa de sua própria sessão. Divida a sessão por instrumento.</translation>
         </message>
         <message>
+            <source>Sessions of %1 cannot be joined into one: a session is one station's. Process each station's files on their own.</source>
+            <translation>Sessões de %1 não podem ser unidas em uma só: uma sessão é de uma estação. Processe os arquivos de cada estação separadamente.</translation>
+        </message>
+        <message>
             <source>Setup %1 has %2 backsight(s) and %3 foresight(s); it needs exactly one backsight and at least one foresight.</source>
             <translation>O estacionamento %1 tem %2 visada(s) de ré e %3 visada(s) de vante; ele precisa de exatamente uma visada de ré e pelo menos uma de vante.</translation>
         </message>
@@ -5413,10 +5429,6 @@
         <message>
             <source>The base %1 did not observe at the same time as this session (%2), so it has no baseline. Add the base's session for that time.</source>
             <translation>A base %1 não observou ao mesmo tempo que esta sessão (%2), por isso ela não tem linha de base. Acrescente a sessão da base para esse horário.</translation>
-        </message>
-        <message>
-            <source>The base %1 has %2 sessions overlapping this one (%3), and GeoComp does not choose between them. Join the base's files for that time into one, or keep only one of them in the folder.</source>
-            <translation>A base %1 tem %2 sessões que se sobrepõem a esta (%3), e o GeoComp não escolhe entre elas. Junte os arquivos da base para esse horário em um só, ou mantenha apenas um deles na pasta.</translation>
         </message>
         <message>
             <source>The base map catalogue '%1' could not be read (%2). Correct the file, or clear the catalogue in Global Settings, under Base maps, to use the built-in services.</source>

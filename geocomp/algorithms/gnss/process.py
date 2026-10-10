@@ -24,6 +24,7 @@ the user who already suspected something.
 from __future__ import annotations
 
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -56,6 +57,7 @@ from geocomp.algorithms.gnss.common import (
     ppp_limitation_notice,
     report_scan,
     run_frame,
+    say_joined,
     session_products,
     session_span,
     sessions_by_station,
@@ -67,7 +69,7 @@ from geocomp.algorithms.layer_outputs import POINT_SOURCE_TYPE, write_styled_sin
 from geocomp.core.errors import GeoCompError
 from geocomp.core.number_format import localised
 from geocomp.engines.rtklib import RtklibJob
-from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
+from geocomp.io.gnss_discovery import join_sessions, overlapping_groups, scan_folder
 from geocomp.layers.builders import GNSS_HORIZON_CRS, gnss_trajectory_features
 
 FOLDER = "FOLDER"
@@ -251,6 +253,19 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         if mask >= 0:
             overrides["elevation_mask"] = mask
         job_kwargs: dict[str, Any] = {}
+        # Beside the solution when there is one; a run whose solution is not
+        # saved used to put it in QGIS's own working directory.
+        destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
+        made: list[Path] = []
+
+        def root() -> Path:
+            # A temporary one is made when first needed: a run refused before
+            # then leaves no folder behind.
+            if destination:
+                return Path(destination).parent
+            if not made:
+                made.append(working_directory("geocomp-gnss-"))
+            return made[0]
 
         if not self.is_absolute:
             groups = overlapping_groups(scan.sessions)
@@ -268,7 +283,12 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 "base",
                 exclude=rover_id,
             )
-            base, rover = self._pair(stations[base_id], stations[rover_id], feedback)
+            base, rover = self._pair(
+                stations[base_id],
+                stations[rover_id],
+                feedback,
+                lambda: root() / "-".join((self.profile_name, base_id, rover_id)),
+            )
             job_kwargs["base"] = base
             feedback.pushInfo(
                 _tr("Base %1 → rover %2")
@@ -303,17 +323,14 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         )
         feedback.setProgress(35)
 
-        # Beside the solution when there is one; a run whose solution is not
-        # saved used to put it in QGIS's own working directory.
-        destination = self.parameterAsFileOutput(parameters, OUTPUT_POS, context)
-        temporary = None if destination else working_directory("geocomp-gnss-")
         # Named by the pair, not the rover alone: until P13-15 two baselines to
         # one rover, saved side by side, wrote one directory and the second run
         # replaced the first's configuration and output.
         pair = [rover.station_id]
         if "base" in job_kwargs:
             pair.insert(0, job_kwargs["base"].station_id)
-        work_dir = (temporary or Path(destination).parent) / "-".join((self.profile_name, *pair))
+        work_dir = root() / "-".join((self.profile_name, *pair))
+        temporary = made[0] if made else None
         engine = gnss_engine(feedback)
         try:
             result = engine.run(
@@ -424,13 +441,17 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(100)
         return outputs
 
-    def _pair(self, bases: list, rovers: list, feedback: QgsProcessingFeedback):
+    def _pair(
+        self, bases: list, rovers: list, feedback: QgsProcessingFeedback, directory: Callable[[], Path]
+    ):
         """The base and rover sessions that observed at the same time.
 
-        One pair is a baseline. None is refused, and so are several: until
-        P13-16 each station's last session in the folder was taken, whether or
-        not the two had observed together, and the others were dropped without
-        a word.
+        One pair is a baseline. None is refused, and so are several rover
+        sessions: until P13-16 each station's last session in the folder was
+        taken, whether or not the two had observed together, and the others were
+        dropped without a word. One rover session the base logged in several
+        files is one baseline, and the base's files are joined in the folder
+        *directory* gives (P13-26).
         """
         pairs = [(base, rover) for rover in rovers for base in bases if base.overlaps(rover)]
         base_id, rover_id = bases[0].station_id, rovers[0].station_id
@@ -443,7 +464,15 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 .replace("%1", base_id)
                 .replace("%2", rover_id)
             )
-        if len(pairs) > 1:
+        observed = list({id(rover): rover for _base, rover in pairs}.values())
+        if len(observed) == 1 and len(pairs) > 1:
+            try:
+                base = join_sessions([base for base, _rover in pairs], directory())
+            except GeoCompError as exc:
+                raise QgsProcessingException(translate_error(exc)) from exc
+            say_joined(feedback, base, observed[0])
+            return base, observed[0]
+        if len(observed) > 1:
             raise QgsProcessingException(
                 _tr(
                     "Base %1 and rover %2 observed together %3 times in this folder: %4. One "
@@ -452,8 +481,8 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
                 )
                 .replace("%1", base_id)
                 .replace("%2", rover_id)
-                .replace("%3", str(len(pairs)))
-                .replace("%4", "; ".join(session_span(rover) for _base, rover in pairs))
+                .replace("%3", str(len(observed)))
+                .replace("%4", "; ".join(session_span(rover) for rover in observed))
             )
         if len(bases) > 1 or len(rovers) > 1:
             feedback.pushInfo(

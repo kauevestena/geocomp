@@ -381,13 +381,26 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "base",
         "session",
     ),
-    "computation.gnss_batch_base_sessions_ambiguous": MessageTemplate(
-        "The base %1 has %2 sessions overlapping this one (%3), and GeoComp does not choose "
-        "between them. Join the base's files for that time into one, or keep only one of them "
-        "in the folder.",
-        "base",
-        "count",
-        "sessions",
+    "data.gnss_join_different_stations": MessageTemplate(
+        "Sessions of %1 cannot be joined into one: a session is one station's. Process each "
+        "station's files on their own.",
+        "stations",
+    ),
+    "data.gnss_join_span_unknown": MessageTemplate(
+        "'%1' states no first observation, so it cannot be put in order with the other files "
+        "of its session. Add TIME OF FIRST OBS to its header, or convert the receiver's data "
+        "again.",
+        "file",
+    ),
+    "data.gnss_join_setups_differ": MessageTemplate(
+        "'%1' and '%2' cannot be joined into one session: their %3 records differ (%4 and %5). "
+        "Files one receiver recorded one way are one session; a station set up again is "
+        "another. Process them as separate sessions, or correct the header that is wrong.",
+        "file",
+        "other",
+        "field",
+        "first",
+        "second",
     ),
     "validation.gnss_loop_too_short": MessageTemplate(
         "A GNSS loop needs at least three stations, and %1 were given: a two-station loop "

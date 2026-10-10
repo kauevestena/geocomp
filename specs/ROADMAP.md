@@ -3960,7 +3960,7 @@ Both fail on the old code.
 **Register.** Unchanged: 172 met, 4 partly met, 0 open.
 
 **Not done.** A base logged in several files over one rover session is still refused rather than joined, as
-P13-16 left it.
+P13-16 left it. *(P13-26 joins them.)*
 
 #### P13-24 — a worked project holds a print layout of its results
 
@@ -4043,6 +4043,50 @@ the old code; the eighth holds that a pair held once keeps its plain name.
 
 **Not done.** The two baselines of one pair are still not compared with each other: that is repeatability, and
 the menu has no tool for it.
+
+#### P13-26 — a base logged in several files is joined
+
+P13-23's *Not done*, and P13-16's before it. A receiver that logs a file an hour leaves a rover session
+overlapped by several of the base's sessions, and `rnx2rtkp` reads one base file.
+- ***Batch processing*** refused the row, telling the user to join the files themselves.
+- ***Relative — Static*** refused the pair as "observed together 2 times", listing the one rover span twice:
+  wrong as well as unhelpful.
+
+**What changed** (`specs/11` §2). Both join the base's files into one, `io/gnss_discovery.py::join_sessions`:
+the first file's header with the last file's `TIME OF LAST OBS`, a comment saying it was joined, then every
+file's observations in time order. The batch joins once for every row the same files serve. The log names the
+files joined.
+- **Only one setup is joined.** The files must agree on RINEX version, observation types, receiver, antenna,
+  antenna height and eccentricity. A station set up again is another session: refused, naming both files and
+  the record that differs.
+- **What GeoComp cannot read is refused**, not passed on: Hatanaka, `.Z` and `.zip`. Gzip is read. A file
+  with no `TIME OF FIRST OBS` cannot be put in order, and is refused too.
+- **The relative modes count rover sessions**, not pairs. Several are still refused, now with each listed
+  once.
+- **Messages.** Three new refusals and one log line, in pt_BR and es. The batch's old refusal, which told the
+  user to join the files, is gone with the case it described.
+- **The working directory is made when first needed.** Joining needs it before the engine runs. Made up front,
+  a run refused in between would have left an empty folder behind.
+
+**It is the same file to the engine.** RTKLIB's 2005 base cut in two at 00:30, then joined, gives with the
+real `rnx2rtkp` the solution the unsplit file gives: all 120 epochs' records identical, 117 fixed.
+
+**Tests.**
+- `tests/test_gnss_join.py`, 11. The joined file is the original again, its body line for line and its
+  header but for the comment; its session spans both halves; gzip is read; the last file's `TIME OF LAST OBS`
+  is kept; a second setup, other observation types, another station and a Hatanaka file are refused. The
+  engine test is tier 4, and ran here against `rnx2rtkp`.
+- `tests/qgis/test_gnss_split_base.py`, 5, all failing against the old algorithms. *Relative — Static* and
+  *Batch processing* hand the stand-in engine the joined base, and say so. Two rovers over the same hour share
+  one join. A base set up again is refused by one and fails its row in the other.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-355's row names the join.
+
+The joined file is written to the run's working directory, beside the engine's own files: the batch keeps
+it, and *Relative — Static* keeps it unless *Keep the engine's working directory* is turned off.
+
+**Not done.** A rover logged in several files is still several sessions, each processed against the base.
+Joining the rover's too would make one baseline of them, which is what a static session wants.
 
 ---
 
