@@ -41,6 +41,7 @@ from geocomp.algorithms.gnss.common import (
     missing_products_message,
     report_scan,
     run_frame,
+    say_joined,
     session_span,
     sessions_by_station,
     timeout_parameter,
@@ -51,7 +52,7 @@ from geocomp.core.errors import ComputationError, GeoCompError
 from geocomp.core.techniques.gnss.batch import run_batch
 from geocomp.engines.rtklib import RtklibJob
 from geocomp.engines.rtklib.baseline import quality_from_solution
-from geocomp.io.gnss_discovery import overlapping_groups, scan_folder
+from geocomp.io.gnss_discovery import join_sessions, overlapping_groups, scan_folder
 
 FOLDER = "FOLDER"
 BASE_STATION = "BASE_STATION"
@@ -219,6 +220,15 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         # first session is no longer every rover's, observed then or not.
         partners: dict[str, Any] = {}
         unreachable: dict[str, GeoCompError] = {}
+        joined: dict[tuple[str, ...], Any] = {}
+        made: list[Path] = []
+
+        def work_root() -> Path:
+            # Made when first needed, so a batch refused before it leaves no folder.
+            if not made:
+                made.append(working_directory("geocomp-batch-"))
+            return made[0]
+
         if base is not None:
             bases = by_station[base.station_id]
             for key, session in by_key.items():
@@ -232,18 +242,25 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                         session=session_span(session),
                     )
                 else:
-                    unreachable[key] = ComputationError(
-                        "gnss_batch_base_sessions_ambiguous",
-                        base=base.station_id,
-                        count=len(overlapping),
-                        sessions="; ".join(session_span(candidate) for candidate in overlapping),
-                    )
+                    # The base logged this session in several files, as a receiver
+                    # logging hourly does (P13-26). Until then the row was refused,
+                    # and the user told to join them; they are joined here, once
+                    # for every row they serve.
+                    files = tuple(sorted(candidate.obs_file for candidate in overlapping))
+                    try:
+                        if files not in joined:
+                            joined[files] = join_sessions(
+                                overlapping, work_root() / "joined" / str(len(joined) + 1)
+                            )
+                            say_joined(feedback, joined[files], session)
+                        partners[key] = joined[files]
+                    except GeoCompError as exc:
+                        unreachable[key] = exc
         # Each base session at its own epoch (P13-23). Until then every row held the
         # base where the first session put it: over a campaign of days, the
         # published velocity times the days between, on every row but the first.
         frame = run_frame(self.parameterAsEnum(parameters, FRAME, context))
         held_at, held_record = self._held(partners, profile_name, user, frame, feedback)
-        work_root = working_directory("geocomp-batch-")
 
         # specs/08 section 5: availability is checked before the batch starts.
         # Every session's products are resolved now; what nothing can supply is
@@ -287,7 +304,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                     **kwargs,
                 ),
                 # A name a file system takes: the key's span has a colon and a slash.
-                work_dir=work_root / "".join(c if c.isalnum() else "-" for c in key),
+                work_dir=work_root() / "".join(c if c.isalnum() else "-" for c in key),
             )
             return {
                 "station": session.station_id,

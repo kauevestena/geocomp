@@ -28,7 +28,8 @@ wrong place.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import gzip
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -50,6 +51,7 @@ from geocomp.io.rinex import (
 
 __all__ = [
     "SessionScan",
+    "join_sessions",
     "overlapping_groups",
     "scan_folder",
     "session_from_header",
@@ -266,6 +268,136 @@ def overlapping_groups(sessions: tuple[GnssSession, ...]) -> list[tuple[GnssSess
                     changed = True
         groups.append(tuple(group))
     return groups
+
+
+def join_sessions(sessions: list[GnssSession], directory: Path) -> GnssSession:
+    """One station's sessions, logged in several files, as one session in one file (P13-26).
+
+    A receiver that logs a file an hour leaves a rover session overlapped by
+    several of the base's, and ``rnx2rtkp`` reads one base file. They are
+    joined as RINEX allows: the first file's header, its ``TIME OF LAST OBS``
+    the last file's, then every file's observations in the order they were
+    made. An epoch two files both hold is read twice, and RTKLIB keeps one.
+
+    Only files one receiver recorded one way are joined: the same RINEX
+    version and observation types, receiver, antenna, height and eccentricity.
+    A station set up twice is two sessions, and joining them would put one mark
+    in two places with no error to show for it.
+
+    Raises:
+        DataError: the sessions are of different stations
+            (``gnss_join_different_stations``); one states no first observation,
+            so cannot be put in order (``gnss_join_span_unknown``); one is
+            compressed in a form whose observations GeoComp cannot read
+            (``rinex_compression_unsupported``); or two were not recorded the
+            same way (``gnss_join_setups_differ``).
+    """
+    stations = sorted({session.station_id for session in sessions})
+    if len(stations) != 1:
+        raise DataError(
+            "gnss_join_different_stations",
+            stations=", ".join(stations),
+            expected="the sessions of one station",
+        )
+    for session in sessions:
+        if session.start is None:
+            raise DataError(
+                "gnss_join_span_unknown",
+                file=Path(session.obs_file).name,
+                expected="a TIME OF FIRST OBS, which puts the file in order",
+            )
+        compression = compression_of(session.obs_file)
+        if compression not in {Compression.NONE, Compression.GZIP}:
+            raise DataError(
+                "rinex_compression_unsupported",
+                file=str(session.obs_file),
+                compression=compression.value,
+                expected="an uncompressed or gzip-compressed file; decompress it first",
+            )
+    ordered = sorted(sessions, key=lambda session: (session.start, session.obs_file))
+    first = ordered[0]
+    for other in ordered[1:]:
+        for name, mine, theirs in _setup_of(first, other):
+            if mine != theirs:
+                raise DataError(
+                    "gnss_join_setups_differ",
+                    file=Path(first.obs_file).name,
+                    other=Path(other.obs_file).name,
+                    field=name,
+                    first=str(mine),
+                    second=str(theirs),
+                    expected="files one receiver recorded one way",
+                )
+
+    heads, bodies = zip(*(_header_and_body(Path(s.obs_file)) for s in ordered), strict=True)
+    last_record = next(
+        (line for line in heads[-1] if line[60:].strip() == "TIME OF LAST OBS"), None
+    )
+    header = [line for line in heads[0] if line[60:].strip() not in {"TIME OF LAST OBS", "END OF HEADER"}]
+    if last_record is not None:
+        header.append(last_record)
+    header.append(f"{f'GEOCOMP: JOINED FROM {len(ordered)} FILES':<60}COMMENT")
+    header.append(f"{'':<60}END OF HEADER")
+
+    suffix = Path(first.obs_file).name.removesuffix(".gz").removesuffix(".GZ")
+    name = f"{first.station_id}-{first.start:%Y%m%d%H%M}-joined{Path(suffix).suffix}"
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / name
+    with path.open("w", encoding="ascii", errors="replace", newline="\n") as handle:
+        for line in header:
+            handle.write(line + "\n")
+        for body in bodies:
+            for line in body:
+                handle.write(line + "\n")
+
+    meta = {key: value for key, value in first.meta.items() if key not in {"compression", "needs_crx2rnx"}}
+    meta["joined_from"] = [Path(session.obs_file).name for session in ordered]
+    navigation = []
+    for session in ordered:
+        navigation += [item for item in session.nav_files if item not in navigation]
+    return replace(
+        first,
+        id=name,
+        obs_file=str(path),
+        nav_files=tuple(navigation),
+        end=ordered[-1].end if ordered[-1].end is not None else first.end,
+        meta=meta,
+    )
+
+
+def _setup_of(first: GnssSession, other: GnssSession) -> list[tuple[str, Any, Any]]:
+    """What must be the same in two files for them to be one session's."""
+
+    def height(session: GnssSession) -> float | None:
+        return session.antenna_height.value if session.antenna_height is not None else None
+
+    return [
+        ("RINEX VERSION / TYPE", first.meta.get("rinex_version"), other.meta.get("rinex_version")),
+        ("REC # / TYPE / VERS", first.receiver, other.receiver),
+        ("ANT # / TYPE", first.antenna, other.antenna),
+        ("ANTENNA: DELTA H/E/N", height(first), height(other)),
+        (
+            "ANTENNA: DELTA H/E/N",
+            first.meta.get("antenna_eccentricity"),
+            other.meta.get("antenna_eccentricity"),
+        ),
+        (
+            "# / TYPES OF OBSERV",
+            first.meta.get("observation_types"),
+            other.meta.get("observation_types"),
+        ),
+    ]
+
+
+def _header_and_body(path: Path) -> tuple[list[str], list[str]]:
+    """The file's header records, up to and including ``END OF HEADER``, and the rest."""
+    opener = gzip.open if compression_of(path) is Compression.GZIP else open
+    with opener(path, "rt", encoding="ascii", errors="replace") as handle:  # type: ignore[operator]
+        lines = [line.rstrip("\n").rstrip("\r") for line in handle]
+    for index, line in enumerate(lines):
+        if line[60:].strip() == "END OF HEADER":
+            return lines[: index + 1], lines[index + 1 :]
+    raise DataError("rinex_header_unterminated", file=str(path), expected="an END OF HEADER record")
 
 
 # -- internals ------------------------------------------------------------

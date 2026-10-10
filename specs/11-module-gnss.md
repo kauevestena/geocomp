@@ -111,6 +111,23 @@ observed on two days was processed twice as the second day. Now:
   that session's span. Until P13-23 every row held the base where the first session put it. A base held at
   its RINEX header is the same whatever the day, so it is decided once and said once.
 - **Spans are written `2025-01-01 00:00/00:59`**, an ISO 8601 interval, whose separator needs no translation.
+- **A base logged in several files is joined (P13-26).** A receiver that logs a file an hour leaves a rover
+  session overlapped by several of the base's sessions, and `rnx2rtkp` reads one base file. Until P13-26 the
+  batch refused that row, telling the user to join the files, and the relative modes refused the pair as
+  observed together twice, listing one rover span twice. Both now join the base's files into one
+  (`io/gnss_discovery.py::join_sessions`): the first file's header, its `TIME OF LAST OBS` the last file's,
+  a comment saying so, then every file's observations in time order. The batch joins once for every row the
+  same files serve, and the log names the files joined.
+  - **Only one setup is joined.** The files must agree on RINEX version, observation types, receiver,
+    antenna, antenna height and eccentricity. A station set up again is another session, and joining it
+    would put one mark in two places with no error to show for it: refused, naming both files and the
+    record that differs.
+  - **What GeoComp cannot read is refused**, not passed on: a Hatanaka-compressed, `.Z` or `.zip` file
+    (`rinex_compression_unsupported`); gzip is read. So is a file with no `TIME OF FIRST OBS`, which
+    cannot be put in order.
+  - **It is the same file to the engine.** RTKLIB's 2005 base cut in two at 00:30 and joined gives, with
+    the real `rnx2rtkp`, the solution the unsplit file gives, every epoch's record identical.
+  - Several rover sessions are still refused by the relative modes, and processed one by one by the batch.
 
 ---
 
