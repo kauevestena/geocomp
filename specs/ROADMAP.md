@@ -3864,6 +3864,33 @@ The P13-19 tests now read the heights from the per-baseline record.
 - A repeated pair still shares one key in the JSON output, as its quality record always has.
 - A slant height is still refused, as `specs/08` §8.3 says; a RINEX file cannot say it has one.
 
+#### P13-21 — the independent subset is the same on every platform
+
+Found by P13-19's first push. *Build baselines* keeps the best-determined spanning set of baselines, ranked by
+covariance trace (`specs/11` §4.1).
+- **Last bits decided.** Traces were compared exactly. The GNSS tutorial's three agree to every printed digit,
+  and on Windows, once antenna heights were reduced, a different baseline came out dependent than on Linux.
+- **File order decided.** A tie went to the baseline listed first, so the order the files were listed in
+  chose the set.
+
+**What changed.** Traces are compared to nine significant figures, and a tie is broken by the baselines' ids.
+- A printed sigma has one or two significant figures (`specs/08` §8.2). Nine is far below anything the survey
+  can mean and far above what rounding leaves.
+- The tutorial's set is unchanged: its files are listed in the order of their ids.
+
+**Tests.** Three in `tests/test_gnss_baselines.py::TestTheIndependentSubset`:
+- three equal baselines in every order give the same set;
+- traces that differ in their last bits are a tie;
+- a difference of one part in a million still decides.
+
+The first two fail on the old code. The third holds that nine figures are not too few.
+
+`tests/qgis/test_gnss_layers.py` held the old rule: three baselines from one solution, so three equal traces, and
+the third file dependent. By id it is `3040-1111`, the last of the three, and the test now says so. It needs QGIS
+3.38, so CI found it and the local run did not.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. Row 11 3 names the change.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

@@ -105,9 +105,10 @@ def _round_the_triangle(built) -> np.ndarray:
     """GODN -> GODE -> GODS -> GODN, in metres, always that way round.
 
     Not through ``closing_loops``: which baseline it closes with is the
-    independent subset's choice, by covariance trace, and a tie can go either
-    way on another platform -- so two sets can be closed in opposite
-    directions, and their misclosures not subtracted.
+    independent subset's choice, by covariance trace, and the reduced and the
+    unreduced sets need not choose alike -- so two sets can be closed in
+    opposite directions, and their misclosures not subtracted. (Until P13-21 a
+    tie could also go either way on another platform, and on Windows it did.)
     """
     vectors = {b.id: np.array([c.value for c in b.components]) for b in built}
     return vectors["GODN-GODE"] + vectors["GODE-GODS"] - vectors["GODN-GODS"]

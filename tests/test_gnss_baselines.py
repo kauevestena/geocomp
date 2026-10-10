@@ -341,6 +341,35 @@ class TestTheIndependentSubset:
         _, dependent = independent_subset(baselines)
         assert [b.id for b in dependent] == ["ab-poor"]
 
+    def test_a_tie_is_broken_by_name_not_by_the_order_given(self):
+        """P13-21: equal baselines in any order give the same set."""
+        from itertools import permutations
+
+        triangle = [_synthetic("ab", "a", "b"), _synthetic("ac", "a", "c"), _synthetic("bc", "b", "c")]
+        for given in permutations(triangle):
+            _, dependent = independent_subset(list(given))
+            assert [b.id for b in dependent] == ["bc"], [b.id for b in given]
+
+    def test_traces_that_differ_in_their_last_bits_are_a_tie(self):
+        """P13-21: what a platform's rounding leaves does not choose the set."""
+        triangle = [
+            _synthetic("ab", "a", "b", variance=1e-6),
+            _synthetic("ac", "a", "c", variance=1e-6),
+            _synthetic("bc", "b", "c", variance=1e-6 * (1 - 1e-14)),
+        ]
+        assert np.trace(triangle[2].covariance.matrix) < np.trace(triangle[0].covariance.matrix)
+        _, dependent = independent_subset(triangle)
+        assert [b.id for b in dependent] == ["bc"]
+
+    def test_a_difference_the_survey_could_mean_still_decides(self):
+        triangle = [
+            _synthetic("ab", "a", "b", variance=1e-6),
+            _synthetic("ac", "a", "c", variance=1e-6),
+            _synthetic("bc", "b", "c", variance=1e-6 * (1 - 1e-6)),
+        ]
+        _, dependent = independent_subset(triangle)
+        assert [b.id for b in dependent] == ["ac"]
+
     def test_two_disconnected_pairs_give_a_forest_not_a_tree(self):
         baselines = [_synthetic("ab", "a", "b"), _synthetic("cd", "c", "d")]
         independent, dependent = independent_subset(baselines)
