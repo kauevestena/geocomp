@@ -227,7 +227,7 @@ class TestItNamesWhatTheDialogsShow:
 class TestFollowingIt:
     def test_it_installs_both_hours(self, folder):
         assert sorted(path.name for path in folder.iterdir() if path.is_file()) == sorted(
-            (*TOP, f"{NAME}.qgz")
+            (*TOP, f"{NAME}.qgz", f"{NAME}-stations.gpkg")
         )
         for hour in HOURS:
             assert sorted(path.name for path in (folder / hour).iterdir()) == list(IN_EACH_HOUR)

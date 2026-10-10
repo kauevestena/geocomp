@@ -21,10 +21,19 @@ QGIS embeds a model in a project as the Processing plugin's project provider
 does: a ``projectModels`` element under ``qgis``, holding the model's variant
 (``processing/modeler/ProjectProvider.py``). :func:`write_project` writes that
 element, and :func:`read_models` reads it back the same way.
+
+**The map is not empty when the project opens** (P13-22). Where a dataset's
+inputs place its stations -- a network document's approximate positions, a
+RINEX header's, a gravity survey's latitude and longitude -- they are written
+to ``<dataset>-stations.gpkg`` beside the project, and the project opens on
+that layer, labelled, in its CRS. A dataset whose inputs place nothing, as a
+levelling loop's do not, has no such layer.
 """
 
 from __future__ import annotations
 
+import json
+import math
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -33,6 +42,11 @@ from typing import Any
 
 from qgis.core import (
     QgsApplication,
+    QgsCoordinateReferenceSystem,
+    QgsFeature,
+    QgsGeometry,
+    QgsPalLayerSettings,
+    QgsPointXY,
     QgsProcessingModelAlgorithm,
     QgsProcessingModelChildAlgorithm,
     QgsProcessingModelChildDependency,
@@ -42,6 +56,10 @@ from qgis.core import (
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProject,
+    QgsReferencedRectangle,
+    QgsVectorFileWriter,
+    QgsVectorLayer,
+    QgsVectorLayerSimpleLabeling,
     QgsXmlUtils,
 )
 from qgis.PyQt.QtCore import QCoreApplication
@@ -49,14 +67,26 @@ from qgis.PyQt.QtCore import QCoreApplication
 from geocomp.algorithms.analysis.common import DATUM_ORDER, FRAME_ORDER
 from geocomp.algorithms.gravimetry.network_adjust import DRIFT_MODES
 from geocomp.core.adjustment import Frame
-from geocomp.core.models import DatumDefinition
+from geocomp.core.geodesy.cartesian import cartesian_to_geodetic
+from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
+from geocomp.core.models import CoordinateSystem, DatumDefinition, Network
+from geocomp.io.gnss_discovery import scan_folder
+from geocomp.io.gravimeter_files import read_gravimeter_file
 
-__all__ = ["WORKED", "Step", "build_model", "read_models", "write_project"]
+__all__ = ["PLACED", "WORKED", "Step", "build_model", "read_models", "stations_file", "write_project"]
 
 _CONTEXT = "WorkedExamples"
 
 #: The element QGIS's project provider keeps a project's models in.
 PROJECT_MODELS = "projectModels"
+
+#: The CRS rd01's walkthrough adjusts in, and so the one its approximate
+#: positions are drawn in: the adjusted stations then fall on them.
+_RD01_CRS = "EPSG:31982"
+
+#: Longitude and latitude. A RINEX header's or a geocentric document's position
+#: is a start, a metre or so out; the datum it is in does not show on a map.
+_GEOGRAPHIC = "EPSG:4326"
 
 
 def _tr(text: str) -> str:
@@ -241,7 +271,7 @@ def _total_station() -> tuple[Step, ...]:
             files={"APPROXIMATE": "approximate.json"},
             wires={"REDUCTIONS": ("preprocess", "OUTPUT_REDUCED")},
             # 0 is 2D, the first dimension offered.
-            values={"DIMENSION": 0, "DATUM": _INNER, "CRS": "EPSG:31982"},
+            values={"DIMENSION": 0, "DATUM": _INNER, "CRS": _RD01_CRS},
             results=("OUTPUT_SOLUTION", "OUTPUT_HTML", *_ADJUSTMENT_LAYERS),
         ),
     )
@@ -301,6 +331,97 @@ WORKED: dict[str, Callable[[], tuple[Step, ...]]] = {
     "combined-curitiba": _integration,
     "ggao-triangle": _ggao,
 }
+
+
+#: A station, where an input places it, and the file that does.
+Placed = tuple[str, float, float, str]
+
+
+def _geographic(xyz) -> tuple[float, float]:
+    """Longitude and latitude, in degrees, of a geocentric position."""
+    latitude, longitude, _height = cartesian_to_geodetic(*(float(v) for v in xyz), ELLIPSOIDS["GRS80"])
+    return math.degrees(longitude), math.degrees(latitude)
+
+
+def _placed_by_network(file: str) -> Callable[[Path], tuple[str, list[Placed]]]:
+    """Each station of a network document, at its approximate or held position."""
+
+    def placed(folder: Path) -> tuple[str, list[Placed]]:
+        network = Network.from_dict(json.loads((folder / file).read_text(encoding="utf-8")))
+        crs, rows = "", []
+        for station in network.stations.values():
+            position = station.approx_position or station.constraint.position
+            if position is None:
+                continue
+            first, second, _third = (q.value for q in position.values)
+            if position.system is CoordinateSystem.PROJECTED:
+                crs, x, y = position.crs, first, second
+            elif position.system is CoordinateSystem.CARTESIAN:
+                crs, (x, y) = _GEOGRAPHIC, _geographic((first, second, _third))
+            else:
+                crs, x, y = _GEOGRAPHIC, math.degrees(second), math.degrees(first)
+            rows.append((station.id, x, y, file))
+        return crs, rows
+
+    return placed
+
+
+def _placed_by_rinex(subfolder: str = "") -> Callable[[Path], tuple[str, list[Placed]]]:
+    """Each observing station, at its RINEX header's approximate position."""
+
+    def placed(folder: Path) -> tuple[str, list[Placed]]:
+        rows = []
+        for session in scan_folder(folder / subfolder).sessions:
+            xyz = session.meta.get("approximate_position")
+            if xyz:
+                rows.append((session.station_id, *_geographic(xyz), Path(session.obs_file).name))
+        return _GEOGRAPHIC, rows
+
+    return placed
+
+
+def _placed_by_gravity(*files: str) -> Callable[[Path], tuple[str, list[Placed]]]:
+    """Each surveyed station, where its first reading puts it."""
+
+    def placed(folder: Path) -> tuple[str, list[Placed]]:
+        rows, seen = [], set()
+        for file in files:
+            for reading in read_gravimeter_file(folder / file).readings:
+                if reading.station in seen or reading.latitude is None or reading.longitude is None:
+                    continue
+                seen.add(reading.station)
+                rows.append(
+                    (reading.station, math.degrees(reading.longitude), math.degrees(reading.latitude), file)
+                )
+        return _GEOGRAPHIC, rows
+
+    return placed
+
+
+def _placed_approximately(folder: Path) -> tuple[str, list[Placed]]:
+    """rd01's approximate coordinates, station by station."""
+    approximate = json.loads((folder / "approximate.json").read_text(encoding="utf-8"))
+    return _RD01_CRS, [
+        (station, float(east), float(north), "approximate.json")
+        for station, (east, north, *_up) in approximate.items()
+    ]
+
+
+#: Where each dataset's inputs place its stations (P13-22). rd04-loop's
+#: levelling book places none.
+PLACED: dict[str, Callable[[Path], tuple[str, list[Placed]]]] = {
+    "rd01": _placed_approximately,
+    "rtklib-sample": _placed_by_rinex(),
+    "rd08-dam": _placed_by_network("epoch-2025.json"),
+    "rd07-usgs": _placed_by_gravity("Test2.txt", "Test3.txt"),
+    "combined-curitiba": _placed_by_network("gnss.json"),
+    "ggao-triangle": _placed_by_rinex("hour-00"),
+}
+
+
+def stations_file(name: str, folder: Path) -> Path:
+    """Where *name*'s stations are written, beside its project."""
+    return folder / f"{name}-stations.gpkg"
 
 
 def _input_name(file: str) -> str:
@@ -397,6 +518,8 @@ def write_project(name: str, folder: Path, path: Path) -> None:
     model = build_model(name, folder)
     project = QgsProject()
     project.setTitle(model.name())
+    if name in PLACED:
+        _add_stations(project, stations_file(name, folder), *PLACED[name](folder))
 
     def embed(document) -> None:
         root = document.elementsByTagName("qgis").at(0)
@@ -407,6 +530,49 @@ def write_project(name: str, folder: Path, path: Path) -> None:
     project.writeProject.connect(embed)
     if not project.write(str(path)):
         raise OSError(project.error())
+
+
+def _add_stations(project: QgsProject, path: Path, crs: str, rows: list[Placed]) -> None:
+    """Write *rows* to a GeoPackage at *path*, and open *project* on it, labelled.
+
+    Built as a memory layer and written out, rather than field by field: a
+    memory layer's URI names its fields as text, which every QGIS the tests
+    run on reads alike.
+    """
+    reference = QgsCoordinateReferenceSystem(crs)
+    memory = QgsVectorLayer(
+        f"Point?crs={crs}&field=station:string&field=source:string", "stations", "memory"
+    )
+    features = []
+    for station, x, y, source in rows:
+        feature = QgsFeature(memory.fields())
+        feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
+        feature.setAttributes([station, source])
+        features.append(feature)
+    memory.dataProvider().addFeatures(features)
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "GPKG"
+    options.layerName = "stations"
+    written = QgsVectorFileWriter.writeAsVectorFormatV3(
+        memory, str(path), project.transformContext(), options
+    )
+    if written[0] != QgsVectorFileWriter.WriterError.NoError:
+        raise OSError(written[1])
+
+    layer = QgsVectorLayer(
+        f"{path}|layername=stations", _tr("Stations, where the inputs place them"), "ogr"
+    )
+    labels = QgsPalLayerSettings()
+    labels.fieldName = "station"
+    layer.setLabeling(QgsVectorLayerSimpleLabeling(labels))
+    layer.setLabelsEnabled(True)
+    project.addMapLayer(layer)
+    project.setCrs(reference)
+    # A project written here has no canvas to remember an extent, so QGIS is
+    # told where to open: the stations, with a margin, or a little round one.
+    extent = layer.extent()
+    extent.grow(max(extent.width(), extent.height()) * 0.2 or (0.01 if reference.isGeographic() else 50.0))
+    project.viewSettings().setDefaultViewExtent(QgsReferencedRectangle(extent, reference))
 
 
 def read_models(path: Path) -> list[QgsProcessingModelAlgorithm]:

@@ -13036,6 +13036,10 @@
             <translation>Tutoriais do GeoComp</translation>
         </message>
         <message>
+            <source>Stations, where the inputs place them</source>
+            <translation>Estações, onde as entradas as situam</translation>
+        </message>
+        <message>
             <source>The walkthrough in this folder's README, as one model: every step it runs, with the values it gives. Its inputs are the installed files; its files go to the results folder, and its map layers are loaded when it finishes. The README explains each result, and the steps it leaves for you to try.</source>
             <translation>O passo a passo do README desta pasta, como um só modelo: cada passo que ele executa, com os valores que ele dá. As entradas são os arquivos instalados; os seus arquivos vão para a pasta results, e as suas camadas de mapa são carregadas quando ele termina. O README explica cada resultado, e os passos que ele deixa para você experimentar.</translation>
         </message>

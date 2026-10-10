@@ -3523,7 +3523,8 @@ tutorial is what keeps it partly met.
 **Not done.**
 - A GNSS tutorial.
 - The project opens with no map: its layers appear when the model runs. A project with the inputs already on
-  the map, and a print layout of the results, would teach more, and is not built.
+  the map, and a print layout of the results, would teach more, and is not built. *(P13-22 puts the stations on
+  the map; the print layout is still not built.)*
 - The model's labels are in the language of the installer's run. Changing QGIS's language afterwards leaves
   them as they were.
 
@@ -3890,6 +3891,41 @@ the third file dependent. By id it is `3040-1111`, the last of the three, and th
 3.38, so CI found it and the local run did not.
 
 **Register.** Unchanged: 172 met, 4 partly met, 0 open. Row 11 3 names the change.
+
+#### P13-22 — a worked project opens on its stations
+
+The first half of P13-12's second *Not done*: the project opened with no map, and its layers appeared only
+when the model ran.
+
+**What changed** (`specs/20` §8). Where a dataset's inputs place its stations, *Install tutorial dataset* writes
+them to `<dataset>-stations.gpkg` beside the project. The project opens on that layer, labelled, in its CRS,
+at a view that holds every station.
+
+| Dataset | Stations from | CRS |
+|---|---|---|
+| rd01 | `approximate.json` | EPSG:31982, the CRS its walkthrough adjusts in |
+| rtklib-sample | the RINEX headers' approximate positions | longitude and latitude |
+| rd08-dam | `epoch-2025.json` | its own, EPSG:31982 |
+| rd07-usgs | the surveys' latitude and longitude | longitude and latitude |
+| combined-curitiba | `gnss.json`'s geocentric positions | longitude and latitude |
+| ggao-triangle | `hour-00`'s RINEX headers | longitude and latitude |
+
+rd04-loop's levelling book places no station, and its map stays empty.
+- **Written as a memory layer, then saved.** A memory layer's URI names its fields as text, which every QGIS the
+  tests run on reads alike. QGIS before 3.38 cannot construct a field from a `QMetaType`, and the installer runs
+  in tests on both.
+- **One new string**, the layer's name, in pt_BR and es.
+
+**Tests.** `tests/qgis/test_worked_examples.py::TestTheMap`, three per dataset:
+- the project opens on the stations layer, from the file beside it, in its CRS, with the expected stations;
+- one station lies where its input puts it, which holds longitude before latitude;
+- the layer is labelled, and the view holds every station.
+
+The tutorials' folder listings now include the stations file.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.** A print layout of the results, the other half of P13-12's *Not done*.
 
 ---
 

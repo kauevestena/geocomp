@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-22 — A worked project opens on its stations
+
+#### Added
+
+- The QGIS project *Install tutorial dataset* writes now opens with the dataset's stations on the map,
+  labelled, where its inputs place them. They are written to `<dataset>-stations.gpkg` beside it. The
+  levelling loop's inputs place none, and its map stays empty until the model runs.
+
 ### P13-21 — The independent subset is the same on every platform
 
 #### Fixed
