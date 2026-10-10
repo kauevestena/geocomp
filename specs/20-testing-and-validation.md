@@ -472,7 +472,7 @@ what the criterion says, and nothing compared the two until this table. The rows
 | 10 | 8 | The tolerance gate and the orthometric correction | **met** | `tests/test_levelling.py::TestTheToleranceGate`, `tests/test_levelling.py::TestOrthometricCorrectionOfLines`, `tests/qgis/test_levelling_algorithms.py` |
 | 11 | 1 | Mixed RINEX sessions with mismatches reported | **met** | `tests/test_gnss_discovery.py` |
 | 11 | 2 | A static session reproduces a published reference within tolerance | **met** | Tier 4, on the criterion as P7e restated it: loop closure and repeatability ([`20`](./20-testing-and-validation.md) §6), `tests/test_rd06.py::TestTheTriangleCloses`. Agreement with the published coordinate is reported, not judged (`tests/test_rd06.py::test_the_published_coordinate_comparison_is_reported_not_judged`) |
-| 11 | 3 | The independent subset identified | **met** | `tests/test_gnss_baselines.py::TestTheIndependentSubset` |
+| 11 | 3 | The independent subset identified | **met** | `tests/test_gnss_baselines.py::TestTheIndependentSubset`; since P13-21 the same set on every platform and in any input order |
 | 11 | 4 | A baseline reaches a G measurement intact | **met** | As 08.4 |
 | 11 | 5 | Antenna height reduced twice is prevented | **met** | `tests/test_gnss_baselines.py::TestAntennaHeightIsRemovedOnce` |
 | 11 | 6 | Two configurations compared with significance | **met** | `tests/test_gnss_comparison.py` |

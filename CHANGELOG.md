@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-21 — The independent subset is the same on every platform
+
+#### Fixed
+
+- *Build baselines* could keep a different independent set of baselines on Windows than on Linux, and a
+  different one depending on the order its files were listed in, when two baselines were equally well
+  determined. Their covariances are now compared to nine significant figures, and a tie is broken by name.
+
 ### P13-20 — Antenna heights from the observation files
 
 #### Added

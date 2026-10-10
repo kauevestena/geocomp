@@ -376,6 +376,18 @@ def reduce_to_marks(baseline: Baseline, base: AntennaOffset, rover: AntennaOffse
     )
 
 
+#: How many significant figures of a covariance's trace rank one baseline above
+#: another. A printed sigma has one or two (``specs/08`` section 8.2); nine is
+#: far below anything the survey can mean and far above the rounding a
+#: platform's arithmetic leaves in the last bits.
+_TRACE_FIGURES = 9
+
+
+def _quality(baseline: Baseline) -> float:
+    """The trace of *baseline*'s covariance, to :data:`_TRACE_FIGURES` significant figures."""
+    return float(f"{float(np.trace(baseline.covariance.matrix)):.{_TRACE_FIGURES - 1}e}")
+
+
 def independent_subset(
     baselines: list[Baseline],
 ) -> tuple[list[Baseline], list[Baseline]]:
@@ -393,6 +405,14 @@ def independent_subset(
     is by **quality**: a baseline whose covariance has the smaller trace is
     preferred, so the independent set is the best-determined spanning tree
     rather than whichever one the input order happened to produce.
+
+    **The same set on every platform** (P13-21). Traces are compared to
+    :data:`_TRACE_FIGURES` significant figures, and a tie is broken by the
+    baselines' ids. Compared exactly, two traces equal to the survey can differ
+    in their last bits by how a platform's arithmetic rounded the products that
+    built them -- and Windows chose a different baseline from Linux for the
+    GNSS tutorial's triangle, whose three traces agree to every printed digit.
+    Broken by input order, a tie followed the order the files were listed in.
 
     Both lists come back with :attr:`Baseline.is_independent` set, and **nothing
     is discarded** -- ``specs/11`` section 3.1 offers the independent set by
@@ -420,7 +440,7 @@ def independent_subset(
 
     order = sorted(
         range(len(baselines)),
-        key=lambda index: (float(np.trace(baselines[index].covariance.matrix)), index),
+        key=lambda index: (_quality(baselines[index]), baselines[index].id, index),
     )
     chosen: set[int] = set()
     for index in order:

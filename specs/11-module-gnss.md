@@ -167,6 +167,16 @@ The independent set is a **maximum spanning forest** over the station graph, and
 baseline whose covariance has the smaller trace is preferred, so the chosen set is the best-determined
 spanning tree rather than whichever one the input order happened to produce.
 
+**The same set on every platform (P13-21).** Traces are compared to nine significant figures, and a tie is broken
+by the baselines' ids.
+- **Why not exactly.** Two traces equal to the survey can differ in their last bits, by how a platform's
+  arithmetic rounded the products that built them. The GNSS tutorial's three traces agree to every printed digit,
+  and on Windows, once antenna heights were reduced, a different baseline came out dependent than on Linux (P13-19).
+- **Why not by input order.** Before P13-21 a tie went to the baseline listed first, which is the order the
+  files were listed in.
+- **Nine figures.** A printed sigma has one or two significant figures (`specs/08` §8.2). Nine is far below
+  anything the survey can mean and far above what rounding leaves.
+
 *Forest*, not tree, is deliberate — two disconnected pairs of stations give two independent baselines and no
 error, because there is no baseline between the groups to be dependent on.
 
