@@ -28,6 +28,14 @@ RINEX header's, a gravity survey's latitude and longitude -- they are written
 to ``<dataset>-stations.gpkg`` beside the project, and the project opens on
 that layer, labelled, in its CRS. A dataset whose inputs place nothing, as a
 levelling loop's do not, has no such layer.
+
+**Nor is there nothing to print** (P13-24). The same project holds a print
+layout, ``<dataset> — results``, made from a shipped template. Its map has no
+layers of its own and its legend follows the project, so it draws the map as
+it stands: the stations when the project opens, and the results beside them
+once the model has run and loaded its layers. A layout fixed to the result
+layers could not be made before they exist, and a step making one inside the
+model would fail the run whenever its layers were not asked for.
 """
 
 from __future__ import annotations
@@ -45,6 +53,11 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsFeature,
     QgsGeometry,
+    QgsLayoutItemLegend,
+    QgsLayoutItemMap,
+    QgsLayoutItemPicture,
+    QgsLayoutItemScaleBar,
+    QgsLegendStyle,
     QgsPalLayerSettings,
     QgsPointXY,
     QgsProcessingModelAlgorithm,
@@ -66,6 +79,13 @@ from qgis.PyQt.QtCore import QCoreApplication
 
 from geocomp.algorithms.analysis.common import DATUM_ORDER, FRAME_ORDER
 from geocomp.algorithms.gravimetry.network_adjust import DRIFT_MODES
+from geocomp.algorithms.project.print_layout import (
+    _item,
+    _set_text,
+    _version,
+    follow_the_project,
+    from_template,
+)
 from geocomp.core.adjustment import Frame
 from geocomp.core.geodesy.cartesian import cartesian_to_geodetic
 from geocomp.core.geodesy.ellipsoid import ELLIPSOIDS
@@ -73,7 +93,16 @@ from geocomp.core.models import CoordinateSystem, DatumDefinition, Network
 from geocomp.io.gnss_discovery import scan_folder
 from geocomp.io.gravimeter_files import read_gravimeter_file
 
-__all__ = ["PLACED", "WORKED", "Step", "build_model", "read_models", "stations_file", "write_project"]
+__all__ = [
+    "PLACED",
+    "WORKED",
+    "Step",
+    "build_model",
+    "layout_name",
+    "read_models",
+    "stations_file",
+    "write_project",
+]
 
 _CONTEXT = "WorkedExamples"
 
@@ -212,6 +241,9 @@ def _monitoring() -> tuple[Step, ...]:
 def _gravimetry() -> tuple[Step, ...]:
     joint = DRIFT_MODES.index("joint")
     steps: list[Step] = []
+    # The survey the walkthrough ends on is drawn: three runs of five stations in
+    # one place would draw each station three times.
+    drawn = {"test3calibrated": ("OUTPUT_STATIONS", "OUTPUT_DIFFERENCES")}
     for name, survey, profiles, known in (
         ("test2", "Test2.txt", "profiles.json", "sta1=50.000"),
         ("test3", "Test3.txt", "profiles.json", "sta1=50.000,sta3=45.000"),
@@ -231,7 +263,7 @@ def _gravimetry() -> tuple[Step, ...]:
                 "geocomp:gravimetry_network",
                 wires={"READINGS": (f"{name}reduce", "OUTPUT_READINGS")},
                 values={"KNOWN_GRAVITY": known, "DRIFT_MODE": joint},
-                results=("OUTPUT_SOLUTION", "OUTPUT_HTML"),
+                results=("OUTPUT_SOLUTION", "OUTPUT_HTML", *drawn.get(name, ())),
             )
         )
     return tuple(steps)
@@ -245,9 +277,13 @@ def _integration() -> tuple[Step, ...]:
             files={"GNSS": "gnss.json", "TOTAL_STATION": "total-station.json"},
             # 0 is ITRF2020, the first of the frames offered.
             values={"FRAME": 0, "FIXED_STATIONS": "CTB1,CTB2", "VARIANCE_COMPONENTS": components},
-            results=("OUTPUT_SOLUTION", "OUTPUT_HTML"),
+            results=("OUTPUT_SOLUTION", "OUTPUT_HTML", *layers),
         )
-        for name, components in (("stated", False), ("weighed", True))
+        # The weighed run is drawn, the one the walkthrough ends on.
+        for name, components, layers in (
+            ("stated", False, ()),
+            ("weighed", True, _ADJUSTMENT_LAYERS),
+        )
     )
 
 
@@ -312,7 +348,7 @@ def _ggao() -> tuple[Step, ...]:
                 f"baselines{hour}",
                 "geocomp:gnss_build_baselines",
                 reads={"FOLDER": f"solutions-{hour}"},
-                results=("OUTPUT_JSON",),
+                results=("OUTPUT_JSON", "OUTPUT_LAYER"),
                 after=tuple(sides),
             )
         )
@@ -424,6 +460,16 @@ def stations_file(name: str, folder: Path) -> Path:
     return folder / f"{name}-stations.gpkg"
 
 
+#: The shipped template each project's layout is made from (P13-24): the
+#: monitoring tutorial's results are displacements, and every other's a network.
+_TEMPLATES = {"rd08-dam": "displacement_map"}
+
+
+def layout_name(name: str) -> str:
+    """The name of *name*'s print layout, and its title on the page."""
+    return _tr("%1 — results").replace("%1", name)
+
+
 def _input_name(file: str) -> str:
     return "FOLDER" if file == "." else re.sub(r"\W+", "_", Path(file.rstrip("/")).stem).upper()
 
@@ -519,7 +565,8 @@ def write_project(name: str, folder: Path, path: Path) -> None:
     project = QgsProject()
     project.setTitle(model.name())
     if name in PLACED:
-        _add_stations(project, stations_file(name, folder), *PLACED[name](folder))
+        extent = _add_stations(project, stations_file(name, folder), *PLACED[name](folder))
+        _add_layout(project, name, extent)
 
     def embed(document) -> None:
         root = document.elementsByTagName("qgis").at(0)
@@ -532,8 +579,10 @@ def write_project(name: str, folder: Path, path: Path) -> None:
         raise OSError(project.error())
 
 
-def _add_stations(project: QgsProject, path: Path, crs: str, rows: list[Placed]) -> None:
-    """Write *rows* to a GeoPackage at *path*, and open *project* on it, labelled.
+def _add_stations(
+    project: QgsProject, path: Path, crs: str, rows: list[Placed]
+) -> QgsReferencedRectangle:
+    """Write *rows* to a GeoPackage at *path*, open *project* on it, labelled, and return the view.
 
     Built as a memory layer and written out, rather than field by field: a
     memory layer's URI names its fields as text, which every QGIS the tests
@@ -572,7 +621,70 @@ def _add_stations(project: QgsProject, path: Path, crs: str, rows: list[Placed])
     # told where to open: the stations, with a margin, or a little round one.
     extent = layer.extent()
     extent.grow(max(extent.width(), extent.height()) * 0.2 or (0.01 if reference.isGeographic() else 50.0))
-    project.viewSettings().setDefaultViewExtent(QgsReferencedRectangle(extent, reference))
+    view = QgsReferencedRectangle(extent, reference)
+    project.viewSettings().setDefaultViewExtent(view)
+    return view
+
+
+def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) -> None:
+    """Add *name*'s print layout to *project*: the map as it stands, at *view*.
+
+    The map is given no layers and the legend follows the project, so both
+    show what is on the map when the layout is opened, not what was there when
+    it was made.
+    """
+    from geocomp.resources import LAYOUTS_DIR
+
+    template = LAYOUTS_DIR / f"{_TEMPLATES.get(name, 'network_map')}.qpt"
+    layout = from_template(project, template.read_text(encoding="utf-8"))
+    map_item = _item(layout, "map", QgsLayoutItemMap) if layout is not None else None
+    if map_item is None:
+        # A shipped template that will not load is a fault in the package.
+        raise OSError(f"{template} is not a layout template with a map")
+    layout.setName(layout_name(name))
+    map_item.setLayers([])
+    map_item.setKeepLayerSet(False)
+    map_item.setFollowVisibilityPreset(False)
+    map_item.zoomToExtent(view)
+
+    legend = _item(layout, "legend", QgsLayoutItemLegend)
+    if legend is not None:
+        legend.setLinkedMap(map_item)
+        follow_the_project(legend)
+        legend.setTitle(QCoreApplication.translate("PrintLayoutAlgorithm", "Legend"))
+        # Its entries are the layers' names, which the run chooses. A smaller label
+        # keeps a long one on the page: QGIS 3.34 cannot wrap a legend by width.
+        label = legend.rstyle(QgsLegendStyle.Style.SymbolLabel)
+        text = label.textFormat()
+        text.setSize(9.0)
+        label.setTextFormat(text)
+    scale = _item(layout, "scalebar", QgsLayoutItemScaleBar)
+    if scale is not None:
+        scale.setLinkedMap(map_item)
+        scale.applyDefaultSize()
+    north = _item(layout, "north", QgsLayoutItemPicture)
+    if north is not None:
+        north.setLinkedMap(map_item)
+
+    _set_text(layout, "title", layout_name(name))
+    _set_text(
+        layout,
+        "notes",
+        _tr(
+            "The map as it stands: the stations where the inputs place them, and the "
+            "results beside them once the walkthrough's model has run. Ellipses and vectors "
+            "are drawn exaggerated, as each legend entry states. The scale bar measures the "
+            "map, not them."
+        ),
+    )
+    _set_text(
+        layout,
+        "footer",
+        QCoreApplication.translate("PrintLayoutAlgorithm", "GeoComp %1 · %2")
+        .replace("%1", _version())
+        .replace("%2", project.crs().authid()),
+    )
+    project.layoutManager().addLayout(layout)
 
 
 def read_models(path: Path) -> list[QgsProcessingModelAlgorithm]:

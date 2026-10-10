@@ -3524,7 +3524,7 @@ tutorial is what keeps it partly met.
 - A GNSS tutorial.
 - The project opens with no map: its layers appear when the model runs. A project with the inputs already on
   the map, and a print layout of the results, would teach more, and is not built. *(P13-22 puts the stations on
-  the map; the print layout is still not built.)*
+  the map, and P13-24 adds the print layout.)*
 - The model's labels are in the language of the installer's run. Changing QGIS's language afterwards leaves
   them as they were.
 
@@ -3926,7 +3926,7 @@ The tutorials' folder listings now include the stations file.
 
 **Register.** Unchanged: 172 met, 4 partly met, 0 open.
 
-**Not done.** A print layout of the results, the other half of P13-12's *Not done*.
+**Not done.** A print layout of the results, the other half of P13-12's *Not done*. *(Done by P13-24.)*
 
 #### P13-23 — each batch row holds the base at its own epoch
 
@@ -3960,6 +3960,54 @@ Both fail on the old code.
 
 **Not done.** A base logged in several files over one rover session is still refused rather than joined, as
 P13-16 left it.
+
+#### P13-24 — a worked project holds a print layout of its results
+
+The second half of P13-12's second *Not done*: a worked project had no print layout.
+
+**What changed** (`specs/20` §8, `specs/19` §6). *Install tutorial dataset* adds a print layout,
+`<dataset> — results`, to each worked project whose inputs place its stations. It is made from the shipped
+templates: the displacement map for rd08-dam, the network map for the rest.
+- **It follows the project.** Its map has no layers of its own and its legend lists the project's, so it shows
+  the stations when the project opens, and the results beside them once the model has run and loaded its
+  layers. It opens on the stations, and its footer names the project's CRS.
+- **Why not a step in the model.** A layout fixed to the result layers cannot be made before they exist. Made
+  inside the model, it would fail the run whenever a layer output was turned off, and could not be tested on
+  a QGIS too old to write the layers.
+- **Every model that can draw now does.** Three models loaded no layer, so their layouts would have shown
+  only the stations. They now load:
+  - the gravity tutorial: the calibrated run's stations and differences (three runs would draw each station
+    three times);
+  - the integration tutorial: the weighed run's five adjustment layers;
+  - the GNSS tutorial: each hour's baselines.
+- **The legend's labels are 9 pt.** At the template's size the stations layer's name ran off the page, and
+  QGIS 3.34 cannot wrap a legend by width.
+- rd04-loop has no map, and so no layout.
+- **The installer's help** says what the project opens on and what its layout shows.
+- **Translations:** two new strings and a new help paragraph, in pt_BR and es. The help was split at its
+  *Parameters* heading, keeping its existing translations.
+
+**Found: the installer's help did not name the GNSS tutorial.** It named every other dataset; P13-17 added
+ggao-triangle and not its sentence. Now it does, and a test holds the help to the shipped datasets.
+
+**Tests** (`tests/qgis/test_worked_examples.py`). 20 fail on the old code.
+- `TestTheLayout`, for each project:
+  - the layout's name, title, notes and footer;
+  - its map has no layers of its own, draws the stations, and holds them in view;
+  - a layer loaded later is drawn and listed.
+- `test_the_installers_help_names_every_dataset`.
+- `test_its_model_draws_its_results_into_the_layout` replaces `test_rd01s_model_draws_its_map`, for every
+  dataset. It runs each model with its layers as the dialog asks for them, loads them as the dialog does, and
+  checks each has features and that the layout draws and lists it. It needs a QGIS whose field API is
+  current, so it runs in CI.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-952's row names the layout.
+
+**Not done.**
+- The layout's map stays where it opened. A result drawn beyond the stations, such as a long exaggerated
+  vector, can fall outside it until the map is zoomed.
+- The model's labels, and now the layout's title and notes, are in the language of the installer's run
+  (P13-12's third *Not done*).
 
 ---
 

@@ -53,7 +53,7 @@ from qgis.PyQt.QtXml import QDomDocument
 
 from geocomp.algorithms.base import GeoCompAlgorithm
 
-__all__ = ["PrintLayoutAlgorithm"]
+__all__ = ["PrintLayoutAlgorithm", "follow_the_project", "from_template"]
 
 TEMPLATE = "TEMPLATE"
 TEMPLATE_FILE = "TEMPLATE_FILE"
@@ -115,6 +115,24 @@ def _populate_manually(legend) -> None:
         legend.setSyncMode(modes.Manual)
     else:
         legend.setAutoUpdateModel(False)
+
+
+def follow_the_project(legend: QgsLayoutItemLegend) -> None:
+    """Make *legend* list the project's layers as they are, the opposite of :func:`_populate_manually`."""
+    modes = getattr(Qgis, "LegendSyncMode", None)
+    if modes is not None and hasattr(legend, "setSyncMode"):
+        legend.setSyncMode(modes.AllProjectLayers)
+    else:
+        legend.setAutoUpdateModel(True)
+
+
+def from_template(project: QgsProject, text: str) -> QgsPrintLayout | None:
+    """A layout in *project* from the text of a QGIS layout template, or None if it is not one."""
+    document = QDomDocument()
+    document.setContent(text)
+    layout = QgsPrintLayout(project)
+    _items, ok = layout.loadFromTemplate(document, QgsReadWriteContext())
+    return layout if ok else None
 
 
 class PrintLayoutAlgorithm(GeoCompAlgorithm):
@@ -317,11 +335,8 @@ class PrintLayoutAlgorithm(GeoCompAlgorithm):
                     "%2", str(error)
                 )
             ) from error
-        document = QDomDocument()
-        document.setContent(text)
-        layout = QgsPrintLayout(project)
-        _items, ok = layout.loadFromTemplate(document, QgsReadWriteContext())
-        if not ok:
+        layout = from_template(project, text)
+        if layout is None:
             raise QgsProcessingException(
                 self.tr("The template %1 is not a QGIS layout template. Save the layout "
                         "as a template from QGIS's layout designer.").replace("%1", path)
@@ -378,12 +393,14 @@ def _theme_label(theme: str) -> str:
     return theme_labels()[theme]
 
 
-def _item(layout, item_id: str, kind):
+def _item(layout: QgsPrintLayout, item_id: str, kind: type) -> Any:
+    """*layout*'s item with id *item_id*, or None if it has none of type *kind*."""
     item = layout.itemById(item_id)
     return item if isinstance(item, kind) else None
 
 
-def _set_text(layout, item_id: str, text: str) -> None:
+def _set_text(layout: QgsPrintLayout, item_id: str, text: str) -> None:
+    """Set the text of *layout*'s label *item_id*, if the template has one."""
     item = _item(layout, item_id, QgsLayoutItemLabel)
     if item is not None:
         item.setText(text)
@@ -453,6 +470,7 @@ def _unique(project, name: str) -> str:
 
 
 def _version() -> str:
+    """GeoComp's version, for a layout's footer."""
     from geocomp.core.version import __version__
 
     return __version__

@@ -211,7 +211,10 @@ ordinary QGIS layout templates, A4 landscape, written once through QGIS's own la
 `scripts/build_layout_templates.py` and shipped as the artefact: an organisation adapts one in the layout
 designer and saves over it, or gives its own `.qpt` to the algorithm. Items are found by id — `title`,
 `map`, `legend`, `scalebar`, `north`, `notes`, `footer` — and an item a template lacks is simply not
-filled; a template with no `map` is refused.
+filled; a template with no `map` is refused. Since P13-24 *Install tutorial dataset* makes a layout from them
+too, in each worked project: one whose map and legend follow the project rather than a chosen set of layers,
+so that it shows the results once the walkthrough's model has loaded them
+([`20`](./20-testing-and-validation.md) §8).
 
 - **What it draws.** The layers chosen, or else the project's GeoComp result layers of the kinds the
   deliverable draws — stations, ellipses, corrections, observations, baselines and the gravity layers for
