@@ -188,6 +188,19 @@ error, because there is no baseline between the groups to be dependent on.
 allows the full set in Advanced mode with the consequence stated, and that needs the dependent ones to still
 exist and to know what they are.
 
+**A pair held twice is two baselines, each named (P13-25).** A campaign observes a pair on several days, and
+*Build baselines* reads a folder of their solutions. A pair the folder holds once is named `BASE-ROVER`. A
+pair it holds more than once has each baseline named by the span its session observed, written as
+*Batch processing* keys a station's sessions (§2): `GODN-GODE 2025-01-01 00:00/00:59`. Where one pair has two
+solutions of the same span, the file's name is added. The log says which pairs were named so, and why.
+- **What one name cost.** Until P13-25 every baseline of a pair was `BASE-ROVER`, and everything keyed by it
+  kept one of them: one quality record, one session, so the network document gave a kept baseline the other
+  session's epoch, and one observation id, so keeping the dependent baselines refused the whole run. The
+  independent and dependent lists could name the same id in each, and a float warning did not say which
+  session it meant.
+- **Not compared.** The two baselines of one pair are still not compared with each other; that is
+  repeatability, as §4.1.1 says.
+
 ### 4.1.1 Loop closure **[V]**
 
 Delivered in phase P7e as `core/techniques/gnss/baselines.py::loop_closure`.

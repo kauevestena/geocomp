@@ -3863,7 +3863,8 @@ The P13-19 tests now read the heights from the per-baseline record.
 **Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-602's row names the change.
 
 **Not done.**
-- A repeated pair still shares one key in the JSON output, as its quality record always has.
+- A repeated pair still shares one key in the JSON output, as its quality record always has. *(P13-25 names
+  each.)*
 - A slant height is still refused, as `specs/08` §8.3 says; a RINEX file cannot say it has one.
 
 #### P13-21 — the independent subset is the same on every platform
@@ -4008,6 +4009,40 @@ ggao-triangle and not its sentence. Now it does, and a test holds the help to th
   vector, can fall outside it until the map is zoomed.
 - The model's labels, and now the layout's title and notes, are in the language of the installer's run
   (P13-12's third *Not done*).
+
+#### P13-25 — a pair held twice is two baselines, each named
+
+P13-20's first *Not done*: a repeated pair shared one key in *Build baselines*' JSON. It was worse than a key.
+
+**The defect.** A campaign observes a pair on several days, and *Build baselines* reads a folder of their
+solutions. Every baseline was named `BASE-ROVER`, so a pair held twice was two baselines with one name, and
+everything keyed by it kept one. With the GNSS tutorial's GODN-GODE from both hours and the triangle's other
+sides from midnight:
+- **The quality record:** three for four baselines.
+- **The session:** the network document gave the midnight GODN-GODE, the one kept as independent, the epoch of
+  eleven o'clock's.
+- **The observation id:** with the dependent baselines kept, the run was refused, saying the cluster listed an
+  observation twice and to remove it, which no user could do.
+- **The lists:** `GODN-GODE` was in both the independent and the dependent list.
+- **The float warning** named `GODN-GODE`, without saying it meant eleven o'clock's.
+
+**What changed** (`specs/11` §4.1). The solutions are read first. A pair the folder holds once keeps its name;
+a pair it holds more than once has each baseline named by its session's span, `GODN-GODE 2025-01-01 00:00/00:59`,
+as *Batch processing* keys a station's sessions (P13-16), and by its file too where two share a span. The log
+says which pairs were named so. One new string, in pt_BR and es.
+
+**Tests** (`tests/qgis/test_gnss_repeated_pair.py`, on the tutorial's recorded solutions). 7 of the 8 fail on
+the old code; the eighth holds that a pair held once keeps its plain name.
+- each session is its own baseline: four observations, four quality records, and lists that do not overlap;
+- each is at its own session's epoch in the network document, the independent ones too;
+- the float warning names the session;
+- antenna heights are kept per baseline;
+- the same span twice is named by file.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.** The two baselines of one pair are still not compared with each other: that is repeatability, and
+the menu has no tool for it.
 
 ---
 

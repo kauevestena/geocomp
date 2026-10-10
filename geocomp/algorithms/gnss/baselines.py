@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from dataclasses import dataclass, replace
 from datetime import UTC
 from pathlib import Path
@@ -303,20 +304,53 @@ class BuildBaselinesAlgorithm(GeoCompAlgorithm):
                         "processing wrote them to.").replace("%1", str(folder))
             )
 
+        # Every solution is read first, so that a pair the folder holds more than
+        # once is known before any of its baselines is named (P13-25).
+        readable = []
+        for path in solutions:
+            try:
+                solution = read_pos(path)
+                readable.append((path, solution, _stations_from(solution, path)))
+            except GeoCompError as exc:
+                # One unreadable solution does not lose the rest (FR-166).
+                feedback.pushWarning(
+                    self.tr("Skipped %1: %2")
+                    .replace("%1", path.name)
+                    .replace("%2", translate_error(exc))
+                )
+        names = _names(readable)
+        for pair in sorted({"-".join(stations) for path, _s, stations in readable if path in names}):
+            feedback.pushInfo(
+                self.tr(
+                    "%1 is in the folder more than once, so each of its baselines is named by its "
+                    "span: %2."
+                )
+                .replace("%1", pair)
+                .replace(
+                    "%2",
+                    ", ".join(
+                        names[path]
+                        for path, _s, stations in readable
+                        if path in names and "-".join(stations) == pair
+                    ),
+                )
+            )
+
         built = []
         heights: dict[str, dict[str, float]] = {}
         floating: list[str] = []
         quality: dict[str, dict[str, Any]] = {}
         sessions: dict[str, _Session] = {}
-        for index, path in enumerate(solutions):
+        for index, (path, solution, stations) in enumerate(readable):
             if feedback.isCanceled():
                 return {}
-            feedback.setProgress(10 + 60 * index // len(solutions))
+            feedback.setProgress(10 + 60 * index // len(readable))
             try:
-                solution = read_pos(path)
-                stations = _stations_from(solution, path)
                 baseline = baseline_from_solution(
-                    solution, base_station=stations[0], rover_station=stations[1]
+                    solution,
+                    base_station=stations[0],
+                    rover_station=stations[1],
+                    baseline_id=names.get(path),
                 )
                 if reducing:
                     # A station listed has its own height at either end (P13-19).
@@ -671,14 +705,43 @@ class _Session:
     rover: tuple[float, float, float]
 
 
+def _span(solution) -> tuple[Any, Any]:
+    """When the solution's session observed: its first and last epochs."""
+    return (
+        solution.obs_start or solution.epochs[0].time,
+        solution.obs_end or solution.epochs[-1].time,
+    )
+
+
+def _names(readable: list) -> dict[Path, str]:
+    """The id of each baseline whose pair the folder holds more than once (P13-25).
+
+    The pair and the span its session observed, ``GODN-GODE 2025-01-01 00:00/00:59``,
+    written as *Batch processing* keys a station's sessions (P13-16); and the
+    file's name too, where one pair has two solutions of one span. A pair held
+    once keeps its plain ``BASE-ROVER``. Until P13-25 every baseline of a pair
+    shared that one id, and with it one quality record, one session -- so the
+    network document gave one the other's epoch -- and one observation id, which
+    refused the whole run once the dependent baselines were kept.
+    """
+    pairs = Counter(stations for _path, _solution, stations in readable)
+    spans = {}
+    for path, solution, stations in readable:
+        if pairs[stations] > 1:
+            start, end = _span(solution)
+            last = f"{end:%H:%M}" if end.date() == start.date() else f"{end:%Y-%m-%d %H:%M}"
+            spans[path] = f"{'-'.join(stations)} {start:%Y-%m-%d %H:%M}/{last}"
+    repeated = Counter(spans.values())
+    return {path: name if repeated[name] == 1 else f"{name} {path.name}" for path, name in spans.items()}
+
+
 def _session(solution, baseline) -> _Session:
     """The session's mid-epoch, and the base and rover positions it printed.
 
     The rover's is its antenna's, not its mark's: a start, a metre or two off at
     most, which is what the adjustment linearises about and nothing more.
     """
-    start = solution.obs_start or solution.epochs[0].time
-    end = solution.obs_end or solution.epochs[-1].time
+    start, end = _span(solution)
     middle = start + (end - start) / 2
     if middle.tzinfo is None:
         # GPS time, which is within a minute of UTC: a decimal year to 1e-7.

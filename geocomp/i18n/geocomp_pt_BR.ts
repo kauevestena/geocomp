@@ -129,6 +129,10 @@
             <translation>%1 recebeu duas alturas, %2 m e %3 m. Dê-lhe uma.</translation>
         </message>
         <message>
+            <source>%1 is in the folder more than once, so each of its baselines is named by its span: %2.</source>
+            <translation>%1 está na pasta mais de uma vez, e por isso cada uma das suas linhas de base é nomeada pelo seu intervalo: %2.</translation>
+        </message>
+        <message>
             <source>%1 is taken from an epoch whose ambiguities were not fixed (ambiguity ratio %2). A float baseline can be wrong by far more than its covariance says: process the session again, over a longer span, or leave it out.</source>
             <translation>%1 é tirada de uma época cujas ambiguidades não foram fixadas (razão de ambiguidades %2). Uma linha de base flutuante pode estar errada por muito mais do que a sua covariância diz: processe a sessão de novo, num intervalo mais longo, ou deixe-a de fora.</translation>
         </message>
