@@ -171,16 +171,16 @@ class TestTheLayerArrives:
         self, geocomp_provider, solution_folder, tmp_path
     ):
         """Not merely that *a* baseline is dependent: which one. The spanning
-        forest is chosen by covariance trace with ties broken by input order,
-        and all three solutions carry the same covariance here, so the third
-        file is the one that closes the loop."""
+        forest is chosen by covariance trace with ties broken by id (P13-21;
+        until then by input order), and all three solutions carry the same
+        covariance here, so the last by id is the one that closes the loop."""
         _results, layer, _context = _run(solution_folder, tmp_path)
         dependent = [
             feature["baseline"]
             for feature in layer.getFeatures()
             if feature["independent"] == "no"
         ]
-        assert dependent == ["0759-1111"]
+        assert dependent == ["3040-1111"]
 
     def test_the_geometry_joins_the_two_stations_the_baseline_connects(
         self, geocomp_provider, solution_folder, tmp_path

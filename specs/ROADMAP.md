@@ -3885,6 +3885,10 @@ covariance trace (`specs/11` §4.1).
 
 The first two fail on the old code. The third holds that nine figures are not too few.
 
+`tests/qgis/test_gnss_layers.py` held the old rule: three baselines from one solution, so three equal traces, and
+the third file dependent. By id it is `3040-1111`, the last of the three, and the test now says so. It needs QGIS
+3.38, so CI found it and the local run did not.
+
 **Register.** Unchanged: 172 met, 4 partly met, 0 open. Row 11 3 names the change.
 
 ---
