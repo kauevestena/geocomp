@@ -140,22 +140,29 @@ ON_THE_MAP = {
 }
 
 
+def _opened(installed):
+    """The installed project, read as QGIS reads it.
+
+    Opened in the test, not by a fixture: pytest keeps a fixture's value on the
+    test item until the session ends, and a project still holding a GeoPackage
+    layer when QGIS has shut down crashes the interpreter on its way out.
+    """
+    from qgis.core import QgsProject
+
+    _folder, path = installed
+    project = QgsProject()
+    assert project.read(str(path)), project.error()
+    return project
+
+
 class TestTheMap:
     """P13-22: the project opens on the stations, before the model has run."""
 
-    @pytest.fixture
-    def opened(self, installed):
-        from qgis.core import QgsProject
-
-        _folder, path = installed
-        project = QgsProject()
-        assert project.read(str(path)), project.error()
-        return project
-
-    def test_it_opens_on_the_stations_the_inputs_place(self, name, installed, opened):
+    def test_it_opens_on_the_stations_the_inputs_place(self, name, installed):
         from geocomp.algorithms.project.worked_examples import stations_file
 
         folder, _path = installed
+        opened = _opened(installed)
         layers = list(opened.mapLayers().values())
         if name not in ON_THE_MAP:
             assert layers == []
@@ -164,22 +171,25 @@ class TestTheMap:
         crs, stations, _one = ON_THE_MAP[name]
         (layer,) = layers
         assert layer.isValid()
-        assert layer.source().startswith(str(stations_file(name, folder)))
+        # As paths: QGIS writes the source with forward slashes on Windows too.
+        assert Path(layer.source().split("|")[0]) == stations_file(name, folder)
         assert layer.crs().authid() == crs == opened.crs().authid()
         assert {feature["station"] for feature in layer.getFeatures()} == stations
 
-    def test_each_station_is_where_its_input_puts_it(self, name, opened):
+    def test_each_station_is_where_its_input_puts_it(self, name, installed):
         if name not in ON_THE_MAP:
             pytest.skip("its inputs place no station")
         _crs, _stations, (station, x, y) = ON_THE_MAP[name]
+        opened = _opened(installed)
         (layer,) = opened.mapLayers().values()
         (feature,) = [f for f in layer.getFeatures() if f["station"] == station]
         point = feature.geometry().asPoint()
         assert (point.x(), point.y()) == pytest.approx((x, y), abs=1e-4)
 
-    def test_it_is_labelled_and_opens_on_them(self, name, opened):
+    def test_it_is_labelled_and_opens_on_them(self, name, installed):
         if name not in ON_THE_MAP:
             pytest.skip("its inputs place no station")
+        opened = _opened(installed)
         (layer,) = opened.mapLayers().values()
         assert layer.labelsEnabled()
         assert layer.labeling().settings().fieldName == "station"
