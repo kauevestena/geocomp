@@ -2681,6 +2681,10 @@
             <translation>%1 não está no cache, no diretório de produtos nem em nenhum serviço de download configurado. Adicione outro serviço de download em Configurações Globais → GNSS, ou coloque o arquivo no diretório de produtos.</translation>
         </message>
         <message>
+            <source>%1 logged %2 in %3 files, one after another, joined into one session: %4.</source>
+            <translation>%1 registrou %2 em %3 arquivos, um após o outro, unidos em uma só sessão: %4.</translation>
+        </message>
+        <message>
             <source>%1: %2</source>
             <translation>%1: %2</translation>
         </message>
@@ -2747,6 +2751,10 @@
         <message>
             <source>The configured product directory does not exist: %1. Correct its path in Global Settings, under GNSS.</source>
             <translation>O diretório de produtos configurado não existe: %1. Corrija o caminho nas Configurações Globais, em GNSS.</translation>
+        </message>
+        <message>
+            <source>The files %1 of %2 follow one another, but are processed apart: %3</source>
+            <translation>Os arquivos %1 de %2 seguem um ao outro, mas são processados separadamente: %3</translation>
         </message>
         <message>
             <source>The project's: the preferred CRS's frame</source>

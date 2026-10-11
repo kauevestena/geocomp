@@ -52,6 +52,7 @@ from geocomp.io.rinex import (
 __all__ = [
     "SessionScan",
     "join_sessions",
+    "occupations",
     "overlapping_groups",
     "scan_folder",
     "session_from_header",
@@ -363,6 +364,53 @@ def join_sessions(sessions: list[GnssSession], directory: Path) -> GnssSession:
         end=ordered[-1].end if ordered[-1].end is not None else first.end,
         meta=meta,
     )
+
+
+#: How far apart two files of one occupation may be when the files state no
+#: interval: a receiver logging on the hour ends one file an epoch before the next
+#: begins. Where they state one, twice the interval is allowed, if more.
+_CONTIGUOUS = timedelta(seconds=60)
+
+
+def occupations(sessions: list[GnssSession]) -> list[tuple[GnssSession, ...]]:
+    """One station's sessions, grouped into occupations (P13-29).
+
+    An occupation is what a receiver logged at a mark set up once: files that
+    follow one another -- each beginning within :data:`_CONTIGUOUS`, or two of
+    their intervals, of the last one's end, or overlapping it -- and agree on
+    everything :func:`join_sessions` requires. A gap longer than that, another
+    day, or another setup begins another occupation. A file whose span is not
+    known is an occupation of its own.
+
+    Returns:
+        The occupations in time order, each its files in time order.
+    """
+    ordered = sorted(
+        sessions,
+        key=lambda session: (
+            session.start is None,
+            session.start.timestamp() if session.start else 0.0,
+            session.obs_file,
+        ),
+    )
+    groups: list[list[GnssSession]] = []
+    for session in ordered:
+        if groups and _continues(groups[-1][-1], session):
+            groups[-1].append(session)
+        else:
+            groups.append([session])
+    return [tuple(group) for group in groups]
+
+
+def _continues(previous: GnssSession, session: GnssSession) -> bool:
+    """Whether *session* is the next file of *previous*'s occupation."""
+    if previous.station_id != session.station_id or previous.end is None or session.start is None:
+        return False
+    interval = session.interval or previous.interval or 0.0
+    allowed = max(_CONTIGUOUS, timedelta(seconds=2 * interval))
+    if session.start - previous.end > allowed:
+        return False
+    return all(mine == theirs for _name, mine, theirs in _setup_of(previous, session))
 
 
 def _setup_of(first: GnssSession, other: GnssSession) -> list[tuple[str, Any, Any]]:

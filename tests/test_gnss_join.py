@@ -186,3 +186,81 @@ class TestTheEngineReadsTheWhole:
         assert [(e.time, e.position, e.is_ambiguity_fixed) for e in split_then_joined.epochs] == [
             (e.time, e.position, e.is_ambiguity_fixed) for e in unsplit.epochs
         ]
+
+
+class TestOccupations:
+    """P13-29: which of one station's files are one occupation, to be joined."""
+
+    def _halves(self, halves):
+        from geocomp.io.gnss_discovery import occupations
+
+        first, second = _sessions(halves)
+        return first, second, occupations
+
+    def test_files_that_follow_one_another_are_one(self, halves):
+        first, second, occupations = self._halves(halves)
+        assert occupations([second, first]) == [(first, second)]
+
+    def test_a_gap_of_more_than_two_intervals_is_two(self, halves):
+        from dataclasses import replace
+        from datetime import timedelta
+
+        first, second, occupations = self._halves(halves)
+        # The files state a 30 s interval, so a minute is allowed and a second more is not.
+        later = replace(second, start=first.end + timedelta(seconds=61), end=second.end + timedelta(hours=1))
+        assert occupations([first, later]) == [(first,), (later,)]
+        just = replace(second, start=first.end + timedelta(seconds=60))
+        assert occupations([first, just]) == [(first, just)]
+
+    def test_another_day_is_another_occupation(self, halves):
+        from dataclasses import replace
+        from datetime import timedelta
+
+        first, second, occupations = self._halves(halves)
+        tomorrow = replace(second, start=second.start + timedelta(days=1), end=second.end + timedelta(days=1))
+        assert occupations([first, tomorrow]) == [(first,), (tomorrow,)]
+
+    def test_another_setup_is_another_occupation(self, halves):
+        from dataclasses import replace
+
+        from geocomp.core.uncertainty import Quantity
+        from geocomp.core.units import Unit
+
+        first, second, occupations = self._halves(halves)
+        raised = replace(second, antenna_height=Quantity.exact(1.5, Unit.METRE))
+        assert occupations([first, raised]) == [(first,), (raised,)]
+
+    def test_a_file_with_no_span_is_its_own(self, halves):
+        from dataclasses import replace
+
+        first, second, occupations = self._halves(halves)
+        unknown = replace(second, start=None, end=None)
+        assert occupations([unknown, first]) == [(first,), (unknown,)]
+
+
+@requires_rtklib
+class TestTheEngineReadsTheWholeRover:
+    """Tier 4: the rover's hour, cut in two and joined, is solved as the hour was (P13-29)."""
+
+    def test_the_baseline_is_the_one_the_unsplit_rover_gives(self, tmp_path):
+        from geocomp.engines.rtklib import RtklibEngine, RtklibJob, profile
+
+        folder = tmp_path / "rover"
+        folder.mkdir()
+        split(DATA / "07590920.05o", folder)
+        shutil.copy(DATA / "brdc_0759.05n.gz", folder)
+        whole = {session.station_id: session for session in scan_folder(DATA).sessions}
+        joined = join_sessions(_sessions(folder), tmp_path / "joined")
+        unsplit, split_then_joined = (
+            RtklibEngine()
+            .run(
+                RtklibJob(rover=rover, base=whole["3040"], config=profile("relative-static")),
+                work_dir=tmp_path / name,
+            )
+            .solution
+            for name, rover in (("whole", whole["0759"]), ("joined", joined))
+        )
+        assert len(split_then_joined.epochs) == len(unsplit.epochs) == 120
+        assert [(e.time, e.position, e.is_ambiguity_fixed) for e in split_then_joined.epochs] == [
+            (e.time, e.position, e.is_ambiguity_fixed) for e in unsplit.epochs
+        ]

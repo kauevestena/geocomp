@@ -128,6 +128,15 @@ observed on two days was processed twice as the second day. Now:
   - **It is the same file to the engine.** RTKLIB's 2005 base cut in two at 00:30 and joined gives, with
     the real `rnx2rtkp`, the solution the unsplit file gives, every epoch's record identical.
   - Several rover sessions are still refused by the relative modes, and processed one by one by the batch.
+- **A rover logged in several files is one session (P13-29).** The same receiver logging hourly leaves a
+  morning's occupation in several files. Each was a session: the relative modes refused the pair as observed
+  together twice, the absolute modes refused the station, and the batch made a row of each hour. Now a
+  station's files that **follow one another** -- each beginning within a minute, or two of its intervals if
+  more, of the last one's end, or overlapping it -- and were recorded one way, as above, are one occupation
+  (`io/gnss_discovery.py::occupations`), joined into one session before anything is paired with it. A longer
+  gap, another day or another setup begins another. The log names the files joined. Applied to the rover in
+  the relative and absolute modes and to every rover of a batch; the base keeps the join above, of the files
+  over each rover's session.
 
 ---
 

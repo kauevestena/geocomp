@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-29 — A rover logged in several files is one session
+
+#### Changed
+
+- A station's observation files that follow one another and were recorded one way are one session: joined
+  before processing in *Relative — Static*, the absolute modes and *Batch processing*. A morning logged
+  hourly is one baseline and one batch row, not one an hour; the relative and absolute modes no longer refuse
+  it as several sessions.
+
 ### P13-28 — Build baselines compares a pair held twice
 
 #### Added

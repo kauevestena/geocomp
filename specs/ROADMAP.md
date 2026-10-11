@@ -4086,7 +4086,8 @@ The joined file is written to the run's working directory, beside the engine's o
 it, and *Relative — Static* keeps it unless *Keep the engine's working directory* is turned off.
 
 **Not done.** A rover logged in several files is still several sessions, each processed against the base.
-Joining the rover's too would make one baseline of them, which is what a static session wants.
+Joining the rover's too would make one baseline of them, which is what a static session wants. *(P13-29 joins
+them.)*
 
 #### P13-27 — the worked layout's map holds every layer drawn
 
@@ -4165,6 +4166,49 @@ says the hour is suspect. Set beside midnight's, its GODN-GODE departs from thei
   tolerance, it needs one the user sets, and *Build baselines* has none.
 - The GNSS tutorial does not walk through it. Its two hours write solutions of the same names, and *Build
   baselines* reads one folder, so a reader would have to rename three files first.
+
+#### P13-29 — a rover logged in several files is one session
+
+P13-26's *Not done*. A receiver logging hourly leaves a morning's occupation in several files, and each was a
+session of its own:
+- ***Relative — Static*** refused the pair as observed together twice;
+- **the absolute modes** refused the station as having two sessions;
+- ***Batch processing*** made a row of each hour: several short baselines where the occupation was one long
+  one, which is what a static session wants.
+
+**What changed** (`specs/11` §2).
+- **What an occupation is** (`io/gnss_discovery.py::occupations`). A station's files that follow one another
+  and were recorded one way, as P13-26 requires of the base's. Each begins within a minute of the last one's
+  end, or within two of its intervals if that is more, or overlaps it. A longer gap, another day, another
+  setup, or a file whose span is not known begins another.
+- **Joined first.** An occupation in several files is joined into one session before anything is paired with
+  it (`algorithms/gnss/common.py::joined_occupations`):
+  - in *Relative — Static*, the rover;
+  - in the absolute modes, the rover;
+  - in *Batch processing*, every rover station; its rows are keyed by station again where a station has one
+    occupation.
+- **The base keeps P13-26's join**, of the files over each rover's session.
+- **Logged.** The log names the files joined. Files that follow one another but cannot be joined, compressed
+  in a form GeoComp cannot read, are processed apart, and the log says why.
+- **Messages:** two log lines, in pt_BR and es.
+
+**It is the same file to the engine.** RTKLIB's 2005 rover cut in two at 00:30 and joined gives, with the
+real `rnx2rtkp`, every epoch's record the unsplit file gives, as P13-26's base did.
+
+**Tests.**
+- `tests/test_gnss_join.py::TestOccupations`, 5: files that follow one another are one occupation; a gap of
+  61 s where the interval allows 60 is two, and of 60 s one; another day, another setup, and a file with no
+  span are each their own.
+- `::TestTheEngineReadsTheWholeRover`: tier 4, run here against `rnx2rtkp`.
+- `tests/qgis/test_gnss_split_rover.py`, 4, all failing against the old algorithms. *Relative — Static*, the
+  absolute static mode and the batch each hand the stand-in one joined rover, and a second day stays a second
+  row.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-355's row names it.
+
+**Not done.** The base is not joined into occupations of its own. Its files are joined per rover session, over
+the ones that session overlaps, once for each distinct set; rovers of different spans each get a join of
+their own.
 
 ---
 
