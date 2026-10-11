@@ -14,8 +14,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from qgis.core import QgsApplication
-from qgis.PyQt.QtCore import QCoreApplication, QTranslator
+from qgis.core import QgsApplication, QgsProject
+from qgis.PyQt.QtCore import QCoreApplication, QTimer, QTranslator
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
@@ -75,6 +75,7 @@ class GeoCompPlugin:
         self._series_panel = None
         self._basemap_offer = None
         self._results_panel = None
+        self._following_the_language = False
 
     # -- lifecycle -------------------------------------------------------
 
@@ -113,6 +114,10 @@ class GeoCompPlugin:
         self._build_results_panel()
         self._build_plugin_menu_entries()
         self._build_basemap_offer()
+        # A worked project opened in another language than it was installed in
+        # is rewritten in this one (P13-30).
+        QgsProject.instance().readProject.connect(self._project_read)
+        self._following_the_language = True
 
         log.info("GeoComp ready")
 
@@ -163,6 +168,10 @@ class GeoCompPlugin:
             self._series_panel.deleteLater()
             self._series_panel = None
 
+        if self._following_the_language:
+            QgsProject.instance().readProject.disconnect(self._project_read)
+            self._following_the_language = False
+
         if self._provider is not None:
             QgsApplication.processingRegistry().removeProvider(self._provider)
             self._provider = None
@@ -172,6 +181,36 @@ class GeoCompPlugin:
             self._translator = None
 
         log.info("GeoComp unloaded")
+
+    # -- worked projects -------------------------------------------------
+
+    def _project_read(self, _document) -> None:
+        """After the event that read it: QGIS's own project provider reads the
+        project's models on the same signal, and must have done so first."""
+        QTimer.singleShot(0, self.follow_the_language)
+
+    def follow_the_language(self) -> None:
+        """Rewrite the open project's worked example in the language in use (P13-30).
+
+        The models are QGIS's project provider's, which the Processing plugin
+        keeps in ``model_definitions``; without it there is nothing to rewrite.
+        """
+        from geocomp.algorithms.project.worked_examples import follow_the_language
+        from geocomp.services.logging import log
+
+        provider = QgsApplication.processingRegistry().providerById("project")
+        models = getattr(provider, "model_definitions", None)
+        if not isinstance(models, dict):
+            return
+        try:
+            done = follow_the_language(QgsProject.instance(), models)
+        except Exception as error:  # noqa: BLE001 -- a project must open whatever this does
+            log.warning("worked project not rewritten in the language in use", error=str(error))
+            return
+        if "model" in done:
+            provider.refreshAlgorithms()
+        if done:
+            log.info("worked project rewritten in the language in use", rewritten=done)
 
     # -- construction ----------------------------------------------------
 

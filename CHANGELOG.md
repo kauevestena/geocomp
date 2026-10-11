@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-30 — A worked project follows the language QGIS opens it in
+
+#### Changed
+
+- A tutorial's worked project, opened in a language other than the one it was installed in, is rewritten in
+  that one: its model, its layout's words and its stations layer's name. A model the user has edited is left
+  as it is, and nothing is saved until the user saves.
+
 ### P13-29 — A rover logged in several files is one session
 
 #### Changed

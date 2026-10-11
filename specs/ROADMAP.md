@@ -3526,7 +3526,7 @@ tutorial is what keeps it partly met.
   the map, and a print layout of the results, would teach more, and is not built. *(P13-22 puts the stations on
   the map, and P13-24 adds the print layout.)*
 - The model's labels are in the language of the installer's run. Changing QGIS's language afterwards leaves
-  them as they were.
+  them as they were. *(P13-30: the project follows it.)*
 
 #### P13-13 — every help names the tutorials that run it (specs/16 §8)
 
@@ -4008,7 +4008,7 @@ ggao-triangle and not its sentence. Now it does, and a test holds the help to th
 - The layout's map stays where it opened. A result drawn beyond the stations, such as a long exaggerated
   vector, can fall outside it until the map is zoomed. *(P13-27: it follows them.)*
 - The model's labels, and now the layout's title and notes, are in the language of the installer's run
-  (P13-12's third *Not done*).
+  (P13-12's third *Not done*). *(P13-30: they follow the language QGIS opens the project in.)*
 
 #### P13-25 — a pair held twice is two baselines, each named
 
@@ -4209,6 +4209,56 @@ real `rnx2rtkp`, every epoch's record the unsplit file gives, as P13-26's base d
 **Not done.** The base is not joined into occupations of its own. Its files are joined per rover session, over
 the ones that session overlaps, once for each distinct set; rovers of different spans each get a join of
 their own.
+
+#### P13-30 — a worked project follows the language QGIS opens it in
+
+P13-12's third *Not done*, and P13-24's second. A worked project's words were written once, in the language
+of the installer's run. A student who installed the tutorials in English and opened them in a Portuguese QGIS
+found the model, the layout and the stations layer in English. The rest of the plugin was in Portuguese.
+
+**What changed** (`specs/20` §8).
+- **Recorded.** The installer records what it wrote in the project's `GeoComp` entries: the dataset, the
+  model's name and a SHA-256 fingerprint of its definition, the layout's name and the stations layer's.
+- **Rewritten when read** (`worked_examples.follow_the_language`). The plugin listens for QGIS reading a
+  project. Once QGIS's own project provider has read the project's models, the plugin compares their words
+  with the language in use. In another language:
+  - the model is rebuilt from the installed files beside the project and replaces the old one among the
+    provider's models, which are refreshed;
+  - the layout's name, title, notes, footer and legend title are written again;
+  - the stations layer is renamed.
+- **Left alone:**
+  - a model whose fingerprint no longer matches, because the user edited it;
+  - a layout or layer the user renamed;
+  - a project that is not a worked one, or is already in the language in use.
+- **Not saved.** The project is marked changed; saving it is the user's choice.
+- **One place for the layout's words.** The installer and the rewrite write them through one function,
+  `_word_the_layout`, so the two cannot drift.
+
+**Found: a model's definition is not the same twice.** The fingerprint is taken from the definition as a
+project file holds it.
+- Taken from the model as built, it never matched the one QGIS reads back: a null string is written as an
+  empty one.
+- Taken after loading the definition into a model, it changed with the language: loading describes the
+  model's outputs again from its algorithms, in the language in use. Every model then looked edited.
+
+So the definition is written to XML text and read back, and nothing else.
+
+**Tests** (`tests/qgis/test_worked_examples.py`).
+- `TestTheLanguage`, for each of the seven datasets:
+  - installed in English and opened in Portuguese, every word is Portuguese: the model, the layout's name,
+    title, notes and legend title, and the stations layer. The project is marked changed;
+  - opened in English, nothing is rewritten;
+  - a model the user edited is left as it is, while the layout and the layer still follow.
+- `test_the_plugin_rewrites_the_project_qgis_opens`: the plugin's hook, given rd01's project as QGIS opens
+  it, with a stand-in for QGIS's project provider, which the tier-3 tests do not load.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-952's row says so.
+
+**Not done.**
+- The hook is tested against a stand-in for the Processing plugin's provider. The order of the two on
+  QGIS's signal, which the plugin defers past, is not exercised.
+- A layout whose words the user edited is still rewritten, unless it was renamed. Only the model carries a
+  fingerprint.
 
 ---
 
