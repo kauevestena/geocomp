@@ -4208,7 +4208,7 @@ real `rnx2rtkp`, every epoch's record the unsplit file gives, as P13-26's base d
 
 **Not done.** The base is not joined into occupations of its own. Its files are joined per rover session, over
 the ones that session overlaps, once for each distinct set; rovers of different spans each get a join of
-their own.
+their own. *(P13-32: kept, and why.)*
 
 #### P13-30 — a worked project follows the language QGIS opens it in
 
@@ -4299,6 +4299,31 @@ user would never be asked to save it.
   left as though reworded. Installing it again records them.
 - QGIS's provider is loaded by its file, not by the Processing plugin's start-up. Where QGIS ships it
   elsewhere, the test skips and says where it looked.
+
+#### P13-32 — the base is joined over each rover's session, and why
+
+P13-29's *Not done* asked whether the base should be joined into occupations of its own, as the rover is,
+once for a batch rather than once for each distinct set of files a rover overlaps. It should not, and
+`specs/11` §2 now says why.
+
+**The engine reads the whole base file.** RTKLIB narrows the base to the rover's span only when the run sets
+a time window (`postpos.c::readobsnav`, which widens the window by a minute for the base). No algorithm sets
+one; only `scripts/check_rd06.py` does, to solve part of a day. Every run from the menu reads every epoch of
+the base file it is given. Joined
+into its occupation, a base logging hourly through the day would be read whole by every rover's run.
+Joined over each rover's session, a run reads only the files that rover observed with.
+
+**What the per-rover join costs**, and what it does not:
+- one join for each distinct set of files a rover overlaps, made once however many rows it serves (P13-26);
+- the same refusal as an occupation would give: a base set up again under one rover's session is refused,
+  naming both files and the record that differs;
+- no change to the solution: the joined file holds every epoch the rover observed with.
+
+No code changed. **Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.** Joining the base once and narrowing each run with a window would read the least of all, but
+it would set a window on every relative run, which today has none. That is a change to how every baseline is
+processed, and is not made here.
 
 ---
 

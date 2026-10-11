@@ -137,6 +137,13 @@ observed on two days was processed twice as the second day. Now:
   gap, another day or another setup begins another. The log names the files joined. Applied to the rover in
   the relative and absolute modes and to every rover of a batch; the base keeps the join above, of the files
   over each rover's session.
+- **The base is joined over each rover's session, not into occupations (P13-32).** Given no window, `rnx2rtkp`
+  reads every epoch of the base file it is given; RTKLIB narrows the base to the rover's span only when the
+  run sets one (`postpos.c::readobsnav`), and no algorithm sets one: only `scripts/check_rd06.py` does, to
+  solve part of a day. A base joined into its occupation, a day of hourly files, would be read whole by every
+  rover's run: a day at one second for a rover of an hour. Joined over each rover's session, a run reads the
+  files that rover observed with. What it costs is a join for each distinct set of files, made once however
+  many rows it serves, and a base set up twice under one rover is refused either way.
 
 ---
 
