@@ -125,3 +125,28 @@ class TestARepeatedPair:
         shutil.copyfile(folder / "godn-gode-00.pos", folder / "godn-gode-again.pos")
         document, _network, _log = _build(folder)
         assert {f"{MIDNIGHT} godn-gode-00.pos", f"{MIDNIGHT} godn-gode-again.pos"} <= set(document["quality"])
+
+
+class TestTheyAreCompared:
+    """P13-28: the determinations of a pair held twice, set side by side.
+
+    The eleven o'clock GODN-GODE is float and a metre out. Its own triangle
+    closed to 7.62 mm, because GODN-GODS is out by the same error at GODN, which
+    a loop cancels; the midnight determination of the same vector shows it.
+    """
+
+    def test_the_two_hours_disagree_by_a_metre_and_it_is_said(self, folder):
+        document, _network, log = _build(folder)
+        (record,) = document["repeatability"]
+        assert record["baselines"] == [MIDNIGHT, ELEVEN]
+        assert record["largest_mm"] == pytest.approx(566.53, abs=0.01)
+        assert (
+            "GODN-GODE was determined 2 times: the determinations depart from their mean by up to "
+            "566.53 mm over 65.5 m"
+        ) in log
+
+    def test_a_pair_held_once_is_not_compared(self, folder):
+        (folder / "godn-gode-11.pos").unlink()
+        document, _network, log = _build(folder)
+        assert document["repeatability"] == []
+        assert "was determined" not in log

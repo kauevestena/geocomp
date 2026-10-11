@@ -431,6 +431,30 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "its misclosure would measure the antenna heights. Reduce every leg, or none.",
         "loop",
     ),
+    "validation.gnss_repeat_too_few": MessageTemplate(
+        "Repeatability compares two or more determinations of one baseline, and %1 were "
+        "given. Add another session's determination of it.",
+        "received",
+    ),
+    "validation.gnss_repeat_different_stations": MessageTemplate(
+        "'%1' is not a determination of the baseline between %2 and %3. Compare only "
+        "determinations of one pair of stations.",
+        "baseline",
+        "base",
+        "rover",
+    ),
+    "data.gnss_repeat_not_ecef": MessageTemplate(
+        "The determination '%1' is in %2. Determinations from different sessions are "
+        "averaged in ECEF. Process its session again with ECEF output.",
+        "baseline",
+        "frame",
+    ),
+    "data.gnss_repeat_mixed_antenna_reduction": MessageTemplate(
+        "The determinations of '%1' mix baselines reduced to the marks with baselines that "
+        "are not, so they would differ by the antenna heights. Reduce every determination, "
+        "or none.",
+        "baseline",
+    ),
     "data.comparison_needs_two_configurations": MessageTemplate(
         "A comparison needs at least two processing configurations, and %1 were given: a "
         "configuration compared with itself says nothing. Add another configuration.",

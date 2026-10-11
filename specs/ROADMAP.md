@@ -4042,7 +4042,7 @@ the old code; the eighth holds that a pair held once keeps its plain name.
 **Register.** Unchanged: 172 met, 4 partly met, 0 open.
 
 **Not done.** The two baselines of one pair are still not compared with each other: that is repeatability, and
-the menu has no tool for it.
+the menu has no tool for it. *(P13-28 compares them.)*
 
 #### P13-26 — a base logged in several files is joined
 
@@ -4120,6 +4120,51 @@ project into QGIS's own: on QGIS 3.34 an expression finds layers there and nowhe
 **Not done.** The view is evaluated when the layout is refreshed or exported, as QGIS evaluates any
 data-defined extent; that is what the test does. Whether a layout already open in QGIS's designer when the
 model finishes follows without its *Refresh* button was not tried: no test here drives the designer.
+
+#### P13-28 — *Build baselines* compares a pair held twice
+
+P13-25's *Not done*. P13-25 named the determinations of a repeated pair apart, and nothing set them side by
+side. A loop cannot see an error common to both of a station's sides, which enters it twice with opposite
+signs and cancels; a second determination of one vector can. RD-06's criterion rests on both for that reason
+(`specs/20` §6), and until now only `scripts/check_rd06.py` measured repeatability.
+
+**What changed** (`specs/11` §4.1.1). *Build baselines* compares the determinations of every pair the folder
+holds more than once, in either orientation (`core/techniques/gnss/baselines.py::repeatability`):
+- each determination's departure from their mean, in east, north and up at the base station;
+- the scatter of each axis, as a sample (`ddof=1`), and the largest departure, in millimetres and in parts per
+  million of the length;
+- each determination's own formal sigma beside it. RTKLIB's are commonly optimistic, so no verdict is drawn:
+  the log states the size, as it does for a closure.
+
+One log line per pair, and the record under `repeatability` in the JSON output.
+- **Refused:** determinations in a local frame, and some reduced to the marks while others are not; the log
+  names the pair and the rest are compared.
+- **Messages:** four refusals and two log lines, in pt_BR and es.
+
+**What it found on the GNSS tutorial's data.** The eleven o'clock triangle misses by 7.62 mm, and the tutorial
+says the hour is suspect. Set beside midnight's, its GODN-GODE departs from their mean by **566.53 mm**:
+- both GODN sides that hour are float, and a metre out;
+- the error is GODN's, so it is on both of GODN's sides and the loop cancels it;
+- GODE-GODS, which does not touch GODN, fixed, and is within 5 mm of midnight's.
+
+**Tests.**
+- `tests/test_gnss_baselines.py::TestRepeatability` and `::TestARepeatabilityThatWouldBeMeaninglessIsRefused`,
+  9 tests, on the recorded solutions:
+  - two determinations depart equally and oppositely, their difference rotated into the horizon;
+  - two scatter by that difference over √2; three by the sample's own standard deviation;
+  - the other orientation is the same vector;
+  - the float determination's sigma is millimetres beside a half-metre departure;
+  - each refusal.
+- `tests/qgis/test_gnss_repeated_pair.py::TestTheyAreCompared`, 2: the two hours disagree by 566.53 mm and the
+  log says so, and a pair held once is not compared.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.**
+- No verdict. Judging a departure against the formal sigma would fail every RTKLIB baseline; against a
+  tolerance, it needs one the user sets, and *Build baselines* has none.
+- The GNSS tutorial does not walk through it. Its two hours write solutions of the same names, and *Build
+  baselines* reads one folder, so a reader would have to rename three files first.
 
 ---
 

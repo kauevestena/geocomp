@@ -196,6 +196,15 @@ TECHNIQUE_PLAIN_FLOATS = {
     ("InstrumentProfile", "sigma_instrument_height"): "is itself a standard deviation",
     ("InstrumentProfile", "sigma_target_height"): "is itself a standard deviation",
     ("StochasticDefaults", "values"): "a mapping of standard deviations",
+    ("Repeatability", "departures_enu"): (
+        "each determination's departure from the determinations' own mean: the empirical "
+        "spread the comparison reports, with each one's covariance beside it in sigmas_enu"
+    ),
+    ("Repeatability", "sigmas_enu"): "is itself a set of standard deviations",
+    ("Repeatability", "length_m"): (
+        "the mean vector's length, a scale for the parts-per-million figure, as "
+        "LoopClosure.perimeter_m is"
+    ),
     ("LoopClosure", "perimeter_m"): (
         "the distance travelled round the circuit, a scale for the parts-per-million "
         "figure rather than a determined quantity; the misclosure it scales is the "

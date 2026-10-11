@@ -145,6 +145,10 @@
             <translation>%1 não declara altura de antena. Dê a altura de %2 em %3.</translation>
         </message>
         <message>
+            <source>%1 was determined %2 times: the determinations depart from their mean by up to %3 mm over %4 m (%5 ppm), scattering %6, %7 and %8 mm in east, north and up.</source>
+            <translation>%1 foi determinada %2 vezes: as determinações se afastam da sua média em até %3 mm em %4 m (%5 ppm), com dispersão de %6, %7 e %8 mm em leste, norte e vertical.</translation>
+        </message>
+        <message>
             <source>%1's antenna stood %2 m east and %3 m north of its mark, as %4 states, and the reduction includes it.</source>
             <translation>A antena de %1 estava %2 m a leste e %3 m a norte do seu marco, como %4 declara, e a redução inclui isso.</translation>
         </message>
@@ -271,6 +275,10 @@
         <message>
             <source>Take antenna heights from the observation files</source>
             <translation>Tomar as alturas de antena dos arquivos de observação</translation>
+        </message>
+        <message>
+            <source>The determinations of %1 could not be compared: %2</source>
+            <translation>As determinações de %1 não puderam ser comparadas: %2</translation>
         </message>
         <message>
             <source>The network document needs the frame the base coordinates were given in. A .pos file does not state it and GeoComp does not assume one: a vector with no frame cannot be brought into another's. Choose the frame they were given in.</source>
@@ -4219,6 +4227,10 @@
             <translation>'%1' não é um separador decimal; use '.', ',' ou 'auto'.</translation>
         </message>
         <message>
+            <source>'%1' is not a determination of the baseline between %2 and %3. Compare only determinations of one pair of stations.</source>
+            <translation>'%1' não é uma determinação da linha de base entre %2 e %3. Compare apenas determinações de um mesmo par de estações.</translation>
+        </message>
+        <message>
             <source>'%1' is not a distance unit GeoComp writes; expected %2. Correct it in Global Settings, under Interface.</source>
             <translation>'%1' não é uma unidade de distância que o GeoComp escreve; esperava-se %2. Corrija-a em Configurações Globais, em Interface.</translation>
         </message>
@@ -5027,6 +5039,10 @@
             <translation>Reduzir distâncias à quadrícula exige uma posição aproximada para cada estação em que uma distância termina, e estas não têm nenhuma: %1. Dê a elas coordenadas aproximadas, ou desligue a redução.</translation>
         </message>
         <message>
+            <source>Repeatability compares two or more determinations of one baseline, and %1 were given. Add another session's determination of it.</source>
+            <translation>A repetibilidade compara duas ou mais determinações de uma linha de base, e foram dadas %1. Acrescente a determinação dela por outra sessão.</translation>
+        </message>
+        <message>
             <source>Row %1 of the alert thresholds file cannot be read: '%2'. Expected a positive limit in metres, or in metres a year for a velocity. Each row is kind, limit, stations, group; correct that row.</source>
             <translation>A linha %1 do arquivo de limiares de alerta não pode ser lida: '%2'. Esperava-se um limite positivo em metros, ou em metros por ano para uma velocidade. Cada linha é tipo, limite, estações, grupo; corrija essa linha.</translation>
         </message>
@@ -5613,6 +5629,14 @@
         <message>
             <source>The design has stations but no planned observations, so there is nothing to evaluate. Connect two stations to begin.</source>
             <translation>O planejamento tem estações, mas nenhuma observação planejada, então não há nada a avaliar. Ligue duas estações para começar.</translation>
+        </message>
+        <message>
+            <source>The determination '%1' is in %2. Determinations from different sessions are averaged in ECEF. Process its session again with ECEF output.</source>
+            <translation>A determinação '%1' está em %2. Determinações de sessões diferentes são promediadas em ECEF. Processe a sua sessão de novo com saída em ECEF.</translation>
+        </message>
+        <message>
+            <source>The determinations of '%1' mix baselines reduced to the marks with baselines that are not, so they would differ by the antenna heights. Reduce every determination, or none.</source>
+            <translation>As determinações de '%1' misturam linhas de base reduzidas às marcas com linhas de base que não o são, e por isso difeririam pelas alturas de antena. Reduza todas as determinações, ou nenhuma.</translation>
         </message>
         <message>
             <source>The direction '%1' belongs to no setup or direction set, so it has no orientation unknown and would be adjusted as an absolute azimuth. Give it its setup.</source>

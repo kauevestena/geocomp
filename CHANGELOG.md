@@ -5,6 +5,15 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-28 — Build baselines compares a pair held twice
+
+#### Added
+
+- *Build baselines* compares the determinations of every pair a folder holds more than once: each one's
+  departure from their mean in east, north and up, the scatter, and the largest departure in millimetres and
+  ppm, in the log and under `repeatability` in the JSON. On the GNSS tutorial's two hours it finds the
+  eleven o'clock GODN-GODE half a metre from the mean, an error its 7.62 mm loop closure cancelled.
+
 ### P13-27 — The worked layout's map holds every layer drawn
 
 #### Changed

@@ -683,3 +683,125 @@ class TestEveryLoopIsFound:
         assert record["magnitude_mm"] == pytest.approx(13.0)
         assert record["propagated_sigma_xyz_mm"] == pytest.approx([math.sqrt(3e-6) * 1000] * 3)
         assert record["covariance_is_approximate"] is True
+
+
+#: The GNSS tutorial's solutions as the real engine gave them (``tests/data/ggao``).
+GGAO = Path(__file__).parent / "data" / "ggao"
+
+
+def _ggao(hour: str, pair: str = "godn-gode"):
+    from geocomp.engines.rtklib.baseline import baseline_from_solution
+    from geocomp.engines.rtklib.read_pos import read_pos
+
+    base, rover = pair.upper().split("-")
+    built = baseline_from_solution(
+        read_pos(GGAO / f"hour-{hour}" / f"{pair}.pos"), base_station=base, rover_station=rover
+    )
+    return _replace(built, id=f"{built.id} {hour}")
+
+
+def _replace(baseline, **changes):
+    from dataclasses import replace
+
+    return replace(baseline, **changes)
+
+
+class TestRepeatability:
+    """P13-28: determinations of one vector set side by side.
+
+    GODN-GODE at midnight fixed; at eleven its last epoch is float, and it is a
+    metre out -- as is GODN-GODS that hour, by the same error at GODN, which is
+    why the eleven o'clock triangle still closed to 7.62 mm.
+    """
+
+    def test_two_determinations_depart_equally_and_oppositely(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        result = repeatability([_ggao("00"), _ggao("11")])
+        first, second = (np.array(departure) for departure in result.departures_enu)
+        np.testing.assert_allclose(first, -second, atol=1e-12)
+        difference = np.array(
+            ecef_to_enu(
+                tuple(
+                    a.value - b.value
+                    for a, b in zip(_ggao("11").components, _ggao("00").components, strict=True)
+                ),
+                *_ggao("00").base_horizon,
+            )
+        )
+        np.testing.assert_allclose(second - first, difference, atol=1e-12)
+        # ddof=1: two samples scatter by their difference over the root of two.
+        np.testing.assert_allclose(result.scatter_enu_m, np.abs(difference) / math.sqrt(2), atol=1e-12)
+        assert result.largest_m == pytest.approx(np.linalg.norm(difference) / 2)
+        assert result.largest_m * 1000 == pytest.approx(566.53, abs=0.01)
+        assert result.length_m == pytest.approx(65.55, abs=0.01)
+        assert result.parts_per_million == pytest.approx(1e6 * result.largest_m / result.length_m)
+
+    def test_each_states_its_own_sigma(self):
+        """The float one's formal sigma is millimetres; its departure is half a metre."""
+        from geocomp.core.techniques.gnss import repeatability
+
+        result = repeatability([_ggao("00"), _ggao("11")])
+        assert max(result.sigmas_enu[1]) < 0.01 < min(abs(value) for value in result.departures_enu[1])
+
+    def test_the_other_way_round_is_the_same_vector(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        forward = repeatability([_ggao("00"), _ggao("11")])
+        eleven = _ggao("11")
+        reversed_ = _replace(
+            eleven,
+            base_station=eleven.rover_station,
+            rover_station=eleven.base_station,
+            components=tuple(Quantity(-q.value, q.std_dev, q.unit) for q in eleven.components),
+        )
+        backward = repeatability([_ggao("00"), reversed_])
+        np.testing.assert_allclose(backward.departures_enu, forward.departures_enu, atol=1e-12)
+
+    def test_three_determinations_scatter_as_a_sample(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        third = _replace(_ggao("00"), id="GODN-GODE again")
+        result = repeatability([_ggao("00"), _ggao("11"), third])
+        departures = np.array(result.departures_enu)
+        np.testing.assert_allclose(departures.sum(axis=0), 0.0, atol=1e-9)
+        np.testing.assert_allclose(result.scatter_enu_m, departures.std(axis=0, ddof=1), atol=1e-12)
+
+    def test_the_record_is_in_millimetres(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        record = repeatability([_ggao("00"), _ggao("11")]).to_dict()
+        assert record["baselines"] == ["GODN-GODE 00", "GODN-GODE 11"]
+        assert record["largest_mm"] == pytest.approx(566.53, abs=0.01)
+        assert set(record["departures_enu_mm"]) == {"GODN-GODE 00", "GODN-GODE 11"}
+
+
+class TestARepeatabilityThatWouldBeMeaninglessIsRefused:
+    def test_one_determination(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        with pytest.raises(ValidationError) as caught:
+            repeatability([_ggao("00")])
+        assert caught.value.code == "validation.gnss_repeat_too_few"
+
+    def test_two_pairs(self):
+        from geocomp.core.techniques.gnss import repeatability
+
+        with pytest.raises(ValidationError) as caught:
+            repeatability([_ggao("00"), _ggao("00", "godn-gods")])
+        assert caught.value.code == "validation.gnss_repeat_different_stations"
+
+    def test_a_local_determination(self):
+        from geocomp.core.techniques.gnss import repeatability, rotate_baseline_to_local
+
+        with pytest.raises(DataError) as caught:
+            repeatability([_ggao("00"), rotate_baseline_to_local(_ggao("11"))])
+        assert caught.value.code == "data.gnss_repeat_not_ecef"
+
+    def test_one_reduced_to_its_marks_and_one_not(self):
+        from geocomp.core.techniques.gnss import AntennaOffset, reduce_to_marks, repeatability
+
+        offset = AntennaOffset(up=Quantity.from_std_dev(0.0614, 0.002, Unit.METRE), method="vertical")
+        with pytest.raises(DataError) as caught:
+            repeatability([_ggao("00"), reduce_to_marks(_ggao("11"), offset, offset)])
+        assert caught.value.code == "data.gnss_repeat_mixed_antenna_reduction"
