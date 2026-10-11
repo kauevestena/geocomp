@@ -4256,9 +4256,49 @@ So the definition is written to XML text and read back, and nothing else.
 
 **Not done.**
 - The hook is tested against a stand-in for the Processing plugin's provider. The order of the two on
-  QGIS's signal, which the plugin defers past, is not exercised.
+  QGIS's signal, which the plugin defers past, is not exercised. *(P13-31: QGIS's own provider, in either
+  order.)*
 - A layout whose words the user edited is still rewritten, unless it was renamed. Only the model carries a
-  fingerprint.
+  fingerprint. *(P13-31: the layout carries one too.)*
+
+#### P13-31 — a reworded layout is left, and QGIS's own provider is on the signal
+
+P13-30's two *Not done*.
+
+**What changed** (`specs/20` §8).
+- **The layout's words have a fingerprint.** The installer records one of the title, notes, footer and legend
+  title it writes (`worked_examples._layout_words`), and the rewrite records it again. A layout whose words
+  no longer match has been reworded by the user and is left in its language; the model and the layer still
+  follow.
+- **What was left is told apart.** `follow_the_language` returns `edited model` or `edited layout` for what it
+  left, where P13-30 returned `edited` for the model. The plugin logs what it rewrote and, apart, what it left.
+
+**The hook against QGIS's own provider.** The test loads `ProjectProvider` from the Processing plugin of the
+QGIS under test, by its file, which needs nothing but `qgis.core`. It connects it and the plugin to QGIS's
+`readProject`, in either order, reads rd01's worked project in Portuguese, and saves it. In both orders, the
+provider's models and algorithms, the layout and the saved project's model are Portuguese, and the project is
+marked changed.
+
+**Found: the deferral is needed in both orders, not one.** P13-30 deferred the rewrite past the signal for
+the order in which the plugin is connected first: there it would find the provider still holding the last
+project's models, and the provider would then read the English one. Run on the signal itself, the test fails
+in the other order too. The rewrite stands, but QGIS marks the project unchanged once it has read it, and a
+user would never be asked to save it.
+
+**Tests** (`tests/qgis/test_worked_examples.py`).
+- `TestTheLanguage::test_a_layout_the_user_reworded_is_left_as_it_is`, for each dataset with stations: its
+  notes reworded, opened in Portuguese, the layout keeps its English name, its words and legend title; the
+  model and the layer are Portuguese.
+- `test_the_plugin_follows_qgis_own_project_provider`, in either order, both orders failing with the rewrite
+  run on the signal.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. FR-952's row says so.
+
+**Not done.**
+- A worked project installed between P13-30 and P13-31 has no record of its layout's words, and its layout is
+  left as though reworded. Installing it again records them.
+- QGIS's provider is loaded by its file, not by the Processing plugin's start-up. Where QGIS ships it
+  elsewhere, the test skips and says where it looked.
 
 ---
 
