@@ -42,6 +42,7 @@ exaggerated vector is not cut off at the view the project opened on.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -64,6 +65,7 @@ from qgis.core import (
     QgsLegendStyle,
     QgsPalLayerSettings,
     QgsPointXY,
+    QgsPrintLayout,
     QgsProcessingModelAlgorithm,
     QgsProcessingModelChildAlgorithm,
     QgsProcessingModelChildDependency,
@@ -82,6 +84,7 @@ from qgis.core import (
     QgsXmlUtils,
 )
 from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtXml import QDomDocument
 
 from geocomp.algorithms.analysis.common import DATUM_ORDER, FRAME_ORDER
 from geocomp.algorithms.gravimetry.network_adjust import DRIFT_MODES
@@ -104,7 +107,9 @@ __all__ = [
     "WORKED",
     "Step",
     "build_model",
+    "follow_the_language",
     "layout_name",
+    "read_definitions",
     "read_models",
     "stations_file",
     "write_project",
@@ -573,6 +578,11 @@ def write_project(name: str, folder: Path, path: Path) -> None:
     if name in PLACED:
         extent = _add_stations(project, stations_file(name, folder), *PLACED[name](folder))
         _add_layout(project, name, extent)
+    # What the installer wrote, in the words of the language it ran in, so that
+    # the project can follow another (P13-30).
+    project.writeEntry(_ENTRY, "worked_example", name)
+    project.writeEntry(_ENTRY, "worked_model", model.name())
+    project.writeEntry(_ENTRY, "worked_model_digest", _digest(model.toVariant()))
 
     def embed(document) -> None:
         root = document.elementsByTagName("qgis").at(0)
@@ -622,6 +632,7 @@ def _add_stations(
     layer.setLabeling(QgsVectorLayerSimpleLabeling(labels))
     layer.setLabelsEnabled(True)
     project.addMapLayer(layer)
+    project.writeEntry(_ENTRY, "worked_stations", layer.name())
     project.setCrs(reference)
     # A project written here has no canvas to remember an extent, so QGIS is
     # told where to open: the stations, with a margin, or a little round one.
@@ -647,7 +658,6 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     if map_item is None:
         # A shipped template that will not load is a fault in the package.
         raise OSError(f"{template} is not a layout template with a map")
-    layout.setName(layout_name(name))
     map_item.setLayers([])
     map_item.setKeepLayerSet(False)
     map_item.setFollowVisibilityPreset(False)
@@ -658,7 +668,6 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     if legend is not None:
         legend.setLinkedMap(map_item)
         follow_the_project(legend)
-        legend.setTitle(QCoreApplication.translate("PrintLayoutAlgorithm", "Legend"))
         # Its entries are the layers' names, which the run chooses. A smaller label
         # keeps a long one on the page: QGIS 3.34 cannot wrap a legend by width.
         label = legend.rstyle(QgsLegendStyle.Style.SymbolLabel)
@@ -679,6 +688,18 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     if north is not None:
         north.setLinkedMap(map_item)
 
+    _word_the_layout(layout, name, project)
+    project.layoutManager().addLayout(layout)
+    project.writeEntry(_ENTRY, "worked_layout", layout.name())
+
+
+def _word_the_layout(layout: QgsPrintLayout, name: str, project: QgsProject) -> None:
+    """Write the layout's own words, in the language now in use: its name, title, notes,
+    footer and legend title."""
+    layout.setName(layout_name(name))
+    legend = _item(layout, "legend", QgsLayoutItemLegend)
+    if legend is not None:
+        legend.setTitle(QCoreApplication.translate("PrintLayoutAlgorithm", "Legend"))
     _set_text(layout, "title", layout_name(name))
     _set_text(
         layout,
@@ -697,7 +718,6 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
         .replace("%1", _version())
         .replace("%2", project.crs().authid()),
     )
-    project.layoutManager().addLayout(layout)
 
 
 #: Every layer the project draws that has features, in the project's CRS, as one
@@ -747,6 +767,105 @@ def _follow_the_layers(map_item: QgsLayoutItemMap, floor: float) -> None:
     ):
         properties.setProperty(key, held(body))
     map_item.setDataDefinedProperties(properties)
+
+
+#: The project entries a worked project records itself in (P13-30).
+_ENTRY = "GeoComp"
+
+
+def _digest(definition: Any) -> str:
+    """A model definition's fingerprint, as a project file holds it.
+
+    Written to XML text and read back first: a definition read from a project
+    has its null strings empty, and one built here has them null, so the two
+    would differ though nothing had been changed. Not loaded into a model: that
+    describes its outputs again from its algorithms, in the language in use, and
+    the fingerprint would change with the language.
+    """
+    document = QDomDocument()
+    document.appendChild(QgsXmlUtils.writeVariant(definition, document))
+    read = QDomDocument()
+    read.setContent(document.toString())
+    text = json.dumps(QgsXmlUtils.readVariant(read.documentElement()), sort_keys=True, default=str)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def follow_the_language(project: QgsProject, models: dict[str, Any]) -> list[str]:
+    """Rewrite a worked project's own words in the language now in use (P13-30).
+
+    The installer writes the model's labels, the layout's words and the
+    stations layer's name in the language it ran in, and records them in the
+    project. Opened in another, they are written again: the model rebuilt from
+    the installed files beside the project, the layout's name, title, notes and
+    legend title, and the layer's name.
+
+    **A model the user has edited is left as it is.** Its fingerprint is
+    recorded when it is written, and one that no longer matches is someone's
+    work, which a translation must not undo. A layout or layer renamed by the
+    user is left too.
+
+    Args:
+        project: The project opened.
+        models: The project's models, by name, as QGIS's project provider holds
+            them (``model_definitions``); changed in place.
+
+    Returns:
+        What was rewritten: ``model``, ``layout``, ``stations``, and
+        ``edited`` when the model was left because it had been edited. Empty
+        for a project that is not a worked one, or is already in this language.
+    """
+    name = project.readEntry(_ENTRY, "worked_example")[0]
+    if name not in WORKED:
+        return []
+    done: list[str] = []
+    stored = project.readEntry(_ENTRY, "worked_model")[0]
+    model = build_model(name, Path(project.absolutePath()))
+    if model.name() != stored and stored in models:
+        if _digest(models[stored]) == project.readEntry(_ENTRY, "worked_model_digest")[0]:
+            del models[stored]
+            models[model.name()] = model.toVariant()
+            project.writeEntry(_ENTRY, "worked_model", model.name())
+            project.writeEntry(_ENTRY, "worked_model_digest", _digest(model.toVariant()))
+            done.append("model")
+        else:
+            done.append("edited")
+    layout = project.layoutManager().layoutByName(project.readEntry(_ENTRY, "worked_layout")[0])
+    if layout is not None and layout.name() != layout_name(name):
+        _word_the_layout(layout, name, project)
+        project.writeEntry(_ENTRY, "worked_layout", layout.name())
+        done.append("layout")
+    stations = project.readEntry(_ENTRY, "worked_stations")[0]
+    worded = _tr("Stations, where the inputs place them")
+    for layer in project.mapLayers().values():
+        if stations and layer.name() == stations != worded:
+            layer.setName(worded)
+            project.writeEntry(_ENTRY, "worked_stations", worded)
+            done.append("stations")
+            break
+    return done
+
+
+def read_definitions(path: Path) -> dict[str, Any]:
+    """The model definitions a project at *path* holds, by name, as QGIS's project
+    provider reads them into its ``model_definitions``: the variants themselves."""
+    found: dict[str, Any] = {}
+
+    def collect(document) -> None:
+        nodes = document.elementsByTagName(PROJECT_MODELS)
+        if not nodes.count():
+            return
+        children = nodes.at(0).childNodes()
+        for index in range(children.count()):
+            definition = QgsXmlUtils.readVariant(children.at(index).toElement())
+            model = QgsProcessingModelAlgorithm()
+            if model.loadVariant(definition):
+                found[model.name()] = definition
+
+    project = QgsProject()
+    project.readProject.connect(collect)
+    if not project.read(str(path)):
+        raise OSError(project.error())
+    return found
 
 
 def read_models(path: Path) -> list[QgsProcessingModelAlgorithm]:

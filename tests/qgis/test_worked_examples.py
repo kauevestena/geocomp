@@ -295,6 +295,123 @@ class TestTheLayout:
             project.clear()
 
 
+class TestTheLanguage:
+    """P13-30: a worked project follows the language QGIS is opened in.
+
+    The installer writes the model's labels, the layout's words and the
+    stations layer's name in the language it runs in -- English, here -- and
+    records them. Opened in Portuguese, they are written again in Portuguese.
+    """
+
+    STATIONS_PT = "Estações, onde as entradas as situam"
+
+    @staticmethod
+    def _models(path: Path) -> dict:
+        from geocomp.algorithms.project.worked_examples import read_definitions
+
+        return read_definitions(path)
+
+    def test_opened_in_portuguese_it_is_written_in_portuguese(self, name, installed):
+        from geocomp.algorithms.project.worked_examples import build_model, follow_the_language, layout_name
+        from tests.qgis.test_language import _Installed
+
+        folder, path = installed
+        models = self._models(path)
+        (english,) = models
+        opened = _opened(installed)
+        with _Installed("pt_BR"):
+            done = follow_the_language(opened, models)
+            portuguese = build_model(name, folder).name()
+            layout = layout_name(name)
+        assert "model" in done
+        # Not saved: the user is asked, as for any change.
+        assert opened.isDirty()
+        assert list(models) == [portuguese] != [english]
+        assert portuguese == f"{name} — passo a passo"
+        if name not in ON_THE_MAP:
+            assert done == ["model"]
+            return
+        assert done == ["model", "layout", "stations"]
+        (printed,) = opened.layoutManager().printLayouts()
+        assert printed.name() == layout == f"{name} — resultados"
+        assert printed.itemById("title").text() == layout
+        assert printed.itemById("legend").title() == "Legenda"
+        assert "exagerados" in printed.itemById("notes").text()
+        (stations,) = opened.mapLayers().values()
+        assert stations.name() == self.STATIONS_PT
+
+    def test_in_its_own_language_nothing_is_rewritten(self, name, installed):
+        from geocomp.algorithms.project.worked_examples import follow_the_language
+
+        _folder, path = installed
+        models = self._models(path)
+        before = dict(models)
+        assert follow_the_language(_opened(installed), models) == []
+        assert list(models) == list(before)
+
+    def test_a_model_the_user_edited_is_left_as_it_is(self, name, installed):
+        from qgis.core import QgsProcessingModelAlgorithm
+
+        from geocomp.algorithms.project.worked_examples import follow_the_language
+        from tests.qgis.test_language import _Installed
+
+        _folder, path = installed
+        models = self._models(path)
+        (english,) = models
+        edited = QgsProcessingModelAlgorithm()
+        edited.loadVariant(models[english])
+        edited.setGroup("My own walkthroughs")
+        models[english] = edited.toVariant()
+        opened = _opened(installed)
+        with _Installed("pt_BR"):
+            done = follow_the_language(opened, models)
+        assert "edited" in done and "model" not in done
+        assert list(models) == [english]
+        if name in ON_THE_MAP:
+            # The layout and the layer are the installer's alone, and follow anyway.
+            assert {"layout", "stations"} <= set(done)
+
+
+def test_the_plugin_rewrites_the_project_qgis_opens(tmp_path):
+    """The hook, as QGIS calls it: the project's models are its project provider's."""
+    from qgis.core import QgsApplication, QgsProcessingProvider, QgsProject
+
+    from geocomp.algorithms.project.worked_examples import read_definitions
+    from geocomp.plugin import GeoCompPlugin
+    from tests.qgis.test_language import _Installed
+
+    class ProjectProvider(QgsProcessingProvider):
+        """Stands in for the Processing plugin's, which is not loaded here."""
+
+        def __init__(self, models):
+            super().__init__()
+            self.model_definitions = models
+
+        def id(self):
+            return "project"
+
+        def name(self):
+            return "Project models"
+
+        def loadAlgorithms(self):  # noqa: N802 -- QGIS names it
+            pass
+
+    results = run(INSTALL, {"DATASET": available_datasets().index("rd01"), "DESTINATION": str(tmp_path)})
+    path = Path(results["OUTPUT_PROJECT"])
+    provider = ProjectProvider(read_definitions(path))
+    registry = QgsApplication.processingRegistry()
+    assert registry.addProvider(provider)
+    project = QgsProject.instance()
+    try:
+        assert project.read(str(path)), project.error()
+        with _Installed("pt_BR"):
+            GeoCompPlugin(iface=None).follow_the_language()
+        assert list(provider.model_definitions) == ["rd01 — passo a passo"]
+    finally:
+        registry.removeProvider(provider)
+        project.clear()
+
+
 def test_the_installers_help_names_every_dataset():
     """Found by P13-24: the help named every tutorial but the GNSS one, which P13-17 added."""
     from geocomp.algorithms.project.tutorial_dataset import TutorialDatasetAlgorithm
