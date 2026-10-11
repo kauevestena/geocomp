@@ -254,6 +254,47 @@ class TestTheLayout:
         assert {stations.id(), result.id()} <= set(legend.model().rootGroup().findLayerIds())
 
 
+    def test_its_extent_holds_a_layer_loaded_beyond_the_stations(self, name, installed):
+        """P13-27: what the results draw beyond the stations -- a long exaggerated
+        vector -- is in view when the layout is refreshed, and the map keeps its shape.
+
+        Read into QGIS's own project, as QGIS opens one: on QGIS 3.34 an
+        expression finds layers there and nowhere else.
+        """
+        from qgis.core import QgsFeature, QgsGeometry, QgsPointXY, QgsProject, QgsVectorLayer
+
+        from geocomp.algorithms.project.worked_examples import _fit_width
+
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        _folder, path = installed
+        project = QgsProject.instance()
+        try:
+            assert project.read(str(path)), project.error()
+            (layout,) = project.layoutManager().printLayouts()
+            drawing = layout.itemById("map")
+            size = (drawing.rect().width(), drawing.rect().height())
+            (stations,) = project.mapLayers().values()
+            box = stations.extent()
+            # Three of the network's widths east of it.
+            far = QgsPointXY(box.xMaximum() + 3 * max(box.width(), box.height()), box.yMinimum())
+            layer = QgsVectorLayer(f"Point?crs={stations.crs().authid()}", "far", "memory")
+            feature = QgsFeature()
+            feature.setGeometry(QgsGeometry.fromPointXY(far))
+            layer.dataProvider().addFeatures([feature])
+            layer.updateExtents()
+            project.addMapLayer(layer)
+            layout.refresh()
+            extent = drawing.extent()
+            assert extent.contains(box) and extent.contains(far)
+            assert (drawing.rect().width(), drawing.rect().height()) == size
+            assert extent.width() / extent.height() == pytest.approx(size[0] / size[1])
+            # And the scale bar measures the map it now shows, not the one it opened on.
+            assert layout.itemById("scalebar").segmentSizeMode() == _fit_width()
+        finally:
+            project.clear()
+
+
 def test_the_installers_help_names_every_dataset():
     """Found by P13-24: the help named every tutorial but the GNSS one, which P13-17 added."""
     from geocomp.algorithms.project.tutorial_dataset import TutorialDatasetAlgorithm

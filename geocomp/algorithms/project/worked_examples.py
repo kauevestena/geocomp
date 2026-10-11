@@ -35,7 +35,9 @@ layers of its own and its legend follows the project, so it draws the map as
 it stands: the stations when the project opens, and the results beside them
 once the model has run and loaded its layers. A layout fixed to the result
 layers could not be made before they exist, and a step making one inside the
-model would fail the run whenever its layers were not asked for.
+model would fail the run whenever its layers were not asked for. Its extent
+follows too (P13-27): data-defined, it holds every layer drawn, so a long
+exaggerated vector is not cut off at the view the project opened on.
 """
 
 from __future__ import annotations
@@ -49,6 +51,7 @@ from pathlib import Path
 from typing import Any
 
 from qgis.core import (
+    Qgis,
     QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsFeature,
@@ -57,6 +60,7 @@ from qgis.core import (
     QgsLayoutItemMap,
     QgsLayoutItemPicture,
     QgsLayoutItemScaleBar,
+    QgsLayoutObject,
     QgsLegendStyle,
     QgsPalLayerSettings,
     QgsPointXY,
@@ -69,7 +73,9 @@ from qgis.core import (
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProject,
+    QgsProperty,
     QgsReferencedRectangle,
+    QgsScaleBarSettings,
     QgsVectorFileWriter,
     QgsVectorLayer,
     QgsVectorLayerSimpleLabeling,
@@ -631,7 +637,7 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
 
     The map is given no layers and the legend follows the project, so both
     show what is on the map when the layout is opened, not what was there when
-    it was made.
+    it was made; and since P13-27 the map's extent holds all of it.
     """
     from geocomp.resources import LAYOUTS_DIR
 
@@ -646,6 +652,7 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     map_item.setKeepLayerSet(False)
     map_item.setFollowVisibilityPreset(False)
     map_item.zoomToExtent(view)
+    _follow_the_layers(map_item, 0.01 if view.crs().isGeographic() else 50.0)
 
     legend = _item(layout, "legend", QgsLayoutItemLegend)
     if legend is not None:
@@ -662,6 +669,12 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     if scale is not None:
         scale.setLinkedMap(map_item)
         scale.applyDefaultSize()
+        # Its segments fitted to a width rather than fixed in metres: the map's
+        # scale changes with what is drawn, and segments sized for the stations
+        # alone shrink to an unreadable stub once the results zoom it out.
+        scale.setSegmentSizeMode(_fit_width())
+        scale.setMinimumBarWidth(30.0)
+        scale.setMaximumBarWidth(60.0)
     north = _item(layout, "north", QgsLayoutItemPicture)
     if north is not None:
         north.setLinkedMap(map_item)
@@ -685,6 +698,55 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
         .replace("%2", project.crs().authid()),
     )
     project.layoutManager().addLayout(layout)
+
+
+#: Every layer the project draws that has features, in the project's CRS, as one
+#: box: the stations, and the results once loaded. Rasters and base maps have no
+#: feature count, so a base map of the world does not zoom the map out to it.
+#: By count rather than by ``layer_property(..., 'type')``, which is translated.
+_DRAWN = (
+    "bounds(collect_geometries(array_foreach("
+    "array_filter(@layer_ids, layer_property(@element, 'feature_count') > 0), "
+    "transform(layer_property(@element, 'extent'), layer_property(@element, 'crs'), @project_crs))))"
+)
+
+
+def _fit_width() -> object:
+    """A scale bar's fit-to-width segment mode, in either QGIS's spelling."""
+    modes = getattr(Qgis, "ScaleBarSegmentSizeMode", None)
+    if modes is not None:
+        return modes.FitWidth
+    return QgsScaleBarSettings.SegmentSizeFitWidth
+
+
+def _follow_the_layers(map_item: QgsLayoutItemMap, floor: float) -> None:
+    """Hold every layer drawn in *map_item*'s view, as data-defined extents (P13-27).
+
+    The box of :data:`_DRAWN`, a fifth of its larger side added round it (*floor*
+    at least, for a single point), then widened to the item's own proportions:
+    an extent of other proportions would stretch the map. With nothing drawn the
+    expressions are null, and the map keeps the view it was made at.
+    """
+    ratio = map_item.rect().width() / map_item.rect().height()
+
+    def held(body: str) -> QgsProperty:
+        return QgsProperty.fromExpression(
+            f"with_variable('b', {_DRAWN}, "
+            f"with_variable('m', max(0.2 * max(x_max(@b) - x_min(@b), y_max(@b) - y_min(@b)), {floor!r}), "
+            f"with_variable('hw', max((x_max(@b) - x_min(@b)) / 2 + @m, "
+            f"((y_max(@b) - y_min(@b)) / 2 + @m) * {ratio!r}), {body})))"
+        )
+
+    extent = QgsLayoutObject.DataDefinedProperty
+    properties = map_item.dataDefinedProperties()
+    for key, body in (
+        (extent.MapXMin, "(x_min(@b) + x_max(@b)) / 2 - @hw"),
+        (extent.MapXMax, "(x_min(@b) + x_max(@b)) / 2 + @hw"),
+        (extent.MapYMin, f"(y_min(@b) + y_max(@b)) / 2 - @hw / {ratio!r}"),
+        (extent.MapYMax, f"(y_min(@b) + y_max(@b)) / 2 + @hw / {ratio!r}"),
+    ):
+        properties.setProperty(key, held(body))
+    map_item.setDataDefinedProperties(properties)
 
 
 def read_models(path: Path) -> list[QgsProcessingModelAlgorithm]:
