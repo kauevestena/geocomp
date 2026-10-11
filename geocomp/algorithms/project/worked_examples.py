@@ -57,6 +57,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsFeature,
     QgsGeometry,
+    QgsLayoutItemLabel,
     QgsLayoutItemLegend,
     QgsLayoutItemMap,
     QgsLayoutItemPicture,
@@ -691,6 +692,7 @@ def _add_layout(project: QgsProject, name: str, view: QgsReferencedRectangle) ->
     _word_the_layout(layout, name, project)
     project.layoutManager().addLayout(layout)
     project.writeEntry(_ENTRY, "worked_layout", layout.name())
+    project.writeEntry(_ENTRY, "worked_layout_words", _layout_words(layout))
 
 
 def _word_the_layout(layout: QgsPrintLayout, name: str, project: QgsProject) -> None:
@@ -773,6 +775,20 @@ def _follow_the_layers(map_item: QgsLayoutItemMap, floor: float) -> None:
 _ENTRY = "GeoComp"
 
 
+def _layout_words(layout: QgsPrintLayout) -> str:
+    """The fingerprint of the words :func:`_word_the_layout` writes in *layout* (P13-31).
+
+    Its title, notes, footer and legend title, as they stand: one the user has
+    reworded no longer matches the one recorded when they were written.
+    """
+    legend = _item(layout, "legend", QgsLayoutItemLegend)
+    words = [legend.title() if legend is not None else None]
+    for item_id in ("title", "notes", "footer"):
+        label = _item(layout, item_id, QgsLayoutItemLabel)
+        words.append(label.text() if label is not None else None)
+    return hashlib.sha256(json.dumps(words).encode("utf-8")).hexdigest()
+
+
 def _digest(definition: Any) -> str:
     """A model definition's fingerprint, as a project file holds it.
 
@@ -799,10 +815,11 @@ def follow_the_language(project: QgsProject, models: dict[str, Any]) -> list[str
     the installed files beside the project, the layout's name, title, notes and
     legend title, and the layer's name.
 
-    **A model the user has edited is left as it is.** Its fingerprint is
-    recorded when it is written, and one that no longer matches is someone's
-    work, which a translation must not undo. A layout or layer renamed by the
-    user is left too.
+    **What the user has edited is left as it is.** The model's definition and
+    the layout's words each have their fingerprint recorded when they are
+    written, and one that no longer matches is someone's work, which a
+    translation must not undo (the layout's since P13-31). A layout or layer
+    renamed by the user is left too.
 
     Args:
         project: The project opened.
@@ -810,9 +827,10 @@ def follow_the_language(project: QgsProject, models: dict[str, Any]) -> list[str
             them (``model_definitions``); changed in place.
 
     Returns:
-        What was rewritten: ``model``, ``layout``, ``stations``, and
-        ``edited`` when the model was left because it had been edited. Empty
-        for a project that is not a worked one, or is already in this language.
+        What was rewritten: ``model``, ``layout``, ``stations``; and
+        ``edited model`` or ``edited layout`` for one left because the user had
+        edited it. Empty for a project that is not a worked one, or is already
+        in this language.
     """
     name = project.readEntry(_ENTRY, "worked_example")[0]
     if name not in WORKED:
@@ -828,12 +846,16 @@ def follow_the_language(project: QgsProject, models: dict[str, Any]) -> list[str
             project.writeEntry(_ENTRY, "worked_model_digest", _digest(model.toVariant()))
             done.append("model")
         else:
-            done.append("edited")
+            done.append("edited model")
     layout = project.layoutManager().layoutByName(project.readEntry(_ENTRY, "worked_layout")[0])
     if layout is not None and layout.name() != layout_name(name):
-        _word_the_layout(layout, name, project)
-        project.writeEntry(_ENTRY, "worked_layout", layout.name())
-        done.append("layout")
+        if _layout_words(layout) == project.readEntry(_ENTRY, "worked_layout_words")[0]:
+            _word_the_layout(layout, name, project)
+            project.writeEntry(_ENTRY, "worked_layout", layout.name())
+            project.writeEntry(_ENTRY, "worked_layout_words", _layout_words(layout))
+            done.append("layout")
+        else:
+            done.append("edited layout")
     stations = project.readEntry(_ENTRY, "worked_stations")[0]
     worded = _tr("Stations, where the inputs place them")
     for layer in project.mapLayers().values():

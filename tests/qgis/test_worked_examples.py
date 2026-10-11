@@ -365,11 +365,33 @@ class TestTheLanguage:
         opened = _opened(installed)
         with _Installed("pt_BR"):
             done = follow_the_language(opened, models)
-        assert "edited" in done and "model" not in done
+        assert "edited model" in done and "model" not in done
         assert list(models) == [english]
         if name in ON_THE_MAP:
-            # The layout and the layer are the installer's alone, and follow anyway.
+            # The layout and the layer were not edited, and follow anyway.
             assert {"layout", "stations"} <= set(done)
+
+    def test_a_layout_the_user_reworded_is_left_as_it_is(self, name, installed):
+        """P13-31: its words are someone's work once they are not the installer's."""
+        from geocomp.algorithms.project.worked_examples import follow_the_language
+        from tests.qgis.test_language import _Installed
+
+        if name not in ON_THE_MAP:
+            pytest.skip("its inputs place no station")
+        _folder, path = installed
+        models = self._models(path)
+        opened = _opened(installed)
+        (printed,) = opened.layoutManager().printLayouts()
+        english = printed.name()
+        printed.itemById("notes").setText("Surveyed by the second-year class.")
+        with _Installed("pt_BR"):
+            done = follow_the_language(opened, models)
+        assert "edited layout" in done and "layout" not in done
+        assert printed.name() == english
+        assert printed.itemById("notes").text() == "Surveyed by the second-year class."
+        assert printed.itemById("legend").title() == "Legend"
+        # The model and the layer were not edited, and follow anyway.
+        assert {"model", "stations"} <= set(done)
 
 
 def test_the_plugin_rewrites_the_project_qgis_opens(tmp_path):
@@ -409,6 +431,82 @@ def test_the_plugin_rewrites_the_project_qgis_opens(tmp_path):
         assert list(provider.model_definitions) == ["rd01 — passo a passo"]
     finally:
         registry.removeProvider(provider)
+        project.clear()
+
+
+def _processing_project_provider() -> type:
+    """QGIS's own project provider, from the Processing plugin QGIS ships (P13-31).
+
+    Loaded from its file, which needs nothing but ``qgis.core``: the plugin's
+    package would bring the whole of Processing with it, its interface included.
+    """
+    import importlib.util
+
+    from qgis.core import QgsApplication
+
+    path = Path(QgsApplication.pkgDataPath(), "python", "plugins", "processing")
+    path = path / "modeler" / "ProjectProvider.py"
+    if not path.is_file():
+        pytest.skip(f"QGIS's Processing plugin is not at {path}")
+    spec = importlib.util.spec_from_file_location("_qgis_project_provider", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.ProjectProvider
+
+
+@pytest.mark.parametrize("first", ["processing", "geocomp"])
+def test_the_plugin_follows_qgis_own_project_provider(tmp_path, first):
+    """P13-31: the hook as QGIS runs it, with QGIS's own provider on the same signal.
+
+    Both listen for QGIS reading the project, and the order they were connected
+    in is the order they run in. Connected first, the plugin would find the
+    provider still holding the last project's models, and the provider would
+    then read the English one: the rewrite is deferred past the signal, and
+    must work in either order. Saved, the project holds what the provider does.
+    """
+    from qgis.core import QgsApplication, QgsProject
+    from qgis.PyQt.QtCore import QCoreApplication
+
+    from geocomp.algorithms.project.worked_examples import read_definitions
+    from geocomp.plugin import GeoCompPlugin
+    from tests.qgis.test_language import _Installed
+
+    provider_class = _processing_project_provider()
+    results = run(INSTALL, {"DATASET": available_datasets().index("rd01"), "DESTINATION": str(tmp_path)})
+    path = Path(results["OUTPUT_PROJECT"])
+    (english,) = read_definitions(path)
+    project = QgsProject.instance()
+    registry = QgsApplication.processingRegistry()
+    plugin = GeoCompPlugin(iface=None)
+    provider = None
+    try:
+        if first == "geocomp":
+            project.readProject.connect(plugin._project_read)
+        provider = provider_class(project)
+        assert registry.addProvider(provider)
+        if first == "processing":
+            project.readProject.connect(plugin._project_read)
+        with _Installed("pt_BR"):
+            assert project.read(str(path)), project.error()
+            for _turn in range(10):
+                QCoreApplication.processEvents()
+        assert list(provider.model_definitions) == ["rd01 — passo a passo"] != [english]
+        assert [algorithm.name() for algorithm in provider.algorithms()] == ["rd01 — passo a passo"]
+        (printed,) = project.layoutManager().printLayouts()
+        assert printed.name() == "rd01 — resultados"
+        assert project.isDirty()
+
+        saved = tmp_path / "saved.qgz"
+        assert project.write(str(saved)), project.error()
+        assert list(read_definitions(saved)) == ["rd01 — passo a passo"]
+    finally:
+        project.readProject.disconnect(plugin._project_read)
+        if provider is not None:
+            project.readProject.disconnect(provider.read_project)
+            project.writeProject.disconnect(provider.write_project)
+            project.cleared.disconnect(provider.clear)
+            registry.providerAdded.disconnect(provider.on_provider_added)
+            registry.removeProvider(provider)
         project.clear()
 
 

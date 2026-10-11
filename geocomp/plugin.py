@@ -209,8 +209,12 @@ class GeoCompPlugin:
             return
         if "model" in done:
             provider.refreshAlgorithms()
-        if done:
-            log.info("worked project rewritten in the language in use", rewritten=done)
+        rewritten = [part for part in done if not part.startswith("edited ")]
+        if rewritten:
+            log.info("worked project rewritten in the language in use", rewritten=rewritten)
+        left = [part.removeprefix("edited ") for part in done if part.startswith("edited ")]
+        if left:
+            log.info("worked project's own edits left in their language", left=left)
 
     # -- construction ----------------------------------------------------
 

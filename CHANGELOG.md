@@ -5,6 +5,14 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-31 — A reworded layout is left in its language
+
+#### Changed
+
+- A tutorial's worked project whose layout the user has reworded keeps those words when it is opened in
+  another language; the model and the stations layer still follow it. The log says what was rewritten and
+  what was left.
+
 ### P13-30 — A worked project follows the language QGIS opens it in
 
 #### Changed
