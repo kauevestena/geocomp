@@ -32,7 +32,9 @@ import hashlib
 import json
 import os
 import platform as _platform
+import shutil
 import sys
+import tempfile
 import zipfile
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
@@ -40,6 +42,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from geocomp.core.cancellation import CancellationToken, ProgressCallback, raise_if_cancelled
 from geocomp.core.errors import DataError, ValidationError
 from geocomp.engines.base import EngineVersion, discover
 
@@ -203,6 +206,29 @@ PINNED: tuple[EngineRelease, ...] = (
         static=False,
         notes="Intel MKL. Needs the MKL runtime present.",
     ),
+    # The same prebuilt RTKLIB-EX programs CI bundles in the plugin, from
+    # build run 38260696231 (06e8644 source). Each archive was downloaded and
+    # hashed, and the Linux program was checked against the GNSS fixtures.
+    # nightly.link exposes public Actions artifacts without a GitHub login.
+    # These artifacts expire 2027-01-10; refresh the pins before expiry.
+    EngineRelease(
+        engine="rtklib", version="2.5.1", platform="linux-x86_64",
+        url="https://nightly.link/kauevestena/geocomp/actions/runs/38260696231/rnx2rtkp-linux-x86_64.zip",
+        sha256="d0a398fc7ddd319ba21d207cf60c4feccb3cf8fd2089ce8bac7bb44611656272",
+        members=("rnx2rtkp",),
+    ),
+    EngineRelease(
+        engine="rtklib", version="2.5.1", platform="windows-x86_64",
+        url="https://nightly.link/kauevestena/geocomp/actions/runs/38260696231/rnx2rtkp-windows-x86_64.zip",
+        sha256="d08c3683278b5161d649caca4ca1f271fb26c023a6d4670e17a90db98e148375",
+        members=("rnx2rtkp.exe",),
+    ),
+    *(EngineRelease(
+        engine="rtklib", version="2.5.1", platform=platform,
+        url="https://nightly.link/kauevestena/geocomp/actions/runs/38260696231/rnx2rtkp-macos-universal.zip",
+        sha256="7b80a8a37fb03d4cd5efe2cad74cc098dc919cdb8af6c89b3381b177f90b5aab",
+        members=("rnx2rtkp",),
+    ) for platform in ("macos-arm64", "macos-x86_64")),
 )
 
 
@@ -421,7 +447,10 @@ def safe_members(archive: zipfile.ZipFile, target: Path) -> list[zipfile.ZipInfo
     return members
 
 
-def extract(archive_path: str | Path, target: Path, *, expect: Iterable[str] = ()) -> list[Path]:
+def extract(
+    archive_path: str | Path, target: Path, *, expect: Iterable[str] = (),
+    cancellation: CancellationToken | None = None, on_progress: ProgressCallback | None = None,
+) -> list[Path]:
     """Extract a verified archive into *target*, then check what arrived.
 
     Executables are made executable: a zip written on Windows carries no Unix
@@ -435,8 +464,11 @@ def extract(archive_path: str | Path, target: Path, *, expect: Iterable[str] = (
 
     with zipfile.ZipFile(archive_path) as archive:
         members = safe_members(archive, target)
-        for member in members:
+        for index, member in enumerate(members):
+            raise_if_cancelled(cancellation)
             archive.extract(member, target)
+            if on_progress:
+                on_progress(0.72 + 0.08 * (index + 1) / len(members), "engine_extracting")
 
     written = [target / member.filename for member in members]
     for path in written:
@@ -464,6 +496,8 @@ def install(
     root: str | Path,
     fetch: Fetcher,
     keep_archive: bool = False,
+    cancellation: CancellationToken | None = None,
+    on_progress: ProgressCallback | None = None,
 ) -> Path:
     """Download, verify, extract and check one pinned release.
 
@@ -484,28 +518,55 @@ def install(
     """
     root = Path(root)
     destination = root / release.engine / release.version
-    destination.mkdir(parents=True, exist_ok=True)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     archive_path = destination.parent / f"{release.engine}-{release.version}.zip"
-
-    fetch(release.url, archive_path)
-    if not archive_path.exists():
-        raise DataError(
-            "engine_download_produced_nothing",
-            engine=release.engine,
-            url=release.url,
-            expected="the fetcher to write the archive to the given path",
-        )
-
-    verify(archive_path, release.sha256)
-    written = extract(archive_path, destination, expect=release.members)
-
-    if not keep_archive:
-        archive_path.unlink(missing_ok=True)
-    directory = program_directory(written, release.members, fallback=destination)
-    # Recorded last, so a manifest only ever names an installation that
-    # verified, extracted and had every program it should.
-    _record(release, directory, root)
-    return directory
+    raise_if_cancelled(cancellation)
+    try:
+        fetch(release.url, archive_path)
+        raise_if_cancelled(cancellation)
+        if not archive_path.exists():
+            raise DataError("engine_download_produced_nothing", engine=release.engine, url=release.url)
+        if on_progress:
+            on_progress(0.7, "engine_verifying")
+        verify(archive_path, release.sha256)
+        raise_if_cancelled(cancellation)
+        # Work beside the installation. Failed downloads and cancelled
+        # extraction leave the existing programs and manifest intact.
+        with tempfile.TemporaryDirectory(prefix=".install-", dir=destination.parent) as temporary:
+            stage = Path(temporary) / "files"
+            written = extract(
+                archive_path, stage, expect=release.members,
+                cancellation=cancellation, on_progress=on_progress,
+            )
+            directory = program_directory(written, release.members, fallback=stage)
+            if release.engine == "rtklib":
+                # CI's bare-program artifacts need the notice that already
+                # travels with this plugin's copy of the same pinned program.
+                licence = (
+                    Path(__file__).resolve().parent.parent / "resources/engines/licences/RTKLIB-license.txt"
+                )
+                shutil.copy2(licence, directory / licence.name)
+            relative = directory.relative_to(stage)
+            raise_if_cancelled(cancellation)
+            if on_progress:
+                on_progress(0.9, "engine_installing")
+            raise_if_cancelled(cancellation)
+            backup = Path(temporary) / "previous"
+            if destination.exists():
+                destination.rename(backup)
+            try:
+                stage.rename(destination)
+                directory = destination / relative
+                _record(release, directory, root)
+            except OSError:
+                shutil.rmtree(destination, ignore_errors=True)
+                if backup.exists():
+                    backup.rename(destination)
+                raise
+            return directory
+    finally:
+        if not keep_archive:
+            archive_path.unlink(missing_ok=True)
 
 
 def program_directory(
@@ -538,7 +599,10 @@ def program_directory(
     return homes.pop()
 
 
-def install_pinned(engine: str, platform: str, *, root: str | Path, fetch: Fetcher) -> Path:
+def install_pinned(
+    engine: str, platform: str, *, root: str | Path, fetch: Fetcher,
+    cancellation: CancellationToken | None = None, on_progress: ProgressCallback | None = None,
+) -> Path:
     """Install the pinned release for *engine* on *platform*.
 
     Raises:
@@ -562,7 +626,7 @@ def install_pinned(engine: str, platform: str, *, root: str | Path, fetch: Fetch
                 "engine's path in Global Settings to an existing installation"
             ),
         )
-    return install(candidates[0], root=root, fetch=fetch)
+    return install(candidates[0], root=root, fetch=fetch, cancellation=cancellation, on_progress=on_progress)
 
 
 @dataclass

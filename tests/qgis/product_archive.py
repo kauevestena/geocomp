@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import base64
 import sys
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -43,7 +44,8 @@ def main() -> None:
             if self.path.startswith("/private/") and self.headers.get("Authorization") != expected:
                 self._status(401)
                 return
-            path = root / self.path.lstrip("/")
+            slow = self.path.startswith("/slow/")
+            path = root / (self.path[len("/slow/"):] if slow else self.path.lstrip("/"))
             if not path.is_file():
                 self._status(404)
                 return
@@ -52,7 +54,16 @@ def main() -> None:
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             if body:
-                self.wfile.write(data)
+                if slow:
+                    try:
+                        for offset in range(0, len(data), 64):
+                            self.wfile.write(data[offset:offset + 64])
+                            self.wfile.flush()
+                            time.sleep(0.02)
+                    except (BrokenPipeError, ConnectionResetError):
+                        pass  # the cancellation test closed the download
+                else:
+                    self.wfile.write(data)
 
         def _status(self, code: int) -> None:
             self.send_response(code)

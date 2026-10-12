@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, replace
@@ -729,12 +730,12 @@ class DynAdjustEngine:
             extra_directories=self._extra,
             candidates=program_filenames(program),
         )
-        if path is None:
+        if path is None or not os.access(path, os.X_OK):
             raise EngineAbsentError(
                 "dynadjust_program_not_found",
                 program=program,
                 engine=self.name,
-                hint="install DynAdjust, or set the engine directory in the settings",
+                hint="download DynAdjust from Global Settings > Paths and engines",
             )
         return path
 
@@ -840,8 +841,10 @@ class DynAdjustEngine:
         """
         version = self.detect()
         runs: list[EngineRun] = []
+        # Refuse a partial suite before importing data or running any stage.
+        programs = {stage.program: self.locate(stage.program) for stage in prepared.included}
         for stage in prepared.included:
-            path = self.locate(stage.program)
+            path = programs[stage.program]
             run = run_process(
                 [str(path), *stage.arguments],
                 work_dir=prepared.work_dir,

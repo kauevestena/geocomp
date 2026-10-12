@@ -104,6 +104,19 @@ configured path and a managed installation and before `PATH`, restores the execu
 and reports the source as `bundled`. The `install` job unpacks the archive the way QGIS does, with no
 `rnx2rtkp` on `PATH`, and runs the bundled program on Linux.
 
+**Development installations can acquire RTKLIB too.** Global Settings > Paths and engines has
+**Download DynAdjust** and **Download RTKLIB** buttons. Each opens a background installer with download
+byte progress, checksum/extraction/install status, an activity bar during uncountable work, and cancellation.
+The Processing *Install an engine* algorithm offers both engines and uses the same installer. RTKLIB
+downloads a checksum-pinned prebuilt binary from GeoComp CI on Linux x86-64, Windows x86-64 and macOS
+(universal Apple Silicon/Intel). The installer never downloads or compiles source and needs no build tools.
+The binary is the same `06e8644` build bundled in release ZIPs. The current pins use public Actions artifacts
+from run `38260696231`, exposed anonymously through nightly.link; these expire on **2027-01-10**, so the
+pins must be refreshed or moved to permanent release assets before then. The BSD notice is installed with
+the program. Failed or cancelled downloads and extraction preserve the previous installation.
+GNSS pipelines check RTKLIB before scanning or acquiring products. DynAdjust checks all programs in the
+prepared pipeline before running its first stage. Absence names the corresponding download button.
+
 Criterion 4 is met for both engines: DynAdjust through the manager, RTKLIB carried. **Not done:** any platform
 beyond those three, which falls back to a configured path; and a macOS user's Gatekeeper, which no runner can
 show (ADR-0009, *Platforms*).

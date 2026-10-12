@@ -173,9 +173,9 @@
       <thead><tr><th>Engine</th><th>What it does</th><th>How you get it</th></tr></thead>
       <tbody>
         <tr><td><strong>RTKLIB</strong> <code>rnx2rtkp</code></td><td>GNSS post-processing</td>
-            <td>Included with the plugin, for Linux and Windows on x86-64 and for macOS. BSD 2-clause; its licence notice ships beside it.</td></tr>
+            <td>Included with the plugin, for Linux and Windows on x86-64 and for macOS. If missing, use <em>Global Settings → Paths and engines → Download RTKLIB</em> to download the verified prebuilt binary. No compiler is required. BSD 2-clause.</td></tr>
         <tr><td><strong>DynAdjust</strong></td><td>An independent least-squares engine, used to cross-check the in-house one</td>
-            <td>Optional. One run of <em>Install an engine</em>, after you tick a box confirming you understand it is a separate program under its own licence (Apache-2.0). Downloaded from its upstream release and checked against a pinned digest.</td></tr>
+            <td>Optional. Use <em>Global Settings → Paths and engines → Download DynAdjust</em> (or <em>Install an engine</em>), after acknowledging its separate licence (Apache-2.0). Downloaded from upstream and checked against a pinned digest, with progress and cancellation.</td></tr>
       </tbody>
     </table>
     <p class="sub" style="margin-top:14px">Adjustment itself runs in GeoComp's own core and needs neither engine.</p>

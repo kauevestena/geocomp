@@ -72,8 +72,38 @@ def test_every_pinned_platform_is_one_a_machine_can_be():
     assert {release.platform for release in PINNED} <= {
         "linux-x86_64",
         "macos-arm64",
+        "macos-x86_64",
         "windows-x86_64",
     }
+
+
+def test_cancelled_extraction_preserves_the_previous_installation(tmp_path):
+    from geocomp.core.cancellation import Cancelled
+
+    release, fetch = _release(tmp_path)
+    root = tmp_path / "engines"
+    directory = install(release, root=root, fetch=fetch)
+    manifest = (root / "dynadjust" / MANIFEST).read_bytes()
+    before = (directory / "dnaimport").read_bytes()
+
+    class Token:
+        cancelled = False
+
+        def is_cancelled(self):
+            return self.cancelled
+
+    token = Token()
+
+    def progress(fraction, code):
+        if code == "engine_extracting":
+            token.cancelled = True
+
+    with pytest.raises(Cancelled):
+        install(release, root=root, fetch=fetch, cancellation=token, on_progress=progress)
+    assert (root / "dynadjust" / MANIFEST).read_bytes() == manifest
+    assert (directory / "dnaimport").read_bytes() == before
+    assert not list((root / "dynadjust").glob(".install-*"))
+    assert not list((root / "dynadjust").glob("*.zip"))
 
 
 def test_an_install_records_what_it_installed(tmp_path):

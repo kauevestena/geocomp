@@ -25,6 +25,7 @@ on all three systems, are ``tests/test_engine_manager_live.py``'s.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import subprocess
 import sys
@@ -67,11 +68,19 @@ def _archive(path: Path, *, banner: str = BANNER) -> bytes:
     return path.read_bytes()
 
 
+def _rtklib_archive() -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as handle:
+        handle.writestr(zipfile.ZipInfo("rtklib/rnx2rtkp"), "#!/bin/sh\necho 'rnx2rtkp RTKLIB EX 2.5.1'\n")
+    return buffer.getvalue()
+
+
 @pytest.fixture(scope="module")
 def server(tmp_path_factory):
     """A local release page: ``/redirect/<name>`` answers 302 to ``/<name>``."""
     root = tmp_path_factory.mktemp("releases")
     good = _archive(root / "dynadjust.zip")
+    (root / "rtklib.zip").write_bytes(_rtklib_archive())
     _archive(root / "tampered.zip", banner=BANNER + "# changed after it was vetted\n")
     process = subprocess.Popen(
         [sys.executable, str(Path(__file__).with_name("product_archive.py")), str(root), "u", "p"],
@@ -392,14 +401,21 @@ class TestAnAbsentEngine:
 
 class TestTheWindow:
     def test_paths_and_engines_shows_what_is_installed_and_opens_the_installer(self, qgis_app, monkeypatch):
+        from types import SimpleNamespace
+
         from qgis.PyQt.QtWidgets import QLabel, QPushButton
 
         from geocomp.gui import settings_dialog
 
         opened = []
         monkeypatch.setattr(
-            settings_dialog, "open_algorithm_dialog", lambda algorithm, parameters: opened.append(algorithm)
+            settings_dialog.GlobalSettingsDialog, "_install_engine",
+            lambda self, engine: opened.append(engine),
         )
+        monkeypatch.setattr("geocomp.services.engines.engine_status", lambda: [
+            SimpleNamespace(name="DynAdjust", version=None),
+            SimpleNamespace(name="RTKLIB (rnx2rtkp)", version=None),
+        ])
         dialog = settings_dialog.GlobalSettingsDialog()
         try:
             assert {"paths.dynadjust_directory", "paths.rtklib_program"} <= set(dialog._editors)
@@ -407,6 +423,131 @@ class TestTheWindow:
             assert "DynAdjust" in states.text() and "rnx2rtkp" in states.text()
             button = dialog.findChild(QPushButton, "geocompInstallDynAdjust")
             button.click()
-            assert opened == [INSTALL]
+            assert opened == ["dynadjust"]
+            rtklib = dialog.findChild(QPushButton, "geocompInstallRTKLIB")
+            assert rtklib.isEnabled()
+            rtklib.click()
+            assert opened == ["dynadjust", "rtklib"]
         finally:
             dialog.deleteLater()
+
+
+def test_rtklib_download_is_installed_and_discovered(pinned, monkeypatch, server, no_engine_on_the_path):
+    from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingFeedback
+
+    from geocomp.engines import manager
+    from geocomp.services.engines import rtklib_engine
+
+    base, _ = server
+    payload = _rtklib_archive()
+    monkeypatch.setattr(manager, "PINNED", (manager.EngineRelease(
+        engine="rtklib", version="2.5.1", platform=manager.current_platform(),
+        url=f"{base}/rtklib.zip", sha256=hashlib.sha256(payload).hexdigest(), members=("rnx2rtkp",),
+    ),))
+    algorithm = QgsApplication.processingRegistry().algorithmById(INSTALL)
+    results, ok = algorithm.create({}).run(
+        {"ENGINE": 1}, QgsProcessingContext(), QgsProcessingFeedback(), catchExceptions=False,
+    )
+    assert ok
+    assert results["OUTPUT_VERSION"] == "2.5.1"
+    assert rtklib_engine().version().source == "managed"
+
+
+def test_download_popup_runs_in_background_and_reports_stages(pinned, qgis_app):
+    import time
+
+    from qgis.PyQt.QtCore import QCoreApplication, QTimer
+
+    from geocomp.gui.engine_install_dialog import EngineInstallDialog
+
+    dialog = EngineInstallDialog("dynadjust")
+    states = []
+    ticks = []
+    timer = QTimer()
+    timer.timeout.connect(lambda: ticks.append(1))
+    timer.start(1)
+    try:
+        dialog._licence.setChecked(True)
+        dialog.show()
+        dialog.start()
+        dialog._feedback.status_changed.connect(states.append)
+        assert dialog.busy
+        assert not dialog.download.isEnabled()
+        deadline = time.monotonic() + 10
+        while dialog.busy and time.monotonic() < deadline:
+            QCoreApplication.processEvents()
+            time.sleep(0.001)
+        assert not dialog.busy
+        assert ticks, "the GUI event loop did not run during installation"
+        assert dialog.progress.value() == 100
+        assert "runs successfully" in dialog.status.text()
+        assert any("Downloading:" in state for state in states)
+        assert any("checksum" in state for state in states)
+        assert any("Extracting" in state for state in states)
+    finally:
+        timer.stop()
+        if dialog.busy:
+            dialog.reject()
+        else:
+            dialog.close()
+
+
+def test_cancelling_the_popup_stops_the_download_and_installs_nothing(pinned, qgis_app):
+    import time
+
+    from qgis.PyQt.QtCore import QCoreApplication
+
+    from geocomp.engines.manager import installed
+    from geocomp.gui.engine_install_dialog import EngineInstallDialog
+
+    root, pin = pinned
+    pin("/slow/dynadjust.zip")
+    dialog = EngineInstallDialog("dynadjust")
+    dialog._licence.setChecked(True)
+    dialog.show()
+    dialog.start()
+
+    def cancel(text):
+        if text.startswith("Downloading:") and not dialog._feedback.isCanceled():
+            dialog.reject()
+
+    dialog._feedback.status_changed.connect(cancel)
+    deadline = time.monotonic() + 10
+    while dialog.busy and time.monotonic() < deadline:
+        QCoreApplication.processEvents()
+        time.sleep(0.001)
+    assert not dialog.busy
+    assert "cancelled" in dialog.status.text()
+    assert installed("dynadjust", root) is None
+    assert not list(root.rglob("*.zip"))
+    assert dialog.cancel.isEnabled()
+    dialog.close()
+
+
+def test_popup_download_failure_is_visible_and_can_be_retried(pinned, qgis_app):
+    import time
+
+    from qgis.PyQt.QtCore import QCoreApplication
+
+    from geocomp.gui.engine_install_dialog import EngineInstallDialog
+
+    _root, pin = pinned
+    pin("/no-such-release.zip")
+    dialog = EngineInstallDialog("dynadjust")
+    dialog._licence.setChecked(True)
+    dialog.start()
+    deadline = time.monotonic() + 10
+    while dialog.busy and time.monotonic() < deadline:
+        QCoreApplication.processEvents()
+        time.sleep(0.001)
+    assert not dialog.busy
+    assert "404" in dialog.status.text()
+    assert dialog.download.isEnabled()
+    pin("/dynadjust.zip")
+    dialog.start()
+    while dialog.busy and time.monotonic() < deadline:
+        QCoreApplication.processEvents()
+        time.sleep(0.001)
+    assert not dialog.busy
+    assert "runs successfully" in dialog.status.text()
+    dialog.close()

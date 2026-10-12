@@ -647,7 +647,8 @@ def detect(engine: DynAdjustEngine, feedback: QgsProcessingFeedback) -> EngineVe
     if version is None:
         raise QgsProcessingException(
             _tr(
-                "DynAdjust was not found. Install it with Project > Install an engine, "
+                "DynAdjust was not found. Open Global Settings > Paths and engines and "
+                "click Download DynAdjust, or use Project > Install an engine, "
                 "or give the directory holding its programs in Global Settings under "
                 "Paths and engines, or in the 'DynAdjust directory' parameter. GeoComp "
                 "does not bundle it: it is a separate program under its own licence."
@@ -733,8 +734,9 @@ def run_and_read(
         raise QgsProcessingException(
             _tr(
                 "A DynAdjust program the pipeline needs is missing: %1. DynAdjust is a "
-                "suite, and a partial installation fails part way through. Install "
-                "DynAdjust again with the Install an engine algorithm."
+                "suite; every required program is checked before the pipeline runs. Open "
+                "Global Settings > Paths and engines and click Download DynAdjust, or use "
+                "Project > Install an engine to repair the installation."
             ).replace("%1", str(error.context.get("program", "")))
         ) from error
     except GeoCompError as error:

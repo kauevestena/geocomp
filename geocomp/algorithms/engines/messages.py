@@ -28,9 +28,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
     # RTKLIB's absence reached the GNSS algorithms' users as "could not complete
     # the operation (computation.engine_not_available)" until P12c-6.
     "computation.engine_not_available": MessageTemplate(
-        "%1 is needed for %2 and was not found. Give its path in Global Settings, under Paths "
-        "and engines, or put it on the system path. Everything in GeoComp that does not need "
-        "it works without it.",
+        "%1 is needed for %2 and was not found. Open Global Settings > Paths and engines "
+        "and click Download RTKLIB for rnx2rtkp, or Download DynAdjust for DynAdjust. "
+        "You can also use Project > Install an engine, or give an existing installation's path.",
         "engine",
         "operation",
     ),
@@ -254,8 +254,9 @@ TEMPLATES: dict[str, MessageTemplate] = {
     ),
     # -- DynAdjust: the run ------------------------------------------------------
     "computation.dynadjust_program_not_found": MessageTemplate(
-        "The DynAdjust program %1 was not found. Install DynAdjust from Project > Install an "
-        "engine, or give its directory in Global Settings, under Paths and engines.",
+        "The DynAdjust program %1 was not found. Open Global Settings > Paths and engines "
+        "and click Download DynAdjust, or use Project > Install an engine. You can also "
+        "give the directory of a complete installation there.",
         "program",
     ),
     "computation.dynadjust_stage_failed": MessageTemplate(

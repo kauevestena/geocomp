@@ -86,6 +86,11 @@ class TestVersion:
 
 
 class TestGracefulAbsence:
+    def test_an_unrunnable_program_is_unavailable(self, tmp_path):
+        program = tmp_path / "rnx2rtkp"
+        program.write_bytes(b"not an executable")
+        assert RtklibEngine(configured=program).version() is None
+
     def test_an_absent_engine_is_reported_not_crashed_into(self, tmp_path, monkeypatch):
         """FR-306: GNSS processing is disabled with an explanation rather than
         failing part-way through a run."""

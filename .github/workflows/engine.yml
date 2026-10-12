@@ -106,7 +106,7 @@ jobs:
       - name: Install tooling
         run: python -m pip install --upgrade pip pytest numpy
 
-      - name: Download, verify, install, detect and run the pinned DynAdjust
+      - name: Download, verify, install and run the pinned DynAdjust and RTKLIB
         shell: bash
         env:
           GEOCOMP_ENGINE_DOWNLOAD: "1"

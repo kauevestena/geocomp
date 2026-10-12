@@ -210,6 +210,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         from geocomp.engines.rtklib.baseline import quality_from_solution
         from geocomp.engines.rtklib.trajectory import trajectory_from_solution
 
+        engine = gnss_engine(feedback)
         if self.is_absolute:
             # FR-604: at the top of the log, before any result exists to be
             # mistaken for a good one.
@@ -343,7 +344,6 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
             pair.insert(0, job_kwargs["base"].station_id)
         work_dir = root() / "-".join((self.profile_name, *pair))
         temporary = made[0] if made else None
-        engine = gnss_engine(feedback)
         try:
             result = engine.run(
                 RtklibJob(

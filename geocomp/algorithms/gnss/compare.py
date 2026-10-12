@@ -220,6 +220,7 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
+        engine = gnss_engine(feedback)
         folder = Path(self.parameterAsFile(parameters, FOLDER, context))
         confidence = self.parameterAsDouble(parameters, CONFIDENCE, context)
         configurations = self._configurations(parameters, context)
@@ -255,7 +256,6 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         )
 
         work_root = working_directory("geocomp-compare-")
-        engine = gnss_engine(feedback)
         timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
         baselines = {}
         qualities = {}

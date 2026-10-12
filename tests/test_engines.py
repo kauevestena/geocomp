@@ -110,9 +110,8 @@ def test_require_names_what_to_do_about_it() -> None:
         require(None, engine="DynAdjust", operation="network adjustment")
     message = str(excinfo.value)
     assert "Global Settings" in message
-    assert "system path" in message
-    # It promises no download: RTKLIB has none to offer (specs/21 section 4).
-    assert "download" not in message
+    assert "download" in message
+    assert "Install an engine" in message
 
 
 def test_require_passes_a_present_engine_through(tmp_path: Path) -> None:
@@ -180,7 +179,7 @@ def test_an_unpinned_engine_refuses_and_names_the_script(tmp_path: Path) -> None
     test passing for a reason that had gone away.
     """
     with pytest.raises(ValidationError) as excinfo:
-        install_pinned("rtklib", "linux-x86_64", root=tmp_path, fetch=lambda url, path: None)
+        install_pinned("rtklib", "windows-arm64", root=tmp_path, fetch=lambda url, path: None)
     assert excinfo.value.code == "validation.engine_release_not_pinned"
     assert "pin_engine_release.py" in str(excinfo.value)
 
@@ -460,6 +459,41 @@ def test_the_version_travels_with_the_run(tmp_path: Path) -> None:
     assert run.to_dict()["version"]["tested"] is False
 
 
+def test_a_partial_dynadjust_suite_runs_no_pipeline_stage(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+
+    from geocomp.engines.dynadjust import engine as module
+
+    engine = module.DynAdjustEngine()
+    monkeypatch.setattr(engine, "detect", lambda: None)
+
+    def locate(program):
+        if program == "dnaadjust":
+            raise EngineAbsentError("dynadjust_program_not_found", program=program)
+        return tmp_path / program
+
+    monkeypatch.setattr(engine, "locate", locate)
+    ran = []
+    monkeypatch.setattr(module, "run_process", lambda *args, **kwargs: ran.append(args))
+    prepared = SimpleNamespace(included=[SimpleNamespace(program=p) for p in ("dnaimport", "dnaadjust")])
+    with pytest.raises(EngineAbsentError):
+        engine.run(prepared)
+    assert ran == []
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix executable permissions")
+def test_an_unexecutable_dynadjust_program_is_unavailable(tmp_path):
+    from geocomp.engines.dynadjust.engine import DynAdjustEngine
+
+    program = tmp_path / "dnaadjust"
+    program.write_text("#!/bin/sh\necho '+ Version: 1.4.0'\n")
+    program.chmod(0o644)
+    engine = DynAdjustEngine(configured_directory=tmp_path)
+    assert engine.detect() is None
+    with pytest.raises(EngineAbsentError):
+        engine.locate("dnaadjust")
+
+
 class TestThePinnedReleases:
     """ADR-0003's table, now that it has entries.
 
@@ -472,7 +506,7 @@ class TestThePinnedReleases:
     def test_every_platform_has_a_release(self):
         assert PINNED
         platforms = {release.platform for release in PINNED}
-        assert platforms == {"linux-x86_64", "macos-arm64", "windows-x86_64"}
+        assert platforms == {"linux-x86_64", "macos-arm64", "macos-x86_64", "windows-x86_64"}
 
     def test_every_release_lists_the_programs_it_should_contain(self):
         """The check that would have caught the pinning script's own bug.
@@ -484,7 +518,7 @@ class TestThePinnedReleases:
         """
         for release in PINNED:
             assert release.members, release.url
-            assert len(release.members) == 8, release.url
+            assert len(release.members) == (8 if release.engine == "dynadjust" else 1), release.url
 
     def test_the_self_contained_build_is_offered_first(self):
         """ADR-0003 rule 1: never ask the user to resolve a library chain."""
@@ -514,7 +548,12 @@ class TestThePinnedReleases:
         """A URL naming a tag other than the pinned version would download
         something the digest cannot match, which is a confusing way to fail."""
         for release in PINNED:
-            assert f"/v{release.version}/" in release.url
+            if release.engine == "rtklib":
+                assert "/actions/runs/38260696231/" in release.url
+                assert release.version == "2.5.1"
+                assert "rnx2rtkp-" in release.url
+            else:
+                assert f"/v{release.version}/" in release.url
 
 
 class TestTheWindowsProgramNames:

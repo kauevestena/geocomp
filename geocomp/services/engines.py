@@ -30,9 +30,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from qgis.core import QgsApplication, QgsBlockingNetworkRequest, QgsFeedback
-from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QUrl
 from qgis.PyQt.QtNetwork import QNetworkRequest
 
+from geocomp.core.cancellation import Cancelled
 from geocomp.core.errors import DataError
 from geocomp.engines.dynadjust.engine import DynAdjustEngine
 from geocomp.engines.manager import (
@@ -67,6 +68,28 @@ RTKLIB_PROGRAM = "paths.rtklib_program"
 #: An engine archive is tens of megabytes; ten minutes is generous for one over
 #: a slow link, and a stalled transfer still ends.
 _TIMEOUT_MS = 600_000
+_CONTEXT = "GeoCompEngineInstall"
+
+
+def _tr(text: str) -> str:
+    return QCoreApplication.translate(_CONTEXT, text)
+
+
+def _status(feedback: QgsFeedback | None, text: str, *, busy: bool = False) -> None:
+    if feedback is None:
+        return
+    if hasattr(feedback, "setBusy"):
+        feedback.setBusy(busy)
+    if hasattr(feedback, "setProgressText"):
+        feedback.setProgressText(text)
+
+
+class _Cancellation:
+    def __init__(self, feedback: QgsFeedback | None) -> None:
+        self.feedback = feedback
+
+    def is_cancelled(self) -> bool:
+        return self.feedback is not None and self.feedback.isCanceled()
 
 
 def _setting(key: str) -> str:
@@ -131,9 +154,13 @@ class QgisArchiveFetcher:
 
     def __call__(self, url: str, destination: Path) -> None:
         request = QgsBlockingNetworkRequest()
+        request.downloadProgress.connect(self._progress, Qt.ConnectionType.DirectConnection)
+        _status(self.feedback, _tr("Connecting to the download server…"), busy=True)
         network_request = QNetworkRequest(QUrl(url))
         network_request.setTransferTimeout(_TIMEOUT_MS)
         outcome = request.get(network_request, True, self.feedback)
+        if self.feedback is not None and self.feedback.isCanceled():
+            raise Cancelled()
         reply = request.reply()
         status = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
         status = int(status) if status is not None else 0
@@ -146,6 +173,18 @@ class QgisArchiveFetcher:
             status=status,
             reason=request.errorMessage() or str(outcome),
         )
+
+    def _progress(self, received: int, total: int) -> None:
+        text = (
+            _tr("Downloading: %1 of %2 MB")
+            .replace("%1", f"{received / 1_000_000:.1f}")
+            .replace("%2", f"{total / 1_000_000:.1f}")
+            if total > 0 else
+            _tr("Downloading: %1 MB received").replace("%1", f"{received / 1_000_000:.1f}")
+        )
+        _status(self.feedback, text, busy=total <= 0)
+        if self.feedback is not None and total > 0:
+            self.feedback.setProgress(min(70.0, 70.0 * received / total))
 
 
 def install_engine(
@@ -160,7 +199,22 @@ def install_engine(
             is deleted, and nothing is extracted from it.
     """
     root = Path(root) if root is not None else engine_root()
-    install_pinned(engine, current_platform(), root=root, fetch=QgisArchiveFetcher(feedback))
+    platform = current_platform()
+
+    def progress(fraction: float | None, code: str | None) -> None:
+        messages = {
+            "engine_verifying": _tr("Verifying the download checksum…"),
+            "engine_extracting": _tr("Extracting the verified archive…"),
+            "engine_installing": _tr("Installing the programs in the QGIS profile…"),
+        }
+        _status(feedback, messages.get(code, ""), busy=fraction is None)
+        if feedback is not None and fraction is not None:
+            feedback.setProgress(fraction * 100)
+
+    install_pinned(
+        engine, platform, root=root, fetch=QgisArchiveFetcher(feedback),
+        cancellation=_Cancellation(feedback), on_progress=progress,
+    )
     installation = installed(engine, root)
     if installation is None:  # pragma: no cover - install_pinned records it or raises
         raise DataError("engine_installation_not_recorded", engine=engine, root=str(root))

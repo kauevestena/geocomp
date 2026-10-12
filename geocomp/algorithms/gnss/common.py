@@ -46,7 +46,7 @@ from geocomp.core.techniques.gnss.products import (
     resolve,
 )
 from geocomp.core.techniques.gnss.stations import StationDatabase
-from geocomp.engines.base import DEFAULT_TIMEOUT
+from geocomp.engines.base import DEFAULT_TIMEOUT, require
 from geocomp.engines.rtklib.config import (
     PROFILES,
     RtklibConfig,
@@ -772,13 +772,16 @@ def gnss_engine(feedback: QgsProcessingFeedback) -> RtklibEngine:
 
     The engine detects its version and caches it; warning is the plugin's job,
     because a warning nothing shows is not one. Until P12c-11 DynAdjust's
-    adjustment warned and nothing that runs RTKLIB did. The engine's absence is
-    not handled here: the run refuses it, in words (FR-306).
+    adjustment warned and nothing that runs RTKLIB did. Refuse absence here,
+    before a pipeline scans inputs, downloads products or creates work files.
     """
     from geocomp.services.engines import rtklib_engine
 
-    engine = rtklib_engine()
-    version = engine.version()
+    try:
+        engine = rtklib_engine()
+        version = require(engine.version(), engine="rnx2rtkp", operation="GNSS processing")
+    except GeoCompError as error:
+        raise QgsProcessingException(translate_error(error)) from error
     if version is not None:
         if not version.tested:
             feedback.pushWarning(

@@ -41,6 +41,26 @@ GNSS_IDS = (
 )
 
 
+@pytest.mark.parametrize("algorithm_id", GNSS_IDS)
+def test_every_gnss_pipeline_refuses_absence_before_scanning(
+    algorithm_id, geocomp_provider, monkeypatch, tmp_path,
+):
+    from types import SimpleNamespace
+
+    from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingException
+
+    monkeypatch.setattr(
+        "geocomp.services.engines.rtklib_engine", lambda: SimpleNamespace(version=lambda: None),
+    )
+    folder = tmp_path / "empty-rinex"
+    folder.mkdir()
+    algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id).create({})
+    with pytest.raises(QgsProcessingException) as raised:
+        algorithm.run({"FOLDER": str(folder)}, QgsProcessingContext(), _feedback(), catchExceptions=False)
+    assert "Download RTKLIB" in str(raised.value)
+    assert "Global Settings > Paths and engines" in str(raised.value)
+
+
 def _feedback():
     from qgis.core import QgsProcessingFeedback
 

@@ -346,9 +346,14 @@ class RtklibEngine:
         path, source = self.locate()
         if path is None:
             return None
-        run = run_process(
-            [str(path), "--version"], work_dir=path.parent, program=PROGRAM, timeout=30.0, record=False
-        )
+        try:
+            run = run_process(
+                [str(path), "--version"], work_dir=path.parent, program=PROGRAM, timeout=30.0, record=False
+            )
+        except OSError:
+            # A present but unrunnable binary is unavailable too. Pipelines
+            # and the installer can then give the same download/repair advice.
+            return None
         # The version goes to stderr in some builds and stdout in others, so
         # both are searched rather than one being assumed.
         parsed = parse_version(f"{run.stdout}\n{run.stderr}", path=path)

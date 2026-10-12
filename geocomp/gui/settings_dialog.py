@@ -442,7 +442,7 @@ class GlobalSettingsDialog(QDialog):
         self._engine_states.setWordWrap(True)
         self._engine_states.setTextFormat(Qt.TextFormat.RichText)
         layout.addWidget(self._engine_states)
-        install = QPushButton(_tr("Install DynAdjust…"), panel)
+        install = QPushButton(_tr("Download DynAdjust…"), panel)
         install.setObjectName("geocompInstallDynAdjust")
         install.setToolTip(
             _tr(
@@ -452,6 +452,10 @@ class GlobalSettingsDialog(QDialog):
         )
         install.clicked.connect(self._install_dynadjust)
         layout.addWidget(install, alignment=Qt.AlignmentFlag.AlignLeft)
+        self._install_rtklib_button = QPushButton(_tr("Download RTKLIB…"), panel)
+        self._install_rtklib_button.setObjectName("geocompInstallRTKLIB")
+        self._install_rtklib_button.clicked.connect(lambda: self._install_engine("rtklib"))
+        layout.addWidget(self._install_rtklib_button, alignment=Qt.AlignmentFlag.AlignLeft)
         self._show_engine_states()
         return panel
 
@@ -462,6 +466,8 @@ class GlobalSettingsDialog(QDialog):
 
         lines = []
         for engine in engine_status():
+            if engine.name.startswith("RTKLIB"):
+                self._install_rtklib_button.setEnabled(engine.version is None)
             if engine.version is None:
                 state = _tr("not found")
             else:
@@ -474,8 +480,15 @@ class GlobalSettingsDialog(QDialog):
         self._engine_states.setText("<br>".join(lines))
 
     def _install_dynadjust(self) -> None:
-        open_algorithm_dialog("geocomp:project_install_engine", {"ENGINE": 0})
-        self._show_engine_states()
+        self._install_engine("dynadjust")
+
+    def _install_engine(self, engine: str) -> QDialog:
+        from geocomp.gui.engine_install_dialog import EngineInstallDialog
+
+        dialog = EngineInstallDialog(engine, self)
+        dialog.installation_changed.connect(self._show_engine_states)
+        dialog.show()
+        return dialog
 
     def _build_editor(self, definition: SettingDef, parent: QWidget) -> QWidget:
         if definition.type is SettingType.CHOICE:

@@ -29,6 +29,8 @@ from __future__ import annotations
 import math
 import os
 import shutil
+import subprocess
+import sys
 import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
@@ -47,16 +49,38 @@ from geocomp.engines.manager import (
     managed_directories,
     releases_for,
 )
+from geocomp.engines.rtklib.engine import RtklibEngine
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("GEOCOMP_ENGINE_DOWNLOAD") != "1",
     reason=(
-        "downloads the pinned DynAdjust release; set GEOCOMP_ENGINE_DOWNLOAD=1 "
+        "downloads pinned engine releases; set GEOCOMP_ENGINE_DOWNLOAD=1 "
         "(the engine workflow's manager job does, on Linux, Windows and macOS)"
     ),
 )
 
 DATA = Path(__file__).parent / "data" / "dynadjust"
+
+
+def test_rtklib_download_runs_and_matches_the_committed_fixtures(tmp_path):
+    """The manager CI matrix checks each OS's actual RTKLIB download too."""
+    root = tmp_path / "engines"
+    install_pinned("rtklib", current_platform(), root=root, fetch=_fetch)
+    installation = installed("rtklib", root)
+    assert installation is not None
+    version = RtklibEngine(extra_directories=managed_directories("rtklib", root)).version()
+    assert version is not None
+    assert version.source == "managed"
+    assert version.version == installation.version
+    assert version.path.parent == installation.directory
+    repo = Path(__file__).resolve().parent.parent
+    environment = dict(os.environ)
+    environment["PATH"] = str(installation.directory) + os.pathsep + environment.get("PATH", "")
+    result = subprocess.run(
+        [sys.executable, str(repo / "scripts" / "check_rtklib_fixtures.py")],
+        cwd=repo, env=environment, capture_output=True, text=True, timeout=120, check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def _fetch(url: str, destination: Path) -> None:

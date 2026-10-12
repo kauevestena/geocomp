@@ -268,9 +268,9 @@ def discover(
         if base.is_dir():
             for name in names:
                 candidate = base / name
-                if candidate.exists():
+                if candidate.is_file():
                     return candidate, "configured"
-        elif base.exists():
+        elif base.is_file():
             return base, "configured"
         raise ValidationError(
             "engine_path_not_found",
@@ -287,13 +287,13 @@ def discover(
     for directory in extra_directories:
         for name in names:
             candidate = Path(directory) / name
-            if candidate.exists():
+            if candidate.is_file():
                 return candidate, "managed"
 
     for directory in bundled_directories:
         for name in names:
             candidate = Path(directory) / name
-            if candidate.exists():
+            if candidate.is_file():
                 return candidate, "bundled"
 
     for name in names:
@@ -316,13 +316,9 @@ def require(version: EngineVersion | None, *, engine: str, operation: str) -> En
         "engine_not_available",
         engine=engine,
         operation=operation,
-        # Said of every engine, so it promises no download: DynAdjust has one
-        # (Project > Install an engine), RTKLIB has none on Linux or macOS
-        # (specs/21 section 4). Until P12c-6 it told RTKLIB's users to install
-        # it from a Global Settings page that had nothing on it.
         expected=(
-            f"{engine} installed: give its path in Global Settings, under Paths and "
-            f"engines, or put it on the system path"
+            f"{engine} installed: download it from Global Settings > Paths and engines, "
+            "or Project > Install an engine, or give the path to an existing installation"
         ),
     )
 

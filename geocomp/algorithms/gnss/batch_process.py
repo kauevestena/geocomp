@@ -149,6 +149,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
+        engine = gnss_engine(feedback)
         folder = Path(self.parameterAsFile(parameters, FOLDER, context))
         base_name = (self.parameterAsString(parameters, BASE_STATION, context) or "").strip()
         profile_name = _PROFILES[self.parameterAsEnum(parameters, PROFILE, context)]
@@ -295,7 +296,6 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         if lacking:
             raise QgsProcessingException(missing_products_message(lacking))
 
-        engine = gnss_engine(feedback)
         timeout = self.parameterAsDouble(parameters, TIMEOUT, context)
 
         def process(key: str):

@@ -21,9 +21,8 @@ is downloaded from their release page and GeoComp does not distribute it
 installing it has been told so, and an install without it is refused, naming the
 box, before anything is downloaded.
 
-**RTKLIB is not offered here.** GeoComp carries its own ``rnx2rtkp`` for Linux
-and Windows on x86-64 and for macOS (ADR-0009); on any other system its path is
-set in Global Settings.
+RTKLIB is also available for development checkouts without a bundled copy.
+Every supported platform downloads the same prebuilt program CI bundles.
 """
 
 from __future__ import annotations
@@ -43,6 +42,7 @@ from qgis.core import (
 from geocomp.algorithms.base import GeoCompAlgorithm
 from geocomp.engines.dynadjust.engine import DynAdjustEngine
 from geocomp.engines.manager import current_platform, releases_for
+from geocomp.engines.rtklib.engine import RtklibEngine
 
 __all__ = ["InstallEngineAlgorithm"]
 
@@ -52,7 +52,7 @@ OUTPUT_DIRECTORY = "OUTPUT_DIRECTORY"
 OUTPUT_VERSION = "OUTPUT_VERSION"
 
 #: The engines the manager has a pinned release of, in the order offered.
-ENGINES = ("dynadjust",)
+ENGINES = ("dynadjust", "rtklib")
 
 #: Where DynAdjust's licence is published, named in the help and in the refusal.
 DYNADJUST_REPOSITORY = "https://github.com/GeoscienceAustralia/DynAdjust"
@@ -67,7 +67,7 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
         return self.tr("Install an engine")
 
     def shortDescription(self) -> str:
-        return self.tr("Download, verify and install DynAdjust for this computer.")
+        return self.tr("Download, verify and install DynAdjust or RTKLIB for this computer.")
 
     def help_body(self) -> str:
         return self.tr(
@@ -85,9 +85,10 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
             "understand this; without it nothing is downloaded.</p>"
             "<p>A DynAdjust directory set in Global Settings, under Paths and engines, is still "
             "used in preference to this installation; clear it to use this one.</p>"
-            "<p><b>RTKLIB</b> is not installed here. GeoComp carries its own "
-            "<code>rnx2rtkp</code> for Linux and Windows on x86-64 and for macOS; on any "
-            "other system, give the path to one in Global Settings.</p>"
+            "<p><b>RTKLIB</b> can also be installed when the bundled copy is missing, "
+            "including in development checkouts. Linux, Windows and macOS download and verify "
+            "the prebuilt executable from GeoComp's CI. No compiler is required. RTKLIB is "
+            "by T. Takasu and the RTKLIB-EX contributors, under the BSD-2-Clause licence.</p>"
         ).replace("%1", DYNADJUST_REPOSITORY)
 
     def initAlgorithm(self, config: dict[str, Any] | None = None) -> None:
@@ -95,7 +96,7 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
             QgsProcessingParameterEnum(
                 ENGINE,
                 self.tr("Engine"),
-                options=[self.tr("DynAdjust")],
+                options=[self.tr("DynAdjust"), self.tr("RTKLIB")],
                 defaultValue=0,
             )
         )
@@ -118,7 +119,7 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
         from geocomp.services.engines import configured_path, install_engine
 
         engine = ENGINES[self.parameterAsEnum(parameters, ENGINE, context)]
-        if not self.parameterAsBoolean(parameters, ACKNOWLEDGE_LICENCE, context):
+        if engine == "dynadjust" and not self.parameterAsBoolean(parameters, ACKNOWLEDGE_LICENCE, context):
             raise QgsProcessingException(
                 self.tr(
                     "Tick \u201c%1\u201d to install DynAdjust. It is a separate program by "
@@ -128,25 +129,29 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
                 .replace("%1", self.parameterDefinition(ACKNOWLEDGE_LICENCE).description())
                 .replace("%2", DYNADJUST_REPOSITORY)
             )
-        feedback.pushInfo(
-            self.tr(
-                "You confirmed that you understand DynAdjust is a separate program under its "
-                "own licence, Apache-2.0 (%1)."
-            ).replace("%1", DYNADJUST_REPOSITORY)
-        )
+        if engine == "dynadjust":
+            feedback.pushInfo(
+                self.tr(
+                    "You confirmed that you understand DynAdjust is a separate program under its "
+                    "own licence, Apache-2.0 (%1)."
+                ).replace("%1", DYNADJUST_REPOSITORY)
+            )
+        name = "DynAdjust" if engine == "dynadjust" else "RTKLIB"
         platform = current_platform()
         releases = releases_for(engine, platform)
         if releases:
             feedback.pushInfo(
-                self.tr("Downloading DynAdjust %1 for %2 from %3")
-                .replace("%1", releases[0].version)
-                .replace("%2", platform)
-                .replace("%3", releases[0].url)
+                self.tr("Downloading %1 %2 for %3 from %4")
+                .replace("%1", name)
+                .replace("%2", releases[0].version)
+                .replace("%3", platform)
+                .replace("%4", releases[0].url)
             )
         installation = install_engine(engine, feedback=feedback)
         if feedback.isCanceled():
             return {}
-        feedback.setProgress(80)
+        feedback.setProgress(95)
+        feedback.setProgressText(self.tr("Checking that the installed programs run…"))
         feedback.pushInfo(
             self.tr("Verified against the SHA-256 recorded in GeoComp (%1) and installed in %2.")
             .replace("%1", installation.sha256)
@@ -155,19 +160,25 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
 
         # The installation itself, not whatever the algorithms would find first:
         # a configured directory or a program on the path would answer for it.
-        found = DynAdjustEngine(extra_directories=(installation.directory,)).detect()
+        if engine == "dynadjust":
+            found = DynAdjustEngine(configured_directory=installation.directory).detect()
+        else:
+            filename = "rnx2rtkp.exe" if platform.startswith("windows-") else "rnx2rtkp"
+            found = RtklibEngine(configured=installation.directory / filename).version()
         if found is None or installation.directory not in found.path.parents:
             raise QgsProcessingException(
                 self.tr(
-                    "DynAdjust %1 was downloaded, verified and installed in %2, but it does "
-                    "not run on this computer. Install DynAdjust another way and give its "
-                    "directory in Global Settings, under Paths and engines."
+                    "%1 %2 was downloaded, verified and installed in %3, but it does "
+                    "not run on this computer. Give a working installation's path "
+                    "in Global Settings, under Paths and engines."
                 )
-                .replace("%1", installation.version)
-                .replace("%2", str(installation.directory))
+                .replace("%1", name)
+                .replace("%2", installation.version)
+                .replace("%3", str(installation.directory))
             )
         feedback.pushInfo(
-            self.tr("DynAdjust %1 runs: %2.").replace("%1", found.version).replace("%2", str(found.path))
+            self.tr("%1 %2 runs: %3.")
+            .replace("%1", name).replace("%2", found.version).replace("%3", str(found.path))
         )
         if found.version != installation.version:
             feedback.pushWarning(
@@ -178,7 +189,7 @@ class InstallEngineAlgorithm(GeoCompAlgorithm):
         if configured := configured_path(engine):
             feedback.pushWarning(
                 self.tr(
-                    "A DynAdjust directory is set in Global Settings (%1), and the algorithms "
+                    "An engine path is set in Global Settings (%1), and the algorithms "
                     "will keep using it. Clear it to use this installation."
                 ).replace("%1", configured)
             )

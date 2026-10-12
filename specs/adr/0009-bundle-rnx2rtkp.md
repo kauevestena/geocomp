@@ -46,6 +46,12 @@ program.
 5. **A ZIP unpacked by QGIS loses the executable bit**, so the plugin restores it, once, before first use
    (`bundled_directories`). CI unpacks the archive the way QGIS does and runs the bundled program.
 6. **DynAdjust stays a download** (ADR-0003 option C, unchanged), through the engine manager.
+7. **A missing development copy can be acquired on demand.** The engine manager offers RTKLIB alongside
+   DynAdjust, with a responsive download/progress dialog. Every supported platform downloads a checksum-pinned
+   prebuilt executable from GeoComp CI, matching the bundled `06e8644` revision. No source compilation or
+   compiler installation is part of the plugin. This is a fallback for source checkouts and missing binaries;
+   release ZIPs still ship the CI-built copy. Engine-dependent pipelines check availability and direct users
+   to Global Settings > Paths and engines and the appropriate download button before running.
 
 ## Platforms
 
