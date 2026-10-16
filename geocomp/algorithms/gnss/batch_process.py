@@ -149,7 +149,6 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        engine = gnss_engine(feedback)
         folder = Path(self.parameterAsFile(parameters, FOLDER, context))
         base_name = (self.parameterAsString(parameters, BASE_STATION, context) or "").strip()
         profile_name = _PROFILES[self.parameterAsEnum(parameters, PROFILE, context)]
@@ -163,6 +162,7 @@ class BatchProcessAlgorithm(GeoCompAlgorithm):
                 "station is available."
             ))
 
+        engine = gnss_engine(feedback)
         try:
             scan = scan_folder(folder)
         except GeoCompError as exc:

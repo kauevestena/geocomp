@@ -220,11 +220,11 @@ class CompareConfigurationsAlgorithm(GeoCompAlgorithm):
         context: QgsProcessingContext,
         feedback: QgsProcessingFeedback,
     ) -> dict[str, Any]:
-        engine = gnss_engine(feedback)
         folder = Path(self.parameterAsFile(parameters, FOLDER, context))
         confidence = self.parameterAsDouble(parameters, CONFIDENCE, context)
         configurations = self._configurations(parameters, context)
 
+        engine = gnss_engine(feedback)
         try:
             scan = scan_folder(folder)
         except GeoCompError as exc:
