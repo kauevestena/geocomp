@@ -10,6 +10,7 @@ from qgis.core import (
     QgsProcessingFeedback,
 )
 from qgis.PyQt.QtCore import QCoreApplication, Qt, pyqtSignal
+from qgis.PyQt.QtGui import QCloseEvent
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -115,9 +116,11 @@ class EngineInstallDialog(QDialog):
 
     @property
     def busy(self) -> bool:
+        """Whether an installation task is still running or stopping."""
         return self._task is not None
 
     def start(self) -> None:
+        """Start a background installation after any required licence acknowledgement."""
         if self.busy or (self.engine == "dynadjust" and not self._licence.isChecked()):
             return
         algorithm = QgsApplication.processingRegistry().algorithmById("geocomp:project_install_engine")
@@ -171,6 +174,7 @@ class EngineInstallDialog(QDialog):
         self.installation_changed.emit()
 
     def reject(self) -> None:
+        """Cancel active work and wait for it to stop, or close an idle dialog."""
         if self.busy:
             self._feedback.cancel()
             self._task.cancel()
@@ -179,7 +183,8 @@ class EngineInstallDialog(QDialog):
         else:
             super().reject()
 
-    def closeEvent(self, event) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:
+        """Defer closing while an installation task is being cancelled."""
         if self.busy:
             self.reject()
             event.ignore()
