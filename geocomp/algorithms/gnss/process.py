@@ -210,7 +210,6 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         from geocomp.engines.rtklib.baseline import quality_from_solution
         from geocomp.engines.rtklib.trajectory import trajectory_from_solution
 
-        engine = gnss_engine(feedback)
         if self.is_absolute:
             # FR-604: at the top of the log, before any result exists to be
             # mistaken for a good one.
@@ -232,6 +231,7 @@ class _GnssProcessAlgorithm(GeoCompAlgorithm):
         # refused is refused before any work is done.
         user = user_configuration(self, parameters, CONFIGURATION, context)
 
+        engine = gnss_engine(feedback)
         try:
             scan = scan_folder(folder)
         except GeoCompError as exc:

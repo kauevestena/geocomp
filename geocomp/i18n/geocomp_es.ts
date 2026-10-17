@@ -2710,7 +2710,7 @@
         </message>
         <message>
             <source>I understand that DynAdjust is a separate program under its own licence</source>
-            <translation>Entiendo que DynAdjust es un programa independiente con su propia licencia</translation>
+            <translation>Entiendo que DynAdjust es un programa independiente, con su propia licencia</translation>
         </message>
         <message>
             <source>Installation failed. See the GeoComp log.</source>

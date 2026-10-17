@@ -46,13 +46,19 @@ def test_a_relative_mode_does_not(algorithm_id):
 
 
 @pytest.mark.parametrize("algorithm_id", ABSOLUTE)
-def test_a_run_warns_before_anything_else(algorithm_id, tmp_path):
+def test_a_run_warns_before_anything_else(algorithm_id, tmp_path, monkeypatch):
     """At the top of the log, before a result exists to be mistaken for a good one.
 
-    An empty folder stops the run at the scan, which is after the warning and
-    before the engine, so this needs no ``rnx2rtkp``.
+    Even a missing engine must not hide the notice. The engine check still
+    stops the run before scanning the empty folder.
     """
+    from types import SimpleNamespace
+
     from qgis.core import QgsProcessingContext, QgsProcessingException, QgsProcessingFeedback
+
+    monkeypatch.setattr(
+        "geocomp.services.engines.rtklib_engine", lambda: SimpleNamespace(version=lambda: None),
+    )
 
     class Listening(QgsProcessingFeedback):
         def __init__(self):
@@ -63,7 +69,7 @@ def test_a_run_warns_before_anything_else(algorithm_id, tmp_path):
             self.warnings.append(text)
 
     feedback = Listening()
-    with pytest.raises(QgsProcessingException):
+    with pytest.raises(QgsProcessingException, match="Download RTKLIB"):
         _algorithm(algorithm_id).run(
             {"FOLDER": str(tmp_path)}, QgsProcessingContext(), feedback, catchExceptions=False
         )

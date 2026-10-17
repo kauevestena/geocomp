@@ -58,6 +58,9 @@ NOT_PARAMETER_KEYS = frozenset(
         # Constant names a test searches the sources for (test_basic_advanced_identity).
         "MODE_ADVANCED",
         "MODE_BASIC",
+        # Engine release catalogue replaced with a local-server fixture by
+        # test_engine_install, not a Processing input or result key.
+        "PINNED",
         # Environment variables a test sets or reads.
         "PATH",
         "HOME",
@@ -283,6 +286,20 @@ def test_every_parameter_goes_to_the_algorithm_that_declares_it(path, declared_b
         f"{path.name}:{line}: {algorithm_id} declares no parameter '{key}'"
         for algorithm_id, key, line in sorted(wrong, key=lambda item: item[2])
     )
+
+
+def test_non_parameter_constant_is_still_rejected_as_an_algorithm_input(tmp_path, declared_by_algorithm):
+    """The wide-net exception must not exempt a key passed to Processing."""
+    path = tmp_path / "test_bad_parameter.py"
+    path.write_text(
+        'def example():\n'
+        '    monkeypatch.setattr(manager, "PINNED", ())\n'
+        '    _run("geocomp:project_install_engine", {"PINNED": ()})\n',
+        encoding="utf-8",
+    )
+    assert "PINNED" not in _used_keys(path)
+    with pytest.raises(AssertionError, match="declares no parameter 'PINNED'"):
+        test_every_parameter_goes_to_the_algorithm_that_declares_it(path, declared_by_algorithm)
 
 
 def test_parameter_dictionaries_are_still_being_found():
