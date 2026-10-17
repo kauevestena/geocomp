@@ -1,0 +1,151 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoComp — ajustamento de redes geodésicas no QGIS</title>
+<meta name="description" content="O GeoComp é um plugin do QGIS que leva um levantamento geodésico das observações de campo a uma rede ajustada e verificada estatisticamente: estação total, nivelamento, GNSS, gravimetria e monitoramento em várias épocas.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="alternate" hreflang="pt-BR" href="./">
+<link rel="alternate" hreflang="es" href="../es/">
+<link rel="alternate" hreflang="x-default" href="../">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <picture>
+      <source srcset="../assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="../assets/logo.svg" alt="GeoComp" width="155" height="40">
+    </picture>
+    <nav aria-label="Seções">
+      <a href="#what">O que faz</a>
+      <a href="#try">Experimente</a>
+      <a href="#install">Instalação</a>
+      <a href="#honest">Situação</a>
+      <a href="https://github.com/kauevestena/geocomp">GitHub</a>
+    </nav>
+    <nav class="lang" aria-label="Idioma">
+      <a href="../" hreflang="en" lang="en">English</a>
+      <a href="./" hreflang="pt-BR" lang="pt-BR" aria-current="page">Português</a>
+      <a href="../es/" hreflang="es" lang="es">Español</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="badge">Software de pesquisa &middot; v0.1 &middot; experimental</span>
+    <h1>Ajustamento de redes geodésicas, dentro do QGIS.</h1>
+    <p class="lead">O GeoComp leva um levantamento das observações de campo a uma rede ajustada, com resultados
+      verificados estatisticamente, e põe a resposta no mapa &mdash; estação total, nivelamento, GNSS, gravimetria e
+      levantamentos repetidos da mesma rede ao longo do tempo.</p>
+    <div class="buttons">
+      <a class="btn" href="#install">Instalar o plugin</a>
+      <a class="btn secondary" href="https://github.com/kauevestena/geocomp">Código-fonte no GitHub</a>
+    </div>
+  </div>
+
+  <section id="what">
+    <h2>O que faz</h2>
+    <p class="sub">Cada etapa é um algoritmo do Processamento do QGIS: roda pelo menu, pela caixa de ferramentas, pelo
+      modelador ou por um script, e cada resultado guarda o registro de como foi obtido.</p>
+    <div class="grid">
+      <div class="card"><h3>Estação total</h3><p>Importação de cadernetas de campo com mapeamentos de colunas salvos, redução das leituras em PD e PI,
+        correções atmosféricas e do MED, poligonal, interseção à ré, interseção à vante, nivelamento trigonométrico e
+        ajustamento de rede clássica.</p></div>
+      <div class="card"><h3>Nivelamento</h3><p>Importação de cadernetas de nivelamento, verificação de fechamentos, métodos de visadas iguais,
+        equidistantes e extremas, e ajustamento de rede de nivelamento.</p></div>
+      <div class="card"><h3>GNSS</h3><p>Processamento absoluto e relativo, estático e cinemático, com o RTKLIB; produtos precisos encontrados e
+        baixados; linhas de base reunidas em uma rede; configurações comparadas.</p></div>
+      <div class="card"><h3>Gravimetria</h3><p>Redução de leituras de gravímetros relativos quanto a escala, maré terrestre e deriva, seguida do
+        ajustamento de uma rede gravimétrica.</p></div>
+      <div class="card"><h3>Integração</h3><p>GNSS com estação total, estação total com nivelamento, GNSS com nivelamento, ou várias técnicas de uma
+        vez, em um só ajustamento com componentes de variância por técnica.</p></div>
+      <div class="card"><h3>Monitoramento</h3><p>Compare duas épocas, teste a estabilidade dos pontos de referência, monte séries temporais com limites de alerta e gere o relatório.</p></div>
+    </div>
+    <p class="sub" style="margin-top:22px">Por trás deles, o núcleo de ajustamento estima, testa e explica &mdash; teste global, data snooping,
+      confiabilidade, elipses de erro, com a incerteza propagada em cada etapa, e não acrescentada no fim.
+      São <span class="n">48</span> algoritmos ao todo, em inglês, português (Brasil) e espanhol.</p>
+  </section>
+
+  <section id="try">
+    <h2>Dois exemplos que rodam em minutos</h2>
+    <p class="sub">Os dois vêm dentro do plugin: <em>GeoComp &#9656; Projeto &#9656; Instalar conjunto de dados do tutorial</em>
+      os copia para uma pasta à sua escolha, cada um com o seu passo a passo.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Um ajustamento de rede, com dois erros reais</h3>
+        <p>O triângulo de estação total do próprio autor: três estações, cada uma observada em PD e PI. Ele contém um
+          erro grosseiro de transcrição de 1,000&nbsp;m, que o pré-processamento detecta, e um teste global que, com razão,
+          falha. Um software que encontra erros reais em dados reais ensina mais do que uma execução sem tropeços.</p>
+      </div>
+      <div class="card">
+        <h3>Uma linha de base GNSS, do início ao fim</h3>
+        <p>A amostra de 2005 do próprio RTKLIB: dois receptores a 3,3&nbsp;km um do outro. Descubra a sessão, rode o motor,
+          leia a solução &mdash; 120 épocas, 117 com ambiguidades fixadas &mdash; e veja-a no mapa. O GeoComp traz o
+          próprio programa <code>rnx2rtkp</code>, então não há mais nada a instalar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Instalação</h2>
+    <p class="sub">Requer o <strong>QGIS 4.0 ou posterior</strong>. Esta é uma versão preliminar, que ainda não está no
+      repositório de complementos do QGIS.</p>
+    <ol class="steps">
+      <li>Obtenha o <code>geocomp.zip</code>: na página de
+        <a href="https://github.com/kauevestena/geocomp/releases">Releases</a> do projeto, quando houver uma publicada,
+        ou no artefato <code>geocomp-plugin</code> do workflow <code>build</code> no
+        <a href="https://github.com/kauevestena/geocomp/actions/workflows/build.yml">GitHub Actions</a>.</li>
+      <li>No QGIS: <kbd>Complementos</kbd> &#9656; <kbd>Gerenciar e Instalar Complementos</kbd> &#9656; <kbd>Instalar a partir do ZIP</kbd>,
+        escolha o arquivo e instale. Por ser experimental, ative
+        <em>Mostrar também os complementos experimentais</em> em <kbd>Opções</kbd> se ele não aparecer.</li>
+      <li>Aparece um menu <strong>GeoComp</strong>, e os algoritmos ficam na caixa de ferramentas de Processamento.</li>
+    </ol>
+    <table>
+      <thead><tr><th>Motor</th><th>O que faz</th><th>Como obter</th></tr></thead>
+      <tbody>
+        <tr><td><strong>RTKLIB</strong> <code>rnx2rtkp</code></td><td>Pós-processamento GNSS</td>
+            <td>Incluído no plugin, para Linux e Windows em x86-64 e para macOS. Se estiver faltando, use <em>Configurações Globais → Caminhos e motores → Baixar RTKLIB</em> para baixar o binário pré-compilado e verificado. Não é preciso compilador. BSD de 2 cláusulas.</td></tr>
+        <tr><td><strong>DynAdjust</strong></td><td>Um motor independente de mínimos quadrados, usado para conferir o do próprio GeoComp</td>
+            <td>Opcional. Use <em>Configurações Globais → Caminhos e motores → Baixar DynAdjust</em> (ou <em>Instalar um motor</em>), depois de declarar ciência da sua licença própria (Apache-2.0). Baixado da fonte original e conferido com um hash fixado de antemão, com progresso e cancelamento.</td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin-top:14px">O ajustamento em si roda no núcleo do próprio GeoComp e não precisa de nenhum dos dois motores.</p>
+  </section>
+
+  <section id="honest">
+    <h2>Situação atual</h2>
+    <p class="sub">Um projeto de pesquisa do Departamento de Geomática da Universidade Federal do Paraná, construído a
+      partir de uma especificação escrita e verificado com dados de referência publicados sempre que foi possível obtê-los.</p>
+    <div class="note"><strong>Software em estágio inicial.</strong> O ajustamento e a estatística são testados com redes de
+      livros-texto e redes publicadas; o exemplo GNSS acima mostra o fluxo funcionando, não que as suas coordenadas sejam
+      exatas &mdash; as duas estações da amostra não têm coordenadas publicadas com que comparar. Ainda não teve uma versão
+      estável, e o repositório de complementos do QGIS não o lista.</div>
+    <ul>
+      <li>As especificações, os registros de decisão e um registro de aceitação requisito por requisito, que diz com
+        clareza o que <em>não</em> foi atendido, estão na pasta
+        <a href="https://github.com/kauevestena/geocomp/tree/main/specs">specs</a>, em inglês.</li>
+      <li>Código aberto, <strong>GPL-2.0-or-later</strong>. Relatos de problemas (issues) e contribuições são bem-vindos no
+        <a href="https://github.com/kauevestena/geocomp">GitHub</a>.</li>
+    </ul>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    GeoComp &middot; GPL-2.0-or-later &middot; Kau&ecirc; de Moraes Vestena e os colaboradores do GeoComp &middot;
+    Departamento de Geom&aacute;tica, Universidade Federal do Paran&aacute;.
+    RTKLIB &copy; T. Takasu (BSD de 2 cláusulas); DynAdjust &copy; Geoscience Australia (Apache-2.0).
+  </div>
+</footer>
+
+</body>
+</html>

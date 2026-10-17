@@ -1,0 +1,81 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* The landing page's style, shared by its English, Portuguese and Spanish pages. */
+:root {
+  --bg: #f7f9fa;
+  --surface: #ffffff;
+  --ink: #1c2a31;
+  --muted: #55656d;
+  --line: #dbe3e7;
+  --teal: #1a5f7a;
+  --teal-ink: #ffffff;
+  --accent: #c1440e;
+  --code-bg: #eef3f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11191d;
+    --surface: #182227;
+    --ink: #e6edf0;
+    --muted: #9fb0b8;
+    --line: #2a3840;
+    --teal: #5fb6d3;
+    --teal-ink: #0b1519;
+    --accent: #ff8a5c;
+    --code-bg: #1d2a30;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--teal); }
+a:hover { color: var(--accent); }
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 16px; }
+header.site { border-bottom: 1px solid var(--line); background: var(--surface); }
+header.site .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
+header.site img { height: 40px; width: auto; display: block; }
+nav a { margin-left: 18px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+nav a:hover { color: var(--accent); }
+.hero { padding: 56px 0 40px; }
+.hero h1 { font-size: clamp(1.9rem, 4.5vw, 2.9rem); line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.02em; }
+.hero p.lead { font-size: 1.2rem; color: var(--muted); max-width: 42rem; margin: 0 0 28px; }
+.badge { display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+         color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 12px; margin-bottom: 18px; }
+.buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 11px 22px; border-radius: 8px; font-weight: 600; text-decoration: none;
+       background: var(--teal); color: var(--teal-ink); border: 2px solid var(--teal); }
+.btn:hover { color: var(--teal-ink); filter: brightness(1.08); }
+.btn.secondary { background: transparent; color: var(--teal); }
+.btn.secondary:hover { color: var(--accent); border-color: var(--accent); }
+section { padding: 36px 0; border-top: 1px solid var(--line); }
+section h2 { font-size: 1.55rem; margin: 0 0 6px; letter-spacing: -0.01em; }
+section p.sub { color: var(--muted); margin: 0 0 22px; max-width: 44rem; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.card .n { color: var(--accent); font-weight: 700; }
+ol.steps { padding-left: 1.3rem; }
+ol.steps li { margin-bottom: 10px; }
+code, kbd { background: var(--code-bg); border-radius: 4px; padding: 1px 6px; font-size: 0.9em; }
+.note { background: var(--surface); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 18px; margin: 20px 0; color: var(--muted); }
+.note strong { color: var(--ink); }
+table { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: 0; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 44px; color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 520px) { nav a { margin-left: 12px; } .hero { padding-top: 36px; } }
+/* At a phone's width the engines table ran 25 px past the screen in English and 44 px in
+   Portuguese: a menu path or a program name is one long word. Let a cell break one. */
+@media (max-width: 520px) { th, td { padding: 8px 8px; overflow-wrap: anywhere; } }
+
+/* The language switcher (P13-33): the three pages, each named in its own language. */
+nav.lang { display: flex; gap: 4px; align-items: center; font-size: 0.85rem; }
+nav.lang a { margin-left: 0; padding: 2px 8px; border: 1px solid transparent; border-radius: 999px; text-decoration: none; color: var(--muted); }
+nav.lang a:hover { color: var(--accent); }
+nav.lang a[aria-current="page"] { color: var(--ink); border-color: var(--line); font-weight: 600; }

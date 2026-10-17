@@ -18,6 +18,24 @@ Spanish and half in English is harder to use than one consistently in either.
 toolchain extracts English source strings, and the project's open-development goal depends on international
 contributors being able to read the code.
 
+### 1.1 Outside the plugin (P13-33)
+
+The **landing page** a visitor reaches first is in the three languages too, one page each: English at
+`docs/index.html`, Portuguese (Brazil) at `docs/pt-br/` and Spanish at `docs/es/`. Each declares its
+language, names the other two in a switcher, in their own languages, and lists all three as `hreflang`
+alternates, English the default. One stylesheet, `docs/assets/site.css`, serves all three.
+
+* **Its words are the plugin's.** A menu, dialog or button the page names is named as GeoComp's catalogue
+  translates it (*Projeto ▸ Instalar conjunto de dados do tutorial*, *Rutas y motores*), and one of QGIS's
+  own as QGIS translates it (*Complementos ▸ Gerenciar e Instalar Complementos*). Its terms are the
+  [glossary](./00-glossary.md)'s, and its numbers use the language's decimal separator.
+* **The three are held together** by `tests/structural/test_landing_page.py`: the same elements in the same
+  order, the same links and assets, the same numbers, each language offered from every page and each page
+  marked as the one it is. A section, figure or link changed in one language only fails it.
+* **Not in three languages:** the repository's own documents (`README.md`, `CONTRIBUTING.md`,
+  `CHANGELOG.md`), `docs/demo-runsheet.md` and `metadata.txt`'s description, for the reason the source locale
+  is English; and the specifications, which the Portuguese and Spanish pages say are in English.
+
 ## 2. String discipline from day one (FR-091)
 
 **Every user-facing string passes through the translation layer in the commit that introduces it.**

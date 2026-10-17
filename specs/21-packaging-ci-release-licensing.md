@@ -17,7 +17,7 @@ geocomp/                    repository root
   specs/                    these documents
   tests/                    T1–T5 (see 20-testing-and-validation.md)
   scripts/                  build, translation, release tooling
-  docs/                     user documentation and tutorials
+  docs/                     the landing page, one per language (specs/18 §1.1), and the demo run-sheet
   research_project/         the primary source (LaTeX proposal)
   topo_test/                RD-01 reference dataset
 ```
