@@ -305,7 +305,7 @@ it moves to P13, where a release in three languages needs it anyway.
 **What was done to prepare it**, so that the review reads the language rather than chasing what a script
 can find:
 
-* The catalogues are complete — 2,212 strings in each — and every one passes the glossary check above.
+* The catalogues are complete — 2,212 strings in each when this was written, 3,242 at P13-34, still complete — and every one passes the glossary check above.
 * In pt_BR, 23 strings had their European markers converted: the conclusive *pelo que* to *de modo que*;
   *estar a* + infinitive to the gerund; *registar*, *registado* to *registrar*, *registrado*; *quilómetro*
   to *quilômetro*; *rede de monitorização* to *rede de monitoramento*; *partes desligadas* to *partes
@@ -439,7 +439,9 @@ statistics — is available in both modes because it is a property of the algori
 
 1. Every user-facing string appears in the `.ts` files; the CI extraction check finds no unwrapped literal.
 2. Switching QGIS to Portuguese or Spanish translates the entire GeoComp UI, with no English remaining in
-   menus, dialogs, algorithm names, parameters, help or messages.
+   menus, dialogs, algorithm names, parameters, help or messages. A report is part of it: it declares the
+   language it is written in (`<html lang>`, the one string whose translation is a language's own tag) and,
+   run in each language, leaves none of its headings or column heads in English (P13-34).
 3. The language override in Global Settings works independently of the QGIS UI language.
 4. Terminology in the translations matches [`00-glossary.md`](./00-glossary.md); checked by a script
    comparing translated strings against the glossary for the listed terms.

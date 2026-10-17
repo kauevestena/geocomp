@@ -5,6 +5,13 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-34 — Reports say which language they are in
+
+#### Changed
+
+- Every report GeoComp writes now declares the language it is in (`lang="pt-BR"`, `"es"` or `"en"`), so a
+  screen reader or browser reads and hyphenates it correctly.
+
 ### P13-33 — The landing page in English, Portuguese and Spanish
 
 #### Added

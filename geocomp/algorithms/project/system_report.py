@@ -26,6 +26,7 @@ from qgis.core import (
 )
 
 from geocomp.algorithms.base import GeoCompAlgorithm
+from geocomp.algorithms.reporting import language_code
 from geocomp.core.number_format import localised_if_number
 from geocomp.core.settings_def import SECTIONS, settings_in_section
 from geocomp.core.version import __version__
@@ -176,7 +177,7 @@ class SystemReportAlgorithm(GeoCompAlgorithm):
 
         parts: list[str] = [
             "<!doctype html>",
-            '<html><head><meta charset="utf-8">',
+            f'<html lang="{language_code()}"><head><meta charset="utf-8">',
             f"<title>{esc(self.tr('GeoComp system report'))}</title>",
             "<style>"
             "body{font-family:sans-serif;margin:2rem;line-height:1.5}"

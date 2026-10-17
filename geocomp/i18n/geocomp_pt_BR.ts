@@ -8066,6 +8066,10 @@
             <translation>O teste global falha: o fator de variância é pequeno demais, portanto as precisões a priori parecem pessimistas. O levantamento não falhou, mas as incertezas relatadas provavelmente são grandes demais; confira as precisões informadas.</translation>
         </message>
         <message>
+            <source>en</source>
+            <translation>pt-BR</translation>
+        </message>
+        <message>
             <source>not defined</source>
             <translation>não definido</translation>
         </message>
