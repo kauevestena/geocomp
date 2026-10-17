@@ -8066,6 +8066,10 @@
             <translation>La prueba global falla: el factor de varianza es demasiado pequeño, por lo que las precisiones a priori parecen pesimistas. El levantamiento no ha fallado, pero las incertidumbres informadas probablemente son demasiado grandes; compruebe las precisiones indicadas.</translation>
         </message>
         <message>
+            <source>en</source>
+            <translation>es</translation>
+        </message>
+        <message>
             <source>not defined</source>
             <translation>no definido</translation>
         </message>

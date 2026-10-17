@@ -25,6 +25,7 @@ __all__ = [
     "escape",
     "format_number",
     "global_test_failed",
+    "language_code",
     "no_redundancy",
     "not_tested",
     "render_document",
@@ -38,6 +39,18 @@ _CONTEXT = "GeoCompReport"
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate(_CONTEXT, text)
+
+
+def language_code() -> str:
+    """The language the report is written in, as a ``lang`` attribute (P13-33).
+
+    The one string whose translation is a language's own code rather than its
+    words: ``en`` in English, and in each catalogue the BCP 47 tag of that
+    language. So it follows whichever catalogue is installed, however it came
+    to be, and a screen reader or a browser's hyphenation reads the report in
+    the language it is in.
+    """
+    return _tr("en")
 
 
 def escape(value: Any) -> str:
@@ -184,7 +197,7 @@ def render_document(title: str, body: list[str], *, footer: str = "") -> str:
     """
     parts = [
         "<!doctype html>",
-        '<html><head><meta charset="utf-8">',
+        f'<html lang="{language_code()}"><head><meta charset="utf-8">',
         f"<title>{escape(title)}</title>",
         f"<style>{_STYLE}</style></head><body>",
         f"<h1>{escape(title)}</h1>",

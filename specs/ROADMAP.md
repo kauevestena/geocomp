@@ -4364,6 +4364,34 @@ break one at that width; at 320, 360 and 375 px nothing runs over, in any of the
   and shows two of the seven tutorial datasets; changing either is the maintainer's, and the test now
   requires it in all three pages at once.
 
+#### P13-34 — a report says which language it is in, and is read whole in each
+
+Found by the audit of the three languages that preceded P13-33, which listed what no test covered.
+
+**What changed** (`specs/18` §7, criterion 2).
+- **`<html lang>`.** Every generated report (`algorithms/reporting.py::render_document`, and the system report)
+  declared no language, so a screen reader or a browser's hyphenation had to guess. `language_code()` returns
+  the string `en`, which each catalogue translates to its language's tag (`pt-BR`, `es`): so it follows whichever
+  catalogue is installed, however it came to be, rather than a setting that a test or a script may not have set.
+- **A report read whole.** `tests/qgis/test_report_language.py` runs the tutorial's adjustment end to end in English,
+  Portuguese and Spanish and compares the three HTML files: each declares its language; they have the same number
+  of headings and column heads; and none in Portuguese or Spanish is still the English one, unless the catalogue
+  itself says the word is the same in both.
+- `specs/18` §3.1 said the catalogues held 2,212 strings; they hold 3,242, still complete.
+
+**Shown to fail.** The check passed on its first run, so I removed one translation to see it fail: *Adjusted stations*
+in Portuguese reads *still English in pt_BR* and fails. The labels compared are those a report's markup marks as
+headings (`title`, `h1`-`h3`, `th`, `caption`, `legend`); a sentence in a paragraph or a note is not compared, only
+whatever the catalogue's own checks cover.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open. Row 18.2 names the test.
+
+**Not done.**
+- One report, the total station network's, is read whole. The levelling, GNSS, gravimetry, integration and
+  monitoring reports are covered by the label and finding tests, and by `render_document` declaring the language
+  for all of them, but not read whole in each language.
+- Paragraph text is not compared, so an English sentence in a note would pass.
+
 ---
 
 ## Mapping to the research project's 24-month schedule
