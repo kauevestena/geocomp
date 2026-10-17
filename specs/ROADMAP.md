@@ -4325,6 +4325,45 @@ No code changed. **Register.** Unchanged: 172 met, 4 partly met, 0 open.
 it would set a window on every relative run, which today has none. That is a change to how every baseline is
 processed, and is not made here.
 
+#### P13-33 — the landing page in English, Portuguese and Spanish
+
+At the maintainer's request. The plugin was trilingual and the page that introduces it was in English
+only.
+
+**What changed** (`specs/18` §1.1).
+- **A page per language.** `docs/index.html` stays the English one and the default; `docs/pt-br/` and
+  `docs/es/` say the same in Portuguese (Brazil) and Spanish. Each declares its language, names the three in
+  a switcher, each in its own language with the current one marked, and lists them as `hreflang` alternates.
+- **The plugin's own words.** What the page tells a reader to click is named as the reader will see it:
+  GeoComp's menus and settings from its catalogues, and QGIS's *Complementos*, *Gerenciar e Instalar
+  Complementos*, *Instalar a partir do ZIP* and their Spanish from QGIS's own translations. Terms are the
+  glossary's; decimals take a comma.
+- **One stylesheet**, `docs/assets/site.css`, where the English page had its style inline: three copies would
+  drift.
+
+**Held together.** `tests/structural/test_landing_page.py` compares each page with the English one: the same
+elements, ids and classes in order, the same links out, sections and assets, the same numbers, and every
+language offered from every page. Tried by breaking each in turn: a card removed from the Portuguese page, a
+figure changed in the Spanish one, a switcher link pointed at the wrong page, and the English page copied in
+as the Spanish all fail it.
+
+**Found: the page ran off a phone's screen.** At 375 px the engines table was 25 px wider than the screen in
+English, as merged, and 44 px in Portuguese: a menu path or `rnx2rtkp` is one long word. A cell may now
+break one at that width; at 320, 360 and 375 px nothing runs over, in any of the three.
+
+**Register.** Unchanged: 172 met, 4 partly met, 0 open.
+
+**Not done.**
+- No native speaker has read the two pages, as no one has read the catalogues (`specs/18` §3.1).
+- The `hreflang` alternates are relative. A search engine wants them absolute, and the site's address is
+  not recorded in the repository: the default would be `kauevestena.github.io/geocomp/`, which could not be
+  reached from where this was written to check it.
+- A visitor is not sent to their own language: the switcher is at the top of every page, and the English one
+  is the default.
+- The page's figures were translated as they stand. It says 48 algorithms, where the provider registers 49,
+  and shows two of the seven tutorial datasets; changing either is the maintainer's, and the test now
+  requires it in all three pages at once.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

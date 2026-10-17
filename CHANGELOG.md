@@ -5,6 +5,17 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P13-33 — The landing page in English, Portuguese and Spanish
+
+#### Added
+
+- The project's web page in Portuguese (Brazil) and Spanish, beside the English one, with a language switcher
+  on each. Every menu and button it names is named as the plugin and QGIS show it in that language.
+
+#### Fixed
+
+- The web page no longer runs off a phone's screen: its engines table was wider than 375 px.
+
 ### P13-31 — A reworded layout is left in its language
 
 #### Changed
