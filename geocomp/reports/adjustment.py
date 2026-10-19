@@ -44,6 +44,7 @@ from geocomp.algorithms.reporting import (
     _STYLE,
     escape,
     format_number,
+    language_code,
     no_redundancy,
     not_tested,
     render_note,
@@ -940,4 +941,7 @@ def render_adjustment_report(
     context = context or ReportContext()
     template = load_template(context.template_name, directory=context.template_directory)
     sections = build_sections(solution, context)
-    return render(template, sections), unused_sections(template, sections)
+    html = render(template, sections)
+    if template.is_shipped:
+        html = html.replace("<html>", f'<html lang="{language_code()}">', 1)
+    return html, unused_sections(template, sections)

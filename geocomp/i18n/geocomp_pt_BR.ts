@@ -3157,12 +3157,28 @@
             <translation>'%1' foi escrito por um GeoComp mais recente (versão de documento %2). Atualize o GeoComp para lê-lo.</translation>
         </message>
         <message>
+            <source>Burris exports state no precision: each reading takes the precision floor, or the profile's nominal precision when no floor is given.</source>
+            <translation>As exportações Burris não informam precisão: cada leitura usa o piso de precisão ou a precisão nominal do perfil quando nenhum piso é fornecido.</translation>
+        </message>
+        <message>
+            <source>Burris exports state no time zone: times were taken as %1.</source>
+            <translation>As exportações Burris não informam fuso horário: os horários foram considerados em %1.</translation>
+        </message>
+        <message>
             <source>No gravimeter profile was given, so each instrument's own scale was used with a calibration factor of one whose uncertainty is unknown and not propagated. The result is labelled approximate for it. Give a profile library with each instrument's calibration to remove the assumption.</source>
             <translation>Nenhum perfil de gravímetro foi fornecido, então foi usada a escala própria de cada instrumento, com um fator de calibração igual a um cuja incerteza é desconhecida e não é propagada. Por isso o resultado é marcado como aproximado. Forneça uma biblioteca de perfis com a calibração de cada instrumento para eliminar essa suposição.</translation>
         </message>
         <message>
+            <source>absolute values given in the %1 system are combined with %2 relative values without conversion; the difference is a latitude-dependent few microgal</source>
+            <translation>valores absolutos fornecidos no sistema %1 são combinados com valores relativos %2 sem conversão; a diferença é de alguns microgals e depende da latitude</translation>
+        </message>
+        <message>
             <source>assumed: no gravimeter profile was given</source>
             <translation>suposto: nenhum perfil de gravímetro foi fornecido</translation>
+        </message>
+        <message>
+            <source>readings at %1 carry no sensor height and were taken to refer to the mark</source>
+            <translation>as leituras em %1 não trazem altura do sensor e foram consideradas referidas ao marco</translation>
         </message>
     </context>
     <context>
@@ -7204,6 +7220,10 @@
             <translation>Afastamentos em relação à primeira época, referidos ao bloco de referência, com uma faixa de %1 desvios-padrão (%2% de confiança) e a reta de velocidade ajustada.</translation>
         </message>
         <message>
+            <source>Omega</source>
+            <translation>Ômega</translation>
+        </message>
+        <message>
             <source>Parameter</source>
             <translation>Parâmetro</translation>
         </message>
@@ -7226,6 +7246,10 @@
         <message>
             <source>Quantity</source>
             <translation>Grandeza</translation>
+        </message>
+        <message>
+            <source>Rank</source>
+            <translation>Posto</translation>
         </message>
         <message>
             <source>Reference block</source>
@@ -7322,6 +7346,10 @@
         <message>
             <source>Strain was not requested.</source>
             <translation>A deformação não foi solicitada.</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Teste</translation>
         </message>
         <message>
             <source>The datum definitions differ (%1 and %2); both are free, and they are related by the S-transformation onto the reference block.</source>

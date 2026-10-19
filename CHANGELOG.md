@@ -5,6 +5,22 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### Multilingual reports — broader regression coverage
+
+#### Added
+
+- English, Brazilian Portuguese and Spanish report comparisons for levelling, GNSS, gravimetry,
+  integration and monitoring alongside the existing total-station test, including paragraphs, note boxes
+  and lists. Focused regressions distinguish retained English from unchanged technical terms and survey data.
+
+#### Fixed
+
+- Default template-based adjustment and monitoring reports now declare their language, following the
+  same active translation catalogue as the other generated reports.
+- Monitoring congruency table headers are now extracted for translation. Gravimetry report notes from
+  Burris acquisition and the current gravity network are translated when displayed, without modifying
+  saved readings documents or unknown survey notes.
+
 ### P13-34 — Reports say which language they are in
 
 #### Changed

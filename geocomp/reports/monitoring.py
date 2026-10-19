@@ -32,7 +32,14 @@ from typing import Any
 
 from qgis.PyQt.QtCore import QCoreApplication
 
-from geocomp.algorithms.reporting import _STYLE, escape, format_number, render_note, render_table
+from geocomp.algorithms.reporting import (
+    _STYLE,
+    escape,
+    format_number,
+    language_code,
+    render_note,
+    render_table,
+)
 from geocomp.core.statistics.distributions import normal_quantile
 from geocomp.core.version import __version__
 from geocomp.core.visualization.monitoring import ALERT, displacement_exaggeration, series_limits
@@ -309,19 +316,17 @@ def _congruency_row(label: str, congruency: dict[str, Any]) -> list[str]:
     ]
 
 
-_CONGRUENCY_HEADERS = (
-    "Test",
-    "Stations",
-    "Omega",
-    "Rank",
-    "Statistic",
-    "Critical value",
-    "Decision",
-)
-
-
 def _congruency_headers() -> list[str]:
-    return [escape(_tr(h)) for h in _CONGRUENCY_HEADERS]
+    # Literal calls let both Qt and the AST catalogue extractor see every key.
+    return [
+        escape(_tr("Test")),
+        escape(_tr("Stations")),
+        escape(_tr("Omega")),
+        escape(_tr("Rank")),
+        escape(_tr("Statistic")),
+        escape(_tr("Critical value")),
+        escape(_tr("Decision")),
+    ]
 
 
 def _reference_block(comparison: dict[str, Any] | None) -> str:
@@ -700,6 +705,8 @@ def render_monitoring_report(
     template = load_template(context.template_name, directory=context.template_directory)
     sections = build_monitoring_sections(comparison, series, context)
     html = render(template, sections)
+    if template.is_shipped:
+        html = html.replace("<html>", f'<html lang="{language_code()}">', 1)
     omitted = unused_sections(template, sections)
     forced = [name for name in ALWAYS if name in omitted]
     if forced:

@@ -4392,6 +4392,43 @@ whatever the catalogue's own checks cover.
   for all of them, but not read whole in each language.
 - Paragraph text is not compared, so an English sentence in a note would pass.
 
+#### P13-35 — multilingual report regression coverage across six modules
+
+**Requirements:** FR-090, FR-091; `specs/18` §7 criterion 2 and `specs/19` §7.3.
+
+Extends P13-34 without replacing its total-station tutorial or language-switching fixture. Representative
+complete reports are generated through Processing in English, Brazilian Portuguese and Spanish for total
+station, levelling, GNSS configuration comparison, gravimetry, integration and monitoring. The committed
+module tutorials supply the inputs; the GNSS test substitutes only the external RTKLIB process with its
+existing stand-in and parses the committed `.pos` output normally.
+
+`tests/report_language.py` reads headings and column heads plus paragraphs, note boxes and list items,
+retaining text inside inline markup. It checks block structure and unchanged labels/prose, and detects
+retained English fragments of at least two words after a translated opening. Catalogue entries explicitly
+unchanged in the target language excuse technical terms; exact user-supplied fixture values excuse survey
+data, not surrounding prose. GNSS configuration filenames deliberately include English prose and a
+catalogue label. Monitoring solution IDs are read from the actual generated documents and explicitly
+masked, including in the sparse path's covariance notice. `tests/test_report_language_guard.py` verifies both deliberate leaks and false positives.
+
+**Defects found:** the shared `render_document` path declared the language, but the shipped adjustment and
+monitoring templates did not. Both default template renderers now add the same catalogue-driven language
+tag. Custom templates retain their markup. The monitoring congruency table's dynamic translation calls
+hid three column names from the catalogue extractor; literal calls and seven new entries per catalogue
+cover those and the gravity notes. Burris acquisition notes and the gravity network's sensor-height and
+tide-system notes were carried into reports as English prose. `gravimetry.common.report_notes` phrases
+these known generated notes at display time. Version-1 document contents and unknown notes stay unchanged;
+there is no schema change or change to any computed quantity. Focused tests check real Burris notes, UTC
+offsets, station names, tide systems and an unmodified document. A Qt fallback mutation removes a real
+paragraph translation and is rejected against the undamaged catalogue.
+
+**Limits:** one representative report per module, not every optional output or branch. This lexical
+comparison detects retained English from the baseline, not arbitrary wrong-language replacements or
+translation quality; the native-speaker review remains outstanding. The parser does not classify arbitrary
+table-cell survey values or embedded SVG text as paragraph content. Legacy free-text acquisition notes
+outside the recognised Burris templates (e.g. CG-5 notes) and previously localised notes are not reworded by
+this change. The new gravity fixture uses the Burris tutorial; those other input branches remain outside
+this regression matrix.
+
 ---
 
 ## Mapping to the research project's 24-month schedule

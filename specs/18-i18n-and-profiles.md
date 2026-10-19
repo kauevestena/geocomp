@@ -442,6 +442,13 @@ statistics — is available in both modes because it is a property of the algori
    menus, dialogs, algorithm names, parameters, help or messages. A report is part of it: it declares the
    language it is written in (`<html lang>`, the one string whose translation is a language's own tag) and,
    run in each language, leaves none of its headings or column heads in English (P13-34).
+   The report regression matrix also covers levelling, GNSS, gravimetry, integration and monitoring,
+   with paragraphs, note boxes and list items as well as labels. Inline markup must not hide text.
+   Legitimately unchanged technical terms are identified by the translation catalogues; user-provided
+   names and prose are explicit fixture data and must not be treated as untranslated UI text. A
+   translated opening must not hide a retained English instruction or sentence later in the block.
+   This compares representative generated reports; it does not replace native-speaker review or
+   exercise every optional report branch.
 3. The language override in Global Settings works independently of the QGIS UI language.
 4. Terminology in the translations matches [`00-glossary.md`](./00-glossary.md); checked by a script
    comparing translated strings against the glossary for the listed terms.
