@@ -280,6 +280,8 @@ proposed and not adopted. Values are in millimetres; the documents keep metres.
 
 ### 7.3 Mechanics (FR-931)
 
+- Default generated HTML reports declare their active language with `<html lang>`, including the
+  template-based adjustment and monitoring reports. A user-authored template retains its own markup.
 - HTML output as the Processing output type, viewable in the results panel and in a browser, printable to
   PDF.
 - **Template-driven** from the templates directory configured in Global Settings (FR-066), so an organisation

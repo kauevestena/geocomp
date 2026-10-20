@@ -71,6 +71,8 @@ NOT_PARAMETER_KEYS = frozenset(
         "HTML",
         "XML",
         "GPKG",
+        # Time standard in the gravimetry report's acquisition-note assertions.
+        "UTC",
     }
 )
 

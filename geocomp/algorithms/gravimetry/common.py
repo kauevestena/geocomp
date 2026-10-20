@@ -17,6 +17,7 @@ layers' gravity columns, which name their unit.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,7 @@ __all__ = [
     "gravimeter_setting",
     "gravity_label",
     "read_readings_document",
+    "report_notes",
     "tide_model_from",
     "to_display",
     "translate_error",
@@ -308,6 +310,61 @@ def read_readings_document(
             ).replace("%1", path)
         )
     return reduced, library, payload
+
+
+def report_notes(document: dict[str, Any], network_notes: tuple[str, ...]) -> list[str]:
+    """Phrase known generated notes at display time, retaining the saved document.
+
+    Version-1 gravity documents store acquisition notes as prose. Recognise only
+    the exact Burris notes, and only in a Burris document; unknown/user notes
+    remain verbatim. Network notes come from the current computation, not from
+    arbitrary survey prose. Interpolated station names and UTC offsets are data.
+    """
+    notes = []
+    for note in document.get("notes", ()):
+        if document.get("file_format") == "burris":
+            if note == (
+                "Burris exports state no precision: each reading takes the precision floor, or the "
+                "profile's nominal precision when no floor is given."
+            ):
+                note = _tr(
+                    "Burris exports state no precision: each reading takes the precision floor, or the "
+                    "profile's nominal precision when no floor is given."
+                )
+            else:
+                clock = re.fullmatch(
+                    r"Burris exports state no time zone: times were taken as (UTC(?:[+\-][0-9.eE+\-]+ h)?)\.",
+                    note,
+                )
+                if clock:
+                    note = _tr("Burris exports state no time zone: times were taken as %1.").replace(
+                        "%1", clock[1]
+                    )
+        notes.append(note)
+    for note in network_notes:
+        sensor = re.fullmatch(
+            r"readings at (.+) carry no sensor height and were taken to refer to the mark", note
+        )
+        tide = re.fullmatch(
+            r"absolute values given in the (.+) system are combined with (.+) relative values without "
+            r"conversion; the difference is a latitude-dependent few microgal",
+            note,
+        )
+        if sensor:
+            note = _tr("readings at %1 carry no sensor height and were taken to refer to the mark").replace(
+                "%1", sensor[1]
+            )
+        elif tide:
+            note = (
+                _tr(
+                    "absolute values given in the %1 system are combined with %2 relative values without "
+                    "conversion; the difference is a latitude-dependent few microgal"
+                )
+                .replace("%1", tide[1])
+                .replace("%2", tide[2])
+            )
+        notes.append(note)
+    return notes
 
 
 def translate_error(error: GeoCompError) -> str:

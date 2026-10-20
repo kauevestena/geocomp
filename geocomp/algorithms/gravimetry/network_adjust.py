@@ -47,6 +47,7 @@ from geocomp.algorithms.gravimetry.common import (
     gravimeter_setting,
     gravity_label,
     read_readings_document,
+    report_notes,
     to_display,
     translate_error,
     unit_symbol,
@@ -309,7 +310,7 @@ class GravimetryNetworkAlgorithm(GeoCompAlgorithm):
         feedback.setProgress(70)
 
         unit = display_unit()
-        notes = [*document.get("notes", ()), *result.notes]
+        notes = report_notes(document, result.notes)
         self._push_summary(result, unit, feedback)
         solution = result.solution
         write_document(
