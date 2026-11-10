@@ -1,0 +1,2 @@
+code,severity,message,row
+unknown_sighted_value,blocking,"row 14: data.unknown_sighted_value (expected=['R', 'V'], received='90.0')",14

@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING": "0",
+    "LINE_COUNT": "3",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/report.html",
+    "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/setups.json",
+    "REJECTED_ROWS": "0",
+    "SETUP_COUNT": "10",
+    "WARNINGS": "0"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

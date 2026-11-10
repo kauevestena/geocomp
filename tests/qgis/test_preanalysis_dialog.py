@@ -92,6 +92,68 @@ class TestItTakesOverTheCanvasAndGivesItBack:
         assert not widget._markers
         assert not widget._bands
 
+    def test_exec_does_not_modal_block_the_canvas(self, qgis_app):
+        """``QDialog.exec()`` sets ``WA_ShowModal``, which causes Qt to drop all
+        mouse events targeted at the parent window and map canvas."""
+        from qgis.core import QgsCoordinateReferenceSystem, QgsRectangle
+        from qgis.gui import QgsMapCanvas
+        from qgis.PyQt.QtCore import QPointF, QTimer, Qt
+        from qgis.PyQt.QtGui import QMouseEvent
+        from qgis.PyQt.QtWidgets import QApplication, QMainWindow
+
+        from geocomp.gui.preanalysis_dialog import PreAnalysisDialog
+
+        main = QMainWindow()
+        canvas = QgsMapCanvas(main)
+        canvas.setDestinationCrs(QgsCoordinateReferenceSystem("EPSG:31982"))
+        canvas.setExtent(QgsRectangle(0.0, 0.0, 1000.0, 1000.0))
+        main.setCentralWidget(canvas)
+        main.resize(600, 600)
+        main.show()
+
+        widget = PreAnalysisDialog(canvas, parent=main)
+
+        def click_canvas_and_close() -> None:
+            assert QApplication.activeModalWidget() is None
+            assert not widget.isModal()
+            handle = main.windowHandle()
+            press = QMouseEvent(
+                QMouseEvent.Type.MouseButtonPress,
+                QPointF(300.0, 300.0),
+                QPointF(300.0, 300.0),
+                Qt.MouseButton.LeftButton,
+                Qt.MouseButton.LeftButton,
+                Qt.KeyboardModifier.NoModifier,
+            )
+            release = QMouseEvent(
+                QMouseEvent.Type.MouseButtonRelease,
+                QPointF(300.0, 300.0),
+                QPointF(300.0, 300.0),
+                Qt.MouseButton.LeftButton,
+                Qt.MouseButton.NoButton,
+                Qt.KeyboardModifier.NoModifier,
+            )
+            QApplication.sendEvent(handle, press)
+            QApplication.sendEvent(handle, release)
+            widget.reject()
+
+        QTimer.singleShot(30, click_canvas_and_close)
+        widget.exec()
+        assert len(widget.session.network.stations) == 1
+        widget.deleteLater()
+        main.deleteLater()
+
+    def test_clicking_a_mode_button_reclaims_the_canvas_tool(self, canvas, dialog):
+        from qgis.gui import QgsMapToolPan
+
+        from geocomp.gui.preanalysis_dialog import ADD_STATION
+
+        pan = QgsMapToolPan(canvas)
+        canvas.setMapTool(pan)
+        assert canvas.mapTool() is pan
+        dialog._modes.button(ADD_STATION).click()
+        assert canvas.mapTool() is dialog.tool
+
 
 class TestClicksReachTheDesign:
     def test_clicking_empty_ground_adds_a_station(self, dialog):
@@ -222,6 +284,126 @@ class TestThePanelKeepsUp:
         dialog._undo.click()
         assert not dialog.session.network.stations
 
+    def test_the_observations_table_lists_every_planned_observation_even_before_evaluable(
+        self, dialog
+    ):
+        from geocomp.gui.preanalysis_dialog import CONNECT
+
+        dialog.show()
+        assert dialog._observations_table.parent().x() < dialog._table.parent().x()
+
+        _click(dialog.tool, 200.0, 200.0)
+        _click(dialog.tool, 700.0, 300.0)
+        dialog._modes.button(CONNECT).click()
+        _click(dialog.tool, 200.0, 200.0)
+        _click(dialog.tool, 700.0, 300.0)
+
+        assert dialog._observations_table.rowCount() == 1
+        assert "P1 → P2" in dialog._observations_table.item(0, 2).text()
+        assert "mm" in dialog._observations_table.item(0, 3).text()
+
+    def test_the_observations_table_simulates_required_precision_and_apply_adopts_it(self, dialog):
+        _build_quadrilateral(dialog)
+        assert dialog._observations_table.rowCount() == 6
+
+        dialog._tolerance.setValue(2.0)
+        simulated = dialog._observations_table.item(0, 4).text()
+        assert "mm" in simulated
+        assert simulated != "—"
+        assert dialog._apply_precision.isEnabled()
+
+        dialog._apply_precision.click()
+        assert dialog._observations_table.item(0, 3).text() == simulated
+        worst_mm = max(float(dialog._table.item(row, 1).text()) for row in range(4))
+        assert worst_mm == pytest.approx(2.0, abs=0.1)
+
+    def test_remove_mode_can_remove_an_individual_observation_line(self, dialog):
+        from geocomp.gui.preanalysis_dialog import CONNECT, REMOVE
+
+        _click(dialog.tool, 200.0, 200.0)
+        _click(dialog.tool, 800.0, 200.0)
+        dialog._modes.button(CONNECT).click()
+        _click(dialog.tool, 200.0, 200.0)
+        _click(dialog.tool, 800.0, 200.0)
+        assert len(dialog.session.network.observations) == 1
+
+        dialog._modes.button(REMOVE).click()
+        _click(dialog.tool, 500.0, 200.0)
+        assert len(dialog.session.network.stations) == 2
+        assert not dialog.session.network.observations
+
+    def test_exporting_and_importing_a_qgis_layer_round_trips_stations_and_observations(
+        self, canvas, dialog, tmp_path, monkeypatch
+    ):
+        from qgis.core import QgsProject, QgsWkbTypes
+        from qgis.PyQt.QtWidgets import QFileDialog
+
+        from geocomp.gui.preanalysis_dialog import PreAnalysisDialog
+
+        _build_quadrilateral(dialog)
+        dialog._tolerance.setValue(2.5)
+        custom_dir = tmp_path / "custom_export_folder"
+        custom_dir.mkdir(parents=True, exist_ok=True)
+        geojson_path = custom_dir / "planned_network.geojson"
+        monkeypatch.setattr(
+            QFileDialog,
+            "getSaveFileName",
+            lambda *args, **kwargs: (str(geojson_path), "GeoJSON (*.geojson)"),
+        )
+        dialog._export_layer.click()
+        stations_layer, observations_layer = dialog.exported_layers
+        try:
+            assert geojson_path.is_file()
+            assert stations_layer.isValid()
+            assert observations_layer.isValid()
+            assert (
+                QgsWkbTypes.geometryType(stations_layer.wkbType())
+                == QgsWkbTypes.GeometryType.PointGeometry
+            )
+            assert (
+                QgsWkbTypes.geometryType(observations_layer.wkbType())
+                == QgsWkbTypes.GeometryType.LineGeometry
+            )
+            assert stations_layer.featureCount() == 4
+            assert observations_layer.featureCount() == 6
+            assert (
+                stations_layer.source().split("|", 1)[0]
+                == observations_layer.source().split("|", 1)[0]
+                == str(geojson_path)
+            )
+            field_names = {f.name() for f in observations_layer.fields()}
+            assert {
+                "station_id",
+                "station_type",
+                "easting",
+                "northing",
+                "uncertainty",
+                "observation_id",
+                "observation_type",
+                "from_station",
+                "to_station",
+                "sigma",
+                "required_sigma",
+                "redundancy",
+                "from_uncertainty",
+                "to_uncertainty",
+            } <= field_names
+
+            fresh = PreAnalysisDialog(canvas)
+            try:
+                fresh._import_layer.click()
+                assert len(fresh.session.network.stations) == 4
+                assert len(fresh.session.network.observations) == 6
+                assert fresh._observations_table.rowCount() == 6
+                assert fresh._table.rowCount() == 4
+                assert fresh._tolerance.value() == pytest.approx(2.5)
+            finally:
+                fresh.done(0)
+                fresh.deleteLater()
+        finally:
+            QgsProject.instance().removeMapLayer(stations_layer.id())
+            QgsProject.instance().removeMapLayer(observations_layer.id())
+
 
 class TestWhatItHandsOn:
     def test_the_design_becomes_a_network_the_algorithm_accepts(self, dialog, tmp_path):
@@ -251,6 +433,54 @@ class TestWhatItHandsOn:
         )
         assert ok
         assert results["WORST_UNCERTAINTY"] > 0.0
+
+    def test_the_algorithm_exports_a_network_layer_that_can_be_reimported(
+        self, dialog, tmp_path
+    ):
+        import json
+
+        from qgis.core import QgsApplication, QgsProcessingContext, QgsProcessingFeedback
+
+        _build_quadrilateral(dialog)
+        document = tmp_path / "design.json"
+        document.write_text(json.dumps(dialog.network().to_dict()), encoding="utf-8")
+        exported_geojson = tmp_path / "planned_network.geojson"
+
+        algorithm = QgsApplication.processingRegistry().algorithmById(
+            "geocomp:analysis_network_preanalysis"
+        )
+        results, ok = algorithm.create({}).run(
+            {
+                "NETWORK": str(document),
+                "FRAME": 0,
+                "TOLERANCE": 0.003,
+                "OUTPUT_HTML": str(tmp_path / "design.html"),
+                "OUTPUT_NETWORK_LAYER": str(exported_geojson),
+            },
+            QgsProcessingContext(),
+            QgsProcessingFeedback(),
+            catchExceptions=False,
+        )
+        assert ok
+        assert exported_geojson.is_file()
+        payload = json.loads(exported_geojson.read_text(encoding="utf-8"))
+        assert payload["type"] == "FeatureCollection"
+        assert sum(1 for f in payload["features"] if f["geometry"]["type"] == "Point") == 4
+        assert sum(1 for f in payload["features"] if f["geometry"]["type"] == "LineString") == 6
+
+        reimported, ok2 = algorithm.create({}).run(
+            {
+                "NETWORK": str(exported_geojson),
+                "FRAME": 0,
+                "TOLERANCE": 0.003,
+                "OUTPUT_HTML": str(tmp_path / "reimported.html"),
+            },
+            QgsProcessingContext(),
+            QgsProcessingFeedback(),
+            catchExceptions=False,
+        )
+        assert ok2
+        assert reimported["WORST_UNCERTAINTY"] == pytest.approx(results["WORST_UNCERTAINTY"])
 
     def test_the_dispatcher_knows_it_needs_a_canvas(self, qgis_app):
         """Without one there is nothing to place a design on, so the item falls

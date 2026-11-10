@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Export solution tables",
+  "algorithm_id": "geocomp:project_export",
+  "algorithm_title": "Export solution tables",
+  "example_index": 2,
+  "slug": "example_2_xlsx_workbook",
+  "title": "Export solution tables into a multi-sheet Excel workbook (.xlsx)",
+  "scenario": "Packages Stations, Observations, and Covariance sheets into a single .xlsx spreadsheet.",
+  "parameters": {
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_2_xlsx_workbook/inputs/solution.json",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_2_xlsx_workbook/inputs/network.json",
+    "FORMAT": 1,
+    "OUTPUT_WORKBOOK": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_2_xlsx_workbook/outputs/solution_tables.xlsx"
+  },
+  "expected_summary": "Writes multi-tab solution_tables.xlsx workbook.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_WORKBOOK": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_2_xlsx_workbook/outputs/solution_tables.xlsx",
+      "TABLES": "['stations', 'observations', 'adjusted', 'statistics']"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

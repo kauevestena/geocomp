@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Extreme sights",
+  "algorithm_id": "geocomp:levelling_extreme_sights",
+  "algorithm_title": "Extreme sights",
+  "example_index": 1,
+  "slug": "example_1_multiple_foresights",
+  "title": "Correlated height differences from a multi-foresight setup (BM1 -> BM3, S1, S2)",
+  "scenario": "Computes correlated height differences sharing a common backsight reading at BM1.",
+  "parameters": {
+    "SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/inputs/extreme_setups.json",
+    "ONLY_MULTIPLE": true,
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/inputs/profiles.json",
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.csv"
+  },
+  "expected_summary": "Produces 3 correlated height differences with full covariance matrix.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "DIFFERENCE_COUNT": "3",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.csv",
+      "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/report.html",
+      "SETUP_COUNT": "1",
+      "WARNINGS": "0",
+      "WORST_UNCERTAINTY": "0.0007071067811865475"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

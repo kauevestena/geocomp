@@ -1,0 +1,33 @@
+{
+  "closure": {
+    "distribution": [
+      {
+        "correction": -0.00013333333333331865,
+        "setup_id": "S1",
+        "standardised": null,
+        "weight": 0.3333333333333333
+      },
+      {
+        "correction": -0.00013333333333331865,
+        "setup_id": "S2",
+        "standardised": null,
+        "weight": 0.3333333333333333
+      },
+      {
+        "correction": -0.00013333333333331865,
+        "setup_id": "S3",
+        "standardised": null,
+        "weight": 0.3333333333333333
+      }
+    ],
+    "id": "line",
+    "kind": "line",
+    "length_km": 0.18,
+    "misclosure": 0.00039999999999995595,
+    "passed": true,
+    "permissible": 0.003394112549695428,
+    "setup_count": 3,
+    "standardised": 0.32232918561011664
+  },
+  "kind": "levelling_closure"
+}

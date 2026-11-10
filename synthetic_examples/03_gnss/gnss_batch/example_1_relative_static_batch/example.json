@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Batch processing",
+  "algorithm_id": "geocomp:gnss_batch",
+  "algorithm_title": "Batch processing",
+  "example_index": 1,
+  "slug": "example_1_relative_static_batch",
+  "title": "Batch Relative — Static processing of all rovers (ROVE, AUX1) from BASE",
+  "scenario": "Automatically pairs BASE against every rover in the session folder in static mode.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_1_relative_static_batch/inputs/rinex",
+    "BASE_STATION": "BASE",
+    "FRAME": 7,
+    "PROFILE": 0,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_1_relative_static_batch/outputs/batch_report.json"
+  },
+  "expected_summary": "Processes both baselines (BASE->AUX1, BASE->ROVE) and writes batch_report.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_1_relative_static_batch/outputs/batch_report.json"
+    },
+    "info_lines": 6,
+    "warning_lines": 3
+  }
+}

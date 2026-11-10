@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "ANGULAR_MISCLOSURE": "5.088887490341627e-14",
+    "LINEAR_MISCLOSURE": "1.6077746776921858e-13",
+    "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/coordinates.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/stations.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/report.html",
+    "RELATIVE_PRECISION": "4016027907069556.0",
+    "WITHIN_TOLERANCE": "True"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

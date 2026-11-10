@@ -1,0 +1,31 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Compare configurations",
+  "algorithm_id": "geocomp:gnss_compare_configurations",
+  "algorithm_title": "Compare configurations",
+  "example_index": 1,
+  "slug": "example_1_elevation_mask_sweep",
+  "title": "Elevation mask sensitivity sweep (10°, 15°, 20°, 25°)",
+  "scenario": "Runs RTKLIB across 4 elevation masks and compares coordinate repeatability and fix ratio.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/inputs/rinex",
+    "MASKS": "10,15,20,25",
+    "CONFIDENCE": 0.95,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.csv",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.json"
+  },
+  "expected_summary": "Compares 4 elevation masks and outputs statistical significance test results.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.html",
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_1_elevation_mask_sweep/outputs/comparison.json"
+    },
+    "info_lines": 6,
+    "warning_lines": 0
+  }
+}

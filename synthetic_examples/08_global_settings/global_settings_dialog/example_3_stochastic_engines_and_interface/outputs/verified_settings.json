@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "applied_settings": {
+    "stochastic.confidence_level": 0.99,
+    "stochastic.outlier_alpha": 0.001,
+    "stochastic.outlier_beta": 0.2,
+    "paths.dynadjust_directory": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin",
+    "paths.rtklib_program": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+    "basemaps.catalogue": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_3_stochastic_engines_and_interface/inputs/custom_basemaps.json",
+    "interface.mode": "advanced",
+    "interface.angle_format": "dms",
+    "interface.coordinate_decimals": 4
+  }
+}

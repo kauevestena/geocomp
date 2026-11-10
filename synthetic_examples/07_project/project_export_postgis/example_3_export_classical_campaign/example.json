@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Export project to PostGIS",
+  "algorithm_id": "geocomp:project_export_postgis",
+  "algorithm_title": "Export project to PostGIS",
+  "example_index": 3,
+  "slug": "example_3_export_classical_campaign",
+  "title": "Export classical survey GeoPackage to PostGIS schema 'ufpr_campus_control'",
+  "scenario": "Copies classical network store into PostGIS connection 'geocomp_local_pg'.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/07_project/project_export_postgis/example_3_export_classical_campaign/inputs/project_store.gpkg",
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "ufpr_campus_control"
+  },
+  "expected_summary": "Copies all rows from project_store.gpkg to geocomp_local_pg / ufpr_campus_control and verifies 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ROWS": "168",
+      "TARGET": "geocomp_local_pg / ufpr_campus_control"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

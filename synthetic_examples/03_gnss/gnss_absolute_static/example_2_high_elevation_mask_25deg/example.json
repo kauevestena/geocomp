@@ -1,0 +1,31 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Absolute ▸ Absolute — Static",
+  "algorithm_id": "geocomp:gnss_absolute_static",
+  "algorithm_title": "Absolute — Static",
+  "example_index": 2,
+  "slug": "example_2_high_elevation_mask_25deg",
+  "title": "Absolute static positioning of BASE with 25° multipath-rejection mask",
+  "scenario": "Processes station BASE in static mode with an elevated 25° cutoff angle.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/inputs/rinex",
+    "ROVER_STATION": "BASE",
+    "ELEVATION_MASK": 25.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/quality.json"
+  },
+  "expected_summary": "Produces static .pos solution and quality summary JSON.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/solution.pos"
+    },
+    "info_lines": 3,
+    "warning_lines": 3
+  }
+}

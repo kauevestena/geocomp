@@ -1,0 +1,118 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>GeoComp system report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5}table{border-collapse:collapse;margin-bottom:2rem;width:100%}th,td{border:1px solid #ccc;padding:.4rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}code{font-family:monospace}.overridden{font-weight:bold}</style></head><body>
+<h1>GeoComp system report</h1>
+<h2>Environment</h2><table>
+<tr><th>GeoComp version</th><td>0.1.0</td></tr>
+<tr><th>QGIS version</th><td>3.44.7-Solothurn</td></tr>
+<tr><th>QGIS release</th><td>Solothurn</td></tr>
+<tr><th>Python version</th><td>3.12.3</td></tr>
+<tr><th>Platform</th><td>Linux-6.14.0-37-generic-x86_64-with-glibc2.39</td></tr>
+<tr><th>Architecture</th><td>x86_64</td></tr>
+</table>
+<h2>Processing engines</h2><table>
+<tr><th>Engine</th><th>Status</th><th>Detail</th></tr>
+<tr><td>DynAdjust</td><td>Installed</td><td>1.4.0 (/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/dnaadjust)</td></tr>
+<tr><td>RTKLIB (rnx2rtkp)</td><td>Installed</td><td>2.5.1 (/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp)</td></tr>
+</table>
+<h2>Settings</h2>
+<p>Settings resolve in the order: run parameter, project, global, built-in default. The origin column shows which scope supplied the effective value.</p>
+<h3><code>total_station</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>total_station.atmospheric_model</code></td><td>barrell_sears</td><td>default</td></tr>
+<tr><td><code>total_station.default_temperature_celsius</code></td><td>20.0</td><td>default</td></tr>
+<tr><td><code>total_station.default_pressure_hpa</code></td><td>1013.25</td><td>default</td></tr>
+<tr><td><code>total_station.default_humidity_percent</code></td><td>60.0</td><td>default</td></tr>
+<tr><td><code>total_station.default_temperature_sigma</code></td><td>5.0</td><td>default</td></tr>
+<tr><td><code>total_station.default_pressure_sigma_hpa</code></td><td>10.0</td><td>default</td></tr>
+<tr><td><code>total_station.refraction_coefficient</code></td><td>0.13</td><td>default</td></tr>
+<tr><td><code>total_station.refraction_coefficient_sigma</code></td><td>0.05</td><td>default</td></tr>
+<tr><td><code>total_station.face_distance_tolerance</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>total_station.collimation_tolerance</code></td><td>0.0001</td><td>default</td></tr>
+<tr><td><code>total_station.traverse_adjustment</code></td><td>compass</td><td>default</td></tr>
+<tr><td><code>total_station.traverse_relative_precision</code></td><td>5000</td><td>default</td></tr>
+<tr><td><code>total_station.traverse_angular_tolerance_per_station</code></td><td>0.0001454441043328608</td><td>default</td></tr>
+<tr><td><code>total_station.profile_library</code></td><td></td><td>default</td></tr>
+</table>
+<h3><code>level</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>level.weighting</code></td><td>length</td><td>default</td></tr>
+<tr><td><code>level.tolerance_coefficient</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>level.max_sight_length</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>level.max_sight_imbalance</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>level.max_accumulated_imbalance</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>level.reciprocal_variance_inflation</code></td><td>2.0</td><td>default</td></tr>
+<tr><td><code>level.apply_orthometric_correction</code></td><td>False</td><td>default</td></tr>
+<tr><td><code>level.adjust_failing_lines</code></td><td>False</td><td>default</td></tr>
+<tr><td><code>level.profile_library</code></td><td></td><td>default</td></tr>
+</table>
+<h3><code>gnss</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>gnss.product_directory</code></td><td></td><td>default</td></tr>
+<tr><td><code>gnss.antenna_file</code></td><td></td><td>default</td></tr>
+<tr><td><code>gnss.reference_station_database</code></td><td></td><td>default</td></tr>
+<tr><td><code>gnss.elevation_mask</code></td><td>15.0</td><td>default</td></tr>
+<tr><td><code>gnss.ephemeris</code></td><td>brdc</td><td>default</td></tr>
+<tr><td><code>gnss.ionosphere</code></td><td>brdc</td><td>default</td></tr>
+<tr><td><code>gnss.troposphere</code></td><td>saas</td><td>default</td></tr>
+<tr><td><code>gnss.ambiguity_threshold</code></td><td>3.0</td><td>default</td></tr>
+<tr><td><code>gnss.independent_baselines_only</code></td><td>True</td><td>default</td></tr>
+<tr><td><code>gnss.product_services</code></td><td>noaa-ncn</td><td>global</td></tr>
+<tr><td><code>gnss.service_definitions</code></td><td></td><td>default</td></tr>
+<tr><td><code>gnss.product_cache</code></td><td>/home/kaue/geocomp/synthetic_examples/_shared_pipeline/product_cache</td><td>global</td></tr>
+<tr><td><code>gnss.product_fallback</code></td><td>False</td><td>default</td></tr>
+</table>
+<h3><code>gravimeter</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>gravimeter.tide_model</code></td><td>longman_1959</td><td>default</td></tr>
+<tr><td><code>gravimeter.tide_amplification</code></td><td>1.16</td><td>default</td></tr>
+<tr><td><code>gravimeter.drift_mode</code></td><td>joint</td><td>default</td></tr>
+<tr><td><code>gravimeter.drift_degree</code></td><td>1</td><td>default</td></tr>
+<tr><td><code>gravimeter.precision_floor</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>gravimeter.display_unit</code></td><td>mgal</td><td>default</td></tr>
+<tr><td><code>gravimeter.profile_library</code></td><td></td><td>default</td></tr>
+</table>
+<h3><code>stochastic</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>stochastic.default_sigma_direction</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>stochastic.default_sigma_zenith_angle</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>stochastic.default_sigma_slope_distance</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>stochastic.default_sigma_staff_reading</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>stochastic.outlier_alpha</code></td><td>0.001</td><td>default</td></tr>
+<tr><td><code>stochastic.outlier_beta</code></td><td>0.2</td><td>default</td></tr>
+<tr><td><code>stochastic.confidence_level</code></td><td>0.95</td><td>default</td></tr>
+</table>
+<h3><code>reference_systems</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>reference_systems.preferred_crs</code></td><td></td><td>default</td></tr>
+<tr><td><code>reference_systems.default_epoch</code></td><td>0.0</td><td>default</td></tr>
+<tr><td><code>reference_systems.geoid_model</code></td><td></td><td>default</td></tr>
+<tr><td><code>reference_systems.geoid_sigma</code></td><td>0.05</td><td>default</td></tr>
+</table>
+<h3><code>paths</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>paths.dynadjust_directory</code></td><td>/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin</td><td>global</td></tr>
+<tr><td><code>paths.rtklib_program</code></td><td>/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp</td><td>global</td></tr>
+<tr><td><code>paths.working_directory</code></td><td></td><td>default</td></tr>
+<tr><td><code>paths.report_templates</code></td><td></td><td>default</td></tr>
+</table>
+<h3><code>basemaps</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>basemaps.offer_on_result_layers</code></td><td>True</td><td>default</td></tr>
+<tr><td><code>basemaps.default_service</code></td><td></td><td>default</td></tr>
+<tr><td><code>basemaps.catalogue</code></td><td></td><td>default</td></tr>
+<tr><td><code>basemaps.reuse_existing_layer</code></td><td>True</td><td>default</td></tr>
+</table>
+<h3><code>interface</code></h3><table>
+<tr><th>Setting</th><th>Effective value</th><th>Origin</th></tr>
+<tr><td><code>interface.language</code></td><td>system</td><td>default</td></tr>
+<tr><td><code>interface.mode</code></td><td>basic</td><td>default</td></tr>
+<tr><td><code>interface.distance_unit</code></td><td>metre</td><td>default</td></tr>
+<tr><td><code>interface.angle_format</code></td><td>dms</td><td>default</td></tr>
+<tr><td><code>interface.coordinate_decimals</code></td><td>4</td><td>default</td></tr>
+<tr><td><code>interface.angle_decimals</code></td><td>1</td><td>default</td></tr>
+<tr><td><code>interface.log_level</code></td><td>info</td><td>default</td></tr>
+<tr><td><code>interface.show_toolbar</code></td><td>True</td><td>default</td></tr>
+</table>
+</body></html>

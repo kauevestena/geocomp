@@ -1,0 +1,1284 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        -0.017272986549604175,
+        -0.5201670508081238,
+        -0.24659895416178498
+      ],
+      "covariance": {
+        "labels": [
+          "M03.x",
+          "M03.y",
+          "M03.z"
+        ],
+        "matrix": [
+          [
+            2.2425237703729386e-06,
+            5.089112493263078e-07,
+            -1.0921661639356879e-07
+          ],
+          [
+            5.089112493263078e-07,
+            1.6865701031872387e-06,
+            -6.196743352575501e-09
+          ],
+          [
+            -1.0921661639356879e-07,
+            -6.196743352575501e-09,
+            4.858084094022885e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 0.0043686638930039495,
+        "semi_major": 0.006949383218516114,
+        "semi_minor": 0.0053883575115424905
+      },
+      "position": {
+        "crs": "ITRF2020",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762903.364086312,
+            "variance": 2.2425237703729386e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367924.015904597,
+            "variance": 1.6865701031872387e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2721081.6054184698,
+            "variance": 4.858084094022885e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.006949383218516114,
+      "station_id": "M03"
+    },
+    {
+      "correction": [
+        -0.3003337966907752,
+        0.14248446335692713,
+        0.22996324983977534
+      ],
+      "covariance": {
+        "labels": [
+          "M04.x",
+          "M04.y",
+          "M04.z"
+        ],
+        "matrix": [
+          [
+            2.326182893351656e-06,
+            4.391201617508722e-07,
+            -2.8504705932147447e-07
+          ],
+          [
+            4.391201617508722e-07,
+            1.7447920364502244e-06,
+            1.4048657606505258e-07
+          ],
+          [
+            -2.8504705932147447e-07,
+            1.4048657606505258e-07,
+            5.227635477655712e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 3.132282046580066,
+        "semi_major": 0.0070751290148115525,
+        "semi_minor": 0.005392368693513921
+      },
+      "position": {
+        "crs": "ITRF2020",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762552.0240690997,
+            "variance": 2.326182893351656e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4368743.062650565,
+            "variance": 1.7447920364502244e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2720220.692386769,
+            "variance": 5.227635477655712e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0070751290148115525,
+      "station_id": "M04"
+    },
+    {
+      "correction": [
+        -0.13491834361463298,
+        -0.32038022702473906,
+        0.44065973981524953
+      ],
+      "covariance": {
+        "labels": [
+          "M05.x",
+          "M05.y",
+          "M05.z"
+        ],
+        "matrix": [
+          [
+            2.3261804869634835e-06,
+            4.391201741273647e-07,
+            -2.850443263008885e-07
+          ],
+          [
+            4.391201741273647e-07,
+            1.7447936905636612e-06,
+            1.4048848813134117e-07
+          ],
+          [
+            -2.850443263008885e-07,
+            1.4048848813134117e-07,
+            5.227634616443119e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 3.1323932062819346,
+        "semi_major": 0.007075060406746911,
+        "semi_minor": 0.005392235194647329
+      },
+      "position": {
+        "crs": "ITRF2020",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3763784.485839239,
+            "variance": 2.3261804869634835e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367643.261586825,
+            "variance": 1.7447936905636612e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2720372.280702285,
+            "variance": 5.227634616443119e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.007075060406746911,
+      "station_id": "M05"
+    },
+    {
+      "correction": [
+        -0.20992922005547046,
+        -0.1947875605050323,
+        0.5748403950932355
+      ],
+      "covariance": {
+        "labels": [
+          "M06.x",
+          "M06.y",
+          "M06.z"
+        ],
+        "matrix": [
+          [
+            2.326182879511972e-06,
+            4.3911937565156584e-07,
+            -2.850414958157418e-07
+          ],
+          [
+            4.3911937565156584e-07,
+            1.7447933580114856e-06,
+            1.4048361063853962e-07
+          ],
+          [
+            -2.850414958157418e-07,
+            1.4048361063853962e-07,
+            5.227612144315454e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 3.1323827768500667,
+        "semi_major": 0.007073753013569717,
+        "semi_minor": 0.005392326657251294
+      },
+      "position": {
+        "crs": "ITRF2020",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762056.6204495914,
+            "variance": 2.326182879511972e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367324.434977912,
+            "variance": 1.7447933580114856e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2723192.70999165,
+            "variance": 5.227612144315454e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.007073753013569717,
+      "station_id": "M06"
+    }
+  ],
+  "crs": "ITRF2020",
+  "datum_definition": "FIXED",
+  "epoch": {
+    "decimal_year": 2020.0
+  },
+  "id": "combined",
+  "kind": "ADJUSTMENT",
+  "network_id": "combined",
+  "observation_results": [
+    {
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.0014253004839518725,
+      "residual": -7.843412270373863e-06,
+      "standardised_residual": 0.14566649188907577,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.14566649188907577
+      }
+    },
+    {
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.0013792517876896264,
+      "residual": 6.540632604380369e-06,
+      "standardised_residual": 0.14566649188870873,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.14566649188870873
+      }
+    },
+    {
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.002178709003904882,
+      "residual": 1.6476978356761012e-05,
+      "standardised_residual": 0.1456664918889087,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.1456664918889087
+      }
+    },
+    {
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.0014242827742085892,
+      "residual": 1.4580865998952618e-05,
+      "standardised_residual": 0.270905762026449,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.270905762026449
+      }
+    },
+    {
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.0013802040951461552,
+      "residual": -1.2169042802648927e-05,
+      "standardised_residual": 0.27090576202643935,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.27090576202643935
+      }
+    },
+    {
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.0021785762144783246,
+      "residual": -3.064231240042615e-05,
+      "standardised_residual": 0.27090576202601147,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.27090576202601147
+      }
+    },
+    {
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.0014240393814009722,
+      "residual": 2.2617997223113277e-07,
+      "standardised_residual": 0.004202309476811995,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.004202309476811995
+      }
+    },
+    {
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.0013792466002742322,
+      "residual": -1.8870523172250474e-07,
+      "standardised_residual": 0.004202309476797885,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.004202309476797885
+      }
+    },
+    {
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.0021828534541967256,
+      "residual": -4.757589777854571e-07,
+      "standardised_residual": 0.0042023094767984345,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.0042023094767984345
+      }
+    },
+    {
+      "external_reliability": 0.05034861714794745,
+      "minimal_detectable_bias": 0.04770044600757253,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.042552272013620225,
+      "residual": -0.0004636416689477413,
+      "standardised_residual": 1.5759189207900222,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5759189207900222
+      }
+    },
+    {
+      "external_reliability": 0.045716890570523416,
+      "minimal_detectable_bias": 0.04197885771055117,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.04120668359180829,
+      "residual": 0.0003867901094746725,
+      "standardised_residual": 1.5759189207900273,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5759189207900273
+      }
+    },
+    {
+      "external_reliability": 0.05712691590422474,
+      "minimal_detectable_bias": 0.05784374944987285,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.06510843832856153,
+      "residual": 0.000974455024555544,
+      "standardised_residual": 1.5759189207899906,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5759189207899906
+      }
+    },
+    {
+      "external_reliability": 0.0056846409218814465,
+      "minimal_detectable_bias": 0.026597468809376572,
+      "observation_id": "r-M03",
+      "redundancy": 0.8553956424556518,
+      "residual": 0.005543664891929627,
+      "standardised_residual": 1.571018368376804,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.571018368376804
+      }
+    },
+    {
+      "external_reliability": 0.003080747662890717,
+      "minimal_detectable_bias": 0.004659827487717541,
+      "observation_id": "l-M03-M04",
+      "redundancy": 0.14462673924021965,
+      "residual": 0.00016261583542934757,
+      "standardised_residual": 1.5557364816040848,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5557364816040848
+      }
+    },
+    {
+      "external_reliability": 0.002844674199232635,
+      "minimal_detectable_bias": 0.004660040619850399,
+      "observation_id": "l-M04-M05",
+      "redundancy": 0.19358643772534323,
+      "residual": 0.0002189150712698438,
+      "standardised_residual": 1.5645976227856166,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5645976227856166
+      }
+    },
+    {
+      "external_reliability": 0.002068073399898186,
+      "minimal_detectable_bias": 0.004660623144227337,
+      "observation_id": "l-M05-M06",
+      "redundancy": 0.387709406227748,
+      "residual": 0.000437221745366649,
+      "standardised_residual": 1.5600663284108187,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5600663284108187
+      }
+    },
+    {
+      "external_reliability": 0.002522218850370007,
+      "minimal_detectable_bias": 0.004660305057289471,
+      "observation_id": "l-M06-M03",
+      "redundancy": 0.2744929357125538,
+      "residual": 0.00030953179356567074,
+      "standardised_residual": 1.5600962074729097,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5600962074729097
+      }
+    },
+    {
+      "external_reliability": 0.07179753031355242,
+      "minimal_detectable_bias": 0.1435762746742654,
+      "observation_id": "constraint:geoid:M03",
+      "redundancy": 0.7454677792913867,
+      "residual": 0.002148161336565148,
+      "standardised_residual": 0.12940378304720543,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.12940378304720543
+      }
+    },
+    {
+      "external_reliability": 0.07182229268429006,
+      "minimal_detectable_bias": 0.14362162323071126,
+      "observation_id": "constraint:geoid:M04",
+      "redundancy": 0.7449970904104296,
+      "residual": -0.004495738219815811,
+      "standardised_residual": 0.2709057620262886,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.2709057620262886
+      }
+    },
+    {
+      "external_reliability": 0.07182394900714756,
+      "minimal_detectable_bias": 0.14362481414905728,
+      "observation_id": "constraint:geoid:M05",
+      "redundancy": 0.7449639875167529,
+      "residual": 0.0024173124284003907,
+      "standardised_residual": 0.145666491888995,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.145666491888995
+      }
+    },
+    {
+      "external_reliability": 0.07182515284005607,
+      "minimal_detectable_bias": 0.14362711460913907,
+      "observation_id": "constraint:geoid:M06",
+      "redundancy": 0.7449401236913774,
+      "residual": -6.973554514977695e-05,
+      "standardised_residual": 0.0042023094768004025,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8143485798825287,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.0042023094768004025
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "M03.x",
+      "M03.y",
+      "M03.z",
+      "M04.x",
+      "M04.y",
+      "M04.z",
+      "M05.x",
+      "M05.y",
+      "M05.z",
+      "M06.x",
+      "M06.y",
+      "M06.z",
+      "M03.undulation",
+      "M04.undulation",
+      "M05.undulation",
+      "M06.undulation"
+    ],
+    "matrix": [
+      [
+        2.2425237703729386e-06,
+        5.089112493263078e-07,
+        -1.0921661639356879e-07,
+        8.261563082956964e-10,
+        -6.895016714394335e-10,
+        -1.7362027531305888e-09,
+        8.263394672782524e-10,
+        -6.890856524766949e-10,
+        -1.7359252642027484e-09,
+        8.261019362583089e-10,
+        -6.892288285770297e-10,
+        -1.7376667300132402e-09,
+        7.641076365891451e-07,
+        -2.5472989677071395e-07,
+        -2.546749546593492e-07,
+        -2.547027851592579e-07
+      ],
+      [
+        5.089112493263078e-07,
+        1.6865701031872387e-06,
+        -6.196743352575501e-09,
+        -6.892156385595231e-10,
+        5.752123780946224e-10,
+        1.4484160892496268e-09,
+        -6.893684377789426e-10,
+        5.748653169241302e-10,
+        1.448184595885718e-09,
+        -6.891702790384943e-10,
+        5.749847606765954e-10,
+        1.4496374026522169e-09,
+        -6.374519293693135e-07,
+        2.1250679405505874e-07,
+        2.12460958948563e-07,
+        2.1248417636586033e-07
+      ],
+      [
+        -1.0921661639356879e-07,
+        -6.196743352575501e-09,
+        4.858084094022885e-06,
+        -1.736367155074732e-09,
+        1.4491544077546152e-09,
+        3.6490497074407264e-09,
+        -1.736752107948948e-09,
+        1.4482800433556946e-09,
+        3.6484664974021343e-09,
+        -1.7362528791060532e-09,
+        1.4485809625356654e-09,
+        3.6521266087003387e-09,
+        -1.6059568749835823e-06,
+        5.353764435715144e-07,
+        5.352609694455505e-07,
+        5.353194619674398e-07
+      ],
+      [
+        8.261563082956964e-10,
+        -6.892156385595231e-10,
+        -1.736367155074732e-09,
+        2.326182893351656e-06,
+        4.391201617508722e-07,
+        -2.8504705932147447e-07,
+        9.657904785311389e-10,
+        -8.05374048327169e-10,
+        -2.028875732064465e-09,
+        9.652089855398873e-10,
+        -8.052878576358487e-10,
+        -2.0302718926970553e-09,
+        -2.979528397237629e-07,
+        8.931982201549242e-07,
+        -2.976532721346079e-07,
+        -2.975921082950176e-07
+      ],
+      [
+        -6.895016714394335e-10,
+        5.752123780946224e-10,
+        1.4491544077546152e-09,
+        4.391201617508722e-07,
+        1.7447920364502244e-06,
+        1.4048657606505258e-07,
+        -8.060389329738688e-10,
+        6.721570081598534e-10,
+        1.6932790978619582e-09,
+        -8.055536248292915e-10,
+        6.720850742857459e-10,
+        1.6944443193630906e-09,
+        2.4866841654248404e-07,
+        -7.454541707664935e-07,
+        2.4841840047245567e-07,
+        2.483673537525896e-07
+      ],
+      [
+        -1.7362027531305888e-09,
+        1.4484160892496268e-09,
+        3.6490497074407264e-09,
+        -2.8504705932147447e-07,
+        1.4048657606505258e-07,
+        5.227635477655712e-06,
+        -2.029649923306331e-09,
+        1.6925279465408518e-09,
+        4.2637689700999646e-09,
+        -2.028427890962704e-09,
+        1.6923468131262205e-09,
+        4.2667030612844905e-09,
+        6.261606132362494e-07,
+        -1.8770941931327087e-06,
+        6.255310591581543e-07,
+        6.254025207379675e-07
+      ],
+      [
+        8.263394672782524e-10,
+        -6.893684377789426e-10,
+        -1.736752107948948e-09,
+        9.657904785311389e-10,
+        -8.060389329738688e-10,
+        -2.029649923306331e-09,
+        2.3261804869634835e-06,
+        4.391201741273647e-07,
+        -2.850443263008885e-07,
+        9.657109943936433e-10,
+        -8.057066908942705e-10,
+        -2.0313278447949598e-09,
+        -2.980188959154952e-07,
+        -2.977834901550448e-07,
+        8.935492731501184e-07,
+        -2.977468870771736e-07
+      ],
+      [
+        -6.890856524766949e-10,
+        5.748653169241302e-10,
+        1.4482800433556946e-09,
+        -8.05374048327169e-10,
+        6.721570081598534e-10,
+        1.6925279465408518e-09,
+        4.391201741273647e-07,
+        1.7447936905636612e-06,
+        1.4048848813134117e-07,
+        -8.053077663878816e-10,
+        6.718799510252169e-10,
+        1.693927167650501e-09,
+        2.4851837952109647e-07,
+        2.483220743239478e-07,
+        -7.451320048111239e-07,
+        2.482915509654504e-07
+      ],
+      [
+        -1.7359252642027484e-09,
+        1.448184595885718e-09,
+        3.6484664974021343e-09,
+        -2.028875732064465e-09,
+        1.6932790978619582e-09,
+        4.2637689700999646e-09,
+        -2.850443263008885e-07,
+        1.4048848813134117e-07,
+        5.227634616443119e-06,
+        -2.0287087564692916e-09,
+        1.6925811432874675e-09,
+        4.267293848710825e-09,
+        6.260605370012946e-07,
+        6.255660104500596e-07,
+        -1.8771156643133275e-06,
+        6.254891168607412e-07
+      ],
+      [
+        8.261019362583089e-10,
+        -6.891702790384943e-10,
+        -1.7362528791060532e-09,
+        9.652089855398873e-10,
+        -8.055536248292915e-10,
+        -2.028427890962704e-09,
+        9.657109943936433e-10,
+        -8.053077663878816e-10,
+        -2.0287087564692916e-09,
+        2.326182879511972e-06,
+        4.3911937565156584e-07,
+        -2.850414958157418e-07,
+        -2.979332304783607e-07,
+        -2.976041976330862e-07,
+        -2.97628775399399e-07,
+        8.931662035108823e-07
+      ],
+      [
+        -6.892288285770297e-10,
+        5.749847606765954e-10,
+        1.4485809625356654e-09,
+        -8.052878576358487e-10,
+        6.720850742857459e-10,
+        1.6923468131262205e-09,
+        -8.057066908942705e-10,
+        6.718799510252169e-10,
+        1.6925811432874675e-09,
+        4.3911937565156584e-07,
+        1.7447933580114856e-06,
+        1.4048361063853962e-07,
+        2.485700159073443e-07,
+        2.482954990316893e-07,
+        2.483160046186466e-07,
+        -7.451815195578374e-07
+      ],
+      [
+        -1.7376667300132402e-09,
+        1.4496374026522169e-09,
+        3.6521266087003387e-09,
+        -2.0302718926970553e-09,
+        1.6944443193630906e-09,
+        4.2667030612844905e-09,
+        -2.0313278447949598e-09,
+        1.693927167650501e-09,
+        4.267293848710825e-09,
+        -2.850414958157418e-07,
+        1.4048361063853962e-07,
+        5.227612144315454e-06,
+        6.266885957356433e-07,
+        6.259964905568193e-07,
+        6.260481887370971e-07,
+        -1.878733275028495e-06
+      ],
+      [
+        7.641076365891451e-07,
+        -6.374519293693135e-07,
+        -1.6059568749835823e-06,
+        -2.979528397237629e-07,
+        2.4866841654248404e-07,
+        6.261606132362494e-07,
+        -2.980188959154952e-07,
+        2.4851837952109647e-07,
+        6.260605370012946e-07,
+        -2.979332304783607e-07,
+        2.485700159073443e-07,
+        6.266885957356433e-07,
+        9.409222430724894e-05,
+        9.186820380530555e-05,
+        9.18483889616279e-05,
+        9.185842601683632e-05
+      ],
+      [
+        -2.5472989677071395e-07,
+        2.1250679405505874e-07,
+        5.353764435715144e-07,
+        8.931982201549242e-07,
+        -7.454541707664935e-07,
+        -1.8770941931327087e-06,
+        -2.977834901550448e-07,
+        2.483220743239478e-07,
+        6.255660104500596e-07,
+        -2.976041976330862e-07,
+        2.482954990316893e-07,
+        6.259964905568193e-07,
+        9.186820380530555e-05,
+        9.42662225682261e-05,
+        9.177583772361766e-05,
+        9.175697899387029e-05
+      ],
+      [
+        -2.546749546593492e-07,
+        2.12460958948563e-07,
+        5.352609694455505e-07,
+        -2.976532721346079e-07,
+        2.4841840047245567e-07,
+        6.255310591581543e-07,
+        8.935492731501184e-07,
+        -7.451320048111239e-07,
+        -1.8771156643133275e-06,
+        -2.97628775399399e-07,
+        2.483160046186466e-07,
+        6.260481887370971e-07,
+        9.18483889616279e-05,
+        9.177583772361766e-05,
+        9.42784596236699e-05,
+        9.176455678210631e-05
+      ],
+      [
+        -2.547027851592579e-07,
+        2.1248417636586033e-07,
+        5.353194619674398e-07,
+        -2.975921082950176e-07,
+        2.483673537525896e-07,
+        6.254025207379675e-07,
+        -2.977468870771736e-07,
+        2.482915509654504e-07,
+        6.254891168607412e-07,
+        8.931662035108823e-07,
+        -7.451815195578374e-07,
+        -1.878733275028495e-06,
+        9.185842601683632e-05,
+        9.175697899387029e-05,
+        9.176455678210631e-05,
+        9.428728129820606e-05
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "DOMINANT_TERM",
+      "INDEPENDENCE_ASSUMED"
+    ],
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:integration_gnss_level",
+    "created": "2026-11-04T20:47:13.953351+00:00",
+    "engine": "in_house",
+    "geocomp_version": "0.1.0",
+    "input_ids": [
+      "gnss",
+      "levelling"
+    ],
+    "parameters": {
+      "adjustment_frame": "geocentric_3d",
+      "combination": {
+        "epoch": 2020.0,
+        "frame": "ITRF2020",
+        "geocentric": true,
+        "inputs": [
+          "gnss",
+          "levelling"
+        ],
+        "renamed": {},
+        "techniques": [
+          "gnss",
+          "levelling"
+        ],
+        "transformations": [
+          {
+            "accuracy": 0.001,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "accuracy": 0.001,
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "station CTB1 (fixed position)",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.001,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "accuracy": 0.001,
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "station CTB2 (fixed position)",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "observation g-CTB1-M05",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "observation g-CTB2-M04",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "observation g-CTB1-M06",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "observation g-CTB2-M03",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          },
+          {
+            "accuracy": 0.001,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "accuracy": 0.001,
+                "code": "EPSG:9991",
+                "description": "ITRF2014 to ITRF2020 (1)",
+                "epoch": 2020.0,
+                "kind": "helmert"
+              }
+            ],
+            "subject": "observation r-M03",
+            "target": "ITRF2020",
+            "target_epoch": 2020.0
+          }
+        ]
+      },
+      "datum": "fixed",
+      "fixed": [
+        "CTB1",
+        "CTB2"
+      ],
+      "geoid_model": "curitiba_planar",
+      "geoid_residuals": [
+        {
+          "adjusted": -0.8953973276204584,
+          "model": -0.8975454889570236,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7454677792913867,
+          "residual": 0.002148161336565148,
+          "standardised": 0.08293373075668248,
+          "station_id": "M03"
+        },
+        {
+          "adjusted": -0.8856563166227518,
+          "model": -0.8811605784029359,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7449970904104296,
+          "residual": -0.004495738219815811,
+          "standardised": -0.17362108741539847,
+          "station_id": "M04"
+        },
+        {
+          "adjusted": -0.8416411140107191,
+          "model": -0.8440584264391194,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7449639875167529,
+          "residual": 0.0024173124284003907,
+          "standardised": 0.09335635585078263,
+          "station_id": "M05"
+        },
+        {
+          "adjusted": -0.9962449291522788,
+          "model": -0.996175193607129,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7449401236913774,
+          "residual": -6.973554514977695e-05,
+          "standardised": -0.002693222674781347,
+          "station_id": "M06"
+        }
+      ],
+      "routing": {
+        "engine": "in_house",
+        "reason": "requested"
+      },
+      "solver": "dense",
+      "technique_breakdown": [
+        {
+          "largest_standardised": 1.0099923850254409,
+          "observations": 5,
+          "redundancy": 1.0192155001848933,
+          "redundancy_share": 0.20384310003697864,
+          "rows": 13,
+          "technique": "gnss",
+          "uncheckable": [
+            "g-CTB1-M05",
+            "g-CTB2-M04",
+            "g-CTB1-M06"
+          ],
+          "variance_factor": 0.999993214520746,
+          "weighted_squares": 1.0192085843192613
+        },
+        {
+          "largest_standardised": 1.0027366660780943,
+          "observations": 4,
+          "redundancy": 1.0004155189058648,
+          "redundancy_share": 0.20008310378117294,
+          "rows": 4,
+          "technique": "levelling",
+          "uncheckable": [],
+          "variance_factor": 1.0000000009572696,
+          "weighted_squares": 1.000415519863532
+        },
+        {
+          "largest_standardised": 0.17362108741539847,
+          "observations": 4,
+          "redundancy": 2.9803689809099465,
+          "redundancy_share": 0.5960737961819893,
+          "rows": 4,
+          "technique": "geoid",
+          "uncheckable": [],
+          "variance_factor": 0.011435765872637761,
+          "weighted_squares": 0.03408280187975815
+        }
+      ],
+      "variance_components": {
+        "gnss": {
+          "factor": 0.3543993510820243,
+          "observations": 13,
+          "redundancy": 1.0192155001848933,
+          "std_dev": 0.5011654419427
+        },
+        "levelling": {
+          "factor": 0.1484291019239387,
+          "observations": 4,
+          "redundancy": 1.0004155189058648,
+          "std_dev": 0.20991044214822613
+        }
+      }
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "strategies": [
+      "DOMINANT_TERM",
+      "INDEPENDENCE_ASSUMED"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 28768.41220587438,
+    "converged": true,
+    "degrees_of_freedom": 5,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 12.832501994030027,
+      "critical_low": 0.831211613486663,
+      "name": "global",
+      "passed": true,
+      "statistic": 2.0537069060625512
+    },
+    "iterations": 2,
+    "max_correction": 7.029913152714354e-09,
+    "n_constraints": 0,
+    "n_observations": 21,
+    "n_parameters": 16,
+    "variance_factor_aposteriori": 0.41074138121251025,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/outputs/sessions.json"
+  },
+  "info_lines": 4,
+  "warning_lines": 3
+}

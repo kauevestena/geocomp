@@ -1,0 +1,41 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Time series and velocities",
+  "algorithm_id": "geocomp:monitoring_time_series",
+  "algorithm_title": "Time series and velocities",
+  "example_index": 1,
+  "slug": "example_1_three_epoch_velocities",
+  "title": "Three-epoch time series recovering linear crest velocity on O2",
+  "scenario": "Fits weighted linear regression across 3 epochs to estimate station velocities.",
+  "parameters": {
+    "SOLUTIONS": [
+      "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/inputs/epoch_1.json",
+      "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/inputs/epoch_2.json",
+      "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/inputs/epoch_3.json"
+    ],
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/inputs/monitoring_network.json",
+    "DATUM": 0,
+    "CONFIDENCE": 0.95,
+    "OUTPUT_SERIES": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/series.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/series.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Recovers O2 velocity rate and near-zero reference velocities.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ALERT_COUNT": "0",
+      "EPOCH_COUNT": "3",
+      "MOVING_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/series.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/monitoring_report.html",
+      "OUTPUT_SERIES": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_1_three_epoch_velocities/outputs/series.json",
+      "OUTPUT_VELOCITY_LAYER": "None",
+      "STATION_COUNT": "9"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Download products",
+  "algorithm_id": "geocomp:gnss_download_products",
+  "algorithm_title": "Download products",
+  "example_index": 1,
+  "slug": "example_1_from_rinex_folder_final",
+  "title": "Download final SP3 orbit and GPS broadcast navigation for a RINEX folder's dates",
+  "scenario": "Infers GPS week 1323 / DOY 140 (2005-05-20) from RINEX headers and fetches SP3 + BRDC.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_1_from_rinex_folder_final/inputs/rinex",
+    "PRODUCTS": [
+      0,
+      1
+    ],
+    "LATENCY": 0,
+    "CHECK_ONLY": false,
+    "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_1_from_rinex_folder_final/outputs/products",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_1_from_rinex_folder_final/outputs/manifest.json"
+  },
+  "expected_summary": "Downloads igs13235.sp3 and brdc1400.05n into products/ and writes manifest.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "AVAILABLE": "2",
+      "MISSING": "0",
+      "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_1_from_rinex_folder_final/outputs/products",
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_1_from_rinex_folder_final/outputs/manifest.json"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

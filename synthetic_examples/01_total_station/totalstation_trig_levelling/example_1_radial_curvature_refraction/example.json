@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Trigonometric levelling",
+  "algorithm_id": "geocomp:totalstation_trig_levelling",
+  "algorithm_title": "Trigonometric levelling",
+  "example_index": 1,
+  "slug": "example_1_radial_curvature_refraction",
+  "title": "Radial trigonometric levelling (MODE=0) with Earth curvature and refraction (k=0.13)",
+  "scenario": "Computes height differences from single-ended and reciprocal zenith angles across all setups.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/inputs/reductions.json",
+    "MODE": 0,
+    "REFRACTION": 0.13,
+    "REFRACTION_SIGMA": 0.05,
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/differences.csv"
+  },
+  "expected_summary": "Computes radial height differences with curvature and refraction corrections.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/differences.csv",
+      "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/heights.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/report.html",
+      "RESULT_COUNT": "15",
+      "WORST_UNCERTAINTY": "0.0016826344904644869"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Trigonometric levelling",
+  "algorithm_id": "geocomp:totalstation_trig_levelling",
+  "algorithm_title": "Trigonometric levelling",
+  "example_index": 3,
+  "slug": "example_3_custom_refraction_and_heights",
+  "title": "Radial trigonometric levelling with high refraction (k=0.18) and custom prism height",
+  "scenario": "Evaluates vertical differences under strong thermal inversion refraction (k=0.18 ± 0.08).",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/inputs/reductions.json",
+    "MODE": 0,
+    "INSTRUMENT_HEIGHT": 1.6,
+    "TARGET_HEIGHT": 1.6,
+    "REFRACTION": 0.18,
+    "REFRACTION_SIGMA": 0.08,
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/differences.csv"
+  },
+  "expected_summary": "Writes height differences and propagates refraction uncertainty.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/differences.csv",
+      "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/heights.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/report.html",
+      "RESULT_COUNT": "15",
+      "WORST_UNCERTAINTY": "0.001690157000548041"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

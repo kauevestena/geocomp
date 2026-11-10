@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING_COUNT": "1",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reductions.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/report.html",
+    "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reduced.json",
+    "POINTING_COUNT": "6",
+    "USABLE_COUNT": "5"
+  },
+  "info_lines": 4,
+  "warning_lines": 1
+}

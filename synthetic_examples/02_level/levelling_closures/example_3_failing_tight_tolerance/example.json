@@ -1,0 +1,38 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Closures and tolerances",
+  "algorithm_id": "geocomp:levelling_closures",
+  "algorithm_title": "Closures and tolerances",
+  "example_index": 3,
+  "slug": "example_3_failing_tight_tolerance",
+  "title": "Loop closure failing an ultra-tight 0.05 mm/sqrt(km) tolerance",
+  "scenario": "Tests tolerance failure reporting when TOLERANCE_COEFFICIENT is set to 0.00005 m/sqrt(km).",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/inputs/loop_reduced.json",
+    "MODE": 0,
+    "TOLERANCE_COEFFICIENT": 5e-05,
+    "WEIGHTING": 0,
+    "LOOP_ID": "Special_Order_Loop",
+    "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/closures.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/distribution.csv"
+  },
+  "expected_summary": "Flags the loop as exceeding permissible misclosure in closures.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "1",
+      "MISCLOSURE": "-0.0037799999999998946",
+      "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/closures.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/distribution.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_3_failing_tight_tolerance/outputs/report.html",
+      "PASSED": "0",
+      "PERMISSIBLE": "4.358898943540674e-05",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

@@ -27,7 +27,7 @@ from dataclasses import dataclass, field, replace
 import numpy as np
 
 from geocomp.core.adjustment.parameters import Frame
-from geocomp.core.errors import GeoCompError
+from geocomp.core.errors import DataError, GeoCompError
 from geocomp.core.findings import Finding, Severity
 from geocomp.core.models import (
     Cluster,
@@ -265,11 +265,497 @@ class DesignSession:
         if observation.cluster_id is not None:
             self._rebuild_cluster(observation.cluster_id)
 
+    def set_observation_sigma(self, observation_id: str, sigma: float) -> None:
+        """Change the assumed standard deviation of a planned observation, as an edit that can be undone."""
+        observation = self.network.observations.get(observation_id)
+        if observation is None:
+            raise GeoCompError(
+                "unknown_observation",
+                observation=observation_id,
+                expected="an observation this design contains",
+            )
+        if sigma <= 0.0:
+            raise DataError(
+                "observation_without_uncertainty",
+                observation=observation_id,
+                expected=(
+                    "a positive variance; GeoComp does not invent a weight, "
+                    "because a fabricated one silently corrupts every statistic"
+                ),
+            )
+        quantity = observation.values[0]
+        self._checkpoint()
+        self.network.observations[observation_id] = replace(
+            observation,
+            values=(Quantity.from_std_dev(quantity.value, sigma, quantity.unit),),
+        )
+        if observation.cluster_id is not None:
+            self._rebuild_cluster(observation.cluster_id)
+
+    def required_observation_sigmas(
+        self, report: DesignReport | None = None
+    ) -> dict[str, float]:
+        """The standard deviation each planned observation needs (in its own SI unit) so every station reaches :attr:`tolerance`."""
+        if self.tolerance is None or self.tolerance <= 0.0:
+            return {}
+        current = report if report is not None else self.evaluate().report
+        if current is None:
+            return {}
+        return current.required_observation_sigmas(self.network, self.tolerance)
+
+    def apply_required_precisions(self) -> dict[str, float]:
+        """Scale every planned observation's standard deviation so the worst station reaches :attr:`tolerance`, as an edit that can be undone."""
+        required = self.required_observation_sigmas()
+        if not required:
+            return {}
+        self._checkpoint()
+        touched: set[str] = set()
+        for observation_id, sigma in required.items():
+            observation = self.network.observations[observation_id]
+            quantity = observation.values[0]
+            self.network.observations[observation_id] = replace(
+                observation,
+                values=(Quantity.from_std_dev(quantity.value, sigma, quantity.unit),),
+            )
+            if observation.cluster_id is not None:
+                touched.add(observation.cluster_id)
+        for cluster_id in touched:
+            self._rebuild_cluster(cluster_id)
+        return required
+
     def set_datum(self, datum: DatumDefinition, stations: tuple[str, ...] = ()) -> None:
         """Change the datum, and the stations it names, as an edit that can be undone."""
         self._checkpoint()
         self.datum = datum
         self.datum_stations = tuple(stations)
+
+    def load_network(
+        self, network: Network, *, tolerance: float | None = None
+    ) -> None:
+        """Replace the current design with *network*, as an edit that can be undone."""
+        self._checkpoint()
+        self.network.id = network.id or "design"
+        self.network.name = network.name or "Design"
+        if network.crs:
+            self.network.crs = network.crs
+            self.crs = network.crs
+        self.network.stations = dict(network.stations)
+        self.network.observations = dict(network.observations)
+        self.network.clusters = dict(network.clusters)
+        if tolerance is not None:
+            self.tolerance = tolerance if tolerance > 0.0 else None
+
+    def to_feature_records(self) -> list[dict[str, object]]:
+        """Every station (Point) and planned observation (LineString) as flat attribute records."""
+        state = self.evaluate()
+        report = state.report
+        if report is None and self.network.observations:
+            connected_ids = {
+                station_id
+                for observation in self.network.observations.values()
+                for station_id in observation.stations
+                if station_id in self.network.stations
+            }
+            if connected_ids and len(connected_ids) < len(self.network.stations):
+                sub_network = Network(
+                    id=self.network.id, name=self.network.name, crs=self.network.crs
+                )
+                sub_network.stations = {
+                    sid: self.network.stations[sid] for sid in connected_ids
+                }
+                sub_network.observations = dict(self.network.observations)
+                sub_network.clusters = dict(self.network.clusters)
+                try:
+                    report = simulate(
+                        sub_network,
+                        frame=self.frame,
+                        datum=self.datum,
+                        datum_stations=[
+                            s for s in self.datum_stations if s in connected_ids
+                        ]
+                        or None,
+                        confidence=self.confidence,
+                    )
+                except GeoCompError:
+                    report = None
+        station_designs = (
+            {station.station_id: station for station in report.stations}
+            if report is not None
+            else {}
+        )
+        reliability_by_id = report.reliability.by_observation() if report is not None else {}
+        required_by_id = self.required_observation_sigmas(report) if report is not None else {}
+
+        crs = self.network.crs or self.crs
+        tolerance = float(self.tolerance) if self.tolerance is not None else 0.0
+        records: list[dict[str, object]] = []
+
+        for station in self.network.stations.values():
+            fe, fn, fh = _station_coords(station)
+            fd = station_designs.get(station.id)
+            uncertainty = float(fd.positional_uncertainty) if fd is not None else None
+            semi_major = float(fd.ellipse.semi_major) if fd is not None else None
+            semi_minor = float(fd.ellipse.semi_minor) if fd is not None else None
+            orientation = float(fd.ellipse.orientation) if fd is not None else None
+            records.append(
+                {
+                    "record_kind": "station",
+                    "geometry_type": "Point",
+                    "network_id": self.network.id,
+                    "crs": crs,
+                    "frame": self.frame.name,
+                    "datum": self.datum.name,
+                    "tolerance": tolerance,
+                    "confidence": float(self.confidence),
+                    "station_id": station.id,
+                    "station_type": station.station_type.name,
+                    "easting": fe,
+                    "northing": fn,
+                    "height": fh,
+                    "uncertainty": uncertainty,
+                    "semi_major": semi_major,
+                    "semi_minor": semi_minor,
+                    "orientation": orientation,
+                    "observation_id": "",
+                    "observation_type": "",
+                    "from_station": station.id,
+                    "from_type": station.station_type.name,
+                    "from_easting": fe,
+                    "from_northing": fn,
+                    "from_height": fh,
+                    "from_uncertainty": uncertainty,
+                    "from_semi_major": semi_major,
+                    "from_semi_minor": semi_minor,
+                    "from_orientation": orientation,
+                    "to_station": "",
+                    "to_type": "",
+                    "to_easting": None,
+                    "to_northing": None,
+                    "to_height": None,
+                    "to_uncertainty": None,
+                    "to_semi_major": None,
+                    "to_semi_minor": None,
+                    "to_orientation": None,
+                    "unit": "",
+                    "value": None,
+                    "sigma": None,
+                    "required_sigma": None,
+                    "redundancy": None,
+                    "mdb": None,
+                    "external_effect": None,
+                    "cluster_id": "",
+                }
+            )
+
+        for observation in self.network.observations.values():
+            from_id = observation.stations[0]
+            to_id = (
+                observation.stations[1]
+                if len(observation.stations) > 1
+                else observation.stations[0]
+            )
+            from_st = self.network.stations.get(from_id)
+            to_st = self.network.stations.get(to_id)
+            fe, fn, fh = _station_coords(from_st)
+            te, tn, th = _station_coords(to_st)
+            fd = station_designs.get(from_id)
+            td = station_designs.get(to_id)
+            rel = reliability_by_id.get(observation.id)
+            req_sigma = required_by_id.get(observation.id)
+            quantity = observation.values[0]
+
+            records.append(
+                {
+                    "record_kind": "observation",
+                    "geometry_type": "LineString",
+                    "network_id": self.network.id,
+                    "crs": crs,
+                    "frame": self.frame.name,
+                    "datum": self.datum.name,
+                    "tolerance": tolerance,
+                    "confidence": float(self.confidence),
+                    "station_id": "",
+                    "station_type": "",
+                    "easting": None,
+                    "northing": None,
+                    "height": None,
+                    "uncertainty": None,
+                    "semi_major": None,
+                    "semi_minor": None,
+                    "orientation": None,
+                    "observation_id": observation.id,
+                    "observation_type": observation.type.name,
+                    "from_station": from_id,
+                    "from_type": (
+                        from_st.station_type.name if from_st is not None else StationType.PLANNED.name
+                    ),
+                    "from_easting": fe,
+                    "from_northing": fn,
+                    "from_height": fh,
+                    "from_uncertainty": float(fd.positional_uncertainty) if fd is not None else None,
+                    "from_semi_major": float(fd.ellipse.semi_major) if fd is not None else None,
+                    "from_semi_minor": float(fd.ellipse.semi_minor) if fd is not None else None,
+                    "from_orientation": float(fd.ellipse.orientation) if fd is not None else None,
+                    "to_station": to_id,
+                    "to_type": (
+                        to_st.station_type.name if to_st is not None else StationType.PLANNED.name
+                    ),
+                    "to_easting": te,
+                    "to_northing": tn,
+                    "to_height": th,
+                    "to_uncertainty": float(td.positional_uncertainty) if td is not None else None,
+                    "to_semi_major": float(td.ellipse.semi_major) if td is not None else None,
+                    "to_semi_minor": float(td.ellipse.semi_minor) if td is not None else None,
+                    "to_orientation": float(td.ellipse.orientation) if td is not None else None,
+                    "unit": quantity.unit.value,
+                    "value": float(quantity.value),
+                    "sigma": float(quantity.std_dev),
+                    "required_sigma": float(req_sigma) if req_sigma is not None else None,
+                    "redundancy": float(rel.redundancy) if rel is not None else None,
+                    "mdb": (
+                        float(rel.minimal_detectable_bias)
+                        if rel is not None and rel.minimal_detectable_bias is not None
+                        else None
+                    ),
+                    "external_effect": (
+                        float(rel.external_effect)
+                        if rel is not None and rel.external_effect is not None
+                        else None
+                    ),
+                    "cluster_id": observation.cluster_id or "",
+                }
+            )
+
+        return records
+
+    def to_geojson_dict(self) -> dict[str, object]:
+        """Serialize the planned network as a single GeoJSON ``FeatureCollection`` containing both
+        station ``Point`` features and observation ``LineString`` features."""
+        crs = self.network.crs or self.crs or "EPSG:4326"
+        features: list[dict[str, object]] = []
+        for record in self.to_feature_records():
+            props = {k: v for k, v in record.items() if k != "geometry_type"}
+            if record.get("record_kind") == "station":
+                east = _opt_float(record.get("easting"))
+                if east is None:
+                    east = _opt_float(record.get("from_easting")) or 0.0
+                north = _opt_float(record.get("northing"))
+                if north is None:
+                    north = _opt_float(record.get("from_northing")) or 0.0
+                geometry: dict[str, object] = {
+                    "type": "Point",
+                    "coordinates": [east, north],
+                }
+            else:
+                fe = _opt_float(record.get("from_easting")) or 0.0
+                fn = _opt_float(record.get("from_northing")) or 0.0
+                te = _opt_float(record.get("to_easting"))
+                if te is None:
+                    te = fe
+                tn = _opt_float(record.get("to_northing"))
+                if tn is None:
+                    tn = fn
+                geometry = {
+                    "type": "LineString",
+                    "coordinates": [[fe, fn], [te, tn]],
+                }
+            features.append(
+                {
+                    "type": "Feature",
+                    "geometry": geometry,
+                    "properties": props,
+                }
+            )
+
+        payload: dict[str, object] = {
+            "type": "FeatureCollection",
+            "name": self.network.name or self.network.id or "planned_network",
+            "features": features,
+        }
+        if crs:
+            payload["crs"] = {"type": "name", "properties": {"name": crs}}
+        return payload
+
+    @classmethod
+    def from_geojson_dict(
+        cls, payload: dict[str, object], *, default_crs: str = ""
+    ) -> DesignSession:
+        """Reconstruct a :class:`DesignSession` from a GeoJSON ``FeatureCollection``."""
+        crs = default_crs
+        crs_obj = payload.get("crs")
+        if isinstance(crs_obj, dict):
+            props = crs_obj.get("properties")
+            if isinstance(props, dict) and props.get("name"):
+                crs = str(props["name"])
+        raw_features = payload.get("features")
+        records: list[dict[str, object]] = []
+        if isinstance(raw_features, list):
+            for feature in raw_features:
+                if not isinstance(feature, dict):
+                    continue
+                properties = feature.get("properties")
+                record: dict[str, object] = (
+                    dict(properties) if isinstance(properties, dict) else {}
+                )
+                geometry = feature.get("geometry")
+                if isinstance(geometry, dict):
+                    gtype = geometry.get("type")
+                    coords = geometry.get("coordinates")
+                    if (
+                        gtype == "Point"
+                        and isinstance(coords, (list, tuple))
+                        and len(coords) >= 2
+                    ):
+                        x = _opt_float(coords[0])
+                        y = _opt_float(coords[1])
+                        if x is not None and y is not None:
+                            record.setdefault("record_kind", "station")
+                            record["easting"] = x
+                            record["northing"] = y
+                            record["from_easting"] = x
+                            record["from_northing"] = y
+                    elif (
+                        gtype == "LineString"
+                        and isinstance(coords, (list, tuple))
+                        and len(coords) >= 2
+                    ):
+                        first_pt = coords[0]
+                        last_pt = coords[-1]
+                        if (
+                            isinstance(first_pt, (list, tuple))
+                            and len(first_pt) >= 2
+                            and isinstance(last_pt, (list, tuple))
+                            and len(last_pt) >= 2
+                        ):
+                            x1, y1 = _opt_float(first_pt[0]), _opt_float(first_pt[1])
+                            x2, y2 = _opt_float(last_pt[0]), _opt_float(last_pt[1])
+                            if x1 is not None and y1 is not None:
+                                record["from_easting"] = x1
+                                record["from_northing"] = y1
+                            if x2 is not None and y2 is not None:
+                                record["to_easting"] = x2
+                                record["to_northing"] = y2
+                records.append(record)
+        return cls.from_feature_records(records, default_crs=crs)
+
+    @classmethod
+    def from_feature_records(
+        cls, records: list[dict[str, object]], *, default_crs: str = ""
+    ) -> DesignSession:
+        """Reconstruct a :class:`DesignSession` from exported feature attribute records."""
+        first = next(
+            (r for r in records if r.get("crs") or r.get("frame") or r.get("network_id")),
+            records[0] if records else {},
+        )
+        crs = str(first.get("crs") or default_crs or "")
+        frame_name = str(first.get("frame") or "")
+        frame = Frame[frame_name] if frame_name in Frame.__members__ else Frame.PLANE_2D
+        datum_name = str(first.get("datum") or "")
+        datum = (
+            DatumDefinition[datum_name]
+            if datum_name in DatumDefinition.__members__
+            else DatumDefinition.INNER_CONSTRAINT
+        )
+        raw_tol = _opt_float(first.get("tolerance"))
+        tolerance = raw_tol if raw_tol is not None and raw_tol > 0.0 else None
+        raw_conf = _opt_float(first.get("confidence"))
+        confidence = raw_conf if raw_conf is not None and 0.0 < raw_conf < 1.0 else 0.95
+
+        session = cls(
+            crs=crs,
+            frame=frame,
+            datum=datum,
+            confidence=confidence,
+            tolerance=tolerance,
+        )
+        network_id = str(first.get("network_id") or "")
+        if network_id:
+            session.network.id = network_id
+
+        for record in records:
+            kind = str(record.get("record_kind") or "")
+            obs_type_name = str(record.get("observation_type") or "").strip()
+            if kind == "station" or (not obs_type_name and (record.get("station_id") or record.get("from_station"))):
+                station_id = str(
+                    record.get("station_id") or record.get("from_station") or ""
+                ).strip()
+                if not station_id:
+                    continue
+                easting = _opt_float(record.get("easting"))
+                if easting is None:
+                    easting = _opt_float(record.get("from_easting")) or 0.0
+                northing = _opt_float(record.get("northing"))
+                if northing is None:
+                    northing = _opt_float(record.get("from_northing")) or 0.0
+                height = _opt_float(record.get("height"))
+                if height is None:
+                    height = _opt_float(record.get("from_height")) or 0.0
+                type_name = str(record.get("station_type") or record.get("from_type") or "")
+                station_type = (
+                    StationType[type_name]
+                    if type_name in StationType.__members__
+                    else StationType.PLANNED
+                )
+                session.network.stations[station_id] = Station(
+                    id=station_id,
+                    approx_position=session._position(easting, northing, height),
+                    station_type=station_type,
+                )
+
+        for record in records:
+            kind = str(record.get("record_kind") or "")
+            if kind == "station":
+                continue
+            for prefix in ("from", "to"):
+                station_id = str(record.get(f"{prefix}_station") or "").strip()
+                if not station_id or station_id in session.network.stations:
+                    continue
+                easting = _opt_float(record.get(f"{prefix}_easting")) or 0.0
+                northing = _opt_float(record.get(f"{prefix}_northing")) or 0.0
+                height = _opt_float(record.get(f"{prefix}_height")) or 0.0
+                type_name = str(record.get(f"{prefix}_type") or "")
+                station_type = (
+                    StationType[type_name]
+                    if type_name in StationType.__members__
+                    else StationType.PLANNED
+                )
+                session.network.add_station(
+                    Station(
+                        id=station_id,
+                        approx_position=session._position(easting, northing, height),
+                        station_type=station_type,
+                    )
+                )
+
+        for record in records:
+            kind = str(record.get("record_kind") or "observation")
+            obs_type_name = str(record.get("observation_type") or "").strip()
+            if kind == "station" or not obs_type_name:
+                continue
+            if obs_type_name not in ObservationType.__members__:
+                continue
+            from_id = str(record.get("from_station") or "").strip()
+            to_id = str(record.get("to_station") or "").strip()
+            if not from_id or not to_id or from_id == to_id:
+                continue
+            obs_type = ObservationType[obs_type_name]
+            raw_sigma = _opt_float(record.get("sigma"))
+            sigma = (
+                raw_sigma
+                if raw_sigma is not None and raw_sigma > 0.0
+                else default_sigma_for(obs_type)
+            )
+            obs_id = str(record.get("observation_id") or "").strip()
+            session.add_observation(
+                obs_type,
+                (from_id, to_id),
+                sigma=sigma,
+                observation_id=obs_id if obs_id not in session.network.observations else "",
+            )
+
+        session._undo.clear()
+        session._redo.clear()
+        return session
 
     # -- undo ------------------------------------------------------------
 
@@ -527,3 +1013,20 @@ def _unit_for(observation_type: ObservationType) -> Unit:
         ObservationType.ZENITH_ANGLE,
     }
     return Unit.RADIAN if observation_type in angular else Unit.METRE
+
+
+def _station_coords(station: Station | None) -> tuple[float, float, float]:
+    if station is None or station.approx_position is None:
+        return 0.0, 0.0, 0.0
+    east, north, up = station.approx_position.values
+    return float(east.value), float(north.value), float(up.value)
+
+
+def _opt_float(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        result = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return result if np.isfinite(result) else None

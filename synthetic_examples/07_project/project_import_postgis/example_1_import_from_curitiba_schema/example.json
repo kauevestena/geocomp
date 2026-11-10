@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Import project from PostGIS",
+  "algorithm_id": "geocomp:project_import_postgis",
+  "algorithm_title": "Import project from PostGIS",
+  "example_index": 1,
+  "slug": "example_1_import_from_curitiba_schema",
+  "title": "Import PostGIS project from schema 'geocomp_curitiba' into a portable GeoPackage",
+  "scenario": "Copies every table from PostGIS schema 'geocomp_curitiba' into imported_curitiba.gpkg and verifies identity.",
+  "parameters": {
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "geocomp_curitiba",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_1_import_from_curitiba_schema/outputs/imported_geocomp_curitiba.gpkg"
+  },
+  "expected_summary": "Copies all rows from geocomp_local_pg / geocomp_curitiba into imported_geocomp_curitiba.gpkg with 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_1_import_from_curitiba_schema/outputs/imported_geocomp_curitiba.gpkg",
+      "ROWS": "168"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

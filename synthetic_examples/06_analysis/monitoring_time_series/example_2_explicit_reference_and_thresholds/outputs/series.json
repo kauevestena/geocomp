@@ -1,0 +1,841 @@
+{
+ "alerts": [],
+ "components": [
+  "e",
+  "n"
+ ],
+ "confidence": 0.99,
+ "datum": "translation_rotation",
+ "display": {
+  "crs": "EPSG:31982",
+  "name": "EPSG:31982",
+  "positions": {
+   "O1": [
+    675499.995302611,
+    7185350.003596103
+   ],
+   "O2": [
+    675699.9953811835,
+    7185350.002733857
+   ],
+   "O3": [
+    675499.9961587015,
+    7185550.004675286
+   ],
+   "O4": [
+    675699.9959164623,
+    7185550.002522464
+   ],
+   "O5": [
+    675599.9953057353,
+    7185450.002922157
+   ],
+   "R1": [
+    674999.9950788589,
+    7185000.004725222
+   ],
+   "R2": [
+    676199.9941110935,
+    7185000.000875667
+   ],
+   "R3": [
+    676199.9979010872,
+    7185900.000315586
+   ],
+   "R4": [
+    674999.9967796865,
+    7185900.004176504
+   ]
+  },
+  "rotations": {}
+ },
+ "epochs": [
+  {
+   "crs": "EPSG:31982",
+   "datum": "inner_constraint",
+   "degrees_of_freedom": 21,
+   "engine": "in_house",
+   "engine_version": "",
+   "epoch": 1.0,
+   "geoid_models": [],
+   "height_types": [
+    "NONE"
+   ],
+   "network": "dam-1",
+   "solution": "dam-1",
+   "uncertainty_mode": "rigorous",
+   "variance_factor": 1.1405585845608883
+  },
+  {
+   "crs": "EPSG:31982",
+   "datum": "inner_constraint",
+   "degrees_of_freedom": 21,
+   "engine": "in_house",
+   "engine_version": "",
+   "epoch": 2.0,
+   "geoid_models": [],
+   "height_types": [
+    "NONE"
+   ],
+   "network": "dam-1",
+   "solution": "dam-2",
+   "uncertainty_mode": "rigorous",
+   "variance_factor": 1.1799973553841028
+  },
+  {
+   "crs": "EPSG:31982",
+   "datum": "inner_constraint",
+   "degrees_of_freedom": 21,
+   "engine": "in_house",
+   "engine_version": "",
+   "epoch": 3.0,
+   "geoid_models": [],
+   "height_types": [
+    "NONE"
+   ],
+   "network": "dam-1",
+   "solution": "dam-3",
+   "uncertainty_mode": "rigorous",
+   "variance_factor": 0.9859697556529332
+  }
+ ],
+ "kind": "geocomp.monitoring.series",
+ "mode": "approximate",
+ "reference": [
+  "R1",
+  "R2",
+  "R3",
+  "R4"
+ ],
+ "stations": [
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.000488564481907044,
+    -0.0005182451389316117
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0006131692458336108,
+      0.0008048353306846634
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      0.0010617767494628455,
+      -0.0012143255834983313
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0006236818212411884,
+      0.0008186282958045481
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0004606254782755331,
+      -0.0004092694802264943
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0005701030768206744,
+      0.0007483036120108253
+     ]
+    }
+   ],
+   "speed": 0.00027894946485684243,
+   "station": "O1",
+   "velocity": [
+    0.00021153896533480313,
+    -0.00018183528284961562
+   ],
+   "velocity_covariance": [
+    [
+     1.749608583973221e-07,
+     -3.9568788425363654e-08
+    ],
+    [
+     -3.956878842536367e-08,
+     3.014338932429648e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.00041828322748745507,
+    0.0005490299565988771
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of O1",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 0.3171499803243113
+   },
+   "weighted_squares": 1.9410153485845008
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.008370214158970242,
+    -0.006479479682278095
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0006131702261040865,
+      0.0008048346614738096
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      0.008667479564437267,
+      -0.006503002206071709
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0006236819382427752,
+      0.0008186331213204757
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.016472570360139865,
+      -0.01293776427107448
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0005701052899815037,
+      0.000748310459109304
+     ]
+    }
+   ],
+   "speed": 0.01046482495555419,
+   "station": "O2",
+   "velocity": [
+    0.008226549181358508,
+    -0.00646811022765378
+   ],
+   "velocity_covariance": [
+    [
+     1.7496180526119037e-07,
+     3.957190476387822e-08
+    ],
+    [
+     3.957190476387823e-08,
+     3.0143631884783293e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0004182843593312932,
+    0.0005490321655857997
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of O2",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": false,
+    "statistic": 623.9718779166045
+   },
+   "weighted_squares": 0.3479004284852999
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.0008434673793445849,
+    -0.0010175301988254567
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0006131709412219418,
+      0.0008048341499387307
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      0.0010348141516946742,
+      -0.0016611119481129135
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0006236795112265227,
+      0.0008186314867736421
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0015145180608658498,
+      -0.001455147386356625
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0005701010961471528,
+      0.0007483070667363445
+     ]
+    }
+   ],
+   "speed": 0.001031080563633933,
+   "station": "O3",
+   "velocity": [
+    0.0007509926181361027,
+    -0.0007064964375060577
+   ],
+   "velocity_covariance": [
+    [
+     1.7496076312127517e-07,
+     3.9568849642811117e-08
+    ],
+    [
+     3.9568849642811117e-08,
+     3.014347935932233e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0004182831135980452,
+    0.0005490307765446518
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of O3",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 5.849191282970903
+   },
+   "weighted_squares": 1.1889113876708013
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.0003132019788454617,
+    0.0001277070349430804
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0006131688735967024,
+      0.0008048353969178331
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      6.911827220131255e-05,
+      0.0004053484118237893
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0006236817339465784,
+      0.0008186274638004043
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0008463402145585564,
+      5.238556385363854e-06
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0005701037415142381,
+      0.0007483013117053689
+     ]
+    }
+   ],
+   "speed": 0.0004312128307626689,
+   "station": "O4",
+   "velocity": [
+    0.0004311642138620037,
+    -6.475036611050937e-06
+   ],
+   "velocity_covariance": [
+    [
+     1.7496094743964932e-07,
+     -3.9568343639978073e-08
+    ],
+    [
+     -3.956834363997807e-08,
+     3.014330180409227e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0004182833339252824,
+    0.0005490291595543198
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of O4",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 1.090871987164847
+   },
+   "weighted_squares": 0.3325420804394947
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.0007091121705995385,
+    0.00014107543015807477
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0005949894795451381,
+      0.0007898331975726104
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      0.0008436820089759668,
+      0.0005685339353650241
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0006051891683433722,
+      0.0008033713377913835
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0012969666643756254,
+      -0.00010302194466062925
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0005531993410153192,
+      0.0007343581671388301
+     ]
+    }
+   ],
+   "speed": 0.0006473983972642068,
+   "station": "O5",
+   "velocity": [
+    0.000644075236770858,
+    -6.551163376703995e-05
+   ],
+   "velocity_covariance": [
+    [
+     1.6473963875494997e-07,
+     -4.0618481268374415e-13
+    ],
+    [
+     -4.061848126837442e-13,
+     2.903022983650647e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0004058813111673781,
+    0.0005387970845922097
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of O5",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 2.5328953935924634
+   },
+   "weighted_squares": 0.48238357618882155
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    -0.0003237406383099225,
+    -6.606467547574092e-05
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.00047695042992371985,
+      0.000501578090335023
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      -0.00016276346260857993,
+      -0.0003460288058568066
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0004851266339354752,
+      0.0005101752148403673
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      -0.0007925332410645164,
+      0.00012013912322841706
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0004434514340971916,
+      0.0004663481355181378
+     ]
+    }
+   ],
+   "speed": 0.00040746481810396707,
+   "station": "R1",
+   "velocity": [
+    -0.00040153891539364836,
+    6.923927654872982e-05
+   ],
+   "velocity_covariance": [
+    [
+     1.0585867746518111e-07,
+     -1.4857753289523608e-08
+    ],
+    [
+     -1.4857753289523608e-08,
+     1.1707279532842271e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.00032535930517687845,
+    0.0003421590205276235
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of R1",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 1.5245444468179317
+   },
+   "weighted_squares": 0.5355633736803951
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.00015574701638092144,
+    -0.0005750873116108153
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.00047695069867894577,
+      0.00050157772050627
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      -0.00014576765452026827,
+      -0.0008262875134874615
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.00048512541108750663,
+      0.0005101767966622005
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0005831812886123236,
+      -0.0009238248344607012
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0004434498195484248,
+      0.00046635038711839347
+     ]
+    }
+   ],
+   "speed": 0.0005447131348057604,
+   "station": "R2",
+   "velocity": [
+    0.00030146643894775143,
+    -0.00045368533745105777
+   ],
+   "velocity_covariance": [
+    [
+     1.0585836375455022e-07,
+     1.4857812719775666e-08
+    ],
+    [
+     1.4857812719775675e-08,
+     1.1707325653612627e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0003253588230777678,
+    0.0003421596944938522
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of R2",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 2.9980010335593756
+   },
+   "weighted_squares": 0.8078882240497867
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    -0.00038694780769603593,
+    0.0007010812101294805
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.0004769500036604196,
+      0.0005015781097688775
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      -0.0004639558141570732,
+      0.0010576843542433028
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.0004851278455581197,
+      0.0005101743481772888
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      -0.0007045060852445455,
+      0.0010808362047579287
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0004434536249592234,
+      0.00046634671720510804
+     ]
+    }
+   ],
+   "speed": 0.0006339363221550489,
+   "station": "R3",
+   "velocity": [
+    -0.0003497309504909557,
+    0.0005287376691859231
+   ],
+   "velocity_covariance": [
+    [
+     1.058590889049537e-07,
+     -1.4857743107721526e-08
+    ],
+    [
+     -1.4857743107721525e-08,
+     1.170724537163407e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0003253599374615039,
+    0.00034215852132650547
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of R3",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 3.1562149864046796
+   },
+   "weighted_squares": 0.7150254558688119
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "degrees_of_freedom": 2,
+   "line_epoch": 2.0,
+   "line_offset": [
+    0.0005549414140478977,
+    -5.992910010724961e-05
+   ],
+   "points": [
+    {
+     "epoch": 1.0,
+     "offsets": [
+      0.0,
+      0.0
+     ],
+     "solution": "dam-1",
+     "std_devs": [
+      0.00047695053358964086,
+      0.0005015776156378904
+     ]
+    },
+    {
+     "epoch": 2.0,
+     "offsets": [
+      0.000772486931285922,
+      0.00011463196510096488
+     ],
+     "solution": "dam-2",
+     "std_devs": [
+      0.00048512486599112253,
+      0.0005101765925921128
+     ]
+    },
+    {
+     "epoch": 3.0,
+     "offsets": [
+      0.0009138580376967386,
+      -0.0002771504935256443
+     ],
+     "solution": "dam-3",
+     "std_devs": [
+      0.0004434490318547424,
+      0.000466350115346302
+     ]
+    }
+   ],
+   "speed": 0.0004723805432074698,
+   "station": "R4",
+   "velocity": [
+    0.00044980338589411286,
+    -0.0001442923824710646
+   ],
+   "velocity_covariance": [
+    [
+     1.0585814324533299e-07,
+     1.4857788022000725e-08
+    ],
+    [
+     1.4857788022000723e-08,
+     1.170731650399324e-07
+    ]
+   ],
+   "velocity_std_devs": [
+    0.0003253584842067792,
+    0.00034215956078989285
+   ],
+   "velocity_test": {
+    "confidence": 0.99,
+    "critical_high": 9.21034037197618,
+    "name": "velocity of R4",
+    "note": "chi-square(2) with each epoch's own covariance",
+    "passed": true,
+    "statistic": 2.2854368225527653
+   },
+   "weighted_squares": 0.40939230006337474
+  }
+ ],
+ "strategies": [
+  "independence_assumed"
+ ],
+ "thresholds": [
+  {
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "stations": [
+    "O1",
+    "O2",
+    "O3",
+    "O4",
+    "O5"
+   ]
+  }
+ ],
+ "version": 1
+}

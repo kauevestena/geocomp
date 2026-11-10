@@ -1,0 +1,171 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Gravimetric network adjustment</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Gravimetric network adjustment</h1>
+<h2>Summary</h2>
+<table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Stations</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Readings</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Occupations</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Sessions</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Observations</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Variance factor</td>
+<td>0.00243</td>
+</tr>
+<tr>
+<td>Global test</td>
+<td>passed</td>
+</tr>
+<tr>
+<td>Datum defect of the differences</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Datum</td>
+<td>weighted absolute gravity at 1</td>
+</tr>
+<tr>
+<td>Uncertainty</td>
+<td>approximate: independence_assumed, model_assumed, nominal_precision</td>
+</tr>
+<tr>
+<td>Tide system</td>
+<td>tide-free</td>
+</tr>
+</table>
+<h2>Uncheckable observations</h2>
+<div class="note"><b>Not testable</b>: No blunder in these could be detected, whatever the tests below say: CG-5 40123 2026-03-10:1&gt;CG-5 40123 2026-03-10#3, absolute:1. A lone absolute value and a station reached by one difference are the usual cases. Re-observe or add a connection to make them checkable.</div>
+<h2>Adjusted gravity</h2>
+<table>
+<tr>
+<th>Station</th>
+<th>Gravity (mGal)</th>
+<th>sigma (mGal)</th>
+<th>Determined by</th>
+</tr>
+<tr>
+<td>1</td>
+<td>978800.0000</td>
+<td>0.00025</td>
+<td>absolute value and differences</td>
+</tr>
+<tr>
+<td>2</td>
+<td>978800.3310</td>
+<td>0.00035</td>
+<td>differences</td>
+</tr>
+<tr>
+<td>3</td>
+<td>978799.8715</td>
+<td>0.00042</td>
+<td>differences</td>
+</tr>
+</table>
+<h2>Drift</h2>
+<table>
+<tr>
+<th>Session</th>
+<th>Instrument</th>
+<th>Treatment</th>
+<th>Occupations</th>
+<th>Drift per hour, then per hour², … (mGal)</th>
+<th>Base residuals</th>
+</tr>
+<tr>
+<td>CG-5 40123 2026-03-10</td>
+<td>CG-5 40123</td>
+<td>fitted to base 1 first</td>
+<td>5</td>
+<td>0.00525 ± 0.00597</td>
+<td>—</td>
+</tr>
+</table>
+<h2>Observations</h2>
+<table>
+<tr>
+<th>Row</th>
+<th>Observation</th>
+<th>Stations</th>
+<th>Value (mGal)</th>
+<th>Residual (mGal)</th>
+<th>w</th>
+<th>Redundancy</th>
+<th>MDB (mGal)</th>
+<th>w-test</th>
+</tr>
+<tr>
+<td>0</td>
+<td>CG-5 40123 2026-03-10:1&gt;CG-5 40123 2026-03-10#2</td>
+<td>1 → 2</td>
+<td>0.33125</td>
+<td>-0.00025</td>
+<td>1.000</td>
+<td>0.500</td>
+<td>0.04192</td>
+<td>accepted</td>
+</tr>
+<tr>
+<td>1</td>
+<td>CG-5 40123 2026-03-10:1&gt;CG-5 40123 2026-03-10#3</td>
+<td>1 → 3</td>
+<td>-0.12850</td>
+<td>-9.86076e-27</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>—</td>
+<td><span class="blocking">not testable</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>CG-5 40123 2026-03-10:1&gt;CG-5 40123 2026-03-10#4</td>
+<td>1 → 2</td>
+<td>0.33075</td>
+<td>0.00025</td>
+<td>1.000</td>
+<td>0.500</td>
+<td>0.04192</td>
+<td>accepted</td>
+</tr>
+<tr>
+<td>3</td>
+<td>absolute:1</td>
+<td>1</td>
+<td>978800.00000</td>
+<td>2.61683e-27</td>
+<td>5.978e-16</td>
+<td>3.155e-16</td>
+<td>—</td>
+<td><span class="blocking">not testable</span></td>
+</tr>
+</table>
+<div class="note"><b>Data snooping</b>: Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the change being measured is exactly what an automatic outlier remover would delete.</div>
+<h2>Notes</h2>
+<ul><li>The instrument removed the tide itself (Tide Correction: YES); it is kept.</li><li>Each reading&#x27;s precision is SD / sqrt(DUR), with a floor of 5 microgal added in quadrature.</li><li>No gravimeter profile was given, so each instrument&#x27;s own scale was used with a calibration factor of one whose uncertainty is unknown and not propagated. The result is labelled approximate for it. Give a profile library with each instrument&#x27;s calibration to remove the assumption.</li><li>readings at 1, 2, 3 carry no sensor height and were taken to refer to the mark</li></ul>
+<div class="note"><b>Units</b>: Values are shown in mGal, as the Gravimeter settings ask. The solution stores m/s².</div>
+</body></html>

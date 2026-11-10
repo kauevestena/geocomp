@@ -1,0 +1,546 @@
+{
+  "kind": "geocomp.reductions",
+  "version": 1,
+  "setups": [
+    {
+      "station": "A",
+      "pointings": [
+        {
+          "target": "D",
+          "horizontal": {
+            "value": 2.206706144588987,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5503019068472625,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 134.19225946380067,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 134.16407864998737,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 2.75,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "B",
+          "horizontal": {
+            "value": 0.6096001005411683,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5384546666137413,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 170.0889473187485,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 170.0,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 5.5,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "P1",
+          "horizontal": {
+            "value": 0.22349937619670313,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.554335929012383,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 54.6791550775979,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 54.67174773134658,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 0.9000000000000057,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "P2",
+          "horizontal": {
+            "value": 0.9344087493802699,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5530936699450324,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 79.08830507729952,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 79.07591289387686,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 1.4000000000000057,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    },
+    {
+      "station": "B",
+      "pointings": [
+        {
+          "target": "A",
+          "horizontal": {
+            "value": 2.075676654130961,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.603137986976052,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 170.0889473187485,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 170.0,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -5.5,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "C",
+          "horizontal": {
+            "value": 0.4756915393432699,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.6157286554726618,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 161.40806206630447,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 161.24515496597098,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -7.25,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    },
+    {
+      "station": "C",
+      "pointings": [
+        {
+          "target": "B",
+          "horizontal": {
+            "value": 1.749781892933064,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5258639981171314,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 161.40806206630447,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 161.24515496597098,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 7.25,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "D",
+          "horizontal": {
+            "value": 0.3588390659306455,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5458400003408603,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 180.3337184222629,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 180.27756377319946,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 4.5,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    },
+    {
+      "station": "D",
+      "pointings": [
+        {
+          "target": "C",
+          "horizontal": {
+            "value": 1.8598222195204386,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.595752653248933,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 180.3337184222629,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 180.27756377319946,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -4.5,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "A",
+          "horizontal": {
+            "value": 0.16467089817878033,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5912907467425306,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 134.19225946380067,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 134.16407864998737,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -2.75,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    },
+    {
+      "station": "R",
+      "pointings": [
+        {
+          "target": "A",
+          "horizontal": {
+            "value": 3.573799712273131,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.579100683879021,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 120.42009799032718,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 120.41594578792295,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -1.0,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "B",
+          "horizontal": {
+            "value": 5.383205361576229,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5233976895660075,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 94.97499670966037,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 94.86832980505137,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 4.5,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "C",
+          "horizontal": {
+            "value": 0.7756933199217726,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.593551560359536,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 120.86174953226518,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 120.83045973594572,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": -2.75,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    },
+    {
+      "station": "L",
+      "pointings": [
+        {
+          "target": "A",
+          "horizontal": {
+            "value": 2.50341209817878,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5558903110287905,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 67.08949247087803,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 67.08203932499369,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 1.0,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "D",
+          "horizontal": {
+            "value": 5.645004751768573,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5149527493544304,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 67.18677325188344,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 67.08203932499369,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 3.75,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    }
+  ]
+}

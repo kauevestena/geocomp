@@ -1,0 +1,43 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ Total station and level",
+  "algorithm_id": "geocomp:integration_total_station_level",
+  "algorithm_title": "Total station and level",
+  "example_index": 2,
+  "slug": "example_2_with_variance_components",
+  "title": "Total Station + Spirit Levelling with Helmert variance component estimation",
+  "scenario": "Estimates per-technique variance factors between terrestrial zeniths and spirit levelling.",
+  "parameters": {
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/inputs/ts.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/inputs/levelling.json",
+    "EPOCH": "2026.7",
+    "VARIANCE_COMPONENTS": true,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/combined.json"
+  },
+  "expected_summary": "Balances terrestrial and levelling weights via VCE.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "8",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_2_with_variance_components/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "1.0000000000093063"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.049142340942822216
+      ],
+      "covariance": {
+        "labels": [
+          "B.h"
+        ],
+        "matrix": [
+          [
+            2.1728527451983255e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 12.500857659057178,
+            "variance": 2.1728527451983255e-06
+          }
+        ]
+      },
+      "station_id": "B"
+    },
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.04773235145096244
+      ],
+      "covariance": {
+        "labels": [
+          "C.h"
+        ],
+        "matrix": [
+          [
+            2.1728527451983255e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 15.002267648549038,
+            "variance": 2.1728527451983255e-06
+          }
+        ]
+      },
+      "station_id": "C"
+    },
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.04868493063046131
+      ],
+      "covariance": {
+        "labels": [
+          "D.h"
+        ],
+        "matrix": [
+          [
+            2.172852745198326e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 11.25131506936954,
+            "variance": 2.172852745198326e-06
+          }
+        ]
+      },
+      "station_id": "D"
+    }
+  ],
+  "crs": "EPSG:31982",
+  "datum_definition": "CONSTRAINED",
+  "epoch": {
+    "decimal_year": 2000.0
+  },
+  "id": "rd03-levelling-adjustment",
+  "kind": "ADJUSTMENT",
+  "network_id": "rd03-levelling",
+  "observation_results": [
+    {
+      "external_reliability": 0.007157090219884653,
+      "minimal_detectable_bias": 0.011687479387854168,
+      "observation_id": "L0",
+      "redundancy": 0.4999999999999999,
+      "residual": -0.00017447656144142792,
+      "standardised_residual": 0.11836463033943205,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.11836463033943205
+      }
+    },
+    {
+      "external_reliability": 0.004132147965064841,
+      "minimal_detectable_bias": 0.011687479387854166,
+      "observation_id": "L1",
+      "redundancy": 0.5,
+      "residual": 0.0015813404571907166,
+      "standardised_residual": 1.0727789286413838,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0727789286413838
+      }
+    },
+    {
+      "external_reliability": 0.0041321479650648415,
+      "minimal_detectable_bias": 0.011687479387854168,
+      "observation_id": "L2",
+      "redundancy": 0.4999999999999999,
+      "residual": 0.002472755748564537,
+      "standardised_residual": 1.6775136882600843,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.6775136882600843
+      }
+    },
+    {
+      "external_reliability": 0.007157090219884654,
+      "minimal_detectable_bias": 0.01168747938785417,
+      "observation_id": "L3",
+      "redundancy": 0.4999999999999998,
+      "residual": 0.0007169387299323926,
+      "standardised_residual": 0.48637012927926865,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.48637012927926865
+      }
+    },
+    {
+      "external_reliability": 0.007157090219884653,
+      "minimal_detectable_bias": 0.011687479387854168,
+      "observation_id": "L4",
+      "redundancy": 0.4999999999999999,
+      "residual": 0.0008914152913738206,
+      "standardised_residual": 0.6047347596187007,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6047347596187007
+      }
+    },
+    {
+      "external_reliability": 0.0041321479650648415,
+      "minimal_detectable_bias": 0.011687479387854168,
+      "observation_id": "L5",
+      "redundancy": 0.4999999999999999,
+      "residual": -0.0017558170186321442,
+      "standardised_residual": 1.1911435589808157,
+      "w_test": {
+        "confidence": 0.99,
+        "critical_high": 1.7147302994931877,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1911435589808157
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "B.h",
+      "C.h",
+      "D.h"
+    ],
+    "matrix": [
+      [
+        2.1728527451983255e-06,
+        1.086426372599163e-06,
+        1.086426372599163e-06
+      ],
+      [
+        1.086426372599163e-06,
+        2.1728527451983255e-06,
+        1.086426372599163e-06
+      ],
+      [
+        1.086426372599163e-06,
+        1.086426372599163e-06,
+        2.172852745198326e-06
+      ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:analysis_network_adjust",
+    "created": "2026-11-04T20:47:14.746731+00:00",
+    "geocomp_version": "0.1.0",
+    "parameters": {
+      "alpha": 0.001,
+      "beta": 0.2,
+      "confidence": 0.99,
+      "convergence": 0.0001,
+      "datum": "constrained",
+      "datum_stations": [],
+      "epoch_origin": "assumed",
+      "frame": "height_1d",
+      "max_iterations": 20,
+      "solver": "dense",
+      "variance_factor_apriori": 1.0
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "source": "geocomp:analysis_network_adjust",
+    "uncertainty_mode": "RIGOROUS"
+  },
+  "statistics": {
+    "condition_number": 4.000000000000003,
+    "converged": true,
+    "degrees_of_freedom": 3,
+    "global_test": {
+      "confidence": 0.99,
+      "critical_high": 12.838156466598647,
+      "critical_low": 0.07172177458649205,
+      "name": "global",
+      "passed": true,
+      "statistic": 3.2592791177974876
+    },
+    "iterations": 2,
+    "max_correction": 6.660911822109483e-16,
+    "n_constraints": 0,
+    "n_observations": 6,
+    "n_parameters": 3,
+    "variance_factor_aposteriori": 1.0864263725991625,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "RIGOROUS"
+}

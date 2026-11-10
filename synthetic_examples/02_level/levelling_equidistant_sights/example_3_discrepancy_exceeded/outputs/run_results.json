@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING": "0",
+    "CROSSING_COUNT": "1",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossings.csv",
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossing.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/report.html",
+    "WARNINGS": "1",
+    "WORST_DISCREPANCY": "0.023999999999999577"
+  },
+  "info_lines": 1,
+  "warning_lines": 1
+}

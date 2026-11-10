@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Build baselines",
+  "algorithm_id": "geocomp:gnss_build_baselines",
+  "algorithm_title": "Build baselines",
+  "example_index": 2,
+  "slug": "example_2_antenna_height_reduction",
+  "title": "Baseline extraction with unequal tripod antenna heights (Base 1.42 m, Rover 1.85 m)",
+  "scenario": "Reduces baseline from antenna phase centre to monument marks with 3 mm height uncertainty.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/inputs/pos",
+    "BASE_HEIGHT": 1.42,
+    "ROVER_HEIGHT": 1.85,
+    "HEIGHT_SIGMA": 0.003,
+    "INDEPENDENT_ONLY": true,
+    "FRAME": 1,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/baselines.json",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/network.json"
+  },
+  "expected_summary": "Applies vertical antenna height reduction along local ellipsoid normal and inflates vertical variance.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/baselines.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/network.json"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

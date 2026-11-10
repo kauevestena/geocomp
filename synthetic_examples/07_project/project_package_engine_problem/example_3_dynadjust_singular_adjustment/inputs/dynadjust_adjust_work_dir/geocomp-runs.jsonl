@@ -1,0 +1,2 @@
+{"command": ["/usr/bin/python3", "-c", "print('dnaimport ok')"], "exit_code": 0, "program": "dnaimport", "seconds": 0.03214006199414143, "timed_out": false, "version": null}
+{"command": ["/usr/bin/python3", "-c", "import sys; sys.stderr.write('Singular normal matrix\\n'); sys.exit(3)"], "exit_code": 3, "program": "dnaadjust", "seconds": 0.03238325400161557, "timed_out": false, "version": null}

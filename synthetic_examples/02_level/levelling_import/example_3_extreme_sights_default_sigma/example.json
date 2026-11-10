@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Import levelling field book",
+  "algorithm_id": "geocomp:levelling_import",
+  "algorithm_title": "Import levelling field book",
+  "example_index": 3,
+  "slug": "example_3_extreme_sights_default_sigma",
+  "title": "Radial setup with intermediate foresights (IS) and explicit staff-reading sigma",
+  "scenario": "Imports a setup with backsight BS, foresight FS, and intermediate sights IS using SIGMA_READING=0.0005 m.",
+  "parameters": {
+    "BOOK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/inputs/extreme_book.csv",
+    "MAPPING": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/inputs/mapping.json",
+    "SIGMA_READING": 0.0005,
+    "STADIA_FACTOR": 100.0,
+    "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/outputs/setups.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/outputs/report.html"
+  },
+  "expected_summary": "Imports multi-foresight setup with 0.5 mm staff reading standard deviation.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "LINE_COUNT": "1",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/outputs/report.html",
+      "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_3_extreme_sights_default_sigma/outputs/setups.json",
+      "REJECTED_ROWS": "0",
+      "SETUP_COUNT": "1",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

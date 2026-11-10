@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Relative ▸ Relative — Kinematic",
+  "algorithm_id": "geocomp:gnss_relative_kinematic",
+  "algorithm_title": "Relative — Kinematic",
+  "example_index": 3,
+  "slug": "example_3_kinematic_custom_conf",
+  "title": "Relative kinematic PPK with custom continuous-AR RTKLIB configuration",
+  "scenario": "Runs PPK with explicit RTKLIB configuration file.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/inputs/rinex",
+    "BASE_STATION": "BASE",
+    "ROVER_STATION": "ROVE",
+    "FRAME": 1,
+    "ELEVATION_MASK": 15.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/outputs/quality.json",
+    "CONFIGURATION": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/inputs/kinematic_ppk.conf"
+  },
+  "expected_summary": "Produces relative kinematic .pos trajectory and quality summary.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_kinematic/example_3_kinematic_custom_conf/outputs/solution.pos"
+    },
+    "info_lines": 6,
+    "warning_lines": 2
+  }
+}

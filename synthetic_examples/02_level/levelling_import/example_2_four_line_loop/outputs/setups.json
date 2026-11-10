@@ -1,0 +1,562 @@
+{
+  "kind": "levelling_setups",
+  "level_id": "rd04-level",
+  "lines": [
+    {
+      "id": "BM1-BM2",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 30.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 2
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.74946,
+              "variance": 2.5e-07
+            },
+            "station": "BM1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 30.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 3
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50002,
+                "variance": 2.5e-07
+              },
+              "station": "BM1-BM2-T0"
+            }
+          ],
+          "id": "BM1-BM2-S0",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 30.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 4
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.74983,
+              "variance": 2.5e-07
+            },
+            "station": "BM1-BM2-T0"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 30.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 5
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50004,
+                "variance": 2.5e-07
+              },
+              "station": "BM1-BM2-T1"
+            }
+          ],
+          "id": "BM1-BM2-S1",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 30.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 6
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.74994,
+              "variance": 2.5e-07
+            },
+            "station": "BM1-BM2-T1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 30.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 7
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50035,
+                "variance": 2.5e-07
+              },
+              "station": "BM2"
+            }
+          ],
+          "id": "BM1-BM2-S2",
+          "level_id": "rd04-level"
+        }
+      ]
+    },
+    {
+      "id": "BM2-BM4",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 50.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 8
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.04564,
+              "variance": 2.5e-07
+            },
+            "station": "BM2"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 50.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 9
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.49996,
+                "variance": 2.5e-07
+              },
+              "station": "BM2-BM4-T0"
+            }
+          ],
+          "id": "BM2-BM4-S0",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 50.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 10
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.04597,
+              "variance": 2.5e-07
+            },
+            "station": "BM2-BM4-T0"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 50.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 11
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50061,
+                "variance": 2.5e-07
+              },
+              "station": "BM2-BM4-T1"
+            }
+          ],
+          "id": "BM2-BM4-S1",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 50.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 12
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.0456,
+              "variance": 2.5e-07
+            },
+            "station": "BM2-BM4-T1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 50.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 13
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50025,
+                "variance": 2.5e-07
+              },
+              "station": "BM2-BM4-T2"
+            }
+          ],
+          "id": "BM2-BM4-S2",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 50.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 14
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.04575,
+              "variance": 2.5e-07
+            },
+            "station": "BM2-BM4-T2"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 50.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 15
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50033,
+                "variance": 2.5e-07
+              },
+              "station": "BM2-BM4-T3"
+            }
+          ],
+          "id": "BM2-BM4-S3",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 50.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 16
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.04601,
+              "variance": 2.5e-07
+            },
+            "station": "BM2-BM4-T3"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 50.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 17
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 1.50002,
+                "variance": 2.5e-07
+              },
+              "station": "BM4"
+            }
+          ],
+          "id": "BM2-BM4-S4",
+          "level_id": "rd04-level"
+        }
+      ]
+    },
+    {
+      "id": "BM4-BM1",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 20.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 18
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.49979,
+              "variance": 2.5e-07
+            },
+            "station": "BM4"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 20.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 19
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 4.73976,
+                "variance": 2.5e-07
+              },
+              "station": "BM4-BM1-T0"
+            }
+          ],
+          "id": "BM4-BM1-S0",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 20.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 20
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.49975,
+              "variance": 2.5e-07
+            },
+            "station": "BM4-BM1-T0"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 20.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 21
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 4.74018,
+                "variance": 2.5e-07
+              },
+              "station": "BM1"
+            }
+          ],
+          "id": "BM4-BM1-S1",
+          "level_id": "rd04-level"
+        }
+      ]
+    }
+  ],
+  "source": "loop_book.csv"
+}

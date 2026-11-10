@@ -1,0 +1,645 @@
+{
+  "kind": "geocomp.readings",
+  "mapping": {
+    "angle_format": "SEXAGESIMAL_TRIPLE",
+    "columns": [
+      {
+        "column": "E",
+        "field": "station"
+      },
+      {
+        "column": "R",
+        "field": "backsight"
+      },
+      {
+        "column": "V",
+        "field": "foresight"
+      },
+      {
+        "column": "pos",
+        "field": "face"
+      },
+      {
+        "column": "vis",
+        "field": "sighted"
+      },
+      {
+        "column": "HG",
+        "field": "horizontal_degrees"
+      },
+      {
+        "column": "HM",
+        "field": "horizontal_minutes"
+      },
+      {
+        "column": "HS",
+        "field": "horizontal_seconds"
+      },
+      {
+        "column": "VG",
+        "field": "zenith_degrees"
+      },
+      {
+        "column": "VM",
+        "field": "zenith_minutes"
+      },
+      {
+        "column": "VS",
+        "field": "zenith_seconds"
+      },
+      {
+        "column": "D",
+        "field": "distance"
+      },
+      {
+        "column": "hi",
+        "field": "instrument_height"
+      },
+      {
+        "column": "hs",
+        "field": "target_height"
+      }
+    ],
+    "decimal_separator": "auto",
+    "face_values": {
+      "PD": "direct",
+      "PI": "reverse"
+    },
+    "name": "inferred",
+    "sighted_values": {
+      "R": "backsight",
+      "V": "foresight"
+    }
+  },
+  "setups": [
+    {
+      "instrument_height": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 1.495,
+        "variance": 1e-06
+      },
+      "instrument_id": "generic",
+      "pairs": [
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 13.204,
+              "variance": 4.106329382464e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 3.475134769919532,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 4",
+            "set_number": 1,
+            "target": "2",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.5381198846881137,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 13.204,
+              "variance": 4.106329382464e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 0.3335275719193053,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 5",
+            "set_number": 1,
+            "target": "2",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.7449927004393055,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        },
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 11.508,
+              "variance": 4.092593736255999e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 0.0,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 2",
+            "set_number": 1,
+            "target": "3",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.5881914416731069,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 11.508,
+              "variance": 4.092593736255999e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 3.1415732610425486,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 3",
+            "set_number": 1,
+            "target": "3",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.694979321096047,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        }
+      ],
+      "reflector_id": null,
+      "singles": [],
+      "station": "1"
+    },
+    {
+      "instrument_height": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 1.533,
+        "variance": 1e-06
+      },
+      "instrument_id": "generic",
+      "pairs": [
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 13.2,
+              "variance": 4.106296960000001e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 0.0,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 6",
+            "set_number": 1,
+            "target": "1",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.605392631078873,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 13.2,
+              "variance": 4.106296960000001e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 3.141563564768926,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 7",
+            "set_number": 1,
+            "target": "1",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.677744194732602,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        },
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 24.358,
+              "variance": 4.197237248656e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 6.127661926416458,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 8",
+            "set_number": 1,
+            "target": "3",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.5979895261683303,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 24.358,
+              "variance": 4.197237248656e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 2.9860595765530435,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 9",
+            "set_number": 1,
+            "target": "3",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.685113362685467,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        }
+      ],
+      "reflector_id": null,
+      "singles": [],
+      "station": "2"
+    },
+    {
+      "instrument_height": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 1.51,
+        "variance": 1e-06
+      },
+      "instrument_id": "generic",
+      "pairs": [
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 11.505,
+              "variance": 4.0925694601e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 6.104817505762576,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 12",
+            "set_number": 1,
+            "target": "1",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.5532897047700314,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 11.505,
+              "variance": 4.0925694601e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 2.9632442447200282,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 13",
+            "set_number": 1,
+            "target": "1",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.729798639673334,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        },
+        {
+          "direct": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 24.361,
+              "variance": 4.197261833284001e-06
+            },
+            "face": "direct",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 0.0,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 10",
+            "set_number": 1,
+            "target": "2",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 1.5451545312010133,
+              "variance": 2.5000000000000004e-11
+            }
+          },
+          "reverse": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 23.361,
+              "variance": 4.189070945284e-06
+            },
+            "face": "reverse",
+            "horizontal": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 3.1416071980002265,
+              "variance": 2.5000000000000004e-11
+            },
+            "record": "row 11",
+            "set_number": 1,
+            "target": "2",
+            "target_height": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 1e-06
+            },
+            "zenith": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "RADIAN",
+              "value": 4.737991990884084,
+              "variance": 2.5000000000000004e-11
+            }
+          }
+        }
+      ],
+      "reflector_id": null,
+      "singles": [],
+      "station": "3"
+    }
+  ],
+  "source": "fieldbook.xlsx",
+  "version": 1
+}

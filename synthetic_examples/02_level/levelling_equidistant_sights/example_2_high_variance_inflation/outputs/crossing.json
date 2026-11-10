@@ -1,0 +1,34 @@
+{
+  "crossings": [
+    {
+      "discrepancy": -0.023999999999999577,
+      "forward": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 3.738,
+        "variance": 5e-07
+      },
+      "from_station": "BM1",
+      "height_difference": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "EMPIRICAL_SCALING",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 3.75,
+        "variance": 8.749999999999999e-07
+      },
+      "inflation": 3.5,
+      "reverse": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 3.7619999999999996,
+        "variance": 5e-07
+      },
+      "to_station": "BM2"
+    }
+  ],
+  "inflation": 3.5,
+  "kind": "levelling_reciprocal"
+}

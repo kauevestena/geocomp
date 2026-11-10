@@ -1,0 +1,1 @@
+{"command": ["/usr/bin/python3", "-c", "import sys; sys.stderr.write('Error: no navigation data\\n'); sys.exit(1)"], "exit_code": 1, "program": "rnx2rtkp", "seconds": 0.032389472995419055, "timed_out": false, "version": null}

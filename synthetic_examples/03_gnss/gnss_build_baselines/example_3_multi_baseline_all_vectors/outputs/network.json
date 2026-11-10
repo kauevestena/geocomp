@@ -1,0 +1,302 @@
+{
+  "clusters": [
+    {
+      "covariance": {
+        "labels": [
+          "m0.x",
+          "m0.y",
+          "m0.z",
+          "m1.x",
+          "m1.y",
+          "m1.z"
+        ],
+        "matrix": [
+          [
+            4.793784571958897e-06,
+            -4.3297365637837765e-06,
+            -4.5585511171165495e-06,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            -4.3297365637837765e-06,
+            4.805068622910501e-06,
+            4.6896732205633786e-06,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            -4.5585511171165495e-06,
+            4.6896732205633786e-06,
+            5.891146805130603e-06,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            4.79376974387393e-06,
+            -4.3297342370954824e-06,
+            -4.558548616895692e-06
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            -4.3297342370954824e-06,
+            4.805075394137901e-06,
+            4.689680606728337e-06
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            -4.558548616895692e-06,
+            4.689680606728337e-06,
+            5.891154861988168e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE",
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "id": "gnss",
+      "kind": "GNSS_BASELINE",
+      "observation_ids": [
+        "gnss-BASE-AUX1",
+        "gnss-BASE-ROVE"
+      ]
+    }
+  ],
+  "crs": "ITRF2014",
+  "epoch": {
+    "decimal_year": 2005.2493716704719
+  },
+  "id": "gnss",
+  "observations": [
+    {
+      "cluster_id": "gnss",
+      "epoch": {
+        "decimal_year": 2005.2493716704719,
+        "instant": "2005-04-02T00:29:45+00:00"
+      },
+      "id": "gnss-BASE-AUX1",
+      "meta": {
+        "baseline_frame": "ecef",
+        "engine": "rtklib",
+        "epochs": 120,
+        "fixed_fraction": 0.975,
+        "program": "rnx2rtkp ver.EX 2.5.1",
+        "ratio": 999.9,
+        "satellites": 5,
+        "solution_file": "base_aux1.pos",
+        "solution_status": "FIXED"
+      },
+      "provenance": {
+        "file": "base_aux1.pos",
+        "reader": "gnss",
+        "records": [
+          "baseline BASE-AUX1"
+        ]
+      },
+      "stations": [
+        "BASE",
+        "AUX1"
+      ],
+      "status": "ACTIVE",
+      "type": "GNSS_BASELINE",
+      "values": [
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 1991.8013644953862,
+          "variance": 4.793784571958897e-06
+        },
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": -468.655472486615,
+          "variance": 4.805068622910501e-06
+        },
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 2610.2596922940297,
+          "variance": 5.891146805130603e-06
+        }
+      ]
+    },
+    {
+      "cluster_id": "gnss",
+      "epoch": {
+        "decimal_year": 2005.2493716704719,
+        "instant": "2005-04-02T00:29:45+00:00"
+      },
+      "id": "gnss-BASE-ROVE",
+      "meta": {
+        "baseline_frame": "ecef",
+        "engine": "rtklib",
+        "epochs": 120,
+        "fixed_fraction": 0.975,
+        "program": "rnx2rtkp ver.EX 2.5.1",
+        "ratio": 999.9,
+        "satellites": 5,
+        "solution_file": "base_rove.pos",
+        "solution_status": "FIXED"
+      },
+      "provenance": {
+        "file": "base_rove.pos",
+        "reader": "gnss",
+        "records": [
+          "baseline BASE-ROVE"
+        ]
+      },
+      "stations": [
+        "BASE",
+        "ROVE"
+      ],
+      "status": "ACTIVE",
+      "type": "GNSS_BASELINE",
+      "values": [
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 2022.8324956177291,
+          "variance": 4.79376974387393e-06
+        },
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": -468.68196058873957,
+          "variance": 4.805075394137901e-06
+        },
+        {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 2610.230895875791,
+          "variance": 5.891154861988168e-06
+        }
+      ]
+    }
+  ],
+  "stations": [
+    {
+      "approx_position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2005.2493716704719,
+          "instant": "2005-04-02T00:29:45+00:00"
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -3978242.1933,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3382841.1747,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3649902.299,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "BASE",
+      "station_type": "MARK"
+    },
+    {
+      "approx_position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2005.2493716704719,
+          "instant": "2005-04-02T00:29:45+00:00"
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -3976250.4226,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3382372.5456,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3652512.5881,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "AUX1",
+      "station_type": "MARK"
+    },
+    {
+      "approx_position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2005.2493716704719,
+          "instant": "2005-04-02T00:29:45+00:00"
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -3976219.4226,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3382372.5456,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3652512.5881,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "ROVE",
+      "station_type": "MARK"
+    }
+  ]
+}

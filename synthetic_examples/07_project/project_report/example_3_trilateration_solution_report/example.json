@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Adjustment report",
+  "algorithm_id": "geocomp:project_report",
+  "algorithm_title": "Adjustment report",
+  "example_index": 3,
+  "slug": "example_3_trilateration_solution_report",
+  "title": "Adjustment report for RD-03 2D trilateration network",
+  "scenario": "Renders adjustment report for the adjusted RD-03 trilateration network.",
+  "parameters": {
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_3_trilateration_solution_report/inputs/trilat_solution.json",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_3_trilateration_solution_report/inputs/trilateration.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_3_trilateration_solution_report/outputs/adjustment_report.html"
+  },
+  "expected_summary": "Writes HTML adjustment report for RD-03 trilateration.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OMITTED": "[]",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_3_trilateration_solution_report/outputs/adjustment_report.html"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

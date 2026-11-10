@@ -1,0 +1,32 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Absolute ▸ Absolute — Static",
+  "algorithm_id": "geocomp:gnss_absolute_static",
+  "algorithm_title": "Absolute — Static",
+  "example_index": 3,
+  "slug": "example_3_custom_rtklib_conf",
+  "title": "Absolute static positioning with custom RTKLIB configuration file",
+  "scenario": "Uses an explicit RTKLIB .conf file overriding ionosphere/troposphere options.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/inputs/rinex",
+    "ROVER_STATION": "ROVE",
+    "ELEVATION_MASK": 10.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/outputs/quality.json",
+    "CONFIGURATION": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/inputs/custom_static.conf"
+  },
+  "expected_summary": "Produces static .pos solution and quality summary JSON.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_3_custom_rtklib_conf/outputs/solution.pos"
+    },
+    "info_lines": 4,
+    "warning_lines": 3
+  }
+}

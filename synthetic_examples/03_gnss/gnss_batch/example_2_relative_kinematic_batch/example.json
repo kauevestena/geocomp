@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Batch processing",
+  "algorithm_id": "geocomp:gnss_batch",
+  "algorithm_title": "Batch processing",
+  "example_index": 2,
+  "slug": "example_2_relative_kinematic_batch",
+  "title": "Batch Relative — Kinematic processing in ITRF2020",
+  "scenario": "Runs batch relative kinematic processing for all rovers referenced to BASE.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_2_relative_kinematic_batch/inputs/rinex",
+    "BASE_STATION": "BASE",
+    "FRAME": 2,
+    "PROFILE": 1,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_2_relative_kinematic_batch/outputs/batch_report.json"
+  },
+  "expected_summary": "Completes batch kinematic run and summarizes fix ratios in batch_report.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_2_relative_kinematic_batch/outputs/batch_report.json"
+    },
+    "info_lines": 5,
+    "warning_lines": 2
+  }
+}

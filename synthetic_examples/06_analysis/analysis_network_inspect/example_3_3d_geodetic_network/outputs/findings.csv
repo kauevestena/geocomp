@@ -1,0 +1,2 @@
+code,severity,message,stations,observations
+network_not_connected,blocking,the network falls into 5 disconnected parts; each has its own datum and they cannot be adjusted together,211302450 324900360 EURA HOTH MNSF,

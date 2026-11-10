@@ -1,0 +1,22 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "45",
+    "ENGINE_USED": "in_house",
+    "GLOBAL_TEST_PASSED": "True",
+    "OUTLIER_COUNT": "3",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_GRAVITY": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/gravity_solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/combined.json",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/solution.json",
+    "OUTPUT_STATION_LAYER": "None",
+    "VARIANCE_FACTOR_APOSTERIORI": "0.6615628200389518"
+  },
+  "info_lines": 7,
+  "warning_lines": 0
+}

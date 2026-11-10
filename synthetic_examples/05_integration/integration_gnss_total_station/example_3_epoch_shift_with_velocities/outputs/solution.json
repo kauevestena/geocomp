@@ -1,0 +1,1698 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.0022263748072401494,
+        -0.48784836243907426,
+        -0.3223566818442629
+      ],
+      "covariance": {
+        "labels": [
+          "M03.x",
+          "M03.y",
+          "M03.z"
+        ],
+        "matrix": [
+          [
+            3.3296954928160394e-06,
+            -2.0719164890870263e-06,
+            -1.9239524355430333e-06
+          ],
+          [
+            -2.0719164890870263e-06,
+            3.936730155755908e-06,
+            1.7297803360007742e-06
+          ],
+          [
+            -1.9239524355430333e-06,
+            1.7297803360007742e-06,
+            2.3785433863307056e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 1.9878547766416765,
+        "semi_major": 0.0032818270453713085,
+        "semi_minor": 0.0023765693559897887
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2025.0
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3762903.3402714455,
+            "variance": 3.3296954928160394e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -4367923.961410183,
+            "variance": 3.936730155755908e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -2721081.540171401,
+            "variance": 2.3785433863307056e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0032818270453713085,
+      "station_id": "M03"
+    },
+    {
+      "correction": [
+        -0.2754785512187945,
+        0.1756931380819222,
+        0.15409633127298636
+      ],
+      "covariance": {
+        "labels": [
+          "M04.x",
+          "M04.y",
+          "M04.z"
+        ],
+        "matrix": [
+          [
+            4.847901640243104e-06,
+            -2.0521543373918517e-06,
+            -1.9145981893276005e-06
+          ],
+          [
+            -2.0521543373918517e-06,
+            5.118981641640845e-06,
+            2.360782832418686e-06
+          ],
+          [
+            -1.9145981893276005e-06,
+            2.360782832418686e-06,
+            3.715017489118183e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 1.415811195412544,
+        "semi_major": 0.004368403945863526,
+        "semi_minor": 0.0035439134325003924
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2025.0
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3762552.004498966,
+            "variance": 4.847901640243104e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -4368743.004865395,
+            "variance": 5.118981641640845e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -2720220.6262974255,
+            "variance": 3.715017489118183e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.004368403945863526,
+      "station_id": "M04"
+    },
+    {
+      "correction": [
+        -0.11806704876486201,
+        -0.2877260414182577,
+        0.36437525236907004
+      ],
+      "covariance": {
+        "labels": [
+          "M05.x",
+          "M05.y",
+          "M05.z"
+        ],
+        "matrix": [
+          [
+            4.271274245813159e-06,
+            -2.1237928026957802e-06,
+            -2.281107805037436e-06
+          ],
+          [
+            -2.1237928026957802e-06,
+            4.828566565375083e-06,
+            2.024160466959597e-06
+          ],
+          [
+            -2.281107805037436e-06,
+            2.024160466959597e-06,
+            3.575215888996191e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 2.0016829643312994,
+        "semi_major": 0.004071538750244908,
+        "semi_minor": 0.0032574902972842905
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2025.0
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3763784.459788342,
+            "variance": 4.271274245813159e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -4367643.208566999,
+            "variance": 4.828566565375083e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -2720372.2149332953,
+            "variance": 3.575215888996191e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.004071538750244908,
+      "station_id": "M05"
+    },
+    {
+      "correction": [
+        -0.18841312240199534,
+        -0.15918901018795117,
+        0.4995473507218665
+      ],
+      "covariance": {
+        "labels": [
+          "M06.x",
+          "M06.y",
+          "M06.z"
+        ],
+        "matrix": [
+          [
+            3.6459294420779965e-06,
+            -2.7955338105145126e-06,
+            -1.8712117874688385e-06
+          ],
+          [
+            -2.7955338105145126e-06,
+            4.349671475086291e-06,
+            2.414792810163865e-06
+          ],
+          [
+            -1.8712117874688385e-06,
+            2.414792810163865e-06,
+            3.1125674056493595e-06
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 0.4722304920927532,
+        "semi_major": 0.0031276811439801583,
+        "semi_minor": 0.002656035551807708
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2025.0
+        },
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3762056.599373551,
+            "variance": 3.6459294420779965e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -4367324.380569116,
+            "variance": 4.349671475086291e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -2723192.6419612546,
+            "variance": 3.1125674056493595e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0031276811439801583,
+      "station_id": "M06"
+    }
+  ],
+  "crs": "ITRF2014",
+  "datum_definition": "FIXED",
+  "epoch": {
+    "decimal_year": 2025.0
+  },
+  "id": "combined",
+  "kind": "ADJUSTMENT",
+  "network_id": "combined",
+  "observation_results": [
+    {
+      "external_reliability": 0.012798745286001053,
+      "minimal_detectable_bias": 0.021861444308235604,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.5716286794456515,
+      "residual": -0.0030779504176777447,
+      "standardised_residual": 1.1412072187676006,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1412072187676006
+      }
+    },
+    {
+      "external_reliability": 0.018283872227744597,
+      "minimal_detectable_bias": 0.02346909230504213,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.3719978148709926,
+      "residual": -0.0024080423847206113,
+      "standardised_residual": 1.2303474687901503,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.2303474687901503
+      }
+    },
+    {
+      "external_reliability": 0.003662930664226631,
+      "minimal_detectable_bias": 0.026379133899718667,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.8833507151749249,
+      "residual": -0.0027570896002198715,
+      "standardised_residual": 0.5825097811673754,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5825097811673754
+      }
+    },
+    {
+      "external_reliability": 0.014112262521281964,
+      "minimal_detectable_bias": 0.022958341215505648,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.5183113260675732,
+      "residual": 0.0034247194403922757,
+      "standardised_residual": 1.3233094279404425,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.3233094279404425
+      }
+    },
+    {
+      "external_reliability": 0.020109818103697944,
+      "minimal_detectable_bias": 0.02455224046526892,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.33989964977430376,
+      "residual": 0.0023381295907241887,
+      "standardised_residual": 1.242660283226879,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.242660283226879
+      }
+    },
+    {
+      "external_reliability": 0.0037761182379415616,
+      "minimal_detectable_bias": 0.026468793315910545,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.877376391548782,
+      "residual": -0.0024837911769766906,
+      "standardised_residual": 0.52641319582471,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.52641319582471
+      }
+    },
+    {
+      "external_reliability": 0.011861850275616115,
+      "minimal_detectable_bias": 0.02114700205046349,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.6109055867404328,
+      "residual": 0.001904250301507004,
+      "standardised_residual": 0.6775149216259037,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6775149216259037
+      }
+    },
+    {
+      "external_reliability": 0.017452273871162813,
+      "minimal_detectable_bias": 0.02218263767976633,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.41639605237174687,
+      "residual": -0.0010256680965392848,
+      "standardised_residual": 0.4940729012720841,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4940729012720841
+      }
+    },
+    {
+      "external_reliability": 0.0032888149671101035,
+      "minimal_detectable_bias": 0.02612178628215679,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.9008417090840694,
+      "residual": -0.0005138209679558285,
+      "standardised_residual": 0.10745469188338508,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.10745469188338508
+      }
+    },
+    {
+      "external_reliability": 0.010048338594422149,
+      "minimal_detectable_bias": 0.02038931723496521,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.6571527739373566,
+      "residual": -0.0012980884678499053,
+      "standardised_residual": 0.4528724983315106,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4528724983315106
+      }
+    },
+    {
+      "external_reliability": 0.0137111209452788,
+      "minimal_detectable_bias": 0.020652268831781288,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.480393846393369,
+      "residual": -0.0005533236014110841,
+      "standardised_residual": 0.2546207231239434,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.2546207231239434
+      }
+    },
+    {
+      "external_reliability": 0.0026546592539728013,
+      "minimal_detectable_bias": 0.025757215705715267,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.9265234158925357,
+      "residual": -0.0023213307271032547,
+      "standardised_residual": 0.47784735687501423,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.47784735687501423
+      }
+    },
+    {
+      "external_reliability": 0.004316377936618862,
+      "minimal_detectable_bias": 0.04351781461996087,
+      "observation_id": "r-M03",
+      "redundancy": 0.901607619520055,
+      "residual": 0.007109531768835348,
+      "standardised_residual": 0.8814211881368404,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8814211881368404
+      }
+    },
+    {
+      "external_reliability": 0.004222624739802738,
+      "minimal_detectable_bias": 0.010496178300989367,
+      "observation_id": "s-CTB1-M06",
+      "redundancy": 0.6199395177630762,
+      "residual": 0.003079398112328504,
+      "standardised_residual": 2.302037831785336,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.302037831785336
+      }
+    },
+    {
+      "external_reliability": 0.002451170715223184,
+      "minimal_detectable_bias": 6.09865968883781e-05,
+      "observation_id": "z-CTB1-M06",
+      "redundancy": 0.9711250840627538,
+      "residual": 1.979162554524321e-05,
+      "standardised_residual": 1.6255451310250673,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.6255451310250673
+      }
+    },
+    {
+      "external_reliability": 0.0008864950639343803,
+      "minimal_detectable_bias": 3.707745203651017e-05,
+      "observation_id": "d-CTB1-M06",
+      "redundancy": 0.656846994597361,
+      "residual": 2.6283816012441252e-06,
+      "standardised_residual": 0.5249784273997664,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5249784273997664
+      }
+    },
+    {
+      "external_reliability": 0.004903263588911964,
+      "minimal_detectable_bias": 0.01008124504338885,
+      "observation_id": "s-CTB1-M03",
+      "redundancy": 0.6720218252099186,
+      "residual": 0.0008815614806244691,
+      "standardised_residual": 0.6329686413461282,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6329686413461282
+      }
+    },
+    {
+      "external_reliability": 0.0012921960630137314,
+      "minimal_detectable_bias": 6.0392840135015505e-05,
+      "observation_id": "z-CTB1-M03",
+      "redundancy": 0.990314331604156,
+      "residual": 1.8545074826237708e-05,
+      "standardised_residual": 1.50833292052079,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.50833292052079
+      }
+    },
+    {
+      "external_reliability": 0.000393878541893571,
+      "minimal_detectable_bias": 3.690756633573376e-05,
+      "observation_id": "d-CTB1-M03",
+      "redundancy": 0.6629078512306588,
+      "residual": -1.1927514686500484e-05,
+      "standardised_residual": 2.3714202624839653,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.3714202624839653
+      }
+    },
+    {
+      "external_reliability": 0.012607867820103837,
+      "minimal_detectable_bias": 0.01587170318168898,
+      "observation_id": "s-CTB1-M04",
+      "redundancy": 0.2711219341507747,
+      "residual": -0.0007602458280914983,
+      "standardised_residual": 0.8593953440907434,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8593953440907434
+      }
+    },
+    {
+      "external_reliability": 0.0013063710310757116,
+      "minimal_detectable_bias": 6.034374244722278e-05,
+      "observation_id": "z-CTB1-M04",
+      "redundancy": 0.9919264929384919,
+      "residual": 4.43491438906359e-06,
+      "standardised_residual": 0.36041316627275083,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.36041316627275083
+      }
+    },
+    {
+      "external_reliability": 0.0007605282497055552,
+      "minimal_detectable_bias": 3.6979335519574444e-05,
+      "observation_id": "d-CTB1-M04",
+      "redundancy": 0.6603372162053924,
+      "residual": 9.299133085256357e-06,
+      "standardised_residual": 1.8524424458929687,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.8524424458929687
+      }
+    },
+    {
+      "external_reliability": 0.00490358533922128,
+      "minimal_detectable_bias": 0.010081321823239954,
+      "observation_id": "s-M03-CTB1",
+      "redundancy": 0.6720115889452505,
+      "residual": 0.0014887951902706354,
+      "standardised_residual": 1.0689757511652487,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0689757511652487
+      }
+    },
+    {
+      "external_reliability": 0.001292183720690583,
+      "minimal_detectable_bias": 6.0392834903783676e-05,
+      "observation_id": "z-M03-CTB1",
+      "redundancy": 0.9903145031663648,
+      "residual": 5.946979848480748e-07,
+      "standardised_residual": 0.04836877063155438,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.04836877063155438
+      }
+    },
+    {
+      "external_reliability": 0.0008633450584982516,
+      "minimal_detectable_bias": 3.3852483035226686e-05,
+      "observation_id": "d-M03-CTB1",
+      "redundancy": 0.7879577337277833,
+      "residual": -4.510551778535183e-06,
+      "standardised_residual": 0.8225519932793802,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8225519932793802
+      }
+    },
+    {
+      "external_reliability": 0.007847575368804307,
+      "minimal_detectable_bias": 0.013977180853373215,
+      "observation_id": "s-M03-M04",
+      "redundancy": 0.34960090725019227,
+      "residual": 0.0007259235025667718,
+      "standardised_residual": 0.7226464271366768,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7226464271366768
+      }
+    },
+    {
+      "external_reliability": 0.0035506901607141777,
+      "minimal_detectable_bias": 6.214289234897903e-05,
+      "observation_id": "z-M03-M04",
+      "redundancy": 0.9353217768751306,
+      "residual": 1.0472852334670474e-05,
+      "standardised_residual": 0.876475153481173,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.876475153481173
+      }
+    },
+    {
+      "external_reliability": 0.0013421950625142989,
+      "minimal_detectable_bias": 3.433093546125675e-05,
+      "observation_id": "d-M03-M04",
+      "redundancy": 0.7661480594140889,
+      "residual": 3.9936926480963585e-06,
+      "standardised_residual": 0.738590017453105,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.738590017453105
+      }
+    },
+    {
+      "external_reliability": 0.004104179825652782,
+      "minimal_detectable_bias": 0.010661302400055602,
+      "observation_id": "s-M03-M05",
+      "redundancy": 0.6008847696712059,
+      "residual": -0.0002340150952567786,
+      "standardised_residual": 0.1776926861052473,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.1776926861052473
+      }
+    },
+    {
+      "external_reliability": 0.0035765905784907025,
+      "minimal_detectable_bias": 6.22939597014667e-05,
+      "observation_id": "z-M03-M05",
+      "redundancy": 0.9307908317234531,
+      "residual": -1.4688990655778319e-05,
+      "standardised_residual": 1.2323130799755584,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.2323130799755584
+      }
+    },
+    {
+      "external_reliability": 0.0014967015019822915,
+      "minimal_detectable_bias": 3.452079265869969e-05,
+      "observation_id": "d-M03-M05",
+      "redundancy": 0.7577439229030276,
+      "residual": 3.3967745482900984e-06,
+      "standardised_residual": 0.6316705643842201,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6316705643842201
+      }
+    },
+    {
+      "external_reliability": 0.009237881038797618,
+      "minimal_detectable_bias": 0.012384538613785767,
+      "observation_id": "s-M03-CTB2",
+      "redundancy": 0.445299345799214,
+      "residual": 0.000762523063329185,
+      "standardised_residual": 0.672586635174598,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.672586635174598
+      }
+    },
+    {
+      "external_reliability": 0.0014573597211550648,
+      "minimal_detectable_bias": 6.0472488601540825e-05,
+      "observation_id": "z-M03-CTB2",
+      "redundancy": 0.987707358577113,
+      "residual": -1.2989136734580708e-05,
+      "standardised_residual": 1.0578431933305137,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0578431933305137
+      }
+    },
+    {
+      "external_reliability": 0.000782244447242675,
+      "minimal_detectable_bias": 3.3804960077612405e-05,
+      "observation_id": "d-M03-CTB2",
+      "redundancy": 0.7901747103321738,
+      "residual": 1.085357519834793e-06,
+      "standardised_residual": 0.19764981142941823,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.19764981142941823
+      }
+    },
+    {
+      "external_reliability": 0.0033234355360201584,
+      "minimal_detectable_bias": 0.010470860219373584,
+      "observation_id": "s-M03-M06",
+      "redundancy": 0.6229411154754051,
+      "residual": -0.0007582450866324256,
+      "standardised_residual": 0.565467155643097,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.565467155643097
+      }
+    },
+    {
+      "external_reliability": 0.0018253682060576152,
+      "minimal_detectable_bias": 6.0647160925856154e-05,
+      "observation_id": "z-M03-M06",
+      "redundancy": 0.9820260805372849,
+      "residual": -1.0957933967514261e-06,
+      "standardised_residual": 0.08949985261733248,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.08949985261733248
+      }
+    },
+    {
+      "external_reliability": 0.0008601008962897587,
+      "minimal_detectable_bias": 3.388846874102991e-05,
+      "observation_id": "d-M03-M06",
+      "redundancy": 0.7862851789482531,
+      "residual": -3.9652729376860666e-06,
+      "standardised_residual": 0.7238826856515969,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7238826856515969
+      }
+    },
+    {
+      "external_reliability": 0.0041052030627475485,
+      "minimal_detectable_bias": 0.010661507401592158,
+      "observation_id": "s-M05-M03",
+      "redundancy": 0.6008616620350811,
+      "residual": 0.00059862503678084,
+      "standardised_residual": 0.4545575831589052,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4545575831589052
+      }
+    },
+    {
+      "external_reliability": 0.003576575843414834,
+      "minimal_detectable_bias": 6.229394507506092e-05,
+      "observation_id": "z-M05-M03",
+      "redundancy": 0.930791268816528,
+      "residual": -1.8492323907469822e-06,
+      "standardised_residual": 0.15513882344757207,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.15513882344757207
+      }
+    },
+    {
+      "external_reliability": 0.0009221061119375941,
+      "minimal_detectable_bias": 3.724429130177732e-05,
+      "observation_id": "d-M05-M03",
+      "redundancy": 0.6509753610329061,
+      "residual": -3.794667742309108e-06,
+      "standardised_residual": 0.7613364585559392,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7613364585559392
+      }
+    },
+    {
+      "external_reliability": 0.008571676156870243,
+      "minimal_detectable_bias": 0.015695206825294516,
+      "observation_id": "s-M05-M04",
+      "redundancy": 0.2772538810356398,
+      "residual": 0.0008137779299784846,
+      "standardised_residual": 0.9096794171209427,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9096794171209427
+      }
+    },
+    {
+      "external_reliability": 0.0028785671578027577,
+      "minimal_detectable_bias": 6.133486744074215e-05,
+      "observation_id": "z-M05-M04",
+      "redundancy": 0.960127944510926,
+      "residual": -1.0394944886193535e-05,
+      "standardised_residual": 0.8586433051799306,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8586433051799306
+      }
+    },
+    {
+      "external_reliability": 0.0010133156282986244,
+      "minimal_detectable_bias": 3.722329378199551e-05,
+      "observation_id": "d-M05-M04",
+      "redundancy": 0.6517099936733874,
+      "residual": 4.688924170521648e-06,
+      "standardised_residual": 0.9402236405618604,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9402236405618604
+      }
+    },
+    {
+      "external_reliability": 0.012522485879258544,
+      "minimal_detectable_bias": 0.015209247874915132,
+      "observation_id": "s-M05-CTB2",
+      "redundancy": 0.295254308917028,
+      "residual": 0.00032431667347633417,
+      "standardised_residual": 0.3513115534689066,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.3513115534689066
+      }
+    },
+    {
+      "external_reliability": 0.0015530605430015686,
+      "minimal_detectable_bias": 6.045511610985836e-05,
+      "observation_id": "z-M05-CTB2",
+      "redundancy": 0.9882750988905097,
+      "residual": -2.9623588064006268e-05,
+      "standardised_residual": 2.41186994437613,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.41186994437613
+      }
+    },
+    {
+      "external_reliability": 0.0012688129243488603,
+      "minimal_detectable_bias": 3.732816256400417e-05,
+      "observation_id": "d-M05-CTB2",
+      "redundancy": 0.6480533426846994,
+      "residual": -8.942564282125394e-07,
+      "standardised_residual": 0.1798215930787625,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.1798215930787625
+      }
+    },
+    {
+      "external_reliability": 0.006097695771673263,
+      "minimal_detectable_bias": 0.01150523013219202,
+      "observation_id": "s-M06-CTB2",
+      "redundancy": 0.5159660187956534,
+      "residual": 0.001374352363113492,
+      "standardised_residual": 1.1261826215711792,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1261826215711792
+      }
+    },
+    {
+      "external_reliability": 0.0016922944142893244,
+      "minimal_detectable_bias": 6.052395619561348e-05,
+      "observation_id": "z-M06-CTB2",
+      "redundancy": 0.986028244705184,
+      "residual": -1.8164094849783866e-06,
+      "standardised_residual": 0.1480553943395532,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.1480553943395532
+      }
+    },
+    {
+      "external_reliability": 0.0009447540722508198,
+      "minimal_detectable_bias": 3.709863520027615e-05,
+      "observation_id": "d-M06-CTB2",
+      "redundancy": 0.656097095042552,
+      "residual": -3.717044441360935e-06,
+      "standardised_residual": 0.7428460935858803,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7428460935858803
+      }
+    },
+    {
+      "external_reliability": 0.003321975139038882,
+      "minimal_detectable_bias": 0.010470627776452327,
+      "observation_id": "s-M06-M03",
+      "redundancy": 0.6229687737711578,
+      "residual": -0.0006039451304927296,
+      "standardised_residual": 0.4503867679586505,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4503867679586505
+      }
+    },
+    {
+      "external_reliability": 0.0018253920427504147,
+      "minimal_detectable_bias": 6.064717348686265e-05,
+      "observation_id": "z-M06-M03",
+      "redundancy": 0.9820256737504888,
+      "residual": -1.0443567905803816e-05,
+      "standardised_residual": 0.8529874196454782,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8529874196454782
+      }
+    },
+    {
+      "external_reliability": 0.0005843059588312293,
+      "minimal_detectable_bias": 3.690320109149569e-05,
+      "observation_id": "d-M06-M03",
+      "redundancy": 0.6630646899732118,
+      "residual": 1.4129623315413567e-07,
+      "standardised_residual": 0.028089097215483652,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.028089097215483652
+      }
+    },
+    {
+      "external_reliability": 0.004220833317261963,
+      "minimal_detectable_bias": 0.010495864402674877,
+      "observation_id": "s-M06-CTB1",
+      "redundancy": 0.6199765992024228,
+      "residual": -0.0020572592327340873,
+      "standardised_residual": 1.5378807089857813,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5378807089857813
+      }
+    },
+    {
+      "external_reliability": 0.0024512093433765496,
+      "minimal_detectable_bias": 6.09866208079543e-05,
+      "observation_id": "z-M06-CTB1",
+      "redundancy": 0.9711243222925299,
+      "residual": -2.19587363360867e-05,
+      "standardised_residual": 1.8035370997146245,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.8035370997146245
+      }
+    },
+    {
+      "external_reliability": 0.0009454204103130796,
+      "minimal_detectable_bias": 3.715288791080117e-05,
+      "observation_id": "d-M06-CTB1",
+      "redundancy": 0.6541823552286463,
+      "residual": 3.5757482082067996e-06,
+      "standardised_residual": 0.7156532771683348,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7156532771683348
+      }
+    },
+    {
+      "external_reliability": 0.0010487905723972218,
+      "minimal_detectable_bias": 3.0505516085438308e-05,
+      "observation_id": "a-M04",
+      "redundancy": 0.9703473570524116,
+      "residual": -1.3608358849714514e-06,
+      "standardised_residual": 0.22362857019152127,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.22362857019152127
+      }
+    },
+    {
+      "external_reliability": 0.0004195340375044601,
+      "minimal_detectable_bias": 0.00010032768595513378,
+      "observation_id": "b-M05-M04",
+      "redundancy": 0.9967812966587147,
+      "residual": 1.1593462136012335e-05,
+      "standardised_residual": 0.5639227431913093,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9490827178982462,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5639227431913093
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "M03.x",
+      "M03.y",
+      "M03.z",
+      "M04.x",
+      "M04.y",
+      "M04.z",
+      "M05.x",
+      "M05.y",
+      "M05.z",
+      "M06.x",
+      "M06.y",
+      "M06.z",
+      "set-CTB1.orientation",
+      "set-M03.orientation",
+      "set-M05.orientation",
+      "set-M06.orientation"
+    ],
+    "matrix": [
+      [
+        3.3296954928160394e-06,
+        -2.0719164890870263e-06,
+        -1.9239524355430333e-06,
+        6.856085599168552e-07,
+        3.5333110972384386e-07,
+        -4.118962221964584e-07,
+        8.676668768431859e-07,
+        2.0832747428708324e-07,
+        6.611145036256771e-08,
+        5.083600789892413e-08,
+        -5.388699088268459e-08,
+        -4.4926731944766176e-08,
+        2.4790806975839203e-10,
+        9.873631361191139e-11,
+        -1.303291763950643e-10,
+        1.6616180566572876e-10
+      ],
+      [
+        -2.0719164890870263e-06,
+        3.936730155755908e-06,
+        1.7297803360007742e-06,
+        3.1332053177716154e-07,
+        4.5867779912237613e-07,
+        -2.255990945029191e-07,
+        1.925214618283373e-07,
+        5.238614101695504e-07,
+        2.5725660922603444e-07,
+        -8.450126385695876e-08,
+        6.006731543251037e-08,
+        -1.0205303190471388e-07,
+        2.4817745494542304e-10,
+        5.443396672953366e-11,
+        -1.8520929587030357e-10,
+        1.608278854470365e-10
+      ],
+      [
+        -1.9239524355430333e-06,
+        1.7297803360007742e-06,
+        2.3785433863307056e-06,
+        -3.0228442688344223e-07,
+        -1.422741943278136e-07,
+        5.253272094816353e-07,
+        -1.36573730595179e-07,
+        1.4768407907916392e-07,
+        4.813925744468312e-07,
+        1.2683987990386105e-07,
+        6.773419740548758e-08,
+        7.490406161044562e-07,
+        -3.5537201389424586e-10,
+        -8.359275399130828e-12,
+        2.34278547278511e-10,
+        -1.457640878056904e-10
+      ],
+      [
+        6.856085599168552e-07,
+        3.1332053177716154e-07,
+        -3.0228442688344223e-07,
+        4.847901640243104e-06,
+        -2.0521543373918517e-06,
+        -1.9145981893276005e-06,
+        1.1544279887592691e-06,
+        7.172692255579778e-07,
+        -4.269524924491958e-07,
+        -1.89785078294187e-08,
+        -1.0025074635676332e-08,
+        -8.461477361301196e-08,
+        3.935575197379195e-10,
+        4.948417205800727e-10,
+        4.658910400807312e-10,
+        1.1600943948386611e-10
+      ],
+      [
+        3.5333110972384386e-07,
+        4.5867779912237613e-07,
+        -1.422741943278136e-07,
+        -2.0521543373918517e-06,
+        5.118981641640845e-06,
+        2.360782832418686e-06,
+        6.779583847257164e-07,
+        6.28936662863018e-07,
+        -1.9369090560528933e-07,
+        -2.3643357098996867e-08,
+        -4.292427290388567e-09,
+        -8.915841113761468e-08,
+        3.225031325426875e-10,
+        3.2607122612445833e-10,
+        2.324076608385076e-10,
+        9.413701588915126e-11
+      ],
+      [
+        -4.118962221964584e-07,
+        -2.255990945029191e-07,
+        5.253272094816353e-07,
+        -1.9145981893276005e-06,
+        2.360782832418686e-06,
+        3.715017489118183e-06,
+        -1.55800662159575e-07,
+        5.115174508661811e-09,
+        1.022340103481533e-07,
+        5.620802482165716e-08,
+        1.0245758374601736e-08,
+        2.777450304677876e-07,
+        -2.0812367281523183e-10,
+        2.250445942780879e-10,
+        5.380836288780516e-10,
+        -1.0167682953561885e-10
+      ],
+      [
+        8.676668768431859e-07,
+        1.925214618283373e-07,
+        -1.36573730595179e-07,
+        1.1544279887592691e-06,
+        6.779583847257164e-07,
+        -1.55800662159575e-07,
+        4.271274245813159e-06,
+        -2.1237928026957802e-06,
+        -2.281107805037436e-06,
+        2.5601925679437902e-08,
+        -4.024018420153862e-09,
+        9.120157714872079e-08,
+        2.233478089659831e-10,
+        3.8300141746195163e-10,
+        5.392112620228915e-10,
+        9.904605388323988e-11
+      ],
+      [
+        2.0832747428708324e-07,
+        5.238614101695504e-07,
+        1.4768407907916392e-07,
+        7.172692255579778e-07,
+        6.28936662863018e-07,
+        5.115174508661811e-09,
+        -2.1237928026957802e-06,
+        4.828566565375083e-06,
+        2.024160466959597e-06,
+        5.9968665741449996e-09,
+        4.030870682025528e-09,
+        5.213301945814096e-08,
+        1.5963035811981053e-10,
+        3.3156579962248984e-10,
+        5.484341516487441e-10,
+        6.520234900909937e-11
+      ],
+      [
+        6.611145036256771e-08,
+        2.5725660922603444e-07,
+        4.813925744468312e-07,
+        -4.269524924491958e-07,
+        -1.9369090560528933e-07,
+        1.022340103481533e-07,
+        -2.281107805037436e-06,
+        2.024160466959597e-06,
+        3.575215888996191e-06,
+        6.549049937184901e-08,
+        1.7601964718288462e-08,
+        2.822850195012026e-07,
+        -1.3090814612131267e-10,
+        -3.3801332462746906e-10,
+        -8.071185347764751e-10,
+        -9.641153043960961e-12
+      ],
+      [
+        5.083600789892413e-08,
+        -8.450126385695876e-08,
+        1.2683987990386105e-07,
+        -1.89785078294187e-08,
+        -2.3643357098996867e-08,
+        5.620802482165716e-08,
+        2.5601925679437902e-08,
+        5.9968665741449996e-09,
+        6.549049937184901e-08,
+        3.6459294420779965e-06,
+        -2.7955338105145126e-06,
+        -1.8712117874688385e-06,
+        -1.8609393660435222e-10,
+        -7.58188849391071e-11,
+        2.995149505484169e-11,
+        -3.440258083720673e-10
+      ],
+      [
+        -5.388699088268459e-08,
+        6.006731543251037e-08,
+        6.773419740548758e-08,
+        -1.0025074635676332e-08,
+        -4.292427290388567e-09,
+        1.0245758374601736e-08,
+        -4.024018420153862e-09,
+        4.030870682025528e-09,
+        1.7601964718288462e-08,
+        -2.7955338105145126e-06,
+        4.349671475086291e-06,
+        2.414792810163865e-06,
+        -8.737220158765271e-11,
+        -6.251725261976541e-11,
+        2.172639817129756e-12,
+        -2.511263223123398e-10
+      ],
+      [
+        -4.4926731944766176e-08,
+        -1.0205303190471388e-07,
+        7.490406161044562e-07,
+        -8.461477361301196e-08,
+        -8.915841113761468e-08,
+        2.777450304677876e-07,
+        9.120157714872079e-08,
+        5.213301945814096e-08,
+        2.822850195012026e-07,
+        -1.8712117874688385e-06,
+        2.414792810163865e-06,
+        3.1125674056493595e-06,
+        -4.3499130467927745e-10,
+        1.2572368366398064e-11,
+        1.5116959465735316e-10,
+        -1.5544581617819244e-10
+      ],
+      [
+        2.4790806975839203e-10,
+        2.4817745494542304e-10,
+        -3.5537201389424586e-10,
+        3.935575197379195e-10,
+        3.225031325426875e-10,
+        -2.0812367281523183e-10,
+        2.233478089659831e-10,
+        1.5963035811981053e-10,
+        -1.3090814612131267e-10,
+        -1.8609393660435222e-10,
+        -8.737220158765271e-11,
+        -4.3499130467927745e-10,
+        1.2971512295272387e-11,
+        8.602636556511749e-14,
+        -3.6914709276341435e-14,
+        1.443417544619241e-13
+      ],
+      [
+        9.873631361191139e-11,
+        5.443396672953366e-11,
+        -8.359275399130828e-12,
+        4.948417205800727e-10,
+        3.2607122612445833e-10,
+        2.250445942780879e-10,
+        3.8300141746195163e-10,
+        3.3156579962248984e-10,
+        -3.3801332462746906e-10,
+        -7.58188849391071e-11,
+        -6.251725261976541e-11,
+        1.2572368366398064e-11,
+        8.602636556511749e-14,
+        7.833468155537728e-12,
+        3.133942975199971e-13,
+        4.925525850430344e-14
+      ],
+      [
+        -1.303291763950643e-10,
+        -1.8520929587030357e-10,
+        2.34278547278511e-10,
+        4.658910400807312e-10,
+        2.324076608385076e-10,
+        5.380836288780516e-10,
+        5.392112620228915e-10,
+        5.484341516487441e-10,
+        -8.071185347764751e-10,
+        2.995149505484169e-11,
+        2.172639817129756e-12,
+        1.5116959465735316e-10,
+        -3.6914709276341435e-14,
+        3.133942975199971e-13,
+        1.345630977679291e-11,
+        -5.016293090217166e-14
+      ],
+      [
+        1.6616180566572876e-10,
+        1.608278854470365e-10,
+        -1.457640878056904e-10,
+        1.1600943948386611e-10,
+        9.413701588915126e-11,
+        -1.0167682953561885e-10,
+        9.904605388323988e-11,
+        6.520234900909937e-11,
+        -9.641153043960961e-12,
+        -3.440258083720673e-10,
+        -2.511263223123398e-10,
+        -1.5544581617819244e-10,
+        1.443417544619241e-13,
+        4.925525850430344e-14,
+        -5.016293090217166e-14,
+        1.2911127675294069e-11
+      ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "RADIAN",
+      "RADIAN",
+      "RADIAN",
+      "RADIAN"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:integration_gnss_total_station",
+    "created": "2026-11-04T20:47:13.800714+00:00",
+    "engine": "in_house",
+    "geocomp_version": "0.1.0",
+    "input_ids": [
+      "gnss",
+      "total-station"
+    ],
+    "parameters": {
+      "adjustment_frame": "geocentric_3d",
+      "combination": {
+        "epoch": 2025.0,
+        "frame": "ITRF2014",
+        "geocentric": true,
+        "inputs": [
+          "gnss",
+          "total-station"
+        ],
+        "renamed": {},
+        "techniques": [
+          "gnss",
+          "total_station"
+        ],
+        "transformations": [
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved along its velocity from 2020.0000 to 2025.0000",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "station CTB1 (fixed position)",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved along its velocity from 2020.0000 to 2025.0000",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "station CTB2 (fixed position)",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved by the difference of CTB1's and M05's velocities",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "observation g-CTB1-M05",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved by the difference of CTB2's and M04's velocities",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "observation g-CTB2-M04",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved by the difference of CTB1's and M06's velocities",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "observation g-CTB1-M06",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved by the difference of CTB2's and M03's velocities",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "observation g-CTB2-M03",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          },
+          {
+            "accuracy": 0.0,
+            "input": "gnss",
+            "source": "ITRF2014",
+            "source_epoch": 2020.0,
+            "steps": [
+              {
+                "description": "moved along its velocity from 2020.0000 to 2025.0000",
+                "from_epoch": 2020.0,
+                "kind": "epoch",
+                "to_epoch": 2025.0
+              }
+            ],
+            "subject": "observation r-M03",
+            "target": "ITRF2014",
+            "target_epoch": 2025.0
+          }
+        ]
+      },
+      "datum": "fixed",
+      "fixed": [
+        "CTB1",
+        "CTB2"
+      ],
+      "geoid_model": null,
+      "geoid_residuals": [],
+      "routing": {
+        "engine": "in_house",
+        "reason": "requested"
+      },
+      "solver": "dense",
+      "technique_breakdown": [
+        {
+          "largest_standardised": 1.1241134212488717,
+          "observations": 5,
+          "redundancy": 8.456385580821793,
+          "redundancy_share": 0.20625330684931203,
+          "rows": 13,
+          "technique": "gnss",
+          "uncheckable": [],
+          "variance_factor": 0.40615361858139964,
+          "weighted_squares": 3.4345916037703423
+        },
+        {
+          "largest_standardised": 2.0488143721605825,
+          "observations": 44,
+          "redundancy": 32.543614419178205,
+          "redundancy_share": 0.7937466931506879,
+          "rows": 44,
+          "technique": "total_station",
+          "uncheckable": [],
+          "variance_factor": 0.8035699814483762,
+          "weighted_squares": 26.15107163508214
+        }
+      ],
+      "variance_components": null
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "uncertainty_mode": "RIGOROUS"
+  },
+  "statistics": {
+    "condition_number": 1220483.231107764,
+    "converged": true,
+    "degrees_of_freedom": 41,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 60.56057173484372,
+      "critical_low": 25.214518638112512,
+      "name": "global",
+      "passed": true,
+      "statistic": 29.585663238852483
+    },
+    "iterations": 3,
+    "max_correction": 4.6153823428207396e-10,
+    "n_constraints": 0,
+    "n_observations": 57,
+    "n_parameters": 16,
+    "variance_factor_aposteriori": 0.7216015424110361,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "RIGOROUS"
+}

@@ -1,0 +1,135 @@
+{
+  "clusters": [],
+  "crs": "LOCAL",
+  "epoch": {
+    "decimal_year": 2026.0
+  },
+  "id": "levelling",
+  "observations": [
+    {
+      "id": "BM1-BM2",
+      "meta": {
+        "accumulated_imbalance": 0.0,
+        "height_type": "ORTHOMETRIC",
+        "length_km": 0.18,
+        "line": "BM1-BM2",
+        "setups": 3
+      },
+      "provenance": {
+        "file": "lev_loop.csv",
+        "reader": "levelling",
+        "records": [
+          "rows 2-7"
+        ]
+      },
+      "stations": [
+        "BM1",
+        "BM2"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 3.7488200000000003,
+          "variance": 7.499999999999999e-07
+        }
+      ]
+    },
+    {
+      "id": "BM2-BM4",
+      "meta": {
+        "accumulated_imbalance": 0.0,
+        "height_type": "ORTHOMETRIC",
+        "length_km": 0.5,
+        "line": "BM2-BM4",
+        "setups": 5
+      },
+      "provenance": {
+        "file": "lev_loop.csv",
+        "reader": "levelling",
+        "records": [
+          "rows 8-17"
+        ]
+      },
+      "stations": [
+        "BM2",
+        "BM4"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 2.7278000000000002,
+          "variance": 1.25e-06
+        }
+      ]
+    },
+    {
+      "id": "BM4-BM1",
+      "meta": {
+        "accumulated_imbalance": 0.0,
+        "height_type": "ORTHOMETRIC",
+        "length_km": 0.08,
+        "line": "BM4-BM1",
+        "setups": 2
+      },
+      "provenance": {
+        "file": "lev_loop.csv",
+        "reader": "levelling",
+        "records": [
+          "rows 18-21"
+        ]
+      },
+      "stations": [
+        "BM4",
+        "BM1"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": -6.4804,
+          "variance": 5.000000000000002e-07
+        }
+      ]
+    }
+  ],
+  "stations": [
+    {
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "BM1",
+      "station_type": "MARK"
+    },
+    {
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "BM2",
+      "station_type": "MARK"
+    },
+    {
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "BM4",
+      "station_type": "MARK"
+    }
+  ]
+}

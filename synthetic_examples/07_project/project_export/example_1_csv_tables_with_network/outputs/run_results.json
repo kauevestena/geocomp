@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "FILES": "['/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/stations.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/observations.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/adjusted.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/statistics.csv']",
+    "OUTPUT_FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

@@ -1,0 +1,89 @@
+{
+  "kind": "levelling_setup_reductions",
+  "level_id": "rd04-level",
+  "setups": [
+    {
+      "covariance": {
+        "labels": [
+          "BM3",
+          "S1",
+          "S2"
+        ],
+        "matrix": [
+          [
+            5e-07,
+            2.5e-07,
+            2.5e-07
+          ],
+          [
+            2.5e-07,
+            5e-07,
+            2.5e-07
+          ],
+          [
+            2.5e-07,
+            2.5e-07,
+            5e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "from_station": "BM1",
+      "height_differences": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 1.2000000000000002,
+          "variance": 5e-07
+        },
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 2.3099999999999996,
+          "variance": 5e-07
+        },
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 4.904999999999999,
+          "variance": 5e-07
+        }
+      ],
+      "imbalances": [
+        0.0,
+        -15.0,
+        7.0
+      ],
+      "records": [
+        "row 2",
+        "row 3",
+        "row 4",
+        "row 5"
+      ],
+      "setup_id": "RD04-extreme",
+      "to_stations": [
+        "BM3",
+        "S1",
+        "S2"
+      ]
+    }
+  ],
+  "source": "lev_extreme.csv"
+}

@@ -1,0 +1,25 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Scan sessions",
+  "algorithm_id": "geocomp:gnss_scan_sessions",
+  "algorithm_title": "Scan sessions",
+  "example_index": 3,
+  "slug": "example_3_single_receiver_ppp_session",
+  "title": "Single-receiver standalone/PPP RINEX folder (ROVE only)",
+  "scenario": "Scans a folder with a single rover receiver and navigation file (no base station).",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_3_single_receiver_ppp_session/inputs/rinex_single",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_3_single_receiver_ppp_session/outputs/sessions.json"
+  },
+  "expected_summary": "Reports 1 observation file (ROVE) ready for absolute positioning.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_3_single_receiver_ppp_session/outputs/sessions.json"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

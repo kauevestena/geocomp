@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Add base map",
+  "algorithm_id": "geocomp:project_basemap",
+  "algorithm_title": "Add base map",
+  "example_index": 2,
+  "slug": "example_2_opentopomap_topographic",
+  "title": "Add OpenTopoMap topographic base map (service='opentopomap')",
+  "scenario": "Adds the OpenTopoMap contour/topographic backdrop ideal for field planning.",
+  "parameters": {
+    "SERVICE": "opentopomap",
+    "REUSE": true
+  },
+  "expected_summary": "Adds XYZ tile base map layer to the active QGIS project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "LAYER": "OpenTopoMap_e649a162_4e40_46d3_b1d5_4600574bd9fa",
+      "OUTCOME": "added",
+      "SERVICE": "opentopomap"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

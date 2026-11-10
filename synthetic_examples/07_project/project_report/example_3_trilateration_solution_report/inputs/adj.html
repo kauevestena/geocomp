@@ -1,0 +1,272 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Network adjustment report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Network adjustment report</h1>
+<h2>Adjustment</h2>
+<table>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Network</td>
+<td>rd03-trilateration</td>
+</tr>
+<tr>
+<td>Coordinate frame</td>
+<td>2D plane</td>
+</tr>
+<tr>
+<td>Datum definition</td>
+<td>constrained</td>
+</tr>
+<tr>
+<td>Datum defect</td>
+<td>2 (translation in easting, translation in northing)</td>
+</tr>
+<tr>
+<td>Solving method</td>
+<td>Cholesky factorisation</td>
+</tr>
+<tr>
+<td>Observation equations</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Largest final correction (m)</td>
+<td>0.000063</td>
+</tr>
+<tr>
+<td>A posteriori variance factor</td>
+<td>1.8832</td>
+</tr>
+<tr>
+<td>Condition number</td>
+<td>151.87</td>
+</tr>
+<tr>
+<td>Confidence level</td>
+<td>0.950</td>
+</tr>
+</table>
+<h2>Global test</h2>
+<table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Statistic</td>
+<td>5.6497</td>
+</tr>
+<tr>
+<td>Lower critical value</td>
+<td>0.2158</td>
+</tr>
+<tr>
+<td>Upper critical value</td>
+<td>9.3484</td>
+</tr>
+<tr>
+<td>Decision</td>
+<td><span class="pass">Passes</span></td>
+</tr>
+</table>
+<h2>Adjusted stations</h2>
+<table>
+<tr>
+<th>Station</th>
+<th>X (m)</th>
+<th>Y (m)</th>
+<th>Z (m)</th>
+<th>Std dev X (m)</th>
+<th>Std dev Y (m)</th>
+<th>Std dev Z (m)</th>
+<th>Semi-major (m)</th>
+<th>Semi-minor (m)</th>
+</tr>
+<tr>
+<td>B</td>
+<td>1200.0038</td>
+<td>0.0017</td>
+<td>0.0000</td>
+<td>0.00493</td>
+<td>0.01647</td>
+<td>0.00000</td>
+<td>0.07198</td>
+<td>0.02157</td>
+</tr>
+<tr>
+<td>C</td>
+<td>1199.9975</td>
+<td>900.0027</td>
+<td>0.0000</td>
+<td>0.01364</td>
+<td>0.01726</td>
+<td>0.00000</td>
+<td>0.09457</td>
+<td>0.01745</td>
+</tr>
+<tr>
+<td>D</td>
+<td>0.0026</td>
+<td>899.9972</td>
+<td>0.0000</td>
+<td>0.01385</td>
+<td>0.00518</td>
+<td>0.00000</td>
+<td>0.06065</td>
+<td>0.02233</td>
+</tr>
+<tr>
+<td>E</td>
+<td>600.0054</td>
+<td>449.9944</td>
+<td>0.0000</td>
+<td>0.00774</td>
+<td>0.00992</td>
+<td>0.00000</td>
+<td>0.05158</td>
+<td>0.01907</td>
+</tr>
+</table>
+<h2>Residuals and data snooping</h2>
+<div class="note">Observations exceeding the critical value are candidates, not rejections. Nothing has been removed: investigate the largest, decide, re-adjust, and test again.</div>
+<table>
+<tr>
+<th>Observation</th>
+<th>Component</th>
+<th>Residual</th>
+<th>Standardised residual</th>
+<th>Redundancy</th>
+<th>Minimal detectable bias</th>
+<th>External effect</th>
+<th>Flag</th>
+</tr>
+<tr>
+<td>d0</td>
+<td></td>
+<td>0.00175</td>
+<td>0.726</td>
+<td>0.192</td>
+<td>0.0377</td>
+<td>0.0441</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d1</td>
+<td></td>
+<td>0.00131</td>
+<td>0.726</td>
+<td>0.108</td>
+<td>0.0503</td>
+<td>0.0569</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d2</td>
+<td></td>
+<td>0.00175</td>
+<td>0.726</td>
+<td>0.192</td>
+<td>0.0377</td>
+<td>0.0267</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d3</td>
+<td></td>
+<td>0.00131</td>
+<td>0.726</td>
+<td>0.108</td>
+<td>0.0503</td>
+<td>0.0519</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d4</td>
+<td></td>
+<td>-0.00314</td>
+<td>0.837</td>
+<td>0.467</td>
+<td>0.0242</td>
+<td>0.0195</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d5</td>
+<td></td>
+<td>-0.00615</td>
+<td>1.639</td>
+<td>0.467</td>
+<td>0.0242</td>
+<td>0.0136</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d6</td>
+<td></td>
+<td>0.00096</td>
+<td>0.287</td>
+<td>0.367</td>
+<td>0.0273</td>
+<td>0.0202</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d7</td>
+<td></td>
+<td>0.00396</td>
+<td>1.192</td>
+<td>0.367</td>
+<td>0.0273</td>
+<td>0.0176</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d8</td>
+<td></td>
+<td>0.00096</td>
+<td>0.287</td>
+<td>0.367</td>
+<td>0.0273</td>
+<td>0.0154</td>
+<td>—</td>
+</tr>
+<tr>
+<td>d9</td>
+<td></td>
+<td>0.00396</td>
+<td>1.192</td>
+<td>0.367</td>
+<td>0.0273</td>
+<td>0.0146</td>
+<td>—</td>
+</tr>
+<tr>
+<td>az</td>
+<td></td>
+<td>-6.46124e-21</td>
+<td>6.548e-09</td>
+<td>5.170e-15</td>
+<td>—</td>
+<td>—</td>
+<td><span class="warning">uncheckable</span></td>
+</tr>
+</table>
+<div class="note"><b>Reliability</b>: 1 observation(s) have effectively no redundancy and are uncheckable: no blunder in them is detectable at all. A network can pass every statistical test while containing them, so treat the passing tests as saying nothing about those observations</div>
+<footer>Generated by GeoComp — geocomp:analysis_network_adjust</footer>
+</body></html>

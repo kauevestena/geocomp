@@ -1,0 +1,31 @@
+{
+  "name": "rd04-loop",
+  "description": "One row per staff reading: setup, point, BS or FS, reading (m), sight distance (m), line.",
+  "columns": [
+    {
+      "field": "setup",
+      "column": "setup"
+    },
+    {
+      "field": "station",
+      "column": "point"
+    },
+    {
+      "field": "sight",
+      "column": "kind"
+    },
+    {
+      "field": "reading",
+      "column": "reading"
+    },
+    {
+      "field": "distance",
+      "column": "distance"
+    },
+    {
+      "field": "line",
+      "column": "line"
+    }
+  ],
+  "decimal_separator": "."
+}

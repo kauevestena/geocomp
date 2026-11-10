@@ -54,6 +54,8 @@ from geocomp.algorithms.display import display_format
 from geocomp.algorithms.labels import defect_words, in_words
 from geocomp.core.errors import GeoCompError
 from geocomp.core.preanalysis.design import simulate
+from geocomp.core.preanalysis.session import DesignSession
+from geocomp.gui.preanalysis_dialog import write_network_geojson
 
 __all__ = ["NetworkPreAnalysisAlgorithm"]
 
@@ -68,6 +70,7 @@ ALPHA = "ALPHA"
 BETA = "BETA"
 OUTPUT_HTML = "OUTPUT_HTML"
 OUTPUT_CSV = "OUTPUT_CSV"
+OUTPUT_NETWORK_LAYER = "OUTPUT_NETWORK_LAYER"
 MEETS_TOLERANCE = "MEETS_TOLERANCE"
 WORST_STATION = "WORST_STATION"
 WORST_UNCERTAINTY = "WORST_UNCERTAINTY"
@@ -222,6 +225,15 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
                 createByDefault=False,
             )
         )
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                OUTPUT_NETWORK_LAYER,
+                self.tr("Planned network (layer)"),
+                "GeoJSON (*.geojson)",
+                optional=True,
+                createByDefault=False,
+            )
+        )
 
     def processAlgorithm(
         self,
@@ -278,6 +290,38 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
         if csv_target:
             self._write_csv(csv_target, design)
 
+        network_layer_dest = self.parameterAsFileOutput(
+            parameters, OUTPUT_NETWORK_LAYER, context
+        )
+        if network_layer_dest:
+            session = DesignSession(
+                crs=network.crs or "EPSG:4326",
+                frame=frame,
+                datum=datum,
+                datum_stations=tuple(datum_stations or ()),
+                confidence=confidence,
+                tolerance=tolerance if tolerance > 0.0 else None,
+                network=network,
+            )
+            target = write_network_geojson(session, path=network_layer_dest)
+            network_layer_dest = str(target)
+            project = context.project()
+            if project is not None:
+                existing_sources = {
+                    (layer.source() or "").split("|", 1)[0]
+                    for layer in project.mapLayers().values()
+                }
+                if str(target) not in existing_sources:
+                    base_name = target.stem
+                    for geom_type in ("LineString", "Point"):
+                        uri = f"{target}|geometrytype={geom_type}"
+                        details = QgsProcessingContext.LayerDetails(
+                            f"{base_name} ({geom_type})",
+                            project,
+                            OUTPUT_NETWORK_LAYER,
+                        )
+                        context.addLayerToLoadOnCompletion(uri, details)
+
         feedback.setProgress(100)
         return {
             MEETS_TOLERANCE: meets,
@@ -287,6 +331,7 @@ class NetworkPreAnalysisAlgorithm(GeoCompAlgorithm):
             UNCHECKABLE_COUNT: len(design.reliability.uncheckable),
             OUTPUT_HTML: html_target,
             OUTPUT_CSV: csv_target,
+            OUTPUT_NETWORK_LAYER: network_layer_dest,
         }
 
     # -- feedback --------------------------------------------------------

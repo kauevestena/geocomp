@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Monitoring report",
+  "algorithm_id": "geocomp:monitoring_report",
+  "algorithm_title": "Monitoring report",
+  "example_index": 3,
+  "slug": "example_3_from_series_only",
+  "title": "Time-series monitoring report rendered from series.json alone",
+  "scenario": "Renders velocity tables and offset history from series.json with 500x exaggeration.",
+  "parameters": {
+    "SERIES": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_3_from_series_only/inputs/series.json",
+    "EXAGGERATION": 500.0,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_3_from_series_only/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Renders HTML monitoring report from series document.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OMITTED": "[]",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_3_from_series_only/outputs/monitoring_report.html"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

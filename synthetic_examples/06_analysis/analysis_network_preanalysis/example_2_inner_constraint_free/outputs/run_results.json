@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "5",
+    "MEETS_TOLERANCE": "True",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_2_inner_constraint_free/outputs/expected_precision.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_2_inner_constraint_free/outputs/report.html",
+    "UNCHECKABLE_COUNT": "0",
+    "WORST_STATION": "D",
+    "WORST_UNCERTAINTY": "0.01939329582813574"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

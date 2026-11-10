@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Download products",
+  "algorithm_id": "geocomp:gnss_download_products",
+  "algorithm_title": "Download products",
+  "example_index": 3,
+  "slug": "example_3_check_availability_only",
+  "title": "Dry-run availability check (CHECK_ONLY=True) without downloading payloads",
+  "scenario": "Probes product archive availability for SP3 + GPS nav without copying files.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_3_check_availability_only/inputs/rinex",
+    "PRODUCTS": [
+      0,
+      1
+    ],
+    "LATENCY": 0,
+    "CHECK_ONLY": true,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_3_check_availability_only/outputs/manifest.json"
+  },
+  "expected_summary": "Verifies AVAILABLE=2, MISSING=0 and writes availability manifest.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "AVAILABLE": "2",
+      "MISSING": "0",
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_3_check_availability_only/outputs/manifest.json"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

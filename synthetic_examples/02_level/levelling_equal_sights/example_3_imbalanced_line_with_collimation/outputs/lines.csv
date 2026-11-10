@@ -1,0 +1,2 @@
+line,from,to,setups,length_km,accumulated_imbalance_m,raw_height_difference_m,collimation_correction_m,height_difference_m,std_dev_m
+line,BM1,BM2,3,0.18,60.0,3.7620000000000005,-0.003,3.7590000000000003,0.0013638181696985856

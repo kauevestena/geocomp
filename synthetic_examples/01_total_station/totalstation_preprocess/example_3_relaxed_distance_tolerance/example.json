@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Generalised pre-processing",
+  "algorithm_id": "geocomp:totalstation_preprocess",
+  "algorithm_title": "Generalised pre-processing",
+  "example_index": 3,
+  "slug": "example_3_relaxed_distance_tolerance",
+  "title": "Custom face-distance tolerance (1.0 m) and explicit distance/zenith correlation (0.25)",
+  "scenario": "Relaxes face-pair distance tolerance to 1.0 m and sets distance/zenith correlation to 0.25.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/inputs/readings.json",
+    "APPLY_ATMOSPHERIC": false,
+    "DISTANCE_TOLERANCE": 1.0,
+    "CORRELATION": 0.25,
+    "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reduced.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reductions.csv"
+  },
+  "expected_summary": "Accepts all 6 pointings under the 1.0 m tolerance and records 0.25 correlation.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reductions.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/report.html",
+      "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reduced.json",
+      "POINTING_COUNT": "6",
+      "USABLE_COUNT": "6"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

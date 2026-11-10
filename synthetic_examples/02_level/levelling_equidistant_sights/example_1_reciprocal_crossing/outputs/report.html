@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Levelling: equidistant sights</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Levelling: equidistant sights</h1>
+<h2>Crossings</h2>
+<table>
+<tr>
+<th>From</th>
+<th>To</th>
+<th>From the near bank (m)</th>
+<th>From the far bank (m)</th>
+<th>Mean dH (m)</th>
+<th>Discrepancy (mm)</th>
+<th>Uncertainty (mm)</th>
+</tr>
+<tr>
+<td>BM1</td>
+<td>BM2</td>
+<td>3.73800</td>
+<td>3.76200</td>
+<td>3.75000</td>
+<td>-24.00</td>
+<td>0.707</td>
+</tr>
+</table>
+<div class="note"><b>Uncertainty model</b>: The variance was multiplied by 2.00 and the result marked as an empirical scaling. Refraction over water varies rapidly and asymmetrically, and the two reciprocal observations were not simultaneous.</div>
+<div class="note"><b>Discrepancy</b>: The discrepancy is the two banks&#x27; disagreement. Its expected value is zero; a large one says the refraction changed between the two observations, which is the assumption the method rests on.</div>
+<h2>Findings</h2>
+<table>
+<tr>
+<th>Severity</th>
+<th>Code</th>
+<th>Finding</th>
+<th>Involves</th>
+</tr>
+<tr>
+<td>Information</td>
+<td><code>reciprocal_variance_inflated</code></td>
+<td>The variance of this crossing was multiplied by 2. Refraction over water varies rapidly and asymmetrically, and the two reciprocal observations were not simultaneous, so the symmetry the method relies on holds only approximately.</td>
+<td>BM1, BM2</td>
+</tr>
+</table>
+</body></html>

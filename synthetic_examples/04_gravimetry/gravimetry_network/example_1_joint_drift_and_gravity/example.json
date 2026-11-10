@@ -1,0 +1,42 @@
+{
+  "menu_group_id": "04_gravimetry",
+  "menu_group_title": "Gravimetry",
+  "menu_path": "GeoComp ▸ Gravimetry ▸ Gravimetric network adjustment",
+  "algorithm_id": "geocomp:gravimetry_network",
+  "algorithm_title": "Gravimetric network adjustment",
+  "example_index": 1,
+  "slug": "example_1_joint_drift_and_gravity",
+  "title": "Joint estimation of station gravity and linear drift holding station 1 = 978800.000 mGal",
+  "scenario": "Simultaneously adjusts gravity at stations 1, 2, 3 and drift polynomial with full correlation.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/inputs/reduced_readings.json",
+    "KNOWN_GRAVITY": "1=978800.000",
+    "DRIFT_MODE": 0,
+    "DRIFT_DEGREE": 1,
+    "CORRELATED": true,
+    "CONFIDENCE": 0.95,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/gravity.csv"
+  },
+  "expected_summary": "Adjusts station gravity values and drift parameters jointly.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DATUM_DEFECT": "1",
+      "DEGREES_OF_FREEDOM": "1",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/gravity.csv",
+      "OUTPUT_DIFFERENCES": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/report.html",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/solution.json",
+      "OUTPUT_STATIONS": "None",
+      "UNCHECKABLE_COUNT": "0",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.003157894744473901"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

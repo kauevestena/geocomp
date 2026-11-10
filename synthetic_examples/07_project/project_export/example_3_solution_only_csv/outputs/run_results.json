@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "FILES": "['/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_3_solution_only_csv/outputs/csv_tables/adjusted.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_3_solution_only_csv/outputs/csv_tables/statistics.csv']",
+    "OUTPUT_FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_3_solution_only_csv/outputs/csv_tables"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

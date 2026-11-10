@@ -1,0 +1,116 @@
+{
+  "id": "levelling",
+  "stations": [
+    {
+      "id": "M04",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    },
+    {
+      "id": "M05",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    },
+    {
+      "id": "M06",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    },
+    {
+      "id": "M03",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "l-M03-M04",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "M03",
+        "M04"
+      ],
+      "values": [
+        {
+          "value": -16.014131960233712,
+          "variance": 1.2391317479909635e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "l-M04-M05",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "M04",
+        "M05"
+      ],
+      "values": [
+        {
+          "value": 38.959620412665885,
+          "variance": 1.6587599637924188e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "l-M05-M06",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "M05",
+        "M06"
+      ],
+      "values": [
+        {
+          "value": -25.84712417035925,
+          "variance": 3.3229478406716885e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "l-M06-M03",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "M06",
+        "M03"
+      ],
+      "values": [
+        {
+          "value": 2.9005074334814474,
+          "variance": 2.3522803230394897e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    }
+  ],
+  "clusters": []
+}

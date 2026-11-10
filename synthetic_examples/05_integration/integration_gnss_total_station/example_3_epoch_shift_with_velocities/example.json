@@ -1,0 +1,45 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ GNSS and total station",
+  "algorithm_id": "geocomp:integration_gnss_total_station",
+  "algorithm_title": "GNSS and total station",
+  "example_index": 3,
+  "slug": "example_3_epoch_shift_with_velocities",
+  "title": "GNSS + Total Station propagated to epoch 2025.0 using station velocities CSV",
+  "scenario": "Propagates coordinates to epoch 2025.0 via velocities.csv and adjusts in ITRF2014.",
+  "parameters": {
+    "GNSS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/inputs/gnss.json",
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/inputs/ts.json",
+    "FRAME": 1,
+    "EPOCH": "2025.0",
+    "VELOCITIES": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/inputs/velocities.csv",
+    "FIXED_STATIONS": "CTB1,CTB2",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/combined.json"
+  },
+  "expected_summary": "Adjusts velocity-propagated combined network at epoch 2025.0.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "41",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "3",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_total_station/example_3_epoch_shift_with_velocities/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.7216015424110361"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

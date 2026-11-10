@@ -1,0 +1,174 @@
+{
+  "kind": "levelling_setups",
+  "level_id": "rd04-level",
+  "lines": [
+    {
+      "id": "line",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 40.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 2
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.708,
+              "variance": 2.5e-07
+            },
+            "station": "BM1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 20.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 3
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 0.604,
+                "variance": 2.5e-07
+              },
+              "station": "T1"
+            }
+          ],
+          "id": "S1",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 40.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 4
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.808,
+              "variance": 2.5e-07
+            },
+            "station": "T1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 20.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 5
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 0.704,
+                "variance": 2.5e-07
+              },
+              "station": "T2"
+            }
+          ],
+          "id": "S2",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 40.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 6
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 2.208,
+              "variance": 2.5e-07
+            },
+            "station": "T2"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 20.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 7
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 0.654,
+                "variance": 2.5e-07
+              },
+              "station": "BM2"
+            }
+          ],
+          "id": "S3",
+          "level_id": "rd04-level"
+        }
+      ]
+    }
+  ],
+  "source": "lev_imbalanced.csv"
+}

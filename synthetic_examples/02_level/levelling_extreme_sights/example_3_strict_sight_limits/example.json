@@ -1,0 +1,38 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Extreme sights",
+  "algorithm_id": "geocomp:levelling_extreme_sights",
+  "algorithm_title": "Extreme sights",
+  "example_index": 3,
+  "slug": "example_3_strict_sight_limits",
+  "title": "Multi-foresight setup checked against strict 20 m sight-length and 2 m imbalance limits",
+  "scenario": "Enforces MAX_SIGHT_LENGTH=20 m and MAX_SIGHT_IMBALANCE=2 m on radial sights.",
+  "parameters": {
+    "SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/inputs/extreme_setups.json",
+    "ONLY_MULTIPLE": true,
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/inputs/profiles.json",
+    "MAX_SIGHT_LENGTH": 20.0,
+    "MAX_SIGHT_IMBALANCE": 2.0,
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.csv"
+  },
+  "expected_summary": "Computes correlated differences and logs sight-length/imbalance warnings.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "DIFFERENCE_COUNT": "3",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.csv",
+      "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/report.html",
+      "SETUP_COUNT": "1",
+      "WARNINGS": "5",
+      "WORST_UNCERTAINTY": "0.0007071067811865475"
+    },
+    "info_lines": 0,
+    "warning_lines": 5
+  }
+}

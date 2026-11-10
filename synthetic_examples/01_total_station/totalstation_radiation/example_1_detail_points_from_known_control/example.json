@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ 3D radiation",
+  "algorithm_id": "geocomp:totalstation_radiation",
+  "algorithm_title": "3D radiation",
+  "example_index": 1,
+  "slug": "example_1_detail_points_from_known_control",
+  "title": "3D radiation of detail points P1 and P2 orienting automatically from known stations",
+  "scenario": "Radiates non-control detail points (P1, P2) from setup A using backsights to known stations B and D.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/inputs/reductions.json",
+    "STATIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/inputs/known.json",
+    "INSTRUMENT_HEIGHT": 1.5,
+    "TARGET_HEIGHT": 1.5,
+    "CORRELATION": 0.0,
+    "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/points.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/points.csv"
+  },
+  "expected_summary": "Recovers exact 3D coordinates of detail points P1 and P2 with full 3x3 covariance.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/points.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/report.html",
+      "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_1_detail_points_from_known_control/outputs/points.json",
+      "POINT_COUNT": "2",
+      "WORST_UNCERTAINTY": "0.001973561511098366"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

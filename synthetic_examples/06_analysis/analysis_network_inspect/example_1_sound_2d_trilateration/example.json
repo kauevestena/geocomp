@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Inspect network",
+  "algorithm_id": "geocomp:analysis_network_inspect",
+  "algorithm_title": "Inspect network",
+  "example_index": 1,
+  "slug": "example_1_sound_2d_trilateration",
+  "title": "Topological and rank inspection of a sound 2D trilateration network",
+  "scenario": "Verifies connectivity, datum constraints, and degrees of freedom of RD-03 trilateration network.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_1_sound_2d_trilateration/inputs/trilateration.json",
+    "FRAME": 0,
+    "FAIL_ON_BLOCKING": true,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_1_sound_2d_trilateration/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_1_sound_2d_trilateration/outputs/findings.csv"
+  },
+  "expected_summary": "Reports CAN_ADJUST=True, BLOCKING_COUNT=0, COMPONENT_COUNT=1.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "0",
+      "CAN_ADJUST": "True",
+      "COMPONENT_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_1_sound_2d_trilateration/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_1_sound_2d_trilateration/outputs/report.html",
+      "WARNING_COUNT": "0"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

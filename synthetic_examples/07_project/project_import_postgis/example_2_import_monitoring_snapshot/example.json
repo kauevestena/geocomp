@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Import project from PostGIS",
+  "algorithm_id": "geocomp:project_import_postgis",
+  "algorithm_title": "Import project from PostGIS",
+  "example_index": 2,
+  "slug": "example_2_import_monitoring_snapshot",
+  "title": "Import monitoring project from PostGIS schema 'dam_monitoring_2024' for offline field work",
+  "scenario": "Creates an offline GeoPackage snapshot from 'dam_monitoring_2024'.",
+  "parameters": {
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "dam_monitoring_2024",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_2_import_monitoring_snapshot/outputs/imported_dam_monitoring_2024.gpkg"
+  },
+  "expected_summary": "Copies all rows from geocomp_local_pg / dam_monitoring_2024 into imported_dam_monitoring_2024.gpkg with 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_2_import_monitoring_snapshot/outputs/imported_dam_monitoring_2024.gpkg",
+      "ROWS": "168"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,1 @@
+{"command": ["/usr/bin/python3", "-c", "import sys; sys.stderr.write('Error: malformed station record\\n'); sys.exit(2)"], "exit_code": 2, "program": "dnaimport", "seconds": 0.06466933600313496, "timed_out": false, "version": null}

@@ -1,0 +1,45 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ GNSS and level",
+  "algorithm_id": "geocomp:integration_gnss_level",
+  "algorithm_title": "GNSS and level",
+  "example_index": 3,
+  "slug": "example_3_sirgas2000_frame",
+  "title": "GNSS + Spirit Levelling combined in ITRF2008 (FRAME=2)",
+  "scenario": "Transforms GNSS baselines to ITRF2008 and adjusts with spirit levelling.",
+  "parameters": {
+    "GNSS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/inputs/gnss.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/inputs/levelling.json",
+    "FRAME": 2,
+    "GEOID": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/inputs/curitiba_planar.asc",
+    "GEOID_SIGMA": 0.05,
+    "FIXED_STATIONS": "CTB1,CTB2",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/combined.json"
+  },
+  "expected_summary": "Produces combined GNSS + Levelling solution in ITRF2008.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "5",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTLIER_COUNT": "4",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.10439371876109153"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

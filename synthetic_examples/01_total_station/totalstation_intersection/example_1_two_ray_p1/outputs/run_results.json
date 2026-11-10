@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "EASTING": "1035.0",
+    "NORTHING": "1042.0",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_1_two_ray_p1/outputs/report.html",
+    "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_1_two_ray_p1/outputs/position.json",
+    "SEMI_MAJOR": "0.013378478230123877",
+    "SEMI_MINOR": "0.0032392175343101516",
+    "WEAK_GEOMETRY": "False"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

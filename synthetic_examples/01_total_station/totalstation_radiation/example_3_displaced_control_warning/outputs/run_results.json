@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/report.html",
+    "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.json",
+    "POINT_COUNT": "2",
+    "WORST_UNCERTAINTY": "0.0019758484427410804"
+  },
+  "info_lines": 3,
+  "warning_lines": 3
+}

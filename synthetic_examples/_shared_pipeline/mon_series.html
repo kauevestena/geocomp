@@ -1,0 +1,605 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Monitoring report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}.figure{margin:1rem 0}.figure svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+
+<h1>Monitoring report</h1>
+
+<h2>Epochs</h2><table>
+<tr>
+<th>Solution</th>
+<th>Epoch</th>
+<th>Coordinate reference system</th>
+<th>Datum definition</th>
+<th>Heights</th>
+<th>Geoid model</th>
+<th>Engine</th>
+<th>Uncertainty mode</th>
+</tr>
+<tr>
+<td>dam-1</td>
+<td>1.0000</td>
+<td>EPSG:31982</td>
+<td>inner_constraint</td>
+<td>NONE</td>
+<td>—</td>
+<td>in_house</td>
+<td>rigorous</td>
+</tr>
+<tr>
+<td>dam-2</td>
+<td>2.0000</td>
+<td>EPSG:31982</td>
+<td>inner_constraint</td>
+<td>NONE</td>
+<td>—</td>
+<td>in_house</td>
+<td>rigorous</td>
+</tr>
+<tr>
+<td>dam-3</td>
+<td>3.0000</td>
+<td>EPSG:31982</td>
+<td>inner_constraint</td>
+<td>NONE</td>
+<td>—</td>
+<td>in_house</td>
+<td>rigorous</td>
+</tr>
+</table>
+
+<div class="note"><b>Uncertainty</b>: Approximate: independence_assumed. The epochs were taken as independent. If they share reference stations, a datum definition or GNSS products, they are positively correlated: each displacement&#x27;s true uncertainty is smaller than the one stated here, so the significance of real motion is understated, not overstated.</div>
+
+<h2>Compatibility and transformations</h2><div class="note">Each epoch of the series was compared with the first under the same checks: frames, epochs, datum definitions, height types and geoid models.</div>
+
+<h2>Parameters</h2><table>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Confidence level</td>
+<td>0.9500</td>
+</tr>
+<tr>
+<td>Datum of the displacements</td>
+<td>translation and rotation</td>
+</tr>
+<tr>
+<td>Reference stations</td>
+<td>R1, R2, R3, R4</td>
+</tr>
+</table>
+
+<h2>Reference block</h2><div class="note">Every epoch of the series is referred to the reference block by an S-transformation.</div>
+
+
+
+
+
+
+
+
+
+<h2>Alerts</h2><div class="note">No alert thresholds were set for this analysis.</div>
+
+<h2>Time series</h2><div class="note">Offsets from the first epoch, referred to the reference block, with a band of 1.96 standard deviations (95% confidence) and the fitted velocity line.</div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O1 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="179.32" x2="624.00" y2="179.32" stroke="#dddddd"/><text x="52.00" y="183.32" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="157.80" x2="624.00" y2="157.80" stroke="#dddddd"/><text x="52.00" y="161.80" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="136.29" x2="624.00" y2="136.29" stroke="#dddddd"/><text x="52.00" y="140.29" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="114.77" x2="624.00" y2="114.77" stroke="#dddddd"/><text x="52.00" y="118.77" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="93.26" x2="624.00" y2="93.26" stroke="#dddddd"/><text x="52.00" y="97.26" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="71.74" x2="624.00" y2="71.74" stroke="#dddddd"/><text x="52.00" y="75.74" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="50.23" x2="624.00" y2="50.23" stroke="#dddddd"/><text x="52.00" y="54.23" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<line x1="54.00" y1="28.71" x2="624.00" y2="28.71" stroke="#dddddd"/><text x="52.00" y="32.71" font-size="10" text-anchor="end" font-family="sans-serif">2.5</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="136.29" x2="624.00" y2="136.29" stroke="#999999"/>
+<polygon points="58.00,84.57 341.00,38.00 624.00,68.39 624.00,164.55 341.00,143.20 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="124.37" x2="624.00" y2="106.16" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="84.57" stroke="#0072b2"/><circle cx="58.00" cy="136.29" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="143.20" x2="341.00" y2="38.00" stroke="#0072b2"/><circle cx="341.00" cy="90.60" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="164.55" x2="624.00" y2="68.39" stroke="#0072b2"/><circle cx="624.00" cy="116.47" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O1 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="194.18" x2="624.00" y2="194.18" stroke="#dddddd"/><text x="52.00" y="198.18" font-size="10" text-anchor="end" font-family="sans-serif">-3</text>
+<line x1="54.00" y1="160.06" x2="624.00" y2="160.06" stroke="#dddddd"/><text x="52.00" y="164.06" font-size="10" text-anchor="end" font-family="sans-serif">-2</text>
+<line x1="54.00" y1="125.94" x2="624.00" y2="125.94" stroke="#dddddd"/><text x="52.00" y="129.94" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="91.82" x2="624.00" y2="91.82" stroke="#dddddd"/><text x="52.00" y="95.82" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="57.70" x2="624.00" y2="57.70" stroke="#dddddd"/><text x="52.00" y="61.70" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="91.82" x2="624.00" y2="91.82" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,78.51 624.00,55.74 624.00,155.83 341.00,188.00 58.00,145.64" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="103.30" x2="624.00" y2="115.71" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="145.64" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="91.82" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="188.00" x2="341.00" y2="78.51" stroke="#0072b2"/><circle cx="341.00" cy="133.26" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="155.83" x2="624.00" y2="55.74" stroke="#0072b2"/><circle cx="624.00" cy="105.79" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O2 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="194.37" x2="624.00" y2="194.37" stroke="#dddddd"/><text x="52.00" y="198.37" font-size="10" text-anchor="end" font-family="sans-serif">-2</text>
+<line x1="54.00" y1="178.41" x2="624.00" y2="178.41" stroke="#dddddd"/><text x="52.00" y="182.41" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="162.44" x2="624.00" y2="162.44" stroke="#dddddd"/><text x="52.00" y="166.44" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<line x1="54.00" y1="146.48" x2="624.00" y2="146.48" stroke="#dddddd"/><text x="52.00" y="150.48" font-size="10" text-anchor="end" font-family="sans-serif">4</text>
+<line x1="54.00" y1="130.51" x2="624.00" y2="130.51" stroke="#dddddd"/><text x="52.00" y="134.51" font-size="10" text-anchor="end" font-family="sans-serif">6</text>
+<line x1="54.00" y1="114.55" x2="624.00" y2="114.55" stroke="#dddddd"/><text x="52.00" y="118.55" font-size="10" text-anchor="end" font-family="sans-serif">8</text>
+<line x1="54.00" y1="98.58" x2="624.00" y2="98.58" stroke="#dddddd"/><text x="52.00" y="102.58" font-size="10" text-anchor="end" font-family="sans-serif">10</text>
+<line x1="54.00" y1="82.62" x2="624.00" y2="82.62" stroke="#dddddd"/><text x="52.00" y="86.62" font-size="10" text-anchor="end" font-family="sans-serif">12</text>
+<line x1="54.00" y1="66.66" x2="624.00" y2="66.66" stroke="#dddddd"/><text x="52.00" y="70.66" font-size="10" text-anchor="end" font-family="sans-serif">14</text>
+<line x1="54.00" y1="50.69" x2="624.00" y2="50.69" stroke="#dddddd"/><text x="52.00" y="54.69" font-size="10" text-anchor="end" font-family="sans-serif">16</text>
+<line x1="54.00" y1="34.73" x2="624.00" y2="34.73" stroke="#dddddd"/><text x="52.00" y="38.73" font-size="10" text-anchor="end" font-family="sans-serif">18</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="178.41" x2="624.00" y2="178.41" stroke="#999999"/>
+<polygon points="58.00,168.81 341.00,99.46 624.00,38.00 624.00,55.84 341.00,118.98 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="177.26" x2="624.00" y2="45.93" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="168.81" stroke="#0072b2"/><circle cx="58.00" cy="178.41" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="118.98" x2="341.00" y2="99.46" stroke="#0072b2"/><circle cx="341.00" cy="109.22" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="55.84" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="46.92" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O2 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="184.20" x2="624.00" y2="184.20" stroke="#dddddd"/><text x="52.00" y="188.20" font-size="10" text-anchor="end" font-family="sans-serif">-14</text>
+<line x1="54.00" y1="165.43" x2="624.00" y2="165.43" stroke="#dddddd"/><text x="52.00" y="169.43" font-size="10" text-anchor="end" font-family="sans-serif">-12</text>
+<line x1="54.00" y1="146.66" x2="624.00" y2="146.66" stroke="#dddddd"/><text x="52.00" y="150.66" font-size="10" text-anchor="end" font-family="sans-serif">-10</text>
+<line x1="54.00" y1="127.89" x2="624.00" y2="127.89" stroke="#dddddd"/><text x="52.00" y="131.89" font-size="10" text-anchor="end" font-family="sans-serif">-8</text>
+<line x1="54.00" y1="109.12" x2="624.00" y2="109.12" stroke="#dddddd"/><text x="52.00" y="113.12" font-size="10" text-anchor="end" font-family="sans-serif">-6</text>
+<line x1="54.00" y1="90.35" x2="624.00" y2="90.35" stroke="#dddddd"/><text x="52.00" y="94.35" font-size="10" text-anchor="end" font-family="sans-serif">-4</text>
+<line x1="54.00" y1="71.58" x2="624.00" y2="71.58" stroke="#dddddd"/><text x="52.00" y="75.58" font-size="10" text-anchor="end" font-family="sans-serif">-2</text>
+<line x1="54.00" y1="52.81" x2="624.00" y2="52.81" stroke="#dddddd"/><text x="52.00" y="56.81" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="34.03" x2="624.00" y2="34.03" stroke="#dddddd"/><text x="52.00" y="38.03" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="52.81" x2="624.00" y2="52.81" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,98.78 624.00,160.47 624.00,188.00 341.00,128.90 58.00,67.61" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="52.91" x2="624.00" y2="174.33" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="67.61" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="52.81" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="128.90" x2="341.00" y2="98.78" stroke="#0072b2"/><circle cx="341.00" cy="113.84" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="188.00" x2="624.00" y2="160.47" stroke="#0072b2"/><circle cx="624.00" cy="174.23" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O3 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="199.67" x2="624.00" y2="199.67" stroke="#dddddd"/><text x="52.00" y="203.67" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="180.10" x2="624.00" y2="180.10" stroke="#dddddd"/><text x="52.00" y="184.10" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="160.54" x2="624.00" y2="160.54" stroke="#dddddd"/><text x="52.00" y="164.54" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="140.98" x2="624.00" y2="140.98" stroke="#dddddd"/><text x="52.00" y="144.98" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="121.41" x2="624.00" y2="121.41" stroke="#dddddd"/><text x="52.00" y="125.41" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="101.85" x2="624.00" y2="101.85" stroke="#dddddd"/><text x="52.00" y="105.85" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="82.29" x2="624.00" y2="82.29" stroke="#dddddd"/><text x="52.00" y="86.29" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="62.72" x2="624.00" y2="62.72" stroke="#dddddd"/><text x="52.00" y="66.72" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<line x1="54.00" y1="43.16" x2="624.00" y2="43.16" stroke="#dddddd"/><text x="52.00" y="47.16" font-size="10" text-anchor="end" font-family="sans-serif">2.5</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="140.98" x2="624.00" y2="140.98" stroke="#999999"/>
+<polygon points="58.00,93.96 341.00,52.66 624.00,38.00 624.00,125.44 341.00,148.32 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="137.36" x2="624.00" y2="78.59" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="93.96" stroke="#0072b2"/><circle cx="58.00" cy="140.98" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="148.32" x2="341.00" y2="52.66" stroke="#0072b2"/><circle cx="341.00" cy="100.49" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="125.44" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="81.72" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O3 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="179.77" x2="624.00" y2="179.77" stroke="#dddddd"/><text x="52.00" y="183.77" font-size="10" text-anchor="end" font-family="sans-serif">-3</text>
+<line x1="54.00" y1="148.80" x2="624.00" y2="148.80" stroke="#dddddd"/><text x="52.00" y="152.80" font-size="10" text-anchor="end" font-family="sans-serif">-2</text>
+<line x1="54.00" y1="117.83" x2="624.00" y2="117.83" stroke="#dddddd"/><text x="52.00" y="121.83" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="86.86" x2="624.00" y2="86.86" stroke="#dddddd"/><text x="52.00" y="90.86" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="55.88" x2="624.00" y2="55.88" stroke="#dddddd"/><text x="52.00" y="59.88" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="86.86" x2="624.00" y2="86.86" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,88.61 624.00,86.50 624.00,177.35 341.00,188.00 58.00,135.71" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="96.49" x2="624.00" y2="140.25" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="135.71" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="86.86" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="188.00" x2="341.00" y2="88.61" stroke="#0072b2"/><circle cx="341.00" cy="138.31" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="177.35" x2="624.00" y2="86.50" stroke="#0072b2"/><circle cx="624.00" cy="131.93" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O4 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="178.44" x2="624.00" y2="178.44" stroke="#dddddd"/><text x="52.00" y="182.44" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="154.75" x2="624.00" y2="154.75" stroke="#dddddd"/><text x="52.00" y="158.75" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="131.05" x2="624.00" y2="131.05" stroke="#dddddd"/><text x="52.00" y="135.05" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="107.36" x2="624.00" y2="107.36" stroke="#dddddd"/><text x="52.00" y="111.36" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="83.67" x2="624.00" y2="83.67" stroke="#dddddd"/><text x="52.00" y="87.67" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="59.97" x2="624.00" y2="59.97" stroke="#dddddd"/><text x="52.00" y="63.97" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="36.28" x2="624.00" y2="36.28" stroke="#dddddd"/><text x="52.00" y="40.28" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="131.05" x2="624.00" y2="131.05" stroke="#999999"/>
+<polygon points="58.00,74.10 341.00,69.85 624.00,38.00 624.00,143.90 341.00,185.70 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="136.64" x2="624.00" y2="95.78" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="74.10" stroke="#0072b2"/><circle cx="58.00" cy="131.05" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="185.70" x2="341.00" y2="69.85" stroke="#0072b2"/><circle cx="341.00" cy="127.78" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="143.90" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="90.95" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O4 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="184.76" x2="624.00" y2="184.76" stroke="#dddddd"/><text x="52.00" y="188.76" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="163.85" x2="624.00" y2="163.85" stroke="#dddddd"/><text x="52.00" y="167.85" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="142.95" x2="624.00" y2="142.95" stroke="#dddddd"/><text x="52.00" y="146.95" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="122.04" x2="624.00" y2="122.04" stroke="#dddddd"/><text x="52.00" y="126.04" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="101.13" x2="624.00" y2="101.13" stroke="#dddddd"/><text x="52.00" y="105.13" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="80.23" x2="624.00" y2="80.23" stroke="#dddddd"/><text x="52.00" y="84.23" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="59.32" x2="624.00" y2="59.32" stroke="#dddddd"/><text x="52.00" y="63.32" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="38.41" x2="624.00" y2="38.41" stroke="#dddddd"/><text x="52.00" y="42.41" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="122.04" x2="624.00" y2="122.04" stroke="#999999"/>
+<polygon points="58.00,56.08 341.00,38.00 624.00,60.49 624.00,183.15 341.00,172.18 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="116.43" x2="624.00" y2="116.97" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="56.08" stroke="#0072b2"/><circle cx="58.00" cy="122.04" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="172.18" x2="341.00" y2="38.00" stroke="#0072b2"/><circle cx="341.00" cy="105.09" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="183.15" x2="624.00" y2="60.49" stroke="#0072b2"/><circle cx="624.00" cy="121.82" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O5 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="180.97" x2="624.00" y2="180.97" stroke="#dddddd"/><text x="52.00" y="184.97" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="159.83" x2="624.00" y2="159.83" stroke="#dddddd"/><text x="52.00" y="163.83" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="138.69" x2="624.00" y2="138.69" stroke="#dddddd"/><text x="52.00" y="142.69" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="117.55" x2="624.00" y2="117.55" stroke="#dddddd"/><text x="52.00" y="121.55" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="96.40" x2="624.00" y2="96.40" stroke="#dddddd"/><text x="52.00" y="100.40" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="75.26" x2="624.00" y2="75.26" stroke="#dddddd"/><text x="52.00" y="79.26" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="54.12" x2="624.00" y2="54.12" stroke="#dddddd"/><text x="52.00" y="58.12" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<line x1="54.00" y1="32.98" x2="624.00" y2="32.98" stroke="#dddddd"/><text x="52.00" y="36.98" font-size="10" text-anchor="end" font-family="sans-serif">2.5</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="138.69" x2="624.00" y2="138.69" stroke="#999999"/>
+<polygon points="58.00,89.38 341.00,52.86 624.00,38.00 624.00,129.69 341.00,153.17 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="135.94" x2="624.00" y2="81.47" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="89.38" stroke="#0072b2"/><circle cx="58.00" cy="138.69" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="153.17" x2="341.00" y2="52.86" stroke="#0072b2"/><circle cx="341.00" cy="103.01" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="129.69" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="83.85" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">O5 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="186.05" x2="624.00" y2="186.05" stroke="#dddddd"/><text x="52.00" y="190.05" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="165.73" x2="624.00" y2="165.73" stroke="#dddddd"/><text x="52.00" y="169.73" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="145.41" x2="624.00" y2="145.41" stroke="#dddddd"/><text x="52.00" y="149.41" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="125.09" x2="624.00" y2="125.09" stroke="#dddddd"/><text x="52.00" y="129.09" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="104.77" x2="624.00" y2="104.77" stroke="#dddddd"/><text x="52.00" y="108.77" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="84.45" x2="624.00" y2="84.45" stroke="#dddddd"/><text x="52.00" y="88.45" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="64.13" x2="624.00" y2="64.13" stroke="#dddddd"/><text x="52.00" y="68.13" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="43.82" x2="624.00" y2="43.82" stroke="#dddddd"/><text x="52.00" y="47.82" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="125.09" x2="624.00" y2="125.09" stroke="#999999"/>
+<polygon points="58.00,62.18 341.00,38.00 624.00,70.79 624.00,187.77 341.00,165.97 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="116.70" x2="624.00" y2="122.02" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="62.18" stroke="#0072b2"/><circle cx="58.00" cy="125.09" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="165.97" x2="341.00" y2="38.00" stroke="#0072b2"/><circle cx="341.00" cy="101.99" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="187.77" x2="624.00" y2="70.79" stroke="#0072b2"/><circle cx="624.00" cy="129.28" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R1 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="178.66" x2="624.00" y2="178.66" stroke="#dddddd"/><text x="52.00" y="182.66" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="149.77" x2="624.00" y2="149.77" stroke="#dddddd"/><text x="52.00" y="153.77" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="120.89" x2="624.00" y2="120.89" stroke="#dddddd"/><text x="52.00" y="124.89" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="92.00" x2="624.00" y2="92.00" stroke="#dddddd"/><text x="52.00" y="96.00" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="63.12" x2="624.00" y2="63.12" stroke="#dddddd"/><text x="52.00" y="67.12" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="34.23" x2="624.00" y2="34.23" stroke="#dddddd"/><text x="52.00" y="38.23" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="92.00" x2="624.00" y2="92.00" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,46.48 624.00,87.58 624.00,188.00 341.00,156.34 58.00,146.01" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="87.51" x2="624.00" y2="133.90" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="146.01" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="92.00" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="156.34" x2="341.00" y2="46.48" stroke="#0072b2"/><circle cx="341.00" cy="101.41" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="188.00" x2="624.00" y2="87.58" stroke="#0072b2"/><circle cx="624.00" cy="137.79" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R1 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="197.71" x2="624.00" y2="197.71" stroke="#dddddd"/><text x="52.00" y="201.71" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="166.20" x2="624.00" y2="166.20" stroke="#dddddd"/><text x="52.00" y="170.20" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="134.69" x2="624.00" y2="134.69" stroke="#dddddd"/><text x="52.00" y="138.69" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="103.18" x2="624.00" y2="103.18" stroke="#dddddd"/><text x="52.00" y="107.18" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="71.66" x2="624.00" y2="71.66" stroke="#dddddd"/><text x="52.00" y="75.66" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="40.15" x2="624.00" y2="40.15" stroke="#dddddd"/><text x="52.00" y="44.15" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="103.18" x2="624.00" y2="103.18" stroke="#999999"/>
+<polygon points="58.00,41.22 341.00,61.97 624.00,38.00 624.00,153.21 341.00,188.00 58.00,165.13" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="111.70" x2="624.00" y2="102.98" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="165.13" x2="58.00" y2="41.22" stroke="#0072b2"/><circle cx="58.00" cy="103.18" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="188.00" x2="341.00" y2="61.97" stroke="#0072b2"/><circle cx="341.00" cy="124.98" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="153.21" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="95.60" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R2 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="182.32" x2="624.00" y2="182.32" stroke="#dddddd"/><text x="52.00" y="186.32" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="152.89" x2="624.00" y2="152.89" stroke="#dddddd"/><text x="52.00" y="156.89" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="123.47" x2="624.00" y2="123.47" stroke="#dddddd"/><text x="52.00" y="127.47" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="94.04" x2="624.00" y2="94.04" stroke="#dddddd"/><text x="52.00" y="98.04" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="64.62" x2="624.00" y2="64.62" stroke="#dddddd"/><text x="52.00" y="68.62" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="35.19" x2="624.00" y2="35.19" stroke="#dddddd"/><text x="52.00" y="39.19" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="123.47" x2="624.00" y2="123.47" stroke="#999999"/>
+<polygon points="58.00,68.46 341.00,76.09 624.00,38.00 624.00,140.30 341.00,188.00 58.00,178.48" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="132.04" x2="624.00" y2="96.56" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="178.48" x2="58.00" y2="68.46" stroke="#0072b2"/><circle cx="58.00" cy="123.47" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="188.00" x2="341.00" y2="76.09" stroke="#0072b2"/><circle cx="341.00" cy="132.05" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="140.30" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="89.15" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R2 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="196.62" x2="624.00" y2="196.62" stroke="#dddddd"/><text x="52.00" y="200.62" font-size="10" text-anchor="end" font-family="sans-serif">-2</text>
+<line x1="54.00" y1="170.03" x2="624.00" y2="170.03" stroke="#dddddd"/><text x="52.00" y="174.03" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="143.45" x2="624.00" y2="143.45" stroke="#dddddd"/><text x="52.00" y="147.45" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="116.86" x2="624.00" y2="116.86" stroke="#dddddd"/><text x="52.00" y="120.86" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="90.27" x2="624.00" y2="90.27" stroke="#dddddd"/><text x="52.00" y="94.27" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="63.69" x2="624.00" y2="63.69" stroke="#dddddd"/><text x="52.00" y="67.69" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="37.10" x2="624.00" y2="37.10" stroke="#dddddd"/><text x="52.00" y="41.10" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="90.27" x2="624.00" y2="90.27" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,81.04 624.00,90.79 624.00,188.00 341.00,187.38 58.00,142.55" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="96.73" x2="624.00" y2="144.98" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="142.55" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="90.27" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="187.38" x2="341.00" y2="81.04" stroke="#0072b2"/><circle cx="341.00" cy="134.21" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="188.00" x2="624.00" y2="90.79" stroke="#0072b2"/><circle cx="624.00" cy="139.40" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R3 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="183.60" x2="624.00" y2="183.60" stroke="#dddddd"/><text x="52.00" y="187.60" font-size="10" text-anchor="end" font-family="sans-serif">-1.5</text>
+<line x1="54.00" y1="153.70" x2="624.00" y2="153.70" stroke="#dddddd"/><text x="52.00" y="157.70" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="123.80" x2="624.00" y2="123.80" stroke="#dddddd"/><text x="52.00" y="127.80" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="93.90" x2="624.00" y2="93.90" stroke="#dddddd"/><text x="52.00" y="97.90" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="64.00" x2="624.00" y2="64.00" stroke="#dddddd"/><text x="52.00" y="68.00" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="34.10" x2="624.00" y2="34.10" stroke="#dddddd"/><text x="52.00" y="38.10" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="93.90" x2="624.00" y2="93.90" stroke="#999999"/>
+<polygon points="58.00,38.00 341.00,64.78 624.00,84.05 624.00,188.00 341.00,178.50 58.00,149.80" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="96.12" x2="624.00" y2="137.95" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="149.80" x2="58.00" y2="38.00" stroke="#0072b2"/><circle cx="58.00" cy="93.90" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="178.50" x2="341.00" y2="64.78" stroke="#0072b2"/><circle cx="341.00" cy="121.64" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="188.00" x2="624.00" y2="84.05" stroke="#0072b2"/><circle cx="624.00" cy="136.03" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R3 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="188.83" x2="624.00" y2="188.83" stroke="#dddddd"/><text x="52.00" y="192.83" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="164.17" x2="624.00" y2="164.17" stroke="#dddddd"/><text x="52.00" y="168.17" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="139.50" x2="624.00" y2="139.50" stroke="#dddddd"/><text x="52.00" y="143.50" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="114.84" x2="624.00" y2="114.84" stroke="#dddddd"/><text x="52.00" y="118.84" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="90.17" x2="624.00" y2="90.17" stroke="#dddddd"/><text x="52.00" y="94.17" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="65.51" x2="624.00" y2="65.51" stroke="#dddddd"/><text x="52.00" y="69.51" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="40.84" x2="624.00" y2="40.84" stroke="#dddddd"/><text x="52.00" y="44.84" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="139.50" x2="624.00" y2="139.50" stroke="#999999"/>
+<polygon points="58.00,91.01 341.00,38.00 624.00,41.10 624.00,131.27 341.00,136.65 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="131.00" x2="624.00" y2="78.84" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="91.01" stroke="#0072b2"/><circle cx="58.00" cy="139.50" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="136.65" x2="341.00" y2="38.00" stroke="#0072b2"/><circle cx="341.00" cy="87.33" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="131.27" x2="624.00" y2="41.10" stroke="#0072b2"/><circle cx="624.00" cy="86.19" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R4 — east</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="191.60" x2="624.00" y2="191.60" stroke="#dddddd"/><text x="52.00" y="195.60" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="164.00" x2="624.00" y2="164.00" stroke="#dddddd"/><text x="52.00" y="168.00" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="136.41" x2="624.00" y2="136.41" stroke="#dddddd"/><text x="52.00" y="140.41" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="108.81" x2="624.00" y2="108.81" stroke="#dddddd"/><text x="52.00" y="112.81" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="81.22" x2="624.00" y2="81.22" stroke="#dddddd"/><text x="52.00" y="85.22" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<line x1="54.00" y1="53.62" x2="624.00" y2="53.62" stroke="#dddddd"/><text x="52.00" y="57.62" font-size="10" text-anchor="end" font-family="sans-serif">1.5</text>
+<line x1="54.00" y1="26.02" x2="624.00" y2="26.02" stroke="#dddddd"/><text x="52.00" y="30.02" font-size="10" text-anchor="end" font-family="sans-serif">2</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="136.41" x2="624.00" y2="136.41" stroke="#999999"/>
+<polygon points="58.00,84.81 341.00,41.29 624.00,38.00 624.00,133.94 341.00,146.25 58.00,188.00" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="130.60" x2="624.00" y2="80.95" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="188.00" x2="58.00" y2="84.81" stroke="#0072b2"/><circle cx="58.00" cy="136.41" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="146.25" x2="341.00" y2="41.29" stroke="#0072b2"/><circle cx="341.00" cy="93.77" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="133.94" x2="624.00" y2="38.00" stroke="#0072b2"/><circle cx="624.00" cy="85.97" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="240.00" viewBox="0 0 640.00 240.00">
+<text x="58.00" y="16" font-size="12" font-weight="bold" font-family="sans-serif">R4 — north</text>
+<line x1="58.00" y1="26.00" x2="58.00" y2="200.00" stroke="#000"/><line x1="58.00" y1="200.00" x2="624.00" y2="200.00" stroke="#000"/>
+<line x1="54.00" y1="175.56" x2="624.00" y2="175.56" stroke="#dddddd"/><text x="52.00" y="179.56" font-size="10" text-anchor="end" font-family="sans-serif">-1</text>
+<line x1="54.00" y1="143.04" x2="624.00" y2="143.04" stroke="#dddddd"/><text x="52.00" y="147.04" font-size="10" text-anchor="end" font-family="sans-serif">-0.5</text>
+<line x1="54.00" y1="110.51" x2="624.00" y2="110.51" stroke="#dddddd"/><text x="52.00" y="114.51" font-size="10" text-anchor="end" font-family="sans-serif">0</text>
+<line x1="54.00" y1="77.98" x2="624.00" y2="77.98" stroke="#dddddd"/><text x="52.00" y="81.98" font-size="10" text-anchor="end" font-family="sans-serif">0.5</text>
+<line x1="54.00" y1="45.45" x2="624.00" y2="45.45" stroke="#dddddd"/><text x="52.00" y="49.45" font-size="10" text-anchor="end" font-family="sans-serif">1</text>
+<text x="58.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">1.00</text>
+<text x="341.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">2.00</text>
+<text x="624.00" y="214.00" font-size="10" text-anchor="middle" font-family="sans-serif">3.00</text>
+<text x="341.00" y="234.00" font-size="10" text-anchor="middle" font-family="sans-serif">epoch (decimal year)</text><text x="12" y="113.00" font-size="10" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 12 113.00)">offset (mm)</text>
+<line x1="58.00" y1="110.51" x2="624.00" y2="110.51" stroke="#999999"/>
+<polygon points="58.00,46.55 341.00,38.00 624.00,69.08 624.00,188.00 341.00,168.10 58.00,174.46" fill="#0072b2" fill-opacity="0.15" stroke="none"/>
+<line x1="58.00" y1="105.02" x2="624.00" y2="123.79" stroke="#0072b2" stroke-dasharray="3 3" stroke-width="1.5"/>
+<line x1="58.00" y1="174.46" x2="58.00" y2="46.55" stroke="#0072b2"/><circle cx="58.00" cy="110.51" r="3" fill="#0072b2"/>
+<line x1="341.00" y1="168.10" x2="341.00" y2="38.00" stroke="#0072b2"/><circle cx="341.00" cy="103.05" r="3" fill="#0072b2"/>
+<line x1="624.00" y1="188.00" x2="624.00" y2="69.08" stroke="#0072b2"/><circle cx="624.00" cy="128.54" r="3" fill="#0072b2"/>
+<text x="624.00" y="16" font-size="10" text-anchor="end" font-family="sans-serif">band · fitted line</text>
+</svg></div>
+
+<h2>Velocities</h2><table>
+<tr>
+<th>Station</th>
+<th>Epochs</th>
+<th>v east (mm/a)</th>
+<th>v north (mm/a)</th>
+<th>Std. dev. east (mm/a)</th>
+<th>Std. dev. north (mm/a)</th>
+<th>Speed (mm/a)</th>
+<th>Statistic</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>O1</td>
+<td>3</td>
+<td>0.21</td>
+<td>-0.18</td>
+<td>0.42</td>
+<td>0.55</td>
+<td>0.28</td>
+<td>0.317</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O2</td>
+<td>3</td>
+<td>8.23</td>
+<td>-6.47</td>
+<td>0.42</td>
+<td>0.55</td>
+<td>10.46</td>
+<td>623.972</td>
+<td><span class="fail">significant</span></td>
+</tr>
+<tr>
+<td>O3</td>
+<td>3</td>
+<td>0.75</td>
+<td>-0.71</td>
+<td>0.42</td>
+<td>0.55</td>
+<td>1.03</td>
+<td>5.849</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O4</td>
+<td>3</td>
+<td>0.43</td>
+<td>-6.48e-03</td>
+<td>0.42</td>
+<td>0.55</td>
+<td>0.43</td>
+<td>1.091</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O5</td>
+<td>3</td>
+<td>0.64</td>
+<td>-0.07</td>
+<td>0.41</td>
+<td>0.54</td>
+<td>0.65</td>
+<td>2.533</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R1</td>
+<td>3</td>
+<td>-0.40</td>
+<td>0.07</td>
+<td>0.33</td>
+<td>0.34</td>
+<td>0.41</td>
+<td>1.525</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R2</td>
+<td>3</td>
+<td>0.30</td>
+<td>-0.45</td>
+<td>0.33</td>
+<td>0.34</td>
+<td>0.54</td>
+<td>2.998</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R3</td>
+<td>3</td>
+<td>-0.35</td>
+<td>0.53</td>
+<td>0.33</td>
+<td>0.34</td>
+<td>0.63</td>
+<td>3.156</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R4</td>
+<td>3</td>
+<td>0.45</td>
+<td>-0.14</td>
+<td>0.33</td>
+<td>0.34</td>
+<td>0.47</td>
+<td>2.285</td>
+<td><span class="pass">not significant</span></td>
+</tr>
+</table>
+
+<h2>Software</h2><table>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+<tr>
+<td>GeoComp</td>
+<td>0.1.0</td>
+</tr>
+<tr>
+<td>QGIS</td>
+<td>3.44.7-Solothurn</td>
+</tr>
+<tr>
+<td>Report template</td>
+<td>shipped with GeoComp</td>
+</tr>
+</table>
+
+</body>
+</html>

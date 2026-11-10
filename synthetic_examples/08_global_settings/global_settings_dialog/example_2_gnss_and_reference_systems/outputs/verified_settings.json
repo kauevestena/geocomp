@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "applied_settings": {
+    "reference_systems.preferred_crs": "EPSG:31982",
+    "reference_systems.default_epoch": 2000.4,
+    "reference_systems.geoid_model": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/curitiba_planar.asc",
+    "reference_systems.geoid_sigma": 0.05,
+    "gnss.elevation_mask": 15.0,
+    "gnss.service_definitions": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/custom_gnss_services.json",
+    "gnss.product_fallback": true
+  }
+}

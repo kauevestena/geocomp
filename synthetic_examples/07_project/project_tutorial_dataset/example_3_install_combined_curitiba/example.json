@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Install tutorial dataset",
+  "algorithm_id": "geocomp:project_tutorial_dataset",
+  "algorithm_title": "Install tutorial dataset",
+  "example_index": 3,
+  "slug": "example_3_install_combined_curitiba",
+  "title": "Install tutorial dataset 'combined-curitiba' (Multi-technique GNSS + TS + Levelling)",
+  "scenario": "Installs the multi-technique Curitiba survey dataset and worked QGIS project.",
+  "parameters": {
+    "DATASET": 5,
+    "DESTINATION": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_3_install_combined_curitiba/outputs/tutorial_combined-curitiba",
+    "OVERWRITE": true
+  },
+  "expected_summary": "Installs tutorial dataset 'combined-curitiba' and creates worked QGIS project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "FILE_COUNT": "5",
+      "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_3_install_combined_curitiba/outputs/tutorial_combined-curitiba/combined-curitiba",
+      "OUTPUT_PROJECT": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_3_install_combined_curitiba/outputs/tutorial_combined-curitiba/combined-curitiba/combined-curitiba.qgz"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

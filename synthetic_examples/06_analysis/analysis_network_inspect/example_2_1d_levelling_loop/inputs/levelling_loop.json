@@ -1,0 +1,267 @@
+{
+  "id": "rd03-levelling",
+  "stations": [
+    {
+      "id": "A",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FIXED",
+        "components": [
+          "up"
+        ],
+        "position": {
+          "values": [
+            {
+              "value": 0.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            },
+            {
+              "value": 0.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            },
+            {
+              "value": 10.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            }
+          ],
+          "system": "PROJECTED",
+          "crs": "EPSG:31982",
+          "height_type": "ORTHOMETRIC"
+        }
+      },
+      "approx_position": {
+        "values": [
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 10.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          }
+        ],
+        "system": "PROJECTED",
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "B",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      },
+      "approx_position": {
+        "values": [
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 12.55,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          }
+        ],
+        "system": "PROJECTED",
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "C",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      },
+      "approx_position": {
+        "values": [
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 15.05,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          }
+        ],
+        "system": "PROJECTED",
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "D",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      },
+      "approx_position": {
+        "values": [
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 0.0,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 11.3,
+            "variance": 0.25,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          }
+        ],
+        "system": "PROJECTED",
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "L0",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "A",
+        "B"
+      ],
+      "values": [
+        {
+          "value": 2.50103213561862,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "L1",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "B",
+        "C"
+      ],
+      "values": [
+        {
+          "value": 2.499828649034669,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "L2",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "C",
+        "D"
+      ],
+      "values": [
+        {
+          "value": -3.7534253349280626,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "L3",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "D",
+        "A"
+      ],
+      "values": [
+        {
+          "value": -1.2520320080994725,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "L4",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "A",
+        "C"
+      ],
+      "values": [
+        {
+          "value": 5.001376233257664,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    },
+    {
+      "id": "L5",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "B",
+        "D"
+      ],
+      "values": [
+        {
+          "value": -1.2477867726690062,
+          "variance": 4e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE"
+    }
+  ],
+  "clusters": [],
+  "crs": "EPSG:31982"
+}

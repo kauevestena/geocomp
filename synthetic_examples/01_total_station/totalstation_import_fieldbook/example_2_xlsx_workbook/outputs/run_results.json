@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/findings.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/report.html",
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/readings.json",
+    "RECORD_COUNT": "12",
+    "REJECTED_COUNT": "0",
+    "SETUP_COUNT": "3"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

@@ -1,0 +1,7 @@
+{
+  "total_station.default_temperature_celsius": 22.5,
+  "total_station.default_pressure_hpa": 915.0,
+  "level.profile_library": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_1_equipment_profile_libraries/inputs/level_profiles.json",
+  "level.tolerance_coefficient": 0.004,
+  "gravimeter.tide_amplification": 1.16
+}

@@ -1,0 +1,4 @@
+{
+  "status": "verified_expected_exception",
+  "exception": "Tick “I understand that DynAdjust is a separate program under its own licence” to install DynAdjust. It is a separate program by Geoscience Australia, under the Apache-2.0 licence (https://github.com/GeoscienceAustralia/DynAdjust), downloaded from their release page; GeoComp does not distribute it. Nothing was downloaded."
+}

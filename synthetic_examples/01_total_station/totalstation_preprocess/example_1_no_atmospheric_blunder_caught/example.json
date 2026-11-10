@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Generalised pre-processing",
+  "algorithm_id": "geocomp:totalstation_preprocess",
+  "algorithm_title": "Generalised pre-processing",
+  "example_index": 1,
+  "slug": "example_1_no_atmospheric_blunder_caught",
+  "title": "Two-face reduction catching RD-01's face-distance blunder (APPLY_ATMOSPHERIC=False)",
+  "scenario": "Pairs Face I and Face II readings across 6 pointings and flags the 1 pointing with a face-distance blunder.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/inputs/readings.json",
+    "APPLY_ATMOSPHERIC": false,
+    "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/reduced.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/reductions.csv"
+  },
+  "expected_summary": "Reduces 6 pointings (USABLE_COUNT=5, BLOCKING_COUNT=1).",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/reductions.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/report.html",
+      "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_1_no_atmospheric_blunder_caught/outputs/reduced.json",
+      "POINTING_COUNT": "6",
+      "USABLE_COUNT": "5"
+    },
+    "info_lines": 4,
+    "warning_lines": 1
+  }
+}

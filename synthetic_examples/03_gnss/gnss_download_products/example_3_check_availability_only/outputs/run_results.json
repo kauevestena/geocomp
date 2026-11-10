@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "AVAILABLE": "2",
+    "MISSING": "0",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_download_products/example_3_check_availability_only/outputs/manifest.json"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

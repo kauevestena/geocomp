@@ -1,0 +1,4 @@
+station,easting,northing,sigma
+A,1000.0,1000.0,1e-06
+B,1150.0,1080.0,1e-06
+C,1230.0,940.0,1e-06

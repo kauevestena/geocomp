@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ 3D radiation",
+  "algorithm_id": "geocomp:totalstation_radiation",
+  "algorithm_title": "3D radiation",
+  "example_index": 3,
+  "slug": "example_3_displaced_control_warning",
+  "title": "3D radiation detecting a 0.50 m displaced backsight control station (B)",
+  "scenario": "Tests orientation spread warning when known station B is displaced by 0.50 m.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/inputs/reductions.json",
+    "STATIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/inputs/displaced_known.json",
+    "CORRELATION": 0.3,
+    "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.csv"
+  },
+  "expected_summary": "Radiates detail points and warns that backsight control disagrees with recorded coordinates.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/report.html",
+      "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_3_displaced_control_warning/outputs/points.json",
+      "POINT_COUNT": "2",
+      "WORST_UNCERTAINTY": "0.0019758484427410804"
+    },
+    "info_lines": 3,
+    "warning_lines": 3
+  }
+}

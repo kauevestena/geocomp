@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import pathlib
+import sys
+
+args = sys.argv[1:]
+if "--version" in args or "-h" in args:
+    print("rnx2rtkp RTKLIB EX 2.5.1")
+    sys.exit(0)
+
+out = pathlib.Path(args[args.index("-o") + 1])
+conf_text = ""
+if "-k" in args:
+    conf_path = pathlib.Path(args[args.index("-k") + 1])
+    if conf_path.is_file():
+        conf_text = conf_path.read_text(encoding="utf-8", errors="ignore")
+
+elmask = 15.0
+for line in conf_text.splitlines():
+    if line.strip().startswith("pos1-elmask"):
+        try:
+            elmask = float(line.split("=")[1].strip().split()[0])
+        except ValueError:
+            pass
+
+offset = (elmask - 15.0) * 0.0002
+x0 = 4075539.8850 + offset
+y0 = 931735.2910 - offset
+z0 = 4801629.3730 + offset * 0.5
+
+out.write_text(
+    "% program   : RTKLIB ver.2.4.3 b34\n"
+    "% inp file  : rover.05o\n"
+    "% inp file  : base.05o\n"
+    "% inp file  : brdc.05n\n"
+    "% obs start : 2005/05/20 00:00:00.0 GPST (week1323 432000.0s)\n"
+    "% obs end   : 2005/05/20 00:30:00.0 GPST (week1323 433800.0s)\n"
+    "% ref pos   : 4075578.3850   931852.8900  4801570.1540\n"
+    "%\n"
+    "% (x/y/z-ecef=WGS84,Q=1:fix,2:float,ns=# of satellites)\n"
+    "%  GPST                  x-ecef(m)      y-ecef(m)      z-ecef(m)   Q  ns"
+    "   sdx(m)   sdy(m)   sdz(m)  sdxy(m)  sdyz(m)  sdzx(m) age(s)  ratio\n"
+    f"2005/05/20 00:00:00.000 {x0:14.4f} {y0:14.4f} {z0:14.4f}   1   8"
+    "   0.0021   0.0018   0.0029  -0.0005   0.0004  -0.0008   0.00   28.4\n"
+    f"2005/05/20 00:15:00.000 {x0+0.0004:14.4f} {y0-0.0002:14.4f} {z0+0.0003:14.4f}   1   8"
+    "   0.0020   0.0017   0.0028  -0.0005   0.0004  -0.0008   0.00   31.2\n"
+    f"2005/05/20 00:30:00.000 {x0-0.0002:14.4f} {y0+0.0003:14.4f} {z0-0.0001:14.4f}   1   9"
+    "   0.0019   0.0016   0.0027  -0.0004   0.0003  -0.0007   0.00   35.0\n",
+    encoding="utf-8",
+)

@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "8",
+    "ENGINE_USED": "in_house",
+    "GLOBAL_TEST_PASSED": "True",
+    "OUTLIER_COUNT": "0",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/combined.json",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/solution.json",
+    "OUTPUT_STATION_LAYER": "None",
+    "VARIANCE_FACTOR_APOSTERIORI": "1.036023013026398"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

@@ -1,0 +1,44 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ GNSS and level",
+  "algorithm_id": "geocomp:integration_gnss_level",
+  "algorithm_title": "GNSS and level",
+  "example_index": 1,
+  "slug": "example_1_planar_geoid_coupling",
+  "title": "GNSS + Spirit Levelling coupled through ESRI ASCII geoid grid (h - H = N)",
+  "scenario": "Couples ellipsoidal GNSS heights and orthometric levelling differences through curitiba_planar.asc.",
+  "parameters": {
+    "GNSS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/inputs/gnss.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/inputs/levelling.json",
+    "GEOID": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/inputs/curitiba_planar.asc",
+    "GEOID_SIGMA": 0.03,
+    "FIXED_STATIONS": "CTB1,CTB2",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/combined.json"
+  },
+  "expected_summary": "Computes geoid residuals and adjusts GNSS + Levelling jointly.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "6",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTLIER_COUNT": "1",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.10099976259412308"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

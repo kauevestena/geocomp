@@ -1,0 +1,26 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Add base map",
+  "algorithm_id": "geocomp:project_basemap",
+  "algorithm_title": "Add base map",
+  "example_index": 1,
+  "slug": "example_1_default_osm_basemap",
+  "title": "Add default configured base map (OpenStreetMap Standard) reusing existing layer",
+  "scenario": "Adds the default XYZ tile base map to the bottom of the QGIS layer tree.",
+  "parameters": {
+    "SERVICE": "",
+    "REUSE": true
+  },
+  "expected_summary": "Adds XYZ tile base map layer to the active QGIS project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTCOME": "none",
+      "SERVICE": ""
+    },
+    "info_lines": 0,
+    "warning_lines": 1
+  }
+}

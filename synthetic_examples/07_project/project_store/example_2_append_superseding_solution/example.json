@@ -1,0 +1,29 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Save to project store",
+  "algorithm_id": "geocomp:project_store",
+  "algorithm_title": "Save to project store",
+  "example_index": 2,
+  "slug": "example_2_append_superseding_solution",
+  "title": "Append a second solution (sol_epoch_2) superseding sol_epoch_1",
+  "scenario": "Adds a new epoch solution to an existing GeoPackage and records lineage via SUPERSEDES.",
+  "parameters": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_2_append_superseding_solution/outputs/project_store.gpkg",
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_2_append_superseding_solution/inputs/solution_epoch2.json",
+    "PROJECT_ID": "curitiba_dam_monitoring",
+    "SUPERSEDES": "sol_epoch_1",
+    "REPLACE": false
+  },
+  "expected_summary": "Appends sol_epoch_2 to project_store.gpkg with provenance link to sol_epoch_1.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_2_append_superseding_solution/outputs/project_store.gpkg",
+      "WRITTEN": "['solution sol_epoch_2', 'sol_epoch_1 superseded by sol_epoch_2']"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

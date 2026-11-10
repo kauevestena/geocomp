@@ -1,0 +1,13 @@
+{
+ "day": "2005-05-20",
+ "downloaded_sha256": "d175c57e82a98040b6fa91cea4f183724ede55650e77caecbf6b36444bfb474c",
+ "kind": "glonass_navigation",
+ "latency": "broadcast",
+ "name": "brdc1400.05g",
+ "origin": "download",
+ "retrieved": "2026-11-04T17:30:11-03:00",
+ "service": "noaa-ncn",
+ "sha256": "6818a24124851ba13b5a19a138d1c70bf0a56afd433ebdaf93c2ba183386002f",
+ "size": 65,
+ "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2005/140/brdc1400.05g.gz"
+}

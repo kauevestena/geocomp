@@ -1,0 +1,18 @@
+{
+  "status": "verified",
+  "results": {
+    "DATUM_DEFECT": "1",
+    "DEGREES_OF_FREEDOM": "1",
+    "GLOBAL_TEST_PASSED": "True",
+    "OUTLIER_COUNT": "0",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/gravity.csv",
+    "OUTPUT_DIFFERENCES": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/report.html",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_1_joint_drift_and_gravity/outputs/solution.json",
+    "OUTPUT_STATIONS": "None",
+    "UNCHECKABLE_COUNT": "0",
+    "VARIANCE_FACTOR_APOSTERIORI": "0.003157894744473901"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

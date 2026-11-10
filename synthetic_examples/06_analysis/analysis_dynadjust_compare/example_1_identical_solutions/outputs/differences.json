@@ -1,0 +1,61 @@
+{
+  "agrees": true,
+  "coordinate_differences": {
+    "O1": 0.0,
+    "O2": 0.0,
+    "O3": 0.0,
+    "O4": 0.0,
+    "O5": 0.0,
+    "R1": 0.0,
+    "R2": 0.0,
+    "R3": 0.0,
+    "R4": 0.0
+  },
+  "other": "dam-1",
+  "quantities": [
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 21,
+      "quantity": "degrees of freedom",
+      "reference": 21
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 36,
+      "quantity": "observations",
+      "reference": 36
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 18,
+      "quantity": "parameters",
+      "reference": 18
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 1.1405585845608883,
+      "quantity": "variance factor",
+      "reference": 1.1405585845608883
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 0.0,
+      "quantity": "coordinates (largest component difference, m)",
+      "reference": 0.0
+    },
+    {
+      "agrees": true,
+      "not_compared": "one of the two solutions reports no observation results",
+      "other": null,
+      "quantity": "residuals",
+      "reference": null
+    }
+  ],
+  "reference": "dam-1",
+  "residual_differences": {}
+}

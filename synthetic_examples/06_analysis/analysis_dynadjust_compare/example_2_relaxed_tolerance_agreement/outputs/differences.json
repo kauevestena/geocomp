@@ -1,0 +1,61 @@
+{
+  "agrees": true,
+  "coordinate_differences": {
+    "O1": 0.008667741902172565,
+    "O2": 0.013866930501535535,
+    "O3": 0.009114517830312252,
+    "O4": 0.004609889350831509,
+    "O5": 0.005665796808898449,
+    "R1": 0.013894875533878803,
+    "R2": 0.009320505312643945,
+    "R3": 0.0021378984674811363,
+    "R4": 0.013434194028377533
+  },
+  "other": "dam-2",
+  "quantities": [
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 21,
+      "quantity": "degrees of freedom",
+      "reference": 21
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 36,
+      "quantity": "observations",
+      "reference": 36
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 18,
+      "quantity": "parameters",
+      "reference": 18
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 1.1799973553841028,
+      "quantity": "variance factor",
+      "reference": 1.1405585845608883
+    },
+    {
+      "agrees": true,
+      "not_compared": "",
+      "other": 0.013894875533878803,
+      "quantity": "coordinates (largest component difference, m)",
+      "reference": 0.0
+    },
+    {
+      "agrees": true,
+      "not_compared": "one of the two solutions reports no observation results",
+      "other": null,
+      "quantity": "residuals",
+      "reference": null
+    }
+  ],
+  "reference": "dam-1",
+  "residual_differences": {}
+}

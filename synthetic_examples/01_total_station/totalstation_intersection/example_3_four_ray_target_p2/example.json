@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Forward intersection",
+  "algorithm_id": "geocomp:totalstation_intersection",
+  "algorithm_title": "Forward intersection",
+  "example_index": 3,
+  "slug": "example_3_four_ray_target_p2",
+  "title": "Four-ray forward intersection to target P2 from all four control pillars (A, B, C, D)",
+  "scenario": "Intersects 4 azimuth rays onto target P2 with 2 degrees of freedom.",
+  "parameters": {
+    "SIGHTINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_3_four_ray_target_p2/inputs/sightings_p2_4rays.json",
+    "TARGET": "P2",
+    "SIGMA_AZIMUTH": 0.0008333333333333334,
+    "CONFIDENCE": 0.95,
+    "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_3_four_ray_target_p2/outputs/position.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_3_four_ray_target_p2/outputs/report.html"
+  },
+  "expected_summary": "Recovers exact P2 coordinates with 4-ray redundancy.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "EASTING": "1078.0",
+      "NORTHING": "1013.0",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_3_four_ray_target_p2/outputs/report.html",
+      "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_intersection/example_3_four_ray_target_p2/outputs/position.json",
+      "SEMI_MAJOR": "0.01654455458367713",
+      "SEMI_MINOR": "0.009053622013389133",
+      "WEAK_GEOMETRY": "False"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

@@ -153,6 +153,18 @@ def load_network(path: str, *, parameter: str) -> Network:
             _tr("The network document '%1' does not exist. Check the path.").replace("%1", str(source))
         )
 
+    if source.suffix.lower() in {".gpkg", ".shp"}:
+        from qgis.core import QgsVectorLayer
+
+        from geocomp.gui.preanalysis_dialog import (
+            is_preanalysis_network_layer,
+            session_from_vector_layer,
+        )
+
+        layer = QgsVectorLayer(str(source), "planned_network", "ogr")
+        if layer.isValid() and is_preanalysis_network_layer(layer):
+            return session_from_vector_layer(layer).network
+
     try:
         payload = json.loads(source.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -166,6 +178,22 @@ def load_network(path: str, *, parameter: str) -> Network:
             .replace("%1", str(source))
             .replace("%2", str(exc))
         ) from exc
+
+    if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
+        from geocomp.core.preanalysis.session import DesignSession
+
+        features = payload.get("features")
+        if isinstance(features, list) and any(
+            isinstance(f, dict)
+            and isinstance(f.get("properties"), dict)
+            and (
+                "observation_type" in f["properties"]
+                or "from_station" in f["properties"]
+                or "station_id" in f["properties"]
+            )
+            for f in features
+        ):
+            return DesignSession.from_geojson_dict(payload).network
 
     try:
         return network_from_document(payload)

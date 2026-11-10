@@ -1,0 +1,143 @@
+{
+  "sessions": [
+    {
+      "id": "aux1.05o",
+      "station_id": "AUX1",
+      "obs_file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/aux1.05o",
+      "nav_files": [
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/brdc.05n"
+      ],
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:30.005000+00:00",
+      "interval": 30.0,
+      "receiver": "TRIMBLE 5700",
+      "antenna": "TRM29659.00",
+      "antenna_height": {
+        "value": 0.0,
+        "variance": 0.0,
+        "unit": "METRE",
+        "mode": "RIGOROUS"
+      },
+      "antenna_height_method": "unstated",
+      "meta": {
+        "rinex_version": 2.1,
+        "observation_types": {
+          "": [
+            "L1",
+            "C1",
+            "L2",
+            "P2"
+          ]
+        },
+        "approximate_position": [
+          -3976219.5082,
+          3382372.5671,
+          3652512.9849
+        ],
+        "time_system": "GPS"
+      }
+    },
+    {
+      "id": "base.05o",
+      "station_id": "BASE",
+      "obs_file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/base.05o",
+      "nav_files": [
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/brdc.05n"
+      ],
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:29.996000+00:00",
+      "interval": 30.0,
+      "receiver": "TRIMBLE 5700",
+      "antenna": "TRM29659.00",
+      "antenna_height": {
+        "value": 0.0,
+        "variance": 0.0,
+        "unit": "METRE",
+        "mode": "RIGOROUS"
+      },
+      "antenna_height_method": "unstated",
+      "meta": {
+        "rinex_version": 2.1,
+        "observation_types": {
+          "": [
+            "L1",
+            "C1",
+            "L2",
+            "P2"
+          ]
+        },
+        "approximate_position": [
+          -3978242.4348,
+          3382841.1715,
+          3649902.7667
+        ],
+        "time_system": "GPS"
+      }
+    },
+    {
+      "id": "rover.05o",
+      "station_id": "ROVE",
+      "obs_file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/rover.05o",
+      "nav_files": [
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/brdc.05n"
+      ],
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:30.005000+00:00",
+      "interval": 30.0,
+      "receiver": "TRIMBLE 5700",
+      "antenna": "TRM29659.00",
+      "antenna_height": {
+        "value": 0.0,
+        "variance": 0.0,
+        "unit": "METRE",
+        "mode": "RIGOROUS"
+      },
+      "antenna_height_method": "unstated",
+      "meta": {
+        "rinex_version": 2.1,
+        "observation_types": {
+          "": [
+            "L1",
+            "C1",
+            "L2",
+            "P2"
+          ]
+        },
+        "approximate_position": [
+          -3976219.5082,
+          3382372.5671,
+          3652512.9849
+        ],
+        "time_system": "GPS"
+      }
+    }
+  ],
+  "navigation": [
+    "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/brdc.05n"
+  ],
+  "skipped": [],
+  "warnings": [
+    {
+      "file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/aux1.05o",
+      "code": "navigation_paired_by_fallback",
+      "reason": "navigation files paired by fallback: no file name stated a matching date, so all 1 navigation files in the scan are offered"
+    },
+    {
+      "file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/base.05o",
+      "code": "navigation_paired_by_fallback",
+      "reason": "navigation files paired by fallback: no file name stated a matching date, so all 1 navigation files in the scan are offered"
+    },
+    {
+      "file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_2_three_station_network_session/inputs/rinex/rover.05o",
+      "code": "navigation_paired_by_fallback",
+      "reason": "navigation files paired by fallback: no file name stated a matching date, so all 1 navigation files in the scan are offered"
+    }
+  ],
+  "simultaneous_groups": [
+    [
+      "AUX1",
+      "BASE",
+      "ROVE"
+    ]
+  ]
+}

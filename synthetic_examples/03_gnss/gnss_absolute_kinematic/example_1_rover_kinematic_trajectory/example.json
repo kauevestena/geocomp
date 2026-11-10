@@ -1,0 +1,31 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Absolute ▸ Absolute — Kinematic",
+  "algorithm_id": "geocomp:gnss_absolute_kinematic",
+  "algorithm_title": "Absolute — Kinematic",
+  "example_index": 1,
+  "slug": "example_1_rover_kinematic_trajectory",
+  "title": "Absolute kinematic trajectory of ROVE with default settings",
+  "scenario": "Computes epoch-by-epoch standalone kinematic trajectory for station ROVE.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_1_rover_kinematic_trajectory/inputs/rinex",
+    "ROVER_STATION": "ROVE",
+    "ELEVATION_MASK": 15.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_1_rover_kinematic_trajectory/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_1_rover_kinematic_trajectory/outputs/quality.json"
+  },
+  "expected_summary": "Produces epoch-by-epoch kinematic .pos file and quality metrics.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_1_rover_kinematic_trajectory/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_1_rover_kinematic_trajectory/outputs/solution.pos"
+    },
+    "info_lines": 3,
+    "warning_lines": 3
+  }
+}

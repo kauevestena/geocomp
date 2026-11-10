@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "ALERT_COUNT": "0",
+    "EPOCH_COUNT": "3",
+    "MOVING_COUNT": "1",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_2_explicit_reference_and_thresholds/outputs/series.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_2_explicit_reference_and_thresholds/outputs/monitoring_report.html",
+    "OUTPUT_SERIES": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_time_series/example_2_explicit_reference_and_thresholds/outputs/series.json",
+    "OUTPUT_VELOCITY_LAYER": "None",
+    "STATION_COUNT": "9"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

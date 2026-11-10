@@ -1,0 +1,25 @@
+{
+  "instruments": [],
+  "reflectors": [],
+  "levels": [
+    {
+      "id": "rd04-level",
+      "collimation": {
+        "value": 0.0,
+        "variance": 0.0,
+        "unit": "RADIAN",
+        "mode": "RIGOROUS"
+      },
+      "applies_collimation": false,
+      "sigma_per_km": 0.0007,
+      "sigma_per_setup": 0.0003,
+      "sigma_reading": 0.0005,
+      "stadia_factor": 100.0,
+      "sigma_stadia_reading": 0.0,
+      "name": "RD-04 reference level"
+    }
+  ],
+  "levelling_classes": [],
+  "gravimeters": [],
+  "default_level": "rd04-level"
+}

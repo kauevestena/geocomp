@@ -1,0 +1,31 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Compare configurations",
+  "algorithm_id": "geocomp:gnss_compare_configurations",
+  "algorithm_title": "Compare configurations",
+  "example_index": 2,
+  "slug": "example_2_high_cutoff_comparison",
+  "title": "Extreme elevation mask comparison (15°, 30°, 40°) at 99% confidence",
+  "scenario": "Evaluates dilution of precision and coordinate shift under severe sky obstruction (30° and 40°).",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex",
+    "MASKS": "15,30,40",
+    "CONFIDENCE": 0.99,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.csv",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.json"
+  },
+  "expected_summary": "Quantifies coordinate shift between 15°, 30°, and 40° masks at 99% confidence.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.html",
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/outputs/comparison.json"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,116 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Levelling: extreme sights</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Levelling: extreme sights</h1>
+<h2>Height differences from each setup</h2>
+<table>
+<tr>
+<th>Setup</th>
+<th>From</th>
+<th>To</th>
+<th>dH (m)</th>
+<th>Uncertainty (mm)</th>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>BM1</td>
+<td>BM3</td>
+<td>1.20000</td>
+<td>0.707</td>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>BM1</td>
+<td>S1</td>
+<td>2.31000</td>
+<td>0.707</td>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>BM1</td>
+<td>S2</td>
+<td>4.90500</td>
+<td>0.707</td>
+</tr>
+</table>
+<h2>Differences between foresighted points</h2>
+<table>
+<tr>
+<th>Setup</th>
+<th>From</th>
+<th>To</th>
+<th>dH (m)</th>
+<th>Uncertainty (mm)</th>
+<th>If treated as independent (mm)</th>
+<th>Overstated by (%)</th>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>BM3</td>
+<td>S1</td>
+<td>1.11000</td>
+<td>0.707</td>
+<td>1.000</td>
+<td>29.3</td>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>BM3</td>
+<td>S2</td>
+<td>3.70500</td>
+<td>0.707</td>
+<td>1.000</td>
+<td>29.3</td>
+</tr>
+<tr>
+<td>RD04-extreme</td>
+<td>S1</td>
+<td>S2</td>
+<td>2.59500</td>
+<td>0.707</td>
+<td>1.000</td>
+<td>29.3</td>
+</tr>
+</table>
+<div class="note"><b>Why the correlation helps</b>: The backsight cancels between two foresights of one setup, so these differences are better determined than independent treatment would suggest. The last column is how much an independent treatment would have overstated the uncertainty by.</div>
+<h2>Findings</h2>
+<table>
+<tr>
+<th>Severity</th>
+<th>Code</th>
+<th>Finding</th>
+<th>Involves</th>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_sight_too_long</code></td>
+<td>The sight to BM1 from setup RD04-extreme is 25.0 m, beyond the 20.0 m its class permits. Long sights magnify both refraction and the residual collimation error.</td>
+<td>BM1</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_sight_too_long</code></td>
+<td>The sight to BM3 from setup RD04-extreme is 25.0 m, beyond the 20.0 m its class permits. Long sights magnify both refraction and the residual collimation error.</td>
+<td>BM3</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_sight_too_long</code></td>
+<td>The sight to S1 from setup RD04-extreme is 40.0 m, beyond the 20.0 m its class permits. Long sights magnify both refraction and the residual collimation error.</td>
+<td>S1</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_setup_imbalanced</code></td>
+<td>Setup RD04-extreme is out of balance by -15.00 m on the sight to S1, beyond the 2.00 m its class permits.</td>
+<td>S1</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_setup_imbalanced</code></td>
+<td>Setup RD04-extreme is out of balance by +7.00 m on the sight to S2, beyond the 2.00 m its class permits.</td>
+<td>S2</td>
+</tr>
+</table>
+</body></html>

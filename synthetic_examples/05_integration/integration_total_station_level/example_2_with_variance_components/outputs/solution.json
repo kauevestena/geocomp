@@ -1,0 +1,619 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.0,
+        0.0,
+        0.04458209629444809
+      ],
+      "covariance": {
+        "labels": [
+          "P2.u"
+        ],
+        "matrix": [
+          [
+            3.61479006097898e-05
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2026.7
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 675820.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 7185140.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 925.3079296486086,
+            "variance": 3.61479006097898e-05
+          }
+        ]
+      },
+      "station_id": "P2"
+    },
+    {
+      "correction": [
+        0.03815492847934365,
+        0.1815678719431162,
+        0.18126653829790484
+      ],
+      "covariance": {
+        "labels": [
+          "P3.e",
+          "P3.n",
+          "P3.u"
+        ],
+        "matrix": [
+          [
+            6.418535939568516e-06,
+            4.946420387992234e-07,
+            -1.4043127270126962e-10
+          ],
+          [
+            4.946420387992234e-07,
+            3.251411216298913e-06,
+            1.368719819157012e-10
+          ],
+          [
+            -1.4043127270126962e-10,
+            1.368719819157012e-10,
+            1.085462729893145e-08
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 1.419417523691541,
+        "semi_major": 0.0076100609751440255,
+        "semi_minor": 0.005321934100803864
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2026.7
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 675380.0015442106,
+            "variance": 6.418535939568516e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 7185759.99967795,
+            "variance": 3.251411216298913e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 904.2257696225888,
+            "variance": 1.085462729893145e-08
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0076100609751440255,
+      "station_id": "P3"
+    },
+    {
+      "correction": [
+        -0.19866189849562943,
+        -0.0627812473103404,
+        0.10831240346192317
+      ],
+      "covariance": {
+        "labels": [
+          "P4.e",
+          "P4.n",
+          "P4.u"
+        ],
+        "matrix": [
+          [
+            6.146508864848506e-06,
+            -3.195279706438403e-06,
+            -1.930206439724426e-10
+          ],
+          [
+            -3.195279706438403e-06,
+            5.443801670270373e-06,
+            -5.804428554990218e-12
+          ],
+          [
+            -1.930206439724426e-10,
+            -5.804428554990218e-12,
+            1.0854706386234958e-08
+          ]
+        ],
+        "mode": "RIGOROUS",
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 2.301434388714267,
+        "semi_major": 0.008963699900281534,
+        "semi_minor": 0.004797268027089569
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2026.7
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 675960.0010085475,
+            "variance": 6.146508864848506e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 7185639.998166397,
+            "variance": 5.443801670270373e-06
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 931.8721164841298,
+            "variance": 1.0854706386234958e-08
+          }
+        ]
+      },
+      "positional_uncertainty": 0.008963699900281534,
+      "station_id": "P4"
+    }
+  ],
+  "crs": "EPSG:31982",
+  "datum_definition": "FIXED",
+  "epoch": {
+    "decimal_year": 2026.7
+  },
+  "id": "combined",
+  "kind": "ADJUSTMENT",
+  "network_id": "combined",
+  "observation_results": [
+    {
+      "external_reliability": 0.00110066730851751,
+      "minimal_detectable_bias": 0.008989738017990388,
+      "observation_id": "s-P1-P2",
+      "redundancy": 0.9980420768062572,
+      "residual": 0.0018834112201368415,
+      "standardised_residual": 0.8674114107802515,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8674114107802515
+      }
+    },
+    {
+      "external_reliability": 0.012773446085618026,
+      "minimal_detectable_bias": 7.343402990438011e-05,
+      "observation_id": "z-P1-P2",
+      "redundancy": 0.791007224537114,
+      "residual": -2.0783165389031606e-05,
+      "standardised_residual": 1.4784605682432352,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.4784605682432352
+      }
+    },
+    {
+      "external_reliability": 0.03135103632694897,
+      "minimal_detectable_bias": 0.029307004246975712,
+      "observation_id": "s-P1-P3",
+      "redundancy": 0.09390745435647856,
+      "residual": -1.028025790388542e-05,
+      "standardised_residual": 0.015435062039501995,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.015435062039501995
+      }
+    },
+    {
+      "external_reliability": 1.4750536628050728e-05,
+      "minimal_detectable_bias": 6.531321857183254e-05,
+      "observation_id": "z-P1-P3",
+      "redundancy": 0.9999378374999462,
+      "residual": 2.4282870022486616e-05,
+      "standardised_residual": 1.53639113094913,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.53639113094913
+      }
+    },
+    {
+      "external_reliability": 0.012436381814085266,
+      "minimal_detectable_bias": 0.014781188797805557,
+      "observation_id": "s-P1-P4",
+      "redundancy": 0.36916812344749417,
+      "residual": 2.5928939957133337e-05,
+      "standardised_residual": 0.01963482651287599,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.01963482651287599
+      }
+    },
+    {
+      "external_reliability": 1.5714698721129856e-05,
+      "minimal_detectable_bias": 6.531234113638637e-05,
+      "observation_id": "z-P1-P4",
+      "redundancy": 0.9999647049121654,
+      "residual": 1.5081927377421021e-05,
+      "standardised_residual": 0.9542293865352424,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9542293865352424
+      }
+    },
+    {
+      "external_reliability": 0.022300906324925804,
+      "minimal_detectable_bias": 0.020658472492965756,
+      "observation_id": "s-P2-P3",
+      "redundancy": 0.18899334423112807,
+      "residual": 2.3952164960088538e-05,
+      "standardised_residual": 0.025349880846758405,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.025349880846758405
+      }
+    },
+    {
+      "external_reliability": 0.014355307393048357,
+      "minimal_detectable_bias": 7.542720539694776e-05,
+      "observation_id": "z-P2-P3",
+      "redundancy": 0.749754601074752,
+      "residual": 3.407257387155119e-06,
+      "standardised_residual": 0.24896233547686764,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.24896233547686764
+      }
+    },
+    {
+      "external_reliability": 0.021277143288056046,
+      "minimal_detectable_bias": 0.020724108177429926,
+      "observation_id": "s-P2-P4",
+      "redundancy": 0.18779811172037328,
+      "residual": -1.410154934157262e-05,
+      "standardised_residual": 0.014971855401046555,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.014971855401046555
+      }
+    },
+    {
+      "external_reliability": 0.026734437307044077,
+      "minimal_detectable_bias": 9.593793441540219e-05,
+      "observation_id": "z-P2-P4",
+      "redundancy": 0.46344099376144143,
+      "residual": -1.6147183907758884e-05,
+      "standardised_residual": 1.5006791399222172,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5006791399222172
+      }
+    },
+    {
+      "external_reliability": 0.015038221129328198,
+      "minimal_detectable_bias": 0.022601095727843003,
+      "observation_id": "s-P3-P4",
+      "redundancy": 0.15790065546834917,
+      "residual": -2.9094724026961604e-05,
+      "standardised_residual": 0.0336881125201111,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.0336881125201111
+      }
+    },
+    {
+      "external_reliability": 6.496203964006073e-05,
+      "minimal_detectable_bias": 6.531845460400044e-05,
+      "observation_id": "z-P3-P4",
+      "redundancy": 0.9997775306811926,
+      "residual": 6.2866927106507605e-06,
+      "standardised_residual": 0.39779454583422985,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.39779454583422985
+      }
+    },
+    {
+      "external_reliability": 0.0007502336139664066,
+      "minimal_detectable_bias": 0.0009131885768712293,
+      "observation_id": "l-P1-P3",
+      "redundancy": 0.3334227319439579,
+      "residual": -7.287001478928102e-05,
+      "standardised_residual": 0.9889379573049393,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9889379573049393
+      }
+    },
+    {
+      "external_reliability": 0.00043964144919808005,
+      "minimal_detectable_bias": 0.0009131283252847523,
+      "observation_id": "l-P3-P4",
+      "redundancy": 0.33346673432739593,
+      "residual": -7.433150207288245e-05,
+      "standardised_residual": 1.0087056238971883,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0087056238971883
+      }
+    },
+    {
+      "external_reliability": 0.0007912684673529156,
+      "minimal_detectable_bias": 0.0009131952278010425,
+      "observation_id": "l-P4-P1",
+      "redundancy": 0.33341787523195304,
+      "residual": -7.385065901636986e-05,
+      "standardised_residual": 1.0022538351781127,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.8848174645612612,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0022538351781127
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "P2.u",
+      "P3.e",
+      "P3.n",
+      "P3.u",
+      "P4.e",
+      "P4.n",
+      "P4.u"
+    ],
+    "matrix": [
+      [
+        3.61479006097898e-05,
+        5.432438715039877e-07,
+        -4.795075222510335e-07,
+        5.626160772215321e-09,
+        4.071051955383611e-07,
+        5.399035971231054e-08,
+        7.19466426199762e-09
+      ],
+      [
+        5.432438715039877e-07,
+        6.418535939568516e-06,
+        4.946420387992234e-07,
+        -1.4043127270126962e-10,
+        4.3495766671801775e-06,
+        -2.7586847961602293e-06,
+        6.833487131934609e-11
+      ],
+      [
+        -4.795075222510335e-07,
+        4.946420387992234e-07,
+        3.251411216298913e-06,
+        1.368719819157012e-10,
+        -1.2217109169647988e-07,
+        7.346908722304521e-08,
+        8.353682311372183e-12
+      ],
+      [
+        5.626160772215321e-09,
+        -1.4043127270126962e-10,
+        1.368719819157012e-10,
+        1.085462729893145e-08,
+        1.518568517334716e-11,
+        -5.631760755084597e-11,
+        5.427711463265123e-09
+      ],
+      [
+        4.071051955383611e-07,
+        4.3495766671801775e-06,
+        -1.2217109169647988e-07,
+        1.518568517334716e-11,
+        6.146508864848506e-06,
+        -3.195279706438403e-06,
+        -1.930206439724426e-10
+      ],
+      [
+        5.399035971231054e-08,
+        -2.7586847961602293e-06,
+        7.346908722304521e-08,
+        -5.631760755084597e-11,
+        -3.195279706438403e-06,
+        5.443801670270373e-06,
+        -5.804428554990218e-12
+      ],
+      [
+        7.19466426199762e-09,
+        6.833487131934609e-11,
+        8.353682311372183e-12,
+        5.427711463265123e-09,
+        -1.930206439724426e-10,
+        -5.804428554990218e-12,
+        1.0854706386234958e-08
+      ]
+    ],
+    "mode": "RIGOROUS",
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:integration_total_station_level",
+    "created": "2026-11-04T20:47:13.855633+00:00",
+    "engine": "in_house",
+    "geocomp_version": "0.1.0",
+    "input_ids": [
+      "total-station",
+      "levelling"
+    ],
+    "parameters": {
+      "adjustment_frame": "space_3d",
+      "combination": {
+        "epoch": 2026.7,
+        "frame": "EPSG:31982",
+        "geocentric": false,
+        "inputs": [
+          "total-station",
+          "levelling"
+        ],
+        "renamed": {},
+        "techniques": [
+          "total_station",
+          "levelling"
+        ],
+        "transformations": []
+      },
+      "datum": "fixed",
+      "fixed": [],
+      "geoid_model": null,
+      "geoid_residuals": [],
+      "routing": {
+        "engine": "in_house",
+        "reason": "requested"
+      },
+      "solver": "dense",
+      "technique_breakdown": [
+        {
+          "largest_standardised": 1.536391130956279,
+          "observations": 12,
+          "redundancy": 6.999692658496692,
+          "redundancy_share": 0.8749615823120865,
+          "rows": 12,
+          "technique": "total_station",
+          "uncheckable": [],
+          "variance_factor": 0.9999999851822721,
+          "weighted_squares": 6.999692554777151
+        },
+        {
+          "largest_standardised": 1.0087056239018821,
+          "observations": 3,
+          "redundancy": 1.0003073415033068,
+          "redundancy_share": 0.12503841768791335,
+          "rows": 3,
+          "technique": "levelling",
+          "uncheckable": [],
+          "variance_factor": 1.0000001037621027,
+          "weighted_squares": 1.0003074452973
+        }
+      ],
+      "variance_components": {
+        "levelling": {
+          "factor": 0.025443947352637244,
+          "observations": 3,
+          "redundancy": 1.0003073415033068,
+          "std_dev": 0.035983174741185515
+        },
+        "total_station": {
+          "factor": 1.1809491439412916,
+          "observations": 12,
+          "redundancy": 6.999692658496692,
+          "std_dev": 0.6312715887966582
+        }
+      }
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "uncertainty_mode": "RIGOROUS"
+  },
+  "statistics": {
+    "condition_number": 6665.456574044435,
+    "converged": true,
+    "degrees_of_freedom": 8,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 17.534546139484647,
+      "critical_low": 2.17973074725265,
+      "name": "global",
+      "passed": true,
+      "statistic": 8.00000000007445
+    },
+    "iterations": 2,
+    "max_correction": 3.13081630824224e-05,
+    "n_constraints": 0,
+    "n_observations": 15,
+    "n_parameters": 7,
+    "variance_factor_aposteriori": 1.0000000000093063,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "RIGOROUS"
+}

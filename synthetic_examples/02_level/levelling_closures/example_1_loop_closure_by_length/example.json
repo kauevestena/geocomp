@@ -1,0 +1,38 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Closures and tolerances",
+  "algorithm_id": "geocomp:levelling_closures",
+  "algorithm_title": "Closures and tolerances",
+  "example_index": 1,
+  "slug": "example_1_loop_closure_by_length",
+  "title": "Closed 4-line loop closure check (k = 8 mm/sqrt(km)) distributed by line length",
+  "scenario": "Checks loop misclosure against 8 mm/sqrt(km) tolerance and distributes proportionally to length.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/inputs/loop_reduced.json",
+    "MODE": 0,
+    "TOLERANCE_COEFFICIENT": 0.008,
+    "WEIGHTING": 0,
+    "LOOP_ID": "RD04_Loop",
+    "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/closures.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/distribution.csv"
+  },
+  "expected_summary": "Passes tolerance and distributes loop misclosure across the 4 lines.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "MISCLOSURE": "-0.0037799999999998946",
+      "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/closures.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/distribution.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/report.html",
+      "PASSED": "1",
+      "PERMISSIBLE": "0.006974238309665077",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

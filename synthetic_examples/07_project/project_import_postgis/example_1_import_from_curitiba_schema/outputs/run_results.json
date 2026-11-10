@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_1_import_from_curitiba_schema/outputs/imported_geocomp_curitiba.gpkg",
+    "ROWS": "168"
+  },
+  "info_lines": 11,
+  "warning_lines": 0
+}

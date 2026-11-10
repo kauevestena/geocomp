@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Monitoring report",
+  "algorithm_id": "geocomp:monitoring_report",
+  "algorithm_title": "Monitoring report",
+  "example_index": 1,
+  "slug": "example_1_from_two_epoch_analysis",
+  "title": "Standalone HTML monitoring report from two-epoch congruence analysis",
+  "scenario": "Renders two-epoch deformation tables, stability tests, and SVG vector map.",
+  "parameters": {
+    "ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_1_from_two_epoch_analysis/inputs/analysis.json",
+    "EXAGGERATION": 0.0,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_1_from_two_epoch_analysis/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Writes self-contained HTML report with SVG displacement vectors.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OMITTED": "[]",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_1_from_two_epoch_analysis/outputs/monitoring_report.html"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

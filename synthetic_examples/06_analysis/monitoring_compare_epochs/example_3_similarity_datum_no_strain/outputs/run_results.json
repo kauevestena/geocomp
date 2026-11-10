@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "ALERT_COUNT": "0",
+    "GLOBAL_TEST_PASSED": "False",
+    "OUTPUT_ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_3_similarity_datum_no_strain/outputs/analysis.json",
+    "OUTPUT_DISPLACEMENT_ELLIPSE_LAYER": "None",
+    "OUTPUT_DISPLACEMENT_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_3_similarity_datum_no_strain/outputs/monitoring_report.html",
+    "REFERENCE_STABLE": "True",
+    "SIGNIFICANT_COUNT": "1"
+  },
+  "info_lines": 2,
+  "warning_lines": 1
+}

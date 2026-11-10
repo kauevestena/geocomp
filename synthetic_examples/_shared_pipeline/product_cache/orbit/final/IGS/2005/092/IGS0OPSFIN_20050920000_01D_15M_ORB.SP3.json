@@ -1,0 +1,13 @@
+{
+ "day": "2005-04-02",
+ "downloaded_sha256": "d175c57e82a98040b6fa91cea4f183724ede55650e77caecbf6b36444bfb474c",
+ "kind": "orbit",
+ "latency": "final",
+ "name": "IGS0OPSFIN_20050920000_01D_15M_ORB.SP3",
+ "origin": "download",
+ "retrieved": "2026-11-04T17:30:11-03:00",
+ "service": "noaa-ncn",
+ "sha256": "6818a24124851ba13b5a19a138d1c70bf0a56afd433ebdaf93c2ba183386002f",
+ "size": 65,
+ "url": "https://noaa-cors-pds.s3.amazonaws.com/rinex/2005/092/IGS0OPSFIN_20050920000_01D_15M_ORB.SP3.gz"
+}

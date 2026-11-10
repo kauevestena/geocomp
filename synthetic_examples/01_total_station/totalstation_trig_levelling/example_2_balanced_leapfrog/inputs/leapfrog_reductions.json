@@ -1,0 +1,79 @@
+{
+  "kind": "geocomp.reductions",
+  "version": 1,
+  "setups": [
+    {
+      "station": "L",
+      "pointings": [
+        {
+          "target": "A",
+          "horizontal": {
+            "value": 2.50341209817878,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5558903110287905,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 67.08949247087803,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 67.08203932499369,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 1.0,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        },
+        {
+          "target": "D",
+          "horizontal": {
+            "value": 5.645004751768573,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "zenith": {
+            "value": 1.5149527493544304,
+            "variance": 2.5000000000000004e-11,
+            "unit": "RADIAN",
+            "mode": "RIGOROUS"
+          },
+          "distance": {
+            "value": 67.18677325188344,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "horizontal_distance": {
+            "value": 67.08203932499369,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "height_difference": {
+            "value": 3.75,
+            "variance": 4e-06,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          "usable": true
+        }
+      ]
+    }
+  ]
+}

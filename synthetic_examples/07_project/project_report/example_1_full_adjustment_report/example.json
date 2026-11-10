@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Adjustment report",
+  "algorithm_id": "geocomp:project_report",
+  "algorithm_title": "Adjustment report",
+  "example_index": 1,
+  "slug": "example_1_full_adjustment_report",
+  "title": "Full HTML adjustment report with network summary, chi-square test, and SVG network plot",
+  "scenario": "Generates a complete adjustment report from solution.json + network.json.",
+  "parameters": {
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_1_full_adjustment_report/inputs/solution.json",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_1_full_adjustment_report/inputs/network.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_1_full_adjustment_report/outputs/adjustment_report.html"
+  },
+  "expected_summary": "Writes self-contained HTML adjustment report with embedded SVG graphics.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OMITTED": "[]",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_report/example_1_full_adjustment_report/outputs/adjustment_report.html"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

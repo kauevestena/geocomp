@@ -1,0 +1,26 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Install an engine",
+  "algorithm_id": "geocomp:project_install_engine",
+  "algorithm_title": "Install an engine",
+  "example_index": 2,
+  "slug": "example_2_install_rtklib",
+  "title": "Download, verify SHA-256, and install RTKLIB (rnx2rtkp)",
+  "scenario": "Installs RTKLIB's rnx2rtkp binary into the user's GeoComp engines directory.",
+  "parameters": {
+    "ENGINE": 1,
+    "ACKNOWLEDGE_LICENCE": false
+  },
+  "expected_summary": "Verifies archive checksum, extracts rnx2rtkp, and reports installed version.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/managed_engines/rtklib/2.5.1/bin",
+      "OUTPUT_VERSION": "2.5.1"
+    },
+    "info_lines": 3,
+    "warning_lines": 1
+  }
+}

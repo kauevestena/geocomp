@@ -1,0 +1,75 @@
+{
+  "closure": {
+    "distribution": [
+      {
+        "correction": 0.0002984210526315706,
+        "setup_id": "BM1-BM2-S0",
+        "standardised": null,
+        "weight": 0.07894736842105263
+      },
+      {
+        "correction": 0.0002984210526315706,
+        "setup_id": "BM1-BM2-S1",
+        "standardised": null,
+        "weight": 0.07894736842105263
+      },
+      {
+        "correction": 0.0002984210526315706,
+        "setup_id": "BM1-BM2-S2",
+        "standardised": null,
+        "weight": 0.07894736842105263
+      },
+      {
+        "correction": 0.0004973684210526177,
+        "setup_id": "BM2-BM4-S0",
+        "standardised": null,
+        "weight": 0.13157894736842105
+      },
+      {
+        "correction": 0.0004973684210526177,
+        "setup_id": "BM2-BM4-S1",
+        "standardised": null,
+        "weight": 0.13157894736842105
+      },
+      {
+        "correction": 0.0004973684210526177,
+        "setup_id": "BM2-BM4-S2",
+        "standardised": null,
+        "weight": 0.13157894736842105
+      },
+      {
+        "correction": 0.0004973684210526177,
+        "setup_id": "BM2-BM4-S3",
+        "standardised": null,
+        "weight": 0.13157894736842105
+      },
+      {
+        "correction": 0.0004973684210526177,
+        "setup_id": "BM2-BM4-S4",
+        "standardised": null,
+        "weight": 0.13157894736842105
+      },
+      {
+        "correction": 0.00019894736842104708,
+        "setup_id": "BM4-BM1-S0",
+        "standardised": null,
+        "weight": 0.05263157894736842
+      },
+      {
+        "correction": 0.00019894736842104708,
+        "setup_id": "BM4-BM1-S1",
+        "standardised": null,
+        "weight": 0.05263157894736842
+      }
+    ],
+    "id": "RD04_Loop",
+    "kind": "loop",
+    "length_km": 0.76,
+    "misclosure": -0.0037799999999998946,
+    "passed": true,
+    "permissible": 0.006974238309665077,
+    "setup_count": 10,
+    "standardised": -1.690467390989794
+  },
+  "kind": "levelling_closure"
+}

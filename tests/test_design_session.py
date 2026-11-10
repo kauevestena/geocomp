@@ -310,6 +310,93 @@ class TestTheDesignQuestions:
         assert session.network.observations[identifier].values[0].unit is Unit.RADIAN
         assert math.isfinite(session.network.observations[identifier].values[0].std_dev)
 
+    def test_required_observation_sigmas_simulate_how_precise_observations_must_be(self):
+        session = _quadrilateral()
+        session.tolerance = 0.002
+        required = session.required_observation_sigmas()
+        assert set(required) == set(session.network.observations)
+        assert all(sigma > 0.0 for sigma in required.values())
+
+        applied = session.apply_required_precisions()
+        assert applied == required
+        state = session.evaluate()
+        assert state.is_evaluable
+        assert state.report.worst_station().positional_uncertainty == pytest.approx(0.002)
+        assert state.report.meets(0.002)
+        assert not any(f.code == "design_misses_tolerance" for f in state.findings)
+
+    def test_applying_required_precisions_updates_direction_clusters_and_can_be_undone(self):
+        session = _quadrilateral()
+        d1 = session.add_observation(DIRECTION, ("A", "B"))
+        d2 = session.add_observation(DIRECTION, ("A", "C"))
+        before_sigma = session.network.observations[d1].values[0].std_dev
+        session.tolerance = 0.0015
+
+        session.apply_required_precisions()
+        after_sigma = session.network.observations[d1].values[0].std_dev
+        assert after_sigma != pytest.approx(before_sigma)
+        cluster = session.network.clusters["directions-A"]
+        assert cluster.covariance.matrix[0, 0] == pytest.approx(after_sigma**2)
+        assert session.evaluate().report.worst_station().positional_uncertainty == pytest.approx(
+            0.0015
+        )
+
+        assert session.undo()
+        assert session.network.observations[d1].values[0].std_dev == pytest.approx(before_sigma)
+        assert session.network.observations[d2].values[0].std_dev == pytest.approx(before_sigma)
+        assert session.network.clusters["directions-A"].covariance.matrix[0, 0] == pytest.approx(
+            before_sigma**2
+        )
+
+    def test_set_observation_sigma_updates_one_observation_and_refuses_invalid_inputs(self):
+        session = _quadrilateral()
+        obs_id = next(iter(session.network.observations))
+        session.set_observation_sigma(obs_id, 0.001)
+        assert session.network.observations[obs_id].values[0].std_dev == pytest.approx(0.001)
+
+        with pytest.raises(GeoCompError):
+            session.set_observation_sigma("missing-obs", 0.001)
+        with pytest.raises(GeoCompError):
+            session.set_observation_sigma(obs_id, 0.0)
+
+    def test_feature_records_and_geojson_round_trip_the_entire_network_and_characteristics(self):
+        session = _quadrilateral()
+        session.add_observation(DIRECTION, ("A", "B"))
+        session.add_observation(DIRECTION, ("A", "C"))
+        session.add_station("ISOLATED", 950.0, 950.0)
+        session.tolerance = 0.002
+
+        records = session.to_feature_records()
+        assert len(records) == len(session.network.stations) + len(session.network.observations)
+        station_records = [r for r in records if r["record_kind"] == "station"]
+        obs_records = [r for r in records if r["record_kind"] == "observation"]
+        assert len(station_records) == len(session.network.stations)
+        assert len(obs_records) == len(session.network.observations)
+        assert all(r["required_sigma"] is not None and r["required_sigma"] > 0.0 for r in obs_records)
+        assert all(r["redundancy"] is not None for r in obs_records)
+        assert all(r["from_uncertainty"] is not None for r in obs_records)
+
+        geojson = session.to_geojson_dict()
+        assert geojson["type"] == "FeatureCollection"
+        features = geojson["features"]
+        assert len(features) == len(session.network.stations) + len(session.network.observations)
+        point_features = [f for f in features if f["geometry"]["type"] == "Point"]
+        line_features = [f for f in features if f["geometry"]["type"] == "LineString"]
+        assert len(point_features) == len(session.network.stations)
+        assert len(line_features) == len(session.network.observations)
+
+        restored = DesignSession.from_geojson_dict(geojson)
+        assert set(restored.network.stations) == set(session.network.stations)
+        assert set(restored.network.observations) == set(session.network.observations)
+        assert "directions-A" in restored.network.clusters
+        assert restored.tolerance == pytest.approx(0.002)
+        restored.remove_station("ISOLATED")
+        session.remove_station("ISOLATED")
+        assert (
+            restored.evaluate().report.worst_station().positional_uncertainty
+            == pytest.approx(session.evaluate().report.worst_station().positional_uncertainty)
+        )
+
 
 class TestPlannedDirectionSets:
     """Directions from one setup share an unknown orientation, so they are one

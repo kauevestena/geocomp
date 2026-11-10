@@ -1,0 +1,123 @@
+{
+  "observations": [
+    {
+      "id": "gnss-BASE-ROVE",
+      "type": "GNSS_BASELINE",
+      "stations": [
+        "BASE",
+        "ROVE"
+      ],
+      "values": [
+        {
+          "value": 2022.7706999997608,
+          "variance": 1.69e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": -468.6291000000201,
+          "variance": 2.56e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": 2610.2890999997035,
+          "variance": 3.24e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "cluster_id": "gnss",
+      "meta": {
+        "engine": "rtklib",
+        "program": "rnx2rtkp ver.EX 2.5.1",
+        "solution_file": "base_rove.pos",
+        "solution_status": "FIXED",
+        "satellites": 5,
+        "ratio": 999.9,
+        "epochs": 120,
+        "fixed_fraction": 0.975,
+        "baseline_frame": "ecef"
+      },
+      "provenance": {
+        "reader": "gnss",
+        "file": "base_rove.pos",
+        "records": [
+          "baseline BASE-ROVE"
+        ]
+      }
+    }
+  ],
+  "cluster": {
+    "id": "gnss",
+    "kind": "GNSS_BASELINE",
+    "observation_ids": [
+      "gnss-BASE-ROVE"
+    ],
+    "covariance": {
+      "labels": [
+        "m0.x",
+        "m0.y",
+        "m0.z"
+      ],
+      "units": [
+        "METRE",
+        "METRE",
+        "METRE"
+      ],
+      "mode": "RIGOROUS",
+      "matrix": [
+        [
+          1.69e-06,
+          -1.69e-06,
+          -1.69e-06
+        ],
+        [
+          -1.69e-06,
+          2.56e-06,
+          2.25e-06
+        ],
+        [
+          -1.69e-06,
+          2.25e-06,
+          3.24e-06
+        ]
+      ]
+    }
+  },
+  "independent": [
+    "BASE-ROVE"
+  ],
+  "dependent": [],
+  "independent_only": true,
+  "quality": {
+    "BASE-ROVE": {
+      "session_id": "BASE-ROVE",
+      "epochs": 120,
+      "status_counts": {
+        "FLOAT": 3,
+        "FIXED": 117
+      },
+      "fixed_fraction": 0.975,
+      "satellites_least": 5,
+      "satellites_most": 7,
+      "ratio_best": 999.9,
+      "ratio_median": 401.3,
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:30+00:00",
+      "interval": 30.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    }
+  },
+  "closures": [],
+  "repeatability": [],
+  "float": [],
+  "antenna_heights": {},
+  "antenna_heights_from_files": false
+}

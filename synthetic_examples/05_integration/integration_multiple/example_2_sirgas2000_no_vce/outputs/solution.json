@@ -1,0 +1,1996 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        -0.01851774033343136,
+        -0.523071485755696,
+        -0.2450562212471562
+      ],
+      "covariance": {
+        "labels": [
+          "M03.x",
+          "M03.y",
+          "M03.z"
+        ],
+        "matrix": [
+          [
+            3.036064019339116e-06,
+            -1.88071027594164e-06,
+            -1.7513047690954656e-06
+          ],
+          [
+            -1.88071027594164e-06,
+            3.5875483304139557e-06,
+            1.5715173814697943e-06
+          ],
+          [
+            -1.7513047690954656e-06,
+            1.5715173814697943e-06,
+            2.1710178002782345e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 1.9878570657668113,
+        "semi_major": 0.0031317666895028873,
+        "semi_minor": 0.0022678979621449467
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762903.3602587245,
+            "variance": 3.036064019339116e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367924.016393813,
+            "variance": 3.5875483304139557e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2721081.6051610652,
+            "variance": 2.1710178002782345e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0031317666895028873,
+      "station_id": "M03"
+    },
+    {
+      "correction": [
+        -0.29621695138238097,
+        0.14045565257419274,
+        0.23147639898677572
+      ],
+      "covariance": {
+        "labels": [
+          "M04.x",
+          "M04.y",
+          "M04.z"
+        ],
+        "matrix": [
+          [
+            4.419684451593661e-06,
+            -1.8522718429691662e-06,
+            -1.7341390213786039e-06
+          ],
+          [
+            -1.8522718429691662e-06,
+            4.6583808165367275e-06,
+            2.1393029137850567e-06
+          ],
+          [
+            -1.7341390213786039e-06,
+            2.1393029137850567e-06,
+            3.3876266653619076e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 1.415901023149254,
+        "semi_major": 0.004168657748288356,
+        "semi_minor": 0.0033816415118265598
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762552.024532159,
+            "variance": 4.419684451593661e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4368743.0599052245,
+            "variance": 4.6583808165367275e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2720220.691326073,
+            "variance": 3.3876266653619076e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.004168657748288356,
+      "station_id": "M04"
+    },
+    {
+      "correction": [
+        -0.13881986677608224,
+        -0.3229587216838197,
+        0.4416673407405249
+      ],
+      "covariance": {
+        "labels": [
+          "M05.x",
+          "M05.y",
+          "M05.z"
+        ],
+        "matrix": [
+          [
+            3.892251051294873e-06,
+            -1.920698824422571e-06,
+            -2.0710824293537244e-06
+          ],
+          [
+            -1.920698824422571e-06,
+            4.396957841786813e-06,
+            1.8330114760827939e-06
+          ],
+          [
+            -2.0710824293537244e-06,
+            1.8330114760827939e-06,
+            3.260245642790154e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 2.001475694919013,
+        "semi_major": 0.0038852891912969233,
+        "semi_minor": 0.0031082835480581755
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3763784.4797748467,
+            "variance": 3.892251051294873e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367643.263550701,
+            "variance": 4.396957841786813e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2720372.279921142,
+            "variance": 3.260245642790154e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.0038852891912969233,
+      "station_id": "M05"
+    },
+    {
+      "correction": [
+        -0.20915583560986398,
+        -0.19438307923375944,
+        0.5768779946480509
+      ],
+      "covariance": {
+        "labels": [
+          "M06.x",
+          "M06.y",
+          "M06.z"
+        ],
+        "matrix": [
+          [
+            3.3176477166191477e-06,
+            -2.5342246482710877e-06,
+            -1.695449575194321e-06
+          ],
+          [
+            -2.5342246482710877e-06,
+            3.954537584776074e-06,
+            2.190673345522505e-06
+          ],
+          [
+            -1.695449575194321e-06,
+            2.190673345522505e-06,
+            2.837274313749196e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "DOMINANT_TERM",
+          "INDEPENDENCE_ASSUMED"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 0.4723865574634274,
+        "semi_major": 0.002984593470069689,
+        "semi_minor": 0.0025345819707900986
+      },
+      "position": {
+        "crs": "ITRF2014",
+        "epoch": {
+          "decimal_year": 2020.0
+        },
+        "geoid_model": "curitiba_planar",
+        "height_type": "ELLIPSOIDAL",
+        "system": "CARTESIAN",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": 3762056.6193698067,
+            "variance": 3.3176477166191477e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -4367324.435564661,
+            "variance": 3.954537584776074e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "DOMINANT_TERM",
+              "INDEPENDENCE_ASSUMED"
+            ],
+            "unit": "METRE",
+            "value": -2723192.7069578003,
+            "variance": 2.837274313749196e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.002984593470069689,
+      "station_id": "M06"
+    }
+  ],
+  "crs": "ITRF2014",
+  "datum_definition": "FIXED",
+  "epoch": {
+    "decimal_year": 2020.0
+  },
+  "id": "combined",
+  "kind": "ADJUSTMENT",
+  "network_id": "combined",
+  "observation_results": [
+    {
+      "external_reliability": 0.01611977252744478,
+      "minimal_detectable_bias": 0.02180647684142252,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.5745141140843928,
+      "residual": -0.0030914457873447818,
+      "standardised_residual": 1.1950361942456613,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1950361942456613
+      }
+    },
+    {
+      "external_reliability": 0.02328210679490972,
+      "minimal_detectable_bias": 0.023328944985068174,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.37648075178450735,
+      "residual": -0.0023917440529746324,
+      "standardised_residual": 1.2709659308852388,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.2709659308852388
+      }
+    },
+    {
+      "external_reliability": 0.004359182829598084,
+      "minimal_detectable_bias": 0.026371771590977224,
+      "observation_id": "g-CTB1-M05",
+      "redundancy": 0.883844000843905,
+      "residual": -0.0027449365602267785,
+      "standardised_residual": 0.6054507915461098,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6054507915461098
+      }
+    },
+    {
+      "external_reliability": 0.0176843138683413,
+      "minimal_detectable_bias": 0.022890688739964943,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.5213795483780443,
+      "residual": 0.00345791199905056,
+      "standardised_residual": 1.3927072266432257,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.3927072266432257
+      }
+    },
+    {
+      "external_reliability": 0.025753554897350366,
+      "minimal_detectable_bias": 0.024367251548314053,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.3450800733625128,
+      "residual": 0.002298299456950753,
+      "standardised_residual": 1.269049158024354,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.269049158024354
+      }
+    },
+    {
+      "external_reliability": 0.0044692953129995775,
+      "minimal_detectable_bias": 0.026461122906067305,
+      "observation_id": "g-CTB2-M04",
+      "redundancy": 0.8778851236943145,
+      "residual": -0.002512439036523336,
+      "standardised_residual": 0.5558939805448939,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5558939805448939
+      }
+    },
+    {
+      "external_reliability": 0.015409161958258873,
+      "minimal_detectable_bias": 0.021093942277419172,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.6139828000126472,
+      "residual": 0.001900505547961043,
+      "standardised_residual": 0.7050193087303048,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7050193087303048
+      }
+    },
+    {
+      "external_reliability": 0.022602725170804656,
+      "minimal_detectable_bias": 0.022050898316341983,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.42138629025562724,
+      "residual": -0.0010212135125224292,
+      "standardised_residual": 0.5116495999597869,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5116495999597869
+      }
+    },
+    {
+      "external_reliability": 0.003942569894773243,
+      "minimal_detectable_bias": 0.02611537001679887,
+      "observation_id": "g-CTB1-M06",
+      "redundancy": 0.9012844176877759,
+      "residual": -0.0005103665507878236,
+      "standardised_residual": 0.11143089869489865,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.11143089869489865
+      }
+    },
+    {
+      "external_reliability": 0.012700031840994944,
+      "minimal_detectable_bias": 0.02035774098929785,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.6591929325284854,
+      "residual": -0.0013108093558713593,
+      "standardised_residual": 0.47710711411861895,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.47710711411861895
+      }
+    },
+    {
+      "external_reliability": 0.01752203921127487,
+      "minimal_detectable_bias": 0.020582819015216944,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.4836411713644306,
+      "residual": -0.0005369541389985447,
+      "standardised_residual": 0.2574290841105734,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.2574290841105734
+      }
+    },
+    {
+      "external_reliability": 0.003099992878444937,
+      "minimal_detectable_bias": 0.025753710752207937,
+      "observation_id": "g-CTB2-M03",
+      "redundancy": 0.9267756236234109,
+      "residual": -0.0023109950573362097,
+      "standardised_residual": 0.49674440317573565,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.49674440317573565
+      }
+    },
+    {
+      "external_reliability": 0.005512463233142093,
+      "minimal_detectable_bias": 0.04350059580113801,
+      "observation_id": "r-M03",
+      "redundancy": 0.9023215265603953,
+      "residual": 0.007086397364181979,
+      "standardised_residual": 0.9172191578805289,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9172191578805289
+      }
+    },
+    {
+      "external_reliability": 0.004283522784064913,
+      "minimal_detectable_bias": 0.010495993330502341,
+      "observation_id": "s-CTB1-M06",
+      "redundancy": 0.6199613682961956,
+      "residual": 0.0030791167148992754,
+      "standardised_residual": 2.4040423643089963,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.4040423643089963
+      }
+    },
+    {
+      "external_reliability": 0.003186757569732421,
+      "minimal_detectable_bias": 6.0978021966523955e-05,
+      "observation_id": "z-CTB1-M06",
+      "redundancy": 0.9713982286136918,
+      "residual": 1.9796505001469985e-05,
+      "standardised_residual": 1.697938765778909,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.697938765778909
+      }
+    },
+    {
+      "external_reliability": 0.0008991446913629559,
+      "minimal_detectable_bias": 3.707742346289338e-05,
+      "observation_id": "d-CTB1-M06",
+      "redundancy": 0.6568480069924948,
+      "residual": 2.628009643255408e-06,
+      "standardised_residual": 0.5482222533592837,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5482222533592837
+      }
+    },
+    {
+      "external_reliability": 0.004923519982384172,
+      "minimal_detectable_bias": 0.010081176464681998,
+      "observation_id": "s-CTB1-M03",
+      "redundancy": 0.6720309682984589,
+      "residual": 0.0008824892511581749,
+      "standardised_residual": 0.6617791199093465,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6617791199093465
+      }
+    },
+    {
+      "external_reliability": 0.0016508331104045251,
+      "minimal_detectable_bias": 6.0390697573831994e-05,
+      "observation_id": "z-CTB1-M03",
+      "redundancy": 0.9903846022508197,
+      "residual": 1.8561939603451323e-05,
+      "standardised_residual": 1.5767163418757422,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.5767163418757422
+      }
+    },
+    {
+      "external_reliability": 0.00039952775224405936,
+      "minimal_detectable_bias": 3.6907560704437664e-05,
+      "observation_id": "d-CTB1-M03",
+      "redundancy": 0.662908053521496,
+      "residual": -1.1927230679048706e-05,
+      "standardised_residual": 2.476709787283491,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.476709787283491
+      }
+    },
+    {
+      "external_reliability": 0.012878725918686914,
+      "minimal_detectable_bias": 0.015867924687048375,
+      "observation_id": "s-CTB1-M04",
+      "redundancy": 0.27125106946810207,
+      "residual": -0.0007641170878429695,
+      "standardised_residual": 0.9019292294385902,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9019292294385902
+      }
+    },
+    {
+      "external_reliability": 0.0016883963620878198,
+      "minimal_detectable_bias": 6.034140233808372e-05,
+      "observation_id": "z-CTB1-M04",
+      "redundancy": 0.9920034305359352,
+      "residual": 4.41893163417557e-06,
+      "standardised_residual": 0.37505317736160904,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.37505317736160904
+      }
+    },
+    {
+      "external_reliability": 0.0007679228745779358,
+      "minimal_detectable_bias": 3.6979321247425084e-05,
+      "observation_id": "d-CTB1-M04",
+      "redundancy": 0.6603377259190851,
+      "residual": 9.299221035793298e-06,
+      "standardised_residual": 1.9347536068313995,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.9347536068313995
+      }
+    },
+    {
+      "external_reliability": 0.004923909833394352,
+      "minimal_detectable_bias": 0.01008125301332727,
+      "observation_id": "s-M03-CTB1",
+      "redundancy": 0.6720207626494533,
+      "residual": 0.00148972814033143,
+      "standardised_residual": 1.1171563418584582,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1171563418584582
+      }
+    },
+    {
+      "external_reliability": 0.0016508206872207502,
+      "minimal_detectable_bias": 6.03906923612238e-05,
+      "observation_id": "z-M03-CTB1",
+      "redundancy": 0.990384773220448,
+      "residual": 5.778287427316203e-07,
+      "standardised_residual": 0.04908279858114084,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.04908279858114084
+      }
+    },
+    {
+      "external_reliability": 0.0008794323524719601,
+      "minimal_detectable_bias": 3.38524507055799e-05,
+      "observation_id": "d-M03-CTB1",
+      "redundancy": 0.7879592387536736,
+      "residual": -4.509621228117332e-06,
+      "standardised_residual": 0.8589153007192514,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8589153007192514
+      }
+    },
+    {
+      "external_reliability": 0.0080953239744349,
+      "minimal_detectable_bias": 0.013975298560709669,
+      "observation_id": "s-M03-M04",
+      "redundancy": 0.34969508706832464,
+      "residual": 0.0007229764985352677,
+      "standardised_residual": 0.7515842906187666,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7515842906187666
+      }
+    },
+    {
+      "external_reliability": 0.004952683277755669,
+      "minimal_detectable_bias": 6.211785600727278e-05,
+      "observation_id": "z-M03-M04",
+      "redundancy": 0.9360758838641889,
+      "residual": 1.04086294455598e-05,
+      "standardised_residual": 0.9094318768842398,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9094318768842398
+      }
+    },
+    {
+      "external_reliability": 0.0013719196689670494,
+      "minimal_detectable_bias": 3.4330841029280864e-05,
+      "observation_id": "d-M03-M04",
+      "redundancy": 0.7661522742234209,
+      "residual": 3.9910340969944036e-06,
+      "standardised_residual": 0.7708857891322034,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7708857891322034
+      }
+    },
+    {
+      "external_reliability": 0.004125893490085605,
+      "minimal_detectable_bias": 0.01066123756847451,
+      "observation_id": "s-M03-M05",
+      "redundancy": 0.6008920777211145,
+      "residual": -0.0002335126748423208,
+      "standardised_residual": 0.1851870011201455,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.1851870011201455
+      }
+    },
+    {
+      "external_reliability": 0.004988098004305886,
+      "minimal_detectable_bias": 6.226855289683363e-05,
+      "observation_id": "z-M03-M05",
+      "redundancy": 0.9315505489234789,
+      "residual": -1.4681798992394757e-05,
+      "standardised_residual": 1.2859030141690808,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.2859030141690808
+      }
+    },
+    {
+      "external_reliability": 0.0015342793891904996,
+      "minimal_detectable_bias": 3.452065898190691e-05,
+      "observation_id": "d-M03-M05",
+      "redundancy": 0.7577497914453133,
+      "residual": 3.396174009098971e-06,
+      "standardised_residual": 0.6596129453653331,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.6596129453653331
+      }
+    },
+    {
+      "external_reliability": 0.009278166826692311,
+      "minimal_detectable_bias": 0.012384224507736729,
+      "observation_id": "s-M03-CTB2",
+      "redundancy": 0.44532193469718906,
+      "residual": 0.0007622410462388516,
+      "standardised_residual": 0.7021882651479181,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7021882651479181
+      }
+    },
+    {
+      "external_reliability": 0.0018621665375250236,
+      "minimal_detectable_bias": 6.0469757137965686e-05,
+      "observation_id": "z-M03-CTB2",
+      "redundancy": 0.9877965915336622,
+      "residual": -1.3002305395790913e-05,
+      "standardised_residual": 1.1059073750879047,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1059073750879047
+      }
+    },
+    {
+      "external_reliability": 0.0007950664063337457,
+      "minimal_detectable_bias": 3.380493674294786e-05,
+      "observation_id": "d-M03-CTB2",
+      "redundancy": 0.7901758012064622,
+      "residual": 1.0865479270909703e-06,
+      "standardised_residual": 0.20665654959919585,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.20665654959919585
+      }
+    },
+    {
+      "external_reliability": 0.0034608413219310834,
+      "minimal_detectable_bias": 0.01047052838896506,
+      "observation_id": "s-M03-M06",
+      "redundancy": 0.6229806004130664,
+      "residual": -0.0007583359533018583,
+      "standardised_residual": 0.5906397404826268,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5906397404826268
+      }
+    },
+    {
+      "external_reliability": 0.0025481726775847336,
+      "minimal_detectable_bias": 6.0640684225392635e-05,
+      "observation_id": "z-M03-M06",
+      "redundancy": 0.9822358614296384,
+      "residual": -1.108627339492735e-06,
+      "standardised_residual": 0.09456051847311872,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.09456051847311872
+      }
+    },
+    {
+      "external_reliability": 0.0008754552506030488,
+      "minimal_detectable_bias": 3.388843793728739e-05,
+      "observation_id": "d-M03-M06",
+      "redundancy": 0.7862866083760273,
+      "residual": -3.964134805067014e-06,
+      "standardised_residual": 0.7558230362599831,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7558230362599831
+      }
+    },
+    {
+      "external_reliability": 0.004127590616532312,
+      "minimal_detectable_bias": 0.01066144053976271,
+      "observation_id": "s-M05-M03",
+      "redundancy": 0.6008691985093115,
+      "residual": 0.0005991297419409131,
+      "standardised_residual": 0.4751483086744633,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4751483086744633
+      }
+    },
+    {
+      "external_reliability": 0.004988080274010217,
+      "minimal_detectable_bias": 6.226853842795616e-05,
+      "observation_id": "z-M05-M03",
+      "redundancy": 0.931550981838484,
+      "residual": -1.8564272511259525e-06,
+      "standardised_residual": 0.162594845791899,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.162594845791899
+      }
+    },
+    {
+      "external_reliability": 0.0009443670787552981,
+      "minimal_detectable_bias": 3.724423873030475e-05,
+      "observation_id": "d-M05-M03",
+      "redundancy": 0.6509771987806307,
+      "residual": -3.794513678929037e-06,
+      "standardised_residual": 0.7951249537387435,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7951249537387435
+      }
+    },
+    {
+      "external_reliability": 0.008653931893094229,
+      "minimal_detectable_bias": 0.015694450867106836,
+      "observation_id": "s-M05-M04",
+      "redundancy": 0.27728059078049816,
+      "residual": 0.0008125815547758577,
+      "standardised_residual": 0.9486488920544287,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9486488920544287
+      }
+    },
+    {
+      "external_reliability": 0.004010445229323932,
+      "minimal_detectable_bias": 6.131865890082131e-05,
+      "observation_id": "z-M05-M04",
+      "redundancy": 0.9606355984357545,
+      "residual": -1.0447984950461547e-05,
+      "standardised_residual": 0.9011256539009227,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9011256539009227
+      }
+    },
+    {
+      "external_reliability": 0.0010432808088174596,
+      "minimal_detectable_bias": 3.722321560329411e-05,
+      "observation_id": "d-M05-M04",
+      "redundancy": 0.6517127312066,
+      "residual": 4.6868624121339375e-06,
+      "standardised_residual": 0.9815586421440968,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9815586421440968
+      }
+    },
+    {
+      "external_reliability": 0.012802631843781791,
+      "minimal_detectable_bias": 0.015205529466440704,
+      "observation_id": "s-M05-CTB2",
+      "redundancy": 0.2953987314267301,
+      "residual": 0.0003259582870457471,
+      "standardised_residual": 0.3686854453656827,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.3686854453656827
+      }
+    },
+    {
+      "external_reliability": 0.00199725792359882,
+      "minimal_detectable_bias": 6.045188856253225e-05,
+      "observation_id": "z-M05-CTB2",
+      "redundancy": 0.9883806304091588,
+      "residual": -2.9639212348535327e-05,
+      "standardised_residual": 2.5202098162145328,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.5202098162145328
+      }
+    },
+    {
+      "external_reliability": 0.0013147514249498519,
+      "minimal_detectable_bias": 3.732801178227129e-05,
+      "observation_id": "d-M05-CTB2",
+      "redundancy": 0.6480585781525795,
+      "residual": -8.923487332049002e-07,
+      "standardised_residual": 0.18740864851084074,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.18740864851084074
+      }
+    },
+    {
+      "external_reliability": 0.006109080866171125,
+      "minimal_detectable_bias": 0.011505175594324464,
+      "observation_id": "s-M06-CTB2",
+      "redundancy": 0.5159709104642525,
+      "residual": 0.0013740340491137275,
+      "standardised_residual": 1.1759345903845286,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.1759345903845286
+      }
+    },
+    {
+      "external_reliability": 0.0022000910606157394,
+      "minimal_detectable_bias": 6.051990141531814e-05,
+      "observation_id": "z-M06-CTB2",
+      "redundancy": 0.9861603751858788,
+      "residual": -1.814115785341134e-06,
+      "standardised_residual": 0.15442705228753498,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.15442705228753498
+      }
+    },
+    {
+      "external_reliability": 0.0009544518413286598,
+      "minimal_detectable_bias": 3.7098611995394326e-05,
+      "observation_id": "d-M06-CTB2",
+      "redundancy": 0.6560979158096641,
+      "residual": -3.7168944651557622e-06,
+      "standardised_residual": 0.7758147821866467,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7758147821866467
+      }
+    },
+    {
+      "external_reliability": 0.003458284685328074,
+      "minimal_detectable_bias": 0.010470298787779275,
+      "observation_id": "s-M06-M03",
+      "redundancy": 0.6230079231582507,
+      "residual": -0.0006040392589848295,
+      "standardised_residual": 0.47045345305594893,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.47045345305594893
+      }
+    },
+    {
+      "external_reliability": 0.0025482045322100222,
+      "minimal_detectable_bias": 6.064069663025748e-05,
+      "observation_id": "z-M06-M03",
+      "redundancy": 0.9822354595707371,
+      "residual": -1.043073880008057e-05,
+      "standardised_residual": 0.8896914550320117,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8896914550320117
+      }
+    },
+    {
+      "external_reliability": 0.0005878852213542529,
+      "minimal_detectable_bias": 3.6903195798070244e-05,
+      "observation_id": "d-M06-M03",
+      "redundancy": 0.6630648801943391,
+      "residual": 1.4165301065672896e-07,
+      "standardised_residual": 0.029411010459933534,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.029411010459933534
+      }
+    },
+    {
+      "external_reliability": 0.004280910995941074,
+      "minimal_detectable_bias": 0.010495682020854586,
+      "observation_id": "s-M06-CTB1",
+      "redundancy": 0.619998145861877,
+      "residual": -0.002057538326349027,
+      "standardised_residual": 1.606390095254338,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.606390095254338
+      }
+    },
+    {
+      "external_reliability": 0.0031868025983454173,
+      "minimal_detectable_bias": 6.0978045680476354e-05,
+      "observation_id": "z-M06-CTB1",
+      "redundancy": 0.9713974730733456,
+      "residual": -2.1963618679399242e-05,
+      "standardised_residual": 1.8838120209968676,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.8838120209968676
+      }
+    },
+    {
+      "external_reliability": 0.0009632312386302947,
+      "minimal_detectable_bias": 3.715284491269706e-05,
+      "observation_id": "d-M06-CTB1",
+      "redundancy": 0.6541838694393272,
+      "residual": 3.575241454499033e-06,
+      "standardised_residual": 0.7473389383923866,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.7473389383923866
+      }
+    },
+    {
+      "external_reliability": 0.0010663116908049724,
+      "minimal_detectable_bias": 3.0505477867108897e-05,
+      "observation_id": "a-M04",
+      "redundancy": 0.9703497884241361,
+      "residual": -1.3609936677392257e-06,
+      "standardised_residual": 0.23358991894316938,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.23358991894316938
+      }
+    },
+    {
+      "external_reliability": 0.00043715674456735017,
+      "minimal_detectable_bias": 0.0001003276343433128,
+      "observation_id": "b-M05-M04",
+      "redundancy": 0.9967823222128686,
+      "residual": 1.1591475971289513e-05,
+      "standardised_residual": 0.5888734573160821,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5888734573160821
+      }
+    },
+    {
+      "external_reliability": 0.007934260526763139,
+      "minimal_detectable_bias": 0.012073769349637338,
+      "observation_id": "l-M03-M04",
+      "redundancy": 0.14513877826494123,
+      "residual": 0.0001596701282441379,
+      "standardised_residual": 0.4629152365180561,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4629152365180561
+      }
+    },
+    {
+      "external_reliability": 0.007324969436057087,
+      "minimal_detectable_bias": 0.012077465153328665,
+      "observation_id": "l-M04-M05",
+      "redundancy": 0.19417069598234982,
+      "residual": 0.00022204456127434971,
+      "standardised_residual": 0.4810439967403249,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.4810439967403249
+      }
+    },
+    {
+      "external_reliability": 0.00532515028598318,
+      "minimal_detectable_bias": 0.012087559052531335,
+      "observation_id": "l-M05-M06",
+      "redundancy": 0.388327400576915,
+      "residual": 0.00043780428112556903,
+      "standardised_residual": 0.47385721658209984,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.47385721658209984
+      }
+    },
+    {
+      "external_reliability": 0.006495211086180268,
+      "minimal_detectable_bias": 0.012082044852529701,
+      "observation_id": "l-M06-M03",
+      "redundancy": 0.2751439180430782,
+      "residual": 0.00030876547498878665,
+      "standardised_residual": 0.47188102237642665,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.47188102237642665
+      }
+    },
+    {
+      "external_reliability": 0.07200650520583599,
+      "minimal_detectable_bias": 0.1439609822223386,
+      "observation_id": "constraint:geoid:M03",
+      "redundancy": 0.7414888693680773,
+      "residual": 0.0021651618256499543,
+      "standardised_residual": 0.10304930417023979,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.10304930417023979
+      }
+    },
+    {
+      "external_reliability": 0.07209612448500266,
+      "minimal_detectable_bias": 0.1441171989015586,
+      "observation_id": "constraint:geoid:M04",
+      "redundancy": 0.7398822582093278,
+      "residual": -0.004504789613925565,
+      "standardised_residual": 0.21463484377976894,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.21463484377976894
+      }
+    },
+    {
+      "external_reliability": 0.07208339723976308,
+      "minimal_detectable_bias": 0.14409638461937976,
+      "observation_id": "constraint:geoid:M05",
+      "redundancy": 0.7400960211068791,
+      "residual": 0.0018990031381512285,
+      "standardised_residual": 0.09046668321304424,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.09046668321304424
+      }
+    },
+    {
+      "external_reliability": 0.07211802364530194,
+      "minimal_detectable_bias": 0.1441574548467156,
+      "observation_id": "constraint:geoid:M06",
+      "redundancy": 0.7394690919119595,
+      "residual": 0.00044062465012436735,
+      "standardised_residual": 0.020999830854790343,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.9501181732276984,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.020999830854790343
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "M03.x",
+      "M03.y",
+      "M03.z",
+      "M04.x",
+      "M04.y",
+      "M04.z",
+      "M05.x",
+      "M05.y",
+      "M05.z",
+      "M06.x",
+      "M06.y",
+      "M06.z",
+      "M03.undulation",
+      "M04.undulation",
+      "M05.undulation",
+      "M06.undulation",
+      "set-CTB1.orientation",
+      "set-M03.orientation",
+      "set-M05.orientation",
+      "set-M06.orientation"
+    ],
+    "matrix": [
+      [
+        3.036064019339116e-06,
+        -1.88071027594164e-06,
+        -1.7513047690954656e-06,
+        6.341415915346095e-07,
+        3.1697928843866273e-07,
+        -3.8210493410224515e-07,
+        8.001729987964746e-07,
+        1.853356988299538e-07,
+        5.629664227689112e-08,
+        5.4268609913033654e-08,
+        -5.8136429336856764e-08,
+        -4.690341654760218e-08,
+        2.685789210955473e-06,
+        -8.197305088047655e-07,
+        -8.183575378684696e-07,
+        -1.0477011642822269e-06,
+        2.2718125262848227e-10,
+        9.054823215379301e-11,
+        -1.1912856952457703e-10,
+        1.522588746771649e-10
+      ],
+      [
+        -1.88071027594164e-06,
+        3.5875483304139557e-06,
+        1.5715173814697943e-06,
+        2.794076574908376e-07,
+        4.300780991146749e-07,
+        -2.004493136267158e-07,
+        1.717617323068214e-07,
+        4.858409414557293e-07,
+        2.4012492534002267e-07,
+        -8.557242907336208e-08,
+        6.429342903281787e-08,
+        -8.755358621787287e-08,
+        -3.0675608220411345e-06,
+        1.124431584544127e-06,
+        8.326231284951976e-07,
+        1.11050610900248e-06,
+        2.2761359106608782e-10,
+        4.989415970276464e-11,
+        -1.7011535105309495e-10,
+        1.4750900865504462e-10
+      ],
+      [
+        -1.7513047690954656e-06,
+        1.5715173814697943e-06,
+        2.1710178002782345e-06,
+        -2.820076531257534e-07,
+        -1.2445260031183104e-07,
+        4.855315730278102e-07,
+        -1.2889840080509276e-07,
+        1.397330903210175e-07,
+        4.44638451365155e-07,
+        1.1107227688103767e-07,
+        6.801771257177074e-08,
+        6.905147509350831e-07,
+        -2.0457116641336535e-06,
+        7.028252423048937e-07,
+        6.288541374044016e-07,
+        7.140322844239838e-07,
+        -3.2571328500069246e-10,
+        -7.687001262101533e-12,
+        2.1451149753891088e-10,
+        -1.335770072529162e-10
+      ],
+      [
+        6.341415915346095e-07,
+        2.794076574908376e-07,
+        -2.820076531257534e-07,
+        4.419684451593661e-06,
+        -1.8522718429691662e-06,
+        -1.7341390213786039e-06,
+        1.0649643572448698e-06,
+        6.489347905481826e-07,
+        -3.9771556575588807e-07,
+        -7.670710512208824e-09,
+        -2.050776450829767e-08,
+        -8.569524879562279e-08,
+        -1.0266719809525943e-06,
+        3.284198993111633e-06,
+        -9.755556524760781e-07,
+        -1.281971359682924e-06,
+        3.608734008045063e-10,
+        4.5402344545893954e-10,
+        4.2794159238649343e-10,
+        1.0628726162813319e-10
+      ],
+      [
+        3.1697928843866273e-07,
+        4.300780991146749e-07,
+        -1.2445260031183104e-07,
+        -1.8522718429691662e-06,
+        4.6583808165367275e-06,
+        2.1393029137850567e-06,
+        6.122413896155809e-07,
+        5.882724450906765e-07,
+        -1.68931141314065e-07,
+        -3.162309773004459e-08,
+        7.65099144999465e-09,
+        -7.338956381099453e-08,
+        1.249285289650069e-06,
+        -3.891879309815247e-06,
+        1.333823118378602e-06,
+        1.3087709017871844e-06,
+        2.9556864805806853e-10,
+        2.9842618170903266e-10,
+        2.1196853921138242e-10,
+        8.637817405111894e-11
+      ],
+      [
+        -3.8210493410224515e-07,
+        -2.004493136267158e-07,
+        4.855315730278102e-07,
+        -1.7341390213786039e-06,
+        2.1393029137850567e-06,
+        3.3876266653619076e-06,
+        -1.4957781052711352e-07,
+        1.3230763164263132e-08,
+        1.0002150718234107e-07,
+        4.380043851010743e-08,
+        1.8384565331078814e-08,
+        2.61074090993608e-07,
+        8.224065802953608e-07,
+        -2.8189438736802065e-06,
+        9.782904217292046e-07,
+        1.018246871654889e-06,
+        -1.9085508547978908e-10,
+        2.059490825517656e-10,
+        4.924874024981821e-10,
+        -9.315173215752423e-11
+      ],
+      [
+        8.001729987964746e-07,
+        1.717617323068214e-07,
+        -1.2889840080509276e-07,
+        1.0649643572448698e-06,
+        6.122413896155809e-07,
+        -1.4957781052711352e-07,
+        3.892251051294873e-06,
+        -1.920698824422571e-06,
+        -2.0710824293537244e-06,
+        3.327468820981824e-08,
+        -1.5068537699291934e-08,
+        7.540529572751438e-08,
+        -8.834857308668204e-07,
+        -1.0213150735080167e-06,
+        3.2002368801651492e-06,
+        -1.2954360757908376e-06,
+        2.0497078664928965e-10,
+        3.503777409624504e-10,
+        4.925448570369381e-10,
+        9.092603155573625e-11
+      ],
+      [
+        1.853356988299538e-07,
+        4.858409414557293e-07,
+        1.397330903210175e-07,
+        6.489347905481826e-07,
+        5.882724450906765e-07,
+        1.3230763164263132e-08,
+        -1.920698824422571e-06,
+        4.396957841786813e-06,
+        1.8330114760827939e-06,
+        -4.20268016547467e-09,
+        1.4960225061185642e-08,
+        5.594380589537703e-08,
+        1.0334412834993124e-06,
+        1.2921106655639763e-06,
+        -3.605696411089962e-06,
+        1.2801444620279938e-06,
+        1.46101116923478e-10,
+        3.047900819592528e-10,
+        5.047818196082109e-10,
+        5.962753064905258e-11
+      ],
+      [
+        5.629664227689112e-08,
+        2.4012492534002267e-07,
+        4.44638451365155e-07,
+        -3.9771556575588807e-07,
+        -1.68931141314065e-07,
+        1.0002150718234107e-07,
+        -2.0710824293537244e-06,
+        1.8330114760827939e-06,
+        3.260245642790154e-06,
+        5.236214375717883e-08,
+        2.504920107409224e-08,
+        2.6522571070690157e-07,
+        7.912753587223037e-07,
+        9.5251133341473e-07,
+        -2.756981126531528e-06,
+        1.013194434394631e-06,
+        -1.2019290514865257e-10,
+        -3.0923631179605764e-10,
+        -7.383838912205383e-10,
+        -8.949478006551e-12
+      ],
+      [
+        5.4268609913033654e-08,
+        -8.557242907336208e-08,
+        1.1107227688103767e-07,
+        -7.670710512208824e-09,
+        -3.162309773004459e-08,
+        4.380043851010743e-08,
+        3.327468820981824e-08,
+        -4.20268016547467e-09,
+        5.236214375717883e-08,
+        3.3176477166191477e-06,
+        -2.5342246482710877e-06,
+        -1.695449575194321e-06,
+        -1.0709889569502417e-06,
+        -1.114458352255848e-06,
+        -1.1133655035359092e-06,
+        3.2988128127411356e-06,
+        -1.7077541306507925e-10,
+        -6.922982249086004e-11,
+        2.7919450583194868e-11,
+        -3.1536848279092085e-10
+      ],
+      [
+        -5.8136429336856764e-08,
+        6.429342903281787e-08,
+        6.801771257177074e-08,
+        -2.050776450829767e-08,
+        7.65099144999465e-09,
+        1.8384565331078814e-08,
+        -1.5068537699291934e-08,
+        1.4960225061185642e-08,
+        2.504920107409224e-08,
+        -2.5342246482710877e-06,
+        3.954537584776074e-06,
+        2.190673345522505e-06,
+        1.2173118929134087e-06,
+        1.2982898308674173e-06,
+        1.2943265799313974e-06,
+        -3.809928303711596e-06,
+        -7.989346011454346e-11,
+        -5.763186406342968e-11,
+        1.4551653579422743e-12,
+        -2.3023268402599062e-10
+      ],
+      [
+        -4.690341654760218e-08,
+        -8.755358621787287e-08,
+        6.905147509350831e-07,
+        -8.569524879562279e-08,
+        -7.338956381099453e-08,
+        2.61074090993608e-07,
+        7.540529572751438e-08,
+        5.594380589537703e-08,
+        2.6522571070690157e-07,
+        -1.695449575194321e-06,
+        2.190673345522505e-06,
+        2.837274313749196e-06,
+        7.855082661939037e-07,
+        9.363465679600057e-07,
+        9.414743991730301e-07,
+        -2.663329233326633e-06,
+        -3.9862699684387115e-10,
+        1.1297601756975757e-11,
+        1.3819174775459947e-10,
+        -1.425120235432484e-10
+      ],
+      [
+        2.685789210955473e-06,
+        -3.0675608220411345e-06,
+        -2.0457116641336535e-06,
+        -1.0266719809525943e-06,
+        1.249285289650069e-06,
+        8.224065802953608e-07,
+        -8.834857308668204e-07,
+        1.0334412834993124e-06,
+        7.912753587223037e-07,
+        -1.0709889569502417e-06,
+        1.2173118929134087e-06,
+        7.855082661939037e-07,
+        0.00015390942175302403,
+        0.00014717281536197192,
+        0.00014720353235369468,
+        0.00014708287627117833,
+        1.595339164145464e-11,
+        -7.943365876996488e-12,
+        -6.275012337171049e-11,
+        1.1341601093432326e-11
+      ],
+      [
+        -8.197305088047655e-07,
+        1.124431584544127e-06,
+        7.028252423048937e-07,
+        3.284198993111633e-06,
+        -3.891879309815247e-06,
+        -2.8189438736802065e-06,
+        -1.0213150735080167e-06,
+        1.2921106655639763e-06,
+        9.5251133341473e-07,
+        -1.114458352255848e-06,
+        1.2982898308674173e-06,
+        9.363465679600057e-07,
+        0.00014717281536197192,
+        0.00015486594766283933,
+        0.00014679124030914797,
+        0.00014653864240590995,
+        -9.666107898242693e-12,
+        -5.5474064068282774e-11,
+        -1.2104546635331186e-10,
+        8.700678031323722e-12
+      ],
+      [
+        -8.183575378684696e-07,
+        8.326231284951976e-07,
+        6.288541374044016e-07,
+        -9.755556524760781e-07,
+        1.333823118378602e-06,
+        9.782904217292046e-07,
+        3.2002368801651492e-06,
+        -3.605696411089962e-06,
+        -2.756981126531528e-06,
+        -1.1133655035359092e-06,
+        1.2943265799313974e-06,
+        9.414743991730301e-07,
+        0.00014720353235369468,
+        0.00014679124030914797,
+        0.00015473867993601482,
+        0.00014663519314101083,
+        -2.9492492971145347e-11,
+        1.0011800664310814e-10,
+        2.446148724512747e-10,
+        -1.8117920399741195e-11
+      ],
+      [
+        -1.0477011642822269e-06,
+        1.11050610900248e-06,
+        7.140322844239838e-07,
+        -1.281971359682924e-06,
+        1.3087709017871844e-06,
+        1.018246871654889e-06,
+        -1.2954360757908376e-06,
+        1.2801444620279938e-06,
+        1.013194434394631e-06,
+        3.2988128127411356e-06,
+        -3.809928303711596e-06,
+        -2.663329233326633e-06,
+        0.00014708287627117833,
+        0.00014653864240590995,
+        0.00014663519314101083,
+        0.00015511193392176895,
+        2.3205209227588325e-11,
+        -3.670057669128804e-11,
+        -6.081928274844906e-11,
+        -1.9243587487530545e-12
+      ],
+      [
+        2.2718125262848227e-10,
+        2.2761359106608782e-10,
+        -3.2571328500069246e-10,
+        3.608734008045063e-10,
+        2.9556864805806853e-10,
+        -1.9085508547978908e-10,
+        2.0497078664928965e-10,
+        1.46101116923478e-10,
+        -1.2019290514865257e-10,
+        -1.7077541306507925e-10,
+        -7.989346011454346e-11,
+        -3.9862699684387115e-10,
+        1.595339164145464e-11,
+        -9.666107898242693e-12,
+        -2.9492492971145347e-11,
+        2.3205209227588325e-11,
+        1.1891496148951275e-11,
+        7.886955569349913e-14,
+        -3.382678550876372e-14,
+        1.3232280621846484e-13
+      ],
+      [
+        9.054823215379301e-11,
+        4.989415970276464e-11,
+        -7.687001262101533e-12,
+        4.5402344545893954e-10,
+        2.9842618170903266e-10,
+        2.059490825517656e-10,
+        3.503777409624504e-10,
+        3.047900819592528e-10,
+        -3.0923631179605764e-10,
+        -6.922982249086004e-11,
+        -5.763186406342968e-11,
+        1.1297601756975757e-11,
+        -7.943365876996488e-12,
+        -5.5474064068282774e-11,
+        1.0011800664310814e-10,
+        -3.670057669128804e-11,
+        7.886955569349913e-14,
+        7.18122584574773e-12,
+        2.872431930866175e-13,
+        4.515818874309448e-14
+      ],
+      [
+        -1.1912856952457703e-10,
+        -1.7011535105309495e-10,
+        2.1451149753891088e-10,
+        4.2794159238649343e-10,
+        2.1196853921138242e-10,
+        4.924874024981821e-10,
+        4.925448570369381e-10,
+        5.047818196082109e-10,
+        -7.383838912205383e-10,
+        2.7919450583194868e-11,
+        1.4551653579422743e-12,
+        1.3819174775459947e-10,
+        -6.275012337171049e-11,
+        -1.2104546635331186e-10,
+        2.446148724512747e-10,
+        -6.081928274844906e-11,
+        -3.382678550876372e-14,
+        2.872431930866175e-13,
+        1.2335792402059654e-11,
+        -4.597599980129671e-14
+      ],
+      [
+        1.522588746771649e-10,
+        1.4750900865504462e-10,
+        -1.335770072529162e-10,
+        1.0628726162813319e-10,
+        8.637817405111894e-11,
+        -9.315173215752423e-11,
+        9.092603155573625e-11,
+        5.962753064905258e-11,
+        -8.949478006551e-12,
+        -3.1536848279092085e-10,
+        -2.3023268402599062e-10,
+        -1.425120235432484e-10,
+        1.1341601093432326e-11,
+        8.700678031323722e-12,
+        -1.8117920399741195e-11,
+        -1.9243587487530545e-12,
+        1.3232280621846484e-13,
+        4.515818874309448e-14,
+        -4.597599980129671e-14,
+        1.1836141253651007e-11
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "DOMINANT_TERM",
+      "INDEPENDENCE_ASSUMED"
+    ],
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS",
+      "DIMENSIONLESS",
+      "RADIAN",
+      "RADIAN",
+      "RADIAN",
+      "RADIAN"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:integration_multiple",
+    "created": "2026-11-04T20:47:14.475840+00:00",
+    "engine": "in_house",
+    "geocomp_version": "0.1.0",
+    "input_ids": [
+      "gnss",
+      "total-station",
+      "levelling"
+    ],
+    "parameters": {
+      "adjustment_frame": "geocentric_3d",
+      "combination": {
+        "epoch": 2020.0,
+        "frame": "ITRF2014",
+        "geocentric": true,
+        "inputs": [
+          "gnss",
+          "total-station",
+          "levelling"
+        ],
+        "renamed": {},
+        "techniques": [
+          "gnss",
+          "total_station",
+          "levelling"
+        ],
+        "transformations": []
+      },
+      "datum": "fixed",
+      "fixed": [
+        "CTB1",
+        "CTB2"
+      ],
+      "geoid_model": "curitiba_planar",
+      "geoid_residuals": [
+        {
+          "adjusted": -0.8953802909235591,
+          "model": -0.897545452749209,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7414888693680773,
+          "residual": 0.0021651618256499543,
+          "standardised": 0.0838140426201069,
+          "station_id": "M03"
+        },
+        {
+          "adjusted": -0.8856653317947362,
+          "model": -0.8811605421808106,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7398822582093278,
+          "residual": -0.004504789613925565,
+          "standardised": -0.1745709404752372,
+          "station_id": "M04"
+        },
+        {
+          "adjusted": -0.8421593870911552,
+          "model": -0.8440583902293065,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7400960211068791,
+          "residual": 0.0018990031381512285,
+          "standardised": 0.07358010326776723,
+          "station_id": "M05"
+        },
+        {
+          "adjusted": -0.9957345327699344,
+          "model": -0.9961751574200588,
+          "model_std_dev": 0.03,
+          "redundancy": 0.7394690919119595,
+          "residual": 0.00044062465012436735,
+          "standardised": 0.017079986443874873,
+          "station_id": "M06"
+        }
+      ],
+      "routing": {
+        "engine": "in_house",
+        "reason": "requested"
+      },
+      "solver": "dense",
+      "technique_breakdown": [
+        {
+          "largest_standardised": 1.1327434356894657,
+          "observations": 5,
+          "redundancy": 8.48776837418045,
+          "redundancy_share": 0.18861707498178776,
+          "rows": 13,
+          "technique": "gnss",
+          "uncheckable": [],
+          "variance_factor": 0.4041628427681644,
+          "weighted_squares": 3.430440594866491
+        },
+        {
+          "largest_standardised": 2.0497855337175457,
+          "observations": 44,
+          "redundancy": 32.54851459235616,
+          "redundancy_share": 0.7233003242745814,
+          "rows": 44,
+          "technique": "total_station",
+          "uncheckable": [],
+          "variance_factor": 0.803646622079673,
+          "weighted_squares": 26.157503805857974
+        },
+        {
+          "largest_standardised": 0.39125195817269676,
+          "observations": 4,
+          "redundancy": 1.0027807928672843,
+          "redundancy_share": 0.022284017619272983,
+          "rows": 4,
+          "technique": "levelling",
+          "uncheckable": [],
+          "variance_factor": 0.14809670645339446,
+          "weighted_squares": 0.14850853271836834
+        },
+        {
+          "largest_standardised": 0.1745709404752372,
+          "observations": 4,
+          "redundancy": 2.960936240596244,
+          "redundancy_share": 0.06579858312436097,
+          "rows": 4,
+          "technique": "geoid",
+          "uncheckable": [],
+          "variance_factor": 0.010800419514228153,
+          "weighted_squares": 0.03197935355332102
+        }
+      ],
+      "variance_components": null
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "strategies": [
+      "DOMINANT_TERM",
+      "INDEPENDENCE_ASSUMED"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 85090346.02513017,
+    "converged": true,
+    "degrees_of_freedom": 45,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 65.41015900999955,
+      "critical_low": 28.366152291859848,
+      "name": "global",
+      "passed": true,
+      "statistic": 29.768432286996145
+    },
+    "iterations": 3,
+    "max_correction": 1.0773902252204534e-09,
+    "n_constraints": 0,
+    "n_observations": 65,
+    "n_parameters": 20,
+    "variance_factor_aposteriori": 0.6615207174888033,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

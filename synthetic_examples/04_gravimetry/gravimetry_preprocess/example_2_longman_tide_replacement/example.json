@@ -1,0 +1,43 @@
+{
+  "menu_group_id": "04_gravimetry",
+  "menu_group_title": "Gravimetry",
+  "menu_path": "GeoComp ▸ Gravimetry ▸ Pre-processing (scale, tide, drift)",
+  "algorithm_id": "geocomp:gravimetry_preprocess",
+  "algorithm_title": "Pre-processing (scale, tide, drift)",
+  "example_index": 2,
+  "slug": "example_2_longman_tide_replacement",
+  "title": "Replace CG-5 tide with Longman (1959) solid-Earth tide + 0.25 m sensor height",
+  "scenario": "Replaces instrument tide with Longman (1959) and applies free-air height reduction (0.25 m).",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/inputs/cg5_survey.txt",
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/inputs/gravimeter_profiles.json",
+    "PRECISION_FLOOR": 0.005,
+    "SENSOR_HEIGHT": 0.25,
+    "SENSOR_HEIGHT_SIGMA": 0.002,
+    "REPLACE_TIDE": true,
+    "UTC_OFFSET": 0.0,
+    "TIDE_MODEL": 0,
+    "AMPLIFICATION": 1.16,
+    "DRIFT_DEGREE": 1,
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/reduced_readings.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/corrections.csv",
+    "OUTPUT_DRIFT": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/drift.json"
+  },
+  "expected_summary": "Recomputes Longman luni-solar tide and applies free-air sensor-height correction.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "LARGEST_TIDE": "7.997528569484085e-07",
+      "OCCUPATION_COUNT": "5",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/corrections.csv",
+      "OUTPUT_DRIFT": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/drift.json",
+      "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_2_longman_tide_replacement/outputs/reduced_readings.json",
+      "READING_COUNT": "5",
+      "SESSION_COUNT": "1",
+      "UNESTIMABLE_SESSIONS": "0"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

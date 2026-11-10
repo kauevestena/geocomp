@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "4",
+    "GLOBAL_TEST_PASSED": "False",
+    "OUTLIER_COUNT": "4",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_network/example_1_2d_inner_constraint/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_network/example_1_2d_inner_constraint/outputs/network.json",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_network/example_1_2d_inner_constraint/outputs/solution.json",
+    "OUTPUT_STATIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_network/example_1_2d_inner_constraint/outputs/stations.csv",
+    "OUTPUT_STATION_LAYER": "None",
+    "VARIANCE_FACTOR": "140.9535429762876"
+  },
+  "info_lines": 3,
+  "warning_lines": 4
+}

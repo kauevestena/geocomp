@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Import levelling field book",
+  "algorithm_id": "geocomp:levelling_import",
+  "algorithm_title": "Import levelling field book",
+  "example_index": 2,
+  "slug": "example_2_four_line_loop",
+  "title": "Multi-line closed levelling loop field book with line column mapping",
+  "scenario": "Imports 4 connected levelling lines forming a closed loop around benchmarks.",
+  "parameters": {
+    "BOOK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/inputs/loop_book.csv",
+    "MAPPING": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/inputs/loop_mapping.json",
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/inputs/profiles.json",
+    "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/setups.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/report.html"
+  },
+  "expected_summary": "Groups setups into 4 distinct levelling lines.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "LINE_COUNT": "3",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/report.html",
+      "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_2_four_line_loop/outputs/setups.json",
+      "REJECTED_ROWS": "0",
+      "SETUP_COUNT": "10",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

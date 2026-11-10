@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING_COUNT": "0",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reductions.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/report.html",
+    "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_3_relaxed_distance_tolerance/outputs/reduced.json",
+    "POINTING_COUNT": "6",
+    "USABLE_COUNT": "6"
+  },
+  "info_lines": 5,
+  "warning_lines": 0
+}

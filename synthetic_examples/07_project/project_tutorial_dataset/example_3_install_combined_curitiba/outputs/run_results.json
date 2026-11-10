@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "FILE_COUNT": "5",
+    "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_3_install_combined_curitiba/outputs/tutorial_combined-curitiba/combined-curitiba",
+    "OUTPUT_PROJECT": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_3_install_combined_curitiba/outputs/tutorial_combined-curitiba/combined-curitiba/combined-curitiba.qgz"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

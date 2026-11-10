@@ -1,0 +1,742 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.016188261460567482,
+        0.012905512982182682,
+        -0.07200550774290551
+      ],
+      "covariance": {
+        "labels": [
+          "1.e",
+          "1.n",
+          "1.u"
+        ],
+        "matrix": [
+          [
+            6.998090650490633e-06,
+            -1.0543372534619481e-05,
+            -4.98035921329626e-08
+          ],
+          [
+            -1.0543372534619442e-05,
+            9.018317979767625e-05,
+            2.4029405261251594e-06
+          ],
+          [
+            -4.9803592132956925e-08,
+            2.4029405261251463e-06,
+            4.2236768995377093e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 3.017461436840007,
+        "semi_major": 0.02944375175338306,
+        "semi_minor": 0.007337665148932646
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 0.016188261460567482,
+            "variance": 6.998090650490633e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 0.012905512982182682,
+            "variance": 9.018317979767625e-05
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": -0.07200550774290551,
+            "variance": 4.2236768995377093e-07
+          }
+        ]
+      },
+      "positional_uncertainty": 0.02944375175338306,
+      "station_id": "1"
+    },
+    {
+      "correction": [
+        -0.008851710864638054,
+        -0.0031646839466255017,
+        0.35210586158795
+      ],
+      "covariance": {
+        "labels": [
+          "2.e",
+          "2.n",
+          "2.u"
+        ],
+        "matrix": [
+          [
+            4.772275662814498e-06,
+            -4.40427315976613e-05,
+            -1.2793946374965836e-06
+          ],
+          [
+            -4.4042731597661354e-05,
+            0.00045243232927661683,
+            1.3576354375439456e-05
+          ],
+          [
+            -1.2793946374965863e-06,
+            1.3576354375439473e-05,
+            1.1795254277982152e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 3.0444493696017263,
+        "semi_major": 0.06578285679110782,
+        "semi_minor": 0.002133274911750427
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": -0.008851710864638054,
+            "variance": 4.772275662814498e-06
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 13.191363899753899,
+            "variance": 0.00045243232927661683
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 0.35210586158795,
+            "variance": 1.1795254277982152e-06
+          }
+        ]
+      },
+      "positional_uncertainty": 0.06578285679110782,
+      "station_id": "2"
+    },
+    {
+      "correction": [
+        -0.007336550595929303,
+        -0.009740829035557397,
+        -0.28010035384504456
+      ],
+      "covariance": {
+        "labels": [
+          "3.e",
+          "3.n",
+          "3.u"
+        ],
+        "matrix": [
+          [
+            2.0753843518757362e-05,
+            -9.107361776645827e-05,
+            -2.0830824879313014e-06
+          ],
+          [
+            -9.107361776645831e-05,
+            0.0004072746093863031,
+            9.475249599589398e-06
+          ],
+          [
+            -2.0830824879313044e-06,
+            9.475249599589405e-06,
+            8.823830020584131e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE",
+          "METRE",
+          "METRE"
+        ]
+      },
+      "ellipse": {
+        "confidence": 0.95,
+        "orientation": 2.9214012538110685,
+        "semi_major": 0.06365526798482658,
+        "semi_minor": 0.0018716136206187218
+      },
+      "position": {
+        "crs": "EPSG:31982",
+        "epoch": {
+          "decimal_year": 2000.0
+        },
+        "height_type": "NONE",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 3.8081375080643665,
+            "variance": 2.0753843518757362e-05
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": -10.86337980854287,
+            "variance": 0.0004072746093863031
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": -0.28010035384504456,
+            "variance": 8.823830020584131e-07
+          }
+        ]
+      },
+      "positional_uncertainty": 0.06365526798482658,
+      "station_id": "3"
+    }
+  ],
+  "crs": "EPSG:31982",
+  "datum_definition": "INNER_CONSTRAINT",
+  "epoch": {
+    "decimal_year": 2000.0
+  },
+  "id": "total-station-adjustment",
+  "kind": "ADJUSTMENT",
+  "network_id": "total-station",
+  "observation_results": [
+    {
+      "external_reliability": 0.00215410486260397,
+      "minimal_detectable_bias": 9.876163601845497e-05,
+      "observation_id": "1-dir-2",
+      "redundancy": 0.02188190815476184,
+      "residual": 1.0745068097808503e-05,
+      "standardised_residual": 0.5075361365943697,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5075361365943697
+      }
+    },
+    {
+      "external_reliability": 0.00010655643104028306,
+      "minimal_detectable_bias": 1.9559139966662e-05,
+      "observation_id": "1-zen-2",
+      "redundancy": 0.5579075425591477,
+      "residual": 9.006473067860346e-05,
+      "standardised_residual": 0.8425079952390866,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.8425079952390866
+      }
+    },
+    {
+      "external_reliability": 0.0012999872269227235,
+      "minimal_detectable_bias": 0.006627012438941526,
+      "observation_id": "1-sd-2",
+      "redundancy": 0.7982518695876237,
+      "residual": -0.01853341669788355,
+      "standardised_residual": 0.3576259494812331,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.3576259494812331
+      }
+    },
+    {
+      "external_reliability": 0.0021528644560640715,
+      "minimal_detectable_bias": 9.876163601845818e-05,
+      "observation_id": "1-dir-3",
+      "redundancy": 0.02188190815476042,
+      "residual": -1.0745068097808503e-05,
+      "standardised_residual": 0.5075361365943861,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5075361365943861
+      }
+    },
+    {
+      "external_reliability": 8.193670719858575e-05,
+      "minimal_detectable_bias": 1.980222555553393e-05,
+      "observation_id": "1-zen-3",
+      "redundancy": 0.5442942368883456,
+      "residual": 0.00022806741695493692,
+      "standardised_residual": 2.1599652717985713,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.1599652717985713
+      }
+    },
+    {
+      "external_reliability": 0.0011462679074063721,
+      "minimal_detectable_bias": 0.006509600855630951,
+      "observation_id": "1-sd-3",
+      "redundancy": 0.8245398469653878,
+      "residual": 0.012143618920458187,
+      "standardised_residual": 0.23094756380888415,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.23094756380888415
+      }
+    },
+    {
+      "external_reliability": 0.0021047706665565636,
+      "minimal_detectable_bias": 4.609129220088405e-05,
+      "observation_id": "2-dir-1",
+      "redundancy": 0.10046712484420044,
+      "residual": -2.3257217645509987e-05,
+      "standardised_residual": 0.512679748799518,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.512679748799518
+      }
+    },
+    {
+      "external_reliability": 0.00010311477246868638,
+      "minimal_detectable_bias": 1.9563475048272904e-05,
+      "observation_id": "2-zen-1",
+      "redundancy": 0.5576603158516543,
+      "residual": 5.1746855976247086e-05,
+      "standardised_residual": 0.484171799729396,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.484171799729396
+      }
+    },
+    {
+      "external_reliability": 0.0012999935949712625,
+      "minimal_detectable_bias": 0.006626991525008027,
+      "observation_id": "2-sd-1",
+      "redundancy": 0.7982506051359599,
+      "residual": -0.013592481040965741,
+      "standardised_residual": 0.26228552770992314,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.26228552770992314
+      }
+    },
+    {
+      "external_reliability": 0.002104909710427968,
+      "minimal_detectable_bias": 4.609129220088407e-05,
+      "observation_id": "2-dir-3",
+      "redundancy": 0.10046712484420031,
+      "residual": 2.3257217645509984e-05,
+      "standardised_residual": 0.5126797487995184,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5126797487995184
+      }
+    },
+    {
+      "external_reliability": 9.727882381486534e-05,
+      "minimal_detectable_bias": 1.641761024322656e-05,
+      "observation_id": "2-zen-3",
+      "redundancy": 0.7918480644051316,
+      "residual": 7.094080664176033e-05,
+      "standardised_residual": 0.5570261517697774,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.5570261517697774
+      }
+    },
+    {
+      "external_reliability": 0.002885374703351335,
+      "minimal_detectable_bias": 0.008350789220051471,
+      "observation_id": "2-sd-3",
+      "redundancy": 0.513842719853813,
+      "residual": 0.006781978879145485,
+      "standardised_residual": 0.16133551021568443,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.16133551021568443
+      }
+    },
+    {
+      "observation_id": "3-dir-1",
+      "redundancy": -6.462348535570528e-16,
+      "residual": -8.077935669463161e-27,
+      "standardised_residual": 0.0,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.0
+      }
+    },
+    {
+      "external_reliability": 8.554497076802962e-05,
+      "minimal_detectable_bias": 1.9804525396191748e-05,
+      "observation_id": "3-zen-1",
+      "redundancy": 0.5441678296851996,
+      "residual": 0.00026164436399515265,
+      "standardised_residual": 2.478251314046377,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": false,
+        "statistic": 2.478251314046377
+      }
+    },
+    {
+      "external_reliability": 0.001146271822550735,
+      "minimal_detectable_bias": 0.006509585274948099,
+      "observation_id": "3-sd-1",
+      "redundancy": 0.8245389030698081,
+      "residual": 0.015056555941584974,
+      "standardised_residual": 0.2863468658173391,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.869843466407478,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.2863468658173391
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "1.e",
+      "1.n",
+      "1.u",
+      "2.e",
+      "2.n",
+      "2.u",
+      "3.e",
+      "3.n",
+      "3.u",
+      "1.orientation",
+      "2.orientation",
+      "3.orientation"
+    ],
+    "matrix": [
+      [
+        6.998090650490633e-06,
+        -1.0543372534619481e-05,
+        -4.98035921329626e-08,
+        4.4917386027261035e-06,
+        -3.767418292672585e-05,
+        -1.0068273881063525e-06,
+        -1.1489829253216746e-05,
+        4.8217555461345345e-05,
+        1.0566309802393109e-06,
+        -1.78973957015105e-07,
+        -4.9353842966079916e-08,
+        -1.6385137151176214e-07
+      ],
+      [
+        -1.0543372534619442e-05,
+        9.018317979767625e-05,
+        2.4029405261251594e-06,
+        1.1866692925484665e-06,
+        -6.767044984399541e-05,
+        -2.648528116855479e-06,
+        9.356703242070988e-06,
+        -2.251272995368069e-05,
+        2.4558759073032627e-07,
+        1.2284728332273333e-06,
+        1.2272877305907815e-07,
+        1.5896160037527464e-06
+      ],
+      [
+        -4.9803592132956925e-08,
+        2.4029405261251463e-06,
+        4.2236768995377093e-07,
+        2.529431298045963e-07,
+        -3.8555171851197626e-06,
+        -3.597550578467866e-07,
+        -2.0313953767163902e-07,
+        1.4525766589946194e-06,
+        -6.261263210698439e-08,
+        3.090164503537283e-08,
+        3.2048147771283677e-09,
+        3.973286532212998e-08
+      ],
+      [
+        4.4917386027261e-06,
+        1.186669292548429e-06,
+        2.5294312980459205e-07,
+        4.772275662814498e-06,
+        -4.40427315976613e-05,
+        -1.2793946374965836e-06,
+        -9.264014265540604e-06,
+        4.2856062305112876e-05,
+        1.0264515076919876e-06,
+        -2.426142416646416e-08,
+        1.2396308553313848e-08,
+        -6.328917352399346e-08
+      ],
+      [
+        -3.7674182926725964e-05,
+        -6.767044984399458e-05,
+        -3.855517185119725e-06,
+        -4.4042731597661354e-05,
+        0.00045243232927661683,
+        1.3576354375439456e-05,
+        8.171691452438736e-05,
+        -0.00038476187943262217,
+        -9.720837190319709e-06,
+        -5.664419896104972e-07,
+        -6.046644735656182e-08,
+        -7.246193528027498e-07
+      ],
+      [
+        -1.0068273881063563e-06,
+        -2.648528116855447e-06,
+        -3.5975505784678567e-07,
+        -1.2793946374965863e-06,
+        1.3576354375439473e-05,
+        1.1795254277982152e-06,
+        2.286222025602944e-06,
+        -1.0927826258584024e-05,
+        -8.197703699514288e-07,
+        -2.583480092955642e-08,
+        -2.629062248338555e-09,
+        -3.332618239378139e-08
+      ],
+      [
+        -1.1489829253216753e-05,
+        9.356703242071113e-06,
+        -2.0313953767163362e-07,
+        -9.264014265540607e-06,
+        8.17169145243871e-05,
+        2.2862220256029362e-06,
+        2.0753843518757362e-05,
+        -9.107361776645827e-05,
+        -2.0830824879313014e-06,
+        2.032353811815683e-07,
+        3.695753441276539e-08,
+        2.271405450357557e-07
+      ],
+      [
+        4.821755546134537e-05,
+        -2.2512729953681204e-05,
+        1.4525766589946012e-06,
+        4.28560623051129e-05,
+        -0.0003847618794326215,
+        -1.092782625858401e-05,
+        -9.107361776645831e-05,
+        0.0004072746093863031,
+        9.475249599589398e-06,
+        -6.620308436168226e-07,
+        -6.226232570251344e-08,
+        -8.649966509499908e-07
+      ],
+      [
+        1.0566309802393142e-06,
+        2.4558759073030906e-07,
+        -6.261263210698513e-08,
+        1.02645150769199e-06,
+        -9.720837190319707e-06,
+        -8.197703699514288e-07,
+        -2.0830824879313044e-06,
+        9.475249599589405e-06,
+        8.823830020584131e-07,
+        -5.06684410581638e-09,
+        -5.757525287897729e-10,
+        -6.406682928348379e-09
+      ],
+      [
+        -1.7897395701510363e-07,
+        1.2284728332273299e-06,
+        3.0901645035372913e-08,
+        -2.4261424166463048e-08,
+        -5.664419896105128e-07,
+        -2.5834800929556735e-08,
+        2.0323538118156674e-07,
+        -6.620308436168181e-07,
+        -5.066844105816153e-09,
+        2.7332162356349972e-08,
+        1.4354335550925058e-09,
+        2.2700085194697248e-08
+      ],
+      [
+        -4.9353842966079844e-08,
+        1.227287730590783e-07,
+        3.204814777128383e-09,
+        1.2396308553314063e-08,
+        -6.046644735656326e-08,
+        -2.629062248338584e-09,
+        3.6957534412765815e-08,
+        -6.226232570251517e-08,
+        -5.757525287897897e-10,
+        1.4354335550925258e-09,
+        1.2079051633707347e-08,
+        -1.7883915519056014e-09
+      ],
+      [
+        -1.6385137151175814e-07,
+        1.5896160037527416e-06,
+        3.973286532213001e-08,
+        -6.328917352399051e-08,
+        -7.246193528027807e-07,
+        -3.3326182393782244e-08,
+        2.2714054503574865e-07,
+        -8.649966509499623e-07,
+        -6.406682928347735e-09,
+        2.2700085194697192e-08,
+        -1.7883915519056299e-09,
+        5.8586328000177676e-08
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "METRE",
+      "RADIAN",
+      "RADIAN",
+      "RADIAN"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:totalstation_network",
+    "created": "2026-11-04T20:47:11.234436+00:00",
+    "geocomp_version": "0.1.0",
+    "parameters": {
+      "confidence": 0.95,
+      "datum": "inner_constraint",
+      "datum_stations": [],
+      "dimension": 3,
+      "epoch_origin": "assumed",
+      "fixed": [],
+      "grid_reduction": {
+        "applied": false,
+        "reason": "not_planimetric"
+      },
+      "solver": "dense"
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "source": "geocomp:totalstation_network",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 2.711530277264284e+17,
+    "converged": true,
+    "degrees_of_freedom": 7,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 16.012764274629326,
+      "critical_low": 1.6898691806773554,
+      "name": "global",
+      "note": "variance factor too large. Possible causes: one or more blunders in the observations; an incorrect stochastic model: the a priori precisions are wrong; an incorrect functional model: the observation equations do not describe what was measured",
+      "passed": false,
+      "statistic": 11470.629218313527
+    },
+    "iterations": 3,
+    "max_correction": 3.340624034573011e-07,
+    "n_constraints": 4,
+    "n_observations": 15,
+    "n_parameters": 12,
+    "variance_factor_aposteriori": 1638.6613169019324,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

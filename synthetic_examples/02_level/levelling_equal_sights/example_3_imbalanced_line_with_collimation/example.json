@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Equal sights",
+  "algorithm_id": "geocomp:levelling_equal_sights",
+  "algorithm_title": "Equal sights",
+  "example_index": 3,
+  "slug": "example_3_imbalanced_line_with_collimation",
+  "title": "Imbalanced sights reduced with collimation correction and strict imbalance limits",
+  "scenario": "Applies collimation angle (5e-5 rad) across unbalanced sights and checks sight-imbalance limits.",
+  "parameters": {
+    "SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/inputs/imbalanced_setups.json",
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/inputs/profiles.json",
+    "COLLIMATION": 5e-05,
+    "COLLIMATION_SIGMA": 1e-05,
+    "MAX_SIGHT_LENGTH": 50.0,
+    "MAX_SIGHT_IMBALANCE": 2.0,
+    "MAX_ACCUMULATED_IMBALANCE": 5.0,
+    "OUTPUT_REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/reduced.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/lines.csv"
+  },
+  "expected_summary": "Applies collimation correction and flags sight imbalance in the HTML report.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "LINE_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/lines.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/report.html",
+      "OUTPUT_REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_3_imbalanced_line_with_collimation/outputs/reduced.json",
+      "WARNINGS": "4",
+      "WORST_IMBALANCE": "60.0",
+      "WORST_UNCERTAINTY": "0.0013638181696985856"
+    },
+    "info_lines": 0,
+    "warning_lines": 4
+  }
+}

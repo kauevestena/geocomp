@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/baselines.json",
+    "OUTPUT_LAYER": "None",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/network.json"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

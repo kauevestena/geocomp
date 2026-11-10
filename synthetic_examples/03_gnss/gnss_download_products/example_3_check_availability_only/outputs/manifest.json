@@ -1,0 +1,23 @@
+{
+  "days": [
+    "2005-04-02"
+  ],
+  "services": [
+    "noaa-ncn"
+  ],
+  "check_only": true,
+  "availability": [
+    {
+      "product": "orbit final 2005-04-02",
+      "available": true,
+      "source": "cache",
+      "url": ""
+    },
+    {
+      "product": "gps_navigation broadcast 2005-04-02",
+      "available": true,
+      "source": "cache",
+      "url": ""
+    }
+  ]
+}

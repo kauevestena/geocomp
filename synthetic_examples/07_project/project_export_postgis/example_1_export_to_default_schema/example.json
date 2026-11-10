@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Export project to PostGIS",
+  "algorithm_id": "geocomp:project_export_postgis",
+  "algorithm_title": "Export project to PostGIS",
+  "example_index": 1,
+  "slug": "example_1_export_to_default_schema",
+  "title": "Export GeoComp GeoPackage project to PostGIS schema 'geocomp_curitiba'",
+  "scenario": "Copies all project, station, observation, and solution tables to PostGIS and verifies row-by-row equality.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/07_project/project_export_postgis/example_1_export_to_default_schema/inputs/project_store.gpkg",
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "geocomp_curitiba"
+  },
+  "expected_summary": "Copies all rows from project_store.gpkg to geocomp_local_pg / geocomp_curitiba and verifies 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ROWS": "168",
+      "TARGET": "geocomp_local_pg / geocomp_curitiba"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

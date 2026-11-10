@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Export project to PostGIS",
+  "algorithm_id": "geocomp:project_export_postgis",
+  "algorithm_title": "Export project to PostGIS",
+  "example_index": 2,
+  "slug": "example_2_export_monitoring_archive",
+  "title": "Export multi-epoch monitoring GeoPackage to PostGIS schema 'dam_monitoring_2024'",
+  "scenario": "Transfers monitoring project store into a dedicated departmental PostGIS schema.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/07_project/project_export_postgis/example_2_export_monitoring_archive/inputs/project_store.gpkg",
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "dam_monitoring_2024"
+  },
+  "expected_summary": "Copies all rows from project_store.gpkg to geocomp_local_pg / dam_monitoring_2024 and verifies 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ROWS": "168",
+      "TARGET": "geocomp_local_pg / dam_monitoring_2024"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

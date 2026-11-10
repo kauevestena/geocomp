@@ -1,0 +1,4 @@
+station,gravity_mgal,sigma_mgal,gravity_m_s2,sigma_m_s2,determined_by,uncertainty
+1,978800.000000,0.000246,9.788,2.4643202934285254e-09,absolute value and differences,approximate
+2,978800.331000,0.000351,9.78800331,3.510395209048157e-09,differences,approximate
+3,978799.871500,0.000420,9.787998715,4.1965862406187486e-09,differences,approximate
