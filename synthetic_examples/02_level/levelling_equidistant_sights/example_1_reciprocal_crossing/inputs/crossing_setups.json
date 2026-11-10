@@ -1,0 +1,120 @@
+{
+  "kind": "levelling_setups",
+  "level_id": "rd04-level",
+  "lines": [
+    {
+      "id": "line",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 8.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 2
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.5,
+              "variance": 2.5e-07
+            },
+            "station": "BM1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 220.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 3
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": -2.238,
+                "variance": 2.5e-07
+              },
+              "station": "BM2"
+            }
+          ],
+          "id": "RD04-bankA",
+          "level_id": "rd04-level"
+        },
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 8.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 4
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 1.45,
+              "variance": 2.5e-07
+            },
+            "station": "BM2"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 220.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 5
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 5.212,
+                "variance": 2.5e-07
+              },
+              "station": "BM1"
+            }
+          ],
+          "id": "RD04-bankB",
+          "level_id": "rd04-level"
+        }
+      ]
+    }
+  ],
+  "source": "lev_reciprocal.csv"
+}

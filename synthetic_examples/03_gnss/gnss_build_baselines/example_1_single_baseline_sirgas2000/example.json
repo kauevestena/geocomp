@@ -1,0 +1,32 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Build baselines",
+  "algorithm_id": "geocomp:gnss_build_baselines",
+  "algorithm_title": "Build baselines",
+  "example_index": 1,
+  "slug": "example_1_single_baseline_sirgas2000",
+  "title": "Build 3D baseline vector and Network JSON from .pos solution in SIRGAS2000",
+  "scenario": "Extracts ECEF baseline vector (dX, dY, dZ) and 3x3 covariance matrix from base_rove.pos.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_1_single_baseline_sirgas2000/inputs/pos",
+    "BASE_HEIGHT": 0.0,
+    "ROVER_HEIGHT": 0.0,
+    "INDEPENDENT_ONLY": true,
+    "FRAME": 6,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_1_single_baseline_sirgas2000/outputs/baselines.json",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_1_single_baseline_sirgas2000/outputs/network.json"
+  },
+  "expected_summary": "Builds baseline BASE -> ROVE with full 3x3 covariance in SIRGAS2000.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_1_single_baseline_sirgas2000/outputs/baselines.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_1_single_baseline_sirgas2000/outputs/network.json"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

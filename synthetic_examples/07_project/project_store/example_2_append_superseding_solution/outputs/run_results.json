@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_2_append_superseding_solution/outputs/project_store.gpkg",
+    "WRITTEN": "['solution sol_epoch_2', 'sol_epoch_1 superseded by sol_epoch_2']"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

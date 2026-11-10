@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.html",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.json"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

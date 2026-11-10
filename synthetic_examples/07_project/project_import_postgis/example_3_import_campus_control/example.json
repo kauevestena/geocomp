@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Import project from PostGIS",
+  "algorithm_id": "geocomp:project_import_postgis",
+  "algorithm_title": "Import project from PostGIS",
+  "example_index": 3,
+  "slug": "example_3_import_campus_control",
+  "title": "Import classical network from PostGIS schema 'ufpr_campus_control'",
+  "scenario": "Round-trips 'ufpr_campus_control' back to a local GeoPackage file.",
+  "parameters": {
+    "DATABASE": "geocomp_local_pg",
+    "SCHEMA": "ufpr_campus_control",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_3_import_campus_control/outputs/imported_ufpr_campus_control.gpkg"
+  },
+  "expected_summary": "Copies all rows from geocomp_local_pg / ufpr_campus_control into imported_ufpr_campus_control.gpkg with 0 differences.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_3_import_campus_control/outputs/imported_ufpr_campus_control.gpkg",
+      "ROWS": "168"
+    },
+    "info_lines": 11,
+    "warning_lines": 0
+  }
+}

@@ -1,0 +1,1236 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Adjustment report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style>
+</head>
+<body>
+
+<h1>Adjustment report</h1>
+
+<h2>Identification</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Solution</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Kind</td>
+<td>adjustment</td>
+</tr>
+<tr>
+<td>Coordinate reference system</td>
+<td>ITRF2014</td>
+</tr>
+<tr>
+<td>Epoch</td>
+<td>2020.0000</td>
+</tr>
+<tr>
+<td>Datum definition</td>
+<td>fixed stations</td>
+</tr>
+<tr>
+<td>Geoid model</td>
+<td>curitiba_planar</td>
+</tr>
+</table>
+
+<div class="note"><b>Uncertainty</b>: Some uncertainties in this report are APPROXIMATE. The strategies used were: dominant_term, independence_assumed. An approximate figure presented as a rigorously propagated one misrepresents the quality of the survey, which is why this notice cannot be removed by a template.</div>
+
+<h2>Inputs</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Stations</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Constrained stations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Active observations</td>
+<td>53</td>
+</tr>
+<tr>
+<td>Observations set aside</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Correlated clusters</td>
+<td>5</td>
+</tr>
+</table><h3>Observations by type</h3><table>
+<tr>
+<th>Observation type</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>azimuth</td>
+<td>1</td>
+</tr>
+<tr>
+<td>direction</td>
+<td>14</td>
+</tr>
+<tr>
+<td>ellipsoidal_height</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss_baseline</td>
+<td>4</td>
+</tr>
+<tr>
+<td>height_difference</td>
+<td>4</td>
+</tr>
+<tr>
+<td>horizontal_angle</td>
+<td>1</td>
+</tr>
+<tr>
+<td>slope_distance</td>
+<td>14</td>
+</tr>
+<tr>
+<td>zenith_angle</td>
+<td>14</td>
+</tr>
+</table><h3>Constraints</h3><table>
+<tr>
+<th>Station</th>
+<th>Constraint</th>
+<th>Components</th>
+</tr>
+<tr>
+<td>CTB1</td>
+<td>fixed</td>
+<td>x, y, z</td>
+</tr>
+<tr>
+<td>CTB2</td>
+<td>fixed</td>
+<td>x, y, z</td>
+</tr>
+</table>
+
+<h2>Parameters</h2><table>
+<tr>
+<th>Setting</th>
+<th>Effective value</th>
+<th>From</th>
+</tr>
+<tr>
+<td>integration.confidence</td>
+<td>0.95</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.engine_requested</td>
+<td>in_house</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.epoch</td>
+<td>2020.0000</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.frame</td>
+<td>ITRF2014</td>
+<td>this run</td>
+</tr>
+</table><div class="note"><b>Where each value came from</b>: The scope column is what makes a run reproducible: the same value reached from a project override and from the built-in default are different statements to somebody repeating the work.</div>
+
+<h2>Adjusted coordinates</h2><table>
+<tr>
+<th>Station</th>
+<th>x</th>
+<th>y</th>
+<th>z</th>
+<th>sigma x (mm)</th>
+<th>sigma y (mm)</th>
+<th>sigma z (mm)</th>
+<th>Positional uncertainty (mm)</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>3762903.3603</td>
+<td>-4367924.0164</td>
+<td>-2721081.6052</td>
+<td>1.74</td>
+<td>1.89</td>
+<td>1.47</td>
+<td>3.13</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>3762552.0245</td>
+<td>-4368743.0599</td>
+<td>-2720220.6913</td>
+<td>2.10</td>
+<td>2.16</td>
+<td>1.84</td>
+<td>4.17</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>3763784.4798</td>
+<td>-4367643.2636</td>
+<td>-2720372.2799</td>
+<td>1.97</td>
+<td>2.10</td>
+<td>1.81</td>
+<td>3.89</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>3762056.6194</td>
+<td>-4367324.4356</td>
+<td>-2723192.7070</td>
+<td>1.82</td>
+<td>1.99</td>
+<td>1.68</td>
+<td>2.98</td>
+</tr>
+</table>
+
+<h2>Statistics</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>65</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Constraints</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>45</td>
+</tr>
+<tr>
+<td>Variance factor a priori</td>
+<td>1.000000</td>
+</tr>
+<tr>
+<td>Variance factor a posteriori</td>
+<td>0.661521</td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Converged</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Largest correction</td>
+<td>1.077390e-09</td>
+</tr>
+<tr>
+<td>Condition number</td>
+<td>8.509e+07</td>
+</tr>
+</table><table>
+<tr>
+<th>Test</th>
+<th>Statistic</th>
+<th>Lower critical</th>
+<th>Upper critical</th>
+<th>Confidence</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>global test</td>
+<td>29.76843</td>
+<td>28.36615</td>
+<td>65.41016</td>
+<td>0.950</td>
+<td><span class="pass">passed</span></td>
+</tr>
+</table>
+
+<h2>Techniques</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Inputs</td>
+<td>gnss, total-station, levelling</td>
+</tr>
+<tr>
+<td>Techniques</td>
+<td>GNSS, Total station, Levelling</td>
+</tr>
+<tr>
+<td>Frame</td>
+<td>ITRF2014</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>GeoComp in-house core</td>
+</tr>
+<tr>
+<td>Why this engine</td>
+<td>requested</td>
+</tr>
+</table><table>
+<tr>
+<th>Technique</th>
+<th>Observations</th>
+<th>Rows</th>
+<th>Redundancy</th>
+<th>Share</th>
+<th>vᵀPv</th>
+<th>vᵀPv / r</th>
+<th>Largest |w|</th>
+<th>Uncheckable</th>
+</tr>
+<tr>
+<td>GNSS</td>
+<td>5</td>
+<td>13</td>
+<td>8.49</td>
+<td>18.9&nbsp;%</td>
+<td>3.430</td>
+<td>0.404</td>
+<td>1.13</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Total station</td>
+<td>44</td>
+<td>44</td>
+<td>32.55</td>
+<td>72.3&nbsp;%</td>
+<td>26.158</td>
+<td>0.804</td>
+<td>2.05</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Levelling</td>
+<td>4</td>
+<td>4</td>
+<td>1.00</td>
+<td>2.2&nbsp;%</td>
+<td>0.149</td>
+<td>0.148</td>
+<td>0.39</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Geoid priors</td>
+<td>4</td>
+<td>4</td>
+<td>2.96</td>
+<td>6.6&nbsp;%</td>
+<td>0.032</td>
+<td>0.011</td>
+<td>0.17</td>
+<td>0</td>
+</tr>
+</table><div class="note"><b>Per-technique breakdown</b>: The redundancy each technique carries, and its own part of the weighted squares. The parts add up to the whole. A technique&#x27;s vᵀPv / r is a quick reading of how its weights fit, not its variance component: that is estimated below when it was asked for.</div><table>
+<tr>
+<th>Station</th>
+<th>Model N (m)</th>
+<th>Model std. dev. (m)</th>
+<th>Adjusted N (m)</th>
+<th>Residual (m)</th>
+<th>Redundancy</th>
+<th>w</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>-0.898</td>
+<td>0.030</td>
+<td>-0.895</td>
+<td>0.0022</td>
+<td>0.74</td>
+<td>0.08</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>-0.881</td>
+<td>0.030</td>
+<td>-0.886</td>
+<td>-0.0045</td>
+<td>0.74</td>
+<td>-0.17</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>-0.844</td>
+<td>0.030</td>
+<td>-0.842</td>
+<td>0.0019</td>
+<td>0.74</td>
+<td>0.07</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>-0.996</td>
+<td>0.030</td>
+<td>-0.996</td>
+<td>0.0004</td>
+<td>0.74</td>
+<td>0.02</td>
+</tr>
+</table><div class="note"><b>Geoid residuals</b>: The geoid model curitiba_planar tested by the survey: at each station where an orthometric height met an ellipsoidal one, the undulation the adjustment found against the one the model gave.</div>
+
+<h2>Observation results</h2><table>
+<tr>
+<th>Row</th>
+<th>Observation</th>
+<th>Residual</th>
+<th>Standardised</th>
+<th>Redundancy</th>
+<th>MDB</th>
+<th>External effect</th>
+<th>w-test</th>
+</tr>
+<tr>
+<td>0</td>
+<td>g-CTB1-M05</td>
+<td>-0.003091</td>
+<td>1.195</td>
+<td>0.5745</td>
+<td>0.021806</td>
+<td>0.016120</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>1</td>
+<td>g-CTB1-M05</td>
+<td>-0.002392</td>
+<td>1.271</td>
+<td>0.3765</td>
+<td>0.023329</td>
+<td>0.023282</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>g-CTB1-M05</td>
+<td>-0.002745</td>
+<td>0.605</td>
+<td>0.8838</td>
+<td>0.026372</td>
+<td>0.004359</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>g-CTB2-M04</td>
+<td>0.003458</td>
+<td>1.393</td>
+<td>0.5214</td>
+<td>0.022891</td>
+<td>0.017684</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>g-CTB2-M04</td>
+<td>0.002298</td>
+<td>1.269</td>
+<td>0.3451</td>
+<td>0.024367</td>
+<td>0.025754</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>g-CTB2-M04</td>
+<td>-0.002512</td>
+<td>0.556</td>
+<td>0.8779</td>
+<td>0.026461</td>
+<td>0.004469</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td>g-CTB1-M06</td>
+<td>0.001901</td>
+<td>0.705</td>
+<td>0.6140</td>
+<td>0.021094</td>
+<td>0.015409</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>7</td>
+<td>g-CTB1-M06</td>
+<td>-0.001021</td>
+<td>0.512</td>
+<td>0.4214</td>
+<td>0.022051</td>
+<td>0.022603</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>8</td>
+<td>g-CTB1-M06</td>
+<td>-0.000510</td>
+<td>0.111</td>
+<td>0.9013</td>
+<td>0.026115</td>
+<td>0.003943</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>9</td>
+<td>g-CTB2-M03</td>
+<td>-0.001311</td>
+<td>0.477</td>
+<td>0.6592</td>
+<td>0.020358</td>
+<td>0.012700</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>10</td>
+<td>g-CTB2-M03</td>
+<td>-0.000537</td>
+<td>0.257</td>
+<td>0.4836</td>
+<td>0.020583</td>
+<td>0.017522</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>11</td>
+<td>g-CTB2-M03</td>
+<td>-0.002311</td>
+<td>0.497</td>
+<td>0.9268</td>
+<td>0.025754</td>
+<td>0.003100</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>12</td>
+<td>r-M03</td>
+<td>0.007086</td>
+<td>0.917</td>
+<td>0.9023</td>
+<td>0.043501</td>
+<td>0.005512</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>13</td>
+<td>s-CTB1-M06</td>
+<td>0.003079</td>
+<td>2.404</td>
+<td>0.6200</td>
+<td>0.010496</td>
+<td>0.004284</td>
+<td><span class="fail">CANDIDATE</span></td>
+</tr>
+<tr>
+<td>14</td>
+<td>z-CTB1-M06</td>
+<td>0.000020</td>
+<td>1.698</td>
+<td>0.9714</td>
+<td>0.000061</td>
+<td>0.003187</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>15</td>
+<td>d-CTB1-M06</td>
+<td>0.000003</td>
+<td>0.548</td>
+<td>0.6568</td>
+<td>0.000037</td>
+<td>0.000899</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>16</td>
+<td>s-CTB1-M03</td>
+<td>0.000882</td>
+<td>0.662</td>
+<td>0.6720</td>
+<td>0.010081</td>
+<td>0.004924</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>17</td>
+<td>z-CTB1-M03</td>
+<td>0.000019</td>
+<td>1.577</td>
+<td>0.9904</td>
+<td>0.000060</td>
+<td>0.001651</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>18</td>
+<td>d-CTB1-M03</td>
+<td>-0.000012</td>
+<td>2.477</td>
+<td>0.6629</td>
+<td>0.000037</td>
+<td>0.000400</td>
+<td><span class="fail">CANDIDATE</span></td>
+</tr>
+<tr>
+<td>19</td>
+<td>s-CTB1-M04</td>
+<td>-0.000764</td>
+<td>0.902</td>
+<td>0.2713</td>
+<td>0.015868</td>
+<td>0.012879</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>20</td>
+<td>z-CTB1-M04</td>
+<td>0.000004</td>
+<td>0.375</td>
+<td>0.9920</td>
+<td>0.000060</td>
+<td>0.001688</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>21</td>
+<td>d-CTB1-M04</td>
+<td>0.000009</td>
+<td>1.935</td>
+<td>0.6603</td>
+<td>0.000037</td>
+<td>0.000768</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>22</td>
+<td>s-M03-CTB1</td>
+<td>0.001490</td>
+<td>1.117</td>
+<td>0.6720</td>
+<td>0.010081</td>
+<td>0.004924</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>23</td>
+<td>z-M03-CTB1</td>
+<td>5.778287e-07</td>
+<td>0.049</td>
+<td>0.9904</td>
+<td>0.000060</td>
+<td>0.001651</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>24</td>
+<td>d-M03-CTB1</td>
+<td>-0.000005</td>
+<td>0.859</td>
+<td>0.7880</td>
+<td>0.000034</td>
+<td>0.000879</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>25</td>
+<td>s-M03-M04</td>
+<td>0.000723</td>
+<td>0.752</td>
+<td>0.3497</td>
+<td>0.013975</td>
+<td>0.008095</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>26</td>
+<td>z-M03-M04</td>
+<td>0.000010</td>
+<td>0.909</td>
+<td>0.9361</td>
+<td>0.000062</td>
+<td>0.004953</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>27</td>
+<td>d-M03-M04</td>
+<td>0.000004</td>
+<td>0.771</td>
+<td>0.7662</td>
+<td>0.000034</td>
+<td>0.001372</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>28</td>
+<td>s-M03-M05</td>
+<td>-0.000234</td>
+<td>0.185</td>
+<td>0.6009</td>
+<td>0.010661</td>
+<td>0.004126</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>29</td>
+<td>z-M03-M05</td>
+<td>-0.000015</td>
+<td>1.286</td>
+<td>0.9316</td>
+<td>0.000062</td>
+<td>0.004988</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>30</td>
+<td>d-M03-M05</td>
+<td>0.000003</td>
+<td>0.660</td>
+<td>0.7577</td>
+<td>0.000035</td>
+<td>0.001534</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>31</td>
+<td>s-M03-CTB2</td>
+<td>0.000762</td>
+<td>0.702</td>
+<td>0.4453</td>
+<td>0.012384</td>
+<td>0.009278</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>32</td>
+<td>z-M03-CTB2</td>
+<td>-0.000013</td>
+<td>1.106</td>
+<td>0.9878</td>
+<td>0.000060</td>
+<td>0.001862</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>33</td>
+<td>d-M03-CTB2</td>
+<td>0.000001</td>
+<td>0.207</td>
+<td>0.7902</td>
+<td>0.000034</td>
+<td>0.000795</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>34</td>
+<td>s-M03-M06</td>
+<td>-0.000758</td>
+<td>0.591</td>
+<td>0.6230</td>
+<td>0.010471</td>
+<td>0.003461</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>35</td>
+<td>z-M03-M06</td>
+<td>-0.000001</td>
+<td>0.095</td>
+<td>0.9822</td>
+<td>0.000061</td>
+<td>0.002548</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>36</td>
+<td>d-M03-M06</td>
+<td>-0.000004</td>
+<td>0.756</td>
+<td>0.7863</td>
+<td>0.000034</td>
+<td>0.000875</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>37</td>
+<td>s-M05-M03</td>
+<td>0.000599</td>
+<td>0.475</td>
+<td>0.6009</td>
+<td>0.010661</td>
+<td>0.004128</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>38</td>
+<td>z-M05-M03</td>
+<td>-0.000002</td>
+<td>0.163</td>
+<td>0.9316</td>
+<td>0.000062</td>
+<td>0.004988</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>39</td>
+<td>d-M05-M03</td>
+<td>-0.000004</td>
+<td>0.795</td>
+<td>0.6510</td>
+<td>0.000037</td>
+<td>0.000944</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>40</td>
+<td>s-M05-M04</td>
+<td>0.000813</td>
+<td>0.949</td>
+<td>0.2773</td>
+<td>0.015694</td>
+<td>0.008654</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>41</td>
+<td>z-M05-M04</td>
+<td>-0.000010</td>
+<td>0.901</td>
+<td>0.9606</td>
+<td>0.000061</td>
+<td>0.004010</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>42</td>
+<td>d-M05-M04</td>
+<td>0.000005</td>
+<td>0.982</td>
+<td>0.6517</td>
+<td>0.000037</td>
+<td>0.001043</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>43</td>
+<td>s-M05-CTB2</td>
+<td>0.000326</td>
+<td>0.369</td>
+<td>0.2954</td>
+<td>0.015206</td>
+<td>0.012803</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>44</td>
+<td>z-M05-CTB2</td>
+<td>-0.000030</td>
+<td>2.520</td>
+<td>0.9884</td>
+<td>0.000060</td>
+<td>0.001997</td>
+<td><span class="fail">CANDIDATE</span></td>
+</tr>
+<tr>
+<td>45</td>
+<td>d-M05-CTB2</td>
+<td>-8.923487e-07</td>
+<td>0.187</td>
+<td>0.6481</td>
+<td>0.000037</td>
+<td>0.001315</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>46</td>
+<td>s-M06-CTB2</td>
+<td>0.001374</td>
+<td>1.176</td>
+<td>0.5160</td>
+<td>0.011505</td>
+<td>0.006109</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>47</td>
+<td>z-M06-CTB2</td>
+<td>-0.000002</td>
+<td>0.154</td>
+<td>0.9862</td>
+<td>0.000061</td>
+<td>0.002200</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>48</td>
+<td>d-M06-CTB2</td>
+<td>-0.000004</td>
+<td>0.776</td>
+<td>0.6561</td>
+<td>0.000037</td>
+<td>0.000954</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>49</td>
+<td>s-M06-M03</td>
+<td>-0.000604</td>
+<td>0.470</td>
+<td>0.6230</td>
+<td>0.010470</td>
+<td>0.003458</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>50</td>
+<td>z-M06-M03</td>
+<td>-0.000010</td>
+<td>0.890</td>
+<td>0.9822</td>
+<td>0.000061</td>
+<td>0.002548</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>51</td>
+<td>d-M06-M03</td>
+<td>1.416530e-07</td>
+<td>0.029</td>
+<td>0.6631</td>
+<td>0.000037</td>
+<td>0.000588</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>52</td>
+<td>s-M06-CTB1</td>
+<td>-0.002058</td>
+<td>1.606</td>
+<td>0.6200</td>
+<td>0.010496</td>
+<td>0.004281</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>53</td>
+<td>z-M06-CTB1</td>
+<td>-0.000022</td>
+<td>1.884</td>
+<td>0.9714</td>
+<td>0.000061</td>
+<td>0.003187</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>54</td>
+<td>d-M06-CTB1</td>
+<td>0.000004</td>
+<td>0.747</td>
+<td>0.6542</td>
+<td>0.000037</td>
+<td>0.000963</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>55</td>
+<td>a-M04</td>
+<td>-0.000001</td>
+<td>0.234</td>
+<td>0.9703</td>
+<td>0.000031</td>
+<td>0.001066</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>56</td>
+<td>b-M05-M04</td>
+<td>0.000012</td>
+<td>0.589</td>
+<td>0.9968</td>
+<td>0.000100</td>
+<td>0.000437</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>57</td>
+<td>l-M03-M04</td>
+<td>0.000160</td>
+<td>0.463</td>
+<td>0.1451</td>
+<td>0.012074</td>
+<td>0.007934</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>58</td>
+<td>l-M04-M05</td>
+<td>0.000222</td>
+<td>0.481</td>
+<td>0.1942</td>
+<td>0.012077</td>
+<td>0.007325</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>59</td>
+<td>l-M05-M06</td>
+<td>0.000438</td>
+<td>0.474</td>
+<td>0.3883</td>
+<td>0.012088</td>
+<td>0.005325</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>60</td>
+<td>l-M06-M03</td>
+<td>0.000309</td>
+<td>0.472</td>
+<td>0.2751</td>
+<td>0.012082</td>
+<td>0.006495</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>61</td>
+<td>constraint:geoid:M03</td>
+<td>0.002165</td>
+<td>0.103</td>
+<td>0.7415</td>
+<td>0.143961</td>
+<td>0.072007</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>62</td>
+<td>constraint:geoid:M04</td>
+<td>-0.004505</td>
+<td>0.215</td>
+<td>0.7399</td>
+<td>0.144117</td>
+<td>0.072096</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>63</td>
+<td>constraint:geoid:M05</td>
+<td>0.001899</td>
+<td>0.090</td>
+<td>0.7401</td>
+<td>0.144096</td>
+<td>0.072083</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>64</td>
+<td>constraint:geoid:M06</td>
+<td>0.000441</td>
+<td>0.021</td>
+<td>0.7395</td>
+<td>0.144157</td>
+<td>0.072118</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+</table>
+
+<h2>Reliability</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>65</td>
+</tr>
+<tr>
+<td>Outlier candidates</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Uncheckable observations</td>
+<td>0</td>
+</tr>
+</table><div class="note"><b>Uncheckable observations</b>: Every observation in this adjustment is checkable.</div><div class="note"><b>Data snooping</b>: Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the displacement being measured is exactly what an automatic outlier remover would delete.</div>
+
+<h2>Error ellipses</h2><table>
+<tr>
+<th>Station</th>
+<th>Semi-major (mm)</th>
+<th>Semi-minor (mm)</th>
+<th>Orientation</th>
+<th>Confidence</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>3.132</td>
+<td>2.268</td>
+<td>113° 53' 45.0"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>4.169</td>
+<td>3.382</td>
+<td>81° 07' 30.6"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>3.885</td>
+<td>3.108</td>
+<td>114° 40' 34.0"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>2.985</td>
+<td>2.535</td>
+<td>27° 03' 56.7"</td>
+<td>0.950</td>
+</tr>
+</table>
+
+<h2>Provenance</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-11-04T20:47:14.475840+00:00</td>
+</tr>
+<tr>
+<td>Algorithm</td>
+<td>geocomp:integration_multiple</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>in_house</td>
+</tr>
+<tr>
+<td>Engine version</td>
+<td>—</td>
+</tr>
+</table><table>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>adjustment_frame</td>
+<td>geocentric_3d</td>
+</tr>
+<tr>
+<td>combination</td>
+<td>{&#x27;inputs&#x27;: [&#x27;gnss&#x27;, &#x27;total-station&#x27;, &#x27;levelling&#x27;], &#x27;frame&#x27;: &#x27;ITRF2014&#x27;, &#x27;geocentric&#x27;: True, &#x27;epoch&#x27;: 2020.0, &#x27;techniques&#x27;: [&#x27;gnss&#x27;, &#x27;total_station&#x27;, &#x27;levelling&#x27;], &#x27;transformations&#x27;: [], &#x27;renamed&#x27;: {}}</td>
+</tr>
+<tr>
+<td>datum</td>
+<td>fixed</td>
+</tr>
+<tr>
+<td>fixed</td>
+<td>[&#x27;CTB1&#x27;, &#x27;CTB2&#x27;]</td>
+</tr>
+<tr>
+<td>geoid_model</td>
+<td>curitiba_planar</td>
+</tr>
+<tr>
+<td>geoid_residuals</td>
+<td>[{&#x27;station_id&#x27;: &#x27;M03&#x27;, &#x27;model&#x27;: -0.897545452749209, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8953802909235591, &#x27;residual&#x27;: 0.0021651618256499543, &#x27;redundancy&#x27;: 0.7414888693680773, &#x27;standardised&#x27;: 0.0838140426201069}, {&#x27;station_id&#x27;: &#x27;M04&#x27;, &#x27;model&#x27;: -0.8811605421808106, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8856653317947362, &#x27;residual&#x27;: -0.004504789613925565, &#x27;redundancy&#x27;: 0.7398822582093278, &#x27;standardised&#x27;: -0.1745709404752372}, {&#x27;station_id&#x27;: &#x27;M05&#x27;, &#x27;model&#x27;: -0.8440583902293065, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8421593870911552, &#x27;residual&#x27;: 0.0018990031381512285, &#x27;redundancy&#x27;: 0.7400960211068791, &#x27;standardised&#x27;: 0.07358010326776723}, {&#x27;station_id&#x27;: &#x27;M06&#x27;, &#x27;model&#x27;: -0.9961751574200588, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.9957345327699344, &#x27;residual&#x27;: 0.00044062465012436735, &#x27;redundancy&#x27;: 0.7394690919119595, &#x27;standardised&#x27;: 0.017079986443874873}]</td>
+</tr>
+<tr>
+<td>routing</td>
+<td>{&#x27;engine&#x27;: &#x27;in_house&#x27;, &#x27;reason&#x27;: &#x27;requested&#x27;}</td>
+</tr>
+<tr>
+<td>solver</td>
+<td>dense</td>
+</tr>
+<tr>
+<td>technique_breakdown</td>
+<td>[{&#x27;technique&#x27;: &#x27;gnss&#x27;, &#x27;rows&#x27;: 13, &#x27;observations&#x27;: 5, &#x27;redundancy&#x27;: 8.48776837418045, &#x27;redundancy_share&#x27;: 0.18861707498178776, &#x27;weighted_squares&#x27;: 3.430440594866491, &#x27;variance_factor&#x27;: 0.4041628427681644, &#x27;largest_standardised&#x27;: 1.1327434356894657, &#x27;uncheckable&#x27;: []}, {&#x27;technique&#x27;: &#x27;total_station&#x27;, &#x27;rows&#x27;: 44, &#x27;observations&#x27;: 44, &#x27;redundancy&#x27;: 32.54851459235616, &#x27;redundancy_share&#x27;: 0.7233003242745814, &#x27;weighted_squares&#x27;: 26.157503805857974, &#x27;variance_factor&#x27;: 0.803646622079673, &#x27;largest_standardised&#x27;: 2.0497855337175457, &#x27;uncheckable&#x27;: []}, {&#x27;technique&#x27;: &#x27;levelling&#x27;, &#x27;rows&#x27;: 4, &#x27;observations&#x27;: 4, &#x27;redundancy&#x27;: 1.0027807928672843, &#x27;redundancy_share&#x27;: 0.022284017619272983, &#x27;weighted_squares&#x27;: 0.14850853271836834, &#x27;variance_factor&#x27;: 0.14809670645339446, &#x27;largest_standardised&#x27;: 0.39125195817269676, &#x27;uncheckable&#x27;: []}, {&#x27;technique&#x27;: &#x27;geoid&#x27;, &#x27;rows&#x27;: 4, &#x27;observations&#x27;: 4, &#x27;redundancy&#x27;: 2.960936240596244, &#x27;redundancy_share&#x27;: 0.06579858312436097, &#x27;weighted_squares&#x27;: 0.03197935355332102, &#x27;variance_factor&#x27;: 0.010800419514228153, &#x27;largest_standardised&#x27;: 0.1745709404752372, &#x27;uncheckable&#x27;: []}]</td>
+</tr>
+<tr>
+<td>variance_components</td>
+<td>None</td>
+</tr>
+</table><table>
+<tr>
+<th>Input</th>
+<th>Digest</th>
+</tr>
+<tr>
+<td>gnss</td>
+<td><code>—</code></td>
+</tr>
+<tr>
+<td>levelling</td>
+<td><code>—</code></td>
+</tr>
+<tr>
+<td>total-station</td>
+<td><code>—</code></td>
+</tr>
+</table><div class="note"><b>Inputs</b>: Inputs are recorded by id and by content digest. The digest is what turns &amp;quot;reproduce this&amp;quot; into something checkable: the same id with different content is a different run.</div>
+
+<h2>Software</h2><table>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+<tr>
+<td>GeoComp</td>
+<td>0.1.0</td>
+</tr>
+<tr>
+<td>QGIS</td>
+<td>3.44.7-Solothurn</td>
+</tr>
+<tr>
+<td>Uncertainty mode</td>
+<td>approximate</td>
+</tr>
+<tr>
+<td>Report template</td>
+<td>shipped with GeoComp</td>
+</tr>
+</table>
+
+</body>
+</html>

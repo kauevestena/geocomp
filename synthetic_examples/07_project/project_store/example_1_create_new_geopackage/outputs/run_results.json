@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_1_create_new_geopackage/outputs/project_store.gpkg",
+    "WRITTEN": "['network dam-1', 'solution dam-1']"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

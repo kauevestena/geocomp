@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Relative ▸ Relative — Static",
+  "algorithm_id": "geocomp:gnss_relative_static",
+  "algorithm_title": "Relative — Static",
+  "example_index": 2,
+  "slug": "example_2_baseline_itrf2020_20deg",
+  "title": "Relative static baseline BASE -> ROVE in ITRF2020 with 20° mask",
+  "scenario": "Static baseline solution expressed in ITRF2020 with 20° elevation cutoff.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_2_baseline_itrf2020_20deg/inputs/rinex",
+    "BASE_STATION": "BASE",
+    "ROVER_STATION": "ROVE",
+    "FRAME": 2,
+    "ELEVATION_MASK": 20.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_2_baseline_itrf2020_20deg/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_2_baseline_itrf2020_20deg/outputs/quality.json"
+  },
+  "expected_summary": "Solves carrier-phase static baseline BASE -> ROVE with fixed ambiguities (Q=1).",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_2_baseline_itrf2020_20deg/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_2_baseline_itrf2020_20deg/outputs/solution.pos"
+    },
+    "info_lines": 5,
+    "warning_lines": 2
+  }
+}

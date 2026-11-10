@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Monitoring report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}.figure{margin:1rem 0}.figure svg{max-width:100%;height:auto}</style>
+</head>
+<body>
+
+<h1>Monitoring report</h1>
+
+<h2>Epochs</h2><table>
+<tr>
+<th>Solution</th>
+<th>Epoch</th>
+<th>Coordinate reference system</th>
+<th>Datum definition</th>
+<th>Heights</th>
+<th>Geoid model</th>
+<th>Engine</th>
+<th>Uncertainty mode</th>
+</tr>
+<tr>
+<td>dam-1</td>
+<td>1.0000</td>
+<td>EPSG:31982</td>
+<td>inner_constraint</td>
+<td>NONE</td>
+<td>—</td>
+<td>in_house</td>
+<td>rigorous</td>
+</tr>
+<tr>
+<td>dam-2</td>
+<td>2.0000</td>
+<td>EPSG:31982</td>
+<td>inner_constraint</td>
+<td>NONE</td>
+<td>—</td>
+<td>in_house</td>
+<td>rigorous</td>
+</tr>
+</table>
+
+<div class="note"><b>Uncertainty</b>: Approximate: independence_assumed. The epochs were taken as independent. If they share reference stations, a datum definition or GNSS products, they are positively correlated: each displacement&#x27;s true uncertainty is smaller than the one stated here, so the significance of real motion is understated, not overstated.</div>
+
+<h2>Compatibility and transformations</h2><div class="note">Both epochs agree in frame, datum definition, height type, geoid model and engine; nothing was found that would put a systematic difference into the displacements.</div><div class="note">No transformation was applied: both epochs are in one frame.</div>
+
+<h2>Parameters</h2><table>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Confidence level</td>
+<td>0.9500</td>
+</tr>
+<tr>
+<td>Datum of the displacements</td>
+<td>translation, rotation and scale</td>
+</tr>
+<tr>
+<td>Reference stations</td>
+<td>R1, R2, R3, R4</td>
+</tr>
+<tr>
+<td>Object stations</td>
+<td>O1, O2, O3, O4, O5</td>
+</tr>
+<tr>
+<td>Pooled variance factor</td>
+<td>1.1603</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>42</td>
+</tr>
+</table>
+
+<h2>Reference block</h2><table>
+<tr>
+<th>Test</th>
+<th>Stations</th>
+<th>Omega</th>
+<th>Rank</th>
+<th>Statistic</th>
+<th>Critical value</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>Reference block congruency</td>
+<td>R1, R2, R3, R4</td>
+<td>3.2078</td>
+<td>4</td>
+<td>0.691</td>
+<td>2.594</td>
+<td><span class="pass">passed</span></td>
+</tr>
+</table><div class="note">The reference stations have not moved relative to one another at this confidence: the block is a sound datum for the displacements.</div>
+
+<h2>Global congruency</h2><table>
+<tr>
+<th>Test</th>
+<th>Stations</th>
+<th>Omega</th>
+<th>Rank</th>
+<th>Statistic</th>
+<th>Critical value</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>All compared stations</td>
+<td>O1, O2, O3, O4, O5, R1, R2, R3, R4</td>
+<td>274.5373</td>
+<td>14</td>
+<td>16.901</td>
+<td>1.935</td>
+<td><span class="fail">FAILED</span></td>
+</tr>
+</table>
+
+<h2>Displacements</h2><table>
+<tr>
+<th>Station</th>
+<th>Role</th>
+<th>east (mm)</th>
+<th>north (mm)</th>
+<th>Std. dev. east (mm)</th>
+<th>Std. dev. north (mm)</th>
+<th>Statistic</th>
+<th>Critical value</th>
+<th>Decision</th>
+<th>Horizontal</th>
+</tr>
+<tr>
+<td>O1</td>
+<td>object</td>
+<td>1.08</td>
+<td>-1.20</td>
+<td>0.88</td>
+<td>1.15</td>
+<td>1.115</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O2</td>
+<td>object</td>
+<td>8.65</td>
+<td>-6.49</td>
+<td>0.88</td>
+<td>1.15</td>
+<td>76.513</td>
+<td>3.220</td>
+<td><span class="fail">significant</span></td>
+<td><span class="fail">significant</span></td>
+</tr>
+<tr>
+<td>O3</td>
+<td>object</td>
+<td>1.05</td>
+<td>-1.68</td>
+<td>0.88</td>
+<td>1.15</td>
+<td>2.141</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O4</td>
+<td>object</td>
+<td>0.05</td>
+<td>0.39</td>
+<td>0.88</td>
+<td>1.15</td>
+<td>0.065</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>O5</td>
+<td>object</td>
+<td>0.84</td>
+<td>0.57</td>
+<td>0.85</td>
+<td>1.13</td>
+<td>0.621</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R1</td>
+<td>reference</td>
+<td>-0.08</td>
+<td>-0.28</td>
+<td>0.65</td>
+<td>0.70</td>
+<td>0.103</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R2</td>
+<td>reference</td>
+<td>-0.23</td>
+<td>-0.76</td>
+<td>0.65</td>
+<td>0.70</td>
+<td>0.603</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R3</td>
+<td>reference</td>
+<td>-0.55</td>
+<td>0.99</td>
+<td>0.65</td>
+<td>0.70</td>
+<td>1.166</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>R4</td>
+<td>reference</td>
+<td>0.86</td>
+<td>0.05</td>
+<td>0.65</td>
+<td>0.70</td>
+<td>0.898</td>
+<td>3.220</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+</table><div class="note">Each displacement is tested against its own covariance at the confidence level above. Not significant is not zero: the value is kept, with its uncertainty, because we could not detect motion is a different statement from there is no motion.</div>
+
+<h2>Displacement map</h2><div class="figure"><svg xmlns="http://www.w3.org/2000/svg" width="640.00" height="568.88" viewBox="0 0 640.00 568.88">
+<polygon points="278.05,308.91 277.62,309.00 277.18,309.05 276.73,309.04 276.28,308.98 275.83,308.86 275.38,308.70 274.93,308.49 274.50,308.23 274.08,307.92 273.67,307.58 273.28,307.19 272.92,306.76 272.57,306.30 272.26,305.81 271.98,305.29 271.72,304.75 271.50,304.19 271.32,303.61 271.17,303.02 271.07,302.43 271.00,301.84 270.96,301.24 270.97,300.66 271.02,300.09 271.11,299.53 271.23,299.00 271.40,298.49 271.59,298.01 271.83,297.56 272.09,297.14 272.39,296.77 272.72,296.44 273.07,296.15 273.45,295.90 273.84,295.71 274.26,295.56 274.68,295.47 275.12,295.43 275.57,295.44 276.02,295.50 276.48,295.61 276.93,295.77 277.37,295.98 277.81,296.24 278.23,296.55 278.63,296.90 279.02,297.28 279.39,297.71 279.73,298.17 280.04,298.66 280.33,299.18 280.58,299.73 280.80,300.29 280.98,300.86 281.13,301.45 281.24,302.04 281.31,302.64 281.34,303.23 281.33,303.81 281.28,304.38 281.20,304.94 281.07,305.47 280.91,305.98 280.71,306.46 280.48,306.91 280.21,307.33 279.91,307.70 279.59,308.04 279.23,308.33 278.86,308.57 278.46,308.76 278.05,308.91" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="389.19,307.92 389.61,308.06 390.00,308.26 390.38,308.50 390.73,308.79 391.06,309.13 391.36,309.50 391.62,309.91 391.86,310.36 392.05,310.84 392.22,311.35 392.34,311.89 392.43,312.44 392.48,313.02 392.49,313.60 392.46,314.19 392.38,314.78 392.28,315.38 392.13,315.96 391.95,316.54 391.73,317.10 391.47,317.64 391.19,318.16 390.88,318.66 390.53,319.12 390.17,319.54 389.78,319.93 389.37,320.28 388.95,320.58 388.52,320.84 388.07,321.06 387.62,321.22 387.17,321.33 386.72,321.39 386.27,321.40 385.83,321.36 385.40,321.26 384.99,321.12 384.59,320.92 384.22,320.68 383.86,320.39 383.54,320.06 383.24,319.68 382.97,319.27 382.74,318.82 382.54,318.34 382.38,317.83 382.25,317.29 382.17,316.74 382.12,316.17 382.11,315.58 382.14,314.99 382.21,314.40 382.32,313.81 382.47,313.22 382.65,312.64 382.87,312.08 383.12,311.54 383.41,311.02 383.72,310.53 384.06,310.07 384.43,309.64 384.82,309.25 385.22,308.90 385.64,308.60 386.08,308.34 386.52,308.13 386.97,307.96 387.43,307.85 387.88,307.79 388.33,307.78 388.77,307.83 389.19,307.92" fill="#0072b2" fill-opacity="0.12" stroke="#0072b2" stroke-width="1"/>
+<polygon points="277.99,203.23 278.40,203.37 278.80,203.57 279.17,203.81 279.52,204.10 279.85,204.44 280.15,204.81 280.41,205.22 280.65,205.67 280.85,206.15 281.01,206.66 281.13,207.20 281.22,207.75 281.27,208.33 281.28,208.91 281.25,209.50 281.18,210.10 281.07,210.69 280.92,211.27 280.74,211.85 280.52,212.41 280.27,212.95 279.98,213.47 279.67,213.97 279.33,214.43 278.96,214.85 278.57,215.24 278.17,215.59 277.74,215.90 277.31,216.15 276.86,216.37 276.41,216.53 275.96,216.64 275.51,216.70 275.06,216.71 274.62,216.67 274.19,216.57 273.78,216.43 273.38,216.23 273.01,215.99 272.66,215.70 272.33,215.37 272.03,214.99 271.77,214.58 271.53,214.13 271.33,213.65 271.17,213.14 271.04,212.60 270.96,212.05 270.91,211.48 270.90,210.89 270.93,210.30 271.00,209.71 271.11,209.12 271.26,208.53 271.44,207.95 271.66,207.39 271.91,206.85 272.20,206.33 272.51,205.84 272.85,205.38 273.22,204.95 273.61,204.56 274.01,204.21 274.44,203.91 274.87,203.65 275.32,203.44 275.77,203.27 276.22,203.16 276.67,203.10 277.12,203.09 277.56,203.14 277.99,203.23" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="369.11,211.75 368.68,211.84 368.24,211.88 367.79,211.88 367.34,211.81 366.89,211.70 366.44,211.54 365.99,211.33 365.56,211.07 365.14,210.76 364.73,210.42 364.34,210.03 363.98,209.60 363.63,209.14 363.32,208.65 363.04,208.13 362.78,207.59 362.56,207.02 362.38,206.45 362.23,205.86 362.12,205.27 362.05,204.67 362.02,204.08 362.03,203.50 362.08,202.93 362.17,202.37 362.29,201.84 362.45,201.33 362.65,200.85 362.89,200.40 363.15,199.98 363.45,199.61 363.78,199.28 364.13,198.99 364.51,198.74 364.90,198.55 365.32,198.40 365.74,198.31 366.18,198.27 366.63,198.28 367.08,198.34 367.53,198.45 367.99,198.61 368.43,198.82 368.86,199.08 369.29,199.39 369.69,199.74 370.08,200.12 370.45,200.55 370.79,201.01 371.10,201.50 371.39,202.02 371.64,202.56 371.86,203.13 372.04,203.70 372.19,204.29 372.30,204.88 372.37,205.48 372.40,206.07 372.39,206.65 372.34,207.22 372.26,207.78 372.13,208.31 371.97,208.82 371.77,209.30 371.54,209.75 371.27,210.17 370.97,210.54 370.65,210.88 370.29,211.16 369.92,211.41 369.52,211.60 369.11,211.75" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="322.33,258.06 321.89,258.04 321.46,257.96 321.03,257.83 320.61,257.66 320.21,257.44 319.82,257.17 319.45,256.85 319.10,256.50 318.77,256.11 318.48,255.68 318.21,255.21 317.97,254.72 317.77,254.21 317.60,253.67 317.47,253.11 317.38,252.54 317.32,251.96 317.30,251.38 317.32,250.80 317.38,250.22 317.47,249.65 317.60,249.10 317.77,248.56 317.97,248.04 318.21,247.55 318.48,247.09 318.77,246.66 319.10,246.27 319.45,245.91 319.82,245.60 320.21,245.33 320.61,245.11 321.03,244.93 321.46,244.81 321.89,244.73 322.33,244.70 322.77,244.73 323.21,244.81 323.63,244.93 324.05,245.11 324.46,245.33 324.85,245.60 325.22,245.91 325.57,246.27 325.89,246.66 326.19,247.09 326.45,247.55 326.69,248.04 326.89,248.56 327.06,249.10 327.19,249.65 327.29,250.22 327.34,250.80 327.36,251.38 327.34,251.96 327.29,252.54 327.19,253.11 327.06,253.67 326.89,254.21 326.69,254.72 326.45,255.21 326.19,255.68 325.89,256.11 325.57,256.50 325.22,256.85 324.85,257.17 324.46,257.44 324.05,257.66 323.63,257.83 323.21,257.96 322.77,258.04 322.33,258.06" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="42.41,467.22 42.16,467.38 41.88,467.52 41.59,467.63 41.28,467.70 40.96,467.75 40.64,467.76 40.31,467.74 39.97,467.69 39.64,467.61 39.30,467.50 38.97,467.36 38.65,467.19 38.33,466.99 38.03,466.77 37.74,466.53 37.47,466.26 37.21,465.97 36.98,465.66 36.77,465.34 36.58,465.01 36.41,464.66 36.27,464.31 36.16,463.95 36.08,463.59 36.03,463.23 36.00,462.87 36.00,462.52 36.04,462.17 36.10,461.84 36.19,461.52 36.31,461.22 36.45,460.93 36.62,460.67 36.82,460.43 37.04,460.21 37.28,460.02 37.54,459.85 37.82,459.72 38.11,459.61 38.41,459.53 38.73,459.49 39.06,459.48 39.39,459.50 39.72,459.55 40.06,459.63 40.39,459.74 40.72,459.88 41.05,460.05 41.36,460.24 41.66,460.47 41.95,460.71 42.23,460.98 42.48,461.27 42.71,461.57 42.93,461.90 43.12,462.23 43.28,462.58 43.42,462.93 43.53,463.29 43.61,463.65 43.67,464.01 43.69,464.37 43.69,464.72 43.66,465.06 43.60,465.40 43.50,465.72 43.39,466.02 43.24,466.30 43.07,466.57 42.87,466.81 42.66,467.03 42.41,467.22" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="602.72,461.14 602.96,461.33 603.18,461.55 603.38,461.79 603.55,462.06 603.69,462.34 603.81,462.65 603.90,462.96 603.96,463.30 604.00,463.64 604.00,463.99 603.97,464.35 603.92,464.71 603.84,465.07 603.73,465.43 603.59,465.78 603.42,466.13 603.23,466.46 603.02,466.79 602.79,467.09 602.53,467.38 602.26,467.65 601.97,467.89 601.67,468.12 601.35,468.31 601.03,468.48 600.70,468.62 600.36,468.73 600.03,468.82 599.69,468.86 599.36,468.88 599.04,468.87 598.72,468.83 598.41,468.75 598.12,468.64 597.84,468.51 597.59,468.34 597.34,468.15 597.13,467.93 596.93,467.69 596.76,467.43 596.61,467.14 596.50,466.84 596.40,466.52 596.34,466.19 596.31,465.84 596.31,465.49 596.33,465.13 596.39,464.77 596.47,464.41 596.58,464.05 596.72,463.70 596.88,463.35 597.07,463.02 597.29,462.70 597.52,462.39 597.77,462.10 598.05,461.84 598.34,461.59 598.64,461.37 598.95,461.17 599.28,461.00 599.61,460.86 599.94,460.75 600.28,460.67 600.61,460.62 600.94,460.60 601.27,460.61 601.59,460.66 601.89,460.73 602.18,460.84 602.46,460.98 602.72,461.14" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="601.98,43.74 601.72,43.91 601.44,44.04 601.15,44.15 600.84,44.22 600.53,44.27 600.20,44.28 599.87,44.26 599.54,44.21 599.20,44.13 598.87,44.02 598.54,43.88 598.21,43.71 597.90,43.52 597.59,43.29 597.31,43.05 597.03,42.78 596.78,42.49 596.54,42.19 596.33,41.86 596.14,41.53 595.98,41.18 595.84,40.83 595.73,40.47 595.64,40.11 595.59,39.75 595.56,39.39 595.57,39.04 595.60,38.70 595.66,38.36 595.75,38.04 595.87,37.74 596.02,37.46 596.19,37.19 596.38,36.95 596.60,36.73 596.84,36.54 597.10,36.38 597.38,36.24 597.67,36.13 597.98,36.06 598.30,36.01 598.62,36.00 598.95,36.02 599.29,36.07 599.62,36.15 599.96,36.26 600.29,36.40 600.61,36.57 600.92,36.77 601.23,36.99 601.52,37.23 601.79,37.50 602.04,37.79 602.28,38.10 602.49,38.42 602.68,38.75 602.85,39.10 602.98,39.45 603.10,39.81 603.18,40.17 603.23,40.53 603.26,40.89 603.25,41.24 603.22,41.59 603.16,41.92 603.07,42.24 602.95,42.54 602.80,42.83 602.63,43.09 602.44,43.33 602.22,43.55 601.98,43.74" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<polygon points="44.60,38.74 44.84,38.93 45.06,39.15 45.26,39.39 45.43,39.66 45.57,39.94 45.69,40.25 45.78,40.56 45.84,40.90 45.88,41.24 45.88,41.59 45.85,41.95 45.80,42.31 45.72,42.67 45.61,43.03 45.47,43.39 45.30,43.73 45.11,44.07 44.90,44.39 44.67,44.69 44.41,44.98 44.14,45.25 43.85,45.50 43.55,45.72 43.23,45.91 42.91,46.08 42.58,46.22 42.24,46.33 41.91,46.42 41.57,46.47 41.24,46.48 40.92,46.47 40.60,46.43 40.29,46.35 40.00,46.24 39.72,46.11 39.47,45.94 39.22,45.75 39.01,45.53 38.81,45.29 38.64,45.03 38.49,44.74 38.38,44.44 38.28,44.12 38.22,43.79 38.19,43.44 38.19,43.09 38.21,42.73 38.27,42.37 38.35,42.01 38.46,41.65 38.60,41.30 38.76,40.95 38.95,40.62 39.17,40.30 39.40,39.99 39.65,39.70 39.93,39.44 40.22,39.19 40.52,38.97 40.83,38.77 41.16,38.60 41.49,38.46 41.82,38.35 42.16,38.27 42.49,38.22 42.82,38.20 43.15,38.21 43.46,38.26 43.77,38.33 44.06,38.44 44.34,38.58 44.60,38.74" fill="#787878" fill-opacity="0.12" stroke="#787878" stroke-width="1"/>
+<line x1="273.64" y1="299.43" x2="276.15" y2="302.24" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="276.15,302.24 273.44,301.03 275.25,299.41" fill="#787878"/>
+<line x1="367.08" y1="299.43" x2="387.30" y2="314.59" stroke="#0072b2" stroke-width="2" stroke-linecap="round"/>
+<polygon points="387.30,314.59 375.53,311.95 381.47,304.03" fill="#0072b2"/>
+<line x1="273.64" y1="205.99" x2="276.09" y2="209.90" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="276.09,209.90 273.31,208.05 275.63,206.59" fill="#787878"/>
+<line x1="367.08" y1="205.99" x2="367.21" y2="205.08" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="320.36" y1="252.71" x2="322.33" y2="251.38" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="322.33,251.38 321.09,253.39 320.01,251.78" fill="#787878"/>
+<line x1="40.03" y1="462.96" x2="39.85" y2="463.62" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="600.69" y1="462.96" x2="600.15" y2="464.74" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="600.15,464.74 599.88,462.63 601.56,463.14" fill="#787878"/>
+<line x1="600.70" y1="42.46" x2="599.41" y2="40.14" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="599.41,40.14 601.40,41.63 599.62,42.61" fill="#787878"/>
+<line x1="40.03" y1="42.46" x2="42.03" y2="42.34" stroke="#787878" stroke-width="1.2" stroke-linecap="round"/>
+<polygon points="42.03,42.34 40.08,43.36 39.98,41.56" fill="#787878"/>
+<circle cx="273.64" cy="299.43" r="3.5" fill="#ffffff" stroke="#333333"/>
+<text x="280.64" y="293.43" font-size="11" font-family="sans-serif">O1</text>
+<circle cx="367.08" cy="299.43" r="3.5" fill="#ffffff" stroke="#333333"/>
+<text x="374.08" y="293.43" font-size="11" font-family="sans-serif">O2</text>
+<circle cx="273.64" cy="205.99" r="3.5" fill="#ffffff" stroke="#333333"/>
+<text x="280.64" y="199.99" font-size="11" font-family="sans-serif">O3</text>
+<circle cx="367.08" cy="205.99" r="3.5" fill="#ffffff" stroke="#333333"/>
+<text x="374.08" y="199.99" font-size="11" font-family="sans-serif">O4</text>
+<circle cx="320.36" cy="252.71" r="3.5" fill="#ffffff" stroke="#333333"/>
+<text x="327.36" y="246.71" font-size="11" font-family="sans-serif">O5</text>
+<polygon points="40.03,456.96 34.53,466.96 45.53,466.96" fill="#333333"/>
+<text x="47.03" y="456.96" font-size="11" font-family="sans-serif">R1</text>
+<polygon points="600.69,456.96 595.19,466.96 606.19,466.96" fill="#333333"/>
+<text x="607.69" y="456.96" font-size="11" font-family="sans-serif">R2</text>
+<polygon points="600.70,36.46 595.20,46.46 606.20,46.46" fill="#333333"/>
+<text x="607.70" y="36.46" font-size="11" font-family="sans-serif">R3</text>
+<polygon points="40.03,36.46 34.53,46.46 45.53,46.46" fill="#333333"/>
+<text x="47.03" y="36.46" font-size="11" font-family="sans-serif">R4</text>
+<line x1="36.00" y1="518.88" x2="129.44" y2="518.88" stroke="#000000" stroke-width="2"/>
+<text x="36.00" y="532.88" font-size="11" font-family="sans-serif">200 m</text>
+<line x1="176.00" y1="512.88" x2="192.00" y2="512.88" stroke="#d55e00" stroke-width="2.5"/><text x="196.00" y="516.88" font-size="11" font-family="sans-serif">alert</text>
+<line x1="243.00" y1="512.88" x2="259.00" y2="512.88" stroke="#0072b2" stroke-width="2.5"/><text x="263.00" y="516.88" font-size="11" font-family="sans-serif">significant</text>
+<line x1="352.00" y1="512.88" x2="368.00" y2="512.88" stroke="#787878" stroke-width="2.5"/><text x="372.00" y="516.88" font-size="11" font-family="sans-serif">not significant</text>
+<text x="176.00" y="534.88" font-size="11" font-family="sans-serif">&#9650; reference   &#9675; object   arrows and ellipses exaggerated 5000x; ellipses at 95% confidence</text>
+</svg></div>
+
+<h2>Deformation</h2><div class="note">Strain was not requested.</div>
+
+<h2>Alerts</h2><div class="note">No alert thresholds were set for this analysis.</div>
+
+
+
+
+
+<h2>Software</h2><table>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+<tr>
+<td>GeoComp</td>
+<td>0.1.0</td>
+</tr>
+<tr>
+<td>QGIS</td>
+<td>3.44.7-Solothurn</td>
+</tr>
+<tr>
+<td>Report template</td>
+<td>shipped with GeoComp</td>
+</tr>
+</table>
+
+</body>
+</html>

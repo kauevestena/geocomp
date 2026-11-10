@@ -1,0 +1,9 @@
+{
+  "engine": "dynadjust",
+  "version": "1.4.0",
+  "platform": "linux-x86_64",
+  "url": "https://local.geocomp.test/dynadjust.zip",
+  "sha256": "f04eb872e93e8717e165c7c551fb354ad7048d97e31764cf07391b874a2274ff",
+  "directory": "1.4.0/bin",
+  "installed": "2026-11-04T20:47:16+00:00"
+}

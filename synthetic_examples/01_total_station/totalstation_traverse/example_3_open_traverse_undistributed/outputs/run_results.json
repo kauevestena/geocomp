@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "ANGULAR_MISCLOSURE": "nan",
+    "LINEAR_MISCLOSURE": "nan",
+    "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/coordinates.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/stations.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/report.html",
+    "RELATIVE_PRECISION": "nan",
+    "WITHIN_TOLERANCE": "False"
+  },
+  "info_lines": 2,
+  "warning_lines": 1
+}

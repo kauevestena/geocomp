@@ -1,0 +1,48 @@
+{
+  "kind": "levelling_reductions",
+  "level_id": "rd04-level",
+  "lines": [
+    {
+      "accumulated_imbalance": 60.0,
+      "collimation": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -0.003,
+        "variance": 3.6000000000000005e-07
+      },
+      "from_station": "BM1",
+      "height_difference": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 3.7590000000000003,
+        "variance": 1.86e-06
+      },
+      "length_km": 0.18,
+      "line_id": "line",
+      "raw_height_difference": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "METRE",
+        "value": 3.7620000000000005,
+        "variance": 1.5e-06
+      },
+      "records": [
+        "rows 2-7"
+      ],
+      "setup_count": 3,
+      "setup_ids": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "side_shots": [],
+      "to_station": "BM2"
+    }
+  ],
+  "source": "lev_imbalanced.csv"
+}

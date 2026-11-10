@@ -1,0 +1,26 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Package an engine problem",
+  "algorithm_id": "geocomp:project_package_engine_problem",
+  "algorithm_title": "Package an engine problem",
+  "example_index": 1,
+  "slug": "example_1_dynadjust_failed_import",
+  "title": "Package a failed DynAdjust dnaimport working directory into a bug-report ZIP",
+  "scenario": "Bundles DynaML inputs, command log, stderr output, and README with upstream issue tracker URL.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_1_dynadjust_failed_import/inputs/dynadjust_work_dir",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_1_dynadjust_failed_import/outputs/dynadjust_problem_bundle.zip"
+  },
+  "expected_summary": "Creates dynadjust_problem_bundle.zip with ENGINE='DynAdjust' and README instructions.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ENGINE": "DynAdjust",
+      "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_1_dynadjust_failed_import/outputs/dynadjust_problem_bundle.zip"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

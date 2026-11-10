@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Inspect network",
+  "algorithm_id": "geocomp:analysis_network_inspect",
+  "algorithm_title": "Inspect network",
+  "example_index": 3,
+  "slug": "example_3_3d_geodetic_network",
+  "title": "Inspection of a 3D geodetic network (FRAME=2)",
+  "scenario": "Audits 3D station connectivity and observation redundancy.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/inputs/geodetic_3d.json",
+    "FRAME": 2,
+    "FAIL_ON_BLOCKING": false,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/findings.csv"
+  },
+  "expected_summary": "Writes 3D topology inspection report and findings table.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "1",
+      "CAN_ADJUST": "False",
+      "COMPONENT_COUNT": "5",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/report.html",
+      "WARNING_COUNT": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

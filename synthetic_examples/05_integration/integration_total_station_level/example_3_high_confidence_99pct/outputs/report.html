@@ -1,0 +1,616 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Adjustment report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style>
+</head>
+<body>
+
+<h1>Adjustment report</h1>
+
+<h2>Identification</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Solution</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Kind</td>
+<td>adjustment</td>
+</tr>
+<tr>
+<td>Coordinate reference system</td>
+<td>EPSG:31982</td>
+</tr>
+<tr>
+<td>Epoch</td>
+<td>2026.7000</td>
+</tr>
+<tr>
+<td>Datum definition</td>
+<td>fixed stations</td>
+</tr>
+</table>
+
+<div class="note"><b>Uncertainty</b>: Every uncertainty in this report was propagated rigorously: no approximate strategy was used at any step.</div>
+
+<h2>Inputs</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Stations</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Constrained stations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Active observations</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Observations set aside</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Correlated clusters</td>
+<td>0</td>
+</tr>
+</table><h3>Observations by type</h3><table>
+<tr>
+<th>Observation type</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>height_difference</td>
+<td>3</td>
+</tr>
+<tr>
+<td>slope_distance</td>
+<td>6</td>
+</tr>
+<tr>
+<td>zenith_angle</td>
+<td>6</td>
+</tr>
+</table><h3>Constraints</h3><table>
+<tr>
+<th>Station</th>
+<th>Constraint</th>
+<th>Components</th>
+</tr>
+<tr>
+<td>P1</td>
+<td>fixed</td>
+<td>easting, northing, up</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>fixed</td>
+<td>easting, northing</td>
+</tr>
+</table>
+
+<h2>Parameters</h2><table>
+<tr>
+<th>Setting</th>
+<th>Effective value</th>
+<th>From</th>
+</tr>
+<tr>
+<td>integration.confidence</td>
+<td>0.99</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.engine_requested</td>
+<td>in_house</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.epoch</td>
+<td>2026.7000</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.frame</td>
+<td>EPSG:31982</td>
+<td>this run</td>
+</tr>
+</table><div class="note"><b>Where each value came from</b>: The scope column is what makes a run reproducible: the same value reached from a project override and from the built-in default are different statements to somebody repeating the work.</div>
+
+<h2>Adjusted coordinates</h2><table>
+<tr>
+<th>Station</th>
+<th>easting</th>
+<th>northing</th>
+<th>up</th>
+<th>sigma easting (mm)</th>
+<th>sigma northing (mm)</th>
+<th>sigma up (mm)</th>
+<th>Positional uncertainty (mm)</th>
+</tr>
+<tr>
+<td>P2</td>
+<td>675820.0000</td>
+<td>7185140.0000</td>
+<td>925.3079</td>
+<td>0.00</td>
+<td>0.00</td>
+<td>5.65</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>675380.0015</td>
+<td>7185759.9997</td>
+<td>904.2258</td>
+<td>2.37</td>
+<td>1.69</td>
+<td>0.66</td>
+<td>9.93</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>675960.0010</td>
+<td>7185639.9982</td>
+<td>931.8721</td>
+<td>2.32</td>
+<td>2.19</td>
+<td>0.66</td>
+<td>11.69</td>
+</tr>
+</table>
+
+<h2>Statistics</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Constraints</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Variance factor a priori</td>
+<td>1.000000</td>
+</tr>
+<tr>
+<td>Variance factor a posteriori</td>
+<td>1.036023</td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Converged</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Largest correction</td>
+<td>0.000031</td>
+</tr>
+<tr>
+<td>Condition number</td>
+<td>145.967</td>
+</tr>
+</table><table>
+<tr>
+<th>Test</th>
+<th>Statistic</th>
+<th>Lower critical</th>
+<th>Upper critical</th>
+<th>Confidence</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>global test</td>
+<td>8.28818</td>
+<td>1.34441</td>
+<td>21.95495</td>
+<td>0.990</td>
+<td><span class="pass">passed</span></td>
+</tr>
+</table>
+
+<h2>Techniques</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Inputs</td>
+<td>total-station, levelling</td>
+</tr>
+<tr>
+<td>Techniques</td>
+<td>Total station, Levelling</td>
+</tr>
+<tr>
+<td>Frame</td>
+<td>EPSG:31982</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>GeoComp in-house core</td>
+</tr>
+<tr>
+<td>Why this engine</td>
+<td>requested</td>
+</tr>
+</table><table>
+<tr>
+<th>Technique</th>
+<th>Observations</th>
+<th>Rows</th>
+<th>Redundancy</th>
+<th>Share</th>
+<th>vᵀPv</th>
+<th>vᵀPv / r</th>
+<th>Largest |w|</th>
+<th>Uncheckable</th>
+</tr>
+<tr>
+<td>Total station</td>
+<td>12</td>
+<td>12</td>
+<td>6.99</td>
+<td>87.3&nbsp;%</td>
+<td>8.259</td>
+<td>1.182</td>
+<td>1.67</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Levelling</td>
+<td>3</td>
+<td>3</td>
+<td>1.01</td>
+<td>12.7&nbsp;%</td>
+<td>0.029</td>
+<td>0.029</td>
+<td>0.22</td>
+<td>0</td>
+</tr>
+</table><div class="note"><b>Per-technique breakdown</b>: The redundancy each technique carries, and its own part of the weighted squares. The parts add up to the whole. A technique&#x27;s vᵀPv / r is a quick reading of how its weights fit, not its variance component: that is estimated below when it was asked for.</div>
+
+<h2>Observation results</h2><table>
+<tr>
+<th>Row</th>
+<th>Observation</th>
+<th>Residual</th>
+<th>Standardised</th>
+<th>Redundancy</th>
+<th>MDB</th>
+<th>External effect</th>
+<th>w-test</th>
+</tr>
+<tr>
+<td>0</td>
+<td>s-P1-P2</td>
+<td>0.001884</td>
+<td>0.926</td>
+<td>0.9980</td>
+<td>0.008272</td>
+<td>0.001020</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>1</td>
+<td>z-P1-P2</td>
+<td>-0.000021</td>
+<td>1.581</td>
+<td>0.7896</td>
+<td>0.000068</td>
+<td>0.011843</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>s-P1-P3</td>
+<td>-0.000010</td>
+<td>0.017</td>
+<td>0.0939</td>
+<td>0.026969</td>
+<td>0.028850</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>z-P1-P3</td>
+<td>0.000024</td>
+<td>1.640</td>
+<td>0.9972</td>
+<td>0.000060</td>
+<td>0.000175</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>s-P1-P4</td>
+<td>0.000026</td>
+<td>0.021</td>
+<td>0.3692</td>
+<td>0.013602</td>
+<td>0.011444</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>z-P1-P4</td>
+<td>0.000015</td>
+<td>1.019</td>
+<td>0.9985</td>
+<td>0.000060</td>
+<td>0.000136</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td>s-P2-P3</td>
+<td>0.000024</td>
+<td>0.027</td>
+<td>0.1890</td>
+<td>0.019010</td>
+<td>0.020522</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>7</td>
+<td>z-P2-P3</td>
+<td>0.000003</td>
+<td>0.264</td>
+<td>0.7482</td>
+<td>0.000069</td>
+<td>0.013218</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>8</td>
+<td>s-P2-P4</td>
+<td>-0.000014</td>
+<td>0.016</td>
+<td>0.1878</td>
+<td>0.019071</td>
+<td>0.019580</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>9</td>
+<td>z-P2-P4</td>
+<td>-0.000016</td>
+<td>1.603</td>
+<td>0.4623</td>
+<td>0.000088</td>
+<td>0.024573</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>10</td>
+<td>s-P3-P4</td>
+<td>-0.000029</td>
+<td>0.036</td>
+<td>0.1579</td>
+<td>0.020798</td>
+<td>0.013838</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>11</td>
+<td>z-P3-P4</td>
+<td>0.000006</td>
+<td>0.429</td>
+<td>0.9942</td>
+<td>0.000060</td>
+<td>0.000161</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>12</td>
+<td>l-P1-P3</td>
+<td>-0.000036</td>
+<td>0.076</td>
+<td>0.3375</td>
+<td>0.005691</td>
+<td>0.004651</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>13</td>
+<td>l-P3-P4</td>
+<td>-0.000103</td>
+<td>0.218</td>
+<td>0.3395</td>
+<td>0.005674</td>
+<td>0.002707</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>14</td>
+<td>l-P4-P1</td>
+<td>-0.000081</td>
+<td>0.172</td>
+<td>0.3372</td>
+<td>0.005692</td>
+<td>0.004907</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+</table>
+
+<h2>Reliability</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Outlier candidates</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Uncheckable observations</td>
+<td>0</td>
+</tr>
+</table><div class="note"><b>Uncheckable observations</b>: Every observation in this adjustment is checkable.</div>
+
+<h2>Error ellipses</h2><table>
+<tr>
+<th>Station</th>
+<th>Semi-major (mm)</th>
+<th>Semi-minor (mm)</th>
+<th>Orientation</th>
+<th>Confidence</th>
+</tr>
+<tr>
+<td>P3</td>
+<td>9.927</td>
+<td>6.943</td>
+<td>81° 19' 44.2"</td>
+<td>0.990</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>11.693</td>
+<td>6.258</td>
+<td>131° 51' 41.7"</td>
+<td>0.990</td>
+</tr>
+</table>
+
+<h2>Provenance</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-11-04T20:47:13.871826+00:00</td>
+</tr>
+<tr>
+<td>Algorithm</td>
+<td>geocomp:integration_total_station_level</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>in_house</td>
+</tr>
+<tr>
+<td>Engine version</td>
+<td>—</td>
+</tr>
+</table><table>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>adjustment_frame</td>
+<td>space_3d</td>
+</tr>
+<tr>
+<td>combination</td>
+<td>{&#x27;inputs&#x27;: [&#x27;total-station&#x27;, &#x27;levelling&#x27;], &#x27;frame&#x27;: &#x27;EPSG:31982&#x27;, &#x27;geocentric&#x27;: False, &#x27;epoch&#x27;: 2026.7, &#x27;techniques&#x27;: [&#x27;total_station&#x27;, &#x27;levelling&#x27;], &#x27;transformations&#x27;: [], &#x27;renamed&#x27;: {}}</td>
+</tr>
+<tr>
+<td>datum</td>
+<td>fixed</td>
+</tr>
+<tr>
+<td>fixed</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>geoid_model</td>
+<td>None</td>
+</tr>
+<tr>
+<td>geoid_residuals</td>
+<td>[]</td>
+</tr>
+<tr>
+<td>routing</td>
+<td>{&#x27;engine&#x27;: &#x27;in_house&#x27;, &#x27;reason&#x27;: &#x27;requested&#x27;}</td>
+</tr>
+<tr>
+<td>solver</td>
+<td>dense</td>
+</tr>
+<tr>
+<td>technique_breakdown</td>
+<td>[{&#x27;technique&#x27;: &#x27;total_station&#x27;, &#x27;rows&#x27;: 12, &#x27;observations&#x27;: 12, &#x27;redundancy&#x27;: 6.985842959933862, &#x27;redundancy_share&#x27;: 0.8732303699917328, &#x27;weighted_squares&#x27;: 8.25905412414613, &#x27;variance_factor&#x27;: 1.1822559097756076, &#x27;largest_standardised&#x27;: 1.6689161824214729, &#x27;uncheckable&#x27;: []}, {&#x27;technique&#x27;: &#x27;levelling&#x27;, &#x27;rows&#x27;: 3, &#x27;observations&#x27;: 3, &#x27;redundancy&#x27;: 1.0141570400661397, &#x27;redundancy_share&#x27;: 0.12676963000826746, &#x27;weighted_squares&#x27;: 0.02912998006505429, &#x27;variance_factor&#x27;: 0.02872334255368827, &#x27;largest_standardised&#x27;: 0.22196125363035266, &#x27;uncheckable&#x27;: []}]</td>
+</tr>
+<tr>
+<td>variance_components</td>
+<td>None</td>
+</tr>
+</table><table>
+<tr>
+<th>Input</th>
+<th>Digest</th>
+</tr>
+<tr>
+<td>levelling</td>
+<td><code>—</code></td>
+</tr>
+<tr>
+<td>total-station</td>
+<td><code>—</code></td>
+</tr>
+</table><div class="note"><b>Inputs</b>: Inputs are recorded by id and by content digest. The digest is what turns &amp;quot;reproduce this&amp;quot; into something checkable: the same id with different content is a different run.</div>
+
+<h2>Software</h2><table>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+<tr>
+<td>GeoComp</td>
+<td>0.1.0</td>
+</tr>
+<tr>
+<td>QGIS</td>
+<td>3.44.7-Solothurn</td>
+</tr>
+<tr>
+<td>Uncertainty mode</td>
+<td>rigorous</td>
+</tr>
+<tr>
+<td>Report template</td>
+<td>shipped with GeoComp</td>
+</tr>
+</table>
+
+</body>
+</html>

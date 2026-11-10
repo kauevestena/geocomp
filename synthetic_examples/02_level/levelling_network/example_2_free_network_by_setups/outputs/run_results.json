@@ -1,0 +1,16 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "1",
+    "GLOBAL_TEST_PASSED": "False",
+    "OUTLIER_COUNT": "0",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/heights.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/network.json",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/solution.json",
+    "VARIANCE_FACTOR_APOSTERIORI": "5.715359999999681",
+    "WORST_HEIGHT_UNCERTAINTY": "0.0010984425337722187"
+  },
+  "info_lines": 4,
+  "warning_lines": 2
+}

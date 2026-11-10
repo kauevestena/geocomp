@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "LAYER": "OpenTopoMap_e649a162_4e40_46d3_b1d5_4600574bd9fa",
+    "OUTCOME": "added",
+    "SERVICE": "opentopomap"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

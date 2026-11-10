@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Import levelling field book",
+  "algorithm_id": "geocomp:levelling_import",
+  "algorithm_title": "Import levelling field book",
+  "example_index": 1,
+  "slug": "example_1_balanced_line",
+  "title": "Balanced 3-setup differential levelling line (RD-04) with level profile",
+  "scenario": "Imports 3 setups along a single levelling line using mapping.json and profiles.json.",
+  "parameters": {
+    "BOOK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/inputs/book.csv",
+    "MAPPING": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/inputs/mapping.json",
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/inputs/profiles.json",
+    "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/outputs/setups.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/outputs/report.html"
+  },
+  "expected_summary": "Imports 3 setups and 1 line with 0 rejected rows.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "LINE_COUNT": "1",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/outputs/report.html",
+      "OUTPUT_SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_import/example_1_balanced_line/outputs/setups.json",
+      "REJECTED_ROWS": "0",
+      "SETUP_COUNT": "3",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

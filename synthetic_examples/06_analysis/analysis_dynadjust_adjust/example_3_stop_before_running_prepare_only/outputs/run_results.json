@@ -1,0 +1,16 @@
+{
+  "status": "verified",
+  "results": {
+    "ADJUSTMENT_MODE": "simult",
+    "CONVERGED": "None",
+    "DEGREES_OF_FREEDOM": "None",
+    "ENGINE_VERSION": "",
+    "GLOBAL_TEST_PASSED": "None",
+    "ITERATIONS": "None",
+    "OUTPUT_SOLUTION": "None",
+    "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_3_stop_before_running_prepare_only/outputs/prepared_job",
+    "VARIANCE_FACTOR_APOSTERIORI": "None"
+  },
+  "info_lines": 5,
+  "warning_lines": 0
+}

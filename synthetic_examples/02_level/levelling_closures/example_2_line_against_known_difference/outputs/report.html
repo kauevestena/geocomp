@@ -1,0 +1,84 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Levelling: closures</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Levelling: closures</h1>
+<h2>Closure</h2>
+<table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Kind</td>
+<td>line between benchmarks</td>
+</tr>
+<tr>
+<td>Misclosure (mm)</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>Permissible (mm)</td>
+<td>3.39</td>
+</tr>
+<tr>
+<td>Verdict</td>
+<td>within tolerance</td>
+</tr>
+<tr>
+<td>Length (km)</td>
+<td>0.1800</td>
+</tr>
+<tr>
+<td>Setups</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Misclosure over its own uncertainty</td>
+<td>0.32</td>
+</tr>
+</table>
+<div class="note"><b>Distribution</b>: The misclosure is consistent with the readings&#x27; own precision, which is the case proportional distribution is correct for.</div>
+<h2>Distribution across setups</h2>
+<table>
+<tr>
+<th>Setup</th>
+<th>Share</th>
+<th>Correction (mm)</th>
+<th>Correction over the setup&#x27;s own uncertainty</th>
+</tr>
+<tr>
+<td>S1</td>
+<td>0.3333</td>
+<td>-0.133</td>
+<td>—</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>0.3333</td>
+<td>-0.133</td>
+<td>—</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>0.3333</td>
+<td>-0.133</td>
+<td>—</td>
+</tr>
+</table>
+<h2>Findings</h2>
+<table>
+<tr>
+<th>Severity</th>
+<th>Code</th>
+<th>Finding</th>
+<th>Involves</th>
+</tr>
+<tr>
+<td>Information</td>
+<td><code>closure_consistent_with_its_precision</code></td>
+<td>line misclosed by +0.4 mm, 0.3 times its own propagated standard deviation. That is consistent with accumulated random error, which is the case proportional distribution is correct for.</td>
+<td>—</td>
+</tr>
+</table>
+</body></html>

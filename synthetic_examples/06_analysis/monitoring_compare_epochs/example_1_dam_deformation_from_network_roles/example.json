@@ -1,0 +1,38 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Compare two epochs",
+  "algorithm_id": "geocomp:monitoring_compare_epochs",
+  "algorithm_title": "Compare two epochs",
+  "example_index": 1,
+  "slug": "example_1_dam_deformation_from_network_roles",
+  "title": "Two-epoch dam deformation analysis (Epoch 1 vs Epoch 2) using network monitoring roles",
+  "scenario": "Tests congruence of reference pillars (R1..R4) and detects 10 mm displacement on crest O2.",
+  "parameters": {
+    "FIRST": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/inputs/epoch_1.json",
+    "SECOND": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/inputs/epoch_2.json",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/inputs/monitoring_network.json",
+    "DATUM": 0,
+    "CONFIDENCE": 0.95,
+    "STRAIN": true,
+    "OUTPUT_ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/outputs/analysis.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Confirms reference block stability and flags statistically significant motion at O2.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ALERT_COUNT": "0",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTPUT_ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/outputs/analysis.json",
+      "OUTPUT_DISPLACEMENT_ELLIPSE_LAYER": "None",
+      "OUTPUT_DISPLACEMENT_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_1_dam_deformation_from_network_roles/outputs/monitoring_report.html",
+      "REFERENCE_STABLE": "True",
+      "SIGNIFICANT_COUNT": "1"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

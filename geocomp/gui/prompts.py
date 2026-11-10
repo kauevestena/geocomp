@@ -123,20 +123,31 @@ def _interactive_preanalysis(
     if canvas is None:
         return {}
 
-    from geocomp.gui.preanalysis_dialog import PreAnalysisDialog
+    from geocomp.gui.preanalysis_dialog import PreAnalysisDialog, write_network_geojson
 
     dialog = PreAnalysisDialog(canvas, parent=parent)
     if dialog.exec() != QDialog.DialogCode.Accepted:
         return None
 
-    handle = tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", prefix="geocomp-design-", delete=False, encoding="utf-8"
-    )
-    with handle:
-        json.dump(dialog.network().to_dict(), handle, indent=2, sort_keys=True)
-        handle.write("\n")
+    if dialog.exported_geojson_path is not None:
+        geojson_path = write_network_geojson(dialog.session, path=dialog.exported_geojson_path)
+        for layer in dialog.exported_layers:
+            if layer is not None and layer.isValid():
+                layer.dataProvider().reloadData()
+                layer.triggerRepaint()
+    else:
+        handle = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".geojson", prefix="geocomp-design-", delete=False, encoding="utf-8"
+        )
+        handle.close()
+        geojson_path = write_network_geojson(dialog.session, path=Path(handle.name))
 
-    return {"NETWORK": str(Path(handle.name))}
+    parameters: dict[str, Any] = {"NETWORK": str(geojson_path)}
+    if dialog.exported_geojson_path is not None:
+        parameters["OUTPUT_NETWORK_LAYER"] = str(dialog.exported_geojson_path)
+    if dialog.session.tolerance is not None:
+        parameters["TOLERANCE"] = dialog.session.tolerance
+    return parameters
 
 
 def _compatibility(parent: QWidget | None, _canvas: Any = None) -> dict[str, Any] | None:

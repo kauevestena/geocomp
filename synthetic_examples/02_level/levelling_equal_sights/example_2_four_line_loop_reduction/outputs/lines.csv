@@ -1,0 +1,4 @@
+line,from,to,setups,length_km,accumulated_imbalance_m,raw_height_difference_m,collimation_correction_m,height_difference_m,std_dev_m
+BM1-BM2,BM1,BM2,3,0.18,0.0,3.7488200000000003,,3.7488200000000003,0.001224744871391589
+BM2-BM4,BM2,BM4,5,0.5,0.0,2.7278000000000002,,2.7278000000000002,0.0015811388300841897
+BM4-BM1,BM4,BM1,2,0.08,0.0,-6.4804,,-6.4804,0.001

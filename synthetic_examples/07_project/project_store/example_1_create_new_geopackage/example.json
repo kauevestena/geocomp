@@ -1,0 +1,29 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Save to project store",
+  "algorithm_id": "geocomp:project_store",
+  "algorithm_title": "Save to project store",
+  "example_index": 1,
+  "slug": "example_1_create_new_geopackage",
+  "title": "Create a new GeoPackage project store containing Network + Epoch 1 Solution",
+  "scenario": "Initializes project_store.gpkg and writes network and solution tables.",
+  "parameters": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_1_create_new_geopackage/outputs/project_store.gpkg",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_1_create_new_geopackage/inputs/network.json",
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_1_create_new_geopackage/inputs/solution.json",
+    "PROJECT_ID": "curitiba_dam_monitoring",
+    "REPLACE": true
+  },
+  "expected_summary": "Creates project_store.gpkg with full relational schema, network, and solution.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_1_create_new_geopackage/outputs/project_store.gpkg",
+      "WRITTEN": "['network dam-1', 'solution dam-1']"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

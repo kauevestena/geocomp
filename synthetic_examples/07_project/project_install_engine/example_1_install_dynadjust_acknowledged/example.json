@@ -1,0 +1,26 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Install an engine",
+  "algorithm_id": "geocomp:project_install_engine",
+  "algorithm_title": "Install an engine",
+  "example_index": 1,
+  "slug": "example_1_install_dynadjust_acknowledged",
+  "title": "Download, verify SHA-256, and install DynAdjust with licence acknowledgement",
+  "scenario": "Installs DynAdjust binaries into the user's GeoComp engines directory after verifying SHA-256.",
+  "parameters": {
+    "ENGINE": 0,
+    "ACKNOWLEDGE_LICENCE": true
+  },
+  "expected_summary": "Verifies archive checksum, extracts DynAdjust binaries, and records installed version.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/managed_engines/dynadjust/1.4.0/bin",
+      "OUTPUT_VERSION": "1.4.0"
+    },
+    "info_lines": 4,
+    "warning_lines": 1
+  }
+}

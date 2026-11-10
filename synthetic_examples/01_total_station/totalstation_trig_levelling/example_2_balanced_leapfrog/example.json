@@ -1,0 +1,32 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Trigonometric levelling",
+  "algorithm_id": "geocomp:totalstation_trig_levelling",
+  "algorithm_title": "Trigonometric levelling",
+  "example_index": 2,
+  "slug": "example_2_balanced_leapfrog",
+  "title": "Balanced leap-frog trigonometric levelling from midpoint station L (A -> D)",
+  "scenario": "Station L stands midway between A and D so curvature and refraction cancel out.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/inputs/leapfrog_reductions.json",
+    "MODE": 1,
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/differences.csv"
+  },
+  "expected_summary": "Recovers exact height difference A -> D (+1.500 m) with 1 leap-frog pair.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/differences.csv",
+      "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/heights.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/report.html",
+      "RESULT_COUNT": "1",
+      "WORST_UNCERTAINTY": "0.0014961132248098587"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

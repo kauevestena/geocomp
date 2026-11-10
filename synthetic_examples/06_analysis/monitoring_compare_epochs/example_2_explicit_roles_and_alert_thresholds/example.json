@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Compare two epochs",
+  "algorithm_id": "geocomp:monitoring_compare_epochs",
+  "algorithm_title": "Compare two epochs",
+  "example_index": 2,
+  "slug": "example_2_explicit_roles_and_alert_thresholds",
+  "title": "Deformation analysis (Epoch 1 vs Epoch 3) with explicit station lists and alert thresholds CSV",
+  "scenario": "Evaluates 20 mm cumulative displacement at O2 against alert_thresholds.csv.",
+  "parameters": {
+    "FIRST": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/inputs/epoch_1.json",
+    "SECOND": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/inputs/epoch_3.json",
+    "REFERENCE": "R1,R2,R3,R4",
+    "OBJECTS": "O1,O2,O3,O4,O5",
+    "DATUM": 2,
+    "CONFIDENCE": 0.99,
+    "STRAIN": true,
+    "THRESHOLDS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/inputs/alert_thresholds.csv",
+    "OUTPUT_ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/outputs/analysis.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Flags threshold exceedance on O2 and writes analysis.json + HTML report.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ALERT_COUNT": "1",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTPUT_ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/outputs/analysis.json",
+      "OUTPUT_DISPLACEMENT_ELLIPSE_LAYER": "None",
+      "OUTPUT_DISPLACEMENT_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_compare_epochs/example_2_explicit_roles_and_alert_thresholds/outputs/monitoring_report.html",
+      "REFERENCE_STABLE": "True",
+      "SIGNIFICANT_COUNT": "1"
+    },
+    "info_lines": 2,
+    "warning_lines": 2
+  }
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Levelling: equal sights</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Levelling: equal sights</h1>
+<h2>Reduced lines</h2>
+<table>
+<tr>
+<th>Line</th>
+<th>From</th>
+<th>To</th>
+<th>Setups</th>
+<th>Length (km)</th>
+<th>Accumulated imbalance (m)</th>
+<th>Raw dH (m)</th>
+<th>Collimation (mm)</th>
+<th>dH (m)</th>
+<th>Uncertainty (mm)</th>
+</tr>
+<tr>
+<td>line</td>
+<td>BM1</td>
+<td>BM2</td>
+<td>3</td>
+<td>0.1800</td>
+<td>60.00</td>
+<td>3.76200</td>
+<td>-3.000</td>
+<td>3.75900</td>
+<td>1.364</td>
+</tr>
+</table>
+<div class="note"><b>Instrument</b>: Reduced with level profile &#x27;RD-04 reference level&#x27;. The collimation is carried once over each whole line, so a balanced line takes neither a correction nor an uncertainty from it.</div>
+<h2>Findings</h2>
+<table>
+<tr>
+<th>Severity</th>
+<th>Code</th>
+<th>Finding</th>
+<th>Involves</th>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_setup_imbalanced</code></td>
+<td>Setup S1 is out of balance by +20.00 m on the sight to T1, beyond the 2.00 m its class permits.</td>
+<td>T1</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_setup_imbalanced</code></td>
+<td>Setup S2 is out of balance by +20.00 m on the sight to T2, beyond the 2.00 m its class permits.</td>
+<td>T2</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>level_setup_imbalanced</code></td>
+<td>Setup S3 is out of balance by +20.00 m on the sight to BM2, beyond the 2.00 m its class permits.</td>
+<td>BM2</td>
+</tr>
+<tr>
+<td><span class="warning">Warning</span></td>
+<td><code>levelling_line_accumulated_imbalance</code></td>
+<td>The line line accumulated +60.00 m of sight imbalance, beyond the 5.00 m its class permits. It is the accumulated figure, not the per-setup one, that multiplies the collimation error over a line.</td>
+<td>BM1, BM2</td>
+</tr>
+</table>
+</body></html>

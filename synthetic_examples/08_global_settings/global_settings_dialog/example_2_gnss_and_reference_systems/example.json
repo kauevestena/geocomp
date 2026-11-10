@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "08_global_settings",
+  "menu_group_title": "Global Settings…",
+  "menu_path": "GeoComp ▸ Global Settings…",
+  "algorithm_id": "geocomp:global_settings_dialog",
+  "algorithm_title": "Global Settings…",
+  "example_index": 2,
+  "slug": "example_2_gnss_and_reference_systems",
+  "title": "SIRGAS 2000 / UTM 22S (EPSG:31982) reference system, geoid model, and GNSS product mirror",
+  "scenario": "Configures preferred CRS (EPSG:31982), epoch 2000.4, default geoid grid, and custom GNSS product download service JSON.",
+  "parameters": {
+    "reference_systems.preferred_crs": "EPSG:31982",
+    "reference_systems.default_epoch": 2000.4,
+    "reference_systems.geoid_model": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/curitiba_planar.asc",
+    "reference_systems.geoid_sigma": 0.05,
+    "gnss.elevation_mask": 15.0,
+    "gnss.service_definitions": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/custom_gnss_services.json",
+    "gnss.product_fallback": true
+  },
+  "expected_summary": "Persists reference system, geoid model path, and GNSS service definitions in Global Settings.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "applied_settings": {
+      "reference_systems.preferred_crs": "EPSG:31982",
+      "reference_systems.default_epoch": 2000.4,
+      "reference_systems.geoid_model": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/curitiba_planar.asc",
+      "reference_systems.geoid_sigma": 0.05,
+      "gnss.elevation_mask": 15.0,
+      "gnss.service_definitions": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_2_gnss_and_reference_systems/inputs/custom_gnss_services.json",
+      "gnss.product_fallback": true
+    }
+  }
+}

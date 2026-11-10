@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING_COUNT": "1",
+    "CAN_ADJUST": "False",
+    "COMPONENT_COUNT": "5",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/findings.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_3_3d_geodetic_network/outputs/report.html",
+    "WARNING_COUNT": "0"
+  },
+  "info_lines": 2,
+  "warning_lines": 1
+}

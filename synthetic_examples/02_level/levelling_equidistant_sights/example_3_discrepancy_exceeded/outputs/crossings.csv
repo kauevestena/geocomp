@@ -1,0 +1,2 @@
+from,to,forward_m,reverse_m,height_difference_m,discrepancy_m,std_dev_m,variance_inflation
+BM1,BM2,3.738,3.7619999999999996,3.75,-0.023999999999999577,0.0007071067811865475,2.0

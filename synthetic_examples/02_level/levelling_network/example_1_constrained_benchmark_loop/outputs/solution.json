@@ -1,0 +1,241 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.0,
+        0.0,
+        0.000895263157900672
+      ],
+      "covariance": {
+        "labels": [
+          "BM2.h"
+        ],
+        "matrix": [
+          [
+            2.582598614958305e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "LOCAL",
+        "epoch": {
+          "decimal_year": 2026.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 103.7497152631579,
+            "variance": 2.582598614958305e-06
+          }
+        ]
+      },
+      "station_id": "BM2"
+    },
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.00039789473684948007
+      ],
+      "covariance": {
+        "labels": [
+          "BM4.h"
+        ],
+        "matrix": [
+          [
+            1.345721883656435e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "LOCAL",
+        "epoch": {
+          "decimal_year": 2026.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 106.48000210526315,
+            "variance": 1.345721883656435e-06
+          }
+        ]
+      },
+      "station_id": "BM4"
+    }
+  ],
+  "crs": "LOCAL",
+  "datum_definition": "CONSTRAINED",
+  "epoch": {
+    "decimal_year": 2026.0
+  },
+  "id": "levelling-adjustment",
+  "kind": "ADJUSTMENT",
+  "network_id": "levelling",
+  "observation_results": [
+    {
+      "external_reliability": 0.0027751692515523797,
+      "minimal_detectable_bias": 0.0036023230798949758,
+      "observation_id": "BM1-BM2",
+      "redundancy": 0.23684210526315783,
+      "residual": 0.0008952631578947116,
+      "standardised_residual": 0.9999999999999998,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999998
+      }
+    },
+    {
+      "external_reliability": 0.0009336517834214155,
+      "minimal_detectable_bias": 0.003602323079894975,
+      "observation_id": "BM2-BM4",
+      "redundancy": 0.6578947368421054,
+      "residual": 0.002486842105263089,
+      "standardised_residual": 1.0,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0
+      }
+    },
+    {
+      "external_reliability": 0.0033341406292776133,
+      "minimal_detectable_bias": 0.0036023230798949792,
+      "observation_id": "BM4-BM1",
+      "redundancy": 0.10526315789473663,
+      "residual": 0.00039789473684209405,
+      "standardised_residual": 1.0000000000000004,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0000000000000004
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "BM2.h",
+      "BM4.h"
+    ],
+    "matrix": [
+      [
+        2.582598614958305e-06,
+        3.5622049861493846e-07
+      ],
+      [
+        3.5622049861493846e-07,
+        1.345721883656435e-06
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "units": [
+      "METRE",
+      "METRE"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:levelling_network",
+    "created": "2026-11-04T20:47:11.364817+00:00",
+    "geocomp_version": "0.1.0",
+    "parameters": {
+      "adjusted_despite_tolerance": [],
+      "closures_judged": 0,
+      "confidence": 0.95,
+      "datum": "constrained",
+      "epoch_origin": "assumed",
+      "frame": "height_1d",
+      "height_type": "orthometric",
+      "orthometric_correction": "none",
+      "solver": "dense",
+      "tolerance_coefficient": 0.0,
+      "weighting": "sigma = 0.001 m * sqrt(km)"
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "source": "geocomp:levelling_network",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 2.1414845038517387,
+    "converged": true,
+    "degrees_of_freedom": 1,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 5.023886187314888,
+      "critical_low": 0.0009820691171752583,
+      "name": "global",
+      "note": "variance factor too large. Possible causes: one or more blunders in the observations; an incorrect stochastic model: the a priori precisions are wrong; an incorrect functional model: the observation equations do not describe what was measured",
+      "passed": false,
+      "statistic": 18.800526315788424
+    },
+    "iterations": 2,
+    "max_correction": 4.721470176220283e-15,
+    "n_constraints": 0,
+    "n_observations": 3,
+    "n_parameters": 2,
+    "variance_factor_aposteriori": 18.800526315788424,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

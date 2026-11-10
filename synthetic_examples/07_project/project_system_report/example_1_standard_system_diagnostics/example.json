@@ -1,0 +1,24 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ GeoComp system report",
+  "algorithm_id": "geocomp:project_system_report",
+  "algorithm_title": "GeoComp system report",
+  "example_index": 1,
+  "slug": "example_1_standard_system_diagnostics",
+  "title": "Standard GeoComp environment, QGIS, PROJ, and engine diagnostic report",
+  "scenario": "Generates an HTML diagnostic report detailing QGIS version, PROJ data paths, settings, and engine availability.",
+  "parameters": {
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_system_report/example_1_standard_system_diagnostics/outputs/system_report.html"
+  },
+  "expected_summary": "Writes HTML system report with QGIS, Python, PROJ, and engine diagnostics.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/07_project/project_system_report/example_1_standard_system_diagnostics/outputs/system_report.html"
+    },
+    "info_lines": 6,
+    "warning_lines": 0
+  }
+}

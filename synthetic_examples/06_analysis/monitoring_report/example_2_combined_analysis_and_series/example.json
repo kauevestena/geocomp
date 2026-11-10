@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Monitoring report",
+  "algorithm_id": "geocomp:monitoring_report",
+  "algorithm_title": "Monitoring report",
+  "example_index": 2,
+  "slug": "example_2_combined_analysis_and_series",
+  "title": "Comprehensive monitoring report combining two-epoch analysis and multi-epoch time series",
+  "scenario": "Includes both pairwise epoch comparison and multi-year velocity trend charts in one report.",
+  "parameters": {
+    "ANALYSIS": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_2_combined_analysis_and_series/inputs/analysis.json",
+    "SERIES": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_2_combined_analysis_and_series/inputs/series.json",
+    "EXAGGERATION": 1000.0,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_2_combined_analysis_and_series/outputs/monitoring_report.html"
+  },
+  "expected_summary": "Renders combined pairwise + time-series monitoring report with 1000x map exaggeration.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OMITTED": "[]",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/monitoring_report/example_2_combined_analysis_and_series/outputs/monitoring_report.html"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

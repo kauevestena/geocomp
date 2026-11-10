@@ -1,0 +1,43 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Traverse",
+  "algorithm_id": "geocomp:totalstation_traverse",
+  "algorithm_title": "Traverse",
+  "example_index": 2,
+  "slug": "example_2_connected_transit_rule",
+  "title": "Connected traverse (A,B,C) closing onto known station C with Transit rule",
+  "scenario": "Traverses from A through B to known station C (1140, 2110) using Transit distribution.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/inputs/reductions.json",
+    "ROUTE": "A,B,C",
+    "BACKSIGHT": "D",
+    "START_EASTING": 1000.0,
+    "START_NORTHING": 1000.0,
+    "START_AZIMUTH": 333.434948822922,
+    "CLOSE_EASTING": 1230.0,
+    "CLOSE_NORTHING": 940.0,
+    "CLOSE_AZIMUTH": 150.25511870305778,
+    "KIND": 1,
+    "METHOD": 1,
+    "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/coordinates.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/stations.csv"
+  },
+  "expected_summary": "Recovers B and C along the connected traverse using the Transit rule.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ANGULAR_MISCLOSURE": "2.5444437451708134e-14",
+      "LINEAR_MISCLOSURE": "0.0",
+      "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/coordinates.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/stations.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_2_connected_transit_rule/outputs/report.html",
+      "RELATIVE_PRECISION": "inf",
+      "WITHIN_TOLERANCE": "True"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

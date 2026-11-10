@@ -1,0 +1,22 @@
+{
+  "instruments": [],
+  "reflectors": [],
+  "levels": [],
+  "levelling_classes": [],
+  "gravimeters": [
+    {
+      "id": "CG-5 40123",
+      "reading_unit": "gravity",
+      "calibration_factor": {
+        "value": 1.0,
+        "variance": 0.0,
+        "unit": "DIMENSIONLESS",
+        "mode": "RIGOROUS"
+      },
+      "sigma_reading": 5e-08,
+      "applies_tide": true,
+      "source": "Synthetic Scintrex CG-5 #40123"
+    }
+  ],
+  "default_gravimeter": "CG-5 40123"
+}

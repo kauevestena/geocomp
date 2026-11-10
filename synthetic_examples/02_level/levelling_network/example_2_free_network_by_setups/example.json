@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Levelling network adjustment",
+  "algorithm_id": "geocomp:levelling_network",
+  "algorithm_title": "Levelling network adjustment",
+  "example_index": 2,
+  "slug": "example_2_free_network_by_setups",
+  "title": "Free inner-constraint levelling network weighted by number of setups",
+  "scenario": "Solves a free 1D levelling network (FREE=True) weighted by setup count.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/inputs/loop_reduced.json",
+    "BENCHMARKS": "BM1=100.0",
+    "WEIGHTING": 1,
+    "SIGMA_PER_SETUP": 0.0005,
+    "FREE": true,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/heights.csv",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/network.json"
+  },
+  "expected_summary": "Produces inner-constraint 1D vertical solution.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "1",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/heights.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/network.json",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_2_free_network_by_setups/outputs/solution.json",
+      "VARIANCE_FACTOR_APOSTERIORI": "5.715359999999681",
+      "WORST_HEIGHT_UNCERTAINTY": "0.0010984425337722187"
+    },
+    "info_lines": 4,
+    "warning_lines": 2
+  }
+}

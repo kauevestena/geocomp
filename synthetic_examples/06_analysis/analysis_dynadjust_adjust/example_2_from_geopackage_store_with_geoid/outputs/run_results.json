@@ -1,0 +1,22 @@
+{
+  "status": "verified",
+  "results": {
+    "ADJUSTMENT_MODE": "simult",
+    "CONVERGED": "True",
+    "DEGREES_OF_FREEDOM": "3",
+    "ENGINE_VERSION": "1.4.0",
+    "GLOBAL_TEST_PASSED": "True",
+    "ITERATIONS": "2",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/solution.json",
+    "OUTPUT_STATION_LAYER": "None",
+    "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/work",
+    "VARIANCE_FACTOR_APOSTERIORI": "0.138"
+  },
+  "info_lines": 5,
+  "warning_lines": 0
+}

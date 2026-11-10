@@ -1,0 +1,24 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "3",
+    "GLOBAL_TEST_PASSED": "True",
+    "ITERATIONS": "2",
+    "OUTLIER_COUNT": "0",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/report.html",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUALS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/residuals.csv",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/solution.json",
+    "OUTPUT_STATIONS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/stations.csv",
+    "OUTPUT_STATION_LAYER": "None",
+    "UNCHECKABLE_COUNT": "0",
+    "VARIANCE_FACTOR_APOSTERIORI": "1.0864263725991625",
+    "WORST_OUTLIER": ""
+  },
+  "info_lines": 6,
+  "warning_lines": 1
+}

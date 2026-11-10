@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Save to project store",
+  "algorithm_id": "geocomp:project_store",
+  "algorithm_title": "Save to project store",
+  "example_index": 3,
+  "slug": "example_3_replace_existing_store",
+  "title": "Replace contents of an existing GeoPackage store with a new network (REPLACE=True)",
+  "scenario": "Overwrites an existing GeoPackage store cleanly with a fresh project and network.",
+  "parameters": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_3_replace_existing_store/outputs/replaced_store.gpkg",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_3_replace_existing_store/inputs/trilateration.json",
+    "PROJECT_ID": "fresh_trilateration_project",
+    "REPLACE": true
+  },
+  "expected_summary": "Replaces store contents with fresh_trilateration_project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_3_replace_existing_store/outputs/replaced_store.gpkg",
+      "WRITTEN": "['network rd03-trilateration']"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

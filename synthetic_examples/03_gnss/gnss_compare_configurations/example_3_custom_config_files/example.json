@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Compare configurations",
+  "algorithm_id": "geocomp:gnss_compare_configurations",
+  "algorithm_title": "Compare configurations",
+  "example_index": 3,
+  "slug": "example_3_custom_config_files",
+  "title": "Direct comparison of two custom RTKLIB .conf files (conf_mask12 vs conf_mask22)",
+  "scenario": "Compares two user-supplied RTKLIB configuration files directly instead of a mask list.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/inputs/rinex",
+    "CONFIGURATIONS": [
+      "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/inputs/conf_mask12.conf",
+      "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/inputs/conf_mask22.conf"
+    ],
+    "CONFIDENCE": 0.95,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.csv",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.json"
+  },
+  "expected_summary": "Compares the two named RTKLIB configurations side by side.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.html",
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_3_custom_config_files/outputs/comparison.json"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

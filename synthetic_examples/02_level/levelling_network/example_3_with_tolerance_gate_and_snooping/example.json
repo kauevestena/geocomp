@@ -1,0 +1,42 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Levelling network adjustment",
+  "algorithm_id": "geocomp:levelling_network",
+  "algorithm_title": "Levelling network adjustment",
+  "example_index": 3,
+  "slug": "example_3_with_tolerance_gate_and_snooping",
+  "title": "Levelling network with tolerance gate (k=8 mm/sqrt(km)), ADJUST_FAILING=True, and 99% confidence",
+  "scenario": "Adjusts loop with pre-adjustment tolerance checking and Baarda data snooping.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/inputs/loop_reduced.json",
+    "BENCHMARKS": "BM1=100.0",
+    "WEIGHTING": 0,
+    "SIGMA_PER_KM": 0.001,
+    "CONFIDENCE": 0.99,
+    "TOLERANCE_COEFFICIENT": 0.008,
+    "ADJUST_FAILING": true,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/heights.csv",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/network.json"
+  },
+  "expected_summary": "Evaluates line tolerances and completes 99% confidence 1D adjustment.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "1",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/heights.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/network.json",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_3_with_tolerance_gate_and_snooping/outputs/solution.json",
+      "VARIANCE_FACTOR_APOSTERIORI": "18.800526315788424",
+      "WORST_HEIGHT_UNCERTAINTY": "0.0016070465503395677"
+    },
+    "info_lines": 3,
+    "warning_lines": 2
+  }
+}

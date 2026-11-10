@@ -1,0 +1,30 @@
+{
+  "menu_group_id": "08_global_settings",
+  "menu_group_title": "Global Settings…",
+  "menu_path": "GeoComp ▸ Global Settings…",
+  "algorithm_id": "geocomp:global_settings_dialog",
+  "algorithm_title": "Global Settings…",
+  "example_index": 1,
+  "slug": "example_1_equipment_profile_libraries",
+  "title": "Equipment profile libraries & meteorological defaults (Total Station, Level, Gravimeter)",
+  "scenario": "Configures custom JSON instrument library for Level and Curitiba plateau atmospheric defaults.",
+  "parameters": {
+    "total_station.default_temperature_celsius": 22.5,
+    "total_station.default_pressure_hpa": 915.0,
+    "level.profile_library": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_1_equipment_profile_libraries/inputs/level_profiles.json",
+    "level.tolerance_coefficient": 0.004,
+    "gravimeter.tide_amplification": 1.16
+  },
+  "expected_summary": "Applies equipment profile paths and meteorological constants in Global Settings and verifies persistence.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "applied_settings": {
+      "total_station.default_temperature_celsius": 22.5,
+      "total_station.default_pressure_hpa": 915.0,
+      "level.profile_library": "/home/kaue/geocomp/synthetic_examples/08_global_settings/global_settings_dialog/example_1_equipment_profile_libraries/inputs/level_profiles.json",
+      "level.tolerance_coefficient": 0.004,
+      "gravimeter.tide_amplification": 1.16
+    }
+  }
+}

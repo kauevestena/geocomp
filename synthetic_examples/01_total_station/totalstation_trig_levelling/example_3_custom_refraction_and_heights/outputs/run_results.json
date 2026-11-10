@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/differences.csv",
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_3_custom_refraction_and_heights/outputs/report.html",
+    "RESULT_COUNT": "15",
+    "WORST_UNCERTAINTY": "0.001690157000548041"
+  },
+  "info_lines": 1,
+  "warning_lines": 0
+}

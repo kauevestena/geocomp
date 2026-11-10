@@ -1,0 +1,243 @@
+{
+  "observations": [
+    {
+      "id": "gnss-BASE-AUX1",
+      "type": "GNSS_BASELINE",
+      "stations": [
+        "BASE",
+        "AUX1"
+      ],
+      "values": [
+        {
+          "value": 1991.8013644953862,
+          "variance": 4.793784571958897e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": -468.655472486615,
+          "variance": 4.805068622910501e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": 2610.2596922940297,
+          "variance": 5.891146805130603e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "cluster_id": "gnss",
+      "meta": {
+        "engine": "rtklib",
+        "program": "rnx2rtkp ver.EX 2.5.1",
+        "solution_file": "base_aux1.pos",
+        "solution_status": "FIXED",
+        "satellites": 5,
+        "ratio": 999.9,
+        "epochs": 120,
+        "fixed_fraction": 0.975,
+        "baseline_frame": "ecef"
+      },
+      "provenance": {
+        "reader": "gnss",
+        "file": "base_aux1.pos",
+        "records": [
+          "baseline BASE-AUX1"
+        ]
+      }
+    },
+    {
+      "id": "gnss-BASE-ROVE",
+      "type": "GNSS_BASELINE",
+      "stations": [
+        "BASE",
+        "ROVE"
+      ],
+      "values": [
+        {
+          "value": 2022.8324956177291,
+          "variance": 4.79376974387393e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": -468.68196058873957,
+          "variance": 4.805075394137901e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        },
+        {
+          "value": 2610.230895875791,
+          "variance": 5.891154861988168e-06,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "cluster_id": "gnss",
+      "meta": {
+        "engine": "rtklib",
+        "program": "rnx2rtkp ver.EX 2.5.1",
+        "solution_file": "base_rove.pos",
+        "solution_status": "FIXED",
+        "satellites": 5,
+        "ratio": 999.9,
+        "epochs": 120,
+        "fixed_fraction": 0.975,
+        "baseline_frame": "ecef"
+      },
+      "provenance": {
+        "reader": "gnss",
+        "file": "base_rove.pos",
+        "records": [
+          "baseline BASE-ROVE"
+        ]
+      }
+    }
+  ],
+  "cluster": {
+    "id": "gnss",
+    "kind": "GNSS_BASELINE",
+    "observation_ids": [
+      "gnss-BASE-AUX1",
+      "gnss-BASE-ROVE"
+    ],
+    "covariance": {
+      "labels": [
+        "m0.x",
+        "m0.y",
+        "m0.z",
+        "m1.x",
+        "m1.y",
+        "m1.z"
+      ],
+      "units": [
+        "METRE",
+        "METRE",
+        "METRE",
+        "METRE",
+        "METRE",
+        "METRE"
+      ],
+      "mode": "RIGOROUS",
+      "matrix": [
+        [
+          4.793784571958897e-06,
+          -4.3297365637837765e-06,
+          -4.5585511171165495e-06,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -4.3297365637837765e-06,
+          4.805068622910501e-06,
+          4.6896732205633786e-06,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -4.5585511171165495e-06,
+          4.6896732205633786e-06,
+          5.891146805130603e-06,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          4.79376974387393e-06,
+          -4.3297342370954824e-06,
+          -4.558548616895692e-06
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          -4.3297342370954824e-06,
+          4.805075394137901e-06,
+          4.689680606728337e-06
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          -4.558548616895692e-06,
+          4.689680606728337e-06,
+          5.891154861988168e-06
+        ]
+      ]
+    }
+  },
+  "independent": [
+    "BASE-AUX1",
+    "BASE-ROVE"
+  ],
+  "dependent": [],
+  "independent_only": false,
+  "quality": {
+    "BASE-AUX1": {
+      "session_id": "BASE-AUX1",
+      "epochs": 120,
+      "status_counts": {
+        "FLOAT": 3,
+        "FIXED": 117
+      },
+      "fixed_fraction": 0.975,
+      "satellites_least": 5,
+      "satellites_most": 7,
+      "ratio_best": 999.9,
+      "ratio_median": 401.3,
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:30+00:00",
+      "interval": 30.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    },
+    "BASE-ROVE": {
+      "session_id": "BASE-ROVE",
+      "epochs": 120,
+      "status_counts": {
+        "FLOAT": 3,
+        "FIXED": 117
+      },
+      "fixed_fraction": 0.975,
+      "satellites_least": 5,
+      "satellites_most": 7,
+      "ratio_best": 999.9,
+      "ratio_median": 401.3,
+      "start": "2005-04-02T00:00:00+00:00",
+      "end": "2005-04-02T00:59:30+00:00",
+      "interval": 30.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    }
+  },
+  "closures": [],
+  "repeatability": [],
+  "float": [],
+  "antenna_heights": {
+    "BASE-AUX1": {
+      "BASE": 1.5,
+      "AUX1": 1.55
+    },
+    "BASE-ROVE": {
+      "BASE": 1.5,
+      "ROVE": 1.6
+    }
+  },
+  "antenna_heights_from_files": false
+}

@@ -1,0 +1,173 @@
+{
+  "differences": [
+    {
+      "from": "A",
+      "records": [],
+      "to": "D",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 2.7511583738816623,
+        "variance": 2.464454094401657e-06
+      }
+    },
+    {
+      "from": "A",
+      "records": [],
+      "to": "B",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 5.5018598336210935,
+        "variance": 2.7596101896610747e-06
+      }
+    },
+    {
+      "from": "A",
+      "records": [],
+      "to": "P1",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 0.9001923544184635,
+        "variance": 2.076161763679434e-06
+      }
+    },
+    {
+      "from": "A",
+      "records": [],
+      "to": "P2",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 1.4004024062156744,
+        "variance": 2.1591210707635818e-06
+      }
+    },
+    {
+      "from": "B",
+      "records": [],
+      "to": "A",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -5.49814016637892,
+        "variance": 2.7596009209986702e-06
+      }
+    },
+    {
+      "from": "B",
+      "records": [],
+      "to": "C",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -7.248326793282056,
+        "variance": 2.6847111812593167e-06
+      }
+    },
+    {
+      "from": "C",
+      "records": [],
+      "to": "B",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 7.251673206717959,
+        "variance": 2.6847236551394117e-06
+      }
+    },
+    {
+      "from": "C",
+      "records": [],
+      "to": "D",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 4.502091508397415,
+        "variance": 2.856630686501551e-06
+      }
+    },
+    {
+      "from": "D",
+      "records": [],
+      "to": "C",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -4.497908491602581,
+        "variance": 2.856623307638508e-06
+      }
+    },
+    {
+      "from": "D",
+      "records": [],
+      "to": "A",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -2.7488416261183435,
+        "variance": 2.4644490707244084e-06
+      }
+    },
+    {
+      "from": "R",
+      "records": [],
+      "to": "A",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -0.9990668654842363,
+        "variance": 2.371062736631737e-06
+      }
+    },
+    {
+      "from": "R",
+      "records": [],
+      "to": "B",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 4.5005791869408185,
+        "variance": 2.237177091411114e-06
+      }
+    },
+    {
+      "from": "R",
+      "records": [],
+      "to": "C",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": -2.749060430073777,
+        "variance": 2.3754708123646493e-06
+      }
+    },
+    {
+      "from": "L",
+      "records": [],
+      "to": "A",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 1.0002895934704181,
+        "variance": 2.1141879254016805e-06
+      }
+    },
+    {
+      "from": "L",
+      "records": [],
+      "to": "D",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 3.7502895934704177,
+        "variance": 2.125763033331317e-06
+      }
+    }
+  ],
+  "kind": "geocomp.height_differences",
+  "mode": "radial",
+  "source": "",
+  "version": 1
+}

@@ -1,0 +1,38 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Build baselines",
+  "algorithm_id": "geocomp:gnss_build_baselines",
+  "algorithm_title": "Build baselines",
+  "example_index": 3,
+  "slug": "example_3_multi_baseline_all_vectors",
+  "title": "Multi-baseline session (BASE->ROVE, BASE->AUX1) with per-station antenna matrix",
+  "scenario": "Extracts multiple baselines using per-station antenna height table (INDEPENDENT_ONLY=False).",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/inputs/pos",
+    "STATION_HEIGHTS": [
+      "BASE",
+      "1.500",
+      "ROVE",
+      "1.600",
+      "AUX1",
+      "1.550"
+    ],
+    "INDEPENDENT_ONLY": false,
+    "FRAME": 2,
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/baselines.json",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/network.json"
+  },
+  "expected_summary": "Builds 3-station GNSS network (BASE, ROVE, AUX1) with station-specific antenna offsets.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/baselines.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_3_multi_baseline_all_vectors/outputs/network.json"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

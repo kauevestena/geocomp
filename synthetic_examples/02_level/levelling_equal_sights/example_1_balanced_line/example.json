@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Equal sights",
+  "algorithm_id": "geocomp:levelling_equal_sights",
+  "algorithm_title": "Equal sights",
+  "example_index": 1,
+  "slug": "example_1_balanced_line",
+  "title": "Balanced equal-sights reduction recovering exact height difference",
+  "scenario": "Reduces balanced setups with zero sight-length imbalance.",
+  "parameters": {
+    "SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/inputs/setups.json",
+    "PROFILES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/inputs/profiles.json",
+    "OUTPUT_REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/reduced.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/lines.csv"
+  },
+  "expected_summary": "Produces reduced line with 0.0 m sight imbalance.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "LINE_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/lines.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/report.html",
+      "OUTPUT_REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equal_sights/example_1_balanced_line/outputs/reduced.json",
+      "WARNINGS": "0",
+      "WORST_IMBALANCE": "0.0",
+      "WORST_UNCERTAINTY": "0.001224744871391589"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

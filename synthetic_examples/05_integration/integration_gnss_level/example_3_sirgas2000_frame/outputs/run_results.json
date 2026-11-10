@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "5",
+    "ENGINE_USED": "in_house",
+    "GLOBAL_TEST_PASSED": "False",
+    "OUTLIER_COUNT": "4",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/combined.json",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_3_sirgas2000_frame/outputs/solution.json",
+    "OUTPUT_STATION_LAYER": "None",
+    "VARIANCE_FACTOR_APOSTERIORI": "0.10439371876109153"
+  },
+  "info_lines": 5,
+  "warning_lines": 0
+}

@@ -1,0 +1,47 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Adjust network",
+  "algorithm_id": "geocomp:analysis_network_adjust",
+  "algorithm_title": "Adjust network",
+  "example_index": 3,
+  "slug": "example_3_1d_levelling_adjustment",
+  "title": "1D height network adjustment (FRAME=1) at 99% confidence",
+  "scenario": "Adjusts 1D spirit-levelling network document through the general network adjustment engine.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/inputs/levelling_loop.json",
+    "FRAME": 1,
+    "DATUM": 0,
+    "CONFIDENCE": 0.99,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/report.html",
+    "OUTPUT_STATIONS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/stations.csv",
+    "OUTPUT_RESIDUALS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/residuals.csv"
+  },
+  "expected_summary": "Adjusts 1D benchmark heights and writes residual diagnostics.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "3",
+      "GLOBAL_TEST_PASSED": "True",
+      "ITERATIONS": "2",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/report.html",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUALS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/residuals.csv",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/solution.json",
+      "OUTPUT_STATIONS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_3_1d_levelling_adjustment/outputs/stations.csv",
+      "OUTPUT_STATION_LAYER": "None",
+      "UNCHECKABLE_COUNT": "0",
+      "VARIANCE_FACTOR_APOSTERIORI": "1.0864263725991625",
+      "WORST_OUTLIER": ""
+    },
+    "info_lines": 6,
+    "warning_lines": 1
+  }
+}

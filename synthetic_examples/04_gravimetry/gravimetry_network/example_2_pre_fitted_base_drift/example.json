@@ -1,0 +1,42 @@
+{
+  "menu_group_id": "04_gravimetry",
+  "menu_group_title": "Gravimetry",
+  "menu_path": "GeoComp ▸ Gravimetry ▸ Gravimetric network adjustment",
+  "algorithm_id": "geocomp:gravimetry_network",
+  "algorithm_title": "Gravimetric network adjustment",
+  "example_index": 2,
+  "slug": "example_2_pre_fitted_base_drift",
+  "title": "Drift fitted to base readings first (DRIFT_MODE=1) with uncorrelated differences",
+  "scenario": "Removes base-fitted drift prior to network adjustment and treats differences as uncorrelated.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/inputs/reduced_readings.json",
+    "KNOWN_GRAVITY": "1=978800.000±0.005",
+    "DRIFT_MODE": 1,
+    "DRIFT_DEGREE": 1,
+    "CORRELATED": false,
+    "CONFIDENCE": 0.99,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/gravity.csv"
+  },
+  "expected_summary": "Adjusts gravity values with weighted reference station 1 (±0.005 mGal).",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DATUM_DEFECT": "1",
+      "DEGREES_OF_FREEDOM": "1",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/gravity.csv",
+      "OUTPUT_DIFFERENCES": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/report.html",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_network/example_2_pre_fitted_base_drift/outputs/solution.json",
+      "OUTPUT_STATIONS": "None",
+      "UNCHECKABLE_COUNT": "2",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.002429149803441462"
+    },
+    "info_lines": 4,
+    "warning_lines": 2
+  }
+}

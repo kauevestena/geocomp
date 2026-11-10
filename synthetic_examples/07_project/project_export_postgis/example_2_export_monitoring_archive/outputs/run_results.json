@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "ROWS": "168",
+    "TARGET": "geocomp_local_pg / dam_monitoring_2024"
+  },
+  "info_lines": 11,
+  "warning_lines": 0
+}

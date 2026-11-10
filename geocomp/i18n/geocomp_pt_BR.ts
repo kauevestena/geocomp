@@ -7621,6 +7621,10 @@
             <translation>Adicionar estação</translation>
         </message>
         <message>
+            <source>Apply</source>
+            <translation>Aplicar</translation>
+        </message>
+        <message>
             <source>Azimuth</source>
             <translation>Azimute</translation>
         </message>
@@ -7653,6 +7657,10 @@
             <translation>Precisão esperada (elipses com exagero de %1x)</translation>
         </message>
         <message>
+            <source>Export layer</source>
+            <translation>Exportar camada</translation>
+        </message>
+        <message>
             <source>Findings</source>
             <translation>Constatações</translation>
         </message>
@@ -7669,6 +7677,10 @@
             <translation>Distância horizontal</translation>
         </message>
         <message>
+            <source>Import layer</source>
+            <translation>Importar camada</translation>
+        </message>
+        <message>
             <source>Move</source>
             <translation>Mover</translation>
         </message>
@@ -7681,12 +7693,28 @@
             <translation>Nada a relatar.</translation>
         </message>
         <message>
+            <source>Observation</source>
+            <translation>Observação</translation>
+        </message>
+        <message>
+            <source>Planned network</source>
+            <translation>Rede planejada</translation>
+        </message>
+        <message>
+            <source>Planned observations</source>
+            <translation>Observações planejadas</translation>
+        </message>
+        <message>
             <source>Positional uncertainty (mm)</source>
             <translation>Incerteza posicional (mm)</translation>
         </message>
         <message>
             <source>Redo</source>
             <translation>Refazer</translation>
+        </message>
+        <message>
+            <source>Redundancy</source>
+            <translation>Redundância</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -7705,8 +7733,20 @@
             <translation>Semieixo menor (mm)</translation>
         </message>
         <message>
+            <source>Standard deviation</source>
+            <translation>Desvio-padrão</translation>
+        </message>
+        <message>
             <source>Station</source>
             <translation>Estação</translation>
+        </message>
+        <message>
+            <source>Stations</source>
+            <translation>Estações</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>Tipo</translation>
         </message>
         <message>
             <source>Undo</source>
@@ -11694,6 +11734,10 @@
         <message>
             <source>Parameters</source>
             <translation>Parâmetros</translation>
+        </message>
+        <message>
+            <source>Planned network (layer)</source>
+            <translation>Rede planejada (camada)</translation>
         </message>
         <message>
             <source>Planned network document</source>

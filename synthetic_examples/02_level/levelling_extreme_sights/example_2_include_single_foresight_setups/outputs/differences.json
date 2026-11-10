@@ -1,0 +1,133 @@
+{
+  "kind": "levelling_setup_reductions",
+  "level_id": "rd04-level",
+  "setups": [
+    {
+      "covariance": {
+        "labels": [
+          "T1"
+        ],
+        "matrix": [
+          [
+            5e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "from_station": "BM1",
+      "height_differences": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 1.1,
+          "variance": 5e-07
+        }
+      ],
+      "imbalances": [
+        0.0
+      ],
+      "records": [
+        "row 2",
+        "row 3"
+      ],
+      "setup_id": "S1",
+      "to_stations": [
+        "T1"
+      ]
+    },
+    {
+      "covariance": {
+        "labels": [
+          "T2"
+        ],
+        "matrix": [
+          [
+            5e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "from_station": "T1",
+      "height_differences": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 1.1,
+          "variance": 5e-07
+        }
+      ],
+      "imbalances": [
+        0.0
+      ],
+      "records": [
+        "row 4",
+        "row 5"
+      ],
+      "setup_id": "S2",
+      "to_stations": [
+        "T2"
+      ]
+    },
+    {
+      "covariance": {
+        "labels": [
+          "BM2"
+        ],
+        "matrix": [
+          [
+            5e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "from_station": "T2",
+      "height_differences": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 1.5500000000000003,
+          "variance": 5e-07
+        }
+      ],
+      "imbalances": [
+        0.0
+      ],
+      "records": [
+        "row 6",
+        "row 7"
+      ],
+      "setup_id": "S3",
+      "to_stations": [
+        "BM2"
+      ]
+    }
+  ],
+  "source": "lev_balanced.csv"
+}

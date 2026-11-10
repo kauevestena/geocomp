@@ -1,0 +1,118 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Levelling network adjustment</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Levelling network adjustment</h1>
+<h2>Summary</h2>
+<table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Stations</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Observations</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Variance factor</td>
+<td>5.71536</td>
+</tr>
+<tr>
+<td>Global test</td>
+<td>FAILED</td>
+</tr>
+<tr>
+<td>Datum</td>
+<td>inner constraints (free network)</td>
+</tr>
+<tr>
+<td>Height type</td>
+<td>orthometric</td>
+</tr>
+<tr>
+<td>Weighting</td>
+<td>sigma = 0.0005 m * sqrt(setups)</td>
+</tr>
+</table>
+<h2>Adjusted heights</h2>
+<table>
+<tr>
+<th>Station</th>
+<th>Height (m)</th>
+<th>Uncertainty (mm)</th>
+</tr>
+<tr>
+<td>BM1</td>
+<td>-0.0001</td>
+<td>0.882</td>
+</tr>
+<tr>
+<td>BM2</td>
+<td>3.7498</td>
+<td>1.098</td>
+</tr>
+<tr>
+<td>BM4</td>
+<td>6.4795</td>
+<td>0.984</td>
+</tr>
+</table>
+<h2>Relative height uncertainties</h2>
+<table>
+<tr>
+<th>From</th>
+<th>To</th>
+<th>dH (m)</th>
+<th>Relative uncertainty (mm)</th>
+</tr>
+<tr>
+<td>BM1</td>
+<td>BM2</td>
+<td>3.74995</td>
+<td>1.732</td>
+</tr>
+<tr>
+<td>BM1</td>
+<td>BM4</td>
+<td>6.47964</td>
+<td>1.512</td>
+</tr>
+<tr>
+<td>BM2</td>
+<td>BM4</td>
+<td>2.72969</td>
+<td>1.890</td>
+</tr>
+</table>
+<div class="note"><b>Why these are not the individual figures</b>: The relative uncertainty is the 1D analogue of the relative error ellipse, and is usually what a levelling network was built to produce. It is not the difference of the two individual uncertainties: adjusted heights are correlated, and two marks at the ends of one well-observed line know their separation far better than either knows its own height.</div>
+<div class="note"><b>Global test</b>: The global test failed. Either the observations disagree more than their weights allow, or the weights are wrong — the test cannot distinguish the two. A levelling network weighted by propagated staff readings routinely fails it, because that model omits refraction, staff calibration and settlement.</div>
+<h2>Findings</h2>
+<table>
+<tr>
+<th>Severity</th>
+<th>Code</th>
+<th>Finding</th>
+<th>Involves</th>
+</tr>
+<tr>
+<td>Information</td>
+<td><code>levelling_weighted_by_model</code></td>
+<td>The network was weighted by sigma = 0.0005 m * sqrt(setups), replacing each line&#x27;s propagated reading uncertainty.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Information</td>
+<td><code>levelling_network_is_free</code></td>
+<td>No benchmark was supplied, so the network is free: it has one datum defect, and determines every height difference but no height. Adjust it with an inner or minimum constraint.</td>
+<td>—</td>
+</tr>
+</table>
+</body></html>

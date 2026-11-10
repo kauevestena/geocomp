@@ -1,0 +1,26 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Package an engine problem",
+  "algorithm_id": "geocomp:project_package_engine_problem",
+  "algorithm_title": "Package an engine problem",
+  "example_index": 3,
+  "slug": "example_3_dynadjust_singular_adjustment",
+  "title": "Package a multi-stage DynAdjust run where dnaimport succeeded but dnaadjust failed",
+  "scenario": "Captures full multi-stage command history (dnaimport -> dnaadjust) in the diagnostic ZIP.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_3_dynadjust_singular_adjustment/inputs/dynadjust_adjust_work_dir",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_3_dynadjust_singular_adjustment/outputs/dynadjust_stage2_problem.zip"
+  },
+  "expected_summary": "Packages multi-stage logs into dynadjust_stage2_problem.zip.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ENGINE": "DynAdjust",
+      "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_3_dynadjust_singular_adjustment/outputs/dynadjust_stage2_problem.zip"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

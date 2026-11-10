@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_import_postgis/example_3_import_campus_control/outputs/imported_ufpr_campus_control.gpkg",
+    "ROWS": "168"
+  },
+  "info_lines": 11,
+  "warning_lines": 0
+}

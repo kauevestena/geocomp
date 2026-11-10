@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/07_project/project_store/example_3_replace_existing_store/outputs/replaced_store.gpkg",
+    "WRITTEN": "['network rd03-trilateration']"
+  },
+  "info_lines": 1,
+  "warning_lines": 0
+}

@@ -1,0 +1,32 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Absolute ▸ Absolute — Kinematic",
+  "algorithm_id": "geocomp:gnss_absolute_kinematic",
+  "algorithm_title": "Absolute — Kinematic",
+  "example_index": 3,
+  "slug": "example_3_custom_kinematic_conf",
+  "title": "Absolute kinematic positioning with explicit RTKLIB configuration",
+  "scenario": "Runs kinematic positioning driven by a custom RTKLIB configuration file.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/inputs/rinex",
+    "ROVER_STATION": "ROVE",
+    "ELEVATION_MASK": 20.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/outputs/quality.json",
+    "CONFIGURATION": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/inputs/custom_kinematic.conf"
+  },
+  "expected_summary": "Produces epoch-by-epoch kinematic .pos file and quality metrics.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_kinematic/example_3_custom_kinematic_conf/outputs/solution.pos"
+    },
+    "info_lines": 4,
+    "warning_lines": 3
+  }
+}

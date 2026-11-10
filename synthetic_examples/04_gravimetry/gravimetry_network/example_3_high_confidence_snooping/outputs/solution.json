@@ -1,0 +1,278 @@
+{
+  "adjusted_stations": [
+    {
+      "covariance": {
+        "labels": [
+          "2.g"
+        ],
+        "matrix": [
+          [
+            1.0000000024167352e-17
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "MODEL_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "ACCELERATION"
+        ]
+      },
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "MODEL_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 9.78800331,
+        "variance": 1.0000000024167352e-17
+      },
+      "position": {
+        "crs": "EPSG:4326",
+        "height_type": "ELLIPSOIDAL",
+        "system": "GEODETIC",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "RADIAN",
+            "value": -0.4441862946325569,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "RADIAN",
+            "value": -0.8592255907568084,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 900.0,
+            "variance": 0.0
+          }
+        ]
+      },
+      "station_id": "2"
+    },
+    {
+      "covariance": {
+        "labels": [
+          "3.g"
+        ],
+        "matrix": [
+          [
+            1.500000003625103e-17
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "MODEL_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "ACCELERATION"
+        ]
+      },
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "MODEL_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 9.787998715,
+        "variance": 1.500000003625103e-17
+      },
+      "position": {
+        "crs": "EPSG:4326",
+        "height_type": "ELLIPSOIDAL",
+        "system": "GEODETIC",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "RADIAN",
+            "value": -0.4441862946325569,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "RADIAN",
+            "value": -0.8592255907568084,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 900.0,
+            "variance": 0.0
+          }
+        ]
+      },
+      "station_id": "3"
+    }
+  ],
+  "crs": "EPSG:4326",
+  "datum_definition": "FIXED",
+  "epoch": {
+    "decimal_year": 2026.187404870624,
+    "instant": "2026-03-10T09:40:00+00:00"
+  },
+  "id": "gravity-adjustment",
+  "kind": "ADJUSTMENT",
+  "network_id": "gravity",
+  "observation_results": [
+    {
+      "external_reliability": 4.916290895222344e-07,
+      "minimal_detectable_bias": 5.301372811066403e-07,
+      "observation_id": "CG-5 40123 2026-03-10#1>CG-5 40123 2026-03-10#2",
+      "redundancy": 0.3,
+      "residual": -3.0000000036251025e-09,
+      "standardised_residual": 0.9999999999999998,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999998
+      }
+    },
+    {
+      "external_reliability": 6.684776761735836e-07,
+      "minimal_detectable_bias": 6.492829161688391e-07,
+      "observation_id": "CG-5 40123 2026-03-10#2>CG-5 40123 2026-03-10#3",
+      "redundancy": 0.19999999999999982,
+      "residual": 2.000000002416735e-09,
+      "standardised_residual": 0.9999999999999992,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999992
+      }
+    },
+    {
+      "external_reliability": 6.68477676173582e-07,
+      "minimal_detectable_bias": 6.492829161688377e-07,
+      "observation_id": "CG-5 40123 2026-03-10#3>CG-5 40123 2026-03-10#4",
+      "redundancy": 0.20000000000000068,
+      "residual": 2.0000000024167353e-09,
+      "standardised_residual": 0.9999999999999993,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999993
+      }
+    },
+    {
+      "external_reliability": 4.91629089522234e-07,
+      "minimal_detectable_bias": 5.3013728110664e-07,
+      "observation_id": "CG-5 40123 2026-03-10#4>CG-5 40123 2026-03-10#5",
+      "redundancy": 0.30000000000000027,
+      "residual": -3.0000000036251033e-09,
+      "standardised_residual": 0.9999999999999999,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999999
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "2.g",
+      "3.g",
+      "CG-5 40123 2026-03-10.drift_1"
+    ],
+    "matrix": [
+      [
+        1.0000000024167352e-17,
+        5.0000000120836754e-18,
+        -1.7812500043048102e-33
+      ],
+      [
+        5.0000000120836754e-18,
+        1.500000003625103e-17,
+        1.3359375032286073e-33
+      ],
+      [
+        -1.7812500043048102e-33,
+        1.3359375032286073e-33,
+        9.000000021750618e-18
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "MODEL_ASSUMED",
+      "NOMINAL_PRECISION"
+    ],
+    "units": [
+      "ACCELERATION",
+      "ACCELERATION",
+      "ACCELERATION"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:gravimetry_network",
+    "created": "2026-11-04T20:47:13.217661+00:00",
+    "geocomp_version": "0.1.0",
+    "parameters": {
+      "absolute": {},
+      "confidence": 0.95,
+      "correlated": true,
+      "drift_degree": 1,
+      "drift_mode": "joint",
+      "drift_time_scale_s": 3600.0,
+      "held": {
+        "1": 9.788
+      },
+      "readings_source": "cg5_survey.txt",
+      "reduction": {
+        "amplification": 1.16,
+        "drift_degree": 1,
+        "precision_floor": 5.0000000000000004e-08,
+        "replace_tide": false,
+        "sensor_height": null,
+        "sensor_height_sigma": null,
+        "tide_model": "longman_1959",
+        "tide_uncertainty": 1.5e-08,
+        "utc_offset_hours": null
+      },
+      "solver": "dense"
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "source": "geocomp:gravimetry_network",
+    "strategies": [
+      "MODEL_ASSUMED",
+      "NOMINAL_PRECISION"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 2.6180339887498945,
+    "converged": true,
+    "degrees_of_freedom": 1,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 5.023886187314888,
+      "critical_low": 0.0009820691171752583,
+      "name": "global",
+      "passed": true,
+      "statistic": 0.003157894744473901
+    },
+    "iterations": 1,
+    "max_correction": 5.0999999999176704e-08,
+    "n_constraints": 0,
+    "n_observations": 4,
+    "n_parameters": 3,
+    "variance_factor_aposteriori": 0.003157894744473901,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

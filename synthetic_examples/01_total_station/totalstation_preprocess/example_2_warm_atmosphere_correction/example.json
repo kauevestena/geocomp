@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Generalised pre-processing",
+  "algorithm_id": "geocomp:totalstation_preprocess",
+  "algorithm_title": "Generalised pre-processing",
+  "example_index": 2,
+  "slug": "example_2_warm_atmosphere_correction",
+  "title": "Atmospheric EDM scale reduction at 30 °C, 915 hPa, 50% RH",
+  "scenario": "Applies first-velocity atmospheric correction and propagates temperature/pressure uncertainties.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/inputs/readings.json",
+    "TEMPERATURE": 30.0,
+    "PRESSURE": 915.0,
+    "HUMIDITY": 50.0,
+    "APPLY_ATMOSPHERIC": true,
+    "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reduced.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reductions.csv"
+  },
+  "expected_summary": "Applies atmospheric ppm correction and inflates distance variance by meteorological uncertainties.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reductions.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/report.html",
+      "OUTPUT_REDUCED": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_preprocess/example_2_warm_atmosphere_correction/outputs/reduced.json",
+      "POINTING_COUNT": "6",
+      "USABLE_COUNT": "5"
+    },
+    "info_lines": 4,
+    "warning_lines": 1
+  }
+}

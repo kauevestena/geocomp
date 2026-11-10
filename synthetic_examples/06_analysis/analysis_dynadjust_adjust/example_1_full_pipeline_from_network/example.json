@@ -1,0 +1,44 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Adjust network (DynAdjust)",
+  "algorithm_id": "geocomp:analysis_dynadjust_adjust",
+  "algorithm_title": "Adjust network (DynAdjust)",
+  "example_index": 1,
+  "slug": "example_1_full_pipeline_from_network",
+  "title": "Full DynAdjust pipeline (import -> reftran -> adjust) from Network JSON",
+  "scenario": "Writes DynaML (.stn.xml / .msr.xml), runs DynAdjust pipeline, and parses adjusted coordinates + SINEX covariances.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_1_full_pipeline_from_network/inputs/network.json",
+    "FRAME": "GDA2020",
+    "EPOCH": 2020.0,
+    "ENGINE_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin",
+    "KEEP_WORKING_FILES": true,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_1_full_pipeline_from_network/outputs/solution.json",
+    "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_1_full_pipeline_from_network/outputs/work"
+  },
+  "expected_summary": "Runs DynAdjust pipeline and writes solution.json + working files.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ADJUSTMENT_MODE": "simult",
+      "CONVERGED": "True",
+      "DEGREES_OF_FREEDOM": "3",
+      "ENGINE_VERSION": "1.4.0",
+      "GLOBAL_TEST_PASSED": "True",
+      "ITERATIONS": "2",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_1_full_pipeline_from_network/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_1_full_pipeline_from_network/outputs/work",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.138"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

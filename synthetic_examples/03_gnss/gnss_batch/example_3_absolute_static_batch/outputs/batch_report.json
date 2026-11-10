@@ -1,0 +1,178 @@
+{
+  "profile": "absolute-static",
+  "engine": {
+    "name": "RTKLIB-EX",
+    "version": "2.5.1",
+    "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+    "tested": true,
+    "source": "configured"
+  },
+  "configuration": {
+    "name": "absolute-static",
+    "mode": "ppp-static",
+    "settings": {
+      "pos1-posmode": "ppp-static",
+      "pos1-frequency": "l1+l2",
+      "pos1-soltype": "combined",
+      "pos1-elmask": "15",
+      "pos1-ionoopt": "brdc",
+      "pos1-tropopt": "saas",
+      "pos1-sateph": "brdc",
+      "pos1-navsys": "1",
+      "pos2-armode": "continuous",
+      "pos2-arthres": "3",
+      "out-solformat": "llh",
+      "out-outhead": "on",
+      "out-outopt": "on",
+      "out-timeform": "tow",
+      "out-degform": "deg",
+      "out-height": "ellipsoidal",
+      "out-solstatic": "all",
+      "out-outstat": "residual",
+      "ant1-postype": "single",
+      "ant2-postype": "rinexhead"
+    }
+  },
+  "user_configuration": {
+    "file": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/batch_abs.conf",
+    "options": {
+      "pos1-elmask": "15",
+      "pos1-frequency": "l1+l2",
+      "pos1-soltype": "combined",
+      "pos2-armode": "continuous"
+    }
+  },
+  "summary": {
+    "succeeded": 2,
+    "failed": 0,
+    "rejected": 0
+  },
+  "results": [
+    {
+      "key": "BASE",
+      "outcome": "succeeded",
+      "code": "",
+      "detail": "",
+      "seconds": 0.034
+    },
+    {
+      "key": "ROVE",
+      "outcome": "succeeded",
+      "code": "",
+      "detail": "",
+      "seconds": 0.034
+    }
+  ],
+  "sessions": [
+    {
+      "station": "BASE",
+      "quality": {
+        "session_id": "BASE",
+        "epochs": 3,
+        "status_counts": {
+          "FIXED": 3
+        },
+        "fixed_fraction": 1.0,
+        "satellites_least": 8,
+        "satellites_most": 9,
+        "ratio_best": 35.0,
+        "ratio_median": 31.2,
+        "start": "2005-05-20T00:00:00+00:00",
+        "end": "2005-05-20T00:30:00+00:00",
+        "interval": 900.0,
+        "dilution_of_precision": null,
+        "dilution_of_precision_worst": null,
+        "cycle_slips": null,
+        "rejections": null,
+        "satellites_slipped": [],
+        "satellites_rejected": []
+      },
+      "solution": "/tmp/geocomp-batch-u81rw9sh/BASE/base.05o.pos",
+      "products": {
+        "products": [],
+        "substituted": [],
+        "missing": []
+      },
+      "run": {
+        "program": "rnx2rtkp",
+        "command": [
+          "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+          "-k",
+          "/tmp/geocomp-batch-u81rw9sh/BASE/rnx2rtkp.conf",
+          "-o",
+          "/tmp/geocomp-batch-u81rw9sh/BASE/base.05o.pos",
+          "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/rinex/base.05o",
+          "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/rinex/brdc.05n"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03198893900116673,
+        "timed_out": false,
+        "work_dir": "/tmp/geocomp-batch-u81rw9sh/BASE",
+        "version": {
+          "name": "RTKLIB-EX",
+          "version": "2.5.1",
+          "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+          "tested": true,
+          "source": "configured"
+        },
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "station": "ROVE",
+      "quality": {
+        "session_id": "ROVE",
+        "epochs": 3,
+        "status_counts": {
+          "FIXED": 3
+        },
+        "fixed_fraction": 1.0,
+        "satellites_least": 8,
+        "satellites_most": 9,
+        "ratio_best": 35.0,
+        "ratio_median": 31.2,
+        "start": "2005-05-20T00:00:00+00:00",
+        "end": "2005-05-20T00:30:00+00:00",
+        "interval": 900.0,
+        "dilution_of_precision": null,
+        "dilution_of_precision_worst": null,
+        "cycle_slips": null,
+        "rejections": null,
+        "satellites_slipped": [],
+        "satellites_rejected": []
+      },
+      "solution": "/tmp/geocomp-batch-u81rw9sh/ROVE/rover.05o.pos",
+      "products": {
+        "products": [],
+        "substituted": [],
+        "missing": []
+      },
+      "run": {
+        "program": "rnx2rtkp",
+        "command": [
+          "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+          "-k",
+          "/tmp/geocomp-batch-u81rw9sh/ROVE/rnx2rtkp.conf",
+          "-o",
+          "/tmp/geocomp-batch-u81rw9sh/ROVE/rover.05o.pos",
+          "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/rinex/rover.05o",
+          "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/rinex/brdc.05n"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03219805999833625,
+        "timed_out": false,
+        "work_dir": "/tmp/geocomp-batch-u81rw9sh/ROVE",
+        "version": {
+          "name": "RTKLIB-EX",
+          "version": "2.5.1",
+          "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+          "tested": true,
+          "source": "configured"
+        },
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

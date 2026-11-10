@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING": "0",
+    "MISCLOSURE": "-0.0037799999999998946",
+    "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/closures.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/distribution.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_1_loop_closure_by_length/outputs/report.html",
+    "PASSED": "1",
+    "PERMISSIBLE": "0.006974238309665077",
+    "WARNINGS": "0"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

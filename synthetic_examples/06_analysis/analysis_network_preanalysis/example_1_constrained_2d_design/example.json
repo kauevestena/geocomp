@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Pre-analyse network design",
+  "algorithm_id": "geocomp:analysis_network_preanalysis",
+  "algorithm_title": "Pre-analyse network design",
+  "example_index": 1,
+  "slug": "example_1_constrained_2d_design",
+  "title": "Pre-analysis of 2D trilateration design under constrained datum",
+  "scenario": "Computes expected station precisions, redundancy numbers, and MDBs before field observation.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/inputs/planned_network.json",
+    "FRAME": 0,
+    "DATUM": 0,
+    "TOLERANCE": 0.05,
+    "CONFIDENCE": 0.95,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/expected_precision.csv"
+  },
+  "expected_summary": "All planned stations meet the 50 mm positional uncertainty tolerance.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "3",
+      "MEETS_TOLERANCE": "False",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/expected_precision.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/report.html",
+      "UNCHECKABLE_COUNT": "1",
+      "WORST_STATION": "C",
+      "WORST_UNCERTAINTY": "0.06891485060962572"
+    },
+    "info_lines": 4,
+    "warning_lines": 2
+  }
+}

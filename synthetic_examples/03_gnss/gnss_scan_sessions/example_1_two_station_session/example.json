@@ -1,0 +1,25 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Scan sessions",
+  "algorithm_id": "geocomp:gnss_scan_sessions",
+  "algorithm_title": "Scan sessions",
+  "example_index": 1,
+  "slug": "example_1_two_station_session",
+  "title": "Two-station static/kinematic RINEX session (BASE + ROVE) with broadcast nav",
+  "scenario": "Scans folder containing base.05o, rover.05o, and brdc.05n on 2005-05-20.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_1_two_station_session/inputs/rinex",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_1_two_station_session/outputs/sessions.json"
+  },
+  "expected_summary": "Detects 2 observation stations (BASE, ROVE), 1 navigation file, and temporal overlap.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_scan_sessions/example_1_two_station_session/outputs/sessions.json"
+    },
+    "info_lines": 3,
+    "warning_lines": 2
+  }
+}

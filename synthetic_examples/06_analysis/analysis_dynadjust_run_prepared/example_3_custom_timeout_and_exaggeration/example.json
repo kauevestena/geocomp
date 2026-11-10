@@ -1,0 +1,42 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Run a prepared DynAdjust job",
+  "algorithm_id": "geocomp:analysis_dynadjust_run_prepared",
+  "algorithm_title": "Run a prepared DynAdjust job",
+  "example_index": 3,
+  "slug": "example_3_custom_timeout_and_exaggeration",
+  "title": "Execute prepared DynAdjust job with custom stage timeout and 500x ellipse exaggeration",
+  "scenario": "Runs prepared job with 600 s stage timeout and 500x error ellipse scaling.",
+  "parameters": {
+    "PREPARED": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_run_prepared/example_3_custom_timeout_and_exaggeration/inputs/prepared_job",
+    "ENGINE_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin",
+    "TIMEOUT": 600.0,
+    "EXAGGERATION": 500.0,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_run_prepared/example_3_custom_timeout_and_exaggeration/outputs/solution.json"
+  },
+  "expected_summary": "Executes prepared DynAdjust job and writes solution.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ADJUSTMENT_MODE": "simult",
+      "CONVERGED": "True",
+      "DEGREES_OF_FREEDOM": "3",
+      "EDITED_INPUTS": "",
+      "ENGINE_VERSION": "1.4.0",
+      "GLOBAL_TEST_PASSED": "True",
+      "ITERATIONS": "2",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_run_prepared/example_3_custom_timeout_and_exaggeration/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.138"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

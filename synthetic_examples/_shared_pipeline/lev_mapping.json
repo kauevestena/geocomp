@@ -1,0 +1,26 @@
+{
+  "name": "synthetic_levelling",
+  "columns": [
+    {
+      "field": "setup",
+      "column": "setup"
+    },
+    {
+      "field": "station",
+      "column": "point"
+    },
+    {
+      "field": "sight",
+      "column": "kind"
+    },
+    {
+      "field": "reading",
+      "column": "reading"
+    },
+    {
+      "field": "distance",
+      "column": "distance"
+    }
+  ],
+  "decimal_separator": "."
+}

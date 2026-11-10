@@ -1,0 +1,34 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Resection",
+  "algorithm_id": "geocomp:totalstation_resection",
+  "algorithm_title": "Resection",
+  "example_index": 2,
+  "slug": "example_2_three_point_minimal",
+  "title": "Minimal 3-target resection at station R from control triangle (A, B, C)",
+  "scenario": "Determines station R using only 3 control stations (A, B, C).",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/inputs/reductions.json",
+    "STATION": "R",
+    "KNOWN": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/inputs/known_3pts.json",
+    "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/outputs/position.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/outputs/report.html"
+  },
+  "expected_summary": "Recovers exact coordinates of station R from 3 known points.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "EASTING": "1120.0",
+      "NORTHING": "990.0000000000001",
+      "ORIENTATION": "70.00000135240784",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/outputs/report.html",
+      "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_2_three_point_minimal/outputs/position.json",
+      "SIGMA_EASTING": "0.000514446062838684",
+      "SIGMA_NORTHING": "0.0004320675286076598"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

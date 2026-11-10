@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "LARGEST_TIDE": "0.0",
+    "OCCUPATION_COUNT": "5",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/corrections.csv",
+    "OUTPUT_DRIFT": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/drift.json",
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/reduced_readings.json",
+    "READING_COUNT": "5",
+    "SESSION_COUNT": "1",
+    "UNESTIMABLE_SESSIONS": "0"
+  },
+  "info_lines": 4,
+  "warning_lines": 0
+}

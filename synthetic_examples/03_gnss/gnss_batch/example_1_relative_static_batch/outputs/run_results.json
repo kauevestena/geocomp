@@ -1,0 +1,8 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_1_relative_static_batch/outputs/batch_report.json"
+  },
+  "info_lines": 6,
+  "warning_lines": 3
+}

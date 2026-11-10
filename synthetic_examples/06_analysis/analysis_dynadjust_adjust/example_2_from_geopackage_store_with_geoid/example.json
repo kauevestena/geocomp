@@ -1,0 +1,47 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Adjust network (DynAdjust)",
+  "algorithm_id": "geocomp:analysis_dynadjust_adjust",
+  "algorithm_title": "Adjust network (DynAdjust)",
+  "example_index": 2,
+  "slug": "example_2_from_geopackage_store_with_geoid",
+  "title": "DynAdjust adjustment reading network directly from a GeoPackage store + NTv2 geoid + custom JSON options",
+  "scenario": "Reads network 'sample' from project_store.gpkg, includes dnageoid stage with synthetic_geoid.gsb, and passes custom CLI flags.",
+  "parameters": {
+    "STORE": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/inputs/project_store.gpkg",
+    "STORED_NETWORK": "sample",
+    "FRAME": "GDA2020",
+    "EPOCH": 2020.0,
+    "GEOID_GRID": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/inputs/synthetic_geoid.gsb",
+    "CONFIGURATION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/inputs/dynadjust_options.json",
+    "ENGINE_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin",
+    "KEEP_WORKING_FILES": true,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/solution.json",
+    "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/work"
+  },
+  "expected_summary": "Reads network from GeoPackage store, runs dnageoid stage, and writes solution.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ADJUSTMENT_MODE": "simult",
+      "CONVERGED": "True",
+      "DEGREES_OF_FREEDOM": "3",
+      "ENGINE_VERSION": "1.4.0",
+      "GLOBAL_TEST_PASSED": "True",
+      "ITERATIONS": "2",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_2_from_geopackage_store_with_geoid/outputs/work",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.138"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

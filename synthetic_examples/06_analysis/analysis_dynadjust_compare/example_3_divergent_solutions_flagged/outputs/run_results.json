@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "AGREES": "False",
+    "DISAGREEMENT_COUNT": "2",
+    "LARGEST_COORDINATE_DIFFERENCE": "0.018948839860968292",
+    "LARGEST_RESIDUAL_DIFFERENCE": "None",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_compare/example_3_divergent_solutions_flagged/outputs/differences.json",
+    "OUTPUT_REPORT": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_compare/example_3_divergent_solutions_flagged/outputs/comparison_report.html"
+  },
+  "info_lines": 7,
+  "warning_lines": 1
+}

@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/managed_engines/rtklib/2.5.1/bin",
+    "OUTPUT_VERSION": "2.5.1"
+  },
+  "info_lines": 3,
+  "warning_lines": 1
+}

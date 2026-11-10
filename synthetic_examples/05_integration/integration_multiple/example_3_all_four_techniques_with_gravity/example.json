@@ -1,0 +1,49 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ Multiple techniques",
+  "algorithm_id": "geocomp:integration_multiple",
+  "algorithm_title": "Multiple techniques",
+  "example_index": 3,
+  "slug": "example_3_all_four_techniques_with_gravity",
+  "title": "Four-technique integration (GNSS + Total Station + Levelling + Gravimetry)",
+  "scenario": "Combines 3D geometric techniques alongside CG-5 gravimetry readings.",
+  "parameters": {
+    "GNSS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/inputs/gnss.json",
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/inputs/ts.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/inputs/levelling.json",
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/inputs/gravity_reduced.json",
+    "KNOWN_GRAVITY": "1=978800.000",
+    "GEOID": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/inputs/curitiba_planar.asc",
+    "GEOID_SIGMA": 0.03,
+    "FIXED_STATIONS": "CTB1,CTB2",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/combined.json",
+    "OUTPUT_GRAVITY": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/gravity_solution.json"
+  },
+  "expected_summary": "Produces both geometric solution.json and gravimetric gravity_solution.json.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "45",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "3",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_GRAVITY": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/gravity_solution.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_3_all_four_techniques_with_gravity/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.6615628200389518"
+    },
+    "info_lines": 7,
+    "warning_lines": 0
+  }
+}

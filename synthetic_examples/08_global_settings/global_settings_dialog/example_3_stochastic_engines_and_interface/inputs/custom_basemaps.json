@@ -1,0 +1,12 @@
+{
+  "services": [
+    {
+      "id": "ibge_topo",
+      "name": "IBGE Topographic Base",
+      "url": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "attribution": "© IBGE / OpenStreetMap contributors",
+      "zmin": 0,
+      "zmax": 18
+    }
+  ]
+}

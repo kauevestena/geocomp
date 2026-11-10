@@ -1,0 +1,9 @@
+{
+  "status": "verified",
+  "results": {
+    "ENGINE": "DynAdjust",
+    "OUTPUT": "/home/kaue/geocomp/synthetic_examples/07_project/project_package_engine_problem/example_1_dynadjust_failed_import/outputs/dynadjust_problem_bundle.zip"
+  },
+  "info_lines": 2,
+  "warning_lines": 1
+}

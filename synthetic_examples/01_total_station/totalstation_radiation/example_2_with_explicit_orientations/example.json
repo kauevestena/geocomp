@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ 3D radiation",
+  "algorithm_id": "geocomp:totalstation_radiation",
+  "algorithm_title": "3D radiation",
+  "example_index": 2,
+  "slug": "example_2_with_explicit_orientations",
+  "title": "3D radiation using pre-computed station orientation constants (orientations.json)",
+  "scenario": "Supplies explicit orientation angles for occupied stations via orientations.json.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/inputs/reductions.json",
+    "STATIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/inputs/known.json",
+    "ORIENTATIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/inputs/orientations.json",
+    "INSTRUMENT_HEIGHT": 1.5,
+    "TARGET_HEIGHT": 1.5,
+    "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.csv"
+  },
+  "expected_summary": "Radiates P1 and P2 using pre-computed orientations.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/report.html",
+      "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.json",
+      "POINT_COUNT": "2",
+      "WORST_UNCERTAINTY": "0.001973561511098366"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

@@ -89,7 +89,30 @@ class DesignReport:
 
     def meets(self, tolerance: float) -> bool:
         """Whether every station's positional uncertainty is within *tolerance*."""
-        return all(station.positional_uncertainty <= tolerance for station in self.stations)
+        return all(
+            station.positional_uncertainty <= tolerance * (1.0 + 1e-12)
+            for station in self.stations
+        )
+
+    def precision_scale_for(self, tolerance: float) -> float | None:
+        """The factor by which every observation's standard deviation must be scaled so the worst station reaches *tolerance*."""
+        if tolerance <= 0.0:
+            return None
+        worst = self.worst_station()
+        if worst is None or worst.positional_uncertainty <= 0.0:
+            return None
+        return tolerance / worst.positional_uncertainty
+
+    def required_observation_sigmas(self, network: Network, tolerance: float) -> dict[str, float]:
+        """The standard deviation each planned observation in *network* needs (in its own SI unit) for every station to reach *tolerance*."""
+        scale = self.precision_scale_for(tolerance)
+        if scale is None:
+            return {}
+        return {
+            observation.id: observation.values[0].std_dev * scale
+            for observation in network.observations.values()
+            if observation.values
+        }
 
 
 def simulate(

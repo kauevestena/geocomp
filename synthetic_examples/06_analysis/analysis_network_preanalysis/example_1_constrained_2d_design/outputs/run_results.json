@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "3",
+    "MEETS_TOLERANCE": "False",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/expected_precision.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_preanalysis/example_1_constrained_2d_design/outputs/report.html",
+    "UNCHECKABLE_COUNT": "1",
+    "WORST_STATION": "C",
+    "WORST_UNCERTAINTY": "0.06891485060962572"
+  },
+  "info_lines": 4,
+  "warning_lines": 2
+}

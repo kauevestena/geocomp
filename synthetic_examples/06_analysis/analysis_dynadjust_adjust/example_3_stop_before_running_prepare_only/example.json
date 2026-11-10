@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Adjust network (DynAdjust)",
+  "algorithm_id": "geocomp:analysis_dynadjust_adjust",
+  "algorithm_title": "Adjust network (DynAdjust)",
+  "example_index": 3,
+  "slug": "example_3_stop_before_running_prepare_only",
+  "title": "Prepare DynAdjust DynaML files and stop before running (STOP_BEFORE_RUNNING=True)",
+  "scenario": "Generates geocomp.stn.xml, geocomp.msr.xml, and geocomp-dynadjust.json for manual inspection without invoking binaries.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_3_stop_before_running_prepare_only/inputs/network.json",
+    "FRAME": "GDA2020",
+    "EPOCH": 2020.0,
+    "STOP_BEFORE_RUNNING": true,
+    "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_3_stop_before_running_prepare_only/outputs/prepared_job"
+  },
+  "expected_summary": "Writes DynaML input files and manifest into prepared_job/ without running DynAdjust.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ADJUSTMENT_MODE": "simult",
+      "CONVERGED": "None",
+      "DEGREES_OF_FREEDOM": "None",
+      "ENGINE_VERSION": "",
+      "GLOBAL_TEST_PASSED": "None",
+      "ITERATIONS": "None",
+      "OUTPUT_SOLUTION": "None",
+      "OUTPUT_WORK_DIR": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_dynadjust_adjust/example_3_stop_before_running_prepare_only/outputs/prepared_job",
+      "VARIANCE_FACTOR_APOSTERIORI": "None"
+    },
+    "info_lines": 5,
+    "warning_lines": 0
+  }
+}

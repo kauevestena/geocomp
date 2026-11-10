@@ -1,0 +1,43 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ Total station and level",
+  "algorithm_id": "geocomp:integration_total_station_level",
+  "algorithm_title": "Total station and level",
+  "example_index": 3,
+  "slug": "example_3_high_confidence_99pct",
+  "title": "Total Station + Spirit Levelling at 99% confidence level",
+  "scenario": "Runs combined terrestrial adjustment with 99% confidence intervals and ellipses.",
+  "parameters": {
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/inputs/ts.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/inputs/levelling.json",
+    "EPOCH": "2026.7",
+    "CONFIDENCE": 0.99,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/combined.json"
+  },
+  "expected_summary": "Outputs 99% confidence combined terrestrial solution.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "8",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_3_high_confidence_99pct/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "1.036023013026398"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

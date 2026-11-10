@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/quality.json",
+    "OUTPUT_LAYER": "None",
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_absolute_static/example_2_high_elevation_mask_25deg/outputs/solution.pos"
+  },
+  "info_lines": 3,
+  "warning_lines": 3
+}

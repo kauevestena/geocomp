@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/differences.csv",
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_2_balanced_leapfrog/outputs/report.html",
+    "RESULT_COUNT": "1",
+    "WORST_UNCERTAINTY": "0.0014961132248098587"
+  },
+  "info_lines": 1,
+  "warning_lines": 0
+}

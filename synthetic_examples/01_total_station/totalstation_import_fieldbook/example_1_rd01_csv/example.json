@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Import field book",
+  "algorithm_id": "geocomp:totalstation_import_fieldbook",
+  "algorithm_title": "Import field book",
+  "example_index": 1,
+  "slug": "example_1_rd01_csv",
+  "title": "Two-face CSV field book (RD-01) with explicit direction/zenith/distance sigmas",
+  "scenario": "Imports 12 readings across 3 station setups (A, B, C) with 1 arcsec angle and 2 mm distance precision.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/inputs/fieldbook.csv",
+    "SIGMA_DIRECTION": 5e-06,
+    "SIGMA_ZENITH": 5e-06,
+    "SIGMA_DISTANCE": 0.002,
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/readings.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/report.html",
+    "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/findings.csv"
+  },
+  "expected_summary": "Imports 12 valid readings across 3 setups with 0 rejected records.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/report.html",
+      "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_1_rd01_csv/outputs/readings.json",
+      "RECORD_COUNT": "12",
+      "REJECTED_COUNT": "0",
+      "SETUP_COUNT": "3"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

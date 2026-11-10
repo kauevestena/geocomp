@@ -1,0 +1,306 @@
+{
+  "adjusted_stations": [
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.00012599999999999634
+      ],
+      "covariance": {
+        "labels": [
+          "BM1.h"
+        ],
+        "matrix": [
+          [
+            7.779239999999565e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "LOCAL",
+        "epoch": {
+          "decimal_year": 2026.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": -0.00012599999999999634,
+            "variance": 7.779239999999565e-07
+          }
+        ]
+      },
+      "station_id": "BM1"
+    },
+    {
+      "correction": [
+        0.0,
+        0.0,
+        0.00100800000000012
+      ],
+      "covariance": {
+        "labels": [
+          "BM2.h"
+        ],
+        "matrix": [
+          [
+            1.206575999999932e-06
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "LOCAL",
+        "epoch": {
+          "decimal_year": 2026.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 3.7498280000000004,
+            "variance": 1.206575999999932e-06
+          }
+        ]
+      },
+      "station_id": "BM2"
+    },
+    {
+      "correction": [
+        0.0,
+        0.0,
+        -0.0008819999999998274
+      ],
+      "covariance": {
+        "labels": [
+          "BM4.h"
+        ],
+        "matrix": [
+          [
+            9.684359999999467e-07
+          ]
+        ],
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "units": [
+          "METRE"
+        ]
+      },
+      "position": {
+        "crs": "LOCAL",
+        "epoch": {
+          "decimal_year": 2026.0
+        },
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 0.0
+          },
+          {
+            "mode": "APPROXIMATE",
+            "strategies": [
+              "NOMINAL_PRECISION"
+            ],
+            "unit": "METRE",
+            "value": 6.4795180000000006,
+            "variance": 9.684359999999467e-07
+          }
+        ]
+      },
+      "station_id": "BM4"
+    }
+  ],
+  "crs": "LOCAL",
+  "datum_definition": "INNER_CONSTRAINT",
+  "epoch": {
+    "decimal_year": 2026.0
+  },
+  "id": "levelling-adjustment",
+  "kind": "ADJUSTMENT",
+  "network_id": "levelling",
+  "observation_results": [
+    {
+      "external_reliability": 0.0033314441948460094,
+      "minimal_detectable_bias": 0.0065334995992173866,
+      "observation_id": "BM1-BM2",
+      "redundancy": 0.3,
+      "residual": 0.0011339999999999681,
+      "standardised_residual": 0.9999999999999998,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 0.9999999999999998
+      }
+    },
+    {
+      "external_reliability": 0.002325289549348642,
+      "minimal_detectable_bias": 0.006533499599217387,
+      "observation_id": "BM2-BM4",
+      "redundancy": 0.49999999999999994,
+      "residual": 0.0018899999999999473,
+      "standardised_residual": 1.0,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0
+      }
+    },
+    {
+      "external_reliability": 0.0037342060589775667,
+      "minimal_detectable_bias": 0.006533499599217388,
+      "observation_id": "BM4-BM1",
+      "redundancy": 0.19999999999999993,
+      "residual": 0.0007559999999999791,
+      "standardised_residual": 1.0000000000000002,
+      "w_test": {
+        "confidence": 0.95,
+        "critical_high": 1.959963984540054,
+        "name": "w-test (tau)",
+        "passed": true,
+        "statistic": 1.0000000000000002
+      }
+    }
+  ],
+  "parameter_covariance": {
+    "labels": [
+      "BM1.h",
+      "BM2.h",
+      "BM4.h"
+    ],
+    "matrix": [
+      [
+        7.779239999999565e-07,
+        -5.080319999999717e-07,
+        -2.698919999999849e-07
+      ],
+      [
+        -5.080319999999716e-07,
+        1.206575999999932e-06,
+        -6.985439999999609e-07
+      ],
+      [
+        -2.69891999999985e-07,
+        -6.985439999999612e-07,
+        9.684359999999467e-07
+      ]
+    ],
+    "mode": "APPROXIMATE",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "units": [
+      "METRE",
+      "METRE",
+      "METRE"
+    ]
+  },
+  "provenance": {
+    "algorithm_id": "geocomp:levelling_network",
+    "created": "2026-11-04T20:47:11.372409+00:00",
+    "geocomp_version": "0.1.0",
+    "parameters": {
+      "adjusted_despite_tolerance": [],
+      "closures_judged": 0,
+      "confidence": 0.95,
+      "datum": "inner_constraint",
+      "epoch_origin": "assumed",
+      "frame": "height_1d",
+      "height_type": "orthometric",
+      "orthometric_correction": "none",
+      "solver": "dense",
+      "tolerance_coefficient": 0.0,
+      "weighting": "sigma = 0.0005 m * sqrt(setups)"
+    },
+    "qgis_version": "3.44.7-Solothurn",
+    "source": "geocomp:levelling_network",
+    "strategies": [
+      "NOMINAL_PRECISION"
+    ],
+    "uncertainty_mode": "APPROXIMATE"
+  },
+  "statistics": {
+    "condition_number": 3865246448872201.5,
+    "converged": true,
+    "degrees_of_freedom": 1,
+    "global_test": {
+      "confidence": 0.95,
+      "critical_high": 5.023886187314888,
+      "critical_low": 0.0009820691171752583,
+      "name": "global",
+      "note": "variance factor too large. Possible causes: one or more blunders in the observations; an incorrect stochastic model: the a priori precisions are wrong; an incorrect functional model: the observation equations do not describe what was measured",
+      "passed": false,
+      "statistic": 5.715359999999681
+    },
+    "iterations": 2,
+    "max_correction": 1.3266819425754762e-19,
+    "n_constraints": 1,
+    "n_observations": 3,
+    "n_parameters": 3,
+    "variance_factor_aposteriori": 5.715359999999681,
+    "variance_factor_apriori": 1.0
+  },
+  "uncertainty_mode": "APPROXIMATE"
+}

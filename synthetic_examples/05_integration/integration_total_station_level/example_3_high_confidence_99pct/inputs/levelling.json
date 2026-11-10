@@ -1,0 +1,143 @@
+{
+  "id": "levelling",
+  "stations": [
+    {
+      "id": "P1",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FIXED",
+        "components": [
+          "up"
+        ],
+        "position": {
+          "values": [
+            {
+              "value": 0.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            },
+            {
+              "value": 0.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            },
+            {
+              "value": 912.0,
+              "variance": 0.0,
+              "unit": "METRE",
+              "mode": "RIGOROUS"
+            }
+          ],
+          "system": "PROJECTED",
+          "crs": "LOCAL",
+          "height_type": "ORTHOMETRIC"
+        }
+      },
+      "approx_position": {
+        "values": [
+          {
+            "value": 0.0,
+            "variance": 0.0,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 0.0,
+            "variance": 0.0,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          },
+          {
+            "value": 912.0,
+            "variance": 0.0,
+            "unit": "METRE",
+            "mode": "RIGOROUS"
+          }
+        ],
+        "system": "PROJECTED",
+        "crs": "LOCAL",
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "P3",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    },
+    {
+      "id": "P4",
+      "station_type": "MARK",
+      "constraint": {
+        "mode": "FREE"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "l-P1-P3",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "P1",
+        "P3"
+      ],
+      "values": [
+        {
+          "value": -7.774157507396388,
+          "variance": 6.4e-07,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "l-P3-P4",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "P3",
+        "P4"
+      ],
+      "values": [
+        {
+          "value": 27.646421193043036,
+          "variance": 6.4e-07,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    },
+    {
+      "id": "l-P4-P1",
+      "type": "HEIGHT_DIFFERENCE",
+      "stations": [
+        "P4",
+        "P1"
+      ],
+      "values": [
+        {
+          "value": -19.87204263347077,
+          "variance": 6.4e-07,
+          "unit": "METRE",
+          "mode": "RIGOROUS"
+        }
+      ],
+      "status": "ACTIVE",
+      "meta": {
+        "height_type": "ORTHOMETRIC"
+      }
+    }
+  ],
+  "clusters": [],
+  "crs": "LOCAL"
+}

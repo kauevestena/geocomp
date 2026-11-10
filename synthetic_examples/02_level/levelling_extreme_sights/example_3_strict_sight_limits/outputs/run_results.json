@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING": "0",
+    "DIFFERENCE_COUNT": "3",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.csv",
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/differences.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_3_strict_sight_limits/outputs/report.html",
+    "SETUP_COUNT": "1",
+    "WARNINGS": "5",
+    "WORST_UNCERTAINTY": "0.0007071067811865475"
+  },
+  "info_lines": 0,
+  "warning_lines": 5
+}

@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Install tutorial dataset",
+  "algorithm_id": "geocomp:project_tutorial_dataset",
+  "algorithm_title": "Install tutorial dataset",
+  "example_index": 2,
+  "slug": "example_2_install_rd04_levelling_loop",
+  "title": "Install tutorial dataset 'rd04-loop' (Spirit Levelling Loop)",
+  "scenario": "Copies shipped levelling loop tutorial dataset rd04-loop with overwrite enabled.",
+  "parameters": {
+    "DATASET": 2,
+    "DESTINATION": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_2_install_rd04_levelling_loop/outputs/tutorial_rd04-loop",
+    "OVERWRITE": true
+  },
+  "expected_summary": "Installs tutorial dataset 'rd04-loop' and creates worked QGIS project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "FILE_COUNT": "6",
+      "OUTPUT_DIRECTORY": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_2_install_rd04_levelling_loop/outputs/tutorial_rd04-loop/rd04-loop",
+      "OUTPUT_PROJECT": "/home/kaue/geocomp/synthetic_examples/07_project/project_tutorial_dataset/example_2_install_rd04_levelling_loop/outputs/tutorial_rd04-loop/rd04-loop/rd04-loop.qgz"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

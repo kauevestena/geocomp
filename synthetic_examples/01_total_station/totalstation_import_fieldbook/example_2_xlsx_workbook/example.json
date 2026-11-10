@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Import field book",
+  "algorithm_id": "geocomp:totalstation_import_fieldbook",
+  "algorithm_title": "Import field book",
+  "example_index": 2,
+  "slug": "example_2_xlsx_workbook",
+  "title": "Excel spreadsheet (.xlsx) field book import with high-precision EDM sigmas",
+  "scenario": "Imports the field book directly from an Excel .xlsx workbook without converting to CSV.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/inputs/fieldbook.xlsx",
+    "SIGMA_DIRECTION": 2.5e-06,
+    "SIGMA_ZENITH": 2.5e-06,
+    "SIGMA_DISTANCE": 0.001,
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/readings.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/report.html",
+    "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/findings.csv"
+  },
+  "expected_summary": "Reads all 12 records from .xlsx matching CSV import identically.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/report.html",
+      "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_2_xlsx_workbook/outputs/readings.json",
+      "RECORD_COUNT": "12",
+      "REJECTED_COUNT": "0",
+      "SETUP_COUNT": "3"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

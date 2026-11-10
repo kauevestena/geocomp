@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "results": {
+    "DEGREES_OF_FREEDOM": "6",
+    "ENGINE_USED": "in_house",
+    "GLOBAL_TEST_PASSED": "False",
+    "OUTLIER_COUNT": "1",
+    "OUTPUT_CORRECTION_LAYER": "None",
+    "OUTPUT_ELLIPSE_LAYER": "None",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/combined.json",
+    "OUTPUT_OBSERVATION_LAYER": "None",
+    "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+    "OUTPUT_RESIDUAL_LAYER": "None",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_gnss_level/example_1_planar_geoid_coupling/outputs/solution.json",
+    "OUTPUT_STATION_LAYER": "None",
+    "VARIANCE_FACTOR_APOSTERIORI": "0.10099976259412308"
+  },
+  "info_lines": 5,
+  "warning_lines": 0
+}

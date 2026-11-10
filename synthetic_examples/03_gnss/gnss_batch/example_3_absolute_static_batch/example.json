@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Batch processing",
+  "algorithm_id": "geocomp:gnss_batch",
+  "algorithm_title": "Batch processing",
+  "example_index": 3,
+  "slug": "example_3_absolute_static_batch",
+  "title": "Batch Absolute — Static positioning across all stations in folder",
+  "scenario": "Processes every station (BASE and ROVE) independently in Absolute — Static mode.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/rinex",
+    "PROFILE": 2,
+    "CONFIGURATION": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/inputs/batch_abs.conf",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/outputs/batch_report.json"
+  },
+  "expected_summary": "Runs standalone static positioning on every receiver in the folder.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_batch/example_3_absolute_static_batch/outputs/batch_report.json"
+    },
+    "info_lines": 4,
+    "warning_lines": 3
+  }
+}

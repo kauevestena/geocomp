@@ -1,0 +1,15 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING": "0",
+    "DIFFERENCE_COUNT": "3",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.csv",
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/differences.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_extreme_sights/example_1_multiple_foresights/outputs/report.html",
+    "SETUP_COUNT": "1",
+    "WARNINGS": "0",
+    "WORST_UNCERTAINTY": "0.0007071067811865475"
+  },
+  "info_lines": 1,
+  "warning_lines": 0
+}

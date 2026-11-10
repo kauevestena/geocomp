@@ -1,0 +1,8 @@
+[
+  {
+    "id": "ufpr_mirror",
+    "name": "UFPR Local GNSS Mirror",
+    "sp3_final": "https://gnss.ufpr.br/igs/W{wwww}/igs{wwww}{d}.sp3.Z",
+    "nav_gps": "https://gnss.ufpr.br/brdc/{yyyy}/brdc{ddd}0.{yy}n.Z"
+  }
+]

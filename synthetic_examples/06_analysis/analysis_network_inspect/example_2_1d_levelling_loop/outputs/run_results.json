@@ -1,0 +1,13 @@
+{
+  "status": "verified",
+  "results": {
+    "BLOCKING_COUNT": "0",
+    "CAN_ADJUST": "True",
+    "COMPONENT_COUNT": "1",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/findings.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/report.html",
+    "WARNING_COUNT": "0"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

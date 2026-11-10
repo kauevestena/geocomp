@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/baselines.json",
+    "OUTPUT_LAYER": "None",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_build_baselines/example_2_antenna_height_reduction/outputs/network.json"
+  },
+  "info_lines": 2,
+  "warning_lines": 0
+}

@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Inspect network",
+  "algorithm_id": "geocomp:analysis_network_inspect",
+  "algorithm_title": "Inspect network",
+  "example_index": 2,
+  "slug": "example_2_1d_levelling_loop",
+  "title": "Inspection of a 1D spirit-levelling network (FRAME=1)",
+  "scenario": "Checks vertical benchmark sufficiency and graph connectivity in 1D height mode.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/inputs/levelling_loop.json",
+    "FRAME": 1,
+    "FAIL_ON_BLOCKING": true,
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/findings.csv"
+  },
+  "expected_summary": "Confirms 1D height network is connected and ready for adjustment.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING_COUNT": "0",
+      "CAN_ADJUST": "True",
+      "COMPONENT_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_inspect/example_2_1d_levelling_loop/outputs/report.html",
+      "WARNING_COUNT": "0"
+    },
+    "info_lines": 3,
+    "warning_lines": 0
+  }
+}

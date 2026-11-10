@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Create print layout",
+  "algorithm_id": "geocomp:project_print_layout",
+  "algorithm_title": "Create print layout",
+  "example_index": 1,
+  "slug": "example_1_network_map_with_ellipses",
+  "title": "Deliverable 1: Network map with error ellipses, scale bar, north arrow, and legend",
+  "scenario": "Creates a print layout framed around the project's adjusted stations and error ellipses.",
+  "parameters": {
+    "TEMPLATE": 0,
+    "QUALITY": 0,
+    "TITLE": "Curitiba Control Network — 95% Error Ellipses",
+    "NAME": "Curitiba_Network_Map"
+  },
+  "expected_summary": "Creates print layout 'Curitiba_Network_Map' in the QGIS project layout manager.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "LAYOUT": "Curitiba_Network_Map"
+    },
+    "info_lines": 1,
+    "warning_lines": 0
+  }
+}

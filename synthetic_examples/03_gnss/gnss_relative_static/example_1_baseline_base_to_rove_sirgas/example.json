@@ -1,0 +1,33 @@
+{
+  "menu_group_id": "03_gnss",
+  "menu_group_title": "GNSS",
+  "menu_path": "GeoComp ▸ GNSS ▸ Relative ▸ Relative — Static",
+  "algorithm_id": "geocomp:gnss_relative_static",
+  "algorithm_title": "Relative — Static",
+  "example_index": 1,
+  "slug": "example_1_baseline_base_to_rove_sirgas",
+  "title": "Relative static baseline BASE -> ROVE in SIRGAS2000 (15° mask)",
+  "scenario": "Carrier-phase static baseline processing between BASE and ROVE in SIRGAS2000.",
+  "parameters": {
+    "FOLDER": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_1_baseline_base_to_rove_sirgas/inputs/rinex",
+    "BASE_STATION": "BASE",
+    "ROVER_STATION": "ROVE",
+    "FRAME": 7,
+    "ELEVATION_MASK": 15.0,
+    "KEEP_WORK_DIR": true,
+    "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_1_baseline_base_to_rove_sirgas/outputs/solution.pos",
+    "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_1_baseline_base_to_rove_sirgas/outputs/quality.json"
+  },
+  "expected_summary": "Solves carrier-phase static baseline BASE -> ROVE with fixed ambiguities (Q=1).",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_JSON": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_1_baseline_base_to_rove_sirgas/outputs/quality.json",
+      "OUTPUT_LAYER": "None",
+      "OUTPUT_POS": "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_relative_static/example_1_baseline_base_to_rove_sirgas/outputs/solution.pos"
+    },
+    "info_lines": 5,
+    "warning_lines": 2
+  }
+}

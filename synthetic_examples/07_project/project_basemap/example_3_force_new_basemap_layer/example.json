@@ -1,0 +1,27 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Add base map",
+  "algorithm_id": "geocomp:project_basemap",
+  "algorithm_title": "Add base map",
+  "example_index": 3,
+  "slug": "example_3_force_new_basemap_layer",
+  "title": "Add OpenStreetMap layer forcing a second copy (REUSE=False)",
+  "scenario": "Inserts a fresh base map layer even when one is already present in the project.",
+  "parameters": {
+    "SERVICE": "osm",
+    "REUSE": false
+  },
+  "expected_summary": "Adds XYZ tile base map layer to the active QGIS project.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "LAYER": "OpenStreetMap_8f201a17_f6be_4184_9d9f_ae0d90fecc8b",
+      "OUTCOME": "added",
+      "SERVICE": "osm"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

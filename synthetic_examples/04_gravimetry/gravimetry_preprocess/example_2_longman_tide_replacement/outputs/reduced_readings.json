@@ -1,0 +1,316 @@
+{
+  "file_format": "cg5",
+  "format": "geocomp.gravity_readings",
+  "notes": [
+    "The instrument removed the tide itself (Tide Correction: YES); its correction was added back for GeoComp's to replace it.",
+    "Times were taken as UTC+0 h, as given.",
+    "Each reading's precision is SD / sqrt(DUR), with a floor of 5 microgal added in quadrature."
+  ],
+  "profiles": {
+    "default_gravimeter": "CG-5 40123",
+    "gravimeters": [
+      {
+        "applies_tide": true,
+        "calibration_factor": {
+          "mode": "RIGOROUS",
+          "unit": "DIMENSIONLESS",
+          "value": 1.0,
+          "variance": 0.0
+        },
+        "id": "CG-5 40123",
+        "reading_unit": "gravity",
+        "sigma_reading": 5e-08,
+        "source": "Synthetic Scintrex CG-5 #40123"
+      }
+    ],
+    "instruments": [],
+    "levelling_classes": [],
+    "levels": [],
+    "reflectors": []
+  },
+  "readings": [
+    {
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "INDEPENDENCE_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 0.03021280125285695,
+        "variance": 3.429760250666667e-15
+      },
+      "instrument_gravity": 0.030211230000000002,
+      "reading": {
+        "height": 900.0,
+        "id": "cg5_survey.txt:11",
+        "instant": "2026-03-10T09:00:00+00:00",
+        "instrument": "CG-5 40123",
+        "latitude": -0.4441862946325569,
+        "longitude": -0.8592255907568084,
+        "sensor_height": {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 0.25,
+          "variance": 4e-06
+        },
+        "session": "CG-5 40123 2026-03-10",
+        "station": "1",
+        "tide_applied": false,
+        "value": {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "ACCELERATION",
+          "value": 0.030211230000000002,
+          "variance": 3.166666666666667e-15
+        }
+      },
+      "tide": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 7.997528569484085e-07,
+        "variance": 2.2499999999999996e-16
+      },
+      "to_mark": {
+        "mode": "RIGOROUS",
+        "unit": "ACCELERATION",
+        "value": 7.715e-07,
+        "variance": 3.8093584e-17
+      }
+    },
+    {
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "INDEPENDENCE_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 0.030216085698830424,
+        "variance": 3.429760250666667e-15
+      },
+      "instrument_gravity": 0.030214560000000005,
+      "reading": {
+        "height": 900.0,
+        "id": "cg5_survey.txt:12",
+        "instant": "2026-03-10T09:20:00+00:00",
+        "instrument": "CG-5 40123",
+        "latitude": -0.4441862946325569,
+        "longitude": -0.8592255907568084,
+        "sensor_height": {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 0.25,
+          "variance": 4e-06
+        },
+        "session": "CG-5 40123 2026-03-10",
+        "station": "2",
+        "tide_applied": false,
+        "value": {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "ACCELERATION",
+          "value": 0.030214560000000005,
+          "variance": 3.166666666666667e-15
+        }
+      },
+      "tide": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 7.541988304179373e-07,
+        "variance": 2.2499999999999996e-16
+      },
+      "to_mark": {
+        "mode": "RIGOROUS",
+        "unit": "ACCELERATION",
+        "value": 7.715e-07,
+        "variance": 3.8093584e-17
+      }
+    },
+    {
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "INDEPENDENCE_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 0.03021145325832944,
+        "variance": 3.429760250666667e-15
+      },
+      "instrument_gravity": 0.030209980000000004,
+      "reading": {
+        "height": 900.0,
+        "id": "cg5_survey.txt:13",
+        "instant": "2026-03-10T09:40:00+00:00",
+        "instrument": "CG-5 40123",
+        "latitude": -0.4441862946325569,
+        "longitude": -0.8592255907568084,
+        "sensor_height": {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 0.25,
+          "variance": 4e-06
+        },
+        "session": "CG-5 40123 2026-03-10",
+        "station": "3",
+        "tide_applied": false,
+        "value": {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "ACCELERATION",
+          "value": 0.030209980000000004,
+          "variance": 3.166666666666667e-15
+        }
+      },
+      "tide": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 7.017583294362005e-07,
+        "variance": 2.2499999999999996e-16
+      },
+      "to_mark": {
+        "mode": "RIGOROUS",
+        "unit": "ACCELERATION",
+        "value": 7.715e-07,
+        "variance": 3.8093584e-17
+      }
+    },
+    {
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "INDEPENDENCE_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 0.0302160053326757,
+        "variance": 3.429760250666667e-15
+      },
+      "instrument_gravity": 0.03021459,
+      "reading": {
+        "height": 900.0,
+        "id": "cg5_survey.txt:14",
+        "instant": "2026-03-10T10:00:00+00:00",
+        "instrument": "CG-5 40123",
+        "latitude": -0.4441862946325569,
+        "longitude": -0.8592255907568084,
+        "sensor_height": {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 0.25,
+          "variance": 4e-06
+        },
+        "session": "CG-5 40123 2026-03-10",
+        "station": "2",
+        "tide_applied": false,
+        "value": {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "ACCELERATION",
+          "value": 0.03021459,
+          "variance": 3.166666666666667e-15
+        }
+      },
+      "tide": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 6.438326756994298e-07,
+        "variance": 2.2499999999999996e-16
+      },
+      "to_mark": {
+        "mode": "RIGOROUS",
+        "unit": "ACCELERATION",
+        "value": 7.715e-07,
+        "variance": 3.8093584e-17
+      }
+    },
+    {
+      "gravity": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "INDEPENDENCE_ASSUMED",
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 0.03021265339120826,
+        "variance": 3.429760250666667e-15
+      },
+      "instrument_gravity": 0.030211300000000003,
+      "reading": {
+        "height": 900.0,
+        "id": "cg5_survey.txt:15",
+        "instant": "2026-03-10T10:20:00+00:00",
+        "instrument": "CG-5 40123",
+        "latitude": -0.4441862946325569,
+        "longitude": -0.8592255907568084,
+        "sensor_height": {
+          "mode": "RIGOROUS",
+          "unit": "METRE",
+          "value": 0.25,
+          "variance": 4e-06
+        },
+        "session": "CG-5 40123 2026-03-10",
+        "station": "1",
+        "tide_applied": false,
+        "value": {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "ACCELERATION",
+          "value": 0.030211300000000003,
+          "variance": 3.166666666666667e-15
+        }
+      },
+      "tide": {
+        "mode": "APPROXIMATE",
+        "strategies": [
+          "NOMINAL_PRECISION"
+        ],
+        "unit": "ACCELERATION",
+        "value": 5.818912082564635e-07,
+        "variance": 2.2499999999999996e-16
+      },
+      "to_mark": {
+        "mode": "RIGOROUS",
+        "unit": "ACCELERATION",
+        "value": 7.715e-07,
+        "variance": 3.8093584e-17
+      }
+    }
+  ],
+  "reduction": {
+    "amplification": 1.16,
+    "drift_degree": 1,
+    "precision_floor": 5.0000000000000004e-08,
+    "replace_tide": true,
+    "sensor_height": 0.25,
+    "sensor_height_sigma": 0.002,
+    "tide_model": "longman_1959",
+    "tide_uncertainty": 1.5e-08,
+    "utc_offset_hours": 0.0
+  },
+  "source": "cg5_survey.txt",
+  "version": 1
+}

@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Levelling network adjustment",
+  "algorithm_id": "geocomp:levelling_network",
+  "algorithm_title": "Levelling network adjustment",
+  "example_index": 1,
+  "slug": "example_1_constrained_benchmark_loop",
+  "title": "Constrained 1D levelling loop adjustment holding BM1 = 100.000 m",
+  "scenario": "Least-squares adjustment of 4-line loop weighted by line length holding BM1 fixed.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/inputs/loop_reduced.json",
+    "BENCHMARKS": "BM1=100.0",
+    "WEIGHTING": 0,
+    "SIGMA_PER_KM": 0.001,
+    "FREE": false,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/heights.csv",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/network.json"
+  },
+  "expected_summary": "Adjusts benchmark heights around the loop with 1 degree of freedom.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "1",
+      "GLOBAL_TEST_PASSED": "False",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/heights.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/network.json",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_network/example_1_constrained_benchmark_loop/outputs/solution.json",
+      "VARIANCE_FACTOR_APOSTERIORI": "18.800526315788424",
+      "WORST_HEIGHT_UNCERTAINTY": "0.0016070465503395677"
+    },
+    "info_lines": 3,
+    "warning_lines": 2
+  }
+}

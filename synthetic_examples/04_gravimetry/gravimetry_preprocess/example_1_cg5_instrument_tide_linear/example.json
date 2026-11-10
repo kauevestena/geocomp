@@ -1,0 +1,39 @@
+{
+  "menu_group_id": "04_gravimetry",
+  "menu_group_title": "Gravimetry",
+  "menu_path": "GeoComp ▸ Gravimetry ▸ Pre-processing (scale, tide, drift)",
+  "algorithm_id": "geocomp:gravimetry_preprocess",
+  "algorithm_title": "Pre-processing (scale, tide, drift)",
+  "example_index": 1,
+  "slug": "example_1_cg5_instrument_tide_linear",
+  "title": "Scintrex CG-5 pre-processing keeping instrument tide and linear drift (degree 1)",
+  "scenario": "Reduces CG-5 readings (BASE, S1, S2) with linear drift fit.",
+  "parameters": {
+    "READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/inputs/cg5_survey.txt",
+    "PRECISION_FLOOR": 0.005,
+    "REPLACE_TIDE": false,
+    "TIDE_MODEL": 0,
+    "AMPLIFICATION": 1.16,
+    "DRIFT_DEGREE": 1,
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/reduced_readings.json",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/corrections.csv",
+    "OUTPUT_DRIFT": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/drift.json"
+  },
+  "expected_summary": "Fits linear instrumental drift from repeated BASE occupations.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "LARGEST_TIDE": "0.0",
+      "OCCUPATION_COUNT": "5",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/corrections.csv",
+      "OUTPUT_DRIFT": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/drift.json",
+      "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/04_gravimetry/gravimetry_preprocess/example_1_cg5_instrument_tide_linear/outputs/reduced_readings.json",
+      "READING_COUNT": "5",
+      "SESSION_COUNT": "1",
+      "UNESTIMABLE_SESSIONS": "0"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

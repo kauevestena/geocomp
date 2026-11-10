@@ -1,0 +1,120 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Configurations compared</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style></head><body>
+<h1>Configurations compared</h1>
+<p>Baseline BASE → ROVE.</p>
+<h2>Side by side</h2>
+<table>
+<tr>
+<th>Configuration</th>
+<th>mask 15° (reference)</th>
+<th>mask 30°</th>
+<th>mask 40°</th>
+</tr>
+<tr>
+<td>Elevation mask (°)</td>
+<td>15.0</td>
+<td>30.0</td>
+<td>40.0</td>
+</tr>
+<tr>
+<td>Baseline length (m)</td>
+<td>137.1809</td>
+<td>137.1833</td>
+<td>137.1849</td>
+</tr>
+<tr>
+<td>Length standard deviation (mm)</td>
+<td>1.9</td>
+<td>1.9</td>
+<td>1.9</td>
+</tr>
+<tr>
+<td>Difference in X (mm)</td>
+<td>—</td>
+<td>3.0</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Difference in Y (mm)</td>
+<td>—</td>
+<td>-3.0</td>
+<td>-5.0</td>
+</tr>
+<tr>
+<td>Difference in Z (mm)</td>
+<td>—</td>
+<td>1.5</td>
+<td>2.5</td>
+</tr>
+<tr>
+<td>Difference in 3D (mm)</td>
+<td>—</td>
+<td>4.5</td>
+<td>7.5</td>
+</tr>
+<tr>
+<td>Difference in length (mm)</td>
+<td>—</td>
+<td>2.4</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td>Test statistic</td>
+<td>—</td>
+<td>3.13</td>
+<td>8.69</td>
+</tr>
+<tr>
+<td>Decision</td>
+<td>—</td>
+<td><span class="pass">not significant</span></td>
+<td><span class="pass">not significant</span></td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Fixed epochs (%)</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+</tr>
+<tr>
+<td>Ratio, median</td>
+<td>31.2</td>
+<td>31.2</td>
+<td>31.2</td>
+</tr>
+<tr>
+<td>Satellites, fewest to most</td>
+<td>8 to 9</td>
+<td>8 to 9</td>
+<td>8 to 9</td>
+</tr>
+<tr>
+<td>PDOP, median</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Cycle slips</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Rejected observations</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</table>
+<div class="note">No difference is significant at 99% confidence: over this data, the configurations changed nothing that can be resolved.</div>
+<div class="note"><b>How to read it</b>: Each difference is the configuration&#x27;s baseline minus the reference&#x27;s, tested against the two solutions&#x27; covariances together. The runs share their observations but are tested as if independent, which overstates each difference&#x27;s uncertainty: a difference reported significant is significant, and one reported not significant may still hide a small real one.</div>
+</body></html>

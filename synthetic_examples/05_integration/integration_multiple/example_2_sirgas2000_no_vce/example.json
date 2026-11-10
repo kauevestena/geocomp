@@ -1,0 +1,48 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ Multiple techniques",
+  "algorithm_id": "geocomp:integration_multiple",
+  "algorithm_title": "Multiple techniques",
+  "example_index": 2,
+  "slug": "example_2_sirgas2000_no_vce",
+  "title": "Three-technique combination in ITRF2014 with projected UTM Total Station input",
+  "scenario": "Combines GNSS, UTM 22S Total Station, and Spirit Levelling in ITRF2014.",
+  "parameters": {
+    "GNSS": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/inputs/gnss.json",
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/inputs/ts_grid.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/inputs/levelling.json",
+    "FRAME": 1,
+    "GEOID": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/inputs/curitiba_planar.asc",
+    "GEOID_SIGMA": 0.03,
+    "FIXED_STATIONS": "CTB1,CTB2",
+    "VARIANCE_COMPONENTS": false,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/combined.json"
+  },
+  "expected_summary": "Combines all 3 techniques in ITRF2014.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "45",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "3",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_GRAVITY": "",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_multiple/example_2_sirgas2000_no_vce/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "0.6615207174888033"
+    },
+    "info_lines": 6,
+    "warning_lines": 0
+  }
+}

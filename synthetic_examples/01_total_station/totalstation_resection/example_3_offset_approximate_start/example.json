@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Resection",
+  "algorithm_id": "geocomp:totalstation_resection",
+  "algorithm_title": "Resection",
+  "example_index": 3,
+  "slug": "example_3_offset_approximate_start",
+  "title": "Resection starting from an explicit offset approximate position (1135, 980)",
+  "scenario": "Tests Gauss-Newton convergence when explicit approximate easting/northing are 18 m off.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/inputs/reductions.json",
+    "STATION": "R",
+    "KNOWN": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/inputs/known.json",
+    "APPROX_EASTING": 1135.0,
+    "APPROX_NORTHING": 980.0,
+    "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/outputs/position.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/outputs/report.html"
+  },
+  "expected_summary": "Converges from (1135, 980) to exact R = (1120.0, 990.0) m.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "EASTING": "1120.0",
+      "NORTHING": "990.0",
+      "ORIENTATION": "70.00000135240782",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/outputs/report.html",
+      "OUTPUT_POSITION": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_resection/example_3_offset_approximate_start/outputs/position.json",
+      "SIGMA_EASTING": "0.0005144460635777308",
+      "SIGMA_NORTHING": "0.00043206752819581245"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

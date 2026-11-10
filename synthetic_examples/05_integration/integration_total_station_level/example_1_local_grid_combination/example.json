@@ -1,0 +1,42 @@
+{
+  "menu_group_id": "05_integration",
+  "menu_group_title": "Integration",
+  "menu_path": "GeoComp ▸ Integration ▸ Total station and level",
+  "algorithm_id": "geocomp:integration_total_station_level",
+  "algorithm_title": "Total station and level",
+  "example_index": 1,
+  "slug": "example_1_local_grid_combination",
+  "title": "Combine projected Total Station and Spirit Levelling in the Total Station's CRS",
+  "scenario": "Combines terrestrial 3D total station and spirit levelling observations at epoch 2026.7.",
+  "parameters": {
+    "TOTAL_STATION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/inputs/ts.json",
+    "LEVELLING": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/inputs/levelling.json",
+    "EPOCH": "2026.7",
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/report.html",
+    "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/combined.json"
+  },
+  "expected_summary": "Combines Total Station and Levelling in EPSG:31982 recovering heights to < 5 mm.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "8",
+      "ENGINE_USED": "in_house",
+      "GLOBAL_TEST_PASSED": "True",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/report.html",
+      "OUTPUT_NETWORK": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/combined.json",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/05_integration/integration_total_station_level/example_1_local_grid_combination/outputs/solution.json",
+      "OUTPUT_STATION_LAYER": "None",
+      "VARIANCE_FACTOR_APOSTERIORI": "1.036023013026398"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

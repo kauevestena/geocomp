@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.csv",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/report.html",
+    "OUTPUT_POINTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_radiation/example_2_with_explicit_orientations/outputs/points.json",
+    "POINT_COUNT": "2",
+    "WORST_UNCERTAINTY": "0.001973561511098366"
+  },
+  "info_lines": 3,
+  "warning_lines": 0
+}

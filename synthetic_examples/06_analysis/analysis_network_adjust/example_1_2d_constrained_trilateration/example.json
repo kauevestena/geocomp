@@ -1,0 +1,47 @@
+{
+  "menu_group_id": "06_analysis",
+  "menu_group_title": "Analysis",
+  "menu_path": "GeoComp ▸ Analysis ▸ Adjust network",
+  "algorithm_id": "geocomp:analysis_network_adjust",
+  "algorithm_title": "Adjust network",
+  "example_index": 1,
+  "slug": "example_1_2d_constrained_trilateration",
+  "title": "2D Gauss-Markov least-squares adjustment of trilateration network",
+  "scenario": "Adjusts 2D network with constrained datum and Baarda data snooping.",
+  "parameters": {
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/inputs/trilateration.json",
+    "FRAME": 0,
+    "DATUM": 0,
+    "CONFIDENCE": 0.95,
+    "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/solution.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/report.html",
+    "OUTPUT_STATIONS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/stations.csv",
+    "OUTPUT_RESIDUALS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/residuals.csv"
+  },
+  "expected_summary": "Converges least-squares solution and writes solution.json, stations.csv, and residuals.csv.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "DEGREES_OF_FREEDOM": "3",
+      "GLOBAL_TEST_PASSED": "True",
+      "ITERATIONS": "2",
+      "OUTLIER_COUNT": "0",
+      "OUTPUT_CORRECTION_LAYER": "None",
+      "OUTPUT_ELLIPSE_LAYER": "None",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/report.html",
+      "OUTPUT_OBSERVATION_LAYER": "None",
+      "OUTPUT_RELATIVE_ELLIPSE_LAYER": "None",
+      "OUTPUT_RESIDUALS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/residuals.csv",
+      "OUTPUT_RESIDUAL_LAYER": "None",
+      "OUTPUT_SOLUTION": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/solution.json",
+      "OUTPUT_STATIONS_CSV": "/home/kaue/geocomp/synthetic_examples/06_analysis/analysis_network_adjust/example_1_2d_constrained_trilateration/outputs/stations.csv",
+      "OUTPUT_STATION_LAYER": "None",
+      "UNCHECKABLE_COUNT": "1",
+      "VARIANCE_FACTOR_APOSTERIORI": "1.8832364168141627",
+      "WORST_OUTLIER": ""
+    },
+    "info_lines": 6,
+    "warning_lines": 2
+  }
+}

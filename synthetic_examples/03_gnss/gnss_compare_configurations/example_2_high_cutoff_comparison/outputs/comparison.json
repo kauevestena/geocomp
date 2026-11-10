@@ -1,0 +1,202 @@
+{
+  "reference": "mask 15\u00b0",
+  "confidence": 0.99,
+  "critical_value": 11.344866730144373,
+  "any_significant": false,
+  "rows": [
+    {
+      "name": "mask 30\u00b0",
+      "difference_m": [
+        0.003000000026077032,
+        -0.003000000026077032,
+        0.0015000002458691597
+      ],
+      "magnitude_m": 0.0045000001167257685,
+      "length_difference_m": 0.002377380373104643,
+      "statistic": 3.128945407172171,
+      "probability": 0.6278315666926012,
+      "is_significant": false
+    },
+    {
+      "name": "mask 40\u00b0",
+      "difference_m": [
+        0.004999999888241291,
+        -0.005000000004656613,
+        0.002500000409781933
+      ],
+      "magnitude_m": 0.007500000065192592,
+      "length_difference_m": 0.003962359749692723,
+      "statistic": 8.69151473514212,
+      "probability": 0.9663136183749511,
+      "is_significant": false
+    }
+  ],
+  "configurations": {
+    "mask 15\u00b0": {
+      "elevation_mask": 15.0
+    },
+    "mask 30\u00b0": {
+      "elevation_mask": 30.0
+    },
+    "mask 40\u00b0": {
+      "elevation_mask": 40.0
+    }
+  },
+  "quality": {
+    "mask 15\u00b0": {
+      "session_id": "ROVE",
+      "epochs": 3,
+      "status_counts": {
+        "FIXED": 3
+      },
+      "fixed_fraction": 1.0,
+      "satellites_least": 8,
+      "satellites_most": 9,
+      "ratio_best": 35.0,
+      "ratio_median": 31.2,
+      "start": "2005-05-20T00:00:00+00:00",
+      "end": "2005-05-20T00:30:00+00:00",
+      "interval": 900.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    },
+    "mask 30\u00b0": {
+      "session_id": "ROVE",
+      "epochs": 3,
+      "status_counts": {
+        "FIXED": 3
+      },
+      "fixed_fraction": 1.0,
+      "satellites_least": 8,
+      "satellites_most": 9,
+      "ratio_best": 35.0,
+      "ratio_median": 31.2,
+      "start": "2005-05-20T00:00:00+00:00",
+      "end": "2005-05-20T00:30:00+00:00",
+      "interval": 900.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    },
+    "mask 40\u00b0": {
+      "session_id": "ROVE",
+      "epochs": 3,
+      "status_counts": {
+        "FIXED": 3
+      },
+      "fixed_fraction": 1.0,
+      "satellites_least": 8,
+      "satellites_most": 9,
+      "ratio_best": 35.0,
+      "ratio_median": 31.2,
+      "start": "2005-05-20T00:00:00+00:00",
+      "end": "2005-05-20T00:30:00+00:00",
+      "interval": 900.0,
+      "dilution_of_precision": null,
+      "dilution_of_precision_worst": null,
+      "cycle_slips": null,
+      "rejections": null,
+      "satellites_slipped": [],
+      "satellites_rejected": []
+    }
+  },
+  "products": {
+    "products": [],
+    "substituted": [],
+    "missing": []
+  },
+  "engine": {
+    "name": "RTKLIB-EX",
+    "version": "2.5.1",
+    "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+    "tested": true,
+    "source": "configured"
+  },
+  "runs": {
+    "mask 15\u00b0": {
+      "program": "rnx2rtkp",
+      "command": [
+        "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "-k",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-1/rnx2rtkp.conf",
+        "-o",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-1/rover.05o.pos",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/rover.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/base.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/brdc.05n"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06597254399821395,
+      "timed_out": false,
+      "work_dir": "/tmp/geocomp-compare-sn4udr_n/configuration-1",
+      "version": {
+        "name": "RTKLIB-EX",
+        "version": "2.5.1",
+        "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "tested": true,
+        "source": "configured"
+      },
+      "stdout": "",
+      "stderr": ""
+    },
+    "mask 30\u00b0": {
+      "program": "rnx2rtkp",
+      "command": [
+        "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "-k",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-2/rnx2rtkp.conf",
+        "-o",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-2/rover.05o.pos",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/rover.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/base.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/brdc.05n"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03209348800010048,
+      "timed_out": false,
+      "work_dir": "/tmp/geocomp-compare-sn4udr_n/configuration-2",
+      "version": {
+        "name": "RTKLIB-EX",
+        "version": "2.5.1",
+        "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "tested": true,
+        "source": "configured"
+      },
+      "stdout": "",
+      "stderr": ""
+    },
+    "mask 40\u00b0": {
+      "program": "rnx2rtkp",
+      "command": [
+        "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "-k",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-3/rnx2rtkp.conf",
+        "-o",
+        "/tmp/geocomp-compare-sn4udr_n/configuration-3/rover.05o.pos",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/rover.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/base.05o",
+        "/home/kaue/geocomp/synthetic_examples/03_gnss/gnss_compare_configurations/example_2_high_cutoff_comparison/inputs/rinex/brdc.05n"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03227459199842997,
+      "timed_out": false,
+      "work_dir": "/tmp/geocomp-compare-sn4udr_n/configuration-3",
+      "version": {
+        "name": "RTKLIB-EX",
+        "version": "2.5.1",
+        "path": "/home/kaue/geocomp/synthetic_examples/_shared_pipeline/bin/rnx2rtkp",
+        "tested": true,
+        "source": "configured"
+      },
+      "stdout": "",
+      "stderr": ""
+    }
+  }
+}

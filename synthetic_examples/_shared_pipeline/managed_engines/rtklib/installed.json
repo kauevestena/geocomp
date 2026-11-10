@@ -1,0 +1,9 @@
+{
+  "engine": "rtklib",
+  "version": "2.5.1",
+  "platform": "linux-x86_64",
+  "url": "https://local.geocomp.test/rtklib.zip",
+  "sha256": "60e3e6d3d3081aa93a75a4e073b8bb22e63fdc2d74462607cda4977f0babc667",
+  "directory": "2.5.1/bin",
+  "installed": "2026-11-04T20:47:16+00:00"
+}

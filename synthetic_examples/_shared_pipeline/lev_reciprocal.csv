@@ -1,0 +1,5 @@
+setup,point,kind,reading,distance
+RD04-bankA,BM1,BS,1.50000,8.00
+RD04-bankA,BM2,FS,-2.23800,220.00
+RD04-bankB,BM2,BS,1.45000,8.00
+RD04-bankB,BM1,FS,5.21200,220.00

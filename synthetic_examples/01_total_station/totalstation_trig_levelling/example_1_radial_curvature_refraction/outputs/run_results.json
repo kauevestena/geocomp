@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "results": {
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/differences.csv",
+    "OUTPUT_HEIGHTS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/heights.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_trig_levelling/example_1_radial_curvature_refraction/outputs/report.html",
+    "RESULT_COUNT": "15",
+    "WORST_UNCERTAINTY": "0.0016826344904644869"
+  },
+  "info_lines": 1,
+  "warning_lines": 0
+}

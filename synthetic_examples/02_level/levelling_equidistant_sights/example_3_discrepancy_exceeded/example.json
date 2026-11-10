@@ -1,0 +1,35 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Equidistant sights",
+  "algorithm_id": "geocomp:levelling_equidistant_sights",
+  "algorithm_title": "Equidistant sights",
+  "example_index": 3,
+  "slug": "example_3_discrepancy_exceeded",
+  "title": "Reciprocal crossing with tight 5 mm discrepancy tolerance flagging the 24 mm spread",
+  "scenario": "Checks diagnostic flagging when bank-to-bank spread (24 mm) exceeds DISCREPANCY_TOLERANCE (5 mm).",
+  "parameters": {
+    "SETUPS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/inputs/crossing_setups.json",
+    "INFLATION": 2.0,
+    "DISCREPANCY_TOLERANCE": 0.005,
+    "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossing.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossings.csv"
+  },
+  "expected_summary": "Flags the 24 mm forward/reverse discrepancy against the 5 mm tolerance.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "CROSSING_COUNT": "1",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossings.csv",
+      "OUTPUT_DIFFERENCES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/crossing.json",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_equidistant_sights/example_3_discrepancy_exceeded/outputs/report.html",
+      "WARNINGS": "1",
+      "WORST_DISCREPANCY": "0.023999999999999577"
+    },
+    "info_lines": 1,
+    "warning_lines": 1
+  }
+}

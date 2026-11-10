@@ -1,0 +1,114 @@
+{
+  "kind": "levelling_setups",
+  "level_id": "generic",
+  "lines": [
+    {
+      "id": "line",
+      "setups": [
+        {
+          "backsight": {
+            "distance": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 25.0,
+              "variance": 0.005000000000000002
+            },
+            "meta": {
+              "row": 2
+            },
+            "reading": {
+              "mode": "APPROXIMATE",
+              "strategies": [
+                "NOMINAL_PRECISION"
+              ],
+              "unit": "METRE",
+              "value": 7.0,
+              "variance": 2.5e-07
+            },
+            "station": "BM1"
+          },
+          "foresights": [
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 25.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 3
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 5.8,
+                "variance": 2.5e-07
+              },
+              "station": "BM3"
+            },
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 40.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 4
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 4.69,
+                "variance": 2.5e-07
+              },
+              "station": "S1"
+            },
+            {
+              "distance": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 18.0,
+                "variance": 0.005000000000000002
+              },
+              "meta": {
+                "row": 5
+              },
+              "reading": {
+                "mode": "APPROXIMATE",
+                "strategies": [
+                  "NOMINAL_PRECISION"
+                ],
+                "unit": "METRE",
+                "value": 2.095,
+                "variance": 2.5e-07
+              },
+              "station": "S2"
+            }
+          ],
+          "id": "RD04-extreme",
+          "level_id": "generic"
+        }
+      ]
+    }
+  ],
+  "source": "extreme_book.csv"
+}

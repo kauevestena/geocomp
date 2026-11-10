@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "02_level",
+  "menu_group_title": "Level",
+  "menu_path": "GeoComp ▸ Level ▸ Closures and tolerances",
+  "algorithm_id": "geocomp:levelling_closures",
+  "algorithm_title": "Closures and tolerances",
+  "example_index": 2,
+  "slug": "example_2_line_against_known_difference",
+  "title": "Single levelling line checked against known benchmark difference distributing by setups",
+  "scenario": "Compares reduced line against known height difference (+0.4 mm offset) with WEIGHTING=1.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/inputs/line_reduced.json",
+    "MODE": 1,
+    "KNOWN_DIFFERENCE": 3.7496000000000005,
+    "KNOWN_SIGMA": 0.0002,
+    "TOLERANCE_COEFFICIENT": 0.008,
+    "WEIGHTING": 1,
+    "LOOP_ID": "Line_Check",
+    "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/closures.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/distribution.csv"
+  },
+  "expected_summary": "Evaluates +0.4 mm misclosure against known benchmark height difference.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "BLOCKING": "0",
+      "MISCLOSURE": "0.00039999999999995595",
+      "OUTPUT_CLOSURES": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/closures.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/distribution.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/02_level/levelling_closures/example_2_line_against_known_difference/outputs/report.html",
+      "PASSED": "1",
+      "PERMISSIBLE": "0.003394112549695428",
+      "WARNINGS": "0"
+    },
+    "info_lines": 2,
+    "warning_lines": 0
+  }
+}

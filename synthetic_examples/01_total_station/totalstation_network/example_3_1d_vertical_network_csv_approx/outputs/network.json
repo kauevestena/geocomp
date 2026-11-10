@@ -1,0 +1,250 @@
+{
+  "clusters": [],
+  "crs": "EPSG:31982",
+  "id": "total-station",
+  "observations": [
+    {
+      "id": "1-dh-2",
+      "provenance": {
+        "file": "raw_data.csv",
+        "reader": "total_station",
+        "records": [
+          "row 4",
+          "row 5"
+        ]
+      },
+      "stations": [
+        "1",
+        "2"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "INDEPENDENCE_ASSUMED",
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 0.42590310885291727,
+          "variance": 2.004363612658024e-06
+        }
+      ]
+    },
+    {
+      "id": "1-dh-3",
+      "provenance": {
+        "file": "raw_data.csv",
+        "reader": "total_station",
+        "records": [
+          "row 2",
+          "row 3"
+        ]
+      },
+      "stations": [
+        "1",
+        "3"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "INDEPENDENCE_ASSUMED",
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": -0.20525656248003843,
+          "variance": 2.002274568799281e-06
+        }
+      ]
+    },
+    {
+      "id": "2-dh-1",
+      "provenance": {
+        "file": "raw_data.csv",
+        "reader": "total_station",
+        "records": [
+          "row 6",
+          "row 7"
+        ]
+      },
+      "stations": [
+        "2",
+        "1"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "INDEPENDENCE_ASSUMED",
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": -0.42389990880214645,
+          "variance": 2.0046352745905904e-06
+        }
+      ]
+    },
+    {
+      "id": "2-dh-3",
+      "provenance": {
+        "file": "raw_data.csv",
+        "reader": "total_station",
+        "records": [
+          "row 8",
+          "row 9"
+        ]
+      },
+      "stations": [
+        "2",
+        "3"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "INDEPENDENCE_ASSUMED",
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": -0.6302937204351907,
+          "variance": 2.0089670904958217e-06
+        }
+      ]
+    },
+    {
+      "id": "3-dh-1",
+      "provenance": {
+        "file": "raw_data.csv",
+        "reader": "total_station",
+        "records": [
+          "row 12",
+          "row 13"
+        ]
+      },
+      "stations": [
+        "3",
+        "1"
+      ],
+      "status": "ACTIVE",
+      "type": "HEIGHT_DIFFERENCE",
+      "values": [
+        {
+          "mode": "APPROXIMATE",
+          "strategies": [
+            "INDEPENDENCE_ASSUMED",
+            "NOMINAL_PRECISION"
+          ],
+          "unit": "METRE",
+          "value": 0.21084570537737113,
+          "variance": 2.0022776755338238e-06
+        }
+      ]
+    }
+  ],
+  "stations": [
+    {
+      "approx_position": {
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "1",
+      "station_type": "MARK"
+    },
+    {
+      "approx_position": {
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 13.194528583700524,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "2",
+      "station_type": "MARK"
+    },
+    {
+      "approx_position": {
+        "crs": "EPSG:31982",
+        "height_type": "ORTHOMETRIC",
+        "system": "PROJECTED",
+        "values": [
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 3.8154740586602958,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": -10.853638979507313,
+            "variance": 1.0
+          },
+          {
+            "mode": "RIGOROUS",
+            "unit": "METRE",
+            "value": 0.0,
+            "variance": 1.0
+          }
+        ]
+      },
+      "constraint": {
+        "mode": "FREE"
+      },
+      "id": "3",
+      "station_type": "MARK"
+    }
+  ]
+}

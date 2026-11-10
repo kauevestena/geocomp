@@ -1,0 +1,36 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Import field book",
+  "algorithm_id": "geocomp:totalstation_import_fieldbook",
+  "algorithm_title": "Import field book",
+  "example_index": 3,
+  "slug": "example_3_rejected_row_audit",
+  "title": "Field book with a malformed row audited in findings.csv (FAIL_ON_REJECTED=False)",
+  "scenario": "Appends a corrupted row to verify that valid rows import while the bad row is logged in findings.csv.",
+  "parameters": {
+    "SOURCE": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/inputs/fieldbook_with_bad_row.csv",
+    "SIGMA_DIRECTION": 5e-06,
+    "SIGMA_ZENITH": 5e-06,
+    "SIGMA_DISTANCE": 0.002,
+    "FAIL_ON_REJECTED": false,
+    "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/readings.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/report.html",
+    "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/findings.csv"
+  },
+  "expected_summary": "Imports the 12 valid rows and logs REJECTED_COUNT=1 in findings.csv.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "OUTPUT_FINDINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/findings.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/report.html",
+      "OUTPUT_READINGS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_import_fieldbook/example_3_rejected_row_audit/outputs/readings.json",
+      "RECORD_COUNT": "12",
+      "REJECTED_COUNT": "1",
+      "SETUP_COUNT": "3"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

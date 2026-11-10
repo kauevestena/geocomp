@@ -1,0 +1,40 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Traverse",
+  "algorithm_id": "geocomp:totalstation_traverse",
+  "algorithm_title": "Traverse",
+  "example_index": 3,
+  "slug": "example_3_open_traverse_undistributed",
+  "title": "Open cantilever traverse (A,B,C) with no misclosure distribution",
+  "scenario": "Propagates coordinates along open route A -> B -> C without closing control.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/inputs/reductions.json",
+    "ROUTE": "A,B,C",
+    "BACKSIGHT": "D",
+    "START_EASTING": 1000.0,
+    "START_NORTHING": 1000.0,
+    "START_AZIMUTH": 333.434948822922,
+    "KIND": 2,
+    "METHOD": 2,
+    "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/coordinates.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/stations.csv"
+  },
+  "expected_summary": "Computes open traverse coordinates for B and C.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ANGULAR_MISCLOSURE": "nan",
+      "LINEAR_MISCLOSURE": "nan",
+      "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/coordinates.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/stations.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_3_open_traverse_undistributed/outputs/report.html",
+      "RELATIVE_PRECISION": "nan",
+      "WITHIN_TOLERANCE": "False"
+    },
+    "info_lines": 2,
+    "warning_lines": 1
+  }
+}

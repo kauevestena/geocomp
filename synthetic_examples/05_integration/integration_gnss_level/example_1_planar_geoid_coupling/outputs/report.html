@@ -1,0 +1,873 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Adjustment report</title>
+<style>body{font-family:sans-serif;margin:2rem;line-height:1.5;max-width:60rem}table{border-collapse:collapse;margin-bottom:1.5rem;width:100%}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;vertical-align:top}th{background:#f2f2f2}td.num{text-align:right;font-variant-numeric:tabular-nums}code{font-family:monospace}.pass{color:#14611f;font-weight:bold}.fail{color:#8a1207;font-weight:bold}.blocking{color:#8a1207;font-weight:bold}.warning{color:#8a5000;font-weight:bold}.note{background:#f7f7f2;border-left:4px solid #999;padding:.6rem 1rem;margin:1rem 0}footer{margin-top:2rem;color:#555;font-size:.9em}</style>
+</head>
+<body>
+
+<h1>Adjustment report</h1>
+
+<h2>Identification</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Solution</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>combined</td>
+</tr>
+<tr>
+<td>Kind</td>
+<td>adjustment</td>
+</tr>
+<tr>
+<td>Coordinate reference system</td>
+<td>ITRF2020</td>
+</tr>
+<tr>
+<td>Epoch</td>
+<td>2020.0000</td>
+</tr>
+<tr>
+<td>Datum definition</td>
+<td>fixed stations</td>
+</tr>
+<tr>
+<td>Geoid model</td>
+<td>curitiba_planar</td>
+</tr>
+</table>
+
+<div class="note"><b>Uncertainty</b>: Some uncertainties in this report are APPROXIMATE. The strategies used were: dominant_term, independence_assumed. An approximate figure presented as a rigorously propagated one misrepresents the quality of the survey, which is why this notice cannot be removed by a template.</div>
+
+<h2>Inputs</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Stations</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Constrained stations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Active observations</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Observations set aside</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Correlated clusters</td>
+<td>1</td>
+</tr>
+</table><h3>Observations by type</h3><table>
+<tr>
+<th>Observation type</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>ellipsoidal_height</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss_baseline</td>
+<td>4</td>
+</tr>
+<tr>
+<td>height_difference</td>
+<td>4</td>
+</tr>
+<tr>
+<td>orthometric_height</td>
+<td>1</td>
+</tr>
+</table><h3>Constraints</h3><table>
+<tr>
+<th>Station</th>
+<th>Constraint</th>
+<th>Components</th>
+</tr>
+<tr>
+<td>CTB1</td>
+<td>fixed</td>
+<td>x, y, z</td>
+</tr>
+<tr>
+<td>CTB2</td>
+<td>fixed</td>
+<td>x, y, z</td>
+</tr>
+</table>
+
+<h2>Parameters</h2><table>
+<tr>
+<th>Setting</th>
+<th>Effective value</th>
+<th>From</th>
+</tr>
+<tr>
+<td>integration.confidence</td>
+<td>0.95</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.engine_requested</td>
+<td>in_house</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.epoch</td>
+<td>2020.0000</td>
+<td>this run</td>
+</tr>
+<tr>
+<td>integration.frame</td>
+<td>ITRF2020</td>
+<td>this run</td>
+</tr>
+</table><div class="note"><b>Where each value came from</b>: The scope column is what makes a run reproducible: the same value reached from a project override and from the built-in default are different statements to somebody repeating the work.</div>
+
+<h2>Adjusted coordinates</h2><table>
+<tr>
+<th>Station</th>
+<th>x</th>
+<th>y</th>
+<th>z</th>
+<th>sigma x (mm)</th>
+<th>sigma y (mm)</th>
+<th>sigma z (mm)</th>
+<th>Positional uncertainty (mm)</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>3762903.3641</td>
+<td>-4367924.0159</td>
+<td>-2721081.6055</td>
+<td>1.25</td>
+<td>1.08</td>
+<td>1.83</td>
+<td>5.45</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>3762552.0241</td>
+<td>-4368743.0627</td>
+<td>-2720220.6925</td>
+<td>1.27</td>
+<td>1.10</td>
+<td>1.90</td>
+<td>5.55</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>3763784.4859</td>
+<td>-4367643.2616</td>
+<td>-2720372.2807</td>
+<td>1.27</td>
+<td>1.10</td>
+<td>1.90</td>
+<td>5.55</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>3762056.6205</td>
+<td>-4367324.4350</td>
+<td>-2723192.7101</td>
+<td>1.27</td>
+<td>1.10</td>
+<td>1.90</td>
+<td>5.55</td>
+</tr>
+</table>
+
+<h2>Statistics</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Constraints</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Degrees of freedom</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Variance factor a priori</td>
+<td>1.000000</td>
+</tr>
+<tr>
+<td>Variance factor a posteriori</td>
+<td>0.101000</td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Converged</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Largest correction</td>
+<td>1.665580e-08</td>
+</tr>
+<tr>
+<td>Condition number</td>
+<td>521.438</td>
+</tr>
+</table><table>
+<tr>
+<th>Test</th>
+<th>Statistic</th>
+<th>Lower critical</th>
+<th>Upper critical</th>
+<th>Confidence</th>
+<th>Decision</th>
+</tr>
+<tr>
+<td>global test</td>
+<td>0.60600</td>
+<td>1.23734</td>
+<td>14.44938</td>
+<td>0.950</td>
+<td><span class="fail">FAILED</span></td>
+</tr>
+</table><div class="note"><b>What a failed global test means</b>: The global test failed. Either the observations disagree with each other more than their weights allow, or the weights are wrong — the test cannot distinguish the two, and reporting it as &amp;quot;the adjustment failed&amp;quot; would.</div>
+
+<h2>Techniques</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Inputs</td>
+<td>gnss, levelling</td>
+</tr>
+<tr>
+<td>Techniques</td>
+<td>GNSS, Levelling</td>
+</tr>
+<tr>
+<td>Frame</td>
+<td>ITRF2020</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>GeoComp in-house core</td>
+</tr>
+<tr>
+<td>Why this engine</td>
+<td>requested</td>
+</tr>
+</table><table>
+<tr>
+<th>Input</th>
+<th>Applied to</th>
+<th>From</th>
+<th>To</th>
+<th>Steps</th>
+</tr>
+<tr>
+<td>gnss</td>
+<td>station CTB1 (fixed position)</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>station CTB2 (fixed position)</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>observation g-CTB1-M05</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>observation g-CTB2-M04</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>observation g-CTB1-M06</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>observation g-CTB2-M03</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gnss</td>
+<td>observation r-M03</td>
+<td>ITRF2014 @ 2020.0000</td>
+<td>ITRF2020 @ 2020.0000</td>
+<td>1</td>
+</tr>
+</table><div class="note"><b>Frames and epochs</b>: Every transformation the combination applied, with the input and the position it was applied to. A datum shift not listed here was not applied.</div><table>
+<tr>
+<th>Technique</th>
+<th>Observations</th>
+<th>Rows</th>
+<th>Redundancy</th>
+<th>Share</th>
+<th>vᵀPv</th>
+<th>vᵀPv / r</th>
+<th>Largest |w|</th>
+<th>Uncheckable</th>
+</tr>
+<tr>
+<td>GNSS</td>
+<td>5</td>
+<td>13</td>
+<td>1.07</td>
+<td>17.8&nbsp;%</td>
+<td>0.363</td>
+<td>0.339</td>
+<td>0.60</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Levelling</td>
+<td>5</td>
+<td>5</td>
+<td>1.10</td>
+<td>18.4&nbsp;%</td>
+<td>0.155</td>
+<td>0.140</td>
+<td>0.40</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Geoid priors</td>
+<td>4</td>
+<td>4</td>
+<td>3.83</td>
+<td>63.8&nbsp;%</td>
+<td>0.088</td>
+<td>0.023</td>
+<td>0.27</td>
+<td>0</td>
+</tr>
+</table><div class="note"><b>Per-technique breakdown</b>: The redundancy each technique carries, and its own part of the weighted squares. The parts add up to the whole. A technique&#x27;s vᵀPv / r is a quick reading of how its weights fit, not its variance component: that is estimated below when it was asked for.</div><table>
+<tr>
+<th>Station</th>
+<th>Model N (m)</th>
+<th>Model std. dev. (m)</th>
+<th>Adjusted N (m)</th>
+<th>Residual (m)</th>
+<th>Redundancy</th>
+<th>w</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>-0.898</td>
+<td>0.030</td>
+<td>-0.899</td>
+<td>-0.0014</td>
+<td>0.96</td>
+<td>-0.05</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>-0.881</td>
+<td>0.030</td>
+<td>-0.889</td>
+<td>-0.0080</td>
+<td>0.96</td>
+<td>-0.27</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>-0.844</td>
+<td>0.030</td>
+<td>-0.845</td>
+<td>-0.0011</td>
+<td>0.96</td>
+<td>-0.04</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>-0.996</td>
+<td>0.030</td>
+<td>-1.000</td>
+<td>-0.0036</td>
+<td>0.96</td>
+<td>-0.12</td>
+</tr>
+</table><div class="note"><b>Geoid residuals</b>: The geoid model curitiba_planar tested by the survey: at each station where an orthometric height met an ellipsoidal one, the undulation the adjustment found against the one the model gave.</div>
+
+<h2>Observation results</h2><table>
+<tr>
+<th>Row</th>
+<th>Observation</th>
+<th>Residual</th>
+<th>Standardised</th>
+<th>Redundancy</th>
+<th>MDB</th>
+<th>External effect</th>
+<th>w-test</th>
+</tr>
+<tr>
+<td>0</td>
+<td>g-CTB1-M05</td>
+<td>0.000010</td>
+<td>0.121</td>
+<td>0.0052</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>1</td>
+<td>g-CTB1-M05</td>
+<td>-0.000009</td>
+<td>0.121</td>
+<td>0.0050</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>g-CTB1-M05</td>
+<td>-0.000022</td>
+<td>0.121</td>
+<td>0.0079</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>g-CTB2-M04</td>
+<td>0.000073</td>
+<td>0.854</td>
+<td>0.0052</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>g-CTB2-M04</td>
+<td>-0.000061</td>
+<td>0.854</td>
+<td>0.0050</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>g-CTB2-M04</td>
+<td>-0.000153</td>
+<td>0.854</td>
+<td>0.0079</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td>g-CTB1-M06</td>
+<td>0.000033</td>
+<td>0.385</td>
+<td>0.0052</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>7</td>
+<td>g-CTB1-M06</td>
+<td>-0.000027</td>
+<td>0.385</td>
+<td>0.0050</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>8</td>
+<td>g-CTB1-M06</td>
+<td>-0.000069</td>
+<td>0.385</td>
+<td>0.0079</td>
+<td>—</td>
+<td>—</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>9</td>
+<td>g-CTB2-M03</td>
+<td>-0.000447</td>
+<td>1.766</td>
+<td>0.0453</td>
+<td>0.077662</td>
+<td>0.083513</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>10</td>
+<td>g-CTB2-M03</td>
+<td>0.000373</td>
+<td>1.766</td>
+<td>0.0439</td>
+<td>0.068347</td>
+<td>0.076261</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>11</td>
+<td>g-CTB2-M03</td>
+<td>0.000939</td>
+<td>1.766</td>
+<td>0.0693</td>
+<td>0.094177</td>
+<td>0.093812</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>12</td>
+<td>r-M03</td>
+<td>0.005579</td>
+<td>1.896</td>
+<td>0.8570</td>
+<td>0.044635</td>
+<td>0.009865</td>
+<td><span class="fail">CANDIDATE</span></td>
+</tr>
+<tr>
+<td>13</td>
+<td>l-M03-M04</td>
+<td>0.000151</td>
+<td>1.119</td>
+<td>0.1461</td>
+<td>0.012034</td>
+<td>0.012333</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>14</td>
+<td>l-M04-M05</td>
+<td>0.000217</td>
+<td>1.204</td>
+<td>0.1944</td>
+<td>0.012070</td>
+<td>0.008404</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>15</td>
+<td>l-M05-M06</td>
+<td>0.000439</td>
+<td>1.217</td>
+<td>0.3884</td>
+<td>0.012087</td>
+<td>0.005410</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>16</td>
+<td>l-M06-M03</td>
+<td>0.000320</td>
+<td>1.251</td>
+<td>0.2760</td>
+<td>0.012064</td>
+<td>0.009100</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>17</td>
+<td>benchmark:M03</td>
+<td>-0.000392</td>
+<td>0.787</td>
+<td>0.0982</td>
+<td>0.065937</td>
+<td>0.116557</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>18</td>
+<td>constraint:geoid:M03</td>
+<td>-0.001415</td>
+<td>0.152</td>
+<td>0.9599</td>
+<td>0.126530</td>
+<td>0.007699</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>19</td>
+<td>constraint:geoid:M04</td>
+<td>-0.007963</td>
+<td>0.854</td>
+<td>0.9563</td>
+<td>0.126763</td>
+<td>0.008186</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>20</td>
+<td>constraint:geoid:M05</td>
+<td>-0.001131</td>
+<td>0.121</td>
+<td>0.9555</td>
+<td>0.126819</td>
+<td>0.008282</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+<tr>
+<td>21</td>
+<td>constraint:geoid:M06</td>
+<td>-0.003590</td>
+<td>0.385</td>
+<td>0.9557</td>
+<td>0.126808</td>
+<td>0.008243</td>
+<td><span class="pass">accepted</span></td>
+</tr>
+</table>
+
+<h2>Reliability</h2><table>
+<tr>
+<th>Quantity</th>
+<th>Count</th>
+</tr>
+<tr>
+<td>Observations</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Outlier candidates</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Uncheckable observations</td>
+<td>9</td>
+</tr>
+</table><table>
+<tr>
+<th>Observation</th>
+<th>Redundancy</th>
+</tr>
+<tr>
+<td>g-CTB1-M05</td>
+<td>0.00516</td>
+</tr>
+<tr>
+<td>g-CTB1-M05</td>
+<td>0.00499</td>
+</tr>
+<tr>
+<td>g-CTB1-M05</td>
+<td>0.00788</td>
+</tr>
+<tr>
+<td>g-CTB2-M04</td>
+<td>0.00516</td>
+</tr>
+<tr>
+<td>g-CTB2-M04</td>
+<td>0.00500</td>
+</tr>
+<tr>
+<td>g-CTB2-M04</td>
+<td>0.00789</td>
+</tr>
+<tr>
+<td>g-CTB1-M06</td>
+<td>0.00515</td>
+</tr>
+<tr>
+<td>g-CTB1-M06</td>
+<td>0.00499</td>
+</tr>
+<tr>
+<td>g-CTB1-M06</td>
+<td>0.00790</td>
+</tr>
+</table><div class="note"><b>Uncheckable observations</b>: An observation with a redundancy number near zero is uncheckable: no blunder in it is detectable at all. A network full of them can pass every statistical test while being wrong, so they are listed here whether or not anything else in this report looks amiss.</div><div class="note"><b>Data snooping</b>: Candidates, not rejections. GeoComp never removes an observation on its own: in a monitoring network the displacement being measured is exactly what an automatic outlier remover would delete.</div>
+
+<h2>Error ellipses</h2><table>
+<tr>
+<th>Station</th>
+<th>Semi-major (mm)</th>
+<th>Semi-minor (mm)</th>
+<th>Orientation</th>
+<th>Confidence</th>
+</tr>
+<tr>
+<td>M03</td>
+<td>5.451</td>
+<td>4.231</td>
+<td>0° 18' 26.1"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>5.547</td>
+<td>4.235</td>
+<td>179° 31' 55.1"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>5.547</td>
+<td>4.234</td>
+<td>179° 32' 18.1"</td>
+<td>0.950</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>5.546</td>
+<td>4.235</td>
+<td>179° 32' 16.2"</td>
+<td>0.950</td>
+</tr>
+</table>
+
+<h2>Provenance</h2><table>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Created</td>
+<td>2026-11-04T20:47:13.897410+00:00</td>
+</tr>
+<tr>
+<td>Algorithm</td>
+<td>geocomp:integration_gnss_level</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td>in_house</td>
+</tr>
+<tr>
+<td>Engine version</td>
+<td>—</td>
+</tr>
+</table><table>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>adjustment_frame</td>
+<td>geocentric_3d</td>
+</tr>
+<tr>
+<td>combination</td>
+<td>{&#x27;inputs&#x27;: [&#x27;gnss&#x27;, &#x27;levelling&#x27;], &#x27;frame&#x27;: &#x27;ITRF2020&#x27;, &#x27;geocentric&#x27;: True, &#x27;epoch&#x27;: 2020.0, &#x27;techniques&#x27;: [&#x27;gnss&#x27;, &#x27;levelling&#x27;], &#x27;transformations&#x27;: [{&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;station CTB1 (fixed position)&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;station CTB2 (fixed position)&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;observation g-CTB1-M05&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.0, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;observation g-CTB2-M04&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.0, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;observation g-CTB1-M06&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.0, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;observation g-CTB2-M03&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.0, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0}]}, {&#x27;input&#x27;: &#x27;gnss&#x27;, &#x27;subject&#x27;: &#x27;observation r-M03&#x27;, &#x27;source&#x27;: &#x27;ITRF2014&#x27;, &#x27;target&#x27;: &#x27;ITRF2020&#x27;, &#x27;source_epoch&#x27;: 2020.0, &#x27;target_epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001, &#x27;steps&#x27;: [{&#x27;kind&#x27;: &#x27;helmert&#x27;, &#x27;description&#x27;: &#x27;ITRF2014 to ITRF2020 (1)&#x27;, &#x27;code&#x27;: &#x27;EPSG:9991&#x27;, &#x27;epoch&#x27;: 2020.0, &#x27;accuracy&#x27;: 0.001}]}], &#x27;renamed&#x27;: {}}</td>
+</tr>
+<tr>
+<td>datum</td>
+<td>fixed</td>
+</tr>
+<tr>
+<td>fixed</td>
+<td>[&#x27;CTB1&#x27;, &#x27;CTB2&#x27;]</td>
+</tr>
+<tr>
+<td>geoid_model</td>
+<td>curitiba_planar</td>
+</tr>
+<tr>
+<td>geoid_residuals</td>
+<td>[{&#x27;station_id&#x27;: &#x27;M03&#x27;, &#x27;model&#x27;: -0.8975454889570236, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8989607183745096, &#x27;residual&#x27;: -0.0014152294174860104, &#x27;redundancy&#x27;: 0.9598590682276715, &#x27;standardised&#x27;: -0.048150617004851966}, {&#x27;station_id&#x27;: &#x27;M04&#x27;, &#x27;model&#x27;: -0.8811605784029359, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8891233140242432, &#x27;residual&#x27;: -0.00796273562130719, &#x27;redundancy&#x27;: 0.9563293463826125, &#x27;standardised&#x27;: -0.2714171590176033}, {&#x27;station_id&#x27;: &#x27;M05&#x27;, &#x27;model&#x27;: -0.8440584264391194, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.8451891271593005, &#x27;residual&#x27;: -0.001130700720181021, &#x27;redundancy&#x27;: 0.9554814410806121, &#x27;standardised&#x27;: -0.038558069882877966}, {&#x27;station_id&#x27;: &#x27;M06&#x27;, &#x27;model&#x27;: -0.996175193607129, &#x27;model_std_dev&#x27;: 0.03, &#x27;adjusted&#x27;: -0.9997652448167549, &#x27;residual&#x27;: -0.0035900512096258223, &#x27;redundancy&#x27;: 0.9556596092558307, &#x27;standardised&#x27;: -0.12241306536223977}]</td>
+</tr>
+<tr>
+<td>routing</td>
+<td>{&#x27;engine&#x27;: &#x27;in_house&#x27;, &#x27;reason&#x27;: &#x27;requested&#x27;}</td>
+</tr>
+<tr>
+<td>solver</td>
+<td>dense</td>
+</tr>
+<tr>
+<td>technique_breakdown</td>
+<td>[{&#x27;technique&#x27;: &#x27;gnss&#x27;, &#x27;rows&#x27;: 13, &#x27;observations&#x27;: 5, &#x27;redundancy&#x27;: 1.0696206462767168, &#x27;redundancy_share&#x27;: 0.17827010771278615, &#x27;weighted_squares&#x27;: 0.36279318889045653, &#x27;variance_factor&#x27;: 0.3391793063768142, &#x27;largest_standardised&#x27;: 0.6026188933195743, &#x27;uncheckable&#x27;: [&#x27;g-CTB1-M05&#x27;, &#x27;g-CTB2-M04&#x27;, &#x27;g-CTB1-M06&#x27;]}, {&#x27;technique&#x27;: &#x27;levelling&#x27;, &#x27;rows&#x27;: 5, &#x27;observations&#x27;: 5, &#x27;redundancy&#x27;: 1.1030498887765638, &#x27;redundancy_share&#x27;: 0.1838416481294273, &#x27;weighted_squares&#x27;: 0.15478873702394205, &#x27;variance_factor&#x27;: 0.1403279566943471, &#x27;largest_standardised&#x27;: 0.3976485681716788, &#x27;uncheckable&#x27;: []}, {&#x27;technique&#x27;: &#x27;geoid&#x27;, &#x27;rows&#x27;: 4, &#x27;observations&#x27;: 4, &#x27;redundancy&#x27;: 3.827329464946726, &#x27;redundancy_share&#x27;: 0.6378882441577877, &#x27;weighted_squares&#x27;: 0.08841664965033989, &#x27;variance_factor&#x27;: 0.023101394970074934, &#x27;largest_standardised&#x27;: 0.2714171590176033, &#x27;uncheckable&#x27;: []}]</td>
+</tr>
+<tr>
+<td>variance_components</td>
+<td>None</td>
+</tr>
+</table><table>
+<tr>
+<th>Input</th>
+<th>Digest</th>
+</tr>
+<tr>
+<td>gnss</td>
+<td><code>—</code></td>
+</tr>
+<tr>
+<td>levelling</td>
+<td><code>—</code></td>
+</tr>
+</table><div class="note"><b>Inputs</b>: Inputs are recorded by id and by content digest. The digest is what turns &amp;quot;reproduce this&amp;quot; into something checkable: the same id with different content is a different run.</div>
+
+<h2>Software</h2><table>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+<tr>
+<td>GeoComp</td>
+<td>0.1.0</td>
+</tr>
+<tr>
+<td>QGIS</td>
+<td>3.44.7-Solothurn</td>
+</tr>
+<tr>
+<td>Uncertainty mode</td>
+<td>approximate</td>
+</tr>
+<tr>
+<td>Report template</td>
+<td>shipped with GeoComp</td>
+</tr>
+</table>
+
+</body>
+</html>

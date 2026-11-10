@@ -1,0 +1,41 @@
+{
+  "menu_group_id": "01_total_station",
+  "menu_group_title": "Total Station",
+  "menu_path": "GeoComp ▸ Total Station ▸ Traverse",
+  "algorithm_id": "geocomp:totalstation_traverse",
+  "algorithm_title": "Traverse",
+  "example_index": 1,
+  "slug": "example_1_closed_loop_bowditch",
+  "title": "Closed 4-station polygon traverse (A,B,C,D,A) with Compass (Bowditch) distribution",
+  "scenario": "Runs a closed loop starting and ending at A (1000, 2000) with backsight D.",
+  "parameters": {
+    "REDUCTIONS": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/inputs/reductions.json",
+    "ROUTE": "A,B,C,D,A",
+    "BACKSIGHT": "D",
+    "START_EASTING": 1000.0,
+    "START_NORTHING": 1000.0,
+    "START_AZIMUTH": 333.434948822922,
+    "CLOSE_AZIMUTH": 333.434948822922,
+    "KIND": 0,
+    "METHOD": 0,
+    "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/coordinates.json",
+    "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/report.html",
+    "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/stations.csv"
+  },
+  "expected_summary": "Closes with zero angular and linear misclosure and recovers B, C, D.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "ANGULAR_MISCLOSURE": "5.088887490341627e-14",
+      "LINEAR_MISCLOSURE": "1.6077746776921858e-13",
+      "OUTPUT_COORDINATES": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/coordinates.json",
+      "OUTPUT_CSV": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/stations.csv",
+      "OUTPUT_HTML": "/home/kaue/geocomp/synthetic_examples/01_total_station/totalstation_traverse/example_1_closed_loop_bowditch/outputs/report.html",
+      "RELATIVE_PRECISION": "4016027907069556.0",
+      "WITHIN_TOLERANCE": "True"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

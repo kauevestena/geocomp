@@ -1,0 +1,28 @@
+{
+  "menu_group_id": "07_project",
+  "menu_group_title": "Project",
+  "menu_path": "GeoComp ▸ Project ▸ Export solution tables",
+  "algorithm_id": "geocomp:project_export",
+  "algorithm_title": "Export solution tables",
+  "example_index": 1,
+  "slug": "example_1_csv_tables_with_network",
+  "title": "Export adjusted stations, residuals, and covariances as a folder of CSV files",
+  "scenario": "Writes stations.csv, observations.csv, and covariance.csv from solution + network.",
+  "parameters": {
+    "SOLUTION": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/inputs/solution.json",
+    "NETWORK": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/inputs/network.json",
+    "FORMAT": 0,
+    "OUTPUT_FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables"
+  },
+  "expected_summary": "Creates CSV tables in csv_tables/.",
+  "expect_exception": null,
+  "verification": {
+    "status": "verified",
+    "results": {
+      "FILES": "['/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/stations.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/observations.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/adjusted.csv', '/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables/statistics.csv']",
+      "OUTPUT_FOLDER": "/home/kaue/geocomp/synthetic_examples/07_project/project_export/example_1_csv_tables_with_network/outputs/csv_tables"
+    },
+    "info_lines": 4,
+    "warning_lines": 0
+  }
+}

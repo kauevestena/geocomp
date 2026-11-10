@@ -1,0 +1,19 @@
+{
+  "differences": [
+    {
+      "from": "A",
+      "records": [],
+      "to": "D",
+      "value": {
+        "mode": "RIGOROUS",
+        "unit": "METRE",
+        "value": 2.75,
+        "variance": 2.238354781450955e-06
+      }
+    }
+  ],
+  "kind": "geocomp.height_differences",
+  "mode": "leapfrog",
+  "source": "",
+  "version": 1
+}

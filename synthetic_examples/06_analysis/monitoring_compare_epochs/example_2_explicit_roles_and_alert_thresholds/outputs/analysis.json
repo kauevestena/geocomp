@@ -1,0 +1,795 @@
+{
+ "alerts": [
+  {
+   "exceeded": false,
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "significant": false,
+   "station": "O1",
+   "value": 0.000616179631829411
+  },
+  {
+   "exceeded": true,
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "significant": true,
+   "station": "O2",
+   "value": 0.020945914126713348
+  },
+  {
+   "exceeded": false,
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "significant": false,
+   "station": "O3",
+   "value": 0.0021002901877382016
+  },
+  {
+   "exceeded": false,
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "significant": false,
+   "station": "O4",
+   "value": 0.0008463564268392045
+  },
+  {
+   "exceeded": false,
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "significant": false,
+   "station": "O5",
+   "value": 0.0013010519011873792
+  }
+ ],
+ "components": [
+  "e",
+  "n"
+ ],
+ "confidence": 0.99,
+ "datum": "translation_rotation",
+ "degrees_of_freedom": 42,
+ "displacements": [
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     7.009940449158478e-07,
+     -1.585353630231162e-07
+    ],
+    [
+     -1.5853536302311617e-07,
+     1.2077177627278365e-06
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 2.862031677944095,
+    "semi_major": 0.003592507456549909,
+    "semi_minor": 0.0025981405176862746
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of O1",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.1910551290411287
+   },
+   "horizontal_magnitude": 0.000616179631829411,
+   "magnitude": 0.000616179631829411,
+   "role": "object",
+   "significant": false,
+   "station": "O1",
+   "std_devs": [
+    0.0008372538712456621,
+    0.0010989621297969447
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of O1",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.1910551290411287
+   },
+   "values": [
+    0.0004606254782755331,
+    -0.0004092694802264943
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     7.009978868819505e-07,
+     1.5854810240651218e-07
+    ],
+    [
+     1.5854810240651226e-07,
+     1.2077278093272138e-06
+    ]
+   ],
+   "decision": "significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 0.2795762890507615,
+    "semi_major": 0.0035925308648718617,
+    "semi_minor": 0.0025981356754902225
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of O2",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": false,
+    "statistic": 312.0157614801328
+   },
+   "horizontal_magnitude": 0.020945914126713348,
+   "magnitude": 0.020945914126713348,
+   "role": "object",
+   "significant": true,
+   "station": "O2",
+   "std_devs": [
+    0.0008372561656279101,
+    0.0010989667007362933
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of O2",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": false,
+    "statistic": 312.0157614801328
+   },
+   "values": [
+    0.016472570360139865,
+    -0.01293776427107448
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     7.009935477230611e-07,
+     1.5853548268599667e-07
+    ],
+    [
+     1.5853548268599672e-07,
+     1.2077215666268476e-06
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 0.27955923696562585,
+    "semi_major": 0.003592512530272086,
+    "semi_minor": 0.0025981400555448037
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of O3",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 3.0149108494745924
+   },
+   "horizontal_magnitude": 0.0021002901877382016,
+   "magnitude": 0.0021002901877382016,
+   "role": "object",
+   "significant": false,
+   "station": "O3",
+   "std_devs": [
+    0.000837253574326835,
+    0.0010989638604735133
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of O3",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 3.0149108494745924
+   },
+   "values": [
+    0.0015145180608658498,
+    -0.001455147386356625
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     7.009944366655013e-07,
+     -1.5853355594768276e-07
+    ],
+    [
+     -1.585335559476827e-07,
+     1.2077141495838345e-06
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 2.8620324637572208,
+    "semi_major": 0.003592501340996954,
+    "semi_minor": 0.002598142589453426
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of O4",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.5274098724226695
+   },
+   "horizontal_magnitude": 0.0008463564268392045,
+   "magnitude": 0.0008463564268392045,
+   "role": "object",
+   "significant": false,
+   "station": "O4",
+   "std_devs": [
+    0.0008372541051947737,
+    0.0010989604859064927
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of O4",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.5274098724226695
+   },
+   "values": [
+    0.0008463402145585564,
+    5.238556385363854e-06
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     6.600419220165059e-07,
+     -1.7211743145733857e-12
+    ],
+    [
+     -1.7211743146168112e-12,
+     1.1631183095788762e-06
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 3.141589232291642,
+    "semi_major": 0.0034609413727928425,
+    "semi_minor": 0.0026071622338006274
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of O5",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.2788165395479296
+   },
+   "horizontal_magnitude": 0.0013010519011873792,
+   "magnitude": 0.0013010519011873792,
+   "role": "object",
+   "significant": false,
+   "station": "O5",
+   "std_devs": [
+    0.0008124296412714801,
+    0.0010784796287268833
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of O5",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.2788165395479296
+   },
+   "values": [
+    0.0012969666643756254,
+    -0.00010302194466062925
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     4.2413087432048537e-07,
+     -5.952872722067926e-08
+    ],
+    [
+     -5.952872722067928e-08,
+     4.690610612982002e-07
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 2.5366233428227103,
+    "semi_major": 0.0022922508741961027,
+    "semi_minor": 0.0019859316191888406
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of R1",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.7405519780586337
+   },
+   "horizontal_magnitude": 0.0008015873920679639,
+   "magnitude": 0.0008015873920679639,
+   "role": "reference",
+   "significant": false,
+   "station": "R1",
+   "std_devs": [
+    0.0006512533104103851,
+    0.0006848803262601432
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of R1",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 0.7405519780586337
+   },
+   "values": [
+    -0.0007925332410645164,
+    0.00012013912322841706
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     4.241295691110748e-07,
+     5.952895957277166e-08
+    ],
+    [
+     5.9528959572771627e-08,
+     4.690629801416331e-07
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 0.6049581036144649,
+    "semi_major": 0.0022922533303020923,
+    "semi_minor": 0.001985930375274837
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of R2",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.4985846022385563
+   },
+   "horizontal_magnitude": 0.0010924983936619185,
+   "magnitude": 0.0010924983936619185,
+   "role": "reference",
+   "significant": false,
+   "station": "R2",
+   "std_devs": [
+    0.0006512523083345462,
+    0.000684881727119094
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of R2",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.4985846022385563
+   },
+   "values": [
+    0.0005831812886123236,
+    -0.0009238248344607012
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     4.241325906769881e-07,
+     -5.9528680854018203e-08
+    ],
+    [
+     -5.9528680854018203e-08,
+     4.6905965291479855e-07
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 2.536611984475716,
+    "semi_major": 0.002292249883535338,
+    "semi_minor": 0.001985933561167521
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of R3",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.6315919189569064
+   },
+   "horizontal_magnitude": 0.0012901688748617826,
+   "magnitude": 0.0012901688748617826,
+   "role": "reference",
+   "significant": false,
+   "station": "R3",
+   "std_devs": [
+    0.000651254628142471,
+    0.0006848792980626576
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of R3",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.6315919189569064
+   },
+   "values": [
+    -0.0007045060852445455,
+    0.0010808362047579287
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  },
+  {
+   "components": [
+    "e",
+    "n"
+   ],
+   "covariance": [
+    [
+     4.241286689331101e-07,
+     5.952885462181765e-08
+    ],
+    [
+     5.9528854621817636e-08,
+     4.690626087180899e-07
+    ]
+   ],
+   "decision": "not significant",
+   "ellipse": {
+    "confidence": 0.99,
+    "orientation": 0.604955868684509,
+    "semi_major": 0.0022922518912184614,
+    "semi_minor": 0.0019859287393107546
+   },
+   "horizontal": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "horizontal displacement of R4",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.162911874674258
+   },
+   "horizontal_magnitude": 0.0009549601610142917,
+   "magnitude": 0.0009549601610142917,
+   "role": "reference",
+   "significant": false,
+   "station": "R4",
+   "std_devs": [
+    0.0006512516172211091,
+    0.0006848814559601464
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 5.149138779435694,
+    "name": "displacement of R4",
+    "note": "F(2, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.162911874674258
+   },
+   "values": [
+    0.0009138580376967386,
+    -0.0002771504935256443
+   ],
+   "vertical": null,
+   "vertical_magnitude": null
+  }
+ ],
+ "display": {
+  "crs": "EPSG:31982",
+  "name": "EPSG:31982",
+  "positions": {
+   "O1": [
+    675499.995302611,
+    7185350.003596103
+   ],
+   "O2": [
+    675699.9953811835,
+    7185350.002733857
+   ],
+   "O3": [
+    675499.9961587015,
+    7185550.004675286
+   ],
+   "O4": [
+    675699.9959164623,
+    7185550.002522464
+   ],
+   "O5": [
+    675599.9953057353,
+    7185450.002922157
+   ],
+   "R1": [
+    674999.9950788589,
+    7185000.004725222
+   ],
+   "R2": [
+    676199.9941110935,
+    7185000.000875667
+   ],
+   "R3": [
+    676199.9979010872,
+    7185900.000315586
+   ],
+   "R4": [
+    674999.9967796865,
+    7185900.004176504
+   ]
+  },
+  "rotations": {}
+ },
+ "epochs": [
+  {
+   "crs": "EPSG:31982",
+   "datum": "inner_constraint",
+   "degrees_of_freedom": 21,
+   "engine": "in_house",
+   "engine_version": "",
+   "epoch": 1.0,
+   "geoid_models": [],
+   "height_types": [
+    "NONE"
+   ],
+   "network": "dam-1",
+   "solution": "dam-1",
+   "uncertainty_mode": "rigorous",
+   "variance_factor": 1.1405585845608883
+  },
+  {
+   "crs": "EPSG:31982",
+   "datum": "inner_constraint",
+   "degrees_of_freedom": 21,
+   "engine": "in_house",
+   "engine_version": "",
+   "epoch": 3.0,
+   "geoid_models": [],
+   "height_types": [
+    "NONE"
+   ],
+   "network": "dam-1",
+   "solution": "dam-3",
+   "uncertainty_mode": "rigorous",
+   "variance_factor": 0.9859697556529332
+  }
+ ],
+ "findings": [],
+ "frame": "EPSG:31982",
+ "geocentric": false,
+ "global_test": {
+  "omega": 1040.1435338310412,
+  "passed": false,
+  "rank": 15,
+  "stations": [
+   "O1",
+   "O2",
+   "O3",
+   "O4",
+   "O5",
+   "R1",
+   "R2",
+   "R3",
+   "R4"
+  ],
+  "test": {
+   "confidence": 0.99,
+   "critical_high": 2.4968782042420603,
+   "name": "congruency of 9 station(s)",
+   "note": "F(15, 42) with the pooled variance factor 1.063",
+   "passed": false,
+   "statistic": 65.21700270256483
+  }
+ },
+ "kind": "geocomp.monitoring.comparison",
+ "mode": "approximate",
+ "objects": [
+  "O1",
+  "O2",
+  "O3",
+  "O4",
+  "O5"
+ ],
+ "reference": [
+  "R1",
+  "R2",
+  "R3",
+  "R4"
+ ],
+ "reference_check": {
+  "final": {
+   "omega": 5.384178948655501,
+   "passed": true,
+   "rank": 5,
+   "stations": [
+    "R1",
+    "R2",
+    "R3",
+    "R4"
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 3.488234863858266,
+    "name": "congruency of 4 station(s)",
+    "note": "F(5, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.012764108869412
+   }
+  },
+  "implicated": [],
+  "passed": true,
+  "stable": [
+   "R1",
+   "R2",
+   "R3",
+   "R4"
+  ],
+  "steps": [],
+  "test": {
+   "omega": 5.384178948655501,
+   "passed": true,
+   "rank": 5,
+   "stations": [
+    "R1",
+    "R2",
+    "R3",
+    "R4"
+   ],
+   "test": {
+    "confidence": 0.99,
+    "critical_high": 3.488234863858266,
+    "name": "congruency of 4 station(s)",
+    "note": "F(5, 42) with the pooled variance factor 1.063",
+    "passed": true,
+    "statistic": 1.012764108869412
+   }
+  }
+ },
+ "stations": [
+  "O1",
+  "O2",
+  "O3",
+  "O4",
+  "O5",
+  "R1",
+  "R2",
+  "R3",
+  "R4"
+ ],
+ "status": "analysed",
+ "strain": {
+  "azimuth": 2.289385349162687,
+  "deforming": true,
+  "dilatation": 6.810236361464227e-05,
+  "principal": [
+   6.639015818667801e-05,
+   1.7122054279642578e-06
+  ],
+  "rigid_rotation": 1.3318909806400267e-05,
+  "rigid_translation": [
+   0.004287546822206078,
+   -0.0032491373593786683
+  ],
+  "rotation": 4.380222655494213e-06,
+  "shear": 6.467795275871375e-05,
+  "stations": [
+   "O1",
+   "O2",
+   "O3",
+   "O4",
+   "O5"
+  ],
+  "std_devs": {
+   "dilatation": 3.906959285387814e-06,
+   "e_ee": 3.1086061300960935e-06,
+   "e_en": 2.331687974947497e-06,
+   "e_nn": 3.437362560988079e-06,
+   "rotation": 3.75627450791649e-06,
+   "shear": 4.674676907922903e-06,
+   "translation_e": 0.0005502360698135313,
+   "translation_n": 0.000832323331370009
+  },
+  "strain_tensor": [
+   3.835941377027884e-05,
+   2.9742949844363428e-05,
+   -3.20507180983196e-05
+  ],
+  "strain_test": {
+   "confidence": 0.99,
+   "critical_high": 4.2852731956158445,
+   "name": "strain beyond rigid-body motion",
+   "note": "F(3, 42): strain beyond rigid-body motion",
+   "passed": false,
+   "statistic": 168.3020994881806
+  },
+  "translation": [
+   0.004287538258301714,
+   -0.003249109493614422
+  ]
+ },
+ "strain_note": "",
+ "strategies": [
+  "independence_assumed"
+ ],
+ "thresholds": [
+  {
+   "group": "structure",
+   "kind": "magnitude",
+   "limit": 0.005,
+   "stations": [
+    "O1",
+    "O2",
+    "O3",
+    "O4",
+    "O5"
+   ]
+  }
+ ],
+ "transformations": [],
+ "variance_factor": 1.0632641701069108,
+ "version": 1
+}
