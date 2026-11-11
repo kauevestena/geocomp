@@ -54,9 +54,8 @@ algorithm.* Its second half — *the menu is a launcher of Processing dialogs* �
    rows under the importer's own field names with angles in radians, read by
    `geocomp:totalstation_import_fieldbook` through an identity mapping — so *typed equals imported* to the
    last bit, and is tested so.
-4. **A window's options are its algorithm's parameters**, drawn by QGIS's own parameter widgets from the
-   algorithm's definitions: the same labels and units, defaults (Global Settings), ranges and Basic/Advanced
-   gating, translated once.
+4. **A window's options are its algorithm's parameters**, drawn from the algorithm's definitions: the same
+   labels and units, defaults (Global Settings), ranges and Basic/Advanced gating, translated once.
 5. **File readers stay in the toolbox.** An algorithm whose purpose is a file the menu has no business
    typing is reached from the toolbox; FR-160's mapping preview stays reachable from Plugins ▸ GeoComp.
 6. **The menu is rebuilt one group at a time** (ROADMAP P14). Until a group's windows exist, its items stay

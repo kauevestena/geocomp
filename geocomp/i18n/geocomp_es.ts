@@ -9881,6 +9881,10 @@
     <context>
         <name>GeoCompWorkbench</name>
         <message>
+            <source>A value is needed.</source>
+            <translation>Hace falta un valor.</translation>
+        </message>
+        <message>
             <source>Add a row below the current one. It starts with the station and heights above.</source>
             <translation>Añade una fila debajo de la actual. Empieza con la estación y las alturas de la fila de arriba.</translation>
         </message>
@@ -9893,8 +9897,20 @@
             <translation>Tras un cálculo: los algoritmos ejecutados y los parámetros que se les dieron.</translation>
         </message>
         <message>
+            <source>All files (*)</source>
+            <translation>Todos los archivos (*)</translation>
+        </message>
+        <message>
             <source>Back</source>
             <translation>Atrás</translation>
+        </message>
+        <message>
+            <source>Between %1 and %2.</source>
+            <translation>Entre %1 y %2.</translation>
+        </message>
+        <message>
+            <source>Browse…</source>
+            <translation>Examinar…</translation>
         </message>
         <message>
             <source>Calculate</source>
@@ -9923,6 +9939,10 @@
         <message>
             <source>Cancelled. Nothing was changed.</source>
             <translation>Cancelado. No se cambió nada.</translation>
+        </message>
+        <message>
+            <source>Choose the file.</source>
+            <translation>Elija el archivo.</translation>
         </message>
         <message>
             <source>Close</source>
@@ -9967,6 +9987,14 @@
         <message>
             <source>Next</source>
             <translation>Siguiente</translation>
+        </message>
+        <message>
+            <source>Not a number.</source>
+            <translation>No es un número.</translation>
+        </message>
+        <message>
+            <source>Not a whole number.</source>
+            <translation>No es un número entero.</translation>
         </message>
         <message>
             <source>Not calculated yet.</source>
@@ -10067,6 +10095,10 @@
         <message>
             <source>not saved yet</source>
             <translation>aún no guardado</translation>
+        </message>
+        <message>
+            <source>not set</source>
+            <translation>no definido</translation>
         </message>
         <message>
             <source>untitled job</source>

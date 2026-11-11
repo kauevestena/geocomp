@@ -203,11 +203,60 @@ class TestTheParameterForm:
         form.set_value("START_EASTING", 0.0)
         assert stored == {}, "set back to the default, the choice is the algorithm's again"
 
-    def test_a_widget_edit_is_stored(self, geocomp_provider):
+    def test_a_number_typed_is_stored_with_either_decimal_mark(self, geocomp_provider):
         stored: dict = {}
         form = self._form(("START_NORTHING",), stored)
-        form.widget("START_NORTHING").setValue(5000.0)
-        assert stored == {"START_NORTHING": 5000.0}
+        editor = form.editor("START_NORTHING")
+        assert editor.text() == "0", "the algorithm's default, shown"
+        editor.setText("5000,25")
+        editor.textEdited.emit("5000,25")
+        assert stored == {"START_NORTHING": 5000.25}
+
+    def test_a_number_out_of_range_is_marked_and_not_stored(self, geocomp_provider):
+        from geocomp.core.settings_def import MODE_ADVANCED
+        from geocomp.services.settings_service import settings
+
+        stored: dict = {}
+        with settings.run_overrides({"interface.mode": MODE_ADVANCED}):
+            form = self._form(("ANGULAR_TOLERANCE",), stored)
+        editor = form.editor("ANGULAR_TOLERANCE")
+        editor.setText("9")
+        editor.textEdited.emit("9")
+        assert stored == {}
+        assert editor.toolTip() == "Between 0 and 5."
+        editor.setText("abc")
+        editor.textEdited.emit("abc")
+        assert editor.toolTip() == "Not a number."
+
+    def test_an_optional_number_left_empty_is_not_set(self, geocomp_provider):
+        stored: dict = {"CLOSE_EASTING": 10.0}
+        form = self._form(("CLOSE_EASTING",), stored, always=("CLOSE_EASTING",))
+        editor = form.editor("CLOSE_EASTING")
+        assert editor.text() == "10"
+        editor.setText("")
+        editor.textEdited.emit("")
+        assert stored == {}
+
+    def test_a_choice_is_stored_by_its_index(self, geocomp_provider):
+        stored: dict = {}
+        form = self._form(("KIND",), stored)
+        combo = form.widget("KIND")
+        assert combo.count() == 3 and combo.currentIndex() == 0
+        combo.setCurrentIndex(2)
+        combo.activated.emit(2)
+        assert stored == {"KIND": 2}
+
+    def test_a_file_is_typed_or_chosen(self, geocomp_provider):
+        from geocomp.gui.workbench.parameters import ParameterForm
+
+        stored: dict = {}
+        form = ParameterForm(
+            "geocomp:totalstation_import_fieldbook", ("PROFILES",), lambda: stored
+        )
+        editor = form.editor("PROFILES")
+        editor.setText("/data/profiles.json")
+        editor.textEdited.emit("/data/profiles.json")
+        assert stored == {"PROFILES": "/data/profiles.json"}
 
     def test_basic_mode_hides_what_the_algorithm_hides(self, geocomp_provider):
         from geocomp.core.settings_def import MODE_ADVANCED, MODE_BASIC

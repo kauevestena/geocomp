@@ -745,10 +745,14 @@ unsaved changes is open.
 
 ### 7.7 Options (FR-016)
 
-A window's options are drawn from its algorithm's parameter definitions by QGIS's own parameter widgets
-(`QgsProcessingGuiRegistry.createParameterWidgetWrapper`): the algorithm's labels with their units, its
-defaults — Global Settings, read when the window is opened — its ranges, and Basic/Advanced gating. A value is
-stored in the job only while it differs from the default; set back, the choice is the algorithm's again. A
-window may show a parameter Basic mode hides when it cannot be used without it: *Traverse* shows the closing
-coordinates of a connected traverse.
+A window's options are drawn from its algorithm's parameter definitions: the algorithm's labels with their
+units, its choices, its defaults — Global Settings, read when the window is opened — its ranges, and
+Basic/Advanced gating. A value is stored in the job only while it differs from the default; set back, the
+choice is the algorithm's again. A window may show a parameter Basic mode hides when it cannot be used
+without it: *Traverse* shows the closing coordinates of a connected traverse.
+
+The widgets are GeoComp's own: a number is typed into a text field and read as the grid reads one, with a
+point or a comma and every digit kept, and one outside the parameter's range is marked and not used. P14a
+first drew them with QGIS's `QgsProcessingGuiRegistry.createParameterWidgetWrapper`, which ended the process
+with a trap on QGIS 4.2 for macOS, on the CI runner, while Linux and Windows were fine.
 
