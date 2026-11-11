@@ -212,7 +212,7 @@ app.exitQgis()
 
 
 @pytest.fixture(scope="module")
-def lifecycle(qgis_app, tmp_path_factory):
+def lifecycle(qgis_app, tmp_path_factory, request):
     # A profile and an authentication database of its own, so nothing the
     # plugin reads or writes touches a developer's QGIS.
     environment = dict(
@@ -233,11 +233,15 @@ def lifecycle(qgis_app, tmp_path_factory):
     )
     lines = [line for line in completed.stdout.splitlines() if line.startswith("{")]
     if completed.returncode != 0 or not lines:
-        # Straight to the log as well: a later crash of the suite would take
-        # the assertion's message with it.
-        sys.__stderr__.write(
-            f"plugin lifecycle subprocess exited {completed.returncode}:\n{completed.stderr[-4000:]}\n"
-        )
+        # Straight to the log as well, with capturing off: a later crash of the
+        # suite would take the assertion's message with it.
+        capture = request.config.pluginmanager.getplugin("capturemanager")
+        with capture.global_and_fixture_disabled():
+            sys.stderr.write(
+                f"plugin lifecycle subprocess exited {completed.returncode}:\n"
+                f"{completed.stderr[-4000:]}\n"
+            )
+            sys.stderr.flush()
     assert completed.returncode == 0 and lines, completed.stderr[-4000:]
     return json.loads(lines[-1])
 

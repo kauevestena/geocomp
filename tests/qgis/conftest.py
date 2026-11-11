@@ -10,20 +10,33 @@ provider is registered on it once.
 from __future__ import annotations
 
 import faulthandler
+import os
 import signal
-import sys
+from contextlib import nullcontext
 
 import pytest
 
 from tests.conftest import has_qgis
 
-# A Qt or Cocoa trap ends the process before pytest reports anything: on macOS
-# the QGIS job's log then holds dots and "Trace/BPT trap: 5", and no test name.
-# pytest's own fault handler covers SIGSEGV and SIGABRT but not SIGTRAP, so it
-# is added here, and the trap prints the Python stack -- the test included --
-# before the process ends as it would have.
-if hasattr(faulthandler, "register") and hasattr(signal, "SIGTRAP"):
-    faulthandler.register(signal.SIGTRAP, file=sys.__stderr__, all_threads=True, chain=True)
+
+def pytest_configure(config):
+    """Make a trap name the test it ended.
+
+    A Qt or Cocoa trap ends the process before pytest reports anything: on
+    macOS the QGIS job's log then held dots and "Trace/BPT trap: 5", and no
+    test name. pytest's own fault handler covers SIGSEGV and SIGABRT but not
+    SIGTRAP, so SIGTRAP is added here and prints the Python stack -- the test
+    included -- before the process ends as it would have.
+
+    To a copy of stderr taken with capturing off: while a test runs, pytest has
+    file descriptor 2 pointing into a capture file, which dies with the process.
+    """
+    if not (hasattr(faulthandler, "register") and hasattr(signal, "SIGTRAP")):
+        return
+    capture = config.pluginmanager.getplugin("capturemanager")
+    with capture.global_and_fixture_disabled() if capture is not None else nullcontext():
+        stderr = os.dup(2)
+    faulthandler.register(signal.SIGTRAP, file=stderr, all_threads=True, chain=True)
 
 pytestmark = pytest.mark.qgis
 
