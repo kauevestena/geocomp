@@ -9,9 +9,21 @@ provider is registered on it once.
 
 from __future__ import annotations
 
+import faulthandler
+import signal
+import sys
+
 import pytest
 
 from tests.conftest import has_qgis
+
+# A Qt or Cocoa trap ends the process before pytest reports anything: on macOS
+# the QGIS job's log then holds dots and "Trace/BPT trap: 5", and no test name.
+# pytest's own fault handler covers SIGSEGV and SIGABRT but not SIGTRAP, so it
+# is added here, and the trap prints the Python stack -- the test included --
+# before the process ends as it would have.
+if hasattr(faulthandler, "register") and hasattr(signal, "SIGTRAP"):
+    faulthandler.register(signal.SIGTRAP, file=sys.__stderr__, all_threads=True, chain=True)
 
 pytestmark = pytest.mark.qgis
 

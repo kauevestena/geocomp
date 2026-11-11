@@ -77,14 +77,14 @@ class ParameterForm(QWidget):
         self._loading = False
         self._wrappers: dict[str, Any] = {}
         self._labels: dict[str, QWidget] = {}
-        # Kept: the definitions belong to the algorithm, the widgets to the context.
+        self._defaults: dict[str, Any] = {}
+        self._descriptions: dict[str, str] = {}
         self._context = QgsProcessingContext()
-        registered = QgsApplication.processingRegistry().algorithmById(algorithm_id)
-        self._algorithm = registered.create({}) if registered is not None else None
 
         layout = QFormLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        if self._algorithm is None:
+        registered = QgsApplication.processingRegistry().algorithmById(algorithm_id)
+        if registered is None:
             layout.addRow(
                 QLabel(
                     _tr(
@@ -95,12 +95,23 @@ class ParameterForm(QWidget):
                 )
             )
             return
+        # Two instances, for two lifetimes. A fresh one gives what a toolbox
+        # dialog opened now would: the defaults of today's Global Settings, and
+        # what Basic mode hides. It is read here and let go. The widgets are drawn
+        # from the registered one, whose definitions the provider owns for as
+        # long as the plugin is loaded -- a widget wrapper keeps a pointer to its
+        # definition, and must never outlive it, whatever order Python frees in.
+        fresh = registered.create({})
+        for current in fresh.parameterDefinitions():
+            self._defaults[current.name()] = _plain(current.defaultValue())
+            self._descriptions[current.name()] = current.description()
         shown_anyway = frozenset(always)
         for name in names:
-            definition = self._algorithm.parameterDefinition(name)
-            if definition is None:
+            current = fresh.parameterDefinition(name)
+            definition = registered.parameterDefinition(name)
+            if current is None or definition is None:
                 continue
-            hidden = bool(definition.flags() & QgsProcessingParameterDefinition.Flag.FlagHidden)
+            hidden = bool(current.flags() & QgsProcessingParameterDefinition.Flag.FlagHidden)
             if hidden and name not in shown_anyway:
                 continue
             wrapper = QgsGui.processingGuiRegistry().createParameterWidgetWrapper(
@@ -108,16 +119,20 @@ class ParameterForm(QWidget):
             )
             if wrapper is None:
                 continue
+            # Owned by the form, so deleted with it rather than when Python
+            # gets round to it.
+            wrapper.setParent(self)
             widget = wrapper.createWrappedWidget(self._context)
             widget.setObjectName(f"geocompParameter_{name}")
-            label = wrapper.createWrappedLabel() or QLabel(definition.description(), self)
-            widget.setToolTip(definition.description())
+            label = wrapper.createWrappedLabel() or QLabel(current.description(), self)
+            widget.setToolTip(current.description())
             layout.addRow(label, widget)
             self._wrappers[name] = wrapper
             self._labels[name] = label
-            wrapper.widgetValueHasChanged.connect(
-                lambda _wrapper=None, name=name: self._widget_changed(name)
-            )
+            # A bound method, held weakly: a lambda over the form would keep it
+            # alive through the C++ connection, beyond the reach of Python's GC.
+            wrapper.widgetValueHasChanged.connect(self._wrapper_changed)
+        del fresh
         self.reload()
 
     # -- reading -----------------------------------------------------------
@@ -129,10 +144,7 @@ class ParameterForm(QWidget):
 
     def default(self, name: str) -> Any:
         """The algorithm's default for *name*: what a toolbox dialog would start with."""
-        if self._algorithm is None:
-            return None
-        definition = self._algorithm.parameterDefinition(name)
-        return None if definition is None else _plain(definition.defaultValue())
+        return self._defaults.get(name)
 
     def value(self, name: str) -> Any:
         """What the run will use for *name*: the stored choice, or the algorithm's default."""
@@ -141,10 +153,7 @@ class ParameterForm(QWidget):
 
     def label(self, name: str) -> str:
         """The algorithm's own label for *name*, with its unit."""
-        if self._algorithm is None:
-            return name
-        definition = self._algorithm.parameterDefinition(name)
-        return name if definition is None else definition.description()
+        return self._descriptions.get(name, name)
 
     def widget(self, name: str) -> QWidget | None:
         """The widget of *name*, or ``None`` when the form does not show it."""
@@ -180,8 +189,13 @@ class ParameterForm(QWidget):
             if part is not None:
                 part.setVisible(shown)
 
-    def _widget_changed(self, name: str) -> None:
+    def _wrapper_changed(self, wrapper: Any) -> None:
         if self._loading:
+            return
+        name = next((key for key, held in self._wrappers.items() if held is wrapper), None)
+        if name is None:
+            name = wrapper.parameterDefinition().name()
+        if name not in self._wrappers:
             return
         self._store(name, _plain(self._wrappers[name].parameterValue()))
         self.changed.emit(name)

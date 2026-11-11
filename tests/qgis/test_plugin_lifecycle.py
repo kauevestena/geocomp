@@ -65,7 +65,10 @@ TOOLBAR = [
 ]
 
 SCRIPT = r"""
-import json, sys
+import faulthandler, json, signal, sys
+faulthandler.enable()
+if hasattr(faulthandler, "register") and hasattr(signal, "SIGTRAP"):
+    faulthandler.register(signal.SIGTRAP, all_threads=True, chain=True)
 from qgis.core import QgsApplication
 from qgis.gui import QgsMapCanvas, QgsMessageBar
 from qgis.PyQt.QtCore import QCoreApplication, QEvent
@@ -229,6 +232,12 @@ def lifecycle(qgis_app, tmp_path_factory):
         check=False,
     )
     lines = [line for line in completed.stdout.splitlines() if line.startswith("{")]
+    if completed.returncode != 0 or not lines:
+        # Straight to the log as well: a later crash of the suite would take
+        # the assertion's message with it.
+        sys.__stderr__.write(
+            f"plugin lifecycle subprocess exited {completed.returncode}:\n{completed.stderr[-4000:]}\n"
+        )
     assert completed.returncode == 0 and lines, completed.stderr[-4000:]
     return json.loads(lines[-1])
 

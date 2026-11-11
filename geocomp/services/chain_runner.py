@@ -36,6 +36,7 @@ from qgis.core import (
     QgsProcessingContext,
     QgsProcessingFeedback,
 )
+from qgis.PyQt import sip
 from qgis.PyQt.QtCore import QCoreApplication, QObject, pyqtSignal
 
 from geocomp.jobs.chains import Chain, ResolvedStep, resolve
@@ -52,6 +53,19 @@ PROBLEM = "problem"
 
 def _tr(text: str) -> str:
     return QCoreApplication.translate(_TR_CONTEXT, text)
+
+
+#: Each task handed to the task manager, with the context and feedback it was
+#: given. ``QgsProcessingAlgRunnerTask`` keeps only a reference to the one and a
+#: pointer to the other, and the task manager deletes the task some time after
+#: it reports, so both are kept here until the task is gone -- not merely until
+#: it has finished, nor only as long as the runner that started it.
+_IN_FLIGHT: list[tuple[Any, QgsProcessingContext, QgsProcessingFeedback]] = []
+
+
+def _keep_until_deleted(task: Any, context: QgsProcessingContext, feedback: QgsProcessingFeedback) -> None:
+    _IN_FLIGHT[:] = [entry for entry in _IN_FLIGHT if not sip.isdeleted(entry[0])]
+    _IN_FLIGHT.append((task, context, feedback))
 
 
 class ChainFeedback(QgsProcessingFeedback):
@@ -214,6 +228,7 @@ class ChainRunner(QObject):
             algorithm, step.parameters, self._context, self._feedback
         )
         self._task.executed.connect(self._step_finished)
+        _keep_until_deleted(self._task, self._context, self._feedback)
         QgsApplication.taskManager().addTask(self._task)
 
     def _said(self, kind: str, text: str) -> None:
