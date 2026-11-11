@@ -5,6 +5,49 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P14a — The menu becomes interactive windows: the Total Station field book, pre-processing, traverse and radiation
+
+The GeoComp menu's items are becoming windows in which observations are typed, while every Processing
+algorithm stays exactly as it was ([ADR-0010](specs/adr/0010-interactive-menu.md), roadmap phase P14). This is
+the first of eight stages.
+
+#### Added
+
+- **Total Station ▸ Field book…** — a guided, non-modal window over a typed field book: the job and instrument
+  (name, CRS or a local plane, angle convention, zenith or vertical angles, profile library, default
+  precisions), a grid with one row per pointing, and a check by *Import field book*. Angles are typed as
+  degrees, minutes and seconds (`87 31 15`, the default), DDD.MMSS (`87.3115`), decimal degrees or gon, the
+  convention shown in each heading and read strictly. A cell that cannot be read is marked and says why; a row
+  the importer rejects is named by its row number as it is typed. Blocks paste from a spreadsheet and copy
+  back; every edit can be undone; a readings document written by the toolbox opens into the grid.
+- **Total Station ▸ Generalised pre-processing…, Traverse…, 3D radiation…** — windows over the same field book.
+  Their options are the algorithms' own parameters, with the algorithms' labels, defaults and Basic/Advanced
+  gating. *Traverse* builds its route from the book's stations and takes its start from the map; *3D
+  radiation* takes known points typed, pasted, picked on the map or from *Traverse*. Results show the
+  algorithms' figures and report, copy their table, sketch the traverse or the rays on the map, and add the
+  points to the project as a layer.
+- **Job files** (`.gcjob`): one per technique's field book, shared by its windows, with the results in a
+  folder beside it. A result made from an earlier state of the job is shown out of date and recalculated a
+  moment after the typing stops. The QGIS project remembers its jobs.
+- Every window shows the **equivalent toolbox run**: the algorithms it ran and the parameters it gave them.
+- **Plugins ▸ GeoComp ▸ Import field book with mapping preview…** — the file route's mapping preview, which
+  the Total Station menu item used to open.
+
+#### Changed
+
+- A window computes nothing: it writes what was typed as the inputs the import algorithm reads and runs the
+  registered algorithms. RD-01 typed in the windows gives the toolbox's reductions document to the last bit,
+  with both of its known defects. The menu's other 45 items still open their Processing dialogs until their
+  groups are rebuilt.
+- The four Total Station algorithms the windows run no longer have menu items of their own; they are in the
+  toolbox, unchanged.
+
+#### Fixed
+
+- `ruff check .` was failing on `main` with 67 errors after #120, which stopped every `core` job of the test
+  workflow at Lint; and one GNSS layer test compared a dictionary holding lists with `pytest.approx`, which the
+  pytest of the macOS and Windows QGIS bundles refuses.
+
 ### Multilingual reports — broader regression coverage
 
 #### Added

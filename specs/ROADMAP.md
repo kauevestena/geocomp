@@ -4431,6 +4431,80 @@ this regression matrix.
 
 ---
 
+## P14 — The interactive menu
+
+**Goal.** Every item of the GeoComp menu opens an interactive window in which observations are typed — as
+the pre-analysis simulator already is, and as Posição's *Caderneta*, *Calc. Poligonal* and *Calc.
+Irradiações* are — while every Processing algorithm stays exactly as it is and remains the route for files.
+Maintainer's decision, 10 November 2026; [`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md).
+
+**Specs.** [`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §7 ·
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.7 ·
+[`03-architecture.md`](./03-architecture.md) · [`09-module-total-station.md`](./09-module-total-station.md) ·
+[`16-processing-provider.md`](./16-processing-provider.md) · [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) ·
+[`19-visualization.md`](./19-visualization.md)
+
+**Delivers.** In eight stages, one pull request each, each stopping for the maintainer's review:
+
+| Stage | What | Menu group |
+|---|---|---|
+| **P14a** | The window framework, the job file, and four windows: *Field book*, *Generalised pre-processing*, *Traverse*, *3D radiation* | Total Station |
+| P14b | *Resection*, *Forward intersection*, *Trigonometric levelling*, *Classical networks* | Total Station |
+| P14c | The levelling field book, the three schemes, closures and the network | Level |
+| P14d | The network workbench (inspect, adjust), the pre-analysis simulator in the frame, the DynAdjust trio, monitoring | Analysis |
+| P14e | Typed gravimeter readings, pre-processing, network | Gravimetry |
+| P14f | A session workbench (scan, products, the four modes, baselines, batch, compare) and a typed-baselines window | GNSS |
+| P14g | The four presets as one combination workbench | Integration |
+| P14h | A window for each Project item; the legacy launchers and their mechanism removed; the tutorials that name menu paths re-pointed | Project |
+
+Each stage repeats P14a's pattern: a `geocomp/jobs/` model of the group's typed data, windows over the
+group's unchanged algorithms, a *menu equals toolbox* test on the group's reference dataset, the
+specifications, and both catalogues.
+
+**Closes.** FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017
+
+**Exit.** No item of the GeoComp menu opens a Processing dialog: each opens a window, and
+`tests/test_registry.py`'s set of legacy launchers is empty and gone. Every window runs only the algorithms
+its registry entry declares, and computes nothing itself (`tests/structural/test_windows_compute_nothing.py`).
+Each technique's typed field book gives, through its windows, what the toolbox gives on the same book written
+as a file. Every file reader is in the toolbox. Both catalogues complete.
+
+#### P14a — the framework and the first four Total Station windows
+
+**Built.**
+- `geocomp/jobs/` — Qt-free: typed angles in four conventions, read strictly (`angles.py`); a table of
+  typed cells with undo, paste and copy (`tables.py`); the job file (`document.py`); chains of algorithms
+  declared as data, with a fingerprint of their inputs (`chains.py`); the total-station field book, its
+  emission as the importer's rows and mapping, its check by the importer's own reader, and the chains of the
+  four windows (`total_station.py`).
+- `geocomp/services/chain_runner.py` runs a chain as `QgsProcessingAlgRunnerTask`s, refusing an algorithm
+  its window does not declare; `services/jobs_service.py` holds each technique's job and the project's
+  memory of it.
+- `geocomp/gui/workbench/` — the guided frame, the grid, the options form built from an algorithm's
+  parameters, the run and results steps, the sketch and the map pick.
+- `geocomp/gui/windows/totalstation/` — the four windows; `registry.WINDOWS` declares them, and the four
+  algorithms they run lost their launchers. *Import field book with mapping preview…* moved to Plugins ▸
+  GeoComp.
+
+**Evidence.** RD-01 typed in degrees, minutes and seconds is read by the importer equal, quantity for
+quantity and to the last bit, to its CSV (`tests/test_jobs_total_station.py::TestTypedEqualsImported`);
+typed and pre-processed in the windows, it gives the toolbox's reductions document to the last bit, with both
+of its known defects (`tests/qgis/test_totalstation_windows.py::TestMenuEqualsToolbox`). The synthetic
+survey typed in both faces traverses and radiates in the windows to the toolbox's figures
+(`TestTraverse`, `TestRadiation`).
+
+**Not done in P14a**, stated rather than implied by a green tick:
+- The other 45 menu items still open their Processing dialogs — the legacy launchers P14b–P14h replace.
+- A one-pointing-at-a-time entry form (Posição's *por visada*); the grid (*por planilha*) only.
+- Horizontal angles turned counter-clockwise, and deflection angles; a start azimuth computed from the
+  backsight's coordinates. The traverse algorithm takes an azimuth, and the algorithms are not changed.
+- A readings document opened from the toolbox is re-read through the importer, so its precisions are the
+  *Field book* window's, not the document's.
+- Result layers beyond a points layer: Traverse and Radiation write no layer of their own; the styled
+  adjustment layers arrive with *Classical networks* in P14b.
+
+---
+
 ## Mapping to the research project's 24-month schedule
 
 `tex §Cronograma de atividades` proposes six periods. The correspondence:

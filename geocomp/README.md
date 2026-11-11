@@ -31,10 +31,13 @@ onwards.
    See [`../specs/18-i18n-and-profiles.md`](../specs/18-i18n-and-profiles.md).
 3. **Every quantity carries its uncertainty.** No bare floats for measured or derived geodetic values.
    See [`../specs/05-uncertainty-and-covariance.md`](../specs/05-uncertainty-and-covariance.md).
-4. **Algorithms are declared in `registry.py`.** The provider and the menu both read it, so they cannot drift
-   apart. Enforced by `tests/structural/test_menu_algorithm_parity.py`.
+4. **Algorithms and menu windows are declared in `registry.py`.** The provider and the menu both read it, so
+   they cannot drift apart. Enforced by `tests/structural/test_menu_window_parity.py`.
    See [`../specs/adr/0005-menu-algorithm-parity.md`](../specs/adr/0005-menu-algorithm-parity.md).
-5. **No empty placeholder files.** A module is created by the phase that implements it.
+5. **A menu window computes nothing.** It writes what was typed as an algorithm's inputs and runs the
+   registered algorithms it declares (P14a). Enforced by `tests/structural/test_windows_compute_nothing.py`.
+   See [`../specs/adr/0010-interactive-menu.md`](../specs/adr/0010-interactive-menu.md).
+6. **No empty placeholder files.** A module is created by the phase that implements it.
 
 ## Layout
 
@@ -44,13 +47,17 @@ geocomp/
   __init__.py           classFactory() entry point
   plugin.py             GeoCompPlugin: initGui / unload, menu, toolbar
   provider.py           GeoCompProvider (QgsProcessingProvider)
-  registry.py           the algorithm registry — pure data, no QGIS imports
+  registry.py           the algorithm and window registry — pure data, no QGIS imports
 
   core/                 pure Python, no QGIS: version, errors, cancellation, settings,
                         units, uncertainty, differentiation, models, adjustment,
                         statistics, preanalysis. Later: techniques, monitoring
-  services/             logging, layered settings, QgsTask wrapping, message rendering
-  gui/                  menu, Global Settings window, About dialog
+  jobs/                 pure Python, no QGIS: the typed field book of the menu's windows,
+                        the job file, the chains of algorithms a window runs (P14a)
+  services/             logging, layered settings, QgsTask wrapping, message rendering,
+                        running a window's chain, each technique's current job
+  gui/                  menu, Global Settings window, About dialog;
+                        workbench/ (the window frame) and windows/ (one per menu window)
   algorithms/           QgsProcessingAlgorithm subclasses, grouped as in the menu
   resources/            icons; later QML styles and report templates
   i18n/                 geocomp_pt_BR.ts, geocomp_es.ts (.qm built at packaging)

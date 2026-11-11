@@ -19,6 +19,7 @@ Per `tex §Painel de Configuração Global`, item 1, the Total Station submenu o
 
 | Menu item | Requirement | §  |
 |---|---|---|
+| Field book *(window, P14a)* | FR-012…FR-014, FR-160 | §5; [`15`](./15-ui-menu-and-settings.md) §7.2 |
 | Generalised pre-processing | FR-400…FR-405 | §2 |
 | Traverse | FR-406 | §4.1 |
 | Resection | FR-407 | §4.2 |
@@ -28,6 +29,12 @@ Per `tex §Painel de Configuração Global`, item 1, the Total Station submenu o
 | 3D radiation | FR-411 | §4.6 |
 
 Each is a Processing algorithm (FR-005), so the whole chain can be assembled in the graphical modeller.
+
+**Since P14a the menu items are windows** ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md),
+[`15`](./15-ui-menu-and-settings.md) §7): *Field book*, *Generalised pre-processing*, *Traverse* and *3D
+radiation* open windows over one typed field book, which run these same algorithms on it; the other four
+open their Processing dialogs until P14b. The algorithms are unchanged, and *Import field book* reads an
+instrument's file from the toolbox (FR-015).
 
 ---
 

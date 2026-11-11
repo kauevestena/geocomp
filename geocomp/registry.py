@@ -1,19 +1,29 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""The algorithm registry: one declaration, three consumers.
+"""The registry: algorithms and menu windows, declared once.
 
 ADR-0005 requires that every capability exist exactly once, as a Processing
-algorithm, and that the GeoComp menu be *generated* from the algorithm set
-rather than hand-built alongside it (FR-005).
+algorithm. ADR-0010 keeps that and changes what the GeoComp menu is: its items
+are **interactive windows** in which observations are typed, and a window
+computes nothing -- it runs the algorithms declared here (FR-005, FR-011).
 
-This module is that single source. It is deliberately **pure data**: it names
-algorithms by module path and class name rather than importing them. Three
-consequences follow, and all three are the point:
+This module is the single source of both. It is deliberately **pure data**: it
+names algorithms and windows by module path and class name rather than
+importing them. The consequences are the point:
 
-* ``geocomp.provider`` imports and instantiates each entry.
-* ``geocomp.gui.menu`` builds the GeoComp menu from the same entries, so a menu
-  item cannot point at nothing and an algorithm cannot go unreachable.
-* ``tests/structural/test_menu_algorithm_parity.py`` checks the correspondence
+* ``geocomp.provider`` imports and instantiates each :class:`AlgorithmSpec`.
+* ``geocomp.gui.menu`` builds the GeoComp menu from :func:`entries_in_menu`, so
+  a menu item cannot point at nothing.
+* a :class:`WindowSpec` names the algorithms its window runs, and the window is
+  refused any other (``geocomp.services.chain_runner``), so a window cannot
+  acquire a computation of its own without the registry saying so.
+* ``tests/structural/test_menu_window_parity.py`` checks the correspondence
   **without a QGIS runtime**, because nothing here imports ``qgis``.
+
+**The menu is being rebuilt group by group (ROADMAP phase P14).** Until a
+group's windows exist, its algorithms keep the item they have had since
+ADR-0005: a *legacy launcher*, which opens the algorithm's Processing dialog.
+:attr:`AlgorithmSpec.menu` now means exactly that, and the set of algorithms
+that have one may only shrink (``tests/test_registry.py`` pins it).
 
 Adding an algorithm means adding an :class:`AlgorithmSpec` here. Forgetting to
 is caught by the parity test, not discovered by a user.
@@ -30,13 +40,21 @@ __all__ = [
     "NESTING_MENUS",
     "PROCESSING_GROUPS",
     "PROVIDER_ID",
+    "TOOLBOX_ONLY_JUSTIFICATIONS",
+    "WINDOWS",
     "AlgorithmSpec",
     "MenuGroup",
     "ProcessingGroup",
+    "WindowSpec",
     "algorithms_in_group",
     "algorithms_in_menu",
     "algorithms_in_submenu",
+    "algorithms_run_by_windows",
+    "entries_in_menu",
+    "entries_in_submenu",
     "submenus_in_menu",
+    "window_named",
+    "windows_in_menu",
 ]
 
 #: Provider id (FR-030). Stable: saved models and scripts store it.
@@ -148,11 +166,14 @@ class AlgorithmSpec:
         operation: The operation part of the algorithm id.
         module / class_name: Where the implementation lives. Named as strings so
             this module stays importable without QGIS.
-        menu: The :class:`MenuGroup` id it appears under, or ``None`` for a
-            toolbox-only algorithm. ``None`` is permitted only for diagnostics
-            and maintenance operations that belong to no survey technique; the
-            parity test holds the exception list to exactly those declared in
-            :data:`TOOLBOX_ONLY_JUSTIFICATIONS`.
+        menu: The :class:`MenuGroup` id its **legacy launcher** appears under:
+            a menu item that opens the algorithm's Processing dialog, as every
+            item did under ADR-0005. ``None`` for an algorithm that has none,
+            which since ADR-0010 is where every algorithm is heading: the menu
+            holds windows, and an algorithm is reached from the toolbox, the
+            modeller, batch and PyQGIS, and is run by the windows declared in
+            :data:`WINDOWS`. An algorithm with neither a launcher nor a window
+            that runs it must say why in :data:`TOOLBOX_ONLY_JUSTIFICATIONS`.
         requirement: The requirement id this algorithm satisfies.
         menu_order: Position within its submenu.
         submenu: A second level *inside* the menu group, or ``None`` for an
@@ -195,28 +216,141 @@ class AlgorithmSpec:
         return f"algorithm.{self.name}.label"
 
 
-#: Why each toolbox-only algorithm has no menu entry. An entry here is a
-#: deliberate, reviewed exception to ADR-0005's menu generation, not a default.
+@dataclass(frozen=True)
+class WindowSpec:
+    """One interactive window of the GeoComp menu (ADR-0010, FR-010).
+
+    Attributes:
+        name: Stable and English. The menu item's object name, the key of the
+            window's record in a job file and the folder of its results are
+            all made from it, so renaming one orphans what was saved under it.
+        menu: The :class:`MenuGroup` id it appears under.
+        menu_order: Position within its submenu, on the scale the legacy
+            launchers use, so a group can be rebuilt one window at a time
+            without its order changing.
+        module / class_name: Where the window lives. Named as strings so this
+            module stays importable without QGIS, and so a window is imported
+            when it is first opened rather than when the plugin loads.
+        algorithms: The names of the algorithms the window runs, in the order
+            it runs them. **The only ones it may run**: the chain runner
+            refuses any other, which is what makes "a window computes nothing"
+            a property the registry states rather than a habit.
+        requirement: The requirement the window's own behaviour satisfies.
+        technique: Whose job file it works on. Windows of one technique share
+            one job -- one field book (FR-013).
+        submenu: A second level inside the menu group; see
+            :attr:`AlgorithmSpec.submenu`.
+    """
+
+    name: str
+    menu: str
+    menu_order: int
+    module: str
+    class_name: str
+    algorithms: tuple[str, ...]
+    requirement: str
+    technique: str
+    submenu: str | None = None
+
+    @property
+    def algorithm_ids(self) -> tuple[str, ...]:
+        """The fully qualified ids of the algorithms the window runs."""
+        return tuple(f"{PROVIDER_ID}:{name}" for name in self.algorithms)
+
+    @property
+    def label_code(self) -> str:
+        """The message code of the window's label."""
+        return f"window.{self.name}.label"
+
+
+#: The interactive windows. Phase P14a contributed the first four: the Total
+#: Station field book and the three computations of ``specs/09`` section 1 that
+#: need nothing typed beyond it and a few known points.
 #:
-#: **Empty since phase P5**, and the way it emptied is the point. It held two
-#: entries after P0, and P5's four project-level algorithms would have taken it
-#: to six -- at which point ``test_the_toolbox_only_list_stays_small`` failed,
-#: exactly as it was written to. Six exceptions are not exceptions; they are a
-#: category with no home. The Project menu entry is that home, and the list went
-#: from five to none rather than from three to six. The guard stays, at the same
-#: threshold, for the next time.
+#: Their positions are the ones the same operations' launchers had, so the
+#: Total Station submenu reads in the order it always did while half of it is
+#: windows and half still launchers.
+WINDOWS: tuple[WindowSpec, ...] = (
+    WindowSpec(
+        name="totalstation_fieldbook",
+        menu="total_station",
+        menu_order=10,
+        module="geocomp.gui.windows.totalstation.fieldbook",
+        class_name="FieldBookWindow",
+        algorithms=("totalstation_import_fieldbook",),
+        requirement="FR-012",
+        technique="total_station",
+    ),
+    WindowSpec(
+        name="totalstation_preprocess",
+        menu="total_station",
+        menu_order=20,
+        module="geocomp.gui.windows.totalstation.preprocess",
+        class_name="PreprocessWindow",
+        algorithms=("totalstation_import_fieldbook", "totalstation_preprocess"),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    WindowSpec(
+        name="totalstation_traverse",
+        menu="total_station",
+        menu_order=30,
+        module="geocomp.gui.windows.totalstation.traverse",
+        class_name="TraverseWindow",
+        algorithms=(
+            "totalstation_import_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_traverse",
+        ),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    WindowSpec(
+        name="totalstation_radiation",
+        menu="total_station",
+        menu_order=80,
+        module="geocomp.gui.windows.totalstation.radiation",
+        class_name="RadiationWindow",
+        algorithms=(
+            "totalstation_import_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_radiation",
+        ),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+)
+
+#: Why an algorithm that has neither a legacy launcher nor a window running it
+#: is reachable from the toolbox only. An entry here is a deliberate, reviewed
+#: statement, not a default.
+#:
+#: **Empty**, and since ADR-0010 for a different reason than before. Under
+#: ADR-0005 it held the exceptions to "every algorithm has a menu item", and
+#: emptied in phase P5 when the Project entry gave six of them a home. Now an
+#: algorithm without a menu item is the rule -- the menu holds windows -- and
+#: what this list holds is the algorithm *no window runs either*: one whose
+#: whole purpose is a file the menu has no business typing. FR-015 expects a
+#: few as the groups are rebuilt; none exists yet, because the one file reader
+#: P14a took out of the menu, *Import field book*, is also what the Total
+#: Station windows read the typed book with.
 TOOLBOX_ONLY_JUSTIFICATIONS: dict[str, str] = {}
 
-#: Algorithms whose menu item opens a custom dialog *before* the standard
-#: Processing one, to collect parameters the standard dialog cannot. Each entry
-#: records why, mirroring the enumerated table in ``specs/15`` section 3 -- the
-#: set is deliberately small, because every custom dialog is a place the
-#: generated UI stops being generated and starts having to be maintained.
+#: Algorithms that open a custom dialog *before* the standard Processing one,
+#: to collect parameters the standard dialog cannot. Each entry records why,
+#: mirroring the enumerated table in ``specs/15`` section 3 -- the set is
+#: deliberately small, because every custom dialog is a place the generated UI
+#: stops being generated and starts having to be maintained.
 #:
 #: The custom dialog does not replace the algorithm or reimplement it
 #: (ADR-0005). It fills in parameters and hands them to the same Processing
-#: dialog every other menu item opens, so the algorithm stays the one thing
-#: that runs, whether reached from the menu, the toolbox or the modeller.
+#: dialog a launcher opens, so the algorithm stays the one thing that runs,
+#: whether reached from the menu, the toolbox or the modeller.
+#:
+#: Since P14a the field-book mapping preview is opened from Plugins ▸ GeoComp
+#: rather than from the GeoComp menu, whose Total Station items are windows: it
+#: belongs to the file route (FR-015), and it is kept because FR-160's preview
+#: is the only way to map an instrument's columns by looking at them.
 CUSTOM_DIALOGS: dict[str, str] = {
     "analysis_network_preanalysis": (
         "A design is edited on the canvas and re-evaluated in a loop, which is "
@@ -431,14 +565,16 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     # -- Total Station (phase P3). The order mirrors the workflow, which is the
     # order specs/09 section 1 lists them in: get the data in, reduce it, then
     # compute with it.
+    #
+    # P14a: the import, the pre-processing, the traverse and the radiation have
+    # no launcher any more. The menu items of those names are windows
+    # (``WINDOWS``), which run these same four on a typed field book.
     AlgorithmSpec(
         operation="import_fieldbook",
         group="totalstation",
         module="geocomp.algorithms.totalstation.import_fieldbook",
         class_name="ImportFieldBookAlgorithm",
         requirement="FR-160",
-        menu="total_station",
-        menu_order=10,
     ),
     AlgorithmSpec(
         operation="preprocess",
@@ -446,8 +582,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.preprocess",
         class_name="PreprocessAlgorithm",
         requirement="FR-400",
-        menu="total_station",
-        menu_order=20,
     ),
     AlgorithmSpec(
         operation="traverse",
@@ -455,8 +589,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.traverse",
         class_name="TraverseAlgorithm",
         requirement="FR-406",
-        menu="total_station",
-        menu_order=30,
     ),
     AlgorithmSpec(
         operation="resection",
@@ -500,8 +632,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.radiation",
         class_name="RadiationAlgorithm",
         requirement="FR-411",
-        menu="total_station",
-        menu_order=80,
     ),
     # -- Level (phase P4). The order of the work: get the book in, reduce it by
     # the scheme it was observed with, check the closures, adjust the network.
@@ -767,10 +897,50 @@ def submenus_in_menu(menu_id: str) -> tuple[str, ...]:
     would be a small lie about which is primary.
     """
     seen: list[str] = []
-    for spec in algorithms_in_menu(menu_id):
+    for spec in entries_in_menu(menu_id):
         if spec.submenu and spec.submenu not in seen:
             seen.append(spec.submenu)
     return tuple(seen)
+
+
+def windows_in_menu(menu_id: str) -> tuple[WindowSpec, ...]:
+    """The windows shown under *menu_id*, in menu order."""
+    return tuple(
+        sorted(
+            (spec for spec in WINDOWS if spec.menu == menu_id),
+            key=lambda spec: (spec.menu_order, spec.name),
+        )
+    )
+
+
+def entries_in_menu(menu_id: str) -> tuple[WindowSpec | AlgorithmSpec, ...]:
+    """Everything shown under *menu_id*, windows and legacy launchers, in menu order.
+
+    What ``geocomp.gui.menu`` builds a submenu from, so the menu is by
+    construction what the registry declares.
+    """
+    entries: list[WindowSpec | AlgorithmSpec] = [
+        *windows_in_menu(menu_id),
+        *algorithms_in_menu(menu_id),
+    ]
+    return tuple(sorted(entries, key=lambda entry: (entry.menu_order, entry.name)))
+
+
+def entries_in_submenu(
+    menu_id: str, submenu: str | None
+) -> tuple[WindowSpec | AlgorithmSpec, ...]:
+    """The entries under one second level, or, for ``None``, directly under the group."""
+    return tuple(entry for entry in entries_in_menu(menu_id) if entry.submenu == submenu)
+
+
+def window_named(name: str) -> WindowSpec | None:
+    """The window of that name, or ``None``."""
+    return next((spec for spec in WINDOWS if spec.name == name), None)
+
+
+def algorithms_run_by_windows() -> frozenset[str]:
+    """The names of the algorithms some window runs."""
+    return frozenset(name for spec in WINDOWS for name in spec.algorithms)
 
 
 def algorithms_in_submenu(menu_id: str, submenu: str | None) -> tuple[AlgorithmSpec, ...]:
@@ -781,7 +951,7 @@ def algorithms_in_submenu(menu_id: str, submenu: str | None) -> tuple[AlgorithmS
 
 
 def algorithms_in_menu(menu_id: str) -> tuple[AlgorithmSpec, ...]:
-    """Return the algorithms shown under *menu_id*, in menu order."""
+    """Return the algorithms that still have a legacy launcher under *menu_id*, in menu order."""
     return tuple(
         sorted(
             (spec for spec in ALGORITHMS if spec.menu == menu_id),
@@ -799,6 +969,7 @@ def _validate_module() -> None:
     """Catch a malformed registry at import, not at menu-build time."""
     group_ids = {group.id for group in PROCESSING_GROUPS}
     menu_ids = {group.id for group in MENU_GROUPS}
+    by_window = algorithms_run_by_windows()
     seen: set[str] = set()
     for spec in ALGORITHMS:
         if spec.group not in group_ids:
@@ -807,23 +978,43 @@ def _validate_module() -> None:
             )
         if spec.menu is not None and spec.menu not in menu_ids:
             raise ValueError(f"algorithm {spec.name!r} names unknown menu group {spec.menu!r}")
-        if spec.menu is None and spec.name not in TOOLBOX_ONLY_JUSTIFICATIONS:
+        if (
+            spec.menu is None
+            and spec.name not in by_window
+            and spec.name not in TOOLBOX_ONLY_JUSTIFICATIONS
+        ):
             raise ValueError(
-                f"algorithm {spec.name!r} is toolbox-only but declares no justification; "
-                "add one to TOOLBOX_ONLY_JUSTIFICATIONS or give it a menu group"
+                f"algorithm {spec.name!r} has no menu launcher and no window runs it, and it "
+                "declares no justification; name it in a WindowSpec's algorithms or add the "
+                "reason to TOOLBOX_ONLY_JUSTIFICATIONS"
             )
         if spec.name in seen:
             raise ValueError(f"duplicate algorithm name {spec.name!r}")
         seen.add(spec.name)
+    windows: set[str] = set()
+    for window in WINDOWS:
+        if window.menu not in menu_ids:
+            raise ValueError(f"window {window.name!r} names unknown menu group {window.menu!r}")
+        if window.name in windows:
+            raise ValueError(f"duplicate window name {window.name!r}")
+        windows.add(window.name)
+        if not window.algorithms:
+            raise ValueError(
+                f"window {window.name!r} runs no algorithm. A window computes nothing itself "
+                "(ADR-0010), so one that runs nothing does nothing"
+            )
+        unknown = [name for name in window.algorithms if name not in seen]
+        if unknown:
+            raise ValueError(f"window {window.name!r} names unregistered algorithms {unknown!r}")
     for action_menu in (group for group in MENU_GROUPS if group.is_action):
-        if algorithms_in_menu(action_menu.id):
+        if entries_in_menu(action_menu.id):
             raise ValueError(
                 f"menu entry {action_menu.id!r} is a leaf action and cannot hold algorithms"
             )
-    for spec in ALGORITHMS:
+    for spec in (*ALGORITHMS, *WINDOWS):
         if spec.submenu and spec.menu not in NESTING_MENUS:
             raise ValueError(
-                f"algorithm {spec.name!r} declares submenu {spec.submenu!r} under menu "
+                f"{spec.name!r} declares submenu {spec.submenu!r} under menu "
                 f"{spec.menu!r}, which is not in NESTING_MENUS. specs/15 section 1 allows "
                 "a second level only where the first names nothing on its own; add the "
                 "menu to NESTING_MENUS with the reason, or flatten the entry"

@@ -47,6 +47,7 @@ From `tex §Painel de Configuração Global e Menu Principal` and `fig/menu_estr
 | 5. Integration | FR-800…FR-805 | P9 |
 | 6. Analysis | FR-220…FR-227, FR-250…FR-255, FR-270…FR-273, FR-830…FR-838 | P2, P3, P10b |
 | 7. Global Settings | FR-060…FR-069 | P0, P3, P6, P7, P12c-16, P12c-17 |
+| Every item an interactive window that runs the algorithms (ADR-0010) | FR-005, FR-010…FR-017 | P14 (P14a: Total Station's first four) |
 
 The Analysis group is not in `fig/menu_estrutura.png`: the figure shows the five technique submenus and
 Global Settings. It was added in phase P2 for the operations belonging to no single technique, settling what
@@ -57,16 +58,17 @@ amended to match rather than being contradicted by the code.
 
 | Item (tex, item 1) | Requirement | Phase |
 |---|---|---|
-| Generalised pre-processing: PD/PI combination | FR-400 | P3 |
+| Field book, typed (not in the tex list; the window every other one reads) | FR-012, FR-013, FR-014 | P14a |
+| Generalised pre-processing: PD/PI combination | FR-400 | P3 (window: P14a) |
 | — atmospheric corrections | FR-401 | P3 |
 | — instrument corrections | FR-402 | P3 |
 | — EDM corrections | FR-403 | P3 |
-| Traverse: open, closed, connected | FR-406 | P3 |
+| Traverse: open, closed, connected | FR-406 | P3 (window: P14a) |
 | Resection | FR-407 | P3 |
 | Forward intersection | FR-408 | P3 |
 | Classical networks: triangulation, trilateration, triangulateration | FR-409 | P3 |
 | Trigonometric levelling, including leap-frog | FR-410 | P3 |
-| 3D radiation | FR-411 | P3 |
+| 3D radiation | FR-411 | P3 (window: P14a) |
 
 ### 2.3 Level submenu
 

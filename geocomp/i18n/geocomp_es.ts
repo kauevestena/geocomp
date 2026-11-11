@@ -2605,6 +2605,17 @@
         </message>
     </context>
     <context>
+        <name>GeoCompChainRunner</name>
+        <message>
+            <source>The algorithm %1 is not available. Enable the GeoComp provider in the Processing options.</source>
+            <translation>El algoritmo %1 no está disponible. Active el proveedor GeoComp en las opciones de Procesamiento.</translation>
+        </message>
+        <message>
+            <source>The algorithm stopped without saying why. See the log.</source>
+            <translation>El algoritmo se detuvo sin decir por qué. Vea el registro.</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompCompareDialog</name>
         <message>
             <source>%1 stations in both epochs.</source>
@@ -4070,8 +4081,20 @@
             <translation>%1 ya contiene un proyecto, y copiar en él mezclaría dos. Copie a un GeoPackage nuevo o a un esquema nuevo.</translation>
         </message>
         <message>
+            <source>%1 azimuth(s) cannot be read. Correct the cells marked.</source>
+            <translation>%1 acimut(es) no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
             <source>%1 cannot be applied to values in %2: the units do not fit the operation. This is an internal error; please report it.</source>
             <translation>%1 no puede aplicarse a valores en %2: las unidades no sirven a la operación. Este es un error interno; por favor, infórmelo.</translation>
+        </message>
+        <message>
+            <source>%1 cell(s) of the field book cannot be read. Correct the cells marked in the Field book window first.</source>
+            <translation>%1 celda(s) de la libreta de campo no se puede(n) leer. Corrija primero las celdas marcadas en la ventana Libreta de campo.</translation>
+        </message>
+        <message>
+            <source>%1 cell(s) of the known points cannot be read. Correct the cells marked.</source>
+            <translation>%1 celda(s) de los puntos conocidos no se puede(n) leer. Corrija las celdas marcadas.</translation>
         </message>
         <message>
             <source>%1 finished without writing a solution file. Its own message: %2. Its working files are in %3. Look there, and at its message, for the cause.</source>
@@ -4218,6 +4241,10 @@
             <translation>'%1' no se pudo leer como documento JSON (%2). Compruebe que el archivo esté completo y sea el documento que escribió un algoritmo de GeoComp.</translation>
         </message>
         <message>
+            <source>'%1' could not be read as a job file (%2). Check that the file is there and complete.</source>
+            <translation>'%1' no pudo leerse como archivo de trabajo (%2). Compruebe que el archivo existe y está completo.</translation>
+        </message>
+        <message>
             <source>'%1' could not be read as an .xlsx workbook: it is damaged, or it has no worksheet. Save it again from the spreadsheet program, or export it as CSV.</source>
             <translation>'%1' no se pudo leer como libro .xlsx: está dañado o no tiene hoja de cálculo. Guárdelo de nuevo desde el programa de hojas de cálculo, o expórtelo como CSV.</translation>
         </message>
@@ -4250,8 +4277,16 @@
             <translation>'%1' tiene un datum dinámico, que pondera las coordenadas mantenidas por una matriz de varianza-covarianza. GeoComp no lo lee: leerlo como fijo afirmaría una certeza que el ejemplo no afirma. Use un datum fijo o libre, si es ese el ejemplo que pretende.</translation>
         </message>
         <message>
+            <source>'%1' has decimals where an angle in degrees, minutes and seconds takes none: only its last part may have them. Enter it as 87 31 15.5, or change the angle convention in the Field book window's first step.</source>
+            <translation>'%1' tiene decimales donde un ángulo en grados, minutos y segundos no los admite: solo su última parte puede tenerlos. Escríbalo como 87 31 15,5, o cambie la convención de ángulos en el primer paso de la ventana Libreta de campo.</translation>
+        </message>
+        <message>
             <source>'%1' has no column header, so its columns cannot be identified. RTKLIB writes one when its output header option is on; process the session again with it on.</source>
             <translation>'%1' no tiene encabezado de columnas, por lo que sus columnas no pueden identificarse. RTKLIB escribe uno cuando la opción de encabezado de salida está activada; procese la sesión de nuevo con ella activada.</translation>
+        </message>
+        <message>
+            <source>'%1' has sixty or more minutes or seconds. Correct it: minutes and seconds run from 0 to 59.</source>
+            <translation>'%1' tiene sesenta o más minutos o segundos. Corríjalo: los minutos y segundos van de 0 a 59.</translation>
         </message>
         <message>
             <source>'%1' holds %2 positions, and a GNSS baseline needs ECEF X, Y and Z. Process the session again with ECEF output.</source>
@@ -4310,6 +4345,14 @@
             <translation>'%1' no es un documento de GeoComp: su nivel superior no es un objeto JSON. Elija el archivo que escribió un algoritmo de GeoComp.</translation>
         </message>
         <message>
+            <source>'%1' is not a GeoComp job file. Choose a file saved from a GeoComp window; its name ends in .gcjob.</source>
+            <translation>'%1' no es un archivo de trabajo de GeoComp. Elija un archivo guardado desde una ventana de GeoComp; su nombre termina en .gcjob.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a GeoComp readings document. Choose the file Import field book wrote.</source>
+            <translation>'%1' no es un documento de lecturas de GeoComp. Elija el archivo que escribió Importar libreta de campo.</translation>
+        </message>
+        <message>
             <source>'%1' is not a RINEX file: its first record is '%2', where RINEX VERSION / TYPE was expected. Choose the file the receiver or its converter wrote.</source>
             <translation>'%1' no es un archivo RINEX: su primer registro es '%2', donde se esperaba RINEX VERSION / TYPE. Elija el archivo que escribió el receptor o su conversor.</translation>
         </message>
@@ -4366,6 +4409,10 @@
             <translation>'%1' no es un documento de red como lo escribe GeoComp (%2). Indique el documento de red que escribió una importación o un algoritmo de preprocesamiento.</translation>
         </message>
         <message>
+            <source>'%1' is not a number. Enter it in digits with a decimal point or comma, such as 13.204.</source>
+            <translation>'%1' no es un número. Escríbalo en cifras, con coma o punto decimal, como 13,204.</translation>
+        </message>
+        <message>
             <source>'%1' is not a number; correct it on the line: %2</source>
             <translation>'%1' no es un número; corríjalo en la línea: %2</translation>
         </message>
@@ -4376,6 +4423,10 @@
         <message>
             <source>'%1' is not a processing profile; expected %2. Choose one of those.</source>
             <translation>'%1' no es un perfil de procesamiento; se esperaba %2. Elija uno de ellos.</translation>
+        </message>
+        <message>
+            <source>'%1' is not a readings document as GeoComp writes it (%2). Choose the file Import field book wrote.</source>
+            <translation>'%1' no es un documento de lecturas como lo escribe GeoComp (%2). Elija el archivo que escribió Importar libreta de campo.</translation>
         </message>
         <message>
             <source>'%1' is not a real date (dd.mm.yyyy). Correct the day or the month.</source>
@@ -4402,6 +4453,10 @@
             <translation>'%1' no es un método de solución; se esperaba %2. Elija uno de esos.</translation>
         </message>
         <message>
+            <source>'%1' is not a value this column takes. Enter one of: %2.</source>
+            <translation>'%1' no es un valor que esta columna admita. Escriba uno de estos: %2.</translation>
+        </message>
+        <message>
             <source>'%1' is not a variance-component group of this adjustment; the groups are %2. Choose one of those.</source>
             <translation>'%1' no es un grupo de componentes de varianza de este ajuste; los grupos son %2. Elija uno de esos.</translation>
         </message>
@@ -4412,6 +4467,10 @@
         <message>
             <source>'%1' is not a weighting mode; use length or setups.</source>
             <translation>'%1' no es un modo de ponderación; use length o setups (longitud o estacionamientos).</translation>
+        </message>
+        <message>
+            <source>'%1' is not a whole number. Enter it in digits only, such as 2.</source>
+            <translation>'%1' no es un número entero. Escríbalo solo con cifras, como 2.</translation>
         </message>
         <message>
             <source>'%1' is not an RTKLIB output format; it writes llh, xyz, enu or nmea. Choose one of those.</source>
@@ -4434,6 +4493,18 @@
             <translation>'%1' no es un ángulo en grados, minutos y segundos, como 12°34'56"; corríjalo en la línea: %2</translation>
         </message>
         <message>
+            <source>'%1' is not an angle in degrees, minutes and seconds. Enter it as three numbers, such as 87 31 15.</source>
+            <translation>'%1' no es un ángulo en grados, minutos y segundos. Escríbalo como tres números, como 87 31 15.</translation>
+        </message>
+        <message>
+            <source>'%1' is not an angle typed as DDD.MMSS. Enter it as 87.3115 for 87 degrees 31 minutes 15 seconds, or change the angle convention in the Field book window's first step.</source>
+            <translation>'%1' no es un ángulo escrito como DDD.MMSS. Escríbalo como 87.3115 para 87 grados 31 minutos 15 segundos, o cambie la convención de ángulos en el primer paso de la ventana Libreta de campo.</translation>
+        </message>
+        <message>
+            <source>'%1' is not an angle typed as one decimal number. Enter it as 87.5208, or change the angle convention in the Field book window's first step.</source>
+            <translation>'%1' no es un ángulo escrito como un número decimal. Escríbalo como 87,5208, o cambie la convención de ángulos en el primer paso de la ventana Libreta de campo.</translation>
+        </message>
+        <message>
             <source>'%1' is not an ellipsoid GeoComp knows; it knows %2. Choose one of those.</source>
             <translation>'%1' no es un elipsoide que GeoComp conozca; conoce %2. Elija uno de esos.</translation>
         </message>
@@ -4448,6 +4519,10 @@
         <message>
             <source>'%1' is not one of the sighted values the mapping knows (%2). Use one of those in that column.</source>
             <translation>'%1' no es uno de los valores de punto visado que la asignación conoce (%2). Use uno de esos en esa columna.</translation>
+        </message>
+        <message>
+            <source>'%1' is the job of another technique. Open it from that technique's windows in the GeoComp menu.</source>
+            <translation>'%1' es el trabajo de otra técnica. Ábralo desde las ventanas de esa técnica en el menú GeoComp.</translation>
         </message>
         <message>
             <source>'%1' observes stations that have no approximate coordinates (%2). An angle or azimuth to such a point defines a direction, not a position; reduce it before the network is adjusted.</source>
@@ -4468,6 +4543,10 @@
         <message>
             <source>'%1' states no first observation, so it cannot be put in order with the other files of its session. Add TIME OF FIRST OBS to its header, or convert the receiver's data again.</source>
             <translation>'%1' no declara la primera observación, por lo que no puede ordenarse con los demás archivos de su sesión. Añada TIME OF FIRST OBS a su cabecera, o convierta de nuevo los datos del receptor.</translation>
+        </message>
+        <message>
+            <source>'%1' was saved by a later GeoComp: its job format is %2 and this version reads up to %3. Update GeoComp to open it.</source>
+            <translation>'%1' fue guardado por un GeoComp más reciente: su formato de trabajo es %2 y esta versión lee hasta el %3. Actualice GeoComp para abrirlo.</translation>
         </message>
         <message>
             <source>'%1' was written by DynAdjust %2, whose output layout GeoComp does not read; it reads the layouts of %3. Run one of those versions.</source>
@@ -5066,6 +5145,10 @@
             <translation>Ningún perfil de instrumento se aplica: ninguno se nombra en la observación, y la biblioteca no tiene uno por defecto. GeoComp no inventa constantes de instrumento; indique un archivo de Perfiles de instrumento, o nombre un perfil.</translation>
         </message>
         <message>
+            <source>No known point is given. Add at least the station the instrument occupied, with its coordinates.</source>
+            <translation>No se dio ningún punto conocido. Añada al menos la estación que ocupó el instrumento, con sus coordenadas.</translation>
+        </message>
+        <message>
             <source>No level profile applies: none is named on the line, and the library has no default. GeoComp does not invent instrument precisions; give an Instrument profiles file, or name a profile.</source>
             <translation>Ningún perfil de nivel se aplica: ninguno se nombra en la línea, y la biblioteca no tiene uno por defecto. GeoComp no inventa precisiones de instrumento; indique un archivo de Perfiles de instrumento, o nombre un perfil.</translation>
         </message>
@@ -5168,6 +5251,14 @@
         <message>
             <source>Row %1 of the gravimeter's calibration table has the interval factor %2; it must be positive. Correct that row against the manufacturer's calibration sheet.</source>
             <translation>La fila %1 de la tabla de calibración del gravímetro tiene el factor de intervalo %2; debe ser positivo. Corrija esa fila según la hoja de calibración del fabricante.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the known points lacks its name or a coordinate. Give its name, easting, northing and height; enter 0 for the height where the survey has none.</source>
+            <translation>La fila %1 de los puntos conocidos no tiene nombre o una coordenada. Dé su nombre, E, N y altitud; escriba 0 en la altitud cuando el levantamiento no tenga ninguna.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the orientations lacks its station or its azimuth. Give both, or remove the row.</source>
+            <translation>La fila %1 de las orientaciones no tiene la estación o el acimut. Dé los dos, o quite la fila.</translation>
         </message>
         <message>
             <source>Row %1: %2</source>
@@ -5862,6 +5953,10 @@
             <translation>La libreta de campo '%1' no se pudo leer. Elija un archivo CSV o .xlsx existente y legible.</translation>
         </message>
         <message>
+            <source>The field book holds no pointing yet. Enter the observations in the Field book window first.</source>
+            <translation>La libreta de campo aún no tiene ninguna puntería. Escriba primero las observaciones en la ventana Libreta de campo.</translation>
+        </message>
+        <message>
             <source>The field mapping has no name. Give it one: a mapping is saved and reused by its name.</source>
             <translation>La asignación de campos no tiene nombre. Póngale uno: una asignación se guarda y se reutiliza por su nombre.</translation>
         </message>
@@ -6024,6 +6119,14 @@
         <message>
             <source>The intersection did not converge in %1 iterations. Check the azimuths for a blunder.</source>
             <translation>La intersección directa no convergió en %1 iteraciones. Compruebe los acimuts en busca de un error grosero.</translation>
+        </message>
+        <message>
+            <source>The job could not be saved to '%1' (%2). Choose a folder you can write in.</source>
+            <translation>El trabajo no pudo guardarse en '%1' (%2). Elija una carpeta en la que pueda escribir.</translation>
+        </message>
+        <message>
+            <source>The known point '%1' is given twice. Remove one of its rows.</source>
+            <translation>El punto conocido '%1' se dio dos veces. Quite una de sus filas.</translation>
         </message>
         <message>
             <source>The known points %1 are collinear, so they define no circle and cannot fix a resection between them.</source>
@@ -7557,6 +7660,14 @@
         <message>
             <source>GeoComp Global Settings</source>
             <translation>Configuraciones Globales de GeoComp</translation>
+        </message>
+        <message>
+            <source>Import field book with mapping preview…</source>
+            <translation>Importar libreta de campo con vista previa de la asignación…</translation>
+        </message>
+        <message>
+            <source>Open again: %1</source>
+            <translation>Abrir de nuevo: %1</translation>
         </message>
         <message>
             <source>Results panel</source>
@@ -9311,6 +9422,655 @@
         <message>
             <source>Warning</source>
             <translation>Advertencia</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompTotalStationWindows</name>
+        <message>
+            <source>%1 Put it right in the Field book window.</source>
+            <translation>%1 Corríjalo en la ventana Libreta de campo.</translation>
+        </message>
+        <message>
+            <source>%1 cell(s) of the field book cannot be read. Correct the cells marked.</source>
+            <translation>%1 celda(s) de la libreta de campo no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
+            <source>%1 row(s) of the field book are rejected. Correct them: each is named below.</source>
+            <translation>%1 fila(s) de la libreta de campo fue(ron) rechazada(s). Corríjala(s): cada una se indica abajo.</translation>
+        </message>
+        <message>
+            <source>A change of convention does not rewrite what is typed: the cells are read again in the new one, and any that no longer reads is marked.</source>
+            <translation>Cambiar la convención no reescribe lo escrito: las celdas se leen de nuevo en la nueva convención, y cualquiera que ya no pueda leerse queda marcada.</translation>
+        </message>
+        <message>
+            <source>A classical distribution is not least squares: the coordinates it gives are approximate. For the rigorous path, adjust the same field book with Classical network.</source>
+            <translation>Una distribución clásica no es mínimos cuadrados: las coordenadas que da son aproximadas. Para el camino riguroso, ajuste la misma libreta de campo con Red clásica.</translation>
+        </message>
+        <message>
+            <source>A closed traverse ends on the station it started from: add that station again as the last of the route.</source>
+            <translation>Una poligonal cerrada termina en la estación en la que empezó: añada esa estación de nuevo como la última del recorrido.</translation>
+        </message>
+        <message>
+            <source>A connected traverse arrives at a known point. Give the closing easting and northing, or choose another kind in the Route step.</source>
+            <translation>Una poligonal encuadrada llega a un punto conocido. Dé el E y el N de cierre, o elija otro tipo en el paso Recorrido.</translation>
+        </message>
+        <message>
+            <source>Add at least two stations to the route, in the order they were occupied.</source>
+            <translation>Añada al menos dos estaciones al recorrido, en el orden en que se ocuparon.</translation>
+        </message>
+        <message>
+            <source>Add points to the map</source>
+            <translation>Añadir puntos al mapa</translation>
+        </message>
+        <message>
+            <source>Add stations to the map</source>
+            <translation>Añadir estaciones al mapa</translation>
+        </message>
+        <message>
+            <source>Add the radiated points, with their uncertainties, to the project as a layer.</source>
+            <translation>Añade los puntos radiados, con sus incertidumbres, al proyecto como una capa.</translation>
+        </message>
+        <message>
+            <source>Add the stations to the project as a point layer.</source>
+            <translation>Añade las estaciones al proyecto como una capa de puntos.</translation>
+        </message>
+        <message>
+            <source>Add the traverse's stations to the job's known points, for 3D radiation to start from. A traverse gives no heights: type them there.</source>
+            <translation>Añade las estaciones de la poligonal a los puntos conocidos del trabajo, para que la Radiación 3D parta de ellas. Una poligonal no da altitudes: escríbalas allí.</translation>
+        </message>
+        <message>
+            <source>Add to route →</source>
+            <translation>Añadir al recorrido →</translation>
+        </message>
+        <message>
+            <source>An orientation is needed only for a setup that sighted no known point: one that did is oriented from it. The azimuth is typed in the job's angle convention. The heights are used where a reading carries none of its own.</source>
+            <translation>Una orientación solo hace falta para un estacionamiento que no apuntó a ningún punto conocido: uno que sí lo hizo se orienta con él. El acimut se escribe en la convención de ángulos del trabajo. Las alturas se usan donde una lectura no trae las suyas.</translation>
+        </message>
+        <message>
+            <source>Angles are typed as</source>
+            <translation>Los ángulos se escriben como</translation>
+        </message>
+        <message>
+            <source>Angular misclosure</source>
+            <translation>Error angular de cierre</translation>
+        </message>
+        <message>
+            <source>Azimuth (%1)</source>
+            <translation>Acimut (%1)</translation>
+        </message>
+        <message>
+            <source>Blocking findings</source>
+            <translation>Hallazgos bloqueantes</translation>
+        </message>
+        <message>
+            <source>Calculate</source>
+            <translation>Calcular</translation>
+        </message>
+        <message>
+            <source>Check</source>
+            <translation>Verificar</translation>
+        </message>
+        <message>
+            <source>Check the field book</source>
+            <translation>Verificar la libreta de campo</translation>
+        </message>
+        <message>
+            <source>Choose the initial backsight: the point the first station sighted before turning the angle.</source>
+            <translation>Elija la espalda inicial: el punto al que apuntó la primera estación antes de medir el ángulo.</translation>
+        </message>
+        <message>
+            <source>Clear route</source>
+            <translation>Vaciar recorrido</translation>
+        </message>
+        <message>
+            <source>Click a point on the map to fill the easting and northing of the current row.</source>
+            <translation>Haga clic en un punto del mapa para rellenar el E y el N de la fila actual.</translation>
+        </message>
+        <message>
+            <source>Conditions and tolerances</source>
+            <translation>Condiciones y tolerancias</translation>
+        </message>
+        <message>
+            <source>Coordinate reference system</source>
+            <translation>Sistema de referencia de coordenadas</translation>
+        </message>
+        <message>
+            <source>D M S</source>
+            <translation>G M S</translation>
+        </message>
+        <message>
+            <source>DDD.MMSS</source>
+            <translation>GGG.MMSS</translation>
+        </message>
+        <message>
+            <source>Decimal degrees (87.520833)</source>
+            <translation>Grados decimales (87,520833)</translation>
+        </message>
+        <message>
+            <source>Degrees, minutes and seconds, separated (87 31 15)</source>
+            <translation>Grados, minutos y segundos, separados (87 31 15)</translation>
+        </message>
+        <message>
+            <source>Degrees.minutes-seconds, DDD.MMSS (87.3115)</source>
+            <translation>Grados.minutos-segundos, GGG.MMSS (87.3115)</translation>
+        </message>
+        <message>
+            <source>Easting (m)</source>
+            <translation>E (m)</translation>
+        </message>
+        <message>
+            <source>Face (PD / PI)</source>
+            <translation>Posición del anteojo (CD / CI)</translation>
+        </message>
+        <message>
+            <source>Field book</source>
+            <translation>Libreta de campo</translation>
+        </message>
+        <message>
+            <source>Fill the grid from the readings document the toolbox's Import field book wrote. It replaces what is in the grid; Undo brings it back.</source>
+            <translation>Rellena la cuadrícula con el documento de lecturas que escribió Importar libreta de campo, de la caja de herramientas. Sustituye lo que hay en la cuadrícula; Deshacer lo recupera.</translation>
+        </message>
+        <message>
+            <source>GeoComp readings (*.json)</source>
+            <translation>Lecturas GeoComp (*.json)</translation>
+        </message>
+        <message>
+            <source>Give at least the stations the instrument occupied. A known point the setup also sighted orients it; Traverse can add the stations it computed.</source>
+            <translation>Dé al menos las estaciones que ocupó el instrumento. Un punto conocido al que el estacionamiento también apuntó lo orienta; la Poligonal puede añadir las estaciones que calculó.</translation>
+        </message>
+        <message>
+            <source>Gon (97.245370)</source>
+            <translation>Gon (97,245370)</translation>
+        </message>
+        <message>
+            <source>Height (m)</source>
+            <translation>Altitud (m)</translation>
+        </message>
+        <message>
+            <source>Hz (%1)</source>
+            <translation>Hz (%1)</translation>
+        </message>
+        <message>
+            <source>Instr. height (m)</source>
+            <translation>Alt. instr. (m)</translation>
+        </message>
+        <message>
+            <source>Job and instrument</source>
+            <translation>Trabajo e instrumento</translation>
+        </message>
+        <message>
+            <source>Job name</source>
+            <translation>Nombre del trabajo</translation>
+        </message>
+        <message>
+            <source>Known stations</source>
+            <translation>Estaciones conocidas</translation>
+        </message>
+        <message>
+            <source>Largest standard deviation</source>
+            <translation>Mayor desviación típica</translation>
+        </message>
+        <message>
+            <source>Linear misclosure</source>
+            <translation>Error lineal de cierre</translation>
+        </message>
+        <message>
+            <source>Move down</source>
+            <translation>Bajar</translation>
+        </message>
+        <message>
+            <source>Move up</source>
+            <translation>Subir</translation>
+        </message>
+        <message>
+            <source>No CRS: a local plane</source>
+            <translation>Sin SRC: un plano local</translation>
+        </message>
+        <message>
+            <source>No: see the findings</source>
+            <translation>No: vea los hallazgos</translation>
+        </message>
+        <message>
+            <source>None of the known points is a station the field book occupies. Add the coordinates of at least one: %1.</source>
+            <translation>Ninguno de los puntos conocidos es una estación que ocupe la libreta de campo. Añada las coordenadas de al menos una: %1.</translation>
+        </message>
+        <message>
+            <source>Northing (m)</source>
+            <translation>N (m)</translation>
+        </message>
+        <message>
+            <source>Not known, so not radiated from: %1.</source>
+            <translation>No conocidas, por lo tanto sin radiación desde ellas: %1.</translation>
+        </message>
+        <message>
+            <source>Note</source>
+            <translation>Nota</translation>
+        </message>
+        <message>
+            <source>Open readings document</source>
+            <translation>Abrir documento de lecturas</translation>
+        </message>
+        <message>
+            <source>Open readings document…</source>
+            <translation>Abrir documento de lecturas…</translation>
+        </message>
+        <message>
+            <source>Open the field book</source>
+            <translation>Abrir la libreta de campo</translation>
+        </message>
+        <message>
+            <source>Options</source>
+            <translation>Opciones</translation>
+        </message>
+        <message>
+            <source>Orientations and heights</source>
+            <translation>Orientaciones y alturas</translation>
+        </message>
+        <message>
+            <source>Origin</source>
+            <translation>Origen</translation>
+        </message>
+        <message>
+            <source>Pick on the map</source>
+            <translation>Tomar del mapa</translation>
+        </message>
+        <message>
+            <source>Pick the closing point on the map</source>
+            <translation>Tomar del mapa el punto de cierre</translation>
+        </message>
+        <message>
+            <source>Pick the start on the map</source>
+            <translation>Tomar del mapa el punto de partida</translation>
+        </message>
+        <message>
+            <source>Point</source>
+            <translation>Punto</translation>
+        </message>
+        <message>
+            <source>Pointings reduced</source>
+            <translation>Punterías reducidas</translation>
+        </message>
+        <message>
+            <source>Points in the field book</source>
+            <translation>Puntos en la libreta de campo</translation>
+        </message>
+        <message>
+            <source>Points radiated</source>
+            <translation>Puntos radiados</translation>
+        </message>
+        <message>
+            <source>Radiated points (%1)</source>
+            <translation>Puntos radiados (%1)</translation>
+        </message>
+        <message>
+            <source>Records read</source>
+            <translation>Registros leídos</translation>
+        </message>
+        <message>
+            <source>Rejected records</source>
+            <translation>Registros rechazados</translation>
+        </message>
+        <message>
+            <source>Relative precision</source>
+            <translation>Precisión relativa</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Eliminar</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Results</source>
+            <translation>Resultados</translation>
+        </message>
+        <message>
+            <source>Route</source>
+            <translation>Recorrido</translation>
+        </message>
+        <message>
+            <source>Route, in the order occupied</source>
+            <translation>Recorrido, en el orden de ocupación</translation>
+        </message>
+        <message>
+            <source>Row %1, %2: %3</source>
+            <translation>Fila %1, %2: %3</translation>
+        </message>
+        <message>
+            <source>Set</source>
+            <translation>Serie</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Slope distance (m)</source>
+            <translation>Distancia inclinada (m)</translation>
+        </message>
+        <message>
+            <source>Starting data</source>
+            <translation>Datos de partida</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>Objetivo</translation>
+        </message>
+        <message>
+            <source>Target height (m)</source>
+            <translation>Altura de la señal (m)</translation>
+        </message>
+        <message>
+            <source>The field book is empty. Type the observations in its grid, or paste them from a spreadsheet.</source>
+            <translation>La libreta de campo está vacía. Escriba las observaciones en su cuadrícula, o péguelas desde una hoja de cálculo.</translation>
+        </message>
+        <message>
+            <source>The instrument's precisions weight every reading. Without a profile library, a generic total station is assumed and the results are marked approximate.</source>
+            <translation>Las precisiones del instrumento ponderan cada lectura. Sin una biblioteca de perfiles, se supone una estación total genérica y los resultados se marcan como aproximados.</translation>
+        </message>
+        <message>
+            <source>The start azimuth is that of the line from the first station to the initial backsight, in decimal degrees, as the algorithm takes it.</source>
+            <translation>El acimut de partida es el de la línea de la primera estación a la espalda inicial, en grados decimales, como lo recibe el algoritmo.</translation>
+        </message>
+        <message>
+            <source>The vertical circle reads</source>
+            <translation>El círculo vertical lee</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters and defaults. The observations are the job's field book; the instrument is the one chosen in the Field book window.</source>
+            <translation>Estos son los propios parámetros y valores por defecto del algoritmo. Las observaciones son la libreta de campo del trabajo; el instrumento es el elegido en la ventana Libreta de campo.</translation>
+        </message>
+        <message>
+            <source>Traverse stations (%1)</source>
+            <translation>Estaciones de la poligonal (%1)</translation>
+        </message>
+        <message>
+            <source>Usable pointings</source>
+            <translation>Punterías utilizables</translation>
+        </message>
+        <message>
+            <source>Use as known stations</source>
+            <translation>Usar como estaciones conocidas</translation>
+        </message>
+        <message>
+            <source>Vertical (%1)</source>
+            <translation>Vertical (%1)</translation>
+        </message>
+        <message>
+            <source>Vertical angle from the horizon (0° is level)</source>
+            <translation>Ángulo vertical desde el horizonte (0° es nivel)</translation>
+        </message>
+        <message>
+            <source>What you call this survey</source>
+            <translation>Cómo llama a este levantamiento</translation>
+        </message>
+        <message>
+            <source>Within tolerance</source>
+            <translation>Dentro de la tolerancia</translation>
+        </message>
+        <message>
+            <source>Yes</source>
+            <translation>Sí</translation>
+        </message>
+        <message>
+            <source>Zenith (%1)</source>
+            <translation>Cenital (%1)</translation>
+        </message>
+        <message>
+            <source>Zenith angle (90° is level)</source>
+            <translation>Ángulo cenital (90° es nivel)</translation>
+        </message>
+        <message>
+            <source>decimal °</source>
+            <translation>° decimales</translation>
+        </message>
+        <message>
+            <source>exact closure</source>
+            <translation>cierre exacto</translation>
+        </message>
+        <message>
+            <source>gon</source>
+            <translation>gon</translation>
+        </message>
+        <message>
+            <source>map</source>
+            <translation>mapa</translation>
+        </message>
+        <message>
+            <source>none</source>
+            <translation>ninguna</translation>
+        </message>
+        <message>
+            <source>none: nothing to close on</source>
+            <translation>ninguno: no hay donde cerrar</translation>
+        </message>
+        <message>
+            <source>not checked</source>
+            <translation>no verificado</translation>
+        </message>
+        <message>
+            <source>untitled job</source>
+            <translation>trabajo sin nombre</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompWindows</name>
+        <message>
+            <source>3D radiation</source>
+            <translation>Radiación 3D</translation>
+        </message>
+        <message>
+            <source>Field book</source>
+            <translation>Libreta de campo</translation>
+        </message>
+        <message>
+            <source>Generalised pre-processing</source>
+            <translation>Preprocesamiento generalizado</translation>
+        </message>
+        <message>
+            <source>Traverse</source>
+            <translation>Poligonal</translation>
+        </message>
+    </context>
+    <context>
+        <name>GeoCompWorkbench</name>
+        <message>
+            <source>Add a row below the current one. It starts with the station and heights above.</source>
+            <translation>Añade una fila debajo de la actual. Empieza con la estación y las alturas de la fila de arriba.</translation>
+        </message>
+        <message>
+            <source>Add row</source>
+            <translation>Añadir fila</translation>
+        </message>
+        <message>
+            <source>After a run: the algorithms it ran and the parameters it gave them.</source>
+            <translation>Tras un cálculo: los algoritmos ejecutados y los parámetros que se les dieron.</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Atrás</translation>
+        </message>
+        <message>
+            <source>Calculate</source>
+            <translation>Calcular</translation>
+        </message>
+        <message>
+            <source>Calculate again when the data changes</source>
+            <translation>Calcular de nuevo cuando cambien los datos</translation>
+        </message>
+        <message>
+            <source>Calculated, but the results could not be put in %1 (%2). Check that the folder is not open in another program, and calculate again.</source>
+            <translation>Calculado, pero los resultados no pudieron colocarse en %1 (%2). Compruebe que la carpeta no esté abierta en otro programa, y calcule de nuevo.</translation>
+        </message>
+        <message>
+            <source>Calculated.</source>
+            <translation>Calculado.</translation>
+        </message>
+        <message>
+            <source>Calculating…</source>
+            <translation>Calculando…</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancelar</translation>
+        </message>
+        <message>
+            <source>Cancelled. Nothing was changed.</source>
+            <translation>Cancelado. No se cambió nada.</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Cerrar</translation>
+        </message>
+        <message>
+            <source>Complete the steps before this one first.</source>
+            <translation>Complete primero los pasos anteriores a este.</translation>
+        </message>
+        <message>
+            <source>Copy</source>
+            <translation>Copiar</translation>
+        </message>
+        <message>
+            <source>Copy table</source>
+            <translation>Copiar tabla</translation>
+        </message>
+        <message>
+            <source>Copy the results table, with every digit, to paste into a spreadsheet.</source>
+            <translation>Copia la tabla de resultados, con todas las cifras, para pegarla en una hoja de cálculo.</translation>
+        </message>
+        <message>
+            <source>Delete rows</source>
+            <translation>Eliminar filas</translation>
+        </message>
+        <message>
+            <source>Equivalent toolbox run</source>
+            <translation>Ejecución equivalente en la caja de herramientas</translation>
+        </message>
+        <message>
+            <source>GeoComp jobs (*%1)</source>
+            <translation>Trabajos GeoComp (*%1)</translation>
+        </message>
+        <message>
+            <source>Log</source>
+            <translation>Registro</translation>
+        </message>
+        <message>
+            <source>New job</source>
+            <translation>Nuevo trabajo</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Siguiente</translation>
+        </message>
+        <message>
+            <source>Not calculated yet.</source>
+            <translation>Aún no calculado.</translation>
+        </message>
+        <message>
+            <source>Once calculated, the algorithms are run again a moment after the field book or an option changes, so the results shown are always those of what is typed.</source>
+            <translation>Una vez calculado, los algoritmos se ejecutan de nuevo poco después de que cambie la libreta de campo o una opción, de modo que los resultados mostrados son siempre los de lo escrito.</translation>
+        </message>
+        <message>
+            <source>Open a saved job file.</source>
+            <translation>Abre un archivo de trabajo guardado.</translation>
+        </message>
+        <message>
+            <source>Open job</source>
+            <translation>Abrir trabajo</translation>
+        </message>
+        <message>
+            <source>Open job…</source>
+            <translation>Abrir trabajo…</translation>
+        </message>
+        <message>
+            <source>Open report</source>
+            <translation>Abrir informe</translation>
+        </message>
+        <message>
+            <source>Open results folder</source>
+            <translation>Abrir carpeta de resultados</translation>
+        </message>
+        <message>
+            <source>Open the report in your browser, to print or keep.</source>
+            <translation>Abre el informe en el navegador, para imprimirlo o conservarlo.</translation>
+        </message>
+        <message>
+            <source>Out of date: the job changed since this was calculated.</source>
+            <translation>Desactualizado: el trabajo cambió desde que esto se calculó.</translation>
+        </message>
+        <message>
+            <source>Paste</source>
+            <translation>Pegar</translation>
+        </message>
+        <message>
+            <source>Paste a block copied from a spreadsheet, starting at the current cell.</source>
+            <translation>Pega un bloque copiado de una hoja de cálculo, a partir de la celda actual.</translation>
+        </message>
+        <message>
+            <source>Redo</source>
+            <translation>Rehacer</translation>
+        </message>
+        <message>
+            <source>Running %1 (%2 of %3)…</source>
+            <translation>Ejecutando %1 (%2 de %3)…</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Guardar</translation>
+        </message>
+        <message>
+            <source>Save as…</source>
+            <translation>Guardar como…</translation>
+        </message>
+        <message>
+            <source>Save job</source>
+            <translation>Guardar trabajo</translation>
+        </message>
+        <message>
+            <source>Save the job to another file.</source>
+            <translation>Guarda el trabajo en otro archivo.</translation>
+        </message>
+        <message>
+            <source>Save the job to its file.</source>
+            <translation>Guarda el trabajo en su archivo.</translation>
+        </message>
+        <message>
+            <source>Start an empty job.</source>
+            <translation>Empieza un trabajo vacío.</translation>
+        </message>
+        <message>
+            <source>The algorithm %1 is not available. Enable the GeoComp provider in the Processing options.</source>
+            <translation>El algoritmo %1 no está disponible. Active el proveedor GeoComp en las opciones de Procesamiento.</translation>
+        </message>
+        <message>
+            <source>The files of the last calculation are no longer there. Calculate again: everything a window writes can be made again from the job.</source>
+            <translation>Los archivos del último cálculo ya no están. Calcule de nuevo: todo lo que escribe una ventana puede rehacerse a partir del trabajo.</translation>
+        </message>
+        <message>
+            <source>The job has changes that are not saved. Save them now? Unsaved, the job stays open until QGIS closes.</source>
+            <translation>El trabajo tiene cambios sin guardar. ¿Guardarlos ahora? Sin guardar, el trabajo queda abierto hasta que se cierre QGIS.</translation>
+        </message>
+        <message>
+            <source>These results are of an earlier state of the job: the field book or an option has changed since. Calculate again.</source>
+            <translation>Estos resultados son de un estado anterior del trabajo: la libreta de campo o una opción cambió desde entonces. Calcule de nuevo.</translation>
+        </message>
+        <message>
+            <source>Undo</source>
+            <translation>Deshacer</translation>
+        </message>
+        <message>
+            <source>not saved yet</source>
+            <translation>aún no guardado</translation>
+        </message>
+        <message>
+            <source>untitled job</source>
+            <translation>trabajo sin nombre</translation>
         </message>
     </context>
     <context>

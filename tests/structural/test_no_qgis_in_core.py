@@ -50,6 +50,26 @@ def test_core_package_is_free_of_qgis_and_pyqt():
     )
 
 
+def test_typed_jobs_are_free_of_qgis_and_pyqt():
+    """``geocomp.jobs`` is the typed field book of the menu's windows (ADR-0010).
+
+    It sits beside the core under the same rule, for the same reasons and one
+    more: a typed field book is emitted as the inputs an algorithm reads, and
+    that equality -- typed equals imported -- is tested in a plain interpreter.
+    """
+    offenders: list[str] = []
+    jobs = PLUGIN_DIR / "jobs"
+    assert jobs.is_dir(), "the jobs package must exist"
+    for path in python_sources(jobs):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        forbidden = _imported_roots(tree) & FORBIDDEN_ROOTS
+        if forbidden:
+            offenders.append(f"{path.relative_to(PLUGIN_DIR.parent)}: {sorted(forbidden)}")
+    assert not offenders, "geocomp/jobs must not import qgis, PyQt or processing.\n" + "\n".join(
+        offenders
+    )
+
+
 def test_core_is_importable_without_qgis():
     """The core imports in a plain interpreter -- the property the rule buys."""
     import importlib
@@ -61,5 +81,7 @@ def test_core_is_importable_without_qgis():
         "geocomp.core.settings_def",
         "geocomp.core.settings_resolution",
         "geocomp.registry",
+        "geocomp.jobs",
+        "geocomp.jobs.total_station",
     ):
         importlib.import_module(module)
