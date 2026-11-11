@@ -36,4 +36,8 @@ def window_label(name: str) -> str:
         "totalstation_preprocess": _tr("Generalised pre-processing"),
         "totalstation_traverse": _tr("Traverse"),
         "totalstation_radiation": _tr("3D radiation"),
+        "totalstation_resection": _tr("Resection"),
+        "totalstation_intersection": _tr("Forward intersection"),
+        "totalstation_network": _tr("Classical network"),
+        "totalstation_trig_levelling": _tr("Trigonometric levelling"),
     }.get(name, name.replace("_", " ").capitalize())

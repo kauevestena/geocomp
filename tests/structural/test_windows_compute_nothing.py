@@ -118,13 +118,20 @@ def test_the_chains_run_what_their_windows_declare():
 
     book = ts.TotalStationBook(ts.new_job())
     book.table.paste(0, "station", "A\t1.5\tB\tPD\t0 00 00\t90 00 00\t10")
-    book.points.paste(0, "name", "A\t0\t0\t0")
+    book.points.paste(0, "name", "A\t0\t0\t0\nB\t10\t0\t0")
+    book.sightings.paste(0, "station", "A\t45 00 00\nB\t315 00 00")
+    book.job.parameters(ts.WINDOW_RESECTION)["STATION"] = "A"
     chains = {
         ts.WINDOW_FIELD_BOOK: ts.import_chain(book),
         ts.WINDOW_PREPROCESS: ts.preprocess_chain(book),
         ts.WINDOW_TRAVERSE: ts.traverse_chain(book),
         ts.WINDOW_RADIATION: ts.radiation_chain(book),
+        ts.WINDOW_RESECTION: ts.resection_chain(book),
+        ts.WINDOW_INTERSECTION: ts.intersection_chain(book),
+        ts.WINDOW_NETWORK: ts.network_chain(book),
+        ts.WINDOW_TRIG_LEVELLING: ts.trig_levelling_chain(book),
     }
     declared = {spec.name: spec.algorithm_ids for spec in WINDOWS}
+    assert set(chains) == set(declared), "a window without a chain here is not checked"
     for window, chain in chains.items():
         assert chain.algorithms == declared[window], window

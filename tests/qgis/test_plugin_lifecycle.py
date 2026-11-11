@@ -41,16 +41,16 @@ MENU = [
     "geocompMenuAction_global_settings",
 ]
 
-#: The Total Station submenu: four windows where four launchers stood, in the
-#: same order, and the four launchers still to be rebuilt (ROADMAP P14).
+#: The Total Station submenu: eight windows where eight launchers stood, in the
+#: same order -- four built in P14a, four in P14b.
 TOTAL_STATION = [
     ("geocompMenuAction_totalstation_fieldbook", "totalstation_fieldbook"),
     ("geocompMenuAction_totalstation_preprocess", "totalstation_preprocess"),
     ("geocompMenuAction_totalstation_traverse", "totalstation_traverse"),
-    ("geocompMenuAction_totalstation_resection", "geocomp:totalstation_resection"),
-    ("geocompMenuAction_totalstation_intersection", "geocomp:totalstation_intersection"),
-    ("geocompMenuAction_totalstation_network", "geocomp:totalstation_network"),
-    ("geocompMenuAction_totalstation_trig_levelling", "geocomp:totalstation_trig_levelling"),
+    ("geocompMenuAction_totalstation_resection", "totalstation_resection"),
+    ("geocompMenuAction_totalstation_intersection", "totalstation_intersection"),
+    ("geocompMenuAction_totalstation_network", "totalstation_network"),
+    ("geocompMenuAction_totalstation_trig_levelling", "totalstation_trig_levelling"),
     ("geocompMenuAction_totalstation_radiation", "totalstation_radiation"),
 ]
 

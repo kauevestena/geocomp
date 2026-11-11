@@ -137,6 +137,34 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "the row.",
         "row",
     ),
+    "validation.known_point_unplaced": MessageTemplate(
+        "Row %1 of the known points lacks its name, its easting or its northing. Give all "
+        "three, or remove the row.",
+        "row",
+    ),
+    # -- resection and forward intersection (P14b) -----------------------------
+    "validation.resection_no_station": MessageTemplate(
+        "No occupied station is chosen. Choose the station to resect in the Resection "
+        "window's first step.",
+    ),
+    "validation.sightings_unreadable": MessageTemplate(
+        "%1 azimuth(s) of the sightings cannot be read. Correct the cells marked.",
+        "count",
+    ),
+    "validation.sighting_incomplete": MessageTemplate(
+        "Row %1 of the sightings lacks its station or its azimuth. Give both, or remove the "
+        "row.",
+        "row",
+    ),
+    "validation.sighting_repeated": MessageTemplate(
+        "Station '%1' has two sightings. Keep one: the intersection takes one azimuth from "
+        "each station.",
+        "station",
+    ),
+    "validation.sighting_station_unknown": MessageTemplate(
+        "Station '%1' has a sighting but no coordinates. Add it to the known points.",
+        "station",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

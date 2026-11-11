@@ -242,6 +242,11 @@ class ChainRunner(QObject):
         step = self._steps[self._index]
         error = self._feedback.error if self._feedback is not None else ""
         self._task = None
+        if self._context is not None:
+            # A layer the algorithm loaded -- a result layer it named -- holds
+            # its file open, and on Windows a folder holding an open file
+            # cannot be moved into place. The files are what the run is for.
+            self._context.temporaryLayerStore().removeAllMapLayers()
         if self._cancelled:
             self._end(cancelled=True)
             return

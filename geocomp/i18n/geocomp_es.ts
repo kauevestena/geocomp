@@ -4085,6 +4085,10 @@
             <translation>%1 acimut(es) no se puede(n) leer. Corrija las celdas marcadas.</translation>
         </message>
         <message>
+            <source>%1 azimuth(s) of the sightings cannot be read. Correct the cells marked.</source>
+            <translation>%1 acimut(es) de las visuales no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
             <source>%1 cannot be applied to values in %2: the units do not fit the operation. This is an internal error; please report it.</source>
             <translation>%1 no puede aplicarse a valores en %2: las unidades no sirven a la operación. Este es un error interno; por favor, infórmelo.</translation>
         </message>
@@ -5161,6 +5165,10 @@
             <translation>No se proporcionó ninguna observación; el ajuste necesita al menos una observación activa. Añada observaciones, o reactive las rechazadas.</translation>
         </message>
         <message>
+            <source>No occupied station is chosen. Choose the station to resect in the Resection window's first step.</source>
+            <translation>No se eligió ninguna estación ocupada. Elija la estación a determinar en el primer paso de la ventana Intersección inversa.</translation>
+        </message>
+        <message>
             <source>No one dimension of adjustment, 1D, 2D or 3D, takes every observation of the network '%1'. Split the network by dimension.</source>
             <translation>Ninguna dimensión de ajuste, 1D, 2D o 3D, acepta todas las observaciones de la red '%1'. Divida la red por dimensión.</translation>
         </message>
@@ -5257,8 +5265,16 @@
             <translation>La fila %1 de los puntos conocidos no tiene nombre o una coordenada. Dé su nombre, E, N y altitud; escriba 0 en la altitud cuando el levantamiento no tenga ninguna.</translation>
         </message>
         <message>
+            <source>Row %1 of the known points lacks its name, its easting or its northing. Give all three, or remove the row.</source>
+            <translation>A la fila %1 de los puntos conocidos le falta el nombre, el E o el N. Dé los tres, o elimine la fila.</translation>
+        </message>
+        <message>
             <source>Row %1 of the orientations lacks its station or its azimuth. Give both, or remove the row.</source>
             <translation>La fila %1 de las orientaciones no tiene la estación o el acimut. Dé los dos, o quite la fila.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the sightings lacks its station or its azimuth. Give both, or remove the row.</source>
+            <translation>A la fila %1 de las visuales le falta la estación o el acimut. Dé ambos, o elimine la fila.</translation>
         </message>
         <message>
             <source>Row %1: %2</source>
@@ -5337,6 +5353,10 @@
             <translation>La estación %1 no registra temperatura ni presión, así que no se aplicó la corrección de primera velocidad. En visuales cortas es irrelevante; en un kilómetro, un error de 10 grados da 10 mm.</translation>
         </message>
         <message>
+            <source>Station '%1' has a sighting but no coordinates. Add it to the known points.</source>
+            <translation>La estación '%1' tiene una visual pero no tiene coordenadas. Añádala a los puntos conocidos.</translation>
+        </message>
+        <message>
             <source>Station '%1' has a weighted constraint, which DynAdjust cannot express: it holds a coordinate fixed or leaves it free, nothing between. Adjust this network with GeoComp's own adjustment, or make the constraint fixed or free.</source>
             <translation>La estación '%1' tiene una restricción ponderada, que DynAdjust no puede expresar: mantiene una coordenada fija o la deja libre, nada intermedio. Ajuste esta red con el ajuste propio de GeoComp, o haga la restricción fija o libre.</translation>
         </message>
@@ -5351,6 +5371,10 @@
         <message>
             <source>Station '%1' has no location, so its adjusted gravity has nowhere to be reported. Give its readings a latitude and longitude.</source>
             <translation>La estación '%1' no tiene ubicación, así que su gravedad ajustada no tiene dónde informarse. Dé a sus lecturas una latitud y una longitud.</translation>
+        </message>
+        <message>
+            <source>Station '%1' has two sightings. Keep one: the intersection takes one azimuth from each station.</source>
+            <translation>La estación '%1' tiene dos visuales. Conserve una: la intersección recibe un acimut de cada estación.</translation>
         </message>
         <message>
             <source>Station '%1' in the DynaML file has the coordinate type '%2', which GeoComp does not read; it reads %3. Export the stations in one of those types.</source>
@@ -9455,6 +9479,10 @@
             <translation>Una poligonal encuadrada llega a un punto conocido. Dé el E y el N de cierre, o elija otro tipo en el paso Recorrido.</translation>
         </message>
         <message>
+            <source>A free network: the datum is defined over every station, and none is held.</source>
+            <translation>Una red libre: el datum se define sobre todas las estaciones, y ninguna se mantiene fija.</translation>
+        </message>
+        <message>
             <source>Add at least two stations to the route, in the order they were occupied.</source>
             <translation>Añada al menos dos estaciones al recorrido, en el orden en que se ocuparon.</translation>
         </message>
@@ -9463,12 +9491,44 @@
             <translation>Añadir puntos al mapa</translation>
         </message>
         <message>
+            <source>Add result layers to the map</source>
+            <translation>Añadir capas de resultados al mapa</translation>
+        </message>
+        <message>
             <source>Add stations to the map</source>
             <translation>Añadir estaciones al mapa</translation>
         </message>
         <message>
+            <source>Add the algorithm's styled layers -- adjusted stations, error ellipses, residuals, observations, corrections -- to the project, in a group.</source>
+            <translation>Añade al proyecto, en un grupo, las capas con estilo del algoritmo -- estaciones ajustadas, elipses de error, residuos, observaciones, correcciones.</translation>
+        </message>
+        <message>
+            <source>Add the intersected point to the job's known points, for the other windows to start from. An intersection gives no height: type it there.</source>
+            <translation>Añade el punto intersecado a los puntos conocidos del trabajo, para que las otras ventanas partan de él. Una intersección no da altitud: escríbala allí.</translation>
+        </message>
+        <message>
+            <source>Add the intersected point to the project as a point layer.</source>
+            <translation>Añade el punto intersecado al proyecto como una capa de puntos.</translation>
+        </message>
+        <message>
+            <source>Add the point to the map</source>
+            <translation>Añadir el punto al mapa</translation>
+        </message>
+        <message>
             <source>Add the radiated points, with their uncertainties, to the project as a layer.</source>
             <translation>Añade los puntos radiados, con sus incertidumbres, al proyecto como una capa.</translation>
+        </message>
+        <message>
+            <source>Add the resected station to the job's known points, for the other windows to start from. A resection gives no height: type it there.</source>
+            <translation>Añade la estación determinada a los puntos conocidos del trabajo, para que las otras ventanas partan de ella. Una intersección inversa no da altitud: escríbala allí.</translation>
+        </message>
+        <message>
+            <source>Add the resected station to the project as a point layer.</source>
+            <translation>Añade la estación determinada al proyecto como una capa de puntos.</translation>
+        </message>
+        <message>
+            <source>Add the station to the map</source>
+            <translation>Añadir la estación al mapa</translation>
         </message>
         <message>
             <source>Add the stations to the project as a point layer.</source>
@@ -9495,6 +9555,10 @@
             <translation>Error angular de cierre</translation>
         </message>
         <message>
+            <source>Approximate coordinates</source>
+            <translation>Coordenadas aproximadas</translation>
+        </message>
+        <message>
             <source>Azimuth (%1)</source>
             <translation>Acimut (%1)</translation>
         </message>
@@ -9517,6 +9581,14 @@
         <message>
             <source>Choose the initial backsight: the point the first station sighted before turning the angle.</source>
             <translation>Elija la espalda inicial: el punto al que apuntó la primera estación antes de medir el ángulo.</translation>
+        </message>
+        <message>
+            <source>Choose the station the instrument occupied: the one to resect.</source>
+            <translation>Elija la estación que ocupó el instrumento: la que se va a determinar.</translation>
+        </message>
+        <message>
+            <source>Classical network (%1)</source>
+            <translation>Red clásica (%1)</translation>
         </message>
         <message>
             <source>Clear route</source>
@@ -9543,8 +9615,16 @@
             <translation>GGG.MMSS</translation>
         </message>
         <message>
+            <source>Datum</source>
+            <translation>Datum</translation>
+        </message>
+        <message>
             <source>Decimal degrees (87.520833)</source>
             <translation>Grados decimales (87,520833)</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Grados de libertad</translation>
         </message>
         <message>
             <source>Degrees, minutes and seconds, separated (87 31 15)</source>
@@ -9555,12 +9635,24 @@
             <translation>Grados.minutos-segundos, GGG.MMSS (87.3115)</translation>
         </message>
         <message>
+            <source>Easting</source>
+            <translation>Coordenada E</translation>
+        </message>
+        <message>
             <source>Easting (m)</source>
             <translation>E (m)</translation>
         </message>
         <message>
+            <source>Every station of the network needs approximate coordinates, height included: they are what the adjustment is linearised about. Traverse, Resection and Forward intersection can add the ones they compute.</source>
+            <translation>Toda estación de la red necesita coordenadas aproximadas, altitud incluida: el ajuste se linealiza en torno a ellas. La Poligonal, la Intersección inversa y la Intersección directa pueden añadir las que calculan.</translation>
+        </message>
+        <message>
             <source>Face (PD / PI)</source>
             <translation>Posición del anteojo (CD / CI)</translation>
+        </message>
+        <message>
+            <source>Fails: see the report</source>
+            <translation>Falla: vea el informe</translation>
         </message>
         <message>
             <source>Field book</source>
@@ -9579,12 +9671,36 @@
             <translation>Dé al menos las estaciones que ocupó el instrumento. Un punto conocido al que el estacionamiento también apuntó lo orienta; la Poligonal puede añadir las estaciones que calculó.</translation>
         </message>
         <message>
+            <source>Give the CRS the network is adjusted in, such as EPSG:31982: the job is on a local plane and Global Settings names no preferred CRS. For a survey with no datum, give the projected CRS of the area it lies in.</source>
+            <translation>Dé el SRC en que se ajusta la red, como EPSG:31982: el trabajo está en un plano local y la Configuración global no indica un SRC preferido. Para un levantamiento sin datum, dé el SRC proyectado de la zona en que se encuentra.</translation>
+        </message>
+        <message>
+            <source>Give the azimuth to the point from at least two stations: one ray fixes no point.</source>
+            <translation>Dé el acimut al punto desde al menos dos estaciones: un solo rayo no determina ningún punto.</translation>
+        </message>
+        <message>
+            <source>Give the coordinates of at least three of the points the station sighted; more give residuals. No height is needed. Traverse, 3D radiation and Forward intersection share these points.</source>
+            <translation>Dé las coordenadas de al menos tres de los puntos a los que apuntó la estación; más puntos dan residuos. No se necesita la altitud. La Poligonal, la Radiación 3D y la Intersección directa comparten estos puntos.</translation>
+        </message>
+        <message>
+            <source>Give the coordinates of the stations the point was sighted from. No height is needed. Traverse and Resection can add the stations they computed.</source>
+            <translation>Dé las coordenadas de las estaciones desde las que se apuntó al punto. No se necesita la altitud. La Poligonal y la Intersección inversa pueden añadir las estaciones que calcularon.</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Prueba global</translation>
+        </message>
+        <message>
             <source>Gon (97.245370)</source>
             <translation>Gon (97,245370)</translation>
         </message>
         <message>
             <source>Height (m)</source>
             <translation>Altitud (m)</translation>
+        </message>
+        <message>
+            <source>Height differences</source>
+            <translation>Desniveles</translation>
         </message>
         <message>
             <source>Hz (%1)</source>
@@ -9595,12 +9711,20 @@
             <translation>Alt. instr. (m)</translation>
         </message>
         <message>
+            <source>Intersected point (%1)</source>
+            <translation>Punto intersecado (%1)</translation>
+        </message>
+        <message>
             <source>Job and instrument</source>
             <translation>Trabajo e instrumento</translation>
         </message>
         <message>
             <source>Job name</source>
             <translation>Nombre del trabajo</translation>
+        </message>
+        <message>
+            <source>Known points</source>
+            <translation>Puntos conocidos</translation>
         </message>
         <message>
             <source>Known stations</source>
@@ -9611,8 +9735,16 @@
             <translation>Mayor desviación típica</translation>
         </message>
         <message>
+            <source>Leap-frog reads %1 setup(s), from the first point sighted to the second: %2.</source>
+            <translation>El leap-frog lee %1 estacionamiento(s), del primer punto apuntado al segundo: %2.</translation>
+        </message>
+        <message>
             <source>Linear misclosure</source>
             <translation>Error lineal de cierre</translation>
+        </message>
+        <message>
+            <source>Mode and refraction</source>
+            <translation>Modo y refracción</translation>
         </message>
         <message>
             <source>Move down</source>
@@ -9623,8 +9755,16 @@
             <translation>Subir</translation>
         </message>
         <message>
+            <source>No</source>
+            <translation>No</translation>
+        </message>
+        <message>
             <source>No CRS: a local plane</source>
             <translation>Sin SRC: un plano local</translation>
+        </message>
+        <message>
+            <source>No setup of the field book sighted exactly two points, which is what leap-frog reads. Choose Radial, or add the second sight.</source>
+            <translation>Ningún estacionamiento de la libreta de campo apuntó exactamente a dos puntos, que es lo que lee el leap-frog. Elija Radial, o añada la segunda visual.</translation>
         </message>
         <message>
             <source>No: see the findings</source>
@@ -9635,6 +9775,14 @@
             <translation>Ninguno de los puntos conocidos es una estación que ocupe la libreta de campo. Añada las coordenadas de al menos una: %1.</translation>
         </message>
         <message>
+            <source>None of the known points is a station the field book occupies. Give the approximate coordinates of the stations: %1.</source>
+            <translation>Ninguno de los puntos conocidos es una estación que ocupe la libreta de campo. Dé las coordenadas aproximadas de las estaciones: %1.</translation>
+        </message>
+        <message>
+            <source>Northing</source>
+            <translation>Coordenada N</translation>
+        </message>
+        <message>
             <source>Northing (m)</source>
             <translation>N (m)</translation>
         </message>
@@ -9643,8 +9791,24 @@
             <translation>No conocidas, por lo tanto sin radiación desde ellas: %1.</translation>
         </message>
         <message>
+            <source>Not tested: no redundancy</source>
+            <translation>No probado: sin redundancia</translation>
+        </message>
+        <message>
             <source>Note</source>
             <translation>Nota</translation>
+        </message>
+        <message>
+            <source>Occupied station</source>
+            <translation>Estación ocupada</translation>
+        </message>
+        <message>
+            <source>One row per station: the azimuth observed from it to the point, clockwise from north, in the job's angle convention. An azimuth, not a circle reading: a station whose orientation is not known is resected first.</source>
+            <translation>Una fila por estación: el acimut observado desde ella al punto, en sentido horario desde el norte, en la convención de ángulos del trabajo. Un acimut, no una lectura del círculo: una estación cuya orientación no se conoce se determina antes por intersección inversa.</translation>
+        </message>
+        <message>
+            <source>Only %1 of the points '%2' sighted are known. Give the coordinates of at least three of: %3.</source>
+            <translation>Solo %1 de los puntos a los que apuntó '%2' son conocidos. Dé las coordenadas de al menos tres de estos: %3.</translation>
         </message>
         <message>
             <source>Open readings document</source>
@@ -9671,8 +9835,20 @@
             <translation>Origen</translation>
         </message>
         <message>
+            <source>Outlier candidates</source>
+            <translation>Candidatos a error grosero</translation>
+        </message>
+        <message>
+            <source>Passes</source>
+            <translation>Pasa</translation>
+        </message>
+        <message>
             <source>Pick on the map</source>
             <translation>Tomar del mapa</translation>
+        </message>
+        <message>
+            <source>Pick the approximate position on the map</source>
+            <translation>Tomar del mapa la posición aproximada</translation>
         </message>
         <message>
             <source>Pick the closing point on the map</source>
@@ -9723,6 +9899,10 @@
             <translation>Informe</translation>
         </message>
         <message>
+            <source>Resected station (%1)</source>
+            <translation>Estación determinada por intersección inversa (%1)</translation>
+        </message>
+        <message>
             <source>Results</source>
             <translation>Resultados</translation>
         </message>
@@ -9739,16 +9919,48 @@
             <translation>Fila %1, %2: %3</translation>
         </message>
         <message>
+            <source>Semi-major axis</source>
+            <translation>Semieje mayor</translation>
+        </message>
+        <message>
+            <source>Semi-minor axis</source>
+            <translation>Semieje menor</translation>
+        </message>
+        <message>
             <source>Set</source>
             <translation>Serie</translation>
+        </message>
+        <message>
+            <source>Setup orientation</source>
+            <translation>Orientación del estacionamiento</translation>
         </message>
         <message>
             <source>Setups</source>
             <translation>Estacionamientos</translation>
         </message>
         <message>
+            <source>Sighted but not known, so not used: %1.</source>
+            <translation>Apuntados pero no conocidos, por lo tanto no usados: %1.</translation>
+        </message>
+        <message>
+            <source>Sighted from '%1': %2.</source>
+            <translation>Apuntados desde '%1': %2.</translation>
+        </message>
+        <message>
+            <source>Sightings</source>
+            <translation>Visuales</translation>
+        </message>
+        <message>
             <source>Slope distance (m)</source>
             <translation>Distancia inclinada (m)</translation>
+        </message>
+        <message>
+            <source>Standard deviation of the easting</source>
+            <translation>Desviación típica de la coordenada E</translation>
+        </message>
+        <message>
+            <source>Standard deviation of the northing</source>
+            <translation>Desviación típica de la coordenada N</translation>
         </message>
         <message>
             <source>Starting data</source>
@@ -9759,12 +9971,28 @@
             <translation>Estación</translation>
         </message>
         <message>
+            <source>Station '%1' sighted %2 point(s). A resection needs directions to at least three known points: choose a station that sighted three.</source>
+            <translation>La estación '%1' apuntó a %2 punto(s). Una intersección inversa necesita direcciones a al menos tres puntos conocidos: elija una estación que haya apuntado a tres.</translation>
+        </message>
+        <message>
+            <source>Stations held at their approximate coordinates:</source>
+            <translation>Estaciones mantenidas fijas en sus coordenadas aproximadas:</translation>
+        </message>
+        <message>
+            <source>Stations the datum is defined over; none ticked means all of them:</source>
+            <translation>Estaciones sobre las que se define el datum; ninguna marcada significa todas:</translation>
+        </message>
+        <message>
             <source>Target</source>
             <translation>Objetivo</translation>
         </message>
         <message>
             <source>Target height (m)</source>
             <translation>Altura de la señal (m)</translation>
+        </message>
+        <message>
+            <source>The field book has no setup at '%1'. Choose one of its stations.</source>
+            <translation>La libreta de campo no tiene estacionamiento en '%1'. Elija una de sus estaciones.</translation>
         </message>
         <message>
             <source>The field book is empty. Type the observations in its grid, or paste them from a spreadsheet.</source>
@@ -9783,8 +10011,28 @@
             <translation>El círculo vertical lee</translation>
         </message>
         <message>
+            <source>These are the algorithm's own parameters and defaults. It takes one instrument height and one target height for the whole field book, those set here, and does not read the heights typed in the book's rows. In leap-frog mode the instrument height cancels and is not asked.</source>
+            <translation>Estos son los propios parámetros y valores por defecto del algoritmo. Usa una altura del instrumento y una altura de la señal para toda la libreta de campo, las dadas aquí, y no lee las alturas escritas en las filas de la libreta. En el modo leap-frog la altura del instrumento se cancela y no se pide.</translation>
+        </message>
+        <message>
             <source>These are the algorithm's own parameters and defaults. The observations are the job's field book; the instrument is the one chosen in the Field book window.</source>
             <translation>Estos son los propios parámetros y valores por defecto del algoritmo. Las observaciones son la libreta de campo del trabajo; el instrumento es el elegido en la ventana Libreta de campo.</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters. The CRS is the job's, chosen in the Field book window, unless another is typed here; a job on a local plane takes the algorithm's default.</source>
+            <translation>Estos son los propios parámetros del algoritmo. El SRC es el del trabajo, elegido en la ventana Libreta de campo, salvo que se escriba otro aquí; un trabajo en un plano local usa el valor por defecto del algoritmo.</translation>
+        </message>
+        <message>
+            <source>These stations are held but have no approximate coordinates; add them or untick them: %1.</source>
+            <translation>Estas estaciones están fijas pero no tienen coordenadas aproximadas; añádalas o desmárquelas: %1.</translation>
+        </message>
+        <message>
+            <source>These stations have a sighting but no coordinates; add them to the known stations: %1.</source>
+            <translation>Estas estaciones tienen una visual pero no tienen coordenadas; añádalas a las estaciones conocidas: %1.</translation>
+        </message>
+        <message>
+            <source>Tick the stations to hold: a constrained network holds at least one.</source>
+            <translation>Marque las estaciones a mantener fijas: una red ligada mantiene al menos una.</translation>
         </message>
         <message>
             <source>Traverse stations (%1)</source>
@@ -9795,8 +10043,20 @@
             <translation>Punterías utilizables</translation>
         </message>
         <message>
+            <source>Use as a known point</source>
+            <translation>Usar como punto conocido</translation>
+        </message>
+        <message>
+            <source>Use as known points</source>
+            <translation>Usar como puntos conocidos</translation>
+        </message>
+        <message>
             <source>Use as known stations</source>
             <translation>Usar como estaciones conocidas</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Factor de varianza</translation>
         </message>
         <message>
             <source>Vertical (%1)</source>
@@ -9807,6 +10067,10 @@
             <translation>Ángulo vertical desde el horizonte (0° es nivel)</translation>
         </message>
         <message>
+            <source>Weak geometry</source>
+            <translation>Geometría débil</translation>
+        </message>
+        <message>
             <source>What you call this survey</source>
             <translation>Cómo llama a este levantamiento</translation>
         </message>
@@ -9815,8 +10079,20 @@
             <translation>Dentro de la tolerancia</translation>
         </message>
         <message>
+            <source>Without approximate coordinates, so left out of the network with every observation to them: %1.</source>
+            <translation>Sin coordenadas aproximadas, por lo tanto dejados fuera de la red con todas las observaciones a ellos: %1.</translation>
+        </message>
+        <message>
+            <source>Write the adjusted coordinates into the job's known points, for 3D radiation to start from.</source>
+            <translation>Escribe las coordenadas ajustadas en los puntos conocidos del trabajo, para que la Radiación 3D parta de ellas.</translation>
+        </message>
+        <message>
             <source>Yes</source>
             <translation>Sí</translation>
+        </message>
+        <message>
+            <source>Yes: see the report</source>
+            <translation>Sí: vea el informe</translation>
         </message>
         <message>
             <source>Zenith (%1)</source>
@@ -9866,16 +10142,32 @@
             <translation>Radiación 3D</translation>
         </message>
         <message>
+            <source>Classical network</source>
+            <translation>Red clásica</translation>
+        </message>
+        <message>
             <source>Field book</source>
             <translation>Libreta de campo</translation>
+        </message>
+        <message>
+            <source>Forward intersection</source>
+            <translation>Intersección directa</translation>
         </message>
         <message>
             <source>Generalised pre-processing</source>
             <translation>Preprocesamiento generalizado</translation>
         </message>
         <message>
+            <source>Resection</source>
+            <translation>Intersección inversa</translation>
+        </message>
+        <message>
             <source>Traverse</source>
             <translation>Poligonal</translation>
+        </message>
+        <message>
+            <source>Trigonometric levelling</source>
+            <translation>Nivelación trigonométrica</translation>
         </message>
     </context>
     <context>

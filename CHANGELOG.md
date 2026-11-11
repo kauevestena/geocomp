@@ -5,6 +5,37 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P14b — The rest of the Total Station menu: resection, intersection, network, trigonometric levelling
+
+The second of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Total
+Station menu is now a window; the algorithms are unchanged.
+
+#### Added
+
+- **Total Station ▸ Resection…** — the occupied station chosen from the field book's stations, with the
+  points it sighted; known points without heights; the station's coordinates, standard deviations and
+  orientation, the rays drawn, and *Use as a known point*. The danger circle is the algorithm's to refuse, in
+  its words.
+- **Total Station ▸ Forward intersection…** — azimuths typed per station, in the job's angle convention, to a
+  named point; its coordinates, error ellipse and weak-geometry verdict. It reads no field book: the
+  algorithm takes azimuths from oriented stations.
+- **Total Station ▸ Classical network…** — approximate coordinates from the job's known points; the datum
+  chosen with the stations held, or those it is defined over, ticked among the network's own; the CRS the
+  job's unless another is given; the global test, variance factor, redundancy and outlier candidates, the
+  network drawn on the map, and **Add result layers to the map**: the algorithm's styled layers, in a group,
+  named with their exaggeration.
+- **Total Station ▸ Trigonometric levelling…** — radial or leap-frog, with the setups leap-frog will read
+  listed as they are typed; the height differences and their standard deviations.
+- The job's known points are shared by every window that reads or writes them: a traverse's, a resection's,
+  an intersection's or a network's points can be the next computation's starting points.
+
+#### Changed
+
+- The four Total Station algorithms the new windows run no longer have menu items of their own. The menu's
+  other 41 items still open their Processing dialogs until their groups are rebuilt.
+- A window's results folder is copied into place where it cannot be moved, as on Windows while a file in it
+  is still open.
+
 ### P14a — The menu becomes interactive windows: the Total Station field book, pre-processing, traverse and radiation
 
 The GeoComp menu's items are becoming windows in which observations are typed, while every Processing

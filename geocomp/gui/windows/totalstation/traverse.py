@@ -302,15 +302,6 @@ class TraverseWindow(TotalStationWindow):
         self.close_form.set_shown("CLOSE_AZIMUTH", kind != _OPEN)
         self.pick_close_button.setVisible(kind == _CONNECTED)
 
-    def pick_into(self, form: ParameterForm, easting: str, northing: str) -> None:
-        """Take a point from the map into two of the algorithm's parameters."""
-
-        def picked(x: float, y: float) -> None:
-            form.set_value(easting, round(x, 4))
-            form.set_value(northing, round(y, 4))
-
-        self.pick_point(picked)
-
     def _start_problem(self) -> str:
         options = self._options()
         if self.kind() == _CONNECTED and (

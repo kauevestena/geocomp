@@ -238,10 +238,6 @@ LEGACY_LAUNCHERS = frozenset(
         "project_store",
         "project_system_report",
         "project_tutorial_dataset",
-        "totalstation_intersection",
-        "totalstation_network",
-        "totalstation_resection",
-        "totalstation_trig_levelling",
     }
 )
 
@@ -261,15 +257,21 @@ class TestWindows:
             f"record of the menu's rebuilding ({sorted(LEGACY_LAUNCHERS - launched)})"
         )
 
-    def test_phase_p14a_built_the_four_total_station_windows(self):
+    def test_phases_p14a_and_p14b_made_the_total_station_menu_windows(self):
+        """P14a built four, P14b the other four: no Total Station item is a launcher."""
         assert [spec.name for spec in windows_in_menu("total_station")] == [
             "totalstation_fieldbook",
             "totalstation_preprocess",
             "totalstation_traverse",
+            "totalstation_resection",
+            "totalstation_intersection",
+            "totalstation_network",
+            "totalstation_trig_levelling",
             "totalstation_radiation",
         ]
+        assert not [spec for spec in ALGORITHMS if spec.menu == "total_station"]
 
-    def test_the_total_station_menu_keeps_its_order_while_half_rebuilt(self):
+    def test_the_total_station_menu_keeps_its_order_once_rebuilt(self):
         """The windows take the positions their operations' launchers had."""
         assert [entry.name for entry in entries_in_menu("total_station")] == [
             "totalstation_fieldbook",

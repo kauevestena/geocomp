@@ -6,17 +6,19 @@ One job holds what a party brought back from the field with a total station:
 * the **field book** -- one row per pointing: the station occupied, the point
   sighted, the face, the two angles, the slope distance and the two heights;
 * the **known points** -- coordinates the survey starts from;
-* the **orientations** -- an azimuth for a setup that sighted no known point.
+* the **orientations** -- an azimuth for a setup that sighted no known point;
+* the **sightings** -- the azimuths observed to one point from oriented
+  stations, which a forward intersection fixes.
 
-The four Total Station windows of the menu work from the same job, as the four
-algorithms of the toolbox work from the same field-book file.
+The eight Total Station windows of the menu work from the same job, as the
+eight algorithms of the toolbox work from the same field-book file.
 
 **Nothing here computes.** A typed field book is *emitted* as the very inputs
 ``geocomp:totalstation_import_fieldbook`` reads -- rows under the logical field
 names of :data:`geocomp.io.mapping.FIELDS`, and the :class:`~geocomp.io.FieldMapping`
-that says so -- and the unchanged import, pre-processing, traverse and radiation
-algorithms are run on them (ADR-0010). The chains are declared at the foot of
-this module.
+that says so -- and the unchanged algorithms are run on them (ADR-0010). The
+known points and the sightings are written as the JSON documents the
+computations read. The chains are declared at the foot of this module.
 
 Three readings of the typed text are made at this boundary, each the kind a
 file importer makes at its own:
@@ -67,10 +69,21 @@ from geocomp.jobs.tables import (
 
 __all__ = [
     "BOOK_COLUMNS",
+    "DATUM_CONSTRAINED",
+    "DATUM_DEFAULT",
+    "DATUM_FIXED",
+    "DATUM_HOLDING",
+    "DATUM_INNER",
+    "DATUM_MINIMUM",
     "FIELD_BOOK",
     "FILE_ROW_OFFSET",
     "IMPORT",
     "IMPORT_OPTIONS",
+    "INTERSECTION",
+    "INTERSECTION_OPTIONS",
+    "NETWORK",
+    "NETWORK_LAYERS",
+    "NETWORK_OPTIONS",
     "ORIENTATIONS",
     "ORIENTATION_COLUMNS",
     "POINTS",
@@ -79,25 +92,39 @@ __all__ = [
     "PREPROCESS_OPTIONS",
     "RADIATION",
     "RADIATION_OPTIONS",
+    "RESECTION",
+    "RESECTION_OPTIONS",
+    "SIGHTINGS",
+    "SIGHTING_COLUMNS",
     "TABLES",
     "TECHNIQUE",
     "TRAVERSE",
     "TRAVERSE_OPTIONS",
+    "TRIG_LEVELLING",
+    "TRIG_LEVELLING_OPTIONS",
     "WINDOW_FIELD_BOOK",
+    "WINDOW_INTERSECTION",
+    "WINDOW_NETWORK",
     "WINDOW_PREPROCESS",
     "WINDOW_RADIATION",
+    "WINDOW_RESECTION",
     "WINDOW_TRAVERSE",
+    "WINDOW_TRIG_LEVELLING",
     "BookCheck",
     "Emission",
     "TotalStationBook",
     "VerticalAngle",
     "as_typed",
     "import_chain",
+    "intersection_chain",
     "load_job",
+    "network_chain",
     "new_job",
     "preprocess_chain",
     "radiation_chain",
+    "resection_chain",
     "traverse_chain",
+    "trig_levelling_chain",
 ]
 
 TECHNIQUE = "total_station"
@@ -106,18 +133,27 @@ TECHNIQUE = "total_station"
 FIELD_BOOK = "field_book"
 POINTS = "points"
 ORIENTATIONS = "orientations"
+SIGHTINGS = "sightings"
 
 #: The algorithms the windows run. Ids are published (``specs/16`` section 2).
 IMPORT = "geocomp:totalstation_import_fieldbook"
 PREPROCESS = "geocomp:totalstation_preprocess"
 TRAVERSE = "geocomp:totalstation_traverse"
 RADIATION = "geocomp:totalstation_radiation"
+RESECTION = "geocomp:totalstation_resection"
+INTERSECTION = "geocomp:totalstation_intersection"
+TRIG_LEVELLING = "geocomp:totalstation_trig_levelling"
+NETWORK = "geocomp:totalstation_network"
 
 #: The windows, by the name the registry and the job file know them by.
 WINDOW_FIELD_BOOK = "totalstation_fieldbook"
 WINDOW_PREPROCESS = "totalstation_preprocess"
 WINDOW_TRAVERSE = "totalstation_traverse"
 WINDOW_RADIATION = "totalstation_radiation"
+WINDOW_RESECTION = "totalstation_resection"
+WINDOW_INTERSECTION = "totalstation_intersection"
+WINDOW_TRIG_LEVELLING = "totalstation_trig_levelling"
+WINDOW_NETWORK = "totalstation_network"
 
 #: The parameters of each algorithm a window lets the user set. The others are
 #: the files the chain itself places.
@@ -148,6 +184,52 @@ TRAVERSE_OPTIONS = (
     "RELATIVE_LIMIT",
 )
 RADIATION_OPTIONS = ("INSTRUMENT_HEIGHT", "TARGET_HEIGHT", "CORRELATION")
+RESECTION_OPTIONS = ("STATION", "APPROX_EASTING", "APPROX_NORTHING")
+INTERSECTION_OPTIONS = ("TARGET", "SIGMA_AZIMUTH", "CONFIDENCE")
+TRIG_LEVELLING_OPTIONS = (
+    "MODE",
+    "INSTRUMENT_HEIGHT",
+    "TARGET_HEIGHT",
+    "REFRACTION",
+    "REFRACTION_SIGMA",
+    "EARTH_RADIUS",
+    "IMBALANCE_TOLERANCE",
+)
+NETWORK_OPTIONS = (
+    "DIMENSION",
+    "DATUM",
+    "FIXED_STATIONS",
+    "DATUM_STATIONS",
+    "CONFIDENCE",
+    "EPOCH",
+    "CRS",
+    "REDUCE_TO_GRID",
+    "GEOID_UNDULATION",
+    "EXAGGERATION",
+)
+
+#: Classical network's ``DATUM`` choices, numbered as the algorithm numbers them
+#: (``DATUM_ORDER`` of ``geocomp.algorithms.analysis.common``, an order as
+#: permanent as its id), and the one it starts with. Written out here because
+#: this module does not import an algorithm; ``tests/qgis/test_totalstation_windows.py``
+#: holds them to the algorithm's own definition.
+DATUM_CONSTRAINED, DATUM_INNER, DATUM_MINIMUM, DATUM_FIXED = 0, 1, 2, 3
+DATUM_DEFAULT = DATUM_INNER
+#: The datums that hold the fixed stations, and so read ``FIXED_STATIONS``.
+DATUM_HOLDING = (DATUM_CONSTRAINED, DATUM_FIXED)
+
+#: The result layers a Classical network run writes beside its documents, by
+#: the algorithm's parameter name, with the file each goes in. Written on every
+#: run, so *Add result layers to the map* has them at once; the toolbox writes
+#: them only when asked, because a run feeding a model should not.
+NETWORK_LAYERS = (
+    ("OUTPUT_STATION_LAYER", "stations.gpkg"),
+    ("OUTPUT_ELLIPSE_LAYER", "ellipses.gpkg"),
+    ("OUTPUT_RELATIVE_ELLIPSE_LAYER", "relative_ellipses.gpkg"),
+    ("OUTPUT_RESIDUAL_LAYER", "residuals.gpkg"),
+    ("OUTPUT_OBSERVATION_LAYER", "observations.gpkg"),
+    ("OUTPUT_CORRECTION_LAYER", "corrections.gpkg"),
+)
 
 #: An algorithm numbers a field book's rows as lines of the file, whose first
 #: line is the heading; the grid numbers its rows from one. Line = row + this.
@@ -198,10 +280,21 @@ ORIENTATION_COLUMNS: tuple[Column, ...] = (
     Column("azimuth", CellKind.ANGLE),
 )
 
+#: One sighting of the point a forward intersection fixes: the oriented station
+#: it was observed from, and the azimuth observed. Azimuths, not circle readings,
+#: because that is what the algorithm takes (``specs/09`` section 4.3).
+SIGHTING_COLUMNS: tuple[Column, ...] = (
+    Column("station", CellKind.NAME),
+    Column("azimuth", CellKind.ANGLE),
+)
+
+#: A job saved before a table was declared opens with that table empty
+#: (:meth:`~geocomp.jobs.document.Job.from_dict`), so adding one is safe.
 TABLES: dict[str, tuple[Column, ...]] = {
     FIELD_BOOK: BOOK_COLUMNS,
     POINTS: POINT_COLUMNS,
     ORIENTATIONS: ORIENTATION_COLUMNS,
+    SIGHTINGS: SIGHTING_COLUMNS,
 }
 
 #: A row is a pointing when one of these was typed. A row that holds only what
@@ -359,6 +452,11 @@ class TotalStationBook:
     def orientations(self) -> TypedTable:
         """The orientations given for setups that sighted no known point."""
         return self.job.tables[ORIENTATIONS]
+
+    @property
+    def sightings(self) -> TypedTable:
+        """The azimuths observed to the point a forward intersection fixes."""
+        return self.job.tables[SIGHTINGS]
 
     # -- the conventions -------------------------------------------------
 
@@ -643,6 +741,57 @@ class TotalStationBook:
             raise ValidationError("known_points_missing")
         return stations
 
+    def known_positions(self) -> dict[str, tuple[float, float]]:
+        """The known points, by name: easting and northing, in metres.
+
+        What a plane computation reads -- a resection, an intersection -- for
+        which a point needs no height, and a row typed without one is complete.
+
+        Raises:
+            ValidationError: ``known_points_unreadable`` while a cell cannot be
+                read, ``known_point_unplaced`` for a row that lacks its name,
+                its easting or its northing, ``known_point_repeated`` for a
+                name given twice, ``known_points_missing`` when there is none.
+        """
+        table = self.points
+        problems = table.problems()
+        if problems:
+            raise ValidationError("known_points_unreadable", count=len(problems))
+        positions: dict[str, tuple[float, float]] = {}
+        for row in table.filled_rows():
+            cells = {key: table.cell(row, key) for key in ("name", "easting", "northing")}
+            if not all(cells.values()):
+                raise ValidationError("known_point_unplaced", row=row + 1)
+            if cells["name"] in positions:
+                raise ValidationError("known_point_repeated", point=cells["name"])
+            positions[cells["name"]] = (parse_number(cells["easting"]), parse_number(cells["northing"]))
+        if not positions:
+            raise ValidationError("known_points_missing")
+        return positions
+
+    def observed_azimuths(self) -> dict[str, float]:
+        """The sightings, by the station each was observed from, in degrees.
+
+        Raises:
+            ValidationError: ``sightings_unreadable`` while an azimuth cannot
+                be read, ``sighting_incomplete`` for a row that lacks its
+                station or its azimuth, ``sighting_repeated`` for a station
+                given twice -- the algorithm takes one azimuth per station.
+        """
+        table = self.sightings
+        problems = table.problems(self.angle_typing)
+        if problems:
+            raise ValidationError("sightings_unreadable", count=len(problems))
+        observed: dict[str, float] = {}
+        for row in table.filled_rows():
+            station, azimuth = table.cell(row, "station"), table.cell(row, "azimuth")
+            if not station or not azimuth:
+                raise ValidationError("sighting_incomplete", row=row + 1)
+            if station in observed:
+                raise ValidationError("sighting_repeated", station=station)
+            observed[station] = math.degrees(parse_typed_angle(azimuth, self.angle_typing))
+        return observed
+
     def given_orientations(self) -> dict[str, float]:
         """The orientations given, by station, in degrees -- what the radiation algorithm reads.
 
@@ -824,6 +973,151 @@ def radiation_chain(book: TotalStationBook) -> Chain:
                     "OUTPUT_POINTS": "points.json",
                     "OUTPUT_HTML": "report.html",
                     "OUTPUT_CSV": "points.csv",
+                },
+            ),
+        )
+    )
+
+
+def resection_chain(book: TotalStationBook) -> Chain:
+    """What Resection runs: import, pre-processing, and the resection of the station chosen.
+
+    The station being fixed is left out of the known points given, should a
+    previous resection have put it there: a point is not resected from itself.
+
+    Raises:
+        ValidationError: :meth:`TotalStationBook.emit`'s refusals, those of
+            :meth:`TotalStationBook.known_positions`, and
+            ``resection_no_station`` until the occupied station is chosen.
+    """
+    options = _options(book.job, WINDOW_RESECTION, RESECTION_OPTIONS)
+    station = str(options.get("STATION") or "").strip()
+    if not station:
+        raise ValidationError("resection_no_station")
+    known = {
+        name: list(values) for name, values in book.known_positions().items() if name != station
+    }
+    return Chain(
+        (
+            _import_step(book),
+            _preprocess_step(book),
+            ChainStep(
+                key="resection",
+                algorithm=RESECTION,
+                parameters={
+                    **options,
+                    "STATION": station,
+                    "REDUCTIONS": Ref("preprocess", "OUTPUT_REDUCED"),
+                    "KNOWN": InputFile("known.json", _document(known)),
+                },
+                outputs={"OUTPUT_POSITION": "position.json", "OUTPUT_HTML": "report.html"},
+            ),
+        )
+    )
+
+
+def intersection_chain(book: TotalStationBook) -> Chain:
+    """What Forward intersection runs: the intersection of the sightings typed.
+
+    The field book is not read: the algorithm takes the oriented stations'
+    positions and the azimuths they observed, which is what the sightings and
+    the known points hold.
+
+    Raises:
+        ValidationError: :meth:`TotalStationBook.observed_azimuths`'s refusals,
+            those of :meth:`TotalStationBook.known_positions`, and
+            ``sighting_station_unknown`` for a sighting from a station the
+            known points do not place.
+    """
+    positions = book.known_positions()
+    sightings: dict[str, Any] = {}
+    for station, azimuth in book.observed_azimuths().items():
+        if station not in positions:
+            raise ValidationError("sighting_station_unknown", station=station)
+        sightings[station] = {"position": list(positions[station]), "azimuth": azimuth}
+    return Chain(
+        (
+            ChainStep(
+                key="intersection",
+                algorithm=INTERSECTION,
+                parameters={
+                    **_options(book.job, WINDOW_INTERSECTION, INTERSECTION_OPTIONS),
+                    "SIGHTINGS": InputFile("sightings.json", _document(sightings)),
+                },
+                outputs={"OUTPUT_POSITION": "position.json", "OUTPUT_HTML": "report.html"},
+            ),
+        )
+    )
+
+
+def trig_levelling_chain(book: TotalStationBook) -> Chain:
+    """What Trigonometric levelling runs: import, pre-processing, and the height differences.
+
+    Raises:
+        ValidationError: :meth:`TotalStationBook.emit`'s refusals.
+    """
+    return Chain(
+        (
+            _import_step(book),
+            _preprocess_step(book),
+            ChainStep(
+                key="levelling",
+                algorithm=TRIG_LEVELLING,
+                parameters={
+                    **_options(book.job, WINDOW_TRIG_LEVELLING, TRIG_LEVELLING_OPTIONS),
+                    "REDUCTIONS": Ref("preprocess", "OUTPUT_REDUCED"),
+                },
+                outputs={
+                    "OUTPUT_HEIGHTS": "heights.json",
+                    "OUTPUT_HTML": "report.html",
+                    "OUTPUT_CSV": "differences.csv",
+                },
+            ),
+        )
+    )
+
+
+def network_chain(book: TotalStationBook) -> Chain:
+    """What Classical networks runs: import, pre-processing, and the network's adjustment.
+
+    The known points are the approximate coordinates. The network is adjusted
+    in the job's CRS unless the window was given another; a job on a local
+    plane leaves it to the algorithm's default, Global Settings' preferred CRS.
+
+    Raises:
+        ValidationError: :meth:`TotalStationBook.emit`'s refusals, and those of
+            :meth:`TotalStationBook.known_stations`.
+    """
+    options = _options(book.job, WINDOW_NETWORK, NETWORK_OPTIONS)
+    if "CRS" not in options and book.job.crs:
+        options["CRS"] = book.job.crs
+    # Each list is kept while another datum is chosen, so choosing back finds
+    # it again; only the one the datum reads is given, since stations held
+    # under a free network would remove the datum twice, which is refused.
+    datum = int(options.get("DATUM", DATUM_DEFAULT))
+    if datum not in DATUM_HOLDING:
+        options.pop("FIXED_STATIONS", None)
+    if datum != DATUM_MINIMUM:
+        options.pop("DATUM_STATIONS", None)
+    approximate = {name: list(values) for name, values in book.known_stations().items()}
+    return Chain(
+        (
+            _import_step(book),
+            _preprocess_step(book),
+            ChainStep(
+                key="network",
+                algorithm=NETWORK,
+                parameters={
+                    **options,
+                    "REDUCTIONS": Ref("preprocess", "OUTPUT_REDUCED"),
+                    "APPROXIMATE": InputFile("approximate.json", _document(approximate)),
+                },
+                outputs={
+                    "OUTPUT_NETWORK": "network.json",
+                    "OUTPUT_SOLUTION": "solution.json",
+                    "OUTPUT_HTML": "report.html",
+                    "OUTPUT_STATIONS": "stations.csv",
+                    **dict(NETWORK_LAYERS),
                 },
             ),
         )

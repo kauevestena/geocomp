@@ -633,7 +633,13 @@ class Workbench(QDialog):
         try:
             if final.exists():
                 shutil.rmtree(final)
-            staging.rename(final)
+            try:
+                staging.rename(final)
+            except OSError:
+                # A file still open in the folder -- a layer GDAL has not let
+                # go of -- stops a folder being moved on Windows, not copied.
+                shutil.copytree(staging, final)
+                shutil.rmtree(staging, ignore_errors=True)
         except OSError as error:
             return str(error)
         return ""

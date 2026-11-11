@@ -33,7 +33,7 @@ decide.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Iterable, MutableMapping
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
 
 from qgis.core import (
@@ -178,6 +178,11 @@ class ParameterForm(QWidget):
         always: Parameters shown even where the algorithm hides them in Basic
             mode, because the window cannot be used without them: the closing
             coordinates of a connected traverse.
+        defaults: Gives the window's own default for some parameters, where
+            the job knows better than Global Settings: a network is adjusted
+            in the job's CRS. Asked each time, like *stored*; a parameter it
+            gives ``None`` for keeps the algorithm's default. The chain the
+            window runs must use the same value for a parameter left unset.
         parent: The Qt parent.
     """
 
@@ -191,10 +196,12 @@ class ParameterForm(QWidget):
         stored: Callable[[], MutableMapping[str, Any]],
         *,
         always: Iterable[str] = (),
+        defaults: Callable[[], Mapping[str, Any]] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self._stored = stored
+        self._window_defaults = defaults
         self._loading = False
         self._fields: dict[str, _Field] = {}
         self._labels: dict[str, QWidget] = {}
@@ -256,7 +263,14 @@ class ParameterForm(QWidget):
         return tuple(self._fields)
 
     def default(self, name: str) -> Any:
-        """The algorithm's default for *name*: what a toolbox dialog would start with."""
+        """What *name* is when left unset: the window's default, or the algorithm's.
+
+        The algorithm's is what a toolbox dialog would start with.
+        """
+        if self._window_defaults is not None:
+            chosen = self._window_defaults().get(name)
+            if chosen is not None:
+                return chosen
         return self._defaults.get(name)
 
     def value(self, name: str) -> Any:

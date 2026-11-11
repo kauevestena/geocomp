@@ -4449,7 +4449,7 @@ Maintainer's decision, 10 November 2026; [`adr/0010-interactive-menu.md`](./adr/
 | Stage | What | Menu group |
 |---|---|---|
 | **P14a** | The window framework, the job file, and four windows: *Field book*, *Generalised pre-processing*, *Traverse*, *3D radiation* | Total Station |
-| P14b | *Resection*, *Forward intersection*, *Trigonometric levelling*, *Classical networks* | Total Station |
+| **P14b** | *Resection*, *Forward intersection*, *Trigonometric levelling*, *Classical networks* | Total Station |
 | P14c | The levelling field book, the three schemes, closures and the network | Level |
 | P14d | The network workbench (inspect, adjust), the pre-analysis simulator in the frame, the DynAdjust trio, monitoring | Analysis |
 | P14e | Typed gravimeter readings, pre-processing, network | Gravimetry |
@@ -4502,6 +4502,48 @@ survey typed in both faces traverses and radiates in the windows to the toolbox'
   *Field book* window's, not the document's.
 - Result layers beyond a points layer: Traverse and Radiation write no layer of their own; the styled
   adjustment layers arrive with *Classical networks* in P14b.
+
+#### P14b — the rest of the Total Station menu
+
+**Built.**
+- `geocomp/gui/windows/totalstation/` — *Resection*, *Forward intersection*, *Classical network* and
+  *Trigonometric levelling*; `registry.WINDOWS` declares them, and their four algorithms lost their
+  launchers, so the Total Station submenu is all windows and the legacy launchers are 41.
+- `geocomp/jobs/total_station.py` — the known points read for a plane computation, with no height needed;
+  the *sightings*, a new table of the job, one azimuth per station; the four chains. A *Classical network* run
+  is given only the station list its datum reads, and the job's CRS unless the window was given another.
+- *Classical network* writes the algorithm's six result layers beside its documents on every run, and
+  *Add result layers to the map* adds them styled, grouped, named with their exaggeration
+  (`gui/workbench/layers.py`, `layers/builders.exaggerated_layer_name`), as copies in memory.
+- The known-points page, the map pick and *Use as a known point* are shared by the windows that need them
+  (`windows/totalstation/common.py`); an options form takes a window's own default for a parameter, which
+  is how the network's CRS is the job's.
+
+**Evidence.** The synthetic survey typed in both faces resects R from A, B and C, intersects R from A and B,
+levels radially and by leap-frog, and adjusts as a network, each to the toolbox's figures on the files the
+window's run wrote (`tests/qgis/test_totalstation_windows.py::TestResection`, `TestIntersection`,
+`TestTrigLevelling`, `TestNetwork`); L's balanced leap-frog gives the true height difference to 1e-6 m. The
+chains, below QGIS, in `tests/test_jobs_total_station.py::TestTheP14bChains`; the menu, in
+`tests/test_registry.py::TestWindows`.
+
+**Defects found, not fixed** — the algorithms are kept as they are (ADR-0010):
+- `geocomp:totalstation_trig_levelling` takes its two height parameters for every sight and does not read
+  the instrument and target heights the reductions carry, though its help says it uses the parameters only
+  where a reading has none. The window says which heights it uses.
+- With a *file* destination, `write_styled_sink` opens the layer to name it before the sink has closed it,
+  and GDAL logs that the file is not a supported format four times per layer. The files are complete
+  afterwards; the toolbox logs the same for a file output.
+
+**Not done in P14b**, stated rather than implied by a green tick:
+- The other 41 menu items still open their Processing dialogs — the legacy launchers P14c–P14h replace.
+- *Forward intersection* takes azimuths, not circle readings from the field book: orienting a reading is a
+  computation, and the algorithm takes azimuths. One point per run, one sighting per station, and one
+  precision for every sighting — the algorithm's per-sighting precision is not offered.
+- *Resection* offers directions only, as the algorithm does; resection by distances is not offered.
+- *Trigonometric levelling*'s height differences are not yet carried into a levelling job: the levelling
+  windows arrive in P14c.
+- *Classical network*'s sketch draws the stations and the observed lines, not the ellipses: those are in the
+  result layers.
 
 ---
 

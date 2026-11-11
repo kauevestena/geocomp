@@ -265,11 +265,11 @@ class WindowSpec:
 
 #: The interactive windows. Phase P14a contributed the first four: the Total
 #: Station field book and the three computations of ``specs/09`` section 1 that
-#: need nothing typed beyond it and a few known points.
+#: need nothing typed beyond it and a few known points. P14b the other four, and
+#: with them the whole Total Station submenu is windows.
 #:
 #: Their positions are the ones the same operations' launchers had, so the
-#: Total Station submenu reads in the order it always did while half of it is
-#: windows and half still launchers.
+#: Total Station submenu reads in the order it always did.
 WINDOWS: tuple[WindowSpec, ...] = (
     WindowSpec(
         name="totalstation_fieldbook",
@@ -315,6 +315,61 @@ WINDOWS: tuple[WindowSpec, ...] = (
             "totalstation_import_fieldbook",
             "totalstation_preprocess",
             "totalstation_radiation",
+        ),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    # -- P14b: the rest of the Total Station submenu ------------------------
+    WindowSpec(
+        name="totalstation_resection",
+        menu="total_station",
+        menu_order=40,
+        module="geocomp.gui.windows.totalstation.resection",
+        class_name="ResectionWindow",
+        algorithms=(
+            "totalstation_import_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_resection",
+        ),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    # The one window that does not read the field book: the algorithm takes the
+    # azimuths observed from oriented stations, which are typed as sightings.
+    WindowSpec(
+        name="totalstation_intersection",
+        menu="total_station",
+        menu_order=50,
+        module="geocomp.gui.windows.totalstation.intersection",
+        class_name="IntersectionWindow",
+        algorithms=("totalstation_intersection",),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    WindowSpec(
+        name="totalstation_network",
+        menu="total_station",
+        menu_order=60,
+        module="geocomp.gui.windows.totalstation.network",
+        class_name="NetworkWindow",
+        algorithms=(
+            "totalstation_import_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_network",
+        ),
+        requirement="FR-011",
+        technique="total_station",
+    ),
+    WindowSpec(
+        name="totalstation_trig_levelling",
+        menu="total_station",
+        menu_order=70,
+        module="geocomp.gui.windows.totalstation.trig_levelling",
+        class_name="TrigLevellingWindow",
+        algorithms=(
+            "totalstation_import_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_trig_levelling",
         ),
         requirement="FR-011",
         technique="total_station",
@@ -568,7 +623,8 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     #
     # P14a: the import, the pre-processing, the traverse and the radiation have
     # no launcher any more. The menu items of those names are windows
-    # (``WINDOWS``), which run these same four on a typed field book.
+    # (``WINDOWS``), which run these same four on a typed field book. P14b did
+    # the same for the other four, so no Total Station algorithm has a launcher.
     AlgorithmSpec(
         operation="import_fieldbook",
         group="totalstation",
@@ -596,8 +652,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.resection",
         class_name="ResectionAlgorithm",
         requirement="FR-407",
-        menu="total_station",
-        menu_order=40,
     ),
     AlgorithmSpec(
         operation="intersection",
@@ -605,8 +659,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.intersection",
         class_name="IntersectionAlgorithm",
         requirement="FR-408",
-        menu="total_station",
-        menu_order=50,
     ),
     AlgorithmSpec(
         operation="network",
@@ -614,8 +666,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.network",
         class_name="ClassicalNetworkAlgorithm",
         requirement="FR-409",
-        menu="total_station",
-        menu_order=60,
     ),
     AlgorithmSpec(
         operation="trig_levelling",
@@ -623,8 +673,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.totalstation.trig_levelling",
         class_name="TrigonometricLevellingAlgorithm",
         requirement="FR-410",
-        menu="total_station",
-        menu_order=70,
     ),
     AlgorithmSpec(
         operation="radiation",

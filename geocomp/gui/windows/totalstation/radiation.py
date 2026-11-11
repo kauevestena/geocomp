@@ -24,7 +24,7 @@ import json
 from typing import Any
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.PyQt.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from qgis.PyQt.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from geocomp.core.errors import GeoCompError
 from geocomp.core.number_format import localised
@@ -35,7 +35,6 @@ from geocomp.gui.workbench.parameters import ParameterForm
 from geocomp.gui.workbench.window import DONE, Note, Step
 from geocomp.jobs import total_station as ts
 from geocomp.jobs.chains import Chain
-from geocomp.jobs.tables import parse_number
 from geocomp.services.messages import message_for
 
 __all__ = ["RadiationWindow"]
@@ -87,44 +86,12 @@ class RadiationWindow(TotalStationWindow):
     # -- step 1: known stations ------------------------------------------------------
 
     def _stations_page(self) -> QWidget:
-        page = QWidget(self)
-        self.points_grid = GridWidget(self.book.points, self.heading, parent=page)
-        self.points_grid.edited.connect(self.touch)
-        self.pick_button = QPushButton(_tr("Pick on the map"), self.points_grid)
-        self.pick_button.setToolTip(
-            _tr("Click a point on the map to fill the easting and northing of the current row.")
-        )
-        self.pick_button.clicked.connect(lambda _checked=False: self.pick_station())
-        self.points_grid.buttons.insertWidget(self.points_grid.buttons.count() - 1, self.pick_button)
-        note = QLabel(
+        return self.known_points_page(
             _tr(
                 "Give at least the stations the instrument occupied. A known point the setup "
                 "also sighted orients it; Traverse can add the stations it computed."
-            ),
-            page,
+            )
         )
-        note.setWordWrap(True)
-        layout = QVBoxLayout(page)
-        layout.addWidget(self.points_grid, 1)
-        layout.addWidget(note)
-        return page
-
-    def pick_station(self) -> None:
-        """Take the current row's easting and northing from a click on the map."""
-        row = self.points_grid.current_row()
-
-        def picked(x: float, y: float) -> None:
-            table = self.book.points
-            while table.row_count <= row:
-                table.insert_row()
-            table.set_cell(row, "easting", f"{x:.4f}")
-            table.set_cell(row, "northing", f"{y:.4f}")
-            if not table.cell(row, "origin"):
-                table.set_cell(row, "origin", _tr("map"))
-            self.points_grid.reload()
-            self.touch()
-
-        self.pick_point(picked)
 
     def _stations_problem(self) -> str:
         try:
@@ -140,7 +107,7 @@ class RadiationWindow(TotalStationWindow):
         return ""
 
     def _stations_notes(self) -> list[Note]:
-        notes = [self.cell_note(ts.POINTS, problem) for problem in self.book.points.problems()]
+        notes = self.points_notes()
         try:
             stations = self.book.known_stations()
         except GeoCompError:
@@ -255,16 +222,7 @@ class RadiationWindow(TotalStationWindow):
 
     def draw(self) -> None:
         """The known stations, and a ray from each to the points it radiated."""
-        known: dict[str, tuple[float, float]] = {}
-        table = self.book.points
-        for row in table.filled_rows():
-            try:
-                known[table.cell(row, "name")] = (
-                    parse_number(table.cell(row, "easting")),
-                    parse_number(table.cell(row, "northing")),
-                )
-            except GeoCompError:
-                continue
+        known = self.placed_points()
         for easting, northing in known.values():
             self.sketch.add_point(easting, northing)
         if self.step("calculate").state != DONE:

@@ -493,6 +493,162 @@ class TestChains:
             ts.preprocess_chain(book)
 
 
+class TestPlanePoints:
+    """P14b: a resection or an intersection reads points that need no height."""
+
+    def test_a_point_without_a_height_is_placed(self):
+        book = typed_rd01()
+        book.points.paste(0, "name", "1\t1000\t5000,5\n3\t1011.508\t5000\t100.2")
+        assert book.known_positions() == {"1": (1000.0, 5000.5), "3": (1011.508, 5000.0)}
+        with pytest.raises(ValidationError) as refusal:
+            book.known_stations()
+        assert refusal.value.code == "validation.known_point_incomplete", "3D still needs it"
+
+    @pytest.mark.parametrize(
+        ("cells", "code"),
+        [
+            ("1\t1000", "validation.known_point_unplaced"),
+            ("1\teast\t5000", "validation.known_points_unreadable"),
+            ("1\t1\t2\n1\t3\t4", "validation.known_point_repeated"),
+            ("", "validation.known_points_missing"),
+        ],
+    )
+    def test_what_is_wrong_with_them_is_refused(self, cells, code):
+        book = typed_rd01()
+        book.points.paste(0, "name", cells)
+        with pytest.raises(ValidationError) as refusal:
+            book.known_positions()
+        assert refusal.value.code == code
+
+    def test_sightings_are_read_in_the_jobs_convention_into_degrees(self):
+        book = typed_rd01(AngleTyping.DMS_PACKED)
+        book.sightings.paste(0, "station", "A\t57.5924\nB\t300.0112")
+        assert book.observed_azimuths() == {
+            "A": pytest.approx(57.99, abs=1e-12),
+            "B": pytest.approx(300.02, abs=1e-12),
+        }
+
+    @pytest.mark.parametrize(
+        ("cells", "code"),
+        [
+            ("A\t57 59 24\nA\t300 01 12", "validation.sighting_repeated"),
+            ("A", "validation.sighting_incomplete"),
+            ("A\t57.99", "validation.sightings_unreadable"),
+        ],
+    )
+    def test_what_is_wrong_with_the_sightings_is_refused(self, cells, code):
+        book = typed_rd01()
+        book.sightings.paste(0, "station", cells)
+        with pytest.raises(ValidationError) as refusal:
+            book.observed_azimuths()
+        assert refusal.value.code == code
+
+    def test_a_job_saved_before_the_sightings_opens_with_them_empty(self, tmp_path):
+        book = typed_rd01()
+        stored = book.job.to_dict()
+        del stored["tables"][ts.SIGHTINGS]
+        path = tmp_path / "older.gcjob"
+        path.write_text(json.dumps(stored), encoding="utf-8")
+        reopened = ts.TotalStationBook(ts.load_job(path))
+        assert reopened.sightings.to_list() == []
+        assert reopened.table.to_list() == book.table.to_list()
+
+
+class TestTheP14bChains:
+    def book(self) -> ts.TotalStationBook:
+        book = typed_rd01()
+        book.points.paste(0, "name", "1\t1000\t5000\t100\n2\t1010\t5000\n3\t1011.508\t5000\t100.2")
+        return book
+
+    def test_each_window_runs_what_it_declares(self):
+        book = self.book()
+        book.job.parameters(ts.WINDOW_RESECTION)["STATION"] = "1"
+        book.sightings.paste(0, "station", "1\t45 00 00\n3\t315 00 00")
+        assert ts.resection_chain(book).algorithms == (ts.IMPORT, ts.PREPROCESS, ts.RESECTION)
+        assert ts.intersection_chain(book).algorithms == (ts.INTERSECTION,)
+        assert ts.trig_levelling_chain(book).algorithms == (ts.IMPORT, ts.PREPROCESS, ts.TRIG_LEVELLING)
+        book.points.set_cell(1, "height", "100.1")
+        assert ts.network_chain(book).algorithms == (ts.IMPORT, ts.PREPROCESS, ts.NETWORK)
+
+    def test_a_resection_is_given_the_known_points_but_the_station_it_fixes(self, tmp_path):
+        book = self.book()
+        with pytest.raises(ValidationError) as refusal:
+            ts.resection_chain(book)
+        assert refusal.value.code == "validation.resection_no_station"
+        book.job.parameters(ts.WINDOW_RESECTION).update({"STATION": " 1 ", "APPROX_EASTING": 999.0})
+        steps = {step.key: step for step in resolve(ts.resection_chain(book), tmp_path)}
+        resection = steps["resection"]
+        assert resection.parameters["STATION"] == "1"
+        assert resection.parameters["APPROX_EASTING"] == 999.0
+        assert resection.parameters["REDUCTIONS"] == str(steps["preprocess"].outputs["OUTPUT_REDUCED"])
+        known = json.loads((tmp_path / "resection" / "known.json").read_text(encoding="utf-8"))
+        assert known == {"2": [1010.0, 5000.0], "3": [1011.508, 5000.0]}
+
+    def test_an_intersection_places_each_sighting_at_its_station(self, tmp_path):
+        book = self.book()
+        book.sightings.paste(0, "station", "1\t45 00 00\n3\t315 00 00")
+        book.job.parameters(ts.WINDOW_INTERSECTION)["TARGET"] = "P9"
+        (step,) = resolve(ts.intersection_chain(book), tmp_path)
+        assert step.parameters["TARGET"] == "P9"
+        assert "REDUCTIONS" not in step.parameters, "the field book is not read"
+        document = json.loads((tmp_path / "intersection" / "sightings.json").read_text(encoding="utf-8"))
+        assert document == {
+            "1": {"position": [1000.0, 5000.0], "azimuth": 45.0},
+            "3": {"position": [1011.508, 5000.0], "azimuth": 315.0},
+        }
+
+    def test_a_sighting_from_a_station_with_no_coordinates_is_refused(self):
+        book = self.book()
+        book.sightings.paste(0, "station", "1\t45 00 00\n9\t315 00 00")
+        with pytest.raises(ValidationError) as refusal:
+            ts.intersection_chain(book)
+        assert refusal.value.code == "validation.sighting_station_unknown"
+
+    def test_a_network_is_given_the_known_points_and_the_jobs_crs(self, tmp_path):
+        book = self.book()
+        book.points.set_cell(1, "height", "100.1")
+        book.job.crs = "EPSG:31982"
+        steps = {step.key: step for step in resolve(ts.network_chain(book), tmp_path)}
+        network = steps["network"]
+        assert network.parameters["CRS"] == "EPSG:31982"
+        approximate = json.loads((tmp_path / "network" / "approximate.json").read_text(encoding="utf-8"))
+        assert approximate["2"] == [1010.0, 5000.0, 100.1]
+        for name, file_name in ts.NETWORK_LAYERS:
+            assert network.parameters[name] == str(tmp_path / "network" / file_name)
+        book.job.parameters(ts.WINDOW_NETWORK)["CRS"] = "EPSG:31983"
+        assert ts.network_chain(book).steps[-1].parameters["CRS"] == "EPSG:31983"
+        book.job.crs = ""
+        del book.job.parameters(ts.WINDOW_NETWORK)["CRS"]
+        assert "CRS" not in ts.network_chain(book).steps[-1].parameters, "the algorithm's default"
+
+    @pytest.mark.parametrize(
+        ("datum", "given"),
+        [
+            (None, set()),
+            (ts.DATUM_INNER, set()),
+            (ts.DATUM_CONSTRAINED, {"FIXED_STATIONS"}),
+            (ts.DATUM_FIXED, {"FIXED_STATIONS"}),
+            (ts.DATUM_MINIMUM, {"DATUM_STATIONS"}),
+        ],
+    )
+    def test_a_network_is_given_only_the_stations_its_datum_reads(self, datum, given):
+        book = self.book()
+        book.points.set_cell(1, "height", "100.1")
+        options = book.job.parameters(ts.WINDOW_NETWORK)
+        options.update({"FIXED_STATIONS": "1,3", "DATUM_STATIONS": "1,2"})
+        if datum is not None:
+            options["DATUM"] = datum
+        parameters = ts.network_chain(book).steps[-1].parameters
+        assert {"FIXED_STATIONS", "DATUM_STATIONS"} & set(parameters) == given
+        assert options["FIXED_STATIONS"] == "1,3", "kept for when that datum is chosen again"
+
+    def test_the_trig_levelling_chain_passes_what_the_user_set(self):
+        book = self.book()
+        book.job.parameters(ts.WINDOW_TRIG_LEVELLING).update({"MODE": 1, "SOURCE": "/x"})
+        levelling = ts.trig_levelling_chain(book).steps[-1]
+        assert levelling.parameters == {"MODE": 1, "REDUCTIONS": Ref("preprocess", "OUTPUT_REDUCED")}
+
+
 class TestJobs:
     def test_a_job_reopens_with_its_tables_and_conventions(self, tmp_path):
         book = typed_rd01(AngleTyping.DMS_PACKED)

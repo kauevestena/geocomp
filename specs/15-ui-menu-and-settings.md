@@ -46,10 +46,10 @@ See [`09-module-total-station.md`](./09-module-total-station.md).
 > **Field book** is not in the proposal's list, which starts at pre-processing. Until P14a the item was
 > *Import field book*, added because the list assumes the data is already in GeoComp and nothing else put
 > it there. Since P14a it is the window in which the field book is **typed** (§7.2) — the first step of
-> every Total Station window — and *Field book*, *Generalised pre-processing*, *Traverse* and *3D
-> radiation* are windows. Importing an instrument's *file* is the toolbox's *Import field book* (FR-015),
-> also reachable with its mapping preview from Plugins ▸ GeoComp. The other four items are legacy launchers
-> until P14b.
+> every Total Station window. Every item of the submenu is a window: four since P14a, the other four since
+> P14b. Importing an instrument's *file* is the toolbox's *Import field book* (FR-015), also reachable with
+> its mapping preview from Plugins ▸ GeoComp. The window keeps the algorithm's name, *Classical network*;
+> the proposal's plural names the kind of computation.
 
 **Level** → Import levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
 tolerances · Levelling network adjustment. *(Six as built in P4, rather than the proposal's four: import and
@@ -148,8 +148,8 @@ ADR-0005). The menu holds no second implementation. Consequences:
   structural test holds that no window imports a computation (§6, criterion 2).
 - **The menu is rebuilt one group at a time** (ROADMAP P14). Until its group's windows exist, an item is a
   **legacy launcher**, as every item was under ADR-0005: it opens the standard Processing dialog of its
-  algorithm. Their set may only shrink, and `tests/test_registry.py` pins it. After P14a it holds every item
-  except the four Total Station windows.
+  algorithm. Their set may only shrink, and `tests/test_registry.py` pins it. After P14b it holds every item
+  except the eight Total Station windows.
 - Window names are translated once (`geocomp/gui/windows/labels.py`); a launcher's name is its algorithm's
   `displayName()`, as before (FR-090).
 - A small, enumerated set of legacy launchers opens a custom dialog that collects parameters and then runs the
@@ -634,8 +634,8 @@ which the panel does not read.
 
 ## 7. Interactive windows (FR-010…FR-017)
 
-Added in P14a ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md)). Built so far: the four
-Total Station windows of §7.2. The other groups follow in ROADMAP P14b–P14h.
+Added in P14a ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md)). Built so far: the eight
+Total Station windows of §7.2, four in P14a and four in P14b. The other groups follow in ROADMAP P14c–P14h.
 
 ### 7.1 Anatomy of a window (FR-010)
 
@@ -674,6 +674,21 @@ Total Station windows of §7.2. The other groups follow in ROADMAP P14b–P14h.
 | **Generalised pre-processing** | Conditions and tolerances → Calculate → Results | the import, then `totalstation_preprocess` |
 | **Traverse** | Route (stations in order, chosen from the book; initial backsight; kind) → Starting data (start E, N, azimuth; closing data for a connected traverse, shown only then; picked on the map) → Options (distribution, tolerances) → Calculate → Results (misclosures, coordinates, the traverse drawn; *Use as known stations*; *Add stations to the map*) | the import, the pre-processing, then `totalstation_traverse` |
 | **3D radiation** | Known stations (typed, pasted, picked on the map, or from *Traverse*) → Orientations and heights → Calculate → Results (points with their standard deviations, rays drawn; *Add points to the map*) | the import, the pre-processing, then `totalstation_radiation` |
+| **Resection** *(P14b)* | Occupied station (chosen from the book's stations, with the points it sighted; in Advanced mode an approximate position, typed or picked) → Known points (at least three the station sighted; no height needed) → Calculate → Results (E, N and their standard deviations, the setup's orientation, rays drawn; *Use as a known point*; *Add the station to the map*) | the import, the pre-processing, then `totalstation_resection` |
+| **Forward intersection** *(P14b)* | Known stations (where the point was sighted from) → Sightings (the point's name; one azimuth per station, in the job's angle convention; the azimuth precision) → Calculate → Results (E, N, the error ellipse's axes, weak geometry, rays drawn; *Use as a known point*; *Add the point to the map*) | `totalstation_intersection` alone: the field book is not read |
+| **Classical network** *(P14b)* | Approximate coordinates (the known points, heights included) → Datum (dimension; datum definition; the stations held, or those the datum is defined over, ticked among the network's) → Options (CRS — the job's by default —, reduction to the grid, confidence) → Calculate → Results (global test, variance factor, degrees of freedom, outlier candidates, the adjusted stations, the network drawn; *Add result layers to the map*; *Use as known points*) | the import, the pre-processing, then `totalstation_network` |
+| **Trigonometric levelling** *(P14b)* | Mode and refraction (radial or leap-frog; the instrument height, hidden in leap-frog mode, and the target height; the refraction coefficient and its uncertainty; with which setups leap-frog will read) → Calculate → Results (the height differences and their standard deviations) | the import, the pre-processing, then `totalstation_trig_levelling` |
+
+**The known points are one table** of the job, which *Traverse*, *Resection*, *Forward intersection* and
+*Classical network* write into and every window reads: a station resected is a station radiated from. A
+plane computation reads a point without a height; *3D radiation* and *Classical network* need one, and a
+point written by a plane computation keeps a height typed for it or takes the algorithm's zero, which the
+window's tooltip says to replace.
+
+**Trigonometric levelling takes one instrument height and one target height** for the whole book, its two
+parameters, and does not read the heights typed in the book's rows, though its help says it does where they
+are given. The window says so beside the two values. Recorded as a defect of the algorithm, not changed:
+ADR-0010 keeps every algorithm as it is.
 
 **The field-book grid.** One row per pointing: station, instrument height, target, face (`PD`/`PI`, also
 typed `1`/`2`, `F1`/`F2`, `FL`/`FR`, `CD`/`CI`), horizontal circle reading, vertical circle reading, slope distance,
@@ -741,7 +756,13 @@ unsaved changes is open.
 - **Results**: the figures the algorithms returned, under the window's labels and in the display format; the
   report the last algorithm wrote, shown as it wrote it; *Copy table* (the algorithm's CSV, every digit);
   *Open report*; *Open results folder*; and the sketch — known points, computed points, a traverse's legs, a
-  radiation's rays — which *Add … to the map* turns into a labelled point layer the user owns.
+  radiation's, resection's or intersection's rays, a network's observed lines — which *Add … to the map*
+  turns into a labelled point layer the user owns.
+- **Result layers** (P14b): *Classical network* writes the algorithm's six result layers (FR-905) beside its
+  documents on every run, and *Add result layers to the map* adds those with features to a group of the
+  project, styled as a toolbox run styles them, carrying the properties the results panel reads, and named
+  with the exaggeration their geometry was drawn at (FR-901), read back from the features. Each is a copy in
+  memory: the files are in the window's results folder, which the next calculation replaces.
 
 ### 7.7 Options (FR-016)
 
