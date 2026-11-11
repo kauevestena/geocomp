@@ -97,7 +97,7 @@ class TestItTakesOverTheCanvasAndGivesItBack:
         mouse events targeted at the parent window and map canvas."""
         from qgis.core import QgsCoordinateReferenceSystem, QgsRectangle
         from qgis.gui import QgsMapCanvas
-        from qgis.PyQt.QtCore import QPointF, QTimer, Qt
+        from qgis.PyQt.QtCore import QPointF, Qt, QTimer
         from qgis.PyQt.QtGui import QMouseEvent
         from qgis.PyQt.QtWidgets import QApplication, QMainWindow
 

@@ -295,7 +295,10 @@ class DesignSession:
     def required_observation_sigmas(
         self, report: DesignReport | None = None
     ) -> dict[str, float]:
-        """The standard deviation each planned observation needs (in its own SI unit) so every station reaches :attr:`tolerance`."""
+        """The standard deviation each planned observation needs.
+
+        In the observation's own SI unit, so every station reaches :attr:`tolerance`.
+        """
         if self.tolerance is None or self.tolerance <= 0.0:
             return {}
         current = report if report is not None else self.evaluate().report
@@ -304,7 +307,10 @@ class DesignSession:
         return current.required_observation_sigmas(self.network, self.tolerance)
 
     def apply_required_precisions(self) -> dict[str, float]:
-        """Scale every planned observation's standard deviation so the worst station reaches :attr:`tolerance`, as an edit that can be undone."""
+        """Scale every planned observation's standard deviation to reach :attr:`tolerance`.
+
+        So the worst station reaches it, as an edit that can be undone.
+        """
         required = self.required_observation_sigmas()
         if not required:
             return {}
@@ -675,7 +681,8 @@ class DesignSession:
         for record in records:
             kind = str(record.get("record_kind") or "")
             obs_type_name = str(record.get("observation_type") or "").strip()
-            if kind == "station" or (not obs_type_name and (record.get("station_id") or record.get("from_station"))):
+            names_a_station = record.get("station_id") or record.get("from_station")
+            if kind == "station" or (not obs_type_name and names_a_station):
                 station_id = str(
                     record.get("station_id") or record.get("from_station") or ""
                 ).strip()

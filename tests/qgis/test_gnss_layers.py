@@ -274,7 +274,16 @@ class TestEveryLoopIsClosed:
         independent = [b for b in marked_baselines if b.is_independent]
         dependent = [b for b in marked_baselines if not b.is_independent]
         ((loop, legs),) = closing_loops(independent, dependent)
-        assert record == pytest.approx(loop_closure(legs, loop).to_dict())
+        expected = loop_closure(legs, loop).to_dict()
+        assert record.keys() == expected.keys()
+        # Names and verdicts exactly, numbers to rounding: pytest.approx refuses
+        # a dictionary that holds lists of names, as this one does since P12c.
+        for key, value in expected.items():
+            names = isinstance(value, list) and value and isinstance(value[0], str)
+            if isinstance(value, bool | str) or names:
+                assert record[key] == value, key
+            else:
+                assert record[key] == pytest.approx(value), key
         assert sorted(record["loop"]) == ["0759", "1111", "3040"]
 
     def test_the_log_says_how_well_it_closed(self, closed):
