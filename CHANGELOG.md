@@ -5,6 +5,115 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P14c — The Level menu becomes interactive windows
+
+The third of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Level
+menu is now a window over one typed levelling book; the algorithms are unchanged.
+
+#### Added
+
+- **Level ▸ Levelling field book…** — the level (profile library, level id, default staff-reading
+  precision, stadia factor) and a grid with one row per staff reading: line, setup, station, sight (`BS`,
+  `FS`, `IS`, or `R`, `V`, `I`), reading, upper and lower wires, sight distance, note. A backsight opens a
+  setup; a blank line is the line above; a number reaches the importer as typed. Checked by *Import
+  levelling field book*, each refused row named by its row number.
+- **Level ▸ Equal sights…, Equidistant sights…, Extreme sights…** — each scheme's options, with the setups
+  it will read listed as typed, its figures, its report and its table.
+- **Level ▸ Closures and tolerances…** — a loop, or a line against a known difference, with the verdict or
+  the statement that there is none without a tolerance coefficient.
+- **Level ▸ Levelling network adjustment…** — benchmarks typed as a table, held exactly or with a weight, or
+  a free network; the weighting and the statistics; the adjusted heights.
+- A levelling job file, beside the total-station one: each technique keeps its own.
+
+#### Changed
+
+- The six levelling algorithms no longer have menu items of their own; *Import levelling field book* is the
+  toolbox's file route. The menu's other 35 items still open their Processing dialogs.
+
+#### Fixed
+
+- **On Windows, a calculation after *Add result layers to the map* half deleted the last result.** The
+  layers were copied into memory, but GDAL's connection pool kept their files open until Qt next ran its
+  deferred deletions; the next calculation deleted the results folder file by file, stopped at the first
+  file held, and left a result missing its tables. The layers are now read from a temporary copy of each
+  file, and the last result is moved aside whole before the new one takes its place, so a file held open
+  -- by GDAL, a browser or a spreadsheet -- costs the new result its place, never the old one its files.
+  Found by the Windows QGIS 4.2 job of CI; the Linux and macOS runs could not see it.
+
+### P14b — The rest of the Total Station menu: resection, intersection, network, trigonometric levelling
+
+The second of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Total
+Station menu is now a window; the algorithms are unchanged.
+
+#### Added
+
+- **Total Station ▸ Resection…** — the occupied station chosen from the field book's stations, with the
+  points it sighted; known points without heights; the station's coordinates, standard deviations and
+  orientation, the rays drawn, and *Use as a known point*. The danger circle is the algorithm's to refuse, in
+  its words.
+- **Total Station ▸ Forward intersection…** — azimuths typed per station, in the job's angle convention, to a
+  named point; its coordinates, error ellipse and weak-geometry verdict. It reads no field book: the
+  algorithm takes azimuths from oriented stations.
+- **Total Station ▸ Classical network…** — approximate coordinates from the job's known points; the datum
+  chosen with the stations held, or those it is defined over, ticked among the network's own; the CRS the
+  job's unless another is given; the global test, variance factor, redundancy and outlier candidates, the
+  network drawn on the map, and **Add result layers to the map**: the algorithm's styled layers, in a group,
+  named with their exaggeration.
+- **Total Station ▸ Trigonometric levelling…** — radial or leap-frog, with the setups leap-frog will read
+  listed as they are typed; the height differences and their standard deviations.
+- The job's known points are shared by every window that reads or writes them: a traverse's, a resection's,
+  an intersection's or a network's points can be the next computation's starting points.
+
+#### Changed
+
+- The four Total Station algorithms the new windows run no longer have menu items of their own. The menu's
+  other 41 items still open their Processing dialogs until their groups are rebuilt.
+- A window's results folder is copied into place where it cannot be moved, as on Windows while a file in it
+  is still open.
+
+### P14a — The menu becomes interactive windows: the Total Station field book, pre-processing, traverse and radiation
+
+The GeoComp menu's items are becoming windows in which observations are typed, while every Processing
+algorithm stays exactly as it was ([ADR-0010](specs/adr/0010-interactive-menu.md), roadmap phase P14). This is
+the first of eight stages.
+
+#### Added
+
+- **Total Station ▸ Field book…** — a guided, non-modal window over a typed field book: the job and instrument
+  (name, CRS or a local plane, angle convention, zenith or vertical angles, profile library, default
+  precisions), a grid with one row per pointing, and a check by *Import field book*. Angles are typed as
+  degrees, minutes and seconds (`87 31 15`, the default), DDD.MMSS (`87.3115`), decimal degrees or gon, the
+  convention shown in each heading and read strictly. A cell that cannot be read is marked and says why; a row
+  the importer rejects is named by its row number as it is typed. Blocks paste from a spreadsheet and copy
+  back; every edit can be undone; a readings document written by the toolbox opens into the grid.
+- **Total Station ▸ Generalised pre-processing…, Traverse…, 3D radiation…** — windows over the same field book.
+  Their options are the algorithms' own parameters, with the algorithms' labels, defaults and Basic/Advanced
+  gating. *Traverse* builds its route from the book's stations and takes its start from the map; *3D
+  radiation* takes known points typed, pasted, picked on the map or from *Traverse*. Results show the
+  algorithms' figures and report, copy their table, sketch the traverse or the rays on the map, and add the
+  points to the project as a layer.
+- **Job files** (`.gcjob`): one per technique's field book, shared by its windows, with the results in a
+  folder beside it. A result made from an earlier state of the job is shown out of date and recalculated a
+  moment after the typing stops. The QGIS project remembers its jobs.
+- Every window shows the **equivalent toolbox run**: the algorithms it ran and the parameters it gave them.
+- **Plugins ▸ GeoComp ▸ Import field book with mapping preview…** — the file route's mapping preview, which
+  the Total Station menu item used to open.
+
+#### Changed
+
+- A window computes nothing: it writes what was typed as the inputs the import algorithm reads and runs the
+  registered algorithms. RD-01 typed in the windows gives the toolbox's reductions document to the last bit,
+  with both of its known defects. The menu's other 45 items still open their Processing dialogs until their
+  groups are rebuilt.
+- The four Total Station algorithms the windows run no longer have menu items of their own; they are in the
+  toolbox, unchanged.
+
+#### Fixed
+
+- `ruff check .` was failing on `main` with 67 errors after #120, which stopped every `core` job of the test
+  workflow at Lint; and one GNSS layer test compared a dictionary holding lists with `pytest.approx`, which the
+  pytest of the macOS and Windows QGIS bundles refuses.
+
 ### Multilingual reports — broader regression coverage
 
 #### Added

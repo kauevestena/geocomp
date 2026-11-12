@@ -431,6 +431,67 @@ property every result sink now carries (`geocomp/result_layer`, its style name),
 written. `basemaps.reuse_existing_layer` is the *Add base map* algorithm's default and the offer's.
 `tests/qgis/test_basemap_offer.py`.
 
+### 5.7 The job file (FR-013) — P14a
+
+What a user types into the menu's windows ([`15`](./15-ui-menu-and-settings.md) §7) is saved as a **job**:
+one JSON file, `<name>.gcjob`, per technique's field book.
+
+```json
+{
+  "kind": "geocomp.job", "version": 1, "technique": "total_station",
+  "name": "Praça da Sé", "crs": "EPSG:31983",
+  "entry": {"angle_typing": "dms", "vertical_angle": "zenith"},
+  "tables": {
+    "field_book": {"columns": ["station", "instrument_height", "target", "face", "horizontal", "vertical",
+                               "distance", "target_height", "set_number", "note"],
+                   "rows": [["1", "1.495", "3", "PD", "0 00 00", "90 59 48", "11.508", "1.5", "", ""]]},
+    "points": {"columns": ["name", "easting", "northing", "height", "origin"], "rows": []},
+    "orientations": {"columns": ["station", "azimuth"], "rows": []},
+    "sightings": {"columns": ["station", "azimuth"], "rows": []}
+  },
+  "windows": {
+    "totalstation_traverse": {
+      "parameters": {"ROUTE": "1,2,3,1", "BACKSIGHT": "3", "START_AZIMUTH": 45.0},
+      "state": {},
+      "result": {"fingerprint": "<sha-256>", "outputs": {"traverse.OUTPUT_HTML": "traverse/report.html"},
+                 "scalars": {"traverse.LINEAR_MISCLOSURE": 0.004}, "log": []}
+    }
+  }
+}
+```
+
+- **Cells are text, exactly as typed**, so a value typed to four decimals reopens as four decimals, and a
+  change of angle convention reinterprets the cells rather than converting them. The conventions are stored
+  with them, because the text means nothing without them.
+- **A table is read by column key**, so a job saved before a column was added still opens; and a table is
+  made empty when the file has none, so one saved before a table was added opens too. P14b added
+  `sightings`, the azimuths a forward intersection is computed from, to the total-station job; version 1 is
+  unchanged.
+- **One job per technique.** P14c added the levelling job, `"technique": "levelling"`, whose tables are
+  `field_book` — `line`, `setup`, `station`, `sight`, `reading`, `upper`, `lower`, `distance`, `note` — and
+  `benchmarks` — `name`, `height`, `sigma` — and whose windows are the Level menu's. A job of one technique is
+  refused by the windows of another, by name.
+- **Options are the algorithms' parameters, by name**, and only those the user changed: a parameter left at
+  its default is the algorithm's to decide, so a Global Setting changed later still applies.
+- **Results are not in the file.** They lie in `<name>_results/<window>/<step>/` beside it, and every file
+  there can be made again from the job. The file indexes the last result of each window with a
+  **fingerprint** (SHA-256 of the canonical JSON of the algorithms, parameters and typed inputs); a window
+  whose job no longer has that fingerprint shows the result as out of date, never as current.
+- **Saving is atomic**: written beside the destination and moved over it.
+- **So is a result.** A run writes in `<name>_results/.<window>.running/` and is moved over
+  `<window>/` only when every algorithm succeeded, so a failed run never costs the last good result. Where
+  the folder cannot be moved -- on Windows, while a file in it is still open -- it is copied instead. The
+  last result is moved aside whole before the new one takes its place, never deleted file by file: where a
+  file of it is held open (a report in a browser, a table in a spreadsheet; Windows refuses the move), the
+  new result is not put in place, the window says why and asks for the calculation again once the file is
+  closed, and the last one stays as it was rather than half deleted. A layer added to the map from a result is a copy in memory, read from a temporary copy of the
+  file, so it holds no file of the folder the next run replaces -- not even through GDAL's connection pool,
+  which keeps a file open after its layer is gone until Qt next deletes what was left for later.
+- A job saved by a later version (`version` greater than this one reads) is refused rather than half read,
+  and so is a document of another kind. Each refusal names the file.
+- The open QGIS project records where each technique's job is, relative to the project, in its `geocomp`
+  scope (`jobs/<technique>`), and reopens it with the project.
+
 ---
 
 ## 6. Acceptance criteria

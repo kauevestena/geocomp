@@ -19,6 +19,7 @@ Per `tex §Painel de Configuração Global`, item 1, the Total Station submenu o
 
 | Menu item | Requirement | §  |
 |---|---|---|
+| Field book *(window, P14a)* | FR-012…FR-014, FR-160 | §5; [`15`](./15-ui-menu-and-settings.md) §7.2 |
 | Generalised pre-processing | FR-400…FR-405 | §2 |
 | Traverse | FR-406 | §4.1 |
 | Resection | FR-407 | §4.2 |
@@ -28,6 +29,16 @@ Per `tex §Painel de Configuração Global`, item 1, the Total Station submenu o
 | 3D radiation | FR-411 | §4.6 |
 
 Each is a Processing algorithm (FR-005), so the whole chain can be assembled in the graphical modeller.
+
+**The menu items are windows** ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md),
+[`15`](./15-ui-menu-and-settings.md) §7): *Field book*, *Generalised pre-processing*, *Traverse* and *3D
+radiation* since P14a, and *Resection*, *Forward intersection*, *Classical networks* and *Trigonometric
+levelling* since P14b. They work on one typed job and run these same algorithms on it. The algorithms are
+unchanged, and *Import field book* reads an instrument's file from the toolbox (FR-015).
+
+*Forward intersection* is the one window that does not read the field book: the algorithm takes the azimuth
+observed from each oriented station (§4.3), and turning a circle reading into an azimuth needs the setup's
+orientation, which is a computation and so not a window's to make. Its azimuths are typed as *sightings*.
 
 ---
 

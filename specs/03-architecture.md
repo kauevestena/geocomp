@@ -82,6 +82,12 @@ geocomp/
     monitoring/             epoch compatibility, displacement, deformation (see 14-)
     reporting/              report assembly from a Solution (data, not rendering)
 
+  jobs/                     ── typed data, no QGIS (P14a) ─────────────
+    angles.py, tables.py    typed angles in four conventions; a table of typed cells with undo
+    document.py             the job file, *.gcjob (see 17- §5.7)
+    chains.py               the algorithms a window runs, declared as data
+    total_station.py        the typed field book, emitted as the importer's rows and mapping
+
   engines/                  ── external process adapters ─────────────
     base.py                 Engine interface, EngineRun, EngineResult, discovery, timeouts
     manager.py              acquisition, installation, version detection (see ADR-0003)
@@ -102,9 +108,13 @@ geocomp/
     workflow_service.py     run a technique workflow end to end
     engine_service.py       schedule an engine job as a QgsTask
     settings_service.py     layered settings resolution (global / project / run)
+    chain_runner.py         run a window's chain of algorithms as Processing tasks (P14a)
+    jobs_service.py         each technique's current job, and the project's memory of it (P14a)
 
   gui/                      ── widgets ───────────────────────────────
-    menu.py                 GeoComp menu construction from the algorithm registry
+    menu.py                 GeoComp menu construction from the registry: windows and legacy launchers
+    workbench/              the guided window frame, grid, options form, run, results, sketch (P14a)
+    windows/                one module per menu window, a package per technique (P14a)
     settings_dialog.py      Global Settings window
     widgets/                shared parameter widgets, field-mapping widget
     panels/                 dockable result and time-series panels
@@ -120,7 +130,13 @@ geocomp/
 
 ## 3. Key architectural decisions
 
-### 3.1 The menu is a thin launcher over Processing algorithms (FR-005)
+### 3.1 The menu runs Processing algorithms and holds no second implementation (FR-005, FR-011)
+
+> **Since P14a ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md)) the menu's items are
+> interactive windows**, in which observations are typed. A window computes nothing: it writes what was
+> typed as an algorithm's inputs and runs the registered algorithms its registry entry declares, in the
+> background. The typed data lives in `jobs/`, under `core/`'s no-QGIS rule. What follows was written for the
+> launcher menu of ADR-0005, whose first half — every capability exactly once, as an algorithm — stands.
 
 Every capability exists exactly once, as a `QgsProcessingAlgorithm`. The GeoComp menu launches those
 algorithms; it does not contain a second implementation. Some menu items open a richer dialog than the

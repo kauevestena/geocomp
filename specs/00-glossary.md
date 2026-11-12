@@ -25,6 +25,8 @@ QGIS is not a "network" in geodesy). For translators it is normative: the PT-BR 
 | Solution | Solução | Solución | The output of one adjustment or processing run: coordinates, covariance, residuals, statistics, provenance |
 | Run | Execução | Ejecución | One invocation of an engine or algorithm, with its inputs, parameters, logs and exit status recorded |
 | Provenance | Proveniência | Procedencia | The recorded chain of inputs, parameters, software versions and timestamps that produced a result |
+| Field book | Caderneta de campo / Caderneta de nivelamento | Libreta de campo / Libreta de nivelación | The record of a survey's observations, one line per pointing or per sight, as the instrument or the surveyor wrote them; a levelling field book is a *caderneta de nivelamento* / *libreta de nivelación*. Imported as a file in the toolbox, or typed in the menu's *Field book* window (P14a) |
+| Job | Trabalho | Trabajo | One technique's typed field book with what its windows were asked of it, saved as a `.gcjob` file ([`17`](./17-persistence-and-interoperability.md) §5.7). Posição's *Trabalho*. Not a DynAdjust job, which is the engine's own |
 
 ## 2. Adjustment and statistics
 

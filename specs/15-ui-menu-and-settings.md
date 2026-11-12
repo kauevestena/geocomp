@@ -1,7 +1,7 @@
 # 15 — UI: the GeoComp menu and Global Settings
 
 **Status:** Draft
-**Requirements covered:** FR-002…FR-007, FR-060…FR-071, FR-272.
+**Requirements covered:** FR-002…FR-007, FR-010…FR-017, FR-060…FR-071, FR-272.
 **Source:** tex §Painel de Configuração Global e Menu Principal; `fig/menu_estrutura.png`; modificações.md.
 
 The proposal devotes a full subsection and a figure to this. The archived roadmap omits it entirely
@@ -39,21 +39,29 @@ The separator before Global Settings, and the ellipsis on it, follow the figure 
 
 Directly from `tex §Painel de Configuração Global`:
 
-**Total Station** → Import field book · Generalised pre-processing · Traverse · Resection · Forward
+**Total Station** → Field book · Generalised pre-processing · Traverse · Resection · Forward
 intersection · Classical networks · Trigonometric levelling · 3D radiation.
 See [`09-module-total-station.md`](./09-module-total-station.md).
 
-> **Import field book** is not in the proposal's list, which starts at pre-processing. It is added because
-> the list assumes the data is already in GeoComp and nothing else puts it there: FR-160's saved field
-> mapping is a total-station capability (`specs/09` §5 specifies it against RD-01's layout), and a user who
-> has to hunt for it in another submenu before they can use any of the seven has been given a worse menu,
-> not a purer one.
+> **Field book** is not in the proposal's list, which starts at pre-processing. Until P14a the item was
+> *Import field book*, added because the list assumes the data is already in GeoComp and nothing else put
+> it there. Since P14a it is the window in which the field book is **typed** (§7.2) — the first step of
+> every Total Station window. Every item of the submenu is a window: four since P14a, the other four since
+> P14b. Importing an instrument's *file* is the toolbox's *Import field book* (FR-015), also reachable with
+> its mapping preview from Plugins ▸ GeoComp. The window keeps the algorithm's name, *Classical network*;
+> the proposal's plural names the kind of computation.
 
-**Level** → Import levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
+**Level** → Levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
 tolerances · Levelling network adjustment. *(Six as built in P4, rather than the proposal's four: import and
 closures were implicit in the others and each produces a document the next step reads — see
 [`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
+
+> **Since P14c every Level item is a window** (§7.2) over one typed levelling book. The first was *Import
+> levelling field book* until then, and is now *Levelling field book*, where the staff readings are typed —
+> named apart from the Total Station's *Field book* because their translations differ (*caderneta de
+> nivelamento*, *libreta de nivelación*). Importing a book *file* is the toolbox's *Import levelling field
+> book* (FR-015), which the windows run on the typed book.
 
 **Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
 project to PostGIS · Import project from PostGIS · Add base map · Create print layout · GeoComp system report ·
@@ -133,48 +141,54 @@ A seventh entry leaves both the figure's five technique submenus and the algorit
 FR-003 and FR-004 are amended to say seven rather than being quietly contradicted by the code, and
 `tests/test_registry.py` asserts both the new list and that the figure's five come first, in its order.
 
-### 1.2 The menu is a launcher (FR-005)
+### 1.2 The menu opens windows that run the algorithms (FR-005, FR-011)
 
-Every menu item runs a Processing algorithm. The menu holds no second implementation. Consequences:
+**Since P14a, a menu item opens an interactive window** in which observations are typed (§7), and a window
+computes nothing: it runs registered Processing algorithms on what was typed and shows what they wrote
+([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md), which supersedes the *launcher* half of
+ADR-0005). The menu holds no second implementation. Consequences:
 
-- The menu is **generated from the algorithm registry**, so an algorithm cannot exist without a menu route
-  and a menu item cannot point at nothing.
-- Menu item names, groups and ordering come from algorithm metadata, and are translated once (FR-090).
-- Most items open the standard Processing dialog. A small, enumerated set opens a custom dialog that
-  collects parameters and then runs the same algorithm:
+- The menu is **generated from the registry**: `geocomp/registry.py` declares the windows (`WINDOWS`), each
+  with the algorithms it runs, and a menu item cannot point at nothing.
+- A window may run **only** the algorithms its registry entry names; the runner refuses any other, and a
+  structural test holds that no window imports a computation (§6, criterion 2).
+- **The menu is rebuilt one group at a time** (ROADMAP P14). Until its group's windows exist, an item is a
+  **legacy launcher**, as every item was under ADR-0005: it opens the standard Processing dialog of its
+  algorithm. Their set may only shrink, and `tests/test_registry.py` pins it. After P14c it holds every item
+  except the eight Total Station and the six Level windows.
+- Window names are translated once (`geocomp/gui/windows/labels.py`); a launcher's name is its algorithm's
+  `displayName()`, as before (FR-090).
+- A small, enumerated set of legacy launchers opens a custom dialog that collects parameters and then runs the
+  same algorithm. The windows absorb them as their groups are rebuilt; the field-mapping preview stays, for
+  the file route, under Plugins ▸ GeoComp:
 
 | Custom dialog | Why the standard dialog is insufficient |
 |---|---|
 | Global Settings | Not an algorithm at all — it configures the others |
 | Interactive pre-analysis (FR-272) | Design is edited on the canvas and re-evaluated in a loop. Arrives in P3, re-planned out of P2 — see [`ROADMAP.md`](./ROADMAP.md). The non-interactive route, `geocomp:analysis_network_preanalysis`, ships in P2 |
-| Field mapping for import (FR-160) | Needs a preview of the source data to map columns against |
+| Field mapping for import (FR-160) | Needs a preview of the source data to map columns against. **Since P14a reached from Plugins ▸ GeoComp ▸ *Import field book with mapping preview…***, the GeoComp menu's *Field book* being the window the book is typed in (FR-015) |
 | Comparative GNSS configuration (FR-359) | Runs *n* configurations and shows a side-by-side comparison. **Not a dialog, since P12c-43**: the side by side is `geocomp:gnss_compare_configurations`'s HTML report, one column per configuration, which Processing's results viewer opens like every other report ([`11`](./11-module-gnss.md) §6). The parameters need nothing the standard dialog cannot show, so no entry is needed in `CUSTOM_DIALOGS` |
 | Multi-epoch comparison (FR-831) | Needs to display compatibility findings before the user commits. **Built in P10b** (`gui/compare_dialog.py`): it runs the algorithm's own `compare` on the two files chosen, lists the frames, transformations, findings and the independence assumption, or the refusal, and offers OK only for a comparable pair |
 | Monitoring time series (FR-838) | An interactive panel, not a one-shot run. **Built in P10b as a dock panel rather than a dialog** (`gui/time_series_panel.py`, [`19`](./19-visualization.md) §5): the algorithm produces the series, and its velocity layer brings the panel up when it is added to the project, so the menu item stays the algorithm and no entry is needed in `CUSTOM_DIALOGS` |
 
-#### Toolbox-only algorithms
+#### Algorithms with no menu item
 
-A small, enumerated set of algorithms has **no menu entry at all**. The GeoComp menu presents five
-technique-oriented entries plus Analysis (FR-003); an operation belonging to no survey technique and to no
-analysis of one — environment diagnostics, maintenance — would have to be filed under one of them, which
-would misrepresent that structure.
+Under ADR-0005 every algorithm had a menu item, and one without needed a recorded reason. **Since ADR-0010 an
+algorithm without an item of its own is the rule**: the menu holds windows, and an algorithm is reached from
+the menu by being **run by a window**. The parity test asks each algorithm for one of three things — a
+window that runs it, a legacy launcher, or a reason recorded in `geocomp/registry.py`'s
+`TOOLBOX_ONLY_JUSTIFICATIONS` — and fails on a reason left behind by a deleted algorithm.
 
-Permitted only for maintenance and diagnostic operations, and only with the reason recorded in code, in
-`geocomp/registry.py`'s `TOOLBOX_ONLY_JUSTIFICATIONS`. The parity test holds the exception list to exactly
-the algorithms that declare a justification, fails on a justification left behind by a deleted algorithm, and
-fails if the list grows beyond a handful — a growing list means the menu is drifting away from the
-algorithms, which is the drift ADR-0005 exists to prevent.
+`TOOLBOX_ONLY_JUSTIFICATIONS` is **empty**. It emptied in P5, when the Project entry gave its last members a
+home, and it now holds the algorithms *no window runs either*: a reader of a file the menu has no business
+typing (FR-015). P14a took one file reader out of the menu, *Import field book*, and it is not there, because
+the Total Station windows read the typed book with it. Later stages may add some, each with its reason.
 
-| Toolbox-only algorithm | Why it has no menu entry |
-|---|---|
-| `geocomp:project_system_report` | Environment diagnostics belong to no survey technique. Reachable from the toolbox and from the About dialog under Plugins ▸ GeoComp |
-| `geocomp:project_tutorial_dataset` | Installing a reference dataset belongs to no survey technique. RD-01 is a total-station survey, but the operation is *copy files somewhere writable*, and the levelling and GNSS datasets to come would use the same algorithm — filing it under Total Station would misplace it the moment the second one ships |
+Note the asymmetry, which is deliberate: **every menu item must resolve to a registered window or
+algorithm** with no exceptions, because a menu item pointing at nothing is a broken UI.
 
-Note the asymmetry, which is deliberate: **every menu item must resolve to a registered algorithm** with no
-exceptions, because a menu item pointing at nothing is a broken UI. The reverse direction admits this narrow,
-recorded exception.
-
-Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md).
+Recorded as [`adr/0005-menu-algorithm-parity.md`](./adr/0005-menu-algorithm-parity.md) and
+[`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md).
 
 ### 1.3 Toolbar (FR-007)
 
@@ -185,14 +199,17 @@ inspection, adjust, and the results panel — hideable through the standard QGIS
 network*, *Adjust network*, *Save to project store*, *Run the last GeoComp algorithm again*, the results panel
 and Global Settings, hidden by `interface.show_toolbar` as well as by QGIS's own controls. Each algorithm
 opens the same dialog its menu item does. *Run again* repeats the last algorithm opened from the menu or the
-toolbar, and is disabled until there is one. **Open/create project** is *Save to project store*, which creates
+toolbar — or, since P14a, opens again the last window opened from the menu — and is disabled until there is
+one. **Open/create project** is *Save to project store*, which creates
 the store when it does not exist. GeoComp has no *open*: a store is a GeoPackage or a PostGIS schema, and QGIS
 opens either as it opens any other (`tests/qgis/test_plugin_lifecycle.py::TestTheToolbar`).
 
 ### 1.4 Unload (FR-006)
 
 `unload()` removes the menu, the toolbar, the provider, every action, every dock panel and every signal
-connection. Reload during development must leave no duplicate menu behind — a specific, tested condition.
+connection, and since P14a closes every open window first — each giving the map canvas back its tool and
+taking its sketch off the map. Reload during development must leave no duplicate menu and no window behind —
+a specific, tested condition.
 
 ---
 
@@ -594,8 +611,9 @@ which the panel does not read.
 1. The GeoComp menu appears on the QGIS menu bar with the eight entries in the specified order — the
    figure's five technique submenus, then Analysis and Project — and the separator before Global Settings.
    *(It said seven until P12c's audit, which found it had missed the Project entry FR-003 added in P5.)*
-2. Every submenu item launches an algorithm; a test asserts that the set of menu items and the set of
-   registered algorithms correspond, with no orphan on either side (FR-005).
+2. Every submenu item opens a registered window or launches a registered algorithm, and every algorithm is
+   run by a window, has a launcher, or records why it has neither; a window runs only the algorithms it
+   declares and imports no computation (FR-005, FR-011).
 3. Unloading the plugin removes the menu, toolbar, provider and panels; reloading produces no duplicates.
 4. Global Settings shows the specified sections with the specified contents.
 5. An instrument profile can be created, used in a computation, exported, imported into a fresh profile, and
@@ -605,3 +623,193 @@ which the panel does not read.
    (FR-071), asserted by a test over every algorithm.
 8. No user-facing string in this module bypasses the translation layer (FR-091), asserted by the i18n check
    in [`20-testing-and-validation.md`](./20-testing-and-validation.md).
+9. A window is not modal; its steps unlock in order and a locked one cannot be gone to; closing it gives the
+   map canvas back its tool and removes its sketch (FR-010).
+10. A field book typed in a window and computed there gives what the toolbox gives on the same book as a
+    file: RD-01's reductions document to the last bit, with both of its known defects (FR-011).
+11. A typed cell is kept as typed; one that cannot be read in the job's convention is marked and says why;
+    a row the importer rejects is named by the grid's row number (FR-012).
+12. A saved job reopens with its tables, conventions, options and results; a result made from an earlier state
+    of the job is shown out of date; the open project remembers the job (FR-013).
+13. A block pasted from a spreadsheet fills the grid, a readings document from the toolbox opens into it,
+    and a point clicked on the map fills a coordinate (FR-014).
+14. A window's options carry the algorithm's own labels and defaults, a changed Global Setting changes the
+    default, and Basic mode hides what the algorithm hides (FR-016).
+
+---
+
+## 7. Interactive windows (FR-010…FR-017)
+
+Added in P14a ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md)). Built so far: the eight
+Total Station windows of §7.2, four in P14a and four in P14b, and the six Level windows, in P14c. The other
+groups follow in ROADMAP P14d–P14h.
+
+### 7.1 Anatomy of a window (FR-010)
+
+```text
+┌ Traverse — Praça da Sé * ───────────────────────────────────────────────────────┐
+│ Praça da Sé * — /surveys/praca.gcjob        [New job] [Open job…] [Save] [Save as…] │
+├──────────────────────┬──────────────────────────────────────────────────────────┤
+│ 1. Route  ✓          │ Starting data                                            │
+│ 2. Starting data     │ ┌ the algorithm's own parameters, its labels and units ┐ │
+│ 3. Options           │ │ Start easting (m)   [ 1000.0000 ]                    │ │
+│ 4. Calculate         │ │ Start northing (m)  [ 5000.0000 ]  [Pick on the map] │ │
+│ 5. Results           │ └───────────────────────────────────────────────────────┘ │
+│                      │ ✖ A connected traverse arrives at a known point. Give …  │
+├──────────────────────┴──────────────────────────────────────────────────────────┤
+│                                                         [Back] [Next] [Close]   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Not modal.** The map stays usable beside it; a coordinate can be picked on it and a sketch is drawn on
+  it. Closing the window gives the canvas back its previous map tool and removes everything it drew.
+- **The job bar** names the job, marks unsaved changes with `*`, and offers New, Open, Save and Save as.
+  Closing the last open window of a technique asks about unsaved changes.
+- **The steps** are numbered. A step is *locked* until the ones before it are complete, *ready*, *done* (✓),
+  or *out of date* (↻) when the job changed since its result was made; any unlocked step can be gone back to.
+- **The strip** beneath the page lists what is wrong with what is typed — each cell that cannot be read and
+  each finding of the importer's reader, by the grid's row number — and choosing a line goes to its cell.
+- A computation window whose field book cannot be computed from says so in a **banner** with a button that
+  opens *Field book*: the book is put right where it is typed.
+- Every computation window ends with **Calculate** and **Results** (§7.6).
+
+### 7.2 The Total Station windows
+
+| Window | Steps | Runs |
+|---|---|---|
+| **Field book** | Job and instrument (name, CRS or a local plane, angle convention, zenith or vertical angle, profile library, default precisions) → Field book (the grid) → Check → Report | `totalstation_import_fieldbook` |
+| **Generalised pre-processing** | Conditions and tolerances → Calculate → Results | the import, then `totalstation_preprocess` |
+| **Traverse** | Route (stations in order, chosen from the book; initial backsight; kind) → Starting data (start E, N, azimuth; closing data for a connected traverse, shown only then; picked on the map) → Options (distribution, tolerances) → Calculate → Results (misclosures, coordinates, the traverse drawn; *Use as known stations*; *Add stations to the map*) | the import, the pre-processing, then `totalstation_traverse` |
+| **3D radiation** | Known stations (typed, pasted, picked on the map, or from *Traverse*) → Orientations and heights → Calculate → Results (points with their standard deviations, rays drawn; *Add points to the map*) | the import, the pre-processing, then `totalstation_radiation` |
+| **Resection** *(P14b)* | Occupied station (chosen from the book's stations, with the points it sighted; in Advanced mode an approximate position, typed or picked) → Known points (at least three the station sighted; no height needed) → Calculate → Results (E, N and their standard deviations, the setup's orientation, rays drawn; *Use as a known point*; *Add the station to the map*) | the import, the pre-processing, then `totalstation_resection` |
+| **Forward intersection** *(P14b)* | Known stations (where the point was sighted from) → Sightings (the point's name; one azimuth per station, in the job's angle convention; the azimuth precision) → Calculate → Results (E, N, the error ellipse's axes, weak geometry, rays drawn; *Use as a known point*; *Add the point to the map*) | `totalstation_intersection` alone: the field book is not read |
+| **Classical network** *(P14b)* | Approximate coordinates (the known points, heights included) → Datum (dimension; datum definition; the stations held, or those the datum is defined over, ticked among the network's) → Options (CRS — the job's by default —, reduction to the grid, confidence) → Calculate → Results (global test, variance factor, degrees of freedom, outlier candidates, the adjusted stations, the network drawn; *Add result layers to the map*; *Use as known points*) | the import, the pre-processing, then `totalstation_network` |
+| **Trigonometric levelling** *(P14b)* | Mode and refraction (radial or leap-frog; the instrument height, hidden in leap-frog mode, and the target height; the refraction coefficient and its uncertainty; with which setups leap-frog will read) → Calculate → Results (the height differences and their standard deviations) | the import, the pre-processing, then `totalstation_trig_levelling` |
+
+**The known points are one table** of the job, which *Traverse*, *Resection*, *Forward intersection* and
+*Classical network* write into and every window reads: a station resected is a station radiated from. A
+plane computation reads a point without a height; *3D radiation* and *Classical network* need one, and a
+point written by a plane computation keeps a height typed for it or takes the algorithm's zero, which the
+window's tooltip says to replace.
+
+**Trigonometric levelling takes one instrument height and one target height** for the whole book, its two
+parameters, and does not read the heights typed in the book's rows, though its help says it does where they
+are given. The window says so beside the two values. Recorded as a defect of the algorithm, not changed:
+ADR-0010 keeps every algorithm as it is.
+
+**The Level windows** *(P14c)* work on a second job, the levelling job, and read it with
+`geocomp:levelling_import` as the Total Station windows read theirs:
+
+| Window | Steps | Runs |
+|---|---|---|
+| **Levelling field book** | Job and instrument (name; profile library, level id, default staff-reading precision, stadia factor) → Levelling field book (the grid) → Check → Report | `levelling_import` |
+| **Equal sights** | Collimation and limits → Calculate → Results (lines reduced, the largest accumulated imbalance and standard deviation) | the import, then `levelling_equal_sights` |
+| **Equidistant sights** | Crossing (variance inflation, discrepancy tolerance; the pairs, as typed) → Calculate → Results | the import, then `levelling_equidistant_sights` |
+| **Extreme sights** | Options (the setups with several foresights, as typed) → Calculate → Results | the import, then `levelling_extreme_sights` |
+| **Closures and tolerances** | Closure and tolerance (loop, or a line against a known difference, shown only then) → Calculate → Results (misclosure, permissible, verdict, or none without *k*) | the import, equal sights, then `levelling_closures` |
+| **Levelling network adjustment** | Benchmarks (a table, or a free network) → Weighting → Options → Calculate → Results (global test, variance factor, degrees of freedom, outlier candidates, the largest height standard deviation, the heights) | the import, equal sights, then `levelling_network` |
+
+**The levelling grid.** One row per staff reading, as a *caderneta de nivelamento* is kept: line, setup,
+station, sight (`BS`/`FS`/`IS`, also typed `R`/`V`/`I`, *ré*, *vante*, *espalda*, *frente*), the reading,
+the upper and lower wires, the sight distance and a note. **A backsight opens a setup**: a backsight row with
+no setup typed starts the next, numbered in order, and the sights below it belong to it; a line left blank is
+the line above. **A number is passed on as it was typed**, a comma made a point and nothing re-printed,
+because the importer takes a sight distance's precision from its digits when nothing else gives one
+([`10`](./10-module-levelling.md) §6). **A book with an upper or a lower wire on any row is read as three
+wires throughout**, as the importer reads a file, and a row that lacks one is named. The level chosen in
+*Levelling field book* is the one every Level window reduces with. The benchmarks are a table of the job —
+name, height, and a standard deviation to hold one with a weight — written as the algorithm's own list,
+`BM1=100.000, BM2=103.750±0.002`.
+
+**What a Level window does not offer** is the network's station positions for the normal orthometric
+correction: a point layer, which the windows do not take. Turned on, the correction is refused in the
+*Options* step, which sends the user to the toolbox. A levelling network has no planimetry, so the Level
+windows draw no sketch.
+
+**The field-book grid.** One row per pointing: station, instrument height, target, face (`PD`/`PI`, also
+typed `1`/`2`, `F1`/`F2`, `FL`/`FR`, `CD`/`CI`), horizontal circle reading, vertical circle reading, slope distance,
+target height, set, note. A station, an instrument height and a target height are carried into a new row
+from the row above, as on paper; a station left blank is the station of the row above. A row holding only
+what it carried, or only a note, is not a pointing. Enter moves along the row and then to the next one; a
+spare row at the foot is always there to type into.
+
+### 7.3 Computing (FR-011)
+
+A window **declares its algorithms in the registry** and runs nothing else. What was typed is written as
+the inputs the first algorithm reads — the field book as a CSV under the importer's own field names, angles
+in radians with every digit, and the identity mapping that reads it — and each later algorithm reads what the
+one before it wrote, exactly as a model chains them ([`16`](./16-processing-provider.md) §9). Each runs as
+`QgsProcessingAlgRunnerTask`, off the GUI thread, after `checkParameterValues`; a failure is shown in the
+algorithm's own words. A run writes in a folder of its own, which replaces the window's results only when
+every step has succeeded: a run that fails leaves the last good result as it was. The run step shows the **equivalent toolbox run**: each algorithm with the parameters
+it was given, as lines for the Python console.
+
+Once calculated, a window **calculates again by itself** a little over a second after the job last changed,
+unless the user turns that off. Until then the result is marked out of date. **A computation window does not
+run on a book with a row the importer rejects**: the toolbox carries on past a bad record because a file is
+what it is, but a typed row is one keystroke from being right, and a traverse computed around a missing leg
+is not what anyone meant.
+
+### 7.4 Typing conventions (FR-012)
+
+The angle convention is the job's, chosen in *Field book*'s first step, *Job and instrument*, and shown in every angle column's
+heading:
+
+| Convention | Typed as | Notes |
+|---|---|---|
+| Degrees, minutes and seconds, separated (**default**) | `87 31 15`, `87-31-15`, `87°31'15"` | Only the last part may carry decimals |
+| DDD.MMSS | `87.3115` | Read from its digits; as Posição and most Brazilian field software take angles |
+| Decimal degrees | `87.520833` | |
+| Gon | `97.245370` | |
+
+**A convention is strict**: `87.3115` is an angle in three of the four and a different angle in each, so a
+cell is read in the job's convention or marked, never guessed. Minutes or seconds of 60 or more are marked,
+not carried. **Changing the convention does not rewrite what is typed**: the cells are read again in the new
+one, and that step says so. The vertical circle may read zenith angles (90° level) or vertical angles
+from the horizon (0° level), emitted as the zenith angle the importer takes.
+
+**Numbers** take a decimal point or a decimal comma, never a thousands separator — the rule the importer
+already rests on ([`18`](./18-i18n-and-profiles.md) §5). A cell holds the text typed, so a value typed to four
+decimals is four decimals when the job is reopened.
+
+### 7.5 The job file (FR-013)
+
+`<name>.gcjob`, kind `geocomp.job` ([`17`](./17-persistence-and-interoperability.md) §5.7): the typed tables
+cell for cell, the conventions, the CRS, each window's options and an index of its last results with a
+fingerprint of the inputs that produced them. Results lie in `<name>_results/<window>/<step>/` beside the file
+and can all be made again from it. The windows of one technique share one job; the open QGIS project records
+where each technique's job is (relative to the project) and reopens it with the project, unless a job with
+unsaved changes is open.
+
+### 7.6 Entry routes and results (FR-014, FR-017)
+
+- **Paste**: a block copied from a spreadsheet — rows on lines, cells between tabs — fills the grid from the
+  current cell; the selection, or the whole grid, copies back as one. Every edit can be undone.
+- **Open a toolbox document**: *Field book* opens the readings document the toolbox's *Import field book*
+  wrote, angles written in the job's convention to 0.0001″. Its precisions are not carried: *Job and instrument*'s
+  are used when the book is read again, and the window says so.
+- **Pick on the map**: a click, snapped where the project's snapping says, fills a coordinate in the job's CRS.
+- **Results**: the figures the algorithms returned, under the window's labels and in the display format; the
+  report the last algorithm wrote, shown as it wrote it; *Copy table* (the algorithm's CSV, every digit);
+  *Open report*; *Open results folder*; and the sketch — known points, computed points, a traverse's legs, a
+  radiation's, resection's or intersection's rays, a network's observed lines — which *Add … to the map*
+  turns into a labelled point layer the user owns.
+- **Result layers** (P14b): *Classical network* writes the algorithm's six result layers (FR-905) beside its
+  documents on every run, and *Add result layers to the map* adds those with features to a group of the
+  project, styled as a toolbox run styles them, carrying the properties the results panel reads, and named
+  with the exaggeration their geometry was drawn at (FR-901), read back from the features. Each is a copy in
+  memory: the files are in the window's results folder, which the next calculation replaces.
+
+### 7.7 Options (FR-016)
+
+A window's options are drawn from its algorithm's parameter definitions: the algorithm's labels with their
+units, its choices, its defaults — Global Settings, read when the window is opened — its ranges, and
+Basic/Advanced gating. A value is stored in the job only while it differs from the default; set back, the
+choice is the algorithm's again. A window may show a parameter Basic mode hides when it cannot be used
+without it: *Traverse* shows the closing coordinates of a connected traverse.
+
+The widgets are GeoComp's own: a number is typed into a text field and read as the grid reads one, with a
+point or a comma and every digit kept, and one outside the parameter's range is marked and not used. P14a
+first drew them with QGIS's `QgsProcessingGuiRegistry.createParameterWidgetWrapper`, which ended the process
+with a trap on QGIS 4.2 for macOS, on the CI runner, while Linux and Windows were fine.
+

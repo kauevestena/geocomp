@@ -4431,6 +4431,155 @@ this regression matrix.
 
 ---
 
+## P14 — The interactive menu
+
+**Goal.** Every item of the GeoComp menu opens an interactive window in which observations are typed — as
+the pre-analysis simulator already is, and as Posição's *Caderneta*, *Calc. Poligonal* and *Calc.
+Irradiações* are — while every Processing algorithm stays exactly as it is and remains the route for files.
+Maintainer's decision, 10 November 2026; [`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md).
+
+**Specs.** [`15-ui-menu-and-settings.md`](./15-ui-menu-and-settings.md) §7 ·
+[`17-persistence-and-interoperability.md`](./17-persistence-and-interoperability.md) §5.7 ·
+[`03-architecture.md`](./03-architecture.md) · [`09-module-total-station.md`](./09-module-total-station.md) ·
+[`16-processing-provider.md`](./16-processing-provider.md) · [`18-i18n-and-profiles.md`](./18-i18n-and-profiles.md) ·
+[`19-visualization.md`](./19-visualization.md)
+
+**Delivers.** In eight stages, one pull request each, each stopping for the maintainer's review:
+
+| Stage | What | Menu group |
+|---|---|---|
+| **P14a** | The window framework, the job file, and four windows: *Field book*, *Generalised pre-processing*, *Traverse*, *3D radiation* | Total Station |
+| **P14b** | *Resection*, *Forward intersection*, *Trigonometric levelling*, *Classical networks* | Total Station |
+| **P14c** | The levelling field book, the three schemes, closures and the network | Level |
+| P14d | The network workbench (inspect, adjust), the pre-analysis simulator in the frame, the DynAdjust trio, monitoring | Analysis |
+| P14e | Typed gravimeter readings, pre-processing, network | Gravimetry |
+| P14f | A session workbench (scan, products, the four modes, baselines, batch, compare) and a typed-baselines window | GNSS |
+| P14g | The four presets as one combination workbench | Integration |
+| P14h | A window for each Project item; the legacy launchers and their mechanism removed; the tutorials that name menu paths re-pointed | Project |
+
+Each stage repeats P14a's pattern: a `geocomp/jobs/` model of the group's typed data, windows over the
+group's unchanged algorithms, a *menu equals toolbox* test on the group's reference dataset, the
+specifications, and both catalogues.
+
+**Closes.** FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017
+
+**Exit.** No item of the GeoComp menu opens a Processing dialog: each opens a window, and
+`tests/test_registry.py`'s set of legacy launchers is empty and gone. Every window runs only the algorithms
+its registry entry declares, and computes nothing itself (`tests/structural/test_windows_compute_nothing.py`).
+Each technique's typed field book gives, through its windows, what the toolbox gives on the same book written
+as a file. Every file reader is in the toolbox. Both catalogues complete.
+
+#### P14a — the framework and the first four Total Station windows
+
+**Built.**
+- `geocomp/jobs/` — Qt-free: typed angles in four conventions, read strictly (`angles.py`); a table of
+  typed cells with undo, paste and copy (`tables.py`); the job file (`document.py`); chains of algorithms
+  declared as data, with a fingerprint of their inputs (`chains.py`); the total-station field book, its
+  emission as the importer's rows and mapping, its check by the importer's own reader, and the chains of the
+  four windows (`total_station.py`).
+- `geocomp/services/chain_runner.py` runs a chain as `QgsProcessingAlgRunnerTask`s, refusing an algorithm
+  its window does not declare; `services/jobs_service.py` holds each technique's job and the project's
+  memory of it.
+- `geocomp/gui/workbench/` — the guided frame, the grid, the options form built from an algorithm's
+  parameters, the run and results steps, the sketch and the map pick.
+- `geocomp/gui/windows/totalstation/` — the four windows; `registry.WINDOWS` declares them, and the four
+  algorithms they run lost their launchers. *Import field book with mapping preview…* moved to Plugins ▸
+  GeoComp.
+
+**Evidence.** RD-01 typed in degrees, minutes and seconds is read by the importer equal, quantity for
+quantity and to the last bit, to its CSV (`tests/test_jobs_total_station.py::TestTypedEqualsImported`);
+typed and pre-processed in the windows, it gives the toolbox's reductions document to the last bit, with both
+of its known defects (`tests/qgis/test_totalstation_windows.py::TestMenuEqualsToolbox`). The synthetic
+survey typed in both faces traverses and radiates in the windows to the toolbox's figures
+(`TestTraverse`, `TestRadiation`).
+
+**Not done in P14a**, stated rather than implied by a green tick:
+- The other 45 menu items still open their Processing dialogs — the legacy launchers P14b–P14h replace.
+- A one-pointing-at-a-time entry form (Posição's *por visada*); the grid (*por planilha*) only.
+- Horizontal angles turned counter-clockwise, and deflection angles; a start azimuth computed from the
+  backsight's coordinates. The traverse algorithm takes an azimuth, and the algorithms are not changed.
+- A readings document opened from the toolbox is re-read through the importer, so its precisions are the
+  *Field book* window's, not the document's.
+- Result layers beyond a points layer: Traverse and Radiation write no layer of their own; the styled
+  adjustment layers arrive with *Classical networks* in P14b.
+
+#### P14b — the rest of the Total Station menu
+
+**Built.**
+- `geocomp/gui/windows/totalstation/` — *Resection*, *Forward intersection*, *Classical network* and
+  *Trigonometric levelling*; `registry.WINDOWS` declares them, and their four algorithms lost their
+  launchers, so the Total Station submenu is all windows and the legacy launchers are 41.
+- `geocomp/jobs/total_station.py` — the known points read for a plane computation, with no height needed;
+  the *sightings*, a new table of the job, one azimuth per station; the four chains. A *Classical network* run
+  is given only the station list its datum reads, and the job's CRS unless the window was given another.
+- *Classical network* writes the algorithm's six result layers beside its documents on every run, and
+  *Add result layers to the map* adds them styled, grouped, named with their exaggeration
+  (`gui/workbench/layers.py`, `layers/builders.exaggerated_layer_name`), as copies in memory.
+- The known-points page, the map pick and *Use as a known point* are shared by the windows that need them
+  (`windows/totalstation/common.py`); an options form takes a window's own default for a parameter, which
+  is how the network's CRS is the job's.
+
+**Evidence.** The synthetic survey typed in both faces resects R from A, B and C, intersects R from A and B,
+levels radially and by leap-frog, and adjusts as a network, each to the toolbox's figures on the files the
+window's run wrote (`tests/qgis/test_totalstation_windows.py::TestResection`, `TestIntersection`,
+`TestTrigLevelling`, `TestNetwork`); L's balanced leap-frog gives the true height difference to 1e-6 m. The
+chains, below QGIS, in `tests/test_jobs_total_station.py::TestTheP14bChains`; the menu, in
+`tests/test_registry.py::TestWindows`.
+
+**Defects found, not fixed** — the algorithms are kept as they are (ADR-0010):
+- `geocomp:totalstation_trig_levelling` takes its two height parameters for every sight and does not read
+  the instrument and target heights the reductions carry, though its help says it uses the parameters only
+  where a reading has none. The window says which heights it uses.
+- With a *file* destination, `write_styled_sink` opens the layer to name it before the sink has closed it,
+  and GDAL logs that the file is not a supported format four times per layer. The files are complete
+  afterwards; the toolbox logs the same for a file output.
+
+**Not done in P14b**, stated rather than implied by a green tick:
+- The other 41 menu items still open their Processing dialogs — the legacy launchers P14c–P14h replace.
+- *Forward intersection* takes azimuths, not circle readings from the field book: orienting a reading is a
+  computation, and the algorithm takes azimuths. One point per run, one sighting per station, and one
+  precision for every sighting — the algorithm's per-sighting precision is not offered.
+- *Resection* offers directions only, as the algorithm does; resection by distances is not offered.
+- *Trigonometric levelling*'s height differences are not yet carried into a levelling job: the levelling
+  windows arrive in P14c.
+- *Classical network*'s sketch draws the stations and the observed lines, not the ellipses: those are in the
+  result layers.
+
+#### P14c — the Level menu
+
+**Built.**
+- `geocomp/jobs/levelling.py` — Qt-free: the levelling field book typed one row per staff reading, a
+  backsight opening a setup and a blank line carried down; emitted under the importer's own field names
+  with each number **as typed**, since the importer takes a sight distance's precision from its digits; a
+  book of three wires as soon as one row has one; the benchmarks, written as the network's own list; the six
+  chains. `services/jobs_service.py` holds a levelling job beside the total-station one.
+- `geocomp/gui/windows/level/` — *Levelling field book*, *Equal sights*, *Equidistant sights*, *Extreme
+  sights*, *Closures and tolerances* and *Levelling network adjustment*; `registry.WINDOWS` declares them,
+  and the six levelling algorithms lost their launchers, so the legacy launchers are 35.
+- `geocomp/gui/windows/book.py` — what the windows over a typed field book share: the book read once per
+  state of the job with the importer's own reader, the banner that sends the user to the field-book window,
+  the strip of cells and rows. The Total Station windows were moved onto it.
+
+**Evidence.** RD-04's books typed into the grid are read by the importer exactly as their CSV, setups and
+findings equal (`tests/test_jobs_levelling.py::TestTypedEqualsImported`); and in the windows, the balanced
+line reduces, the extreme-sights setup and the reciprocal crossing give their differences, and the loop
+closes and adjusts, each as the toolbox does on the same book written as CSV
+(`tests/qgis/test_level_windows.py::TestMenuEqualsToolbox`).
+
+**Not done in P14c**, stated rather than implied by a green tick:
+- The other 35 menu items still open their Processing dialogs — the legacy launchers P14d–P14h replace.
+- The setups document the toolbox's *Import levelling field book* writes does not open into the grid, as
+  the total-station readings document does.
+- *Levelling network adjustment* takes neither the station positions for the normal orthometric correction,
+  a point layer, nor *Trigonometric levelling*'s height differences from the total-station job. The first is
+  refused in its *Options* step, naming the toolbox; the second is reached from the toolbox.
+- *Closures and tolerances* closes one loop, or one line against a known difference typed as the algorithm's
+  parameter, not a difference worked out from the benchmarks.
+- One level per job: a book that changed instruments mid-way needs the toolbox, where each row can name its
+  level.
+
+---
+
 ## Mapping to the research project's 24-month schedule
 
 `tex §Cronograma de atividades` proposes six periods. The correspondence:

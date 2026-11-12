@@ -32,7 +32,6 @@ from pathlib import Path
 from typing import Any
 
 from qgis.core import (
-    QgsCoordinateReferenceSystem,
     QgsFeature,
     QgsField,
     QgsFields,
@@ -581,12 +580,16 @@ class PreAnalysisDialog(QDialog):
         return True
 
     def import_from_path(self, path: str) -> bool:
-        """Import a planned network from a ``.geojson`` / vector layer file or a GeoComp network JSON document."""
+        """Import a planned network from a file.
+
+        A ``.geojson`` or other vector layer file, or a GeoComp network JSON document.
+        """
         source = Path(path)
         if source.is_file() and source.suffix.lower() in {".geojson", ".json"}:
             try:
                 payload = json.loads(source.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, ValueError):
+                # Not a JSON document after all: read below as a vector layer.
                 payload = None
             if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
                 imported = DesignSession.from_geojson_dict(payload)
@@ -605,7 +608,7 @@ class PreAnalysisDialog(QDialog):
             elif isinstance(payload, dict):
                 try:
                     network = network_from_document(payload)
-                except Exception:
+                except Exception:  # noqa: BLE001 -- any refusal means "not a network document"
                     network = None
                 if network is not None:
                     self.session.load_network(network)
@@ -1086,7 +1089,7 @@ def _extract_point(geometry: QgsGeometry) -> tuple[float, float] | None:
         else:
             pt = geometry.asPoint()
             return float(pt.x()), float(pt.y())
-    except Exception:
+    except Exception:  # noqa: BLE001 -- a geometry QGIS cannot read is no point
         return None
     return None
 
@@ -1109,6 +1112,6 @@ def _extract_endpoints(
                 return (float(first.x()), float(first.y())), (float(last.x()), float(last.y()))
             point = geometry.asPoint()
             return (float(point.x()), float(point.y())), (float(point.x()), float(point.y()))
-    except Exception:
+    except Exception:  # noqa: BLE001 -- a geometry QGIS cannot read is no line
         return None
     return None
