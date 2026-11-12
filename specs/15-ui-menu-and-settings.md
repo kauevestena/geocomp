@@ -51,11 +51,17 @@ See [`09-module-total-station.md`](./09-module-total-station.md).
 > its mapping preview from Plugins ▸ GeoComp. The window keeps the algorithm's name, *Classical network*;
 > the proposal's plural names the kind of computation.
 
-**Level** → Import levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
+**Level** → Levelling field book · Equal sights · Equidistant sights · Extreme sights · Closures and
 tolerances · Levelling network adjustment. *(Six as built in P4, rather than the proposal's four: import and
 closures were implicit in the others and each produces a document the next step reads — see
 [`10`](./10-module-levelling.md) §1.)*
 See [`10-module-levelling.md`](./10-module-levelling.md).
+
+> **Since P14c every Level item is a window** (§7.2) over one typed levelling book. The first was *Import
+> levelling field book* until then, and is now *Levelling field book*, where the staff readings are typed —
+> named apart from the Total Station's *Field book* because their translations differ (*caderneta de
+> nivelamento*, *libreta de nivelación*). Importing a book *file* is the toolbox's *Import levelling field
+> book* (FR-015), which the windows run on the typed book.
 
 **Project** *(added in P5)* → Export solution tables · Adjustment report · Save to project store · Export
 project to PostGIS · Import project from PostGIS · Add base map · Create print layout · GeoComp system report ·
@@ -148,8 +154,8 @@ ADR-0005). The menu holds no second implementation. Consequences:
   structural test holds that no window imports a computation (§6, criterion 2).
 - **The menu is rebuilt one group at a time** (ROADMAP P14). Until its group's windows exist, an item is a
   **legacy launcher**, as every item was under ADR-0005: it opens the standard Processing dialog of its
-  algorithm. Their set may only shrink, and `tests/test_registry.py` pins it. After P14b it holds every item
-  except the eight Total Station windows.
+  algorithm. Their set may only shrink, and `tests/test_registry.py` pins it. After P14c it holds every item
+  except the eight Total Station and the six Level windows.
 - Window names are translated once (`geocomp/gui/windows/labels.py`); a launcher's name is its algorithm's
   `displayName()`, as before (FR-090).
 - A small, enumerated set of legacy launchers opens a custom dialog that collects parameters and then runs the
@@ -635,7 +641,8 @@ which the panel does not read.
 ## 7. Interactive windows (FR-010…FR-017)
 
 Added in P14a ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md)). Built so far: the eight
-Total Station windows of §7.2, four in P14a and four in P14b. The other groups follow in ROADMAP P14c–P14h.
+Total Station windows of §7.2, four in P14a and four in P14b, and the six Level windows, in P14c. The other
+groups follow in ROADMAP P14d–P14h.
 
 ### 7.1 Anatomy of a window (FR-010)
 
@@ -689,6 +696,35 @@ window's tooltip says to replace.
 parameters, and does not read the heights typed in the book's rows, though its help says it does where they
 are given. The window says so beside the two values. Recorded as a defect of the algorithm, not changed:
 ADR-0010 keeps every algorithm as it is.
+
+**The Level windows** *(P14c)* work on a second job, the levelling job, and read it with
+`geocomp:levelling_import` as the Total Station windows read theirs:
+
+| Window | Steps | Runs |
+|---|---|---|
+| **Levelling field book** | Job and instrument (name; profile library, level id, default staff-reading precision, stadia factor) → Levelling field book (the grid) → Check → Report | `levelling_import` |
+| **Equal sights** | Collimation and limits → Calculate → Results (lines reduced, the largest accumulated imbalance and standard deviation) | the import, then `levelling_equal_sights` |
+| **Equidistant sights** | Crossing (variance inflation, discrepancy tolerance; the pairs, as typed) → Calculate → Results | the import, then `levelling_equidistant_sights` |
+| **Extreme sights** | Options (the setups with several foresights, as typed) → Calculate → Results | the import, then `levelling_extreme_sights` |
+| **Closures and tolerances** | Closure and tolerance (loop, or a line against a known difference, shown only then) → Calculate → Results (misclosure, permissible, verdict, or none without *k*) | the import, equal sights, then `levelling_closures` |
+| **Levelling network adjustment** | Benchmarks (a table, or a free network) → Weighting → Options → Calculate → Results (global test, variance factor, degrees of freedom, outlier candidates, the largest height standard deviation, the heights) | the import, equal sights, then `levelling_network` |
+
+**The levelling grid.** One row per staff reading, as a *caderneta de nivelamento* is kept: line, setup,
+station, sight (`BS`/`FS`/`IS`, also typed `R`/`V`/`I`, *ré*, *vante*, *espalda*, *frente*), the reading,
+the upper and lower wires, the sight distance and a note. **A backsight opens a setup**: a backsight row with
+no setup typed starts the next, numbered in order, and the sights below it belong to it; a line left blank is
+the line above. **A number is passed on as it was typed**, a comma made a point and nothing re-printed,
+because the importer takes a sight distance's precision from its digits when nothing else gives one
+([`10`](./10-module-levelling.md) §6). **A book with an upper or a lower wire on any row is read as three
+wires throughout**, as the importer reads a file, and a row that lacks one is named. The level chosen in
+*Levelling field book* is the one every Level window reduces with. The benchmarks are a table of the job —
+name, height, and a standard deviation to hold one with a weight — written as the algorithm's own list,
+`BM1=100.000, BM2=103.750±0.002`.
+
+**What a Level window does not offer** is the network's station positions for the normal orthometric
+correction: a point layer, which the windows do not take. Turned on, the correction is refused in the
+*Options* step, which sends the user to the toolbox. A levelling network has no planimetry, so the Level
+windows draw no sketch.
 
 **The field-book grid.** One row per pointing: station, instrument height, target, face (`PD`/`PI`, also
 typed `1`/`2`, `F1`/`F2`, `FL`/`FR`, `CD`/`CI`), horizontal circle reading, vertical circle reading, slope distance,

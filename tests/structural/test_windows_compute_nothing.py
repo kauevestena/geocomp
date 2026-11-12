@@ -131,6 +131,21 @@ def test_the_chains_run_what_their_windows_declare():
         ts.WINDOW_NETWORK: ts.network_chain(book),
         ts.WINDOW_TRIG_LEVELLING: ts.trig_levelling_chain(book),
     }
+    from geocomp.jobs import levelling as lv
+
+    level = lv.LevellingBook(lv.new_job())
+    level.table.paste(0, "line", "L\tS1\tBM1\tBS\t1.5\nL\tS1\tT1\tFS\t1.2")
+    level.benchmarks.paste(0, "name", "BM1\t100")
+    chains.update(
+        {
+            lv.WINDOW_FIELD_BOOK: lv.import_chain(level),
+            lv.WINDOW_EQUAL: lv.equal_chain(level),
+            lv.WINDOW_EQUIDISTANT: lv.equidistant_chain(level),
+            lv.WINDOW_EXTREME: lv.extreme_chain(level),
+            lv.WINDOW_CLOSURES: lv.closures_chain(level),
+            lv.WINDOW_NETWORK: lv.network_chain(level),
+        }
+    )
     declared = {spec.name: spec.algorithm_ids for spec in WINDOWS}
     assert set(chains) == set(declared), "a window without a chain here is not checked"
     for window, chain in chains.items():

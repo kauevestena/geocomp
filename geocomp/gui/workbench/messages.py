@@ -165,6 +165,34 @@ TEMPLATES: dict[str, MessageTemplate] = {
         "Station '%1' has a sighting but no coordinates. Add it to the known points.",
         "station",
     ),
+    # -- the levelling field book and its benchmarks (P14c) ---------------------
+    "validation.level_book_cells_unreadable": MessageTemplate(
+        "%1 cell(s) of the levelling field book cannot be read. Correct the cells marked in "
+        "the Levelling field book window first.",
+        "count",
+    ),
+    "validation.level_book_empty": MessageTemplate(
+        "The levelling field book holds no reading yet. Enter the readings in the Levelling "
+        "field book window first.",
+    ),
+    "validation.benchmarks_unreadable": MessageTemplate(
+        "%1 cell(s) of the benchmarks cannot be read. Correct the cells marked.",
+        "count",
+    ),
+    "validation.benchmark_incomplete": MessageTemplate(
+        "Row %1 of the benchmarks lacks its name or its height. Give both, or remove the row.",
+        "row",
+    ),
+    "validation.benchmark_repeated": MessageTemplate(
+        "The benchmark '%1' is given twice. Remove one of its rows.",
+        "name",
+    ),
+    "validation.benchmark_name_unusable": MessageTemplate(
+        "The benchmark name '%1' holds one of %2, which the network's list of benchmarks is "
+        "written with. Rename it without them.",
+        "name",
+        "marks",
+    ),
 }
 
 for _code, _template in TEMPLATES.items():

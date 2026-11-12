@@ -467,6 +467,10 @@ one JSON file, `<name>.gcjob`, per technique's field book.
   made empty when the file has none, so one saved before a table was added opens too. P14b added
   `sightings`, the azimuths a forward intersection is computed from, to the total-station job; version 1 is
   unchanged.
+- **One job per technique.** P14c added the levelling job, `"technique": "levelling"`, whose tables are
+  `field_book` — `line`, `setup`, `station`, `sight`, `reading`, `upper`, `lower`, `distance`, `note` — and
+  `benchmarks` — `name`, `height`, `sigma` — and whose windows are the Level menu's. A job of one technique is
+  refused by the windows of another, by name.
 - **Options are the algorithms' parameters, by name**, and only those the user changed: a parameter left at
   its default is the algorithm's to decide, so a Global Setting changed later still applies.
 - **Results are not in the file.** They lie in `<name>_results/<window>/<step>/` beside it, and every file

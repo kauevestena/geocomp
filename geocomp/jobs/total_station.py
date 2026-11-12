@@ -402,6 +402,11 @@ class BookCheck:
         return tuple(finding for finding in self.findings if finding.is_blocking)
 
     @property
+    def entries(self) -> int:
+        """How many rows are observations: the pointings, as any technique's check counts them."""
+        return self.pointings
+
+    @property
     def is_usable(self) -> bool:
         """Whether the field book can be computed from: something typed, and nothing refused."""
         return (

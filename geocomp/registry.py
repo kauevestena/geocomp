@@ -266,7 +266,7 @@ class WindowSpec:
 #: The interactive windows. Phase P14a contributed the first four: the Total
 #: Station field book and the three computations of ``specs/09`` section 1 that
 #: need nothing typed beyond it and a few known points. P14b the other four, and
-#: with them the whole Total Station submenu is windows.
+#: with them the whole Total Station submenu is windows; P14c the Level menu.
 #:
 #: Their positions are the ones the same operations' launchers had, so the
 #: Total Station submenu reads in the order it always did.
@@ -373,6 +373,70 @@ WINDOWS: tuple[WindowSpec, ...] = (
         ),
         requirement="FR-011",
         technique="total_station",
+    ),
+    # -- P14c: the Level menu -------------------------------------------------
+    #
+    # The book is typed in the first; each of the other five runs the import
+    # and the algorithms the toolbox chain runs before its own.
+    WindowSpec(
+        name="levelling_fieldbook",
+        menu="level",
+        menu_order=10,
+        module="geocomp.gui.windows.level.fieldbook",
+        class_name="LevelFieldBookWindow",
+        algorithms=("levelling_import",),
+        requirement="FR-012",
+        technique="levelling",
+    ),
+    WindowSpec(
+        name="levelling_equal_sights",
+        menu="level",
+        menu_order=20,
+        module="geocomp.gui.windows.level.schemes",
+        class_name="EqualSightsWindow",
+        algorithms=("levelling_import", "levelling_equal_sights"),
+        requirement="FR-011",
+        technique="levelling",
+    ),
+    WindowSpec(
+        name="levelling_equidistant_sights",
+        menu="level",
+        menu_order=30,
+        module="geocomp.gui.windows.level.schemes",
+        class_name="EquidistantSightsWindow",
+        algorithms=("levelling_import", "levelling_equidistant_sights"),
+        requirement="FR-011",
+        technique="levelling",
+    ),
+    WindowSpec(
+        name="levelling_extreme_sights",
+        menu="level",
+        menu_order=40,
+        module="geocomp.gui.windows.level.schemes",
+        class_name="ExtremeSightsWindow",
+        algorithms=("levelling_import", "levelling_extreme_sights"),
+        requirement="FR-011",
+        technique="levelling",
+    ),
+    WindowSpec(
+        name="levelling_closures",
+        menu="level",
+        menu_order=50,
+        module="geocomp.gui.windows.level.adjustment",
+        class_name="ClosuresWindow",
+        algorithms=("levelling_import", "levelling_equal_sights", "levelling_closures"),
+        requirement="FR-011",
+        technique="levelling",
+    ),
+    WindowSpec(
+        name="levelling_network",
+        menu="level",
+        menu_order=60,
+        module="geocomp.gui.windows.level.adjustment",
+        class_name="LevelNetworkWindow",
+        algorithms=("levelling_import", "levelling_equal_sights", "levelling_network"),
+        requirement="FR-011",
+        technique="levelling",
     ),
 )
 
@@ -684,6 +748,9 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
     # -- Level (phase P4). The order of the work: get the book in, reduce it by
     # the scheme it was observed with, check the closures, adjust the network.
     #
+    # P14c: none has a launcher any more. The Level menu's items are windows
+    # (``WINDOWS``) over a typed levelling field book, which run these six.
+    #
     # Equal and extreme sights share an implementation and are still two
     # entries, because they answer different questions and produce different
     # things: equal sights reduces a *line* to one height difference between two
@@ -696,8 +763,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.import_book",
         class_name="ImportLevelBookAlgorithm",
         requirement="FR-160",
-        menu="level",
-        menu_order=10,
     ),
     AlgorithmSpec(
         operation="equal_sights",
@@ -705,8 +770,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.equal_sights",
         class_name="EqualSightsAlgorithm",
         requirement="FR-500",
-        menu="level",
-        menu_order=20,
     ),
     AlgorithmSpec(
         operation="equidistant_sights",
@@ -714,8 +777,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.equidistant_sights",
         class_name="EquidistantSightsAlgorithm",
         requirement="FR-501",
-        menu="level",
-        menu_order=30,
     ),
     AlgorithmSpec(
         operation="extreme_sights",
@@ -723,8 +784,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.extreme_sights",
         class_name="ExtremeSightsAlgorithm",
         requirement="FR-502",
-        menu="level",
-        menu_order=40,
     ),
     AlgorithmSpec(
         operation="closures",
@@ -732,8 +791,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.closures",
         class_name="LevellingClosureAlgorithm",
         requirement="FR-503",
-        menu="level",
-        menu_order=50,
     ),
     AlgorithmSpec(
         operation="network",
@@ -741,8 +798,6 @@ ALGORITHMS: tuple[AlgorithmSpec, ...] = (
         module="geocomp.algorithms.levelling.network_adjust",
         class_name="LevellingNetworkAlgorithm",
         requirement="FR-504",
-        menu="level",
-        menu_order=60,
     ),
 # -- Phase P7c: GNSS ------------------------------------------------
     #

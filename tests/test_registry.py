@@ -218,12 +218,6 @@ LEGACY_LAUNCHERS = frozenset(
         "integration_gnss_total_station",
         "integration_multiple",
         "integration_total_station_level",
-        "levelling_closures",
-        "levelling_equal_sights",
-        "levelling_equidistant_sights",
-        "levelling_extreme_sights",
-        "levelling_import",
-        "levelling_network",
         "monitoring_compare_epochs",
         "monitoring_report",
         "monitoring_time_series",
@@ -271,6 +265,18 @@ class TestWindows:
         ]
         assert not [spec for spec in ALGORITHMS if spec.menu == "total_station"]
 
+    def test_phase_p14c_made_the_level_menu_windows(self):
+        """The Level submenu, in the order its launchers stood: no item is a launcher."""
+        assert [spec.name for spec in windows_in_menu("level")] == [
+            "levelling_fieldbook",
+            "levelling_equal_sights",
+            "levelling_equidistant_sights",
+            "levelling_extreme_sights",
+            "levelling_closures",
+            "levelling_network",
+        ]
+        assert not [spec for spec in ALGORITHMS if spec.menu == "level"]
+
     def test_the_total_station_menu_keeps_its_order_once_rebuilt(self):
         """The windows take the positions their operations' launchers had."""
         assert [entry.name for entry in entries_in_menu("total_station")] == [
@@ -296,10 +302,12 @@ class TestWindows:
         """A Total Station window that ran a GNSS algorithm would be a second
         route into another technique's job, which the job files cannot hold."""
         groups = {algorithm.name: algorithm.group for algorithm in ALGORITHMS}
-        assert {groups[name] for name in spec.algorithms} == {"totalstation"}
+        group = {"total_station": "totalstation", "levelling": "levelling"}[spec.technique]
+        assert {groups[name] for name in spec.algorithms} == {group}
 
     def test_the_windows_of_a_technique_share_its_job(self):
         assert {spec.technique for spec in windows_in_menu("total_station")} == {"total_station"}
+        assert {spec.technique for spec in windows_in_menu("level")} == {"levelling"}
 
     def test_names_are_unique_across_windows_and_algorithms(self):
         """The menu item's object name is made from it, whichever kind it is."""
@@ -312,7 +320,7 @@ class TestWindows:
         assert entries_in_submenu("gnss", "absolute") == tuple(
             algorithms_in_submenu("gnss", "absolute")
         )
-        assert windows_in_menu("level") == ()
+        assert windows_in_menu("gnss") == ()
 
     def test_a_window_needs_an_algorithm(self):
         spec = WindowSpec("w", "level", 1, "m", "C", (), "FR-010", "level")

@@ -25,7 +25,7 @@ from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from geocomp.core.errors import GeoCompError
-from geocomp.jobs import total_station
+from geocomp.jobs import levelling, total_station
 from geocomp.jobs.chains import fingerprint
 from geocomp.jobs.document import Job
 from geocomp.services.logging import log
@@ -35,6 +35,7 @@ __all__ = ["TECHNIQUES", "JobsService"]
 #: Each technique's way of making an empty job and of opening a saved one.
 TECHNIQUES: dict[str, tuple[Callable[[], Job], Callable[[str | Path], Job]]] = {
     total_station.TECHNIQUE: (total_station.new_job, total_station.load_job),
+    levelling.TECHNIQUE: (levelling.new_job, levelling.load_job),
 }
 
 _PROJECT_SCOPE = "geocomp"

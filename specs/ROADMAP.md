@@ -4450,7 +4450,7 @@ Maintainer's decision, 10 November 2026; [`adr/0010-interactive-menu.md`](./adr/
 |---|---|---|
 | **P14a** | The window framework, the job file, and four windows: *Field book*, *Generalised pre-processing*, *Traverse*, *3D radiation* | Total Station |
 | **P14b** | *Resection*, *Forward intersection*, *Trigonometric levelling*, *Classical networks* | Total Station |
-| P14c | The levelling field book, the three schemes, closures and the network | Level |
+| **P14c** | The levelling field book, the three schemes, closures and the network | Level |
 | P14d | The network workbench (inspect, adjust), the pre-analysis simulator in the frame, the DynAdjust trio, monitoring | Analysis |
 | P14e | Typed gravimeter readings, pre-processing, network | Gravimetry |
 | P14f | A session workbench (scan, products, the four modes, baselines, batch, compare) and a typed-baselines window | GNSS |
@@ -4544,6 +4544,39 @@ chains, below QGIS, in `tests/test_jobs_total_station.py::TestTheP14bChains`; th
   windows arrive in P14c.
 - *Classical network*'s sketch draws the stations and the observed lines, not the ellipses: those are in the
   result layers.
+
+#### P14c — the Level menu
+
+**Built.**
+- `geocomp/jobs/levelling.py` — Qt-free: the levelling field book typed one row per staff reading, a
+  backsight opening a setup and a blank line carried down; emitted under the importer's own field names
+  with each number **as typed**, since the importer takes a sight distance's precision from its digits; a
+  book of three wires as soon as one row has one; the benchmarks, written as the network's own list; the six
+  chains. `services/jobs_service.py` holds a levelling job beside the total-station one.
+- `geocomp/gui/windows/level/` — *Levelling field book*, *Equal sights*, *Equidistant sights*, *Extreme
+  sights*, *Closures and tolerances* and *Levelling network adjustment*; `registry.WINDOWS` declares them,
+  and the six levelling algorithms lost their launchers, so the legacy launchers are 35.
+- `geocomp/gui/windows/book.py` — what the windows over a typed field book share: the book read once per
+  state of the job with the importer's own reader, the banner that sends the user to the field-book window,
+  the strip of cells and rows. The Total Station windows were moved onto it.
+
+**Evidence.** RD-04's books typed into the grid are read by the importer exactly as their CSV, setups and
+findings equal (`tests/test_jobs_levelling.py::TestTypedEqualsImported`); and in the windows, the balanced
+line reduces, the extreme-sights setup and the reciprocal crossing give their differences, and the loop
+closes and adjusts, each as the toolbox does on the same book written as CSV
+(`tests/qgis/test_level_windows.py::TestMenuEqualsToolbox`).
+
+**Not done in P14c**, stated rather than implied by a green tick:
+- The other 35 menu items still open their Processing dialogs — the legacy launchers P14d–P14h replace.
+- The setups document the toolbox's *Import levelling field book* writes does not open into the grid, as
+  the total-station readings document does.
+- *Levelling network adjustment* takes neither the station positions for the normal orthometric correction,
+  a point layer, nor *Trigonometric levelling*'s height differences from the total-station job. The first is
+  refused in its *Options* step, naming the toolbox; the second is reached from the toolbox.
+- *Closures and tolerances* closes one loop, or one line against a known difference typed as the algorithm's
+  parameter, not a difference worked out from the benchmarks.
+- One level per job: a book that changed instruments mid-way needs the toolbox, where each row can name its
+  level.
 
 ---
 

@@ -40,4 +40,13 @@ def window_label(name: str) -> str:
         "totalstation_intersection": _tr("Forward intersection"),
         "totalstation_network": _tr("Classical network"),
         "totalstation_trig_levelling": _tr("Trigonometric levelling"),
+        # A levelling field book is not a total station's, and the two are
+        # named apart: the translations differ (caderneta de campo, caderneta de
+        # nivelamento), and one source string can carry only one.
+        "levelling_fieldbook": _tr("Levelling field book"),
+        "levelling_equal_sights": _tr("Equal sights"),
+        "levelling_equidistant_sights": _tr("Equidistant sights"),
+        "levelling_extreme_sights": _tr("Extreme sights"),
+        "levelling_closures": _tr("Closures and tolerances"),
+        "levelling_network": _tr("Levelling network adjustment"),
     }.get(name, name.replace("_", " ").capitalize())

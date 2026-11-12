@@ -24,6 +24,12 @@ Geometric (differential) levelling. Small module, high leverage: it reuses the a
 Six rather than the proposal's four. Import and closures were implicit in the other four and are separate
 algorithms because each produces a document the next step reads (ADR-0005: one capability, one algorithm).
 
+**Since P14c the menu items are windows** ([`adr/0010-interactive-menu.md`](./adr/0010-interactive-menu.md),
+[`15`](./15-ui-menu-and-settings.md) §7.2) over one typed levelling book: *Levelling field book*, where
+the staff readings are typed, and a window for each of the five computations, each running the import and
+these same algorithms on the book. The algorithms are unchanged; *Import levelling field book* reads a
+book's file from the toolbox (FR-015).
+
 **Equal and extreme sights share an implementation and are still two entries.** They answer different
 questions and produce different things: equal sights reduces a *line* to one height difference between two
 marks, extreme sights reduces a *setup* to several that are correlated with each other — which is the whole

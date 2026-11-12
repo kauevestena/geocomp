@@ -5,6 +5,31 @@ major ([`specs/21-packaging-ci-release-licensing.md`](specs/21-packaging-ci-rele
 
 ## [Unreleased]
 
+### P14c — The Level menu becomes interactive windows
+
+The third of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Level
+menu is now a window over one typed levelling book; the algorithms are unchanged.
+
+#### Added
+
+- **Level ▸ Levelling field book…** — the level (profile library, level id, default staff-reading
+  precision, stadia factor) and a grid with one row per staff reading: line, setup, station, sight (`BS`,
+  `FS`, `IS`, or `R`, `V`, `I`), reading, upper and lower wires, sight distance, note. A backsight opens a
+  setup; a blank line is the line above; a number reaches the importer as typed. Checked by *Import
+  levelling field book*, each refused row named by its row number.
+- **Level ▸ Equal sights…, Equidistant sights…, Extreme sights…** — each scheme's options, with the setups
+  it will read listed as typed, its figures, its report and its table.
+- **Level ▸ Closures and tolerances…** — a loop, or a line against a known difference, with the verdict or
+  the statement that there is none without a tolerance coefficient.
+- **Level ▸ Levelling network adjustment…** — benchmarks typed as a table, held exactly or with a weight, or
+  a free network; the weighting and the statistics; the adjusted heights.
+- A levelling job file, beside the total-station one: each technique keeps its own.
+
+#### Changed
+
+- The six levelling algorithms no longer have menu items of their own; *Import levelling field book* is the
+  toolbox's file route. The menu's other 35 items still open their Processing dialogs.
+
 ### P14b — The rest of the Total Station menu: resection, intersection, network, trigonometric levelling
 
 The second of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Total

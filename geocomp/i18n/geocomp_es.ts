@@ -3738,6 +3738,285 @@
         </message>
     </context>
     <context>
+        <name>GeoCompLevelWindows</name>
+        <message>
+            <source>A backsight opens a setup, and the foresights and intermediate sights below it belong to it; a setup left unnamed is numbered in order. A line left blank is the line above. Type the upper and lower wires on every row, or on none: a book with one is read as three wires throughout.</source>
+            <translation>Una visual de espalda abre un estacionamiento, y las visuales de frente e intermedias bajo ella le pertenecen; un estacionamiento sin nombre se numera en orden. Una línea dejada en blanco es la línea de arriba. Escriba los hilos superior e inferior en todas las filas, o en ninguna: una libreta con uno de ellos se lee entera como de tres hilos.</translation>
+        </message>
+        <message>
+            <source>A benchmark with no standard deviation is held exactly; one with a standard deviation is held with that weight. A free network ignores them, and shows the readings' own consistency without a datum's errors mixed in.</source>
+            <translation>Un punto de referencia sin desviación típica se mantiene fijo; uno con desviación típica se mantiene con ese peso. Una red libre los ignora, y muestra la consistencia de las propias lecturas sin los errores de un datum mezclados.</translation>
+        </message>
+        <message>
+            <source>A reduced line carries the uncertainty propagated from its readings. A coefficient per root kilometre or per root setup replaces it with the model of the weighting chosen; zero keeps the propagated one.</source>
+            <translation>Una línea reducida lleva la incertidumbre propagada de sus lecturas. Un coeficiente por raíz de kilómetro o por raíz de estacionamiento la sustituye por el modelo de la ponderación elegida; cero mantiene la propagada.</translation>
+        </message>
+        <message>
+            <source>Benchmark</source>
+            <translation>Punto de referencia</translation>
+        </message>
+        <message>
+            <source>Benchmarks</source>
+            <translation>Puntos de referencia</translation>
+        </message>
+        <message>
+            <source>Calculate</source>
+            <translation>Calcular</translation>
+        </message>
+        <message>
+            <source>Check</source>
+            <translation>Verificar</translation>
+        </message>
+        <message>
+            <source>Check the levelling field book</source>
+            <translation>Verificar la libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Closure and tolerance</source>
+            <translation>Cierre y tolerancia</translation>
+        </message>
+        <message>
+            <source>Collimation and limits</source>
+            <translation>Colimación y límites</translation>
+        </message>
+        <message>
+            <source>Crossing</source>
+            <translation>Travesía</translation>
+        </message>
+        <message>
+            <source>Crossings</source>
+            <translation>Travesías</translation>
+        </message>
+        <message>
+            <source>Crossings, as typed: %1.</source>
+            <translation>Travesías, como se escribieron: %1.</translation>
+        </message>
+        <message>
+            <source>Degrees of freedom</source>
+            <translation>Grados de libertad</translation>
+        </message>
+        <message>
+            <source>Fails: see the report</source>
+            <translation>Falla: vea el informe</translation>
+        </message>
+        <message>
+            <source>Give at least one benchmark's height, or adjust the network free.</source>
+            <translation>Dé la altitud de al menos un punto de referencia, o ajuste la red libre.</translation>
+        </message>
+        <message>
+            <source>Global test</source>
+            <translation>Prueba global</translation>
+        </message>
+        <message>
+            <source>Height (m)</source>
+            <translation>Altitud (m)</translation>
+        </message>
+        <message>
+            <source>Height differences</source>
+            <translation>Desniveles</translation>
+        </message>
+        <message>
+            <source>Job and instrument</source>
+            <translation>Trabajo e instrumento</translation>
+        </message>
+        <message>
+            <source>Job name</source>
+            <translation>Nombre del trabajo</translation>
+        </message>
+        <message>
+            <source>Largest accumulated imbalance</source>
+            <translation>Mayor desequilibrio acumulado</translation>
+        </message>
+        <message>
+            <source>Largest discrepancy</source>
+            <translation>Mayor discrepancia</translation>
+        </message>
+        <message>
+            <source>Largest height standard deviation</source>
+            <translation>Mayor desviación típica de altitud</translation>
+        </message>
+        <message>
+            <source>Largest standard deviation</source>
+            <translation>Mayor desviación típica</translation>
+        </message>
+        <message>
+            <source>Levelling field book</source>
+            <translation>Libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Line</source>
+            <translation>Línea</translation>
+        </message>
+        <message>
+            <source>Lines</source>
+            <translation>Líneas</translation>
+        </message>
+        <message>
+            <source>Lines reduced</source>
+            <translation>Líneas reducidas</translation>
+        </message>
+        <message>
+            <source>Lower wire (m)</source>
+            <translation>Hilo inferior (m)</translation>
+        </message>
+        <message>
+            <source>Middle wire (m)</source>
+            <translation>Hilo medio (m)</translation>
+        </message>
+        <message>
+            <source>Misclosure</source>
+            <translation>Error de cierre</translation>
+        </message>
+        <message>
+            <source>No setup of the book has several foresights. Extreme sights is for a setup that read several points from one backsight.</source>
+            <translation>Ningún estacionamiento de la libreta tiene varias visuales de frente. Visuales extremas es para un estacionamiento que leyó varios puntos desde una espalda.</translation>
+        </message>
+        <message>
+            <source>Not judged</source>
+            <translation>No juzgado</translation>
+        </message>
+        <message>
+            <source>Not read in the field book, so holding nothing: %1.</source>
+            <translation>No leídos en la libreta de campo, por lo tanto no mantienen nada: %1.</translation>
+        </message>
+        <message>
+            <source>Not tested: no redundancy</source>
+            <translation>No probado: sin redundancia</translation>
+        </message>
+        <message>
+            <source>Note</source>
+            <translation>Nota</translation>
+        </message>
+        <message>
+            <source>Open the levelling field book</source>
+            <translation>Abrir la libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Options</source>
+            <translation>Opciones</translation>
+        </message>
+        <message>
+            <source>Out of tolerance: see the report</source>
+            <translation>Fuera de tolerancia: vea el informe</translation>
+        </message>
+        <message>
+            <source>Outlier candidates</source>
+            <translation>Candidatos a error grosero</translation>
+        </message>
+        <message>
+            <source>Passes</source>
+            <translation>Pasa</translation>
+        </message>
+        <message>
+            <source>Permissible</source>
+            <translation>Admisible</translation>
+        </message>
+        <message>
+            <source>Reading (m)</source>
+            <translation>Lectura (m)</translation>
+        </message>
+        <message>
+            <source>Rejected rows</source>
+            <translation>Filas rechazadas</translation>
+        </message>
+        <message>
+            <source>Report</source>
+            <translation>Informe</translation>
+        </message>
+        <message>
+            <source>Results</source>
+            <translation>Resultados</translation>
+        </message>
+        <message>
+            <source>Setup</source>
+            <translation>Estacionamiento</translation>
+        </message>
+        <message>
+            <source>Setups</source>
+            <translation>Estacionamientos</translation>
+        </message>
+        <message>
+            <source>Setups with several foresights, as typed: %1.</source>
+            <translation>Estacionamientos con varias visuales de frente, como se escribieron: %1.</translation>
+        </message>
+        <message>
+            <source>Sight (BS / FS / IS)</source>
+            <translation>Visual (E / F / I)</translation>
+        </message>
+        <message>
+            <source>Sight distance (m)</source>
+            <translation>Distancia de visual (m)</translation>
+        </message>
+        <message>
+            <source>Standard deviation (m)</source>
+            <translation>Desviación típica (m)</translation>
+        </message>
+        <message>
+            <source>Station</source>
+            <translation>Estación</translation>
+        </message>
+        <message>
+            <source>The book has %1 setup(s): an odd number, so one has no partner from the other bank.</source>
+            <translation>La libreta tiene %1 estacionamiento(s): un número impar, por lo tanto uno no tiene pareja en la otra orilla.</translation>
+        </message>
+        <message>
+            <source>The level's reading precision weights every reading. Without a profile library a generic level is assumed, and the report says so. The level chosen here is the one every Level window reduces with.</source>
+            <translation>La precisión de lectura del nivel pondera cada lectura. Sin una biblioteca de perfiles se supone un nivel genérico, y el informe lo dice. El nivel elegido aquí es el que usan todas las ventanas de Nivel en las reducciones.</translation>
+        </message>
+        <message>
+            <source>The normal orthometric correction needs each station's latitude, from a layer of their positions, which this window does not take. Turn it off here, or run Levelling network adjustment from the toolbox with that layer.</source>
+            <translation>La corrección ortométrica normal necesita la latitud de cada estación, de una capa con sus posiciones, que esta ventana no recibe. Desactívela aquí, o ejecute el Ajuste de red de nivelación desde la caja de herramientas con esa capa.</translation>
+        </message>
+        <message>
+            <source>The setups are paired in the book's order: the first with the second, the third with the fourth, each pair one setup from each bank. Refraction over water is why the uncertainty is inflated.</source>
+            <translation>Los estacionamientos se emparejan en el orden de la libreta: el primero con el segundo, el tercero con el cuarto, cada pareja con un estacionamiento en cada orilla. La refracción sobre el agua es la razón de que la incertidumbre se infle.</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters. The level is the one chosen in the Levelling field book window.</source>
+            <translation>Estos son los propios parámetros del algoritmo. El nivel es el elegido en la ventana Libreta de nivelación.</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters. The level is the one chosen in the Levelling field book window; a collimation given here overrides its profile's, and zero keeps it.</source>
+            <translation>Estos son los propios parámetros del algoritmo. El nivel es el elegido en la ventana Libreta de nivelación; una colimación dada aquí sustituye la de su perfil, y cero la mantiene.</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters. The lines are reduced by equal sights first, with the Equal sights window's collimation and limits.</source>
+            <translation>Estos son los propios parámetros del algoritmo. Las líneas se reducen primero por visuales iguales, con la colimación y los límites de la ventana Visuales iguales.</translation>
+        </message>
+        <message>
+            <source>These are the algorithm's own parameters. The lines are reduced by equal sights first, with the Equal sights window's collimation and limits. With no tolerance coefficient the misclosure is reported without a verdict.</source>
+            <translation>Estos son los propios parámetros del algoritmo. Las líneas se reducen primero por visuales iguales, con la colimación y los límites de la ventana Visuales iguales. Sin coeficiente de tolerancia, el error de cierre se informa sin veredicto.</translation>
+        </message>
+        <message>
+            <source>Upper wire (m)</source>
+            <translation>Hilo superior (m)</translation>
+        </message>
+        <message>
+            <source>Variance factor</source>
+            <translation>Factor de varianza</translation>
+        </message>
+        <message>
+            <source>Verdict</source>
+            <translation>Veredicto</translation>
+        </message>
+        <message>
+            <source>Weighting</source>
+            <translation>Ponderación</translation>
+        </message>
+        <message>
+            <source>What you call this levelling</source>
+            <translation>Cómo llama a esta nivelación</translation>
+        </message>
+        <message>
+            <source>Within tolerance</source>
+            <translation>Dentro de la tolerancia</translation>
+        </message>
+        <message>
+            <source>none: no tolerance coefficient</source>
+            <translation>ninguno: sin coeficiente de tolerancia</translation>
+        </message>
+    </context>
+    <context>
         <name>GeoCompLevelling</name>
         <message>
             <source>'%1' could not be read as an instrument profile library. %2</source>
@@ -4093,12 +4372,20 @@
             <translation>%1 no puede aplicarse a valores en %2: las unidades no sirven a la operación. Este es un error interno; por favor, infórmelo.</translation>
         </message>
         <message>
+            <source>%1 cell(s) of the benchmarks cannot be read. Correct the cells marked.</source>
+            <translation>%1 celda(s) de los puntos de referencia no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
             <source>%1 cell(s) of the field book cannot be read. Correct the cells marked in the Field book window first.</source>
             <translation>%1 celda(s) de la libreta de campo no se puede(n) leer. Corrija primero las celdas marcadas en la ventana Libreta de campo.</translation>
         </message>
         <message>
             <source>%1 cell(s) of the known points cannot be read. Correct the cells marked.</source>
             <translation>%1 celda(s) de los puntos conocidos no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
+            <source>%1 cell(s) of the levelling field book cannot be read. Correct the cells marked in the Levelling field book window first.</source>
+            <translation>%1 celda(s) de la libreta de nivelación no se puede(n) leer. Corrija primero las celdas marcadas en la ventana Libreta de nivelación.</translation>
         </message>
         <message>
             <source>%1 finished without writing a solution file. Its own message: %2. Its working files are in %3. Look there, and at its message, for the cause.</source>
@@ -5249,6 +5536,10 @@
             <translation>La fila %1 del archivo de umbrales de alerta no se puede leer: '%2'. Se esperaba un límite positivo en metros, o en metros por año para una velocidad. Cada fila es tipo, límite, estaciones, grupo; corrija esa fila.</translation>
         </message>
         <message>
+            <source>Row %1 of the benchmarks lacks its name or its height. Give both, or remove the row.</source>
+            <translation>A la fila %1 de los puntos de referencia le falta el nombre o la altitud. Dé ambos, o elimine la fila.</translation>
+        </message>
+        <message>
             <source>Row %1 of the gravimeter's calibration table does not increase; the counter readings must increase strictly down the table. Check the table's order against the manufacturer's calibration sheet.</source>
             <translation>La fila %1 de la tabla de calibración del gravímetro no aumenta; las lecturas de contador deben aumentar estrictamente a lo largo de la tabla. Compruebe el orden de la tabla con la hoja de calibración del fabricante.</translation>
         </message>
@@ -5729,6 +6020,14 @@
             <translation>El punto de referencia '%1' es una restricción ponderada sin incertidumbre, lo que es una restricción fija con otro nombre. Dé una incertidumbre a su altura, o manténgalo fijo.</translation>
         </message>
         <message>
+            <source>The benchmark '%1' is given twice. Remove one of its rows.</source>
+            <translation>El punto de referencia '%1' se dio dos veces. Elimine una de sus filas.</translation>
+        </message>
+        <message>
+            <source>The benchmark name '%1' holds one of %2, which the network's list of benchmarks is written with. Rename it without them.</source>
+            <translation>El nombre del punto de referencia '%1' contiene uno de %2, con los que se escribe la lista de puntos de referencia de la red. Cámbielo sin ellos.</translation>
+        </message>
+        <message>
             <source>The calibration factor of the gravimeter '%1' is %2; it must be a positive number close to 1. Check the factor in the gravimeter's profile against its calibration certificate.</source>
             <translation>El factor de calibración del gravímetro '%1' es %2; debe ser un número positivo cercano a 1. Compruebe el factor en el perfil del gravímetro con su certificado de calibración.</translation>
         </message>
@@ -6175,6 +6474,10 @@
         <message>
             <source>The levelling book has no data: it needs a header row and at least one row of readings. Check that you chose the book the level exported.</source>
             <translation>La libreta de nivelación no tiene datos: necesita una fila de encabezado y al menos una fila de lecturas. Compruebe que eligió la libreta que exportó el nivel.</translation>
+        </message>
+        <message>
+            <source>The levelling field book holds no reading yet. Enter the readings in the Levelling field book window first.</source>
+            <translation>La libreta de nivelación aún no tiene ninguna lectura. Escriba primero las lecturas en la ventana Libreta de nivelación.</translation>
         </message>
         <message>
             <source>The levelling line '%1' breaks at setup '%2': its backsight is on %3, where %4 was expected, the first foresight of setup %5. A line advances through each setup's first foresight; the others are side shots. Check that setup's backsight, and the order of the setups before it.</source>
@@ -9451,18 +9754,6 @@
     <context>
         <name>GeoCompTotalStationWindows</name>
         <message>
-            <source>%1 Put it right in the Field book window.</source>
-            <translation>%1 Corríjalo en la ventana Libreta de campo.</translation>
-        </message>
-        <message>
-            <source>%1 cell(s) of the field book cannot be read. Correct the cells marked.</source>
-            <translation>%1 celda(s) de la libreta de campo no se puede(n) leer. Corrija las celdas marcadas.</translation>
-        </message>
-        <message>
-            <source>%1 row(s) of the field book are rejected. Correct them: each is named below.</source>
-            <translation>%1 fila(s) de la libreta de campo fue(ron) rechazada(s). Corríjala(s): cada una se indica abajo.</translation>
-        </message>
-        <message>
             <source>A change of convention does not rewrite what is typed: the cells are read again in the new one, and any that no longer reads is marked.</source>
             <translation>Cambiar la convención no reescribe lo escrito: las celdas se leen de nuevo en la nueva convención, y cualquiera que ya no pueda leerse queda marcada.</translation>
         </message>
@@ -9915,10 +10206,6 @@
             <translation>Recorrido, en el orden de ocupación</translation>
         </message>
         <message>
-            <source>Row %1, %2: %3</source>
-            <translation>Fila %1, %2: %3</translation>
-        </message>
-        <message>
             <source>Semi-major axis</source>
             <translation>Semieje mayor</translation>
         </message>
@@ -9993,10 +10280,6 @@
         <message>
             <source>The field book has no setup at '%1'. Choose one of its stations.</source>
             <translation>La libreta de campo no tiene estacionamiento en '%1'. Elija una de sus estaciones.</translation>
-        </message>
-        <message>
-            <source>The field book is empty. Type the observations in its grid, or paste them from a spreadsheet.</source>
-            <translation>La libreta de campo está vacía. Escriba las observaciones en su cuadrícula, o péguelas desde una hoja de cálculo.</translation>
         </message>
         <message>
             <source>The instrument's precisions weight every reading. Without a profile library, a generic total station is assumed and the results are marked approximate.</source>
@@ -10138,12 +10421,40 @@
     <context>
         <name>GeoCompWindows</name>
         <message>
+            <source>%1 Put it right in the %2 window.</source>
+            <translation>%1 Corríjalo en la ventana %2.</translation>
+        </message>
+        <message>
+            <source>%1 cell(s) of the field book cannot be read. Correct the cells marked.</source>
+            <translation>%1 celda(s) de la libreta de campo no se puede(n) leer. Corrija las celdas marcadas.</translation>
+        </message>
+        <message>
+            <source>%1 row(s) of the field book are rejected. Correct them: each is named below.</source>
+            <translation>%1 fila(s) de la libreta de campo fue(ron) rechazada(s). Corríjala(s): cada una se indica abajo.</translation>
+        </message>
+        <message>
             <source>3D radiation</source>
             <translation>Radiación 3D</translation>
         </message>
         <message>
             <source>Classical network</source>
             <translation>Red clásica</translation>
+        </message>
+        <message>
+            <source>Closures and tolerances</source>
+            <translation>Cierres y tolerancias</translation>
+        </message>
+        <message>
+            <source>Equal sights</source>
+            <translation>Visuales iguales</translation>
+        </message>
+        <message>
+            <source>Equidistant sights</source>
+            <translation>Visuales equidistantes</translation>
+        </message>
+        <message>
+            <source>Extreme sights</source>
+            <translation>Visuales extremas</translation>
         </message>
         <message>
             <source>Field book</source>
@@ -10158,8 +10469,24 @@
             <translation>Preprocesamiento generalizado</translation>
         </message>
         <message>
+            <source>Levelling field book</source>
+            <translation>Libreta de nivelación</translation>
+        </message>
+        <message>
+            <source>Levelling network adjustment</source>
+            <translation>Ajuste de red de nivelación</translation>
+        </message>
+        <message>
             <source>Resection</source>
             <translation>Intersección inversa</translation>
+        </message>
+        <message>
+            <source>Row %1, %2: %3</source>
+            <translation>Fila %1, %2: %3</translation>
+        </message>
+        <message>
+            <source>The field book is empty. Type the observations in its grid, or paste them from a spreadsheet.</source>
+            <translation>La libreta de campo está vacía. Escriba las observaciones en su cuadrícula, o péguelas desde una hoja de cálculo.</translation>
         </message>
         <message>
             <source>Traverse</source>

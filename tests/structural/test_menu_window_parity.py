@@ -146,8 +146,9 @@ def test_every_window_implementation_is_registered():
                 continue
             bases = {b.id for b in node.bases if isinstance(b, ast.Name)}
             # A technique's shared base names itself after the technique, and is
-            # not a window: it has no steps of its own.
-            if bases & {"Workbench", "TotalStationWindow"} and node.name != "TotalStationWindow":
+            # not a window: it has no steps of its own; nor is the one they share.
+            shared = {"BookWindow", "TotalStationWindow", "LevelWindow"}
+            if bases & ({"Workbench"} | shared) and node.name not in shared:
                 if (dotted, node.name) not in declared:
                     unregistered.append(f"{dotted}.{node.name}")
     assert not unregistered, (
