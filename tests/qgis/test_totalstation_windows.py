@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 from pathlib import Path
 
@@ -44,6 +45,26 @@ def wait(window, seconds: float = 120.0) -> None:
         QCoreApplication.processEvents()
         time.sleep(0.005)
     QCoreApplication.processEvents()
+
+
+def files_held_in(folder: Path) -> list[str]:
+    """The files under *folder* this process has open, where the system lists them.
+
+    Linux lists them in ``/proc``; elsewhere none are known, and a file held
+    open shows instead as a folder that cannot be moved -- on Windows.
+    """
+    descriptors = Path("/proc/self/fd")
+    if not descriptors.is_dir():
+        return []
+    held = []
+    for descriptor in descriptors.iterdir():
+        try:
+            target = os.readlink(descriptor)
+        except OSError:
+            continue
+        if target.startswith(str(folder)):
+            held.append(target)
+    return sorted(held)
 
 
 def calculate(window):
@@ -782,14 +803,45 @@ class TestNetwork:
             styles = {layer.customProperty(RESULT_LAYER_PROPERTY) for layer in added}
             assert styles >= {"stations", "ellipses"}
             assert all(layer.providerType() == "memory" for layer in added), "the results folder is not held"
+            assert not files_held_in(network.results_folder()), "nor is a file of it, by GDAL"
             group = project.layerTreeRoot().findGroup("Classical network (untitled job)")
             assert group is not None and len(group.findLayers()) == len(added)
+            # So the next calculation can replace the folder -- on Windows too,
+            # where a file still held would stop it.
+            calculate(network)
+            assert network.adjusted().keys() == set(syn.COORDINATES)
+            assert len(network.observed_pairs()) == 11
         finally:
             for layer_id in set(project.mapLayers()) - before:
                 project.removeMapLayer(layer_id)
             group = project.layerTreeRoot().findGroup("Classical network (untitled job)")
             if group is not None:
                 project.layerTreeRoot().removeChildNode(group)
+
+    def test_a_result_held_open_is_kept_whole(self, network, monkeypatch):
+        """Where a file of the last result is held open, the new one waits; nothing is half deleted.
+
+        Windows refuses to move a folder while a file in it is open -- a report
+        in a browser, a table in a spreadsheet. The refusal is played here.
+        """
+        final = network.results_folder()
+        before = {path.relative_to(final): path.read_bytes() for path in final.rglob("*.*")}
+        rename = Path.rename
+
+        def refused(path, target):
+            if path == final:
+                raise PermissionError(13, "The file is in use by another process", str(path))
+            return rename(path, target)
+
+        monkeypatch.setattr(Path, "rename", refused)
+        network.refresh()
+        assert network.calculate()
+        wait(network)
+        assert "could not be put in" in network.run_page.status.text()
+        after = {path.relative_to(final): path.read_bytes() for path in final.rglob("*.*")}
+        assert after == before
+        assert network.adjusted().keys() == set(syn.COORDINATES)
+        assert len(network.observed_pairs()) == 11
 
     def test_the_network_is_drawn(self, network):
         # Eight approximate points, eight adjusted ones, and a line per pair observed.

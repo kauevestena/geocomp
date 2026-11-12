@@ -15,6 +15,7 @@ invented.
 
 from __future__ import annotations
 
+import shutil
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -26,6 +27,7 @@ from qgis.core import (
     QgsGeometry,
     QgsPalLayerSettings,
     QgsPoint,
+    QgsProcessingUtils,
     QgsProject,
     QgsVectorLayer,
     QgsVectorLayerSimpleLabeling,
@@ -102,6 +104,29 @@ def add_points_layer(
     return layer
 
 
+def _copied_into_memory(path: Path, name: str) -> QgsVectorLayer | None:
+    """The layer in *path* as a copy in memory; ``None`` if it has no features.
+
+    Copied, as the points layers are: the file is in the window's results
+    folder, which the next calculation replaces, and a layer still reading it
+    would lose its data or hold the folder open.
+
+    And read from a copy of the file, not from the file. Deleting a layer does
+    not let go of its file: GDAL's connection pool keeps it open until Qt next
+    deletes what was left for later, and on Windows the calculation that
+    replaces the folder can come first -- and then cannot move it. A copy in
+    the temporary folder may be held as long as GDAL likes.
+    """
+    copy = QgsProcessingUtils.generateTempFilename(path.name)
+    shutil.copyfile(path, copy)
+    source = QgsVectorLayer(copy, name, "ogr")
+    if not source.isValid() or source.featureCount() == 0:
+        return None
+    layer = source.materialize(QgsFeatureRequest())
+    layer.setName(name)
+    return layer
+
+
 def add_result_layers(
     files: Mapping[str, Path],
     *,
@@ -141,15 +166,9 @@ def add_result_layers(
         path = files.get(name)
         if path is None:
             continue
-        source = QgsVectorLayer(str(path), labels.get(name, name), "ogr")
-        if not source.isValid() or source.featureCount() == 0:
+        layer = _copied_into_memory(path, labels.get(name, name))
+        if layer is None:
             continue
-        # Copied into memory, as the points layers are: the file is in the
-        # window's results folder, which the next calculation replaces, and a
-        # layer still reading it would lose its data or hold the folder open.
-        layer = source.materialize(QgsFeatureRequest())
-        del source
-        layer.setName(labels.get(name, name))
         first = next(layer.getFeatures(), None)
         if first is not None and first.fieldNameIndex("exaggeration") >= 0:
             confidence = (

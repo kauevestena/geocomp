@@ -30,6 +30,16 @@ menu is now a window over one typed levelling book; the algorithms are unchanged
 - The six levelling algorithms no longer have menu items of their own; *Import levelling field book* is the
   toolbox's file route. The menu's other 35 items still open their Processing dialogs.
 
+#### Fixed
+
+- **On Windows, a calculation after *Add result layers to the map* half deleted the last result.** The
+  layers were copied into memory, but GDAL's connection pool kept their files open until Qt next ran its
+  deferred deletions; the next calculation deleted the results folder file by file, stopped at the first
+  file held, and left a result missing its tables. The layers are now read from a temporary copy of each
+  file, and the last result is moved aside whole before the new one takes its place, so a file held open
+  -- by GDAL, a browser or a spreadsheet -- costs the new result its place, never the old one its files.
+  Found by the Windows QGIS 4.2 job of CI; the Linux and macOS runs could not see it.
+
 ### P14b — The rest of the Total Station menu: resection, intersection, network, trigonometric levelling
 
 The second of the eight stages of [ADR-0010](specs/adr/0010-interactive-menu.md). Every item of the Total

@@ -480,9 +480,13 @@ one JSON file, `<name>.gcjob`, per technique's field book.
 - **Saving is atomic**: written beside the destination and moved over it.
 - **So is a result.** A run writes in `<name>_results/.<window>.running/` and is moved over
   `<window>/` only when every algorithm succeeded, so a failed run never costs the last good result. Where
-  the folder cannot be moved -- on Windows, while a file in it is still open -- it is copied instead. A
-  layer added to the map from a result is a copy in memory, so it holds no file of the folder the next run
-  replaces.
+  the folder cannot be moved -- on Windows, while a file in it is still open -- it is copied instead. The
+  last result is moved aside whole before the new one takes its place, never deleted file by file: where a
+  file of it is held open (a report in a browser, a table in a spreadsheet; Windows refuses the move), the
+  new result is not put in place, the window says why and asks for the calculation again once the file is
+  closed, and the last one stays as it was rather than half deleted. A layer added to the map from a result is a copy in memory, read from a temporary copy of the
+  file, so it holds no file of the folder the next run replaces -- not even through GDAL's connection pool,
+  which keeps a file open after its layer is gone until Qt next deletes what was left for later.
 - A job saved by a later version (`version` greater than this one reads) is refused rather than half read,
   and so is a document of another kind. Each refusal names the file.
 - The open QGIS project records where each technique's job is, relative to the project, in its `geocomp`

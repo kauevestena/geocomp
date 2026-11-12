@@ -26,8 +26,10 @@ the job, the run, the results folder, the canvas hand-back -- is here, once.
 
 from __future__ import annotations
 
+import contextlib
 import math
 import shutil
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -630,9 +632,19 @@ class Workbench(QDialog):
     def _put_in_place(self, staging: Path) -> str:
         """Make a successful run's folder the results folder. Returns why it could not, or ``""``."""
         final = self.results_folder()
+        for leftover in final.parent.glob(f".{final.name}.*.replaced"):
+            shutil.rmtree(leftover, ignore_errors=True)
+        # The last result is moved aside whole, not deleted file by file: on
+        # Windows a file held open -- a report in a browser, a table in a
+        # spreadsheet -- stops the move before anything is lost, where a
+        # deletion would stop half way and leave half a result.
+        replaced = final.with_name(f".{final.name}.{time.time_ns()}.replaced")
         try:
             if final.exists():
-                shutil.rmtree(final)
+                final.rename(replaced)
+        except OSError as error:
+            return str(error)
+        try:
             try:
                 staging.rename(final)
             except OSError:
@@ -641,7 +653,12 @@ class Workbench(QDialog):
                 shutil.copytree(staging, final)
                 shutil.rmtree(staging, ignore_errors=True)
         except OSError as error:
+            shutil.rmtree(final, ignore_errors=True)
+            if replaced.exists():
+                with contextlib.suppress(OSError):
+                    replaced.rename(final)
             return str(error)
+        shutil.rmtree(replaced, ignore_errors=True)
         return ""
 
     def _recalculate(self) -> None:
