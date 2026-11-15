@@ -61,6 +61,20 @@ horizon. The solution itself is untouched.
   outside the transformation table, and a DynAdjust solution in GDA2020, the engine's home frame, could not
   reach the map. A solution with no frame at all is still refused.
 
+### 1.2 The windows' sketch (FR-017) — P14a
+
+An interactive window ([`15`](./15-ui-menu-and-settings.md) §7) draws a **sketch** over the map while it is
+open — Posição's *Croqui*: the known points (squares, blue), the points an algorithm computed (circles,
+vermilion), a traverse's legs and a radiation's rays (black lines). It is markers and rubber bands on the
+canvas, **not a layer**: a view of work in progress, gone when the window closes, so a project does not
+acquire layers by a window being opened. Coordinates are the job's, carried into the map's CRS only to be
+drawn; a job with no CRS is a local plane and is drawn as though it were in the map's.
+
+What a user wants kept is added deliberately from the window's Results step, as a labelled point layer in
+memory (`gui/workbench/layers.py`) — name, easting, northing, height, origin and, where the algorithm gave
+them, the three standard deviations. It carries no GeoComp style and is not a result layer: the styled result
+layers of §1 remain those the adjustment algorithms write.
+
 ## 2. Styling (FR-904)
 
 Styles ship as **QML files** in `resources/`, applied by the algorithms and editable by users. Code applies a

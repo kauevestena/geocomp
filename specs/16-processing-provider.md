@@ -221,6 +221,12 @@ onto DynAdjust's in P6 without changing. The mismatch this design risks is betwe
 and what the next reads, which no single-algorithm test can see; `tests/qgis/test_project_algorithms.py`
 therefore drives the documents through, rather than constructing each algorithm's input by hand.
 
+**The menu's windows chain the same way (P14a).** An interactive window ([`15`](./15-ui-menu-and-settings.md)
+§7) runs the algorithms its registry entry declares exactly as a model does: each reads the file the one before
+it wrote, from a folder beside the job. Nothing about an algorithm changed for it. The algorithms are the
+**file route** — CSV, XLSX, RINEX, instrument exports — and the windows are the typed route to the same
+algorithms; `tests/qgis/test_totalstation_windows.py::TestMenuEqualsToolbox` holds the two equal on RD-01.
+
 Result keys are declared as module-level constants exactly as parameters are (`NAME = "NAME"`), because a
 model reads a result by name just as it sets a parameter by name, and
 `tests/structural/test_tier3_parameter_names.py` checks both sides against those declarations. A key that

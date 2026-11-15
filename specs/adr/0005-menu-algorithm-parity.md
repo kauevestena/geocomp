@@ -1,6 +1,7 @@
 # ADR-0005 — Every menu action is a Processing algorithm
 
-**Status:** Accepted
+**Status:** Accepted; superseded in part by [ADR-0010](./0010-interactive-menu.md) — the menu's items are
+interactive windows that run the algorithms, no longer launchers of their Processing dialogs
 **Date:** 2026-08
 **Requirements:** FR-005, FR-033
 

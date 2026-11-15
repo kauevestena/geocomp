@@ -75,15 +75,17 @@ class TestRegistration:
             assert parameter.description(), f"{algorithm_id}: {parameter.name()}"
             assert parameter.description() != parameter.name()
 
-    def test_the_total_station_submenu_holds_every_algorithm(self, geocomp_provider):
-        """P0 left the technique submenus present but disabled. This is the
-        phase that fills the first one, and the menu is the only place the
-        count can drift from the registry unnoticed."""
-        from geocomp.registry import algorithms_in_menu
+    def test_the_total_station_submenu_reaches_every_algorithm(self, geocomp_provider):
+        """P0 left the technique submenus present but disabled; P3 filled the
+        first one. Since P14a an algorithm is reached from the submenu either
+        by its own launcher or through a window that runs it (ADR-0010), and
+        the menu is still the only place the count can drift unnoticed."""
+        from geocomp.registry import algorithms_in_menu, windows_in_menu
 
-        entries = algorithms_in_menu("total_station")
-        assert len(entries) == len(TOTAL_STATION_IDS)
-        assert {entry.id for entry in entries} == set(TOTAL_STATION_IDS)
+        launched = {entry.id for entry in algorithms_in_menu("total_station")}
+        run = {i for window in windows_in_menu("total_station") for i in window.algorithm_ids}
+        assert launched | run == set(TOTAL_STATION_IDS)
+        assert not launched & run, "an operation is offered twice, once of each kind"
 
 
 class TestTheWholeChain:

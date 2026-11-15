@@ -138,7 +138,12 @@ def test_the_menu_speaks_the_language(locale):
 
     def entries() -> list[str]:
         bar = QMenuBar()
-        menu = GeoCompMenu(None, run_algorithm=lambda _id: None, open_settings=lambda: None)
+        menu = GeoCompMenu(
+            None,
+            run_algorithm=lambda _id: None,
+            open_window=lambda _name: None,
+            open_settings=lambda: None,
+        )
         built = menu.build(bar)
         texts = []
 

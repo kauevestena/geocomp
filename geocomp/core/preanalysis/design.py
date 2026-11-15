@@ -95,7 +95,10 @@ class DesignReport:
         )
 
     def precision_scale_for(self, tolerance: float) -> float | None:
-        """The factor by which every observation's standard deviation must be scaled so the worst station reaches *tolerance*."""
+        """The factor every observation's standard deviation must be scaled by.
+
+        Scaled by it, the worst station reaches *tolerance*.
+        """
         if tolerance <= 0.0:
             return None
         worst = self.worst_station()
@@ -104,7 +107,10 @@ class DesignReport:
         return tolerance / worst.positional_uncertainty
 
     def required_observation_sigmas(self, network: Network, tolerance: float) -> dict[str, float]:
-        """The standard deviation each planned observation in *network* needs (in its own SI unit) for every station to reach *tolerance*."""
+        """The standard deviation each planned observation in *network* needs.
+
+    In the observation's own SI unit, for every station to reach *tolerance*.
+    """
         scale = self.precision_scale_for(tolerance)
         if scale is None:
             return {}

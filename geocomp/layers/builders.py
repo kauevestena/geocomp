@@ -67,6 +67,7 @@ __all__ = [
     "displacement_layer_name",
     "ellipse_features",
     "ellipse_layer",
+    "exaggerated_layer_name",
     "exaggeration_label",
     "fields_for",
     "gnss_baseline_features",
@@ -890,6 +891,31 @@ def correction_layer(
 def correction_layer_name(*, exaggeration: float) -> str:
     """The translated name of the coordinate-corrections layer, stating the exaggeration."""
     return _tr("Coordinate corrections (%1)").replace("%1", exaggeration_label(exaggeration))
+
+
+def exaggerated_layer_name(
+    style: str, *, exaggeration: float, confidence: float | None = None
+) -> str:
+    """The name of an exaggerated result layer read back from its file (FR-901).
+
+    A layer an algorithm wrote to a file keeps its features but not the name
+    the run gave it, and that name is where the exaggeration reaches the
+    legend. Every feature records the factor and the confidence it was drawn
+    at, so the name is made again from them, by the same words as the run's.
+
+    Returns ``""`` for a style that is not drawn exaggerated.
+    """
+    if style == "ellipses":
+        return _tr("Error ellipses (%1)").replace(
+            "%1", exaggeration_label(exaggeration, confidence)
+        )
+    if style == "relative_ellipses":
+        return _tr("Relative ellipses (%1)").replace(
+            "%1", exaggeration_label(exaggeration, confidence)
+        )
+    if style == "corrections":
+        return correction_layer_name(exaggeration=exaggeration)
+    return ""
 
 
 # -- gravity ----------------------------------------------------------------

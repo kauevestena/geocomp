@@ -381,6 +381,14 @@ and the provenance parameters. Both used a point in every language.
 **Not built:** thousands grouping (a coordinate prints as `7395123,4567`) and locale dates (reports write ISO
 8601).
 
+**Typed numbers and angles (P14a).** What a user types into a window's grid ([`15`](./15-ui-menu-and-settings.md)
+§7.4) takes a decimal point or a decimal comma in any language, and never a thousands separator — the rule the
+importer already rests on, applied at the same boundary. A cell keeps the text as typed; it is written into the
+importer's file locale-independently, with every digit. Angles are typed in the job's convention, which is the
+job's and not the language's: `87 31 15` is the default in all three. The windows' words are in four translation
+contexts — `GeoCompWorkbench`, `GeoCompWindows`, `GeoCompTotalStationWindows` and `GeoCompChainRunner` — and
+their refusals' in the message templates of `geocomp/gui/workbench/messages.py`.
+
 ---
 
 ## 6. Basic and Advanced profiles (FR-070, FR-071)

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""The algorithm registry (ADR-0005)."""
+"""The registry: algorithms and menu windows (ADR-0005, ADR-0010)."""
 
 from __future__ import annotations
 
@@ -12,11 +12,18 @@ from geocomp.registry import (
     PROCESSING_GROUPS,
     PROVIDER_ID,
     TOOLBOX_ONLY_JUSTIFICATIONS,
+    WINDOWS,
     AlgorithmSpec,
+    WindowSpec,
     algorithms_in_group,
     algorithms_in_menu,
     algorithms_in_submenu,
+    algorithms_run_by_windows,
+    entries_in_menu,
+    entries_in_submenu,
     submenus_in_menu,
+    window_named,
+    windows_in_menu,
 )
 
 #: Every algorithm id published so far (FR-032). Saved models, scripts and batch
@@ -166,9 +173,10 @@ class TestReferentialIntegrity:
                 assert algorithms_in_menu(group.id) == ()
 
     def test_toolbox_only_algorithms_carry_a_recorded_justification(self):
-        """ADR-0005 permits the exception only when it is reviewed and written down."""
+        """An algorithm no window runs and no launcher opens is reviewed and written down."""
+        by_window = algorithms_run_by_windows()
         for spec in ALGORITHMS:
-            if spec.menu is None:
+            if spec.menu is None and spec.name not in by_window:
                 assert spec.name in TOOLBOX_ONLY_JUSTIFICATIONS, spec.name
                 assert len(TOOLBOX_ONLY_JUSTIFICATIONS[spec.name]) > 40
 
@@ -180,6 +188,143 @@ class TestReferentialIntegrity:
         names = {spec.name for spec in ALGORITHMS}
         for justified in TOOLBOX_ONLY_JUSTIFICATIONS:
             assert justified in names, f"{justified} is justified but not registered"
+
+
+#: The algorithms that still have a legacy launcher: a menu item opening their
+#: Processing dialog, as every item did under ADR-0005. ROADMAP phase P14
+#: rebuilds the menu group by group, and this set **may only shrink**: an item
+#: leaves it when a window takes its place, and an algorithm added from now on
+#: is reached through a window, not given a launcher.
+LEGACY_LAUNCHERS = frozenset(
+    {
+        "analysis_dynadjust_adjust",
+        "analysis_dynadjust_compare",
+        "analysis_dynadjust_run_prepared",
+        "analysis_network_adjust",
+        "analysis_network_inspect",
+        "analysis_network_preanalysis",
+        "gnss_absolute_kinematic",
+        "gnss_absolute_static",
+        "gnss_batch",
+        "gnss_build_baselines",
+        "gnss_compare_configurations",
+        "gnss_download_products",
+        "gnss_relative_kinematic",
+        "gnss_relative_static",
+        "gnss_scan_sessions",
+        "gravimetry_network",
+        "gravimetry_preprocess",
+        "integration_gnss_level",
+        "integration_gnss_total_station",
+        "integration_multiple",
+        "integration_total_station_level",
+        "monitoring_compare_epochs",
+        "monitoring_report",
+        "monitoring_time_series",
+        "project_basemap",
+        "project_export",
+        "project_export_postgis",
+        "project_import_postgis",
+        "project_install_engine",
+        "project_package_engine_problem",
+        "project_print_layout",
+        "project_report",
+        "project_store",
+        "project_system_report",
+        "project_tutorial_dataset",
+    }
+)
+
+
+class TestWindows:
+    """ADR-0010: the menu's items are windows, each running declared algorithms."""
+
+    def test_the_legacy_launchers_only_shrink(self):
+        launched = {spec.name for spec in ALGORITHMS if spec.menu is not None}
+        added = launched - LEGACY_LAUNCHERS
+        assert not added, (
+            f"{sorted(added)} gained a menu launcher. Since ADR-0010 an algorithm is reached "
+            "from the menu through a window that runs it."
+        )
+        assert launched == LEGACY_LAUNCHERS, (
+            "a launcher was replaced: take it out of LEGACY_LAUNCHERS as well, which is the "
+            f"record of the menu's rebuilding ({sorted(LEGACY_LAUNCHERS - launched)})"
+        )
+
+    def test_phases_p14a_and_p14b_made_the_total_station_menu_windows(self):
+        """P14a built four, P14b the other four: no Total Station item is a launcher."""
+        assert [spec.name for spec in windows_in_menu("total_station")] == [
+            "totalstation_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_traverse",
+            "totalstation_resection",
+            "totalstation_intersection",
+            "totalstation_network",
+            "totalstation_trig_levelling",
+            "totalstation_radiation",
+        ]
+        assert not [spec for spec in ALGORITHMS if spec.menu == "total_station"]
+
+    def test_phase_p14c_made_the_level_menu_windows(self):
+        """The Level submenu, in the order its launchers stood: no item is a launcher."""
+        assert [spec.name for spec in windows_in_menu("level")] == [
+            "levelling_fieldbook",
+            "levelling_equal_sights",
+            "levelling_equidistant_sights",
+            "levelling_extreme_sights",
+            "levelling_closures",
+            "levelling_network",
+        ]
+        assert not [spec for spec in ALGORITHMS if spec.menu == "level"]
+
+    def test_the_total_station_menu_keeps_its_order_once_rebuilt(self):
+        """The windows take the positions their operations' launchers had."""
+        assert [entry.name for entry in entries_in_menu("total_station")] == [
+            "totalstation_fieldbook",
+            "totalstation_preprocess",
+            "totalstation_traverse",
+            "totalstation_resection",
+            "totalstation_intersection",
+            "totalstation_network",
+            "totalstation_trig_levelling",
+            "totalstation_radiation",
+        ]
+
+    @pytest.mark.parametrize("spec", WINDOWS, ids=lambda spec: spec.name)
+    def test_a_window_runs_registered_algorithms_and_cites_a_requirement(self, spec):
+        names = {algorithm.name for algorithm in ALGORITHMS}
+        assert spec.algorithms and set(spec.algorithms) <= names
+        assert spec.requirement.startswith("FR-")
+        assert all(algorithm_id.startswith(f"{PROVIDER_ID}:") for algorithm_id in spec.algorithm_ids)
+
+    @pytest.mark.parametrize("spec", WINDOWS, ids=lambda spec: spec.name)
+    def test_a_window_runs_its_techniques_algorithms_only(self, spec):
+        """A Total Station window that ran a GNSS algorithm would be a second
+        route into another technique's job, which the job files cannot hold."""
+        groups = {algorithm.name: algorithm.group for algorithm in ALGORITHMS}
+        group = {"total_station": "totalstation", "levelling": "levelling"}[spec.technique]
+        assert {groups[name] for name in spec.algorithms} == {group}
+
+    def test_the_windows_of_a_technique_share_its_job(self):
+        assert {spec.technique for spec in windows_in_menu("total_station")} == {"total_station"}
+        assert {spec.technique for spec in windows_in_menu("level")} == {"levelling"}
+
+    def test_names_are_unique_across_windows_and_algorithms(self):
+        """The menu item's object name is made from it, whichever kind it is."""
+        windows = [spec.name for spec in WINDOWS]
+        assert len(set(windows)) == len(windows)
+
+    def test_lookups(self):
+        assert window_named("totalstation_traverse").class_name == "TraverseWindow"
+        assert window_named("does_not_exist") is None
+        assert entries_in_submenu("gnss", "absolute") == tuple(
+            algorithms_in_submenu("gnss", "absolute")
+        )
+        assert windows_in_menu("gnss") == ()
+
+    def test_a_window_needs_an_algorithm(self):
+        spec = WindowSpec("w", "level", 1, "m", "C", (), "FR-010", "level")
+        assert spec.algorithm_ids == ()
 
 
 class TestQueries:

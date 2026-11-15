@@ -13,7 +13,6 @@ Usage::
 from __future__ import annotations
 
 import argparse
-from contextlib import contextmanager
 import csv
 import dataclasses
 import gzip
@@ -21,10 +20,11 @@ import hashlib
 import io
 import json
 import math
-from pathlib import Path
 import shutil
 import stat
 import sys
+from contextlib import contextmanager
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -245,15 +245,10 @@ def _prepare_shared_assets(base_dir: Path) -> dict[str, Any]:
     """Generate shared foundational synthetic files used across examples."""
     from geocomp.core.instruments import ProfileLibrary
     from geocomp.core.models import (
-        CoordinateSystem,
-        HeightType,
         MonitoringRole,
-        Network,
         Project,
     )
     from geocomp.core.settings_def import SETTINGS
-    from geocomp.core.uncertainty import Quantity
-    from geocomp.core.units import Unit
     from geocomp.engines.dynadjust.read_dynaml import read_dynaml
     from geocomp.io.store import open_store
     from geocomp.services.settings_service import settings as gc_settings
@@ -264,10 +259,15 @@ def _prepare_shared_assets(base_dir: Path) -> dict[str, Any]:
     from tests import synthetic as syn
     from tests.gravimeter_samples import cg5_export
     from tests.monitoring_network import (
-        CRS as MON_CRS,
         OBJECTS as MON_OBJECTS,
+    )
+    from tests.monitoring_network import (
         REFERENCE as MON_REFERENCE,
+    )
+    from tests.monitoring_network import (
         epoch as mon_epoch,
+    )
+    from tests.monitoring_network import (
         epoch_network as mon_epoch_network,
     )
     from tests.test_integration import (
@@ -660,7 +660,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
             1,
             "example_1_rd01_csv",
             "Two-face CSV field book (RD-01) with explicit direction/zenith/distance sigmas",
-            "Imports 12 readings across 3 station setups (A, B, C) with 1 arcsec angle and 2 mm distance precision.",
+            "Imports 12 readings across 3 station setups (A, B, C) with 1 arcsec angle and 2 mm distance "
+            "precision.",
             {
                 "SOURCE": str(fb1),
                 "SIGMA_DIRECTION": rd01.SIGMA_ANGLE,
@@ -717,7 +718,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
             3,
             "example_3_rejected_row_audit",
             "Field book with a malformed row audited in findings.csv (FAIL_ON_REJECTED=False)",
-            "Appends a corrupted row to verify that valid rows import while the bad row is logged in findings.csv.",
+            "Appends a corrupted row to verify that valid rows import while the bad row is logged in "
+            "findings.csv.",
             {
                 "SOURCE": str(fb3),
                 "SIGMA_DIRECTION": rd01.SIGMA_ANGLE,
@@ -748,7 +750,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
             1,
             "example_1_no_atmospheric_blunder_caught",
             "Two-face reduction catching RD-01's face-distance blunder (APPLY_ATMOSPHERIC=False)",
-            "Pairs Face I and Face II readings across 6 pointings and flags the 1 pointing with a face-distance blunder.",
+            "Pairs Face I and Face II readings across 6 pointings and flags the 1 pointing with a "
+            "face-distance blunder.",
             {
                 "READINGS": str(rd1),
                 "APPLY_ATMOSPHERIC": False,
@@ -772,7 +775,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
             2,
             "example_2_warm_atmosphere_correction",
             "Atmospheric EDM scale reduction at 30 °C, 915 hPa, 50% RH",
-            "Applies first-velocity atmospheric correction and propagates temperature/pressure uncertainties.",
+            "Applies first-velocity atmospheric correction and propagates temperature/pressure "
+            "uncertainties.",
             {
                 "READINGS": str(rd2),
                 "TEMPERATURE": 30.0,
@@ -783,7 +787,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
                 "OUTPUT_HTML": str(d2 / "outputs" / "report.html"),
                 "OUTPUT_CSV": str(d2 / "outputs" / "reductions.csv"),
             },
-            "Applies atmospheric ppm correction and inflates distance variance by meteorological uncertainties.",
+            "Applies atmospheric ppm correction and inflates distance variance by meteorological "
+            "uncertainties.",
         )
     )
 
@@ -1271,7 +1276,8 @@ def _build_total_station_examples(base_dir: Path, assets: dict[str, Any]) -> lis
             1,
             "example_1_detail_points_from_known_control",
             "3D radiation of detail points P1 and P2 orienting automatically from known stations",
-            "Radiates non-control detail points (P1, P2) from setup A using backsights to known stations B and D.",
+            "Radiates non-control detail points (P1, P2) from setup A using backsights to known stations B "
+            "and D.",
             {
                 "REDUCTIONS": str(red1),
                 "STATIONS": str(kn1),
@@ -1424,7 +1430,8 @@ def _build_levelling_examples(base_dir: Path, assets: dict[str, Any]) -> list[Ex
             3,
             "example_3_extreme_sights_default_sigma",
             "Radial setup with intermediate foresights (IS) and explicit staff-reading sigma",
-            "Imports a setup with backsight BS, foresight FS, and intermediate sights IS using SIGMA_READING=0.0005 m.",
+            "Imports a setup with backsight BS, foresight FS, and intermediate sights IS using "
+            "SIGMA_READING=0.0005 m.",
             {
                 "BOOK": str(bk3),
                 "MAPPING": str(mp3),
@@ -1504,7 +1511,8 @@ def _build_levelling_examples(base_dir: Path, assets: dict[str, Any]) -> list[Ex
             3,
             "example_3_imbalanced_line_with_collimation",
             "Imbalanced sights reduced with collimation correction and strict imbalance limits",
-            "Applies collimation angle (5e-5 rad) across unbalanced sights and checks sight-imbalance limits.",
+            "Applies collimation angle (5e-5 rad) across unbalanced sights and checks sight-imbalance "
+            "limits.",
             {
                 "SETUPS": str(st3),
                 "PROFILES": str(pr3),
@@ -1587,7 +1595,8 @@ def _build_levelling_examples(base_dir: Path, assets: dict[str, Any]) -> list[Ex
             3,
             "example_3_discrepancy_exceeded",
             "Reciprocal crossing with tight 5 mm discrepancy tolerance flagging the 24 mm spread",
-            "Checks diagnostic flagging when bank-to-bank spread (24 mm) exceeds DISCREPANCY_TOLERANCE (5 mm).",
+            "Checks diagnostic flagging when bank-to-bank spread (24 mm) exceeds DISCREPANCY_TOLERANCE (5 "
+            "mm).",
             {
                 "SETUPS": str(st3),
                 "INFLATION": 2.0,
@@ -1700,7 +1709,8 @@ def _build_levelling_examples(base_dir: Path, assets: dict[str, Any]) -> list[Ex
             1,
             "example_1_loop_closure_by_length",
             "Closed 4-line loop closure check (k = 8 mm/sqrt(km)) distributed by line length",
-            "Checks loop misclosure against 8 mm/sqrt(km) tolerance and distributes proportionally to length.",
+            "Checks loop misclosure against 8 mm/sqrt(km) tolerance and distributes proportionally to "
+            "length.",
             {
                 "REDUCTIONS": str(red1),
                 "MODE": 0,
@@ -1844,7 +1854,8 @@ def _build_levelling_examples(base_dir: Path, assets: dict[str, Any]) -> list[Ex
             alg_title,
             3,
             "example_3_with_tolerance_gate_and_snooping",
-            "Levelling network with tolerance gate (k=8 mm/sqrt(km)), ADJUST_FAILING=True, and 99% confidence",
+            "Levelling network with tolerance gate (k=8 mm/sqrt(km)), ADJUST_FAILING=True, and 99% "
+            "confidence",
             "Adjusts loop with pre-adjustment tolerance checking and Baarda data snooping.",
             {
                 "REDUCTIONS": str(red3),
@@ -2337,7 +2348,8 @@ def _build_gnss_examples(base_dir: Path, assets: dict[str, Any]) -> list[Example
                 "OUTPUT_JSON": str(d2 / "outputs" / "baselines.json"),
                 "OUTPUT_NETWORK": str(d2 / "outputs" / "network.json"),
             },
-            "Applies vertical antenna height reduction along local ellipsoid normal and inflates vertical variance.",
+            "Applies vertical antenna height reduction along local ellipsoid normal and inflates vertical "
+            "variance.",
         )
     )
 
@@ -2488,7 +2500,8 @@ def _build_gnss_examples(base_dir: Path, assets: dict[str, Any]) -> list[Example
             2,
             "example_2_high_cutoff_comparison",
             "Extreme elevation mask comparison (15°, 30°, 40°) at 99% confidence",
-            "Evaluates dilution of precision and coordinate shift under severe sky obstruction (30° and 40°).",
+            "Evaluates dilution of precision and coordinate shift under severe sky obstruction (30° and "
+            "40°).",
             {
                 "FOLDER": str(r2),
                 "MASKS": "15,30,40",
@@ -2757,7 +2770,8 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
             1,
             "example_1_utm_grid_and_gnss",
             "Combine GNSS baselines and UTM 22S projected Total Station network in ITRF2020",
-            "Projects UTM 22S total station starting coordinates into geocentric ITRF2020 and adjusts jointly with GNSS.",
+            "Projects UTM 22S total station starting coordinates into geocentric ITRF2020 and adjusts "
+            "jointly with GNSS.",
             {
                 "GNSS": str(g1),
                 "TOTAL_STATION": str(t1),
@@ -2773,7 +2787,7 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
     d2 = group_dir / "integration_gnss_total_station" / "example_2_variance_components_sirgas"
     g2 = _copy_into(assets["comb_gnss_json"], d2 / "inputs" / "gnss.json")
     t2 = _copy_into(assets["comb_ts_ecef_json"], d2 / "inputs" / "ts.json")
-    v2 = _copy_into(assets["vel_csv"], d2 / "inputs" / "velocities.csv")
+    _copy_into(assets["vel_csv"], d2 / "inputs" / "velocities.csv")
     specs.append(
         ExampleSpec(
             group_id,
@@ -2931,7 +2945,8 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
             1,
             "example_1_planar_geoid_coupling",
             "GNSS + Spirit Levelling coupled through ESRI ASCII geoid grid (h - H = N)",
-            "Couples ellipsoidal GNSS heights and orthometric levelling differences through curitiba_planar.asc.",
+            "Couples ellipsoidal GNSS heights and orthometric levelling differences through "
+            "curitiba_planar.asc.",
             {
                 "GNSS": str(g1),
                 "LEVELLING": str(l1),
@@ -2980,7 +2995,7 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
     g3 = _copy_into(assets["comb_gnss_json"], d3 / "inputs" / "gnss.json")
     l3 = _copy_into(assets["comb_lev_json"], d3 / "inputs" / "levelling.json")
     geo3 = _copy_into(assets["geoid_asc"], d3 / "inputs" / "curitiba_planar.asc")
-    v3_gl = _copy_into(assets["vel_csv"], d3 / "inputs" / "velocities.csv")
+    _copy_into(assets["vel_csv"], d3 / "inputs" / "velocities.csv")
     specs.append(
         ExampleSpec(
             group_id,
@@ -3026,7 +3041,8 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
             1,
             "example_1_gnss_ts_levelling_vce",
             "Three-technique combination (GNSS + Total Station + Levelling) with VCE and geoid",
-            "Simultaneously adjusts all 3 geometric techniques on the Curitiba network with variance components.",
+            "Simultaneously adjusts all 3 geometric techniques on the Curitiba network with variance "
+            "components.",
             {
                 "GNSS": str(g1),
                 "TOTAL_STATION": str(t1),
@@ -3048,7 +3064,7 @@ def _build_integration_examples(base_dir: Path, assets: dict[str, Any]) -> list[
     t2 = _copy_into(assets["comb_ts_grid_json"], d2 / "inputs" / "ts_grid.json")
     l2 = _copy_into(assets["comb_lev_json"], d2 / "inputs" / "levelling.json")
     geo2 = _copy_into(assets["geoid_asc"], d2 / "inputs" / "curitiba_planar.asc")
-    v2_m = _copy_into(assets["vel_csv"], d2 / "inputs" / "velocities.csv")
+    _copy_into(assets["vel_csv"], d2 / "inputs" / "velocities.csv")
     specs.append(
         ExampleSpec(
             group_id,
@@ -3137,7 +3153,8 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             1,
             "example_1_sound_2d_trilateration",
             "Topological and rank inspection of a sound 2D trilateration network",
-            "Verifies connectivity, datum constraints, and degrees of freedom of RD-03 trilateration network.",
+            "Verifies connectivity, datum constraints, and degrees of freedom of RD-03 trilateration "
+            "network.",
             {
                 "NETWORK": str(n1),
                 "FRAME": 0,
@@ -3379,7 +3396,8 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             1,
             "example_1_full_pipeline_from_network",
             "Full DynAdjust pipeline (import -> reftran -> adjust) from Network JSON",
-            "Writes DynaML (.stn.xml / .msr.xml), runs DynAdjust pipeline, and parses adjusted coordinates + SINEX covariances.",
+            "Writes DynaML (.stn.xml / .msr.xml), runs DynAdjust pipeline, and parses adjusted coordinates + "
+            "SINEX covariances.",
             {
                 "NETWORK": str(n1),
                 "FRAME": "GDA2020",
@@ -3409,8 +3427,10 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             alg_title,
             2,
             "example_2_from_geopackage_store_with_geoid",
-            "DynAdjust adjustment reading network directly from a GeoPackage store + NTv2 geoid + custom JSON options",
-            "Reads network 'sample' from project_store.gpkg, includes dnageoid stage with synthetic_geoid.gsb, and passes custom CLI flags.",
+            "DynAdjust adjustment reading network directly from a GeoPackage store + NTv2 geoid + custom "
+            "JSON options",
+            "Reads network 'sample' from project_store.gpkg, includes dnageoid stage with "
+            "synthetic_geoid.gsb, and passes custom CLI flags.",
             {
                 "STORE": str(st2),
                 "STORED_NETWORK": "sample",
@@ -3439,7 +3459,8 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             3,
             "example_3_stop_before_running_prepare_only",
             "Prepare DynAdjust DynaML files and stop before running (STOP_BEFORE_RUNNING=True)",
-            "Generates geocomp.stn.xml, geocomp.msr.xml, and geocomp-dynadjust.json for manual inspection without invoking binaries.",
+            "Generates geocomp.stn.xml, geocomp.msr.xml, and geocomp-dynadjust.json for manual inspection "
+            "without invoking binaries.",
             {
                 "NETWORK": str(n3),
                 "FRAME": "GDA2020",
@@ -3460,7 +3481,8 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             (
                 "example_1_nominal_prepared_job",
                 "Execute a prepared DynAdjust folder and import SINEX solution",
-                "Runs a prepared DynaML folder containing geocomp.stn.xml, geocomp.msr.xml, and geocomp-dynadjust.json.",
+                "Runs a prepared DynaML folder containing geocomp.stn.xml, geocomp.msr.xml, and "
+                "geocomp-dynadjust.json.",
                 0.0,
             ),
             (
@@ -3727,7 +3749,8 @@ def _build_analysis_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exa
             2,
             "example_2_explicit_reference_and_thresholds",
             "Time series with explicit reference list (R1..R4), 99% confidence, and alert thresholds",
-            "Computes time series using explicit reference list at 99% confidence and evaluates alert thresholds.",
+            "Computes time series using explicit reference list at 99% confidence and evaluates alert "
+            "thresholds.",
             {
                 "SOLUTIONS": [str(s2_1), str(s2_2), str(s2_3)],
                 "REFERENCE": assets["mon_ref"],
@@ -4111,7 +4134,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             (
                 "example_1_export_to_default_schema",
                 "Export GeoComp GeoPackage project to PostGIS schema 'geocomp_curitiba'",
-                "Copies all project, station, observation, and solution tables to PostGIS and verifies row-by-row equality.",
+                "Copies all project, station, observation, and solution tables to PostGIS and verifies "
+                "row-by-row equality.",
                 "geocomp_curitiba",
             ),
             (
@@ -4153,7 +4177,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
                     "DATABASE": "geocomp_local_pg",
                     "SCHEMA": schema_name,
                 },
-                f"Copies all rows from project_store.gpkg to geocomp_local_pg / {schema_name} and verifies 0 differences.",
+                f"Copies all rows from project_store.gpkg to geocomp_local_pg / {schema_name} and verifies 0 "
+                "differences.",
             )
         )
 
@@ -4166,7 +4191,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             (
                 "example_1_import_from_curitiba_schema",
                 "Import PostGIS project from schema 'geocomp_curitiba' into a portable GeoPackage",
-                "Copies every table from PostGIS schema 'geocomp_curitiba' into imported_curitiba.gpkg and verifies identity.",
+                "Copies every table from PostGIS schema 'geocomp_curitiba' into imported_curitiba.gpkg and "
+                "verifies identity.",
                 "geocomp_curitiba",
             ),
             (
@@ -4208,7 +4234,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
                     "SCHEMA": schema_name,
                     "OUTPUT": str(out_gpkg),
                 },
-                f"Copies all rows from geocomp_local_pg / {schema_name} into {out_gpkg.name} with 0 differences.",
+                f"Copies all rows from geocomp_local_pg / {schema_name} into {out_gpkg.name} with 0 "
+                "differences.",
             )
         )
 
@@ -4296,7 +4323,7 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
     d2 = group_dir / "project_print_layout" / "example_2_displacement_monitoring_map"
     _write_json(
         d2 / "inputs" / "layout_config.json",
-        {"template": "Displacement map", "title": "Dam Deformation Vectors 2022–2024"},
+        {"template": "Displacement map", "title": "Dam Deformation Vectors 2022–2024"},  # noqa: RUF001 -- a range of years
     )
     specs.append(
         ExampleSpec(
@@ -4308,11 +4335,12 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             2,
             "example_2_displacement_monitoring_map",
             "Deliverable 2: Monitoring displacement vector map",
-            "Builds a deformation map layout highlighting reference vs object stations and displacement arrows.",
+            "Builds a deformation map layout highlighting reference vs object stations and displacement "
+            "arrows.",
             {
                 "TEMPLATE": 1,
                 "QUALITY": 0,
-                "TITLE": "Dam Deformation Vectors 2022–2024",
+                "TITLE": "Dam Deformation Vectors 2022–2024",  # noqa: RUF001 -- a range of years
                 "NAME": "Dam_Displacement_Map",
             },
             "Creates print layout 'Dam_Displacement_Map' in the project.",
@@ -4334,7 +4362,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             3,
             "example_3_quality_redundancy_map",
             "Deliverable 3: Internal reliability / Minimal Detectable Bias (MDB) quality map",
-            "Styles network observations by Minimal Detectable Bias (QUALITY=2) and builds a thematic print layout.",
+            "Styles network observations by Minimal Detectable Bias (QUALITY=2) and builds a thematic print "
+            "layout.",
             {
                 "TEMPLATE": 2,
                 "QUALITY": 2,
@@ -4354,12 +4383,14 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             (
                 "example_1_standard_system_diagnostics",
                 "Standard GeoComp environment, QGIS, PROJ, and engine diagnostic report",
-                "Generates an HTML diagnostic report detailing QGIS version, PROJ data paths, settings, and engine availability.",
+                "Generates an HTML diagnostic report detailing QGIS version, PROJ data paths, settings, and "
+                "engine availability.",
             ),
             (
                 "example_2_support_ticket_attachment",
                 "System report generated as a bug-report attachment",
-                "Produces a self-contained HTML environment snapshot suitable for attaching to an issue report.",
+                "Produces a self-contained HTML environment snapshot suitable for attaching to an issue "
+                "report.",
             ),
             (
                 "example_3_post_engine_configuration_audit",
@@ -4396,7 +4427,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             (
                 "example_1_install_rd01_total_station",
                 "Install tutorial dataset 'rd01' (Total Station Classical Network + worked .qgz project)",
-                "Copies shipped tutorial dataset rd01 into destination folder and generates worked_example.qgz.",
+                "Copies shipped tutorial dataset rd01 into destination folder and generates "
+                "worked_example.qgz.",
                 0,
                 "rd01",
             ),
@@ -4520,7 +4552,11 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
         shutil.rmtree(w1)
     _copy_into(assets["prepared_dir"], w1)
     run_process(
-        [sys.executable, "-c", "import sys; sys.stderr.write('Error: malformed station record\\n'); sys.exit(2)"],
+        [
+            sys.executable,
+            "-c",
+            "import sys; sys.stderr.write('Error: malformed station record\\n'); sys.exit(2)",
+        ],
         work_dir=w1,
         program="dnaimport",
     )
@@ -4563,7 +4599,8 @@ def _build_project_examples(base_dir: Path, assets: dict[str, Any]) -> list[Exam
             2,
             "example_2_rtklib_failed_run",
             "Package a failed RTKLIB rnx2rtkp working directory into a diagnostic ZIP",
-            "Bundles RINEX files, RTKLIB configuration, and invocation transcript into a reproducible archive.",
+            "Bundles RINEX files, RTKLIB configuration, and invocation transcript into a reproducible "
+            "archive.",
             {
                 "FOLDER": str(w2),
                 "OUTPUT": str(d2 / "outputs" / "rtklib_problem_bundle.zip"),
@@ -4636,7 +4673,8 @@ def _build_global_settings_examples(base_dir: Path, assets: dict[str, Any]) -> l
             "Equipment profile libraries & meteorological defaults (Total Station, Level, Gravimeter)",
             "Configures custom JSON instrument library for Level and Curitiba plateau atmospheric defaults.",
             settings_1,
-            "Applies equipment profile paths and meteorological constants in Global Settings and verifies persistence.",
+            "Applies equipment profile paths and meteorological constants in Global Settings and verifies "
+            "persistence.",
         )
     )
 
@@ -4673,7 +4711,8 @@ def _build_global_settings_examples(base_dir: Path, assets: dict[str, Any]) -> l
             2,
             "example_2_gnss_and_reference_systems",
             "SIRGAS 2000 / UTM 22S (EPSG:31982) reference system, geoid model, and GNSS product mirror",
-            "Configures preferred CRS (EPSG:31982), epoch 2000.4, default geoid grid, and custom GNSS product download service JSON.",
+            "Configures preferred CRS (EPSG:31982), epoch 2000.4, default geoid grid, and custom GNSS "
+            "product download service JSON.",
             settings_2,
             "Persists reference system, geoid model path, and GNSS service definitions in Global Settings.",
         )
@@ -4716,10 +4755,13 @@ def _build_global_settings_examples(base_dir: Path, assets: dict[str, Any]) -> l
             alg_title,
             3,
             "example_3_stochastic_engines_and_interface",
-            "99% stochastic model, external engine paths (RTKLIB & DynAdjust), custom basemaps, and Advanced UI mode",
-            "Configures Baarda snooping parameters, explicit engine paths, custom basemap catalogue, and Advanced DMS display.",
+            "99% stochastic model, external engine paths (RTKLIB & DynAdjust), custom basemaps, and Advanced "
+            "UI mode",
+            "Configures Baarda snooping parameters, explicit engine paths, custom basemap catalogue, and "
+            "Advanced DMS display.",
             settings_3,
-            "Updates stochastic, engine path, basemap, and UI settings and verifies GlobalSettingsDialog round-trip.",
+            "Updates stochastic, engine path, basemap, and UI settings and verifies GlobalSettingsDialog "
+            "round-trip.",
         )
     )
 
@@ -4729,6 +4771,8 @@ def _build_global_settings_examples(base_dir: Path, assets: dict[str, Any]) -> l
 @contextmanager
 def _verification_environment(base_dir: Path, assets: dict[str, Any]):
     """Provide deterministic offline stand-ins for external servers during --verify."""
+    import zipfile
+
     from qgis.core import (
         QgsCoordinateReferenceSystem,
         QgsFeature,
@@ -4739,8 +4783,6 @@ def _verification_environment(base_dir: Path, assets: dict[str, Any]):
         QgsVectorLayer,
     )
     from qgis.PyQt.QtCore import QMetaType
-
-    import zipfile
 
     from geocomp.engines import manager as engine_manager_mod
     from geocomp.engines.manager import EngineRelease, current_platform
@@ -4878,7 +4920,7 @@ def _verification_environment(base_dir: Path, assets: dict[str, Any]):
                     f"#!/usr/bin/env python3\nimport sys\n"
                     f"if '--version' in sys.argv or '-h' in sys.argv:\n"
                     f"    print({version_line!r})\n"
-                ).encode("utf-8")
+                ).encode()
                 info = zipfile.ZipInfo(f"bin/{prog}")
                 info.external_attr = 0o755 << 16
                 zf.writestr(info, script)
@@ -4992,7 +5034,7 @@ def _verify_all_examples(base_dir: Path, assets: dict[str, Any], specs: list[Exa
         def pushWarning(self, text: str) -> None:  # noqa: N802
             self.warnings.append(text)
 
-        def reportError(self, text: str, fatalError: bool = False) -> None:  # noqa: N802
+        def reportError(self, text: str, fatalError: bool = False) -> None:  # noqa: N802, N803
             self.errors.append(text)
 
     passed = 0

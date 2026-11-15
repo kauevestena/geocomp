@@ -71,6 +71,8 @@ class GeoCompPlugin:
         self._toolbar_actions: list[QAction] = []
         self._run_again: QAction | None = None
         self._last_algorithm: str | None = None
+        self._last_window: str | None = None
+        self._windows = None
         self._plugin_menu_actions: list[QAction] = []
         self._series_panel = None
         self._basemap_offer = None
@@ -102,9 +104,13 @@ class GeoCompPlugin:
         self._provider = GeoCompProvider()
         QgsApplication.processingRegistry().addProvider(self._provider)
 
+        from geocomp.gui.windows import WindowManager
+
+        self._windows = WindowManager(self.iface.mainWindow(), self.iface.mapCanvas())
         self._menu = GeoCompMenu(
             self.iface.mainWindow(),
             run_algorithm=self.run_algorithm,
+            open_window=self.open_window,
             open_settings=self.open_settings,
         )
         self._menu.build(self.iface.mainWindow().menuBar())
@@ -124,6 +130,13 @@ class GeoCompPlugin:
     def unload(self) -> None:
         """Remove every element this plugin created (FR-006)."""
         from geocomp.services.logging import log
+
+        # The windows first: each gives the canvas back its map tool and takes
+        # its sketch off the map, which needs the canvas still there (FR-006).
+        if self._windows is not None:
+            self._windows.close_all()
+            self._windows = None
+        self._last_window = None
 
         if self._menu is not None:
             self._menu.unload()
@@ -324,9 +337,11 @@ class GeoCompPlugin:
         """Add the conventional Plugins ▸ GeoComp entries.
 
         The GeoComp menu itself presents exactly the entries FR-003
-        specifies -- five survey techniques, Analysis, and Global settings -- so
-        About lives here instead, where QGIS users already look for it, rather
-        than becoming one more entry that would distort that structure.
+        specifies -- five survey techniques, Analysis, Project and Global
+        settings -- so About lives here instead, where QGIS users already look
+        for it, rather than becoming one more entry that would distort that
+        structure. So does the field-book import with its mapping preview,
+        which belongs to the file route rather than to the typed one.
         """
         about = QAction(_tr("About GeoComp…"), self.iface.mainWindow())
         about.setObjectName("geocompPluginMenuAbout")
@@ -346,12 +361,26 @@ class GeoCompPlugin:
         self.iface.addPluginToMenu("&GeoComp", results)
         self._plugin_menu_actions.append(results)
 
+        # FR-160's mapping preview, for the file route (FR-015). Since P14a the
+        # GeoComp menu's Total Station items are windows in which a field book is
+        # typed; an instrument's export file is imported from the toolbox, and
+        # from here with its columns shown before they are mapped.
+        mapped = QAction(_tr("Import field book with mapping preview…"), self.iface.mainWindow())
+        mapped.setObjectName("geocompPluginMenuImportFieldBook")
+        mapped.triggered.connect(
+            lambda _checked=False: self.run_algorithm("geocomp:totalstation_import_fieldbook")
+        )
+        self.iface.addPluginToMenu("&GeoComp", mapped)
+        self._plugin_menu_actions.append(mapped)
+
     # -- actions ---------------------------------------------------------
 
     def run_algorithm(self, algorithm_id: str) -> None:
         """Open the Processing dialog for *algorithm_id*.
 
-        ADR-0005: menu items launch algorithms; they do not reimplement them.
+        What a legacy launcher does (ADR-0005), and the toolbar's algorithms:
+        they launch algorithms and do not reimplement them. The items being
+        rebuilt as windows call :meth:`open_window` instead (ADR-0010).
 
         A few algorithms open a custom dialog first, because choosing their
         parameters needs something the generated dialog cannot show -- see
@@ -368,13 +397,32 @@ class GeoCompPlugin:
         self._remember(algorithm_id)
         self._open_dialog(algorithm_id)
 
+    def open_window(self, name: str) -> None:
+        """Open the menu window *name*, or bring it forward (ADR-0010).
+
+        A window computes nothing: it runs the algorithms the registry says it
+        runs. Imported when first opened, so a window with a fault costs its
+        own menu item rather than the plugin.
+        """
+        if self._windows is None:
+            return
+        self._windows.open(name)
+        self._last_window, self._last_algorithm = name, None
+        if self._run_again is not None:
+            from geocomp.gui.windows.labels import window_label
+
+            self._run_again.setEnabled(True)
+            self._run_again.setToolTip(_tr("Open again: %1").replace("%1", window_label(name)))
+
     def run_again(self) -> None:
-        """Open the algorithm last launched from the menu again, if there was one."""
-        if self._last_algorithm is not None:
+        """Open what was last opened from the menu again: a window, or an algorithm's dialog."""
+        if self._last_window is not None:
+            self.open_window(self._last_window)
+        elif self._last_algorithm is not None:
             self.run_algorithm(self._last_algorithm)
 
     def _remember(self, algorithm_id: str) -> None:
-        self._last_algorithm = algorithm_id
+        self._last_algorithm, self._last_window = algorithm_id, None
         if self._run_again is None:
             return
         algorithm = QgsApplication.processingRegistry().algorithmById(algorithm_id)

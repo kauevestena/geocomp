@@ -46,6 +46,7 @@ NOT_CHECKED = {
     "Static": "also 'static' in its ordinary sense; the GNSS modes are checked by name",
     "Engine": "the processing engine, but also part of names such as DynAdjust's own messages",
     "Level": "also 'confidence level' and 'decimetre-level', which are nível/nivel anyway",
+    "Job": "also a DynAdjust job, the engine's own prepared run, which is not GeoComp's job file",
 }
 
 #: Rows whose English and translations pair term by term across a slash, which

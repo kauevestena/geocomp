@@ -111,15 +111,18 @@ class DMS:
 
     @property
     def decimal_degrees(self) -> float:
+        """The angle in decimal degrees, carrying its sign."""
         magnitude = self.degrees + self.minutes / 60.0 + self.seconds / 3600.0
         return -magnitude if self.negative else magnitude
 
     @property
     def radians(self) -> float:
+        """The angle in radians, carrying its sign."""
         return math.radians(self.decimal_degrees)
 
     @classmethod
     def from_decimal_degrees(cls, value: float) -> DMS:
+        """The sexagesimal parts of *value* degrees, the sign kept apart from them."""
         negative = value < 0
         magnitude = abs(value)
         degrees = int(magnitude)
@@ -138,6 +141,7 @@ class DMS:
 
     @classmethod
     def from_radians(cls, value: float) -> DMS:
+        """The sexagesimal parts of *value* radians, the sign kept apart from them."""
         return cls.from_decimal_degrees(math.degrees(value))
 
 
